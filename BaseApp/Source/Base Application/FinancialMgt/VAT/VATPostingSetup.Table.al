@@ -19,7 +19,7 @@ table 325 "VAT Posting Setup"
         field(3; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            
+
             trigger OnValidate()
             begin
                 FailIfVATPostingSetupHasVATEntries();
@@ -175,6 +175,44 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Blocked';
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("VAT %"), 1, 100));
+            end;
+        }
+        field(6201; "Non-Ded. Sales VAT Account"; Code[20])
+        {
+            Caption = 'Non-Deductible Sales VAT Account';
+            TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
+                CheckGLAcc("Non-Ded. Sales VAT Account");
+            end;
+        }
+        field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
+        {
+            Caption = 'Non-Deductible Purchase VAT Account';
+            TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Purchase VAT Account"), 1, 100));
+                CheckGLAcc("Non-Ded. Purchase VAT Account");
+            end;
+        }
+        field(6203; "Allow Non-Deductible VAT"; Enum "Allow Non-Deductible VAT Type")
+        {
+            Caption = 'Allow Non-Deductible VAT';
+        }
         field(10604; "Calc. Prop. Deduction VAT"; Boolean)
         {
             Caption = 'Calc. Prop. Deduction VAT';
@@ -298,8 +336,8 @@ table 325 "VAT Posting Setup"
     begin
         VATEntry.SetRange("VAT Bus. Posting Group", Rec."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
-        
-        if not VATEntry.IsEmpty() then    
+
+        if not VATEntry.IsEmpty() then
             Error(VATPostingSetupHasVATEntriesErr);
     end;
 

@@ -3,6 +3,8 @@ codeunit 15000300 "Repeating Order to Order"
     TableNo = "Sales Header";
 
     trigger OnRun()
+    var
+        GLSetup: Record "General Ledger Setup";
     begin
         TestField("Document Type", "Document Type"::"Blanket Order");
 
@@ -75,6 +77,7 @@ codeunit 15000300 "Repeating Order to Order"
             RecurringGroup."Update Document Date"::"Processing Date":
                 SalesOrderHeader.Validate("Document Date", CalcDate(RecurringGroup."Document Date Formula", ProcessingDate));
         end;
+        SalesOrderHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
         SalesOrderHeader.Validate("Shipment Date", CalcDate(RecurringGroup."Delivery Date Formula", SalesOrderHeader."Posting Date"));
         // SalesOrderHeader."Document Date" := "Document Date";
         // SalesOrderHeader."Shipment Date" := "Shipment Date";

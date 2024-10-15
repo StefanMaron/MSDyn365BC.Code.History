@@ -1424,6 +1424,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 begin
                     PEPPOLMgt.GetLegalMonetaryInfo(
                       SalesHeader,
+                      TempSalesLineRounding,
                       TempVATAmtLine,
                       LineExtensionAmount,
                       LegalMonetaryTotalCurrencyID,
@@ -2028,6 +2029,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempVATProductPostingGroup: Record "VAT Product Posting Group" temporary;
+        TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         DummyVar: Text;
         SpecifyASalesInvoiceNoErr: Label 'You must specify a sales invoice number.';
@@ -2095,6 +2097,13 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     SalesInvoiceHeader.SetRecFilter();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                    if SalesInvoiceLine.FindSet() then
+                        repeat
+                            SalesLine.TransferFields(SalesInvoiceLine);
+                            PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
+                        until SalesInvoiceLine.Next() = 0;
+                    if TempSalesLineRounding."Line No." <> 0 then
+                        SalesInvoiceLine.SetFilter("Line No.", '<>%1', TempSalesLineRounding."Line No.");
 
                     ProcessedDocType := ProcessedDocType::Sale;
                 end;
@@ -2103,9 +2112,17 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     RecRef.SetTable(ServiceInvoiceHeader);
                     if ServiceInvoiceHeader."No." = '' then
                         Error(SpecifyAServInvoiceNoErr);
+                    ServiceInvoiceHeader.SetRecFilter();
                     ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
                     ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
-                    ServiceInvoiceHeader.SetRecFilter();
+                    if ServiceInvoiceLine.FindSet() then
+                        repeat
+                            SalesLine.TransferFields(ServiceInvoiceLine);
+                            PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
+                        until ServiceInvoiceLine.Next() = 0;
+                    if TempSalesLineRounding."Line No." <> 0 then
+                        ServiceInvoiceLine.SetFilter("Line No.", '<>%1', TempSalesLineRounding."Line No.");
+
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

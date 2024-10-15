@@ -283,7 +283,7 @@ report 10618 "Trade Settlement 2017"
                             SetRange(Closed);
                     end;
                     SetFilter(Type, '%1|%2', Type::Purchase, Type::Sale);
-                    SetFilter("Posting Date", VATDateFilter);
+                    SetFilter("VAT Reporting Date", VATDateFilter);
                     ClearBases();
 
                     CalculatePeriod(StartDate, StartPeriod, StartYear);
@@ -612,10 +612,10 @@ report 10618 "Trade Settlement 2017"
     trigger OnPreReport()
     begin
         if EndDate = 0D then
-            "VAT Entry".SetFilter("Posting Date", '%1..', StartDate)
+            "VAT Entry".SetFilter("VAT Reporting Date", '%1..', StartDate)
         else
-            "VAT Entry".SetRange("Posting Date", StartDate, EndDate);
-        VATDateFilter := "VAT Entry".GetFilter("Posting Date");
+            "VAT Entry".SetRange("VAT Reporting Date", StartDate, EndDate);
+        VATDateFilter := "VAT Entry".GetFilter("VAT Reporting Date");
 
         CopyVATPostingSetupToTempVATPostingSetup();
     end;

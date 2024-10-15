@@ -86,6 +86,18 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = false;
+                }
                 field("Base Amount Type"; Rec."Base Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -131,6 +143,18 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATBaseACY; Rec."Non-Deductible VAT Base ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased. The amount is in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(NonDeductibleVATAmountACY; Rec."Non-Deductible VAT Amount ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased. The amount is in the additional reporting currency.';
                     Visible = false;
                 }
                 field("Add.-Curr. VAT Difference"; Rec."Add.-Curr. VAT Difference")

@@ -32,12 +32,15 @@
         SellToCustomerName4HandlerFunction: Text[100];
         LeaveDocWithoutPostingTxt: Label 'This document is not posted.';
         CopyItemsOption: Option "None",All,Selected;
+        RefDocType: Option Quote,"Order",Invoice,"Credit Memo";
+        RefMode: Option Manual,Automatic,"Always Ask";
         ControlShouldBeDisabledErr: Label 'Control should be disabled';
         ControlShouldBeEnabledErr: Label 'Control should be enabled';
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
         EntireOrderIsAvailableTxt: Label 'All items on the sales order are available.';
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
         AllItemsAreAvailableErr: Label 'All items are available and no planning lines are created.';
+        CombineShipmentMsg: Label 'The shipments are now combined';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -2901,13 +2904,17 @@
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
+        PurchaseCreditMemo.Trap;
         VendorCard.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(Vendor.Name);
+        PurchaseCreditMemo.OK.Invoke;
     end;
 
     [Test]
@@ -4199,6 +4206,72 @@
         SalesOrder."Bill-to Name".AssertEquals(NewName);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InsertTextStdCustSalesLinesAndCombineShipmentWhenCreateNewSalesOrderFromCustomerCard()
+    var
+        Customer: Record Customer;
+        SalesHeader: array[2] of Record "Sales Header";
+        CustomerCard: TestPage "Customer Card";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Automatic mode] [Order]
+        // [SCENARIO 468776]  "The Customer does not exist. Identification fields and values: No.=''" error message appears on using combine shipments with comment lines coming from recurring sales lines
+        Initialize();
+
+        // [GIVEN] Customer "C" with text Std. Sales Code where Insert Rec. Lines On Orders = Automatic
+        Customer.Get(
+            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, CreateStandardSalesCodeWithItemLineAndCommentLine()));
+        Customer.Validate("Combine Shipments", true);
+        Customer.Modify(true);
+
+        // [GIVEN] Customer List on customer "C" record
+        CustomerCard.OpenEdit();
+        CustomerCard.GotoRecord(Customer);
+
+        // [GIVEN] Perform page action: New Sales Document -> Sales Order
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
+
+        // [WHEN] Activate "Sell-to Customer No." field
+        SalesOrder."Sell-to Customer No.".Activate();
+
+        // [THEN] Text recurring sales line created
+        SalesHeader[1].Get(SalesHeader[1]."Document Type"::Order, SalesOrder."No.".Value);
+
+        SalesOrder.Close();
+        CustomerCard.Close();
+
+        // [THEN] Post Sales Shipment
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Customer List on customer "C" record
+        CustomerCard.OpenEdit();
+        CustomerCard.GotoRecord(Customer);
+
+        // [GIVEN] Perform page action: New Sales Document -> Sales Order
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
+
+        // [WHEN] Activate "Sell-to Customer No." field
+        SalesOrder."Sell-to Customer No.".Activate();
+
+        // [THEN] Text recurring sales line created
+        SalesHeader[2].Get(SalesHeader[2]."Document Type"::Order, SalesOrder."No.".Value);
+        SalesOrder.Close();
+        CustomerCard.Close();
+
+        // [THEN] Post Sales Shipment
+        LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
+
+        // [WHEN] Run Combine Shipments for "Sell-to Customer No." = 2 for both shipped sales orders without posting
+        RunCombineShipmentsBySellToCustomer(Customer."No.", false, false, false, true);
+
+        // [VERIFY] Verify: Sales Invoice created and also verify the number of combined sales lines
+        VerifySalesInvoice(Customer."No.", LibraryRandom.RandIntInRange(6, 6));
+    end;
+
     local procedure Initialize()
     var
         CustomerTempl: Record "Customer Templ.";
@@ -5023,6 +5096,95 @@
         OldCustBusRelCode := MarketingSetup."Bus. Rel. Code for Customers";
         MarketingSetup.Validate("Bus. Rel. Code for Customers", CustBusRelCode);
         MarketingSetup.Modify();
+    end;
+
+    local procedure GetNewCustNoWithStandardSalesCodeForCode(DocType: Option; Mode: Integer; SalesCode: code[10]): Code[20]
+    var
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+    begin
+        StandardCustomerSalesCode.Init();
+        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        StandardCustomerSalesCode.Validate(Code, SalesCode);
+        case DocType of
+            RefDocType::Quote:
+                StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
+            RefDocType::Order:
+                StandardCustomerSalesCode."Insert Rec. Lines On Orders" := Mode;
+            RefDocType::Invoice:
+                StandardCustomerSalesCode."Insert Rec. Lines On Invoices" := Mode;
+            RefDocType::"Credit Memo":
+                StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
+        end;
+        StandardCustomerSalesCode.Insert();
+
+        exit(StandardCustomerSalesCode."Customer No.");
+    end;
+
+    local procedure CreateStandardSalesCodeWithItemLineAndCommentLine(): Code[10]
+    var
+        StandardSalesLine: array[2] of Record "Standard Sales Line";
+        LibraryInventory: Codeunit "Library - Inventory";
+    begin
+        StandardSalesLine[1].Init();
+        StandardSalesLine[1]."Standard Sales Code" := CreateStandardSalesCode;
+        StandardSalesLine[1]."Line No." := 10000;
+        StandardSalesLine[1].Type := StandardSalesLine[1].Type::Item;
+        StandardSalesLine[1]."No." := LibraryInventory.CreateItemNo();
+        StandardSalesLine[1].Quantity := LibraryRandom.RandDec(10, 2);
+        StandardSalesLine[1].Insert();
+
+        StandardSalesLine[2].Init();
+        StandardSalesLine[2]."Line No." := StandardSalesLine[1]."Line No." + 10000;
+        StandardSalesLine[2]."Standard Sales Code" := StandardSalesLine[1]."Standard Sales Code";
+        StandardSalesLine[2].Type := StandardSalesLine[2].Type::" ";
+        StandardSalesLine[2].Insert();
+
+        exit(StandardSalesLine[2]."Standard Sales Code")
+    end;
+
+    local procedure CreateStandardSalesCode(): Code[10]
+    var
+        StandardSalesCode: Record "Standard Sales Code";
+    begin
+        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
+        exit(StandardSalesCode.Code);
+    end;
+
+    local procedure RunCombineShipmentsBySellToCustomer(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
+        LibrarySales.CombineShipments(
+          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+    end;
+
+    local procedure VerifySalesInvoice(SellToCustomerNo: Code[20]; ExpectedCount: Integer)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.FindFirst();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        Assert.RecordCount(SalesLine, ExpectedCount);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    var
+        DequeueVariable: Variant;
+        LocalMessage: Text[1024];
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        LocalMessage := DequeueVariable;
+        Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
     end;
 
     [ModalPageHandler]

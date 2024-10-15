@@ -59,6 +59,8 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "VAT Entry" = Rimd,
                   tabledata "VAT Business Posting Group" = RM,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Pick Request" = RIMD;
 }

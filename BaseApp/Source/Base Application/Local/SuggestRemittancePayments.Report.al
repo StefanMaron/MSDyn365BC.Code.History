@@ -225,8 +225,8 @@ report 15000001 "Suggest Remittance Payments"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         PayableVendLedgEntry: Record "Payable Vendor Ledger Entry" temporary;
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
-        OldTempPaymentBuffer: Record "Payment Buffer" temporary;
+        TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary;
+        OldTempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary;
         RemAccount: Record "Remittance Account";
         VendLedgEntry2: Record "Vendor Ledger Entry";
         Vend3: Record Vendor;
@@ -394,9 +394,12 @@ report 15000001 "Suggest Remittance Payments"
     local procedure MakeGenJnlLines()
     var
         GenJnlLine3: Record "Gen. Journal Line";
+#if not CLEAN22
+        TempPaymentBuffer: Record "Payment Buffer" temporary;
+#endif
     begin
-        TempPaymentBuffer.Reset();
-        TempPaymentBuffer.DeleteAll();
+        TempVendorPaymentBuffer.Reset();
+        TempVendorPaymentBuffer.DeleteAll();
 
         if BalAccType = BalAccType::"Bank Account" then begin
             CheckCurrencies(BalAccType, BalAccNo, PayableVendLedgEntry);
@@ -409,11 +412,11 @@ report 15000001 "Suggest Remittance Payments"
                 PayableVendLedgEntry.Find('-');
                 repeat
                     VendLedgEntry.Get(PayableVendLedgEntry."Vendor Ledg. Entry No.");
-                    TempPaymentBuffer."Vendor No." := VendLedgEntry."Vendor No.";
-                    TempPaymentBuffer."Currency Code" := VendLedgEntry."Currency Code";
-                    TempPaymentBuffer."Dimension Entry No." := 0;
-                    TempPaymentBuffer."Global Dimension 1 Code" := '';
-                    TempPaymentBuffer."Global Dimension 2 Code" := '';
+                    TempVendorPaymentBuffer."Vendor No." := VendLedgEntry."Vendor No.";
+                    TempVendorPaymentBuffer."Currency Code" := VendLedgEntry."Currency Code";
+                    TempVendorPaymentBuffer."Dimension Entry No." := 0;
+                    TempVendorPaymentBuffer."Global Dimension 1 Code" := '';
+                    TempVendorPaymentBuffer."Global Dimension 2 Code" := '';
 
                     GenJnlLine3.Reset();
                     GenJnlLine3.SetCurrentKey(
@@ -430,31 +433,31 @@ report 15000001 "Suggest Remittance Payments"
                             VendLedgEntry."Document Type", VendLedgEntry."Document No.",
                             VendLedgEntry."Vendor No."));
 
-                    TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendLedgEntry."Document Type";
-                    TempPaymentBuffer."Vendor Ledg. Entry Doc. No." := VendLedgEntry."Document No.";
-                    TempPaymentBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
-                    TempPaymentBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                    TempPaymentBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
-                    TempPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
-                    TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
+                    TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendLedgEntry."Document Type";
+                    TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No." := VendLedgEntry."Document No.";
+                    TempVendorPaymentBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
+                    TempVendorPaymentBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
+                    TempVendorPaymentBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                    TempVendorPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
+                    TempVendorPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                     Window.Update(1, VendLedgEntry."Vendor No.");
-                    TempPaymentBuffer.Insert();
+                    TempVendorPaymentBuffer.Insert();
                 until PayableVendLedgEntry.Next() = 0;
                 PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Vendor No.");
             until not PayableVendLedgEntry.Find('-');
 
-        Clear(OldTempPaymentBuffer);
-        TempPaymentBuffer.SetCurrentKey("Document No.");
-        if TempPaymentBuffer.Find('-') then
+        Clear(OldTempVendorPaymentBuffer);
+        TempVendorPaymentBuffer.SetCurrentKey("Document No.");
+        if TempVendorPaymentBuffer.Find('-') then
             repeat
                 with GenJnlLine do begin
                     Init();
-                    Window.Update(1, TempPaymentBuffer."Vendor No.");
+                    Window.Update(1, TempVendorPaymentBuffer."Vendor No.");
                     LastLineNo := LastLineNo + 10000;
                     "Line No." := LastLineNo;
 
-                    VendLedgEntry2.Get(TempPaymentBuffer."Vendor Ledg. Entry No.");
+                    VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
                     Validate("Posting Date", CalcPostingdate(VendLedgEntry2));
                     if VendLedgEntry2.Positive then begin // Cr.Memo
                         "Document Type" := "Document Type"::" ";
@@ -465,24 +468,24 @@ report 15000001 "Suggest Remittance Payments"
                     end;
 
                     "Posting No. Series" := GenJnlBatch."Posting No. Series";
-                    if (TempPaymentBuffer."Vendor No." = OldTempPaymentBuffer."Vendor No.") and
-                       (TempPaymentBuffer."Currency Code" = OldTempPaymentBuffer."Currency Code")
+                    if (TempVendorPaymentBuffer."Vendor No." = OldTempVendorPaymentBuffer."Vendor No.") and
+                       (TempVendorPaymentBuffer."Currency Code" = OldTempVendorPaymentBuffer."Currency Code")
                     then
-                        "Document No." := OldTempPaymentBuffer."Document No."
+                        "Document No." := OldTempVendorPaymentBuffer."Document No."
                     else begin
                         "Document No." := NextDocNo;
                         NextDocNo := IncStr(NextDocNo);
-                        OldTempPaymentBuffer := TempPaymentBuffer;
-                        OldTempPaymentBuffer."Document No." := "Document No.";
+                        OldTempVendorPaymentBuffer := TempVendorPaymentBuffer;
+                        OldTempVendorPaymentBuffer."Document No." := "Document No.";
                     end;
                     "Account Type" := "Account Type"::Vendor;
-                    Validate("Account No.", TempPaymentBuffer."Vendor No.");
+                    Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
                     "Bal. Account Type" := BalAccType;
                     Validate("Bal. Account No.", BalAccNo);
-                    Validate("Currency Code", TempPaymentBuffer."Currency Code");
+                    Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
                     "Bank Payment Type" := BankPmtType;
 
-                    VendLedgEntry2.Get(TempPaymentBuffer."Vendor Ledg. Entry No.");
+                    VendLedgEntry2.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
                     // Find VendLedg.Entry. Need "External Document No."
                     Description :=
                       CopyStr(
@@ -495,26 +498,31 @@ report 15000001 "Suggest Remittance Payments"
                     Validate("Payment Due Date", VendLedgEntry2."Due Date");
                     Validate("External Document No.", VendLedgEntry2."External Document No.");
 
-                    "Shortcut Dimension 1 Code" := TempPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempPaymentBuffer."Global Dimension 2 Code";
+                    "Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
+                    "Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
                     "Source Code" := GenJnlTemplate."Source Code";
                     "Reason Code" := GenJnlBatch."Reason Code";
                     "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
                     "Bal. Account No." := '';
-                    Validate(Amount, TempPaymentBuffer.Amount);
-                    "Applies-to Doc. Type" := TempPaymentBuffer."Vendor Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+                    Validate(Amount, TempVendorPaymentBuffer.Amount);
+                    "Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
+                    "Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
                     RemTools.CreateJournalData(GenJnlLine, VendLedgEntry2);
                     "Payment Type Code Abroad" := VendLedgEntry2."Payment Type Code Abroad";
                     "Specification (Norges Bank)" := VendLedgEntry2."Specification (Norges Bank)";
 
-                    "Dimension Set ID" := TempPaymentBuffer."Dimension Set ID";
+                    "Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
                     UpdateDimensions(GenJnlLine);
+#if not CLEAN22
+                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
                     OnBeforeGenJnlLineInsert(GenJnlLine, TempPaymentBuffer);
+                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
+#endif
+                    OnBeforeGenJnlLineInsertVendorPaymentBuffer(GenJnlLine, TempVendorPaymentBuffer);
                     Insert();
                     GenJnlLineInserted := true;
                 end;
-            until TempPaymentBuffer.Next() = 0;
+            until TempVendorPaymentBuffer.Next() = 0;
     end;
 
     local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
@@ -623,8 +631,16 @@ report 15000001 "Suggest Remittance Payments"
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by OnBeforeGenJnlLineInsertVendorPaymentBuffer.', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; var TempPaymentBuffer: Record "Payment Buffer" temporary)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineInsertVendorPaymentBuffer(var GenJournalLine: Record "Gen. Journal Line"; var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     begin
     end;
 

@@ -1143,7 +1143,7 @@ page 9249 "Analysis by Dimensions Matrix"
             if AnalysisByDimParameters."Account Filter" <> '' then
                 SetFilter("Account No.", AnalysisByDimParameters."Account Filter");
 
-            SetRange("Account Source", AnalysisView."Account Source");
+            SetRange("Account Source", AnalysisByDimParameters."Analysis Account Source");
 
             SetFilter("Posting Date", DateFilter2);
             if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
@@ -1329,10 +1329,10 @@ page 9249 "Analysis by Dimensions Matrix"
             Error(Text002);
         AnalysisViewCode := AnalysisView.Code;
 
-        case AnalysisView."Account Source" of
-            AnalysisView."Account Source"::"G/L Account":
+        case AnalysisByDimParameters."Analysis Account Source" of
+            AnalysisByDimParameters."Analysis Account Source"::"G/L Account":
                 GLAccountSource := true;
-            AnalysisView."Account Source"::"Cash Flow Account":
+            AnalysisByDimParameters."Analysis Account Source"::"Cash Flow Account":
                 GLAccountSource := false;
             else begin
                 AnalysisView.OnGetAnalysisViewSupported(AnalysisView, IsSupported);

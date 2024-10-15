@@ -59,8 +59,11 @@ codeunit 5057 "VendCont-Update"
 
             OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
             Cont.Validate("E-Mail", Vend."E-Mail");
-            if (Cont."VAT Registration No." <> Vend."VAT Registration No.") and VendVATLogExist(Vend) then
+            if (Cont."VAT Registration No." <> Vend."VAT Registration No.") and VendVATLogExist(Vend) then begin
+                Cont.Validate("Country/Region Code", Vend."Country/Region Code");
                 Cont.Validate("VAT Registration No.", Vend."VAT Registration No.");
+            end;
+
             Cont.TransferFields(Vend);
             OnAfterTransferFieldsFromVendToCont(Cont, Vend);
 

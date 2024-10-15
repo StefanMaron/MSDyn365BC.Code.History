@@ -4697,10 +4697,12 @@
         if ("Customer Posting Group" <> xRec."Customer Posting Group") and (xRec."Customer Posting Group" <> '') then begin
             TestField("Bill-to Customer No.");
             BillToCustomer.Get("Bill-to Customer No.");
-            BillToCustomer.TestField("Allow Multiple Posting Groups");
             GetServiceMgtSetup();
-            PostingGroupChangeInterface := ServiceMgtSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            if ServiceMgtSetup."Allow Multiple Posting Groups" then begin
+                BillToCustomer.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := ServiceMgtSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
+            end;
         end;
     end;
 

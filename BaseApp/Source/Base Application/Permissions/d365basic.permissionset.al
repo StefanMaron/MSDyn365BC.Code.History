@@ -573,6 +573,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Printer Selection" = RIMD,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Comment Line Archive" = RIMD,
+                  tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
 #if not CLEAN21

@@ -28,6 +28,9 @@
             }
             column(PostingDate; Format(PostingDate))
             {
+            }            
+            column(VATDate; Format(VATDate))
+            {
             }
             column(DocNo; DocNo)
             {

@@ -1203,6 +1203,7 @@ xmlport 10601 "EHF Reminder 3.0"
                 begin
                     PEPPOLMgt.GetLegalMonetaryInfo(
                       TempSalesHeader,
+                      TempSalesLineRounding,
                       TempVATAmtLine,
                       LineExtensionAmount,
                       LegalMonetaryTotalCurrencyID,
@@ -1673,6 +1674,7 @@ xmlport 10601 "EHF Reminder 3.0"
         TempSalesHeader: Record "Sales Header" temporary;
         TempSalesLine: Record "Sales Line" temporary;
         TempVATProductPostingGroup: Record "VAT Product Posting Group" temporary;
+        TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         DummyVar: Text;
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
@@ -1707,12 +1709,12 @@ xmlport 10601 "EHF Reminder 3.0"
             DATABASE::"Issued Reminder Header":
                 begin
                     RecRef.SetTable(IssuedReminderHeader);
-                    PEPPOLMgt.CopyIssuedReminder(TempSalesHeader, TempSalesLine, IssuedReminderHeader."No.");
+                    PEPPOLMgt.CopyIssuedReminder(TempSalesHeader, TempSalesLine, TempSalesLineRounding, IssuedReminderHeader."No.");
                 end;
             DATABASE::"Issued Fin. Charge Memo Header":
                 begin
                     RecRef.SetTable(IssuedFinChargeMemoHeader);
-                    PEPPOLMgt.CopyIssuedFinCharge(TempSalesHeader, TempSalesLine, IssuedFinChargeMemoHeader."No.");
+                    PEPPOLMgt.CopyIssuedFinCharge(TempSalesHeader, TempSalesLine, TempSalesLineRounding, IssuedFinChargeMemoHeader."No.");
                 end;
             else
                 Error(UnSupportedTableTypeErr, RecRef.Number());

@@ -2739,6 +2739,202 @@ codeunit 134984 "ERM Sales Report III"
         VerifyAppliesCustomerEntriesAndBalanceInCustomerBalanceToDate(GenJournalLine, Amount[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('LotItemTrackingPageHandler,ItemTrackingSummaryPageHandler,RHStandardSalesShipmentSetShowItemTracking')]
+    procedure SalesStandardShipmentReportWithMultipleItemTracking()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedShipmentNo: Code[20];
+        RequestPageXML: Text;
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
+    begin
+        // [SCENARIO 466086] Report 1308 printed with RDLC layout shows only first Serial No.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post positive adjustment with assigned "Lot No."
+        CreateAndPostItemJournalLineWithTracking(Item."No.", 1);
+        CreateAndPostItemJournalLineWithTracking(Item."No.", 1);
+
+        // [GIVEN] Create and ship sales orders, select "Lot No."and Quantity = 2
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 2);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Sales Shipment 
+        PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Run "Standard Sales - Shipment" report with "Show Serial/Lot Number Appendix" = Yes.
+        SalesShipmentHeader.SetFilter("No.", PostedShipmentNo);
+        RequestPageXML := Report.RunRequestPage(Report::"Standard Sales - Shipment");
+        LibraryReportDataset.RunReportAndLoad(Report::"Standard Sales - Shipment", SalesShipmentHeader, RequestPageXML);
+
+        // [VERIFY] Verify Second Serial No. exist in the report. 
+        LibraryReportDataset.SearchForElementByValue('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHCustomerBalanceToDateEnableShowEntriesWithZeroBalance')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateShowsIncorrectBalanceWhenRunningForAllCustomer()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        InvoiceAmount: array[2] of Decimal;
+        InvoiceNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 467715] Customer-Balance to Date shows incorrect Balance when running this report for all Customers.
+        Initialize();
+
+        // [GIVEN] Create new Customer C
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create random invoice amount and 1st invoice journal line with Bal Account for Customer C
+        InvoiceAmount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[1]);
+
+        // [Then] Post 1st invoice
+        InvoiceNo[1] := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create random invoice amount and 2nd invoice journal line with Bal Account for Customer C
+        InvoiceAmount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[2]);
+
+        // [Then] Post 2nd invoice
+        InvoiceNo[2] := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a journal line for payment with Customer C with invoice amount 1
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            -InvoiceAmount[1]);
+
+        // [GIVEN] Applied 1st posted invoice to payment
+        GenJournalLine.Validate("Posting Date", CalcDate('<CM>', GenJournalLine."Posting Date"));
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo[1]);
+        GenJournalLine.Modify();
+
+        // [THEN] Post the payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run Customer Balance to Date report for specific customer with Unapplied Entries = No
+        RunCustomerBalanceToDateWithCustomer(GenJournalLine."Account No.", false, GenJournalLine."Posting Date" - 1);
+
+        // [VERIFY] Verify: Data on Customer Balance to Date report resultset
+        VerifyCustomerEntriesAmountInCustomerBalanceToDate(InvoiceAmount, InvoiceNo);
+
+        // [WHEN] Run Customer Balance to Date report for all customer with Unapplied Entries = No
+        RunCustomerBalanceToDateForAllCustomer(false, GenJournalLine."Posting Date" - 1);
+
+        // [VERIFY] Verify: Data on Customer Balance to Date report resultset for specific customer when running report for all customer
+        VerifyCustomerEntriesAmountInCustomerBalanceToDateForSpecificCustomer(Customer."No.", InvoiceAmount, InvoiceNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHCustomerBalanceToDateEnableShowEntriesWithZeroBalance')]
+    [Scope('OnPrem')]
+    procedure VerifyCustomerBalanceToDateShowsAllCustomerLedgerEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        InvoiceAmount: array[2] of Decimal;
+        InvoiceNo: array[2] of Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO] Customer Balance to Date shows only Customer Ledger Entries
+        Initialize();
+
+        // [GIVEN] Create new Customer C
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create random invoice amount and 1st invoice journal line with Bal Account for Customer C
+        InvoiceAmount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[1]);
+
+        // [Then] Post 1st invoice
+        InvoiceNo[1] := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create random invoice amount and 2nd invoice journal line with Bal Account for Customer C
+        InvoiceAmount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[2]);
+
+        // [Then] Post 2nd invoice
+        InvoiceNo[2] := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a journal line for payment with Customer C with invoice amount 1
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo,
+            -InvoiceAmount[1]);
+
+        // [GIVEN] Applied 1st posted invoice to payment
+        GenJournalLine.Validate("Posting Date", CalcDate('<CM>', GenJournalLine."Posting Date"));
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo[1]);
+        GenJournalLine.Modify();
+
+        // [THEN] Post the payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run Customer Balance to Date report for specific customer with Unapplied Entries = No
+        RunCustomerBalanceToDateWithCustomer(GenJournalLine."Account No.", false, GenJournalLine."Posting Date" - 1);
+
+        // [VERIFY] Verify: Data on Customer Balance to Date report resultset
+        VerifyTotalOnCustBalanceToDateWithLCY(DetailedCustLedgEntryAmount(Customer."No.", GenJournalLine."Posting Date" - 1));
+
+        // [WHEN] Run Customer Balance to Date report for specific customer with Unapplied Entries = Yes
+        RunCustomerBalanceToDateWithCustomer(GenJournalLine."Account No.", true, GenJournalLine."Posting Date");
+
+        // [VERIFY] Verify: Data on Customer Balance to Date report resultset
+        VerifyTotalOnCustBalanceToDateWithLCY(DetailedCustLedgEntryAmount(Customer."No.", GenJournalLine."Posting Date"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4486,6 +4682,74 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(GenJournalLine.Amount));
+    end;
+
+    local procedure RunCustomerBalanceToDateForAllCustomer(
+        Unapplied: Boolean;
+        ReportDate: Date)
+    var
+        CustomerBalanceToDate: Report "Customer - Balance to Date";
+    begin
+        CustomerBalanceToDate.InitializeRequest(false, false, Unapplied, ReportDate);
+        CustomerBalanceToDate.Run();
+    end;
+
+    local procedure DetailedCustLedgEntryAmount(CustomerNo: Code[20]; PostingDate: Date): Decimal
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
+        DetailedCustLedgEntry.SetRange("Posting Date", 0D, PostingDate);
+        DetailedCustLedgEntry.CalcSums(Amount);
+        exit(DetailedCustLedgEntry.Amount)
+    end;
+
+    local procedure VerifyCustomerEntriesAmountInCustomerBalanceToDate(
+        InvoiceAmount: array[2] of Decimal;
+        InvoiceNo: array[2] of Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
+        LibraryReportDataset.SetRange('DocNo_CustLedgEntry', InvoiceNo[1]);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvoiceAmount[1]));
+        LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
+        LibraryReportDataset.SetRange('DocNo_CustLedgEntry', InvoiceNo[2]);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvoiceAmount[2]));
+    end;
+
+    local procedure VerifyCustomerEntriesAmountInCustomerBalanceToDateForSpecificCustomer(
+        CustomerNo: Code[20];
+        InvoiceAmount: array[2] of Decimal;
+        InvoiceNo: array[2] of Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
+        LibraryReportDataset.SetRange('No_Customer', Format(CustomerNo));
+        LibraryReportDataset.SetRange('DocNo_CustLedgEntry', InvoiceNo[1]);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvoiceAmount[1]));
+        LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
+        LibraryReportDataset.SetRange('No_Customer', Format(CustomerNo));
+        LibraryReportDataset.SetRange('DocNo_CustLedgEntry', InvoiceNo[2]);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvoiceAmount[2]));
+    end;
+
+    local procedure VerifyTotalOnCustBalanceToDateWithLCY(Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.SetRange('TotalCaption', TotalCapTxt);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TtlAmtCurrencyTtlBuff2', Round(Amount));
     end;
 
     [RequestPageHandler]

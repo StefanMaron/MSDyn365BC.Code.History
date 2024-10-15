@@ -257,6 +257,7 @@ codeunit 5355 "CRM Notes Synch Job"
     var
         CRMSalesorder: Record "CRM Salesorder";
         SalesHeader: Record "Sales Header";
+        RecordLink: Record "Record Link";
     begin
         if TempCRMAnnotationBuffer."Related Table ID" <> DATABASE::"Sales Header" then
             exit(0);
@@ -275,6 +276,11 @@ codeunit 5355 "CRM Notes Synch Job"
         end;
 
         if TempCRMAnnotationBuffer."Change Type" <> TempCRMAnnotationBuffer."Change Type"::Created then begin
+            DeleteCRMAnnotationBufferEntry(TempCRMAnnotationBuffer);
+            exit(0);
+        end;
+
+        if not RecordLink.Get(TempCRMAnnotationBuffer."Record ID") then begin
             DeleteCRMAnnotationBufferEntry(TempCRMAnnotationBuffer);
             exit(0);
         end;
