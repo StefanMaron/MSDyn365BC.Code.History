@@ -176,7 +176,7 @@ report 11301 "Purchase Ledger"
                             OldName := "Journal Templ. Name";
                         end;
 
-                        SetOldAndPrnDate("G/L Entry");                                        
+                        SetOldAndPrnDate("G/L Entry");
 
                         if OldDocno <> "Document No." then begin
                             OldDocno := "Document No.";
@@ -382,9 +382,12 @@ report 11301 "Purchase Ledger"
                         begin
                             SetRange("Journal Templ. Name", "Gen. Journal Template".Name);
                             case VATDateType of
-                                    VATDateType::"VAT Reporting Date": "G/L Entry".CopyFilter("VAT Reporting Date", "VAT Reporting Date");
-                                    VATDateType::"Posting Date": "G/L Entry".CopyFilter("Posting Date", "Posting Date");
-                                    VATDateType::"Document Date": "G/L Entry".CopyFilter("Document Date", "Document Date");
+                                VATDateType::"VAT Reporting Date":
+                                    "G/L Entry".CopyFilter("VAT Reporting Date", "VAT Reporting Date");
+                                VATDateType::"Posting Date":
+                                    "G/L Entry".CopyFilter("Posting Date", "Posting Date");
+                                VATDateType::"Document Date":
+                                    "G/L Entry".CopyFilter("Document Date", "Document Date");
                             end;
                             VATSumBuffer.DeleteAll();
                         end;
@@ -585,9 +588,12 @@ report 11301 "Purchase Ledger"
                             SetRange("Statement Name", GLSetup."VAT Statement Name");
 
                             case VATDateType of
-                                VATDateType::"VAT Reporting Date": "G/L Entry".CopyFilter("VAT Reporting Date", "Date Filter");
-                                VATDateType::"Document Date": "G/L Entry".CopyFilter("Document Date", "Date Filter");
-                                VATDateType::"Posting Date": "G/L Entry".CopyFilter("Posting Date", "Date Filter");
+                                VATDateType::"VAT Reporting Date":
+                                    "G/L Entry".CopyFilter("VAT Reporting Date", "Date Filter");
+                                VATDateType::"Document Date":
+                                    "G/L Entry".CopyFilter("Document Date", "Date Filter");
+                                VATDateType::"Posting Date":
+                                    "G/L Entry".CopyFilter("Posting Date", "Date Filter");
                             end;
 
                             VATStatementName.Get(GLSetup."VAT Statement Template Name", GLSetup."VAT Statement Name");
@@ -784,18 +790,21 @@ report 11301 "Purchase Ledger"
         NetAmountLCYCaptionLbl: Label 'Amount G/L Account';
         PurchaseLedgerVATStatementsCaptionLbl: Label 'Purchase Ledger - VAT Statements';
 
-	protected var
+    protected var
         PeriodStartDate: Date;
         PeriodEndDate: Date;
 
     local procedure SetGlEntryDateRange(var GlEntry: Record "G/L Entry")
     begin
         case VATDateType of
-            VATDateType::"VAT Reporting Date": GlEntry.SetRange("VAT Reporting Date", PeriodStartDate, PeriodEndDate);
-            VATDateType::"Posting Date": GlEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
-            VATDateType::"Document Date": GlEntry.SetRange("Document Date", PeriodStartDate, PeriodEndDate);
+            VATDateType::"VAT Reporting Date":
+                GlEntry.SetRange("VAT Reporting Date", PeriodStartDate, PeriodEndDate);
+            VATDateType::"Posting Date":
+                GlEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
+            VATDateType::"Document Date":
+                GlEntry.SetRange("Document Date", PeriodStartDate, PeriodEndDate);
         end;
-    end;   
+    end;
 
     local procedure SetOldAndPrnDate(var GlEntry: Record "G/L Entry")
     begin
@@ -824,9 +833,12 @@ report 11301 "Purchase Ledger"
     local procedure SetDateCaption()
     begin
         case VATDateType of
-            VATDateType::"Document Date": DateCaption := 'Document Date';
-            VATDateType::"Posting Date": DateCaption := 'Posting Date';
-            VATDateType::"VAT Reporting Date": DateCaption := 'VAT Date';
+            VATDateType::"Document Date":
+                DateCaption := 'Document Date';
+            VATDateType::"Posting Date":
+                DateCaption := 'Posting Date';
+            VATDateType::"VAT Reporting Date":
+                DateCaption := 'VAT Date';
         end;
     end;
 

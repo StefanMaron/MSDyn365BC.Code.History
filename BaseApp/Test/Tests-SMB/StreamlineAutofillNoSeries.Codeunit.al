@@ -594,7 +594,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSeriesListPage_FieldsValues_WithGoodLines()
+    procedure NoSeriesPage_FieldsValues_WithGoodLines()
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
@@ -608,12 +608,12 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesLine.FindFirst();
         NoSeries.Get(NoSeriesCode);
 
-        ValidateFieldsOnNoSeriesListPage(NoSeries, NoSeriesLine);
+        ValidateFieldsOnNoSeriesPage(NoSeries, NoSeriesLine);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSeriesListPage_FieldsValues_WithoutGoodLines()
+    procedure NoSeriesPage_FieldsValues_WithoutGoodLines()
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
@@ -631,12 +631,12 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         NoSeries.Get(NoSeriesCode);
 
-        ValidateFieldsOnNoSeriesListPage(NoSeries, NoSeriesLine);
+        ValidateFieldsOnNoSeriesPage(NoSeries, NoSeriesLine);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure NoSeriesListPage_FieldsValues_WithoutLines()
+    procedure NoSeriesPage_FieldsValues_WithoutLines()
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
@@ -652,13 +652,13 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         NoSeries.Get(NoSeriesCode);
 
-        ValidateFieldsOnNoSeriesListPage(NoSeries, NoSeriesLine);
+        ValidateFieldsOnNoSeriesPage(NoSeries, NoSeriesLine);
     end;
 
     [Test]
     [HandlerFunctions('NoSeriesLinesPageHandler')]
     [Scope('OnPrem')]
-    procedure NoSeriesListPage_DrillDown()
+    procedure NoSeriesPage_DrillDown()
     var
         NoSeries: Record "No. Series";
     begin
@@ -667,7 +667,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCodeForUseInModalPageHendler := CreateNonVisibleNoSeries(false);
 
         NoSeries.Get(NoSeriesCodeForUseInModalPageHendler);
-        NoSeries.DrillDown;
+        NoSeries.DrillDown();
     end;
 
     [Test]
@@ -1406,6 +1406,51 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility.ClearState();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectCustomerTemplListHandlerOK')]
+    [Scope('OnPrem')]
+    procedure CreateCustomer_WithNoSeries_InUse()
+    var
+        Customer: Record Customer;
+        NoSeries: Record "No. Series";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        CustomerCard: TestPage "Customer Card";
+        NoSeriesCode: Code[20];
+        NewNo: Code[20];
+    begin
+        Initialize();
+
+        // [SCENARIO 447824] Date Order in No. Series does not work correctly, an error message is shown on attempting to fill a gap in the no. series
+        // [GIVEN] Create No. Series and assign to "Customer Nos."
+        NoSeriesCode := CreateNonVisibleNoSeries(true);
+        NoSeries.Get(NoSeriesCode);
+        NoSeries.Validate("Manual Nos.", true);
+        NoSeries."Date Order" := true;
+        NoSeries.Modify();
+        SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
+
+        // [WHEN] NoSeries for Customer is set and opennew CustomerCard
+        CustomerCard.OpenNew();
+        if CustomerCard."No.".Value = '' then begin
+            NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
+            SetNoSeriesDefaultNos(NoSeriesCode, false);
+            CustomerCard."No.".Value(NewNo);
+            SetNoSeriesDefaultNos(NoSeriesCode, true);
+        end;
+        CustomerCard.OK.Invoke;
+
+        // [WHEN] A new customer is created using the next Number in the series bypassing the UI
+        NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
+        with Customer do begin
+            Init();
+            "No." := NewNo;
+            Insert();
+        end;
+
+        // [THEN] A new CustomerCard is opened without errors.
+        CustomerCard.OpenNew();
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
@@ -1671,22 +1716,15 @@ codeunit 138100 "Streamline. Autofill No Series"
         exit(DocumentNoVisibility.SalesDocumentNoIsVisible(SalesSetupDocType::Invoice, ''));
     end;
 
-    local procedure ValidateFieldsOnNoSeriesListPage(var NoSeries: Record "No. Series"; var NoSeriesLine: Record "No. Series Line")
+    local procedure ValidateFieldsOnNoSeriesPage(var NoSeries: Record "No. Series"; var NoSeriesLine: Record "No. Series Line")
     var
         NoSeriesPage: TestPage "No. Series";
     begin
         NoSeriesPage.OpenView();
         NoSeriesPage.GotoRecord(NoSeries);
 
-        Assert.AreEqual(
-          NoSeriesLine."Starting No.",
-          NoSeriesPage.StartNo.Value,
-          'Wrong "Starting No."');
-
-        Assert.AreEqual(
-          NoSeriesLine."Ending No.",
-          NoSeriesPage.EndNo.Value,
-          'Wrong "Ending No."');
+        Assert.AreEqual(NoSeriesLine."Starting No.", NoSeriesPage.StartNo.Value, 'Wrong "Starting No."');
+        Assert.AreEqual(NoSeriesLine."Ending No.", NoSeriesPage.EndNo.Value, 'Wrong "Ending No."');
 
         NoSeriesPage.OK().Invoke();
     end;

@@ -33,7 +33,7 @@ page 2000045 "Transaction Coding"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the transaction.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description used when you post this combination.';

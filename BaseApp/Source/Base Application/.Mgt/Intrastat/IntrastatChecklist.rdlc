@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Height>2in</Height>
+        <Style />
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="IntrastatJnlBatJnlTemName">
+          <DataField>IntrastatJnlBatJnlTemName</DataField>
+        </Field>
+        <Field Name="IntrastatJnlBatchName">
+          <DataField>IntrastatJnlBatchName</DataField>
+        </Field>
+        <Field Name="TodayFormatted">
+          <DataField>TodayFormatted</DataField>
+        </Field>
+        <Field Name="IntrastatJnlBatStatPeriod">
+          <DataField>IntrastatJnlBatStatPeriod</DataField>
+        </Field>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
+        </Field>
+        <Field Name="CompanyInfoEnterpriseNo">
+          <DataField>CompanyInfoEnterpriseNo</DataField>
+        </Field>
+        <Field Name="ApplicationVersion">
+          <DataField>ApplicationVersion</DataField>
+        </Field>
+        <Field Name="HeaderText">
+          <DataField>HeaderText</DataField>
+        </Field>
+        <Field Name="NoOfRecordsRTC">
+          <DataField>NoOfRecordsRTC</DataField>
+        </Field>
+        <Field Name="PrintJnlLines">
+          <DataField>PrintJnlLines</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineType">
+          <DataField>IntrastatJnlLineType</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTariffNo">
+          <DataField>IntrastatJnlLineTariffNo</DataField>
+        </Field>
+        <Field Name="CountryIntrastatCode">
+          <DataField>CountryIntrastatCode</DataField>
+        </Field>
+        <Field Name="CountryName">
+          <DataField>CountryName</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTranType">
+          <DataField>IntrastatJnlLineTranType</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLinTranMethod">
+          <DataField>IntrastatJnlLinTranMethod</DataField>
+        </Field>
+        <Field Name="Heading">
+          <DataField>Heading</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineStatVal">
+          <DataField>IntrastatJnlLineStatVal</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineStatValFormat">
+          <DataField>IntrastatJnlLineStatValFormat</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineQty">
+          <DataField>IntrastatJnlLineQty</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineQtyFormat">
+          <DataField>IntrastatJnlLineQtyFormat</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTotalWt">
+          <DataField>IntrastatJnlLineTotalWt</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTotalWtFormat">
+          <DataField>IntrastatJnlLineTotalWtFormat</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineSupplementaryUnits">
+          <DataField>IntrastatJnlLineSupplementaryUnits</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineNoOfSupplementaryUnits">
+          <DataField>IntrastatJnlLineNoOfSupplementaryUnits</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineNoOfSupplementaryUnitsFormat">
+          <DataField>IntrastatJnlLineNoOfSupplementaryUnitsFormat</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineUOM">
+          <DataField>IntrastatJnlLineUOM</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineArea">
+          <DataField>IntrastatJnlLineArea</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTransactionSpecification">
+          <DataField>IntrastatJnlLineTransactionSpecification</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineItemDesc">
+          <DataField>IntrastatJnlLineItemDesc</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineInternalRefNo">
+          <DataField>IntrastatJnlLineInternalRefNo</DataField>
+        </Field>
+        <Field Name="NoOfDetails">
+          <DataField>NoOfDetails</DataField>
+        </Field>
+        <Field Name="SubTotalWeightRTC">
+          <DataField>SubTotalWeightRTC</DataField>
+        </Field>
+        <Field Name="TotalQuantity">
+          <DataField>TotalQuantity</DataField>
+        </Field>
+        <Field Name="TotalStatisticalValue">
+          <DataField>TotalStatisticalValue</DataField>
+        </Field>
+        <Field Name="NewNoOfRecords">
+          <DataField>NewNoOfRecords</DataField>
+        </Field>
+        <Field Name="SubTotalQuantity">
+          <DataField>SubTotalQuantity</DataField>
+        </Field>
+        <Field Name="SubTotalStatisticalValue">
+          <DataField>SubTotalStatisticalValue</DataField>
+        </Field>
+        <Field Name="NoOfRecords">
+          <DataField>NoOfRecords</DataField>
+        </Field>
+        <Field Name="IntrastatChecklistCaption">
+          <DataField>IntrastatChecklistCaption</DataField>
+        </Field>
+        <Field Name="PageCaption">
+          <DataField>PageCaption</DataField>
+        </Field>
+        <Field Name="EnterpriseNoCaption">
+          <DataField>EnterpriseNoCaption</DataField>
+        </Field>
+        <Field Name="TypeCaption_IntrastatJnlLine">
+          <DataField>TypeCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TariffNoCaption">
+          <DataField>TariffNoCaption</DataField>
+        </Field>
+        <Field Name="CountryRegionCodeCaption">
+          <DataField>CountryRegionCodeCaption</DataField>
+        </Field>
+        <Field Name="TransTypeCaption">
+          <DataField>TransTypeCaption</DataField>
+        </Field>
+        <Field Name="TransportMethodCaption">
+          <DataField>TransportMethodCaption</DataField>
+        </Field>
+        <Field Name="TotalWeightCaption_IntrastatJnlLine">
+          <DataField>TotalWeightCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="QtyCaption_IntrastatJnlLine">
+          <DataField>QtyCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="StatisticalValueCaption_IntrastatJnlLine">
+          <DataField>StatisticalValueCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="SupplementaryUnitsCaption_IntrastatJnlLine">
+          <DataField>SupplementaryUnitsCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="NoOfSupplementaryUnitsCaption_IntrastatJnlLine">
+          <DataField>NoOfSupplementaryUnitsCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="UOMCaption_IntrastatJnlLine">
+          <DataField>UOMCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="AreaCaption_IntrastatJnlLine">
+          <DataField>AreaCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TransactionSpecCaption_IntrastatJnlLine">
+          <DataField>TransactionSpecCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="ItemDescCaption_IntrastatJnlLine">
+          <DataField>ItemDescCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="InternalRefNoCaption_IntrastatJnlLine">
+          <DataField>InternalRefNoCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TariffNoCaption_IntrastatJnlLine">
+          <DataField>TariffNoCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="CountryRegionCodeCaption1">
+          <DataField>CountryRegionCodeCaption1</DataField>
+        </Field>
+        <Field Name="TransTypeCaption_IntrastatJnlLine">
+          <DataField>TransTypeCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TransportMethodCaption_IntrastatJnlLine">
+          <DataField>TransportMethodCaption_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TotalCaption">
+          <DataField>TotalCaption</DataField>
+        </Field>
+        <Field Name="NoOfEntriesCaption">
+          <DataField>NoOfEntriesCaption</DataField>
+        </Field>
+        <Field Name="JnlTempName_IntrastatJnlLine">
+          <DataField>JnlTempName_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="JnlBatchName_IntrastatJnlLine">
+          <DataField>JnlBatchName_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="LineLineNo_IntrastatJnlLine">
+          <DataField>LineLineNo_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="ErrortextNumber">
+          <DataField>ErrortextNumber</DataField>
+        </Field>
+        <Field Name="WarningTextCaption">
+          <DataField>WarningTextCaption</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>

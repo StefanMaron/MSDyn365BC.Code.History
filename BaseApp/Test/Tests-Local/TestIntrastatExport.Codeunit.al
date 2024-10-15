@@ -381,45 +381,6 @@ codeunit 144052 "Test Intrastat Export"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure GetCountryOfOriginFromItem()
-    var
-        Item: Record Item;
-        LocalizationManagement: Codeunit "Localization Management";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 268704] LocalizationManagement.GetCountryOfOriginCode takes value from Item when it is not blank
-        Item."No." := LibraryUtility.GenerateGUID();
-        Item."Country/Region of Origin Code" :=
-          LibraryUtility.GenerateRandomCode(Item.FieldNo("Country/Region of Origin Code"), DATABASE::Item);
-        Item.Insert();
-        Assert.AreEqual(
-          Item."Country/Region of Origin Code",
-          LocalizationManagement.GetCountryOfOriginCode(Item."No."), '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GetCountryOfOriginFromCompanyInfo()
-    var
-        Item: Record Item;
-        CompanyInformation: Record "Company Information";
-        LocalizationManagement: Codeunit "Localization Management";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 268704] LocalizationManagement.GetCountryOfOriginCode takes value from CompanyInformation."Country/Region Code" when Item has blank value
-        Initialize();
-        Item."No." := LibraryUtility.GenerateGUID();
-        Item.Insert();
-        CompanyInformation.Get();
-        CompanyInformation."Country/Region Code" := CreateCountryRegionWithIntrastatCode;
-        CompanyInformation.Modify();
-        Assert.AreEqual(
-          CompanyInformation."Country/Region Code",
-          LocalizationManagement.GetCountryOfOriginCode(Item."No."), '');
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure GetPartnerIDFromEnterpriseNoOfSalesInvoice()
@@ -733,45 +694,6 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GetPartnerIDEnterpriseNoJob()
-    var
-        Customer: Record Customer;
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        LocalizationManagement: Codeunit "Localization Management";
-    begin
-        // [FEATURE] [Job] [UT] [Shipment]
-        // [SCENARIO 268704] LocalizationManagement.GetPartnerID takes PartnerID from Enterprise No. when VAT Registration No. is blank in EU Customer
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        ResetCustomerVATRegNo(Customer);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        CreateIntrastatJnlLineForJobEntry(
-          IntrastatJnlLine, IntrastatJnlBatch, Customer."Country/Region Code", JnlLineType::Shipment, MockJobEntry(Customer."No."));
-        Assert.AreEqual(
-          Customer."Enterprise No.", LocalizationManagement.GetPartnerID(IntrastatJnlLine), '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GetPartnerIDVATRegNoJob()
-    var
-        Customer: Record Customer;
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        LocalizationManagement: Codeunit "Localization Management";
-    begin
-        // [FEATURE] [Job] [UT] [Shipment]
-        // [SCENARIO 268704] LocalizationManagement.GetPartnerID takes PartnerID from VAT Registration No. when value is not blank in EU Customer
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        CreateIntrastatJnlLineForJobEntry(
-          IntrastatJnlLine, IntrastatJnlBatch, Customer."Country/Region Code", JnlLineType::Shipment, MockJobEntry(Customer."No."));
-        Assert.AreEqual(
-          Customer."VAT Registration No.", LocalizationManagement.GetPartnerID(IntrastatJnlLine), '');
     end;
 
     [Test]

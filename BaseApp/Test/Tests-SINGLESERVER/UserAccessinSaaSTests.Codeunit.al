@@ -12,9 +12,6 @@ codeunit 139460 "User Access in SaaS Tests"
     var
         Assert: Codeunit Assert;
         PermissionManager: Codeunit "Permission Manager";
-#if not CLEAN19
-        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
-#endif
         UserEuropeDcst1FullTok: Label 'EUROPE\DCST1';
         UserEuropeDcst2ExternalTok: Label 'EUROPE\DCST2';
         ErrorKeyNotSetErr: Label 'WebServiceKey has not been set.';
@@ -26,157 +23,6 @@ codeunit 139460 "User Access in SaaS Tests"
         UserGroupO365FullAccessTxt: Label 'D365 FULL ACCESS';
         NewUsersCannotLoginQst: Label 'You have not specified a user group that will be assigned automatically to new users. If users are not assigned a user group, they cannot sign in. \\Do you want to continue?';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
-
-#if not CLEAN19
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure HideExternalUsersFromUserPersonalizationCard()
-    var
-        User: Record User;
-        FullUserPersonalization: Record "User Personalization";
-        ExternalUserPersonalization: Record "User Personalization";
-        UserPersonalizationCard: TestPage "User Personalization Card";
-    begin
-        // [SCENARIO] External users should not be visible in SaaS (page User Personalization Card)
-        Initialize();
-
-        // [GIVEN] Two users, of which only one is external
-        CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
-        CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
-
-        // [GIVEN] SaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
-        BindSubscription(AzureADUserMgtTestLibrary);
-
-        // [WHEN] Opening the User Personalization Card
-        UserPersonalizationCard.OpenView;
-
-        // [THEN] The full user is visible
-        Assert.IsTrue(UserPersonalizationCard.GotoRecord(FullUserPersonalization),
-          'Full users should be visible in SaaS on page User Personalization Card');
-
-        // [THEN] The external user is hidden
-        Assert.IsFalse(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
-          'External users should not be visible in SaaS on page User Personalization Card');
-
-        UserPersonalizationCard.Close();
-
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ShowExternalUsersFromUserPersonalizationCard()
-    var
-        User: Record User;
-        FullUserPersonalization: Record "User Personalization";
-        ExternalUserPersonalization: Record "User Personalization";
-        UserPersonalizationCard: TestPage "User Personalization Card";
-    begin
-        // [SCENARIO] External users should be visible on-prem and in PaaS (page User Personalization Card)
-        Initialize();
-        // [GIVEN] Two users, of which only one is external
-        CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
-        CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
-
-        // [GIVEN] on-prem or PaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
-        BindSubscription(AzureADUserMgtTestLibrary);
-
-        // [WHEN] Opening the User Personalization Card
-        UserPersonalizationCard.OpenView;
-
-        // [THEN] The full user is visible
-        Assert.IsTrue(UserPersonalizationCard.GotoRecord(FullUserPersonalization),
-          'Full users should be visible in PaaS and on-prem on page User Personalization Card');
-
-        // [THEN] The external user is visible
-        Assert.IsTrue(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
-          'External users should be visible in PaaS and on-prem on page User Personalization Card');
-
-        UserPersonalizationCard.Close();
-
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure HideExternalUsersFromUserPersonalizationList()
-    var
-        User: Record User;
-        FullUserPersonalization: Record "User Personalization";
-        ExternalUserPersonalization: Record "User Personalization";
-        UserPersonalizationList: TestPage "User Personalization List";
-    begin
-        // [SCENARIO] External users should not be visible in SaaS (page User Personalization List)
-        Initialize();
-        // [GIVEN] Two users, of which only one is external
-        CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
-        CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
-
-        // [GIVEN] SaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
-        BindSubscription(AzureADUserMgtTestLibrary);
-
-        // [WHEN] Opening the User Personalization Card
-        UserPersonalizationList.OpenView;
-
-        // [THEN] The full user is visible
-        Assert.IsTrue(UserPersonalizationList.GotoRecord(FullUserPersonalization),
-          'Full users should be visible in SaaS on page User Personalization List');
-
-        // [THEN] The external user is hidden
-        Assert.IsFalse(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
-          'External users should not be visible in SaaS on page User Personalization List');
-
-        UserPersonalizationList.Close();
-
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ShowExternalUsersFromUserPersonalizationList()
-    var
-        User: Record User;
-        FullUserPersonalization: Record "User Personalization";
-        ExternalUserPersonalization: Record "User Personalization";
-        UserPersonalizationList: TestPage "User Personalization List";
-    begin
-        // [SCENARIO] External users should be visible on-prem and in PaaS (page User Personalization List)
-        Initialize();
-        // [GIVEN] Two users, of which only one is external
-        CreateUserWithPersonalization(FullUserPersonalization, UserEuropeDcst1FullTok, User."License Type"::"Full User");
-        CreateUserWithPersonalization(ExternalUserPersonalization, UserEuropeDcst2ExternalTok, User."License Type"::"External User");
-
-        // [GIVEN] on-prem or PaaS
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
-        BindSubscription(AzureADUserMgtTestLibrary);
-
-        // [WHEN] Opening the User Personalization Card
-        UserPersonalizationList.OpenView;
-
-        // [THEN] The full user is visible
-        Assert.IsTrue(UserPersonalizationList.GotoRecord(FullUserPersonalization),
-          'Full users should be visible in PaaS and on-prem on page User Personalization List');
-
-        // [THEN] The external user is visible
-        Assert.IsTrue(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
-          'External users should be visible in PaaS and on-prem on page User Personalization List');
-
-        UserPersonalizationList.Close();
-
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('SetWebServiceAccessConfirmHandler')]
@@ -295,6 +141,7 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.ExpectedError('Page New - User Card has to close');
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('NewUsersCannotLoginConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -337,6 +184,7 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The SaaS warning (stating that new users will not be able to login) does not appear
         // There is no confirmation handler assigned to this test. If the test succeeds, that is because no confirmation question was showed in ui
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -344,7 +192,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure TestUpdateUserAccessForSaaSWithExistingUserPersonalization()
     var
         User: Record User;
-        UserGroupMember: Record "User Group Member";
+        AccessControl: Record "Access Control";
         UserPersonalization: Record "User Personalization";
         LibraryPermissions: Codeunit "Library - Permissions";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
@@ -354,9 +202,10 @@ codeunit 139460 "User Access in SaaS Tests"
         Initialize();
         // [GIVEN] A existing user with no user login entry
 
-        UserGroupMember.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryPermissions.CreateUser(User, UserEuropeDcst1FullTok, true);
+        AccessControl.SetRange("User Security ID", User."User Security ID");
+        AccessControl.DeleteAll();
 
         Plan.Open();
         Plan.Read();
@@ -368,9 +217,8 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] UpdateUserAccessForSaaS
         PermissionManager.UpdateUserAccessForSaaS(User."User Security ID");
 
-        // [THEN] No user plan/groups/permission are changed
-        UserGroupMember.SetRange("User Security ID", User."User Security ID");
-        Assert.RecordIsNotEmpty(UserGroupMember);
+        // [THEN] Permission sets are assigned
+        Assert.RecordIsNotEmpty(AccessControl);
     end;
 
     [Test]
@@ -379,7 +227,7 @@ codeunit 139460 "User Access in SaaS Tests"
     procedure TestUpdateUserAccessForSaaSWithInvalidRoleCenter()
     var
         User: Record User;
-        UserGroupMember: Record "User Group Member";
+        AccessControl: Record "Access Control";
         LibraryPermissions: Codeunit "Library - Permissions";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         PlanID: Guid;
@@ -398,9 +246,8 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] UpdateUserAccessForSaaS
         PermissionManager.UpdateUserAccessForSaaS(User."User Security ID");
 
-        // [THEN] No user plan/groups/permission are changed
-        UserGroupMember.SetRange("User Security ID", User."User Security ID");
-        Assert.RecordIsEmpty(UserGroupMember);
+        // [THEN] Permission sets are not assigned
+        Assert.RecordIsEmpty(AccessControl);
     end;
 
     [Test]
@@ -501,6 +348,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserCardPage.OK.Invoke;
     end;
 
+#if not CLEAN22
     local procedure CreateGetDefaultUserGroup(var UserGroup: Record "User Group")
     begin
         if UserGroup.Get(UserGroupO365FullAccessTxt) then
@@ -511,6 +359,7 @@ codeunit 139460 "User Access in SaaS Tests"
         UserGroup."Assign to All New Users" := true;
         UserGroup.Insert();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

@@ -5,6 +5,7 @@ permissionset 3723 "Recievables - Admin"
     Caption = 'S&R  setup';
 
     Permissions = tabledata "Additional Fee Setup" = RIMD,
+                  tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Base Calendar" = RIMD,
                   tabledata "Base Calendar Change" = RIMD,
                   tabledata "Currency for Fin. Charge Terms" = RIMD,

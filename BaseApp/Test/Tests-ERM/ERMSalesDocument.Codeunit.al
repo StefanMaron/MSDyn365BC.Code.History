@@ -1,4 +1,4 @@
-codeunit 134385 "ERM Sales Document"
+﻿codeunit 134385 "ERM Sales Document"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -727,6 +727,102 @@ codeunit 134385 "ERM Sales Document"
           SalesHeader."Salesperson Code", CustLedgerEntry."Salesperson Code",
           StrSubstNo(FieldError, SalesHeader.FieldCaption("Salesperson Code"),
             SalesHeader."Salesperson Code", CustLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure YourReferenceSalesOrderToCustLedgerEntry()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+
+        // [GIVEN] Sales Order with non-empty Your Reference exists
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
+        SalesHeader.Modify(true);
+
+        // [WHEN] The document is posted        
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Cust. ledger entry with the same Your Reference is created
+        FindCustLedgerEntry(CustLedgerEntry, DocumentNo, CustLedgerEntry."Document Type"::Invoice);
+        Assert.AreEqual(SalesHeader."Your Reference", CustLedgerEntry."Your Reference", CustLedgerEntry.FieldCaption("Your Reference"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure YourReferenceSalesInvoiceToCustLedgerEntry()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+
+        // [GIVEN] Sales Invoice with non-empty Your Reference exists
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
+        SalesHeader.Modify(true);
+
+        // [WHEN] The document is posted        
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Cust. ledger entry with the same Your Reference is created
+        FindCustLedgerEntry(CustLedgerEntry, DocumentNo, CustLedgerEntry."Document Type"::Invoice);
+        Assert.AreEqual(SalesHeader."Your Reference", CustLedgerEntry."Your Reference", CustLedgerEntry.FieldCaption("Your Reference"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure YourReferenceSalesReturnOrderToCustLedgerEntry()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+
+        // [GIVEN] Sales Order with non-empty Your Reference exists
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
+        SalesHeader.Modify(true);
+
+        // [WHEN] The document is posted        
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Cust. ledger entry with the same Your Reference is created
+        FindCustLedgerEntry(CustLedgerEntry, DocumentNo, CustLedgerEntry."Document Type"::"Credit Memo");
+        Assert.AreEqual(SalesHeader."Your Reference", CustLedgerEntry."Your Reference", CustLedgerEntry.FieldCaption("Your Reference"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure YourReferenceSalesCrMemoToCustLedgerEntry()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo with non-empty Your Reference exists
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
+        SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
+        SalesHeader.Modify(true);
+
+        // [WHEN] The document is posted        
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Cust. ledger entry with the same Your Reference is created
+        FindCustLedgerEntry(CustLedgerEntry, DocumentNo, CustLedgerEntry."Document Type"::"Credit Memo");
+        Assert.AreEqual(SalesHeader."Your Reference", CustLedgerEntry."Your Reference", CustLedgerEntry.FieldCaption("Your Reference"));
     end;
 
     [Test]
@@ -3532,6 +3628,32 @@ codeunit 134385 "ERM Sales Document"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentTermCodeErrorOnDocumentDateBlank()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 463454]  "You cannot base a date calculation on an undefined date." error message if you try to change the payment terms with a blank document date
+        Initialize();
+
+        // [GIVEN] Create Payment Term
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Create Sales Order document
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+
+        // [WHEN] Blank the "Document Date"
+        SalesHeader.Validate("Document Date", 0D);
+        SalesHeader.Modify();
+
+        // [VERIFY] Verify the "Document Date" error will come.
+        asserterror SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler,CopyDocRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VerifySalesQuoteIsCreatedWithArchivedSalesQuoteDocument()
@@ -3582,32 +3704,6 @@ codeunit 134385 "ERM Sales Document"
 
         // [VERIFY] Verify: Second new Sales Quote is created with contact No.
         Assert.AreEqual(SalesQuote."Sell-to Contact No.".Value, Contact."No.", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyPaymentTermCodeErrorOnDocumentDateBlank()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        PaymentTerms: Record "Payment Terms";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [SCENARIO 463454]  "You cannot base a date calculation on an undefined date." error message if you try to change the payment terms with a blank document date
-        Initialize();
-
-        // [GIVEN] Create Payment Term
-        LibraryERM.CreatePaymentTerms(PaymentTerms);
-
-        // [GIVEN] Create Sales Order document
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
-
-        // [WHEN] Blank the "Document Date"
-        SalesHeader.Validate("Document Date", 0D);
-        SalesHeader.Modify();
-
-        // [VERIFY] Verify the "Document Date" error will come.
-        asserterror SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
     end;
 
     local procedure Initialize()

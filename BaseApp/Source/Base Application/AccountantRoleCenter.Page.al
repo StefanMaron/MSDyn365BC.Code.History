@@ -20,6 +20,10 @@ page 9027 "Accountant Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
+            part("Intercompany Activities"; "Intercompany Activities")
+            {
+                ApplicationArea = Intercompany;
+            }
             part("User Tasks Activities"; "User Tasks Activities")
             {
                 ApplicationArea = Suite;
@@ -264,9 +268,13 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
                 }
             }
+#if not CLEAN22
             group(Action60)
             {
                 Caption = 'Intrastat';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 action("&Intrastat - Checklist")
                 {
                     ApplicationArea = BasicEU;
@@ -274,6 +282,9 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Report "Intrastat - Checklist";
                     ToolTip = 'View a checklist that you can use to find possible errors before printing and also as documentation for what is printed. You can use the report to check the Intrastat journal before you use the Intrastat - Make Disk Tax Auth batch job.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
                 action("Intrastat - For&m")
                 {
@@ -282,8 +293,12 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Report "Intrastat - Form";
                     ToolTip = 'View all the information that must be transferred to the printed Intrastat form.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
             }
+#endif
             group("Cost Accounting")
             {
                 Caption = 'Cost Accounting';
@@ -424,13 +439,18 @@ page 9027 "Accountant Role Center"
                 RunObject = Page "VAT Statement Names";
                 ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
             }
+#if not CLEAN22
             action(Intrastat)
             {
                 ApplicationArea = BasicEU;
                 Caption = 'Intrastat';
                 RunObject = Page "Intrastat Jnl. Batches";
                 ToolTip = 'Report your trade with other EU countries/regions for Intrastat reporting.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
+#endif
         }
         area(sections)
         {
@@ -504,6 +524,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
                 }
+#if not CLEAN22
                 action("Intrastat Journals")
                 {
                     ApplicationArea = BasicEU;
@@ -512,7 +533,11 @@ page 9027 "Accountant Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Analysis Views")
                 {
                     ApplicationArea = Basic, Suite;
@@ -575,32 +600,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "IC Dimensions";
                     ToolTip = 'Enable companies within a group to exchange transactions with dimensions and to perform financial analysis by dimensions across the group. The parent company of the group can create a simplified version of their own set of dimensions and export them to an XML file that each subsidiary can import into the intercompany Dimensions window and then map them to their own dimensions.';
                 }
-#if not CLEAN19
-                action(Action38)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Currencies';
-                    Image = Currency;
-                    RunObject = Page Currencies;
-                    ToolTip = 'View the different currencies that you trade in or update the exchange rates by getting the latest rates from an external service provider.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action(Currencies)';
-                    ObsoleteTag = '19.0';
-                }
-#endif
-#if not CLEAN19
-                action(Action144)
-                {
-                    ApplicationArea = BasicHR;
-                    Caption = 'Employees';
-                    Visible = false;
-                    RunObject = Page "Employee List";
-                    ToolTip = 'Manage employees'' details and related information, such as qualifications and pictures, or register and analyze employee absence. Keeping up-to-date records about your employees simplifies personnel tasks. For example, if an employee''s address changes, you register this on the employee card.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action(Employees)';
-                    ObsoleteTag = '19.0';
-                }
-#endif                
                 action("Accounting Periods")
                 {
                     ApplicationArea = Basic, Suite;
@@ -616,18 +615,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
-#if not CLEAN19
-                action(Action116)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'G/L Account Categories';
-                    RunObject = Page "G/L Account Categories";
-                    ToolTip = 'Personalize the structure of your financial statements by mapping general ledger accounts to account categories. You can create category groups by indenting subcategories under them. Each grouping shows a total balance. When you choose the Generate Account Schedules action, the account schedules for the underlying financial reports are updated. The next time you run one of these reports, such as the balance statement, new totals and subentries are added, based on your changes.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Duplicated action use action("G/L Account Categories")';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Bank Account Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
@@ -691,6 +678,7 @@ page 9027 "Accountant Role Center"
                                         Recurring = CONST(false));
                     ToolTip = 'Post intercompany transactions. IC general journal lines must contain either an IC partner account or a customer or vendor account that has been assigned an intercompany partner code.';
                 }
+#if not CLEAN22
                 action(Action1102601002)
                 {
                     ApplicationArea = BasicEU;
@@ -698,7 +686,11 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action(PostedGeneralJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1193,6 +1185,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Report "Post Inventory Cost to G/L";
                     ToolTip = 'Record the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
                 }
+#if not CLEAN22
                 action("Intrastat &Journal")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1200,7 +1193,11 @@ page 9027 "Accountant Role Center"
                     Image = Journal;
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Calc. and Pos&t VAT Settlement")
                 {
                     ApplicationArea = VAT;
@@ -1355,105 +1352,6 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Run the Consolidation report.';
                 }
             }
-#if not CLEAN19
-            group(Setup)
-            {
-                Caption = 'Setup';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Setup is no longer shown in this page.';
-                ObsoleteTag = '19.0';
-
-                action(Action112)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Assisted Setup';
-                    Image = QuestionaireSetup;
-                    RunObject = Page "Assisted Setup";
-                    ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("General &Ledger Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'General &Ledger Setup';
-                    Image = Setup;
-                    RunObject = Page "General Ledger Setup";
-                    ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("&Sales && Receivables Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Sales && Receivables Setup';
-                    Image = Setup;
-                    RunObject = Page "Sales & Receivables Setup";
-                    ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("&Purchases && Payables Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Purchases && Payables Setup';
-                    Image = Setup;
-                    RunObject = Page "Purchases & Payables Setup";
-                    ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("&Fixed Asset Setup")
-                {
-                    ApplicationArea = FixedAssets;
-                    Caption = '&Fixed Asset Setup';
-                    Image = Setup;
-                    RunObject = Page "Fixed Asset Setup";
-                    ToolTip = 'Define your accounting policies for fixed assets, such as the allowed posting period and whether to allow posting to main assets. Set up your number series for creating new fixed assets.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Cash Flow Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Flow Setup';
-                    Image = CashFlowSetup;
-                    RunObject = Page "Cash Flow Setup";
-                    ToolTip = 'Set up the accounts where cash flow figures for sales, purchase, and fixed-asset transactions are stored.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Cost Accounting Setup")
-                {
-                    ApplicationArea = CostAccounting;
-                    Caption = 'Cost Accounting Setup';
-                    Image = CostAccountingSetup;
-                    RunObject = Page "Cost Accounting Setup";
-                    ToolTip = 'Specify how you transfer general ledger entries to cost accounting, how you link dimensions to cost centers and cost objects, and how you handle the allocation ID and allocation document number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-                action("Business Units")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Business Units';
-                    Image = Setup;
-                    RunObject = Page "Business Unit List";
-                    ToolTip = 'Set up Business Units that you need to consolidate into this company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Setup is no longer shown in this page.';
-                    ObsoleteTag = '19.0';
-                }
-            }
-#endif
             group(History)
             {
                 Caption = 'History';

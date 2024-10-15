@@ -60,7 +60,7 @@ page 11301 "VAT VIES Correction"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the VAT correction.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT correction.';

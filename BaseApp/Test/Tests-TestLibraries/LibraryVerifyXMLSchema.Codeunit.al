@@ -14,10 +14,17 @@ codeunit 131339 "Library - Verify XML Schema"
     local procedure VerifyXMLAgainstSchemaLocal(XmlFilePath: Text; XmlSchemaPath: Text)
     var
         XmlDoc: DotNet XmlDocument;
+        XmlUrlResolver: DotNet XmlUrlResolver;
+        NetCredentialCache: DotNet CredentialCache;
         ValidationEventHandler: DotNet "System.Xml.Schema.ValidationEventHandler";
         I: Integer;
     begin
         XmlDoc := XmlDoc.XmlDocument();
+
+        XmlUrlResolver := XmlUrlResolver.XmlUrlResolver();
+        XmlUrlResolver.Credentials := NetCredentialCache.DefaultNetworkCredentials;
+        XmlDoc.Schemas.XmlResolver := XmlUrlResolver;
+
         AddSchemaToDoc(XmlDoc, XmlSchemaPath);
         if CountOfAdditionalSchemaPaths > 0 then
             for I := 1 to CountOfAdditionalSchemaPaths do
@@ -30,10 +37,17 @@ codeunit 131339 "Library - Verify XML Schema"
     local procedure VerifyXMLStreamAgainstSchemaLocal(XmlInStream: InStream; XmlSchemaPath: Text)
     var
         XmlDoc: DotNet XmlDocument;
+        XmlUrlResolver: DotNet XmlUrlResolver;
+        NetCredentialCache: DotNet CredentialCache;
         ValidationEventHandler: DotNet "System.Xml.Schema.ValidationEventHandler";
         I: Integer;
     begin
         XmlDoc := XmlDoc.XmlDocument();
+
+        XmlUrlResolver := XmlUrlResolver.XmlUrlResolver();
+        XmlUrlResolver.Credentials := NetCredentialCache.DefaultNetworkCredentials;
+        XmlDoc.Schemas.XmlResolver := XmlUrlResolver;
+
         AddSchemaToDoc(XmlDoc, XmlSchemaPath);
         IF CountOfAdditionalSchemaPaths > 0 THEN
             FOR I := 1 TO CountOfAdditionalSchemaPaths DO

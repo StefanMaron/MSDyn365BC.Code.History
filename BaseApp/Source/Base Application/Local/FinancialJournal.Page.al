@@ -112,7 +112,7 @@ page 11300 "Financial Journal"
                         CurrPage.Update();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -178,7 +178,7 @@ page 11300 "Financial Journal"
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the entry.';
@@ -824,7 +824,6 @@ page 11300 "Financial Journal"
         TotalBalanceVisible := ShowTotalBalance;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckBalance()
     begin
         Total := 0;
@@ -843,7 +842,6 @@ page 11300 "Financial Journal"
             Error(Text11300, -(Total - StatementEndingBalance + BalanceLastStatement));
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateStatementAmounts()
     begin
         FilterGroup(2);
@@ -881,13 +879,12 @@ page 11300 "Financial Journal"
         CurrPage.Update(false);
     end;
 
-    [Scope('OnPrem')]
     procedure SetUserInteractions()
     begin
         StyleTxt := GetStyle();
     end;
 
-    local procedure CalcJournalTotal(): Decimal
+    procedure CalcJournalTotal(): Decimal
     begin
         GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");

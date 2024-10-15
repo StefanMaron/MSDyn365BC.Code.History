@@ -743,6 +743,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Change Log - NamedType RunWithoutFilterQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 80739734 - Method 379924618 - NamedType 1978223425" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Change log cannot be enabled for the table %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Table caption]D;]A;(LookupHint=Codeunit Change Log - Method UsersCannotEnableLoggingOnChangeLogEntry - NamedType CannotEnableChangeLogErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 438871440 - NamedType 3901594298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is an entry in the database with the same ID. A test likely did not clean-up correctly]]></Val>
@@ -5234,6 +5243,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Mandatory Fields Tests - NamedType UnexpectedShowMandatoryValueTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 315597254 - NamedType 1927258356" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Just trying this out? Start by adding 'D365 READ' permissions to all objects to experience how employees across the organization can read Business Central data in Microsoft Teams using only their Microsoft 365 license.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Microsoft 365 License Tests - NamedType M365ConfigurationNotificationTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 591093988 - NamedType 1420602461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[BLOB field is empty.]]></Val>
@@ -5927,51 +5945,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType ShipmentDateDocumentError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 179163235 - NamedType 266766312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify the Azure Active Directory ID.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Setup Email Log Wizard Tests - NamedType EmptyClientIdErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179163235 - NamedType 720583169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify the Azure Active Directory application secret.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Setup Email Log Wizard Tests - NamedType EmptyClientSecretErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179163235 - NamedType 2089822344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Next should not be enabled at the end of the wizard]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Setup Email Log Wizard Tests - NamedType NextShouldNotBeEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179163235 - NamedType 2567293176" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Email Logging Setup status should not be completed]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Setup Email Log Wizard Tests - NamedType SetupShouldNotBeCompletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179163235 - NamedType 1153296310" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Marketing Setup field %1 should be empty]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Setup Email Log Wizard Tests - NamedType TableFieldShouldBeEmptyErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4097039479 - NamedType 1785681046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect xml document signature test failed ]]></Val>
@@ -6591,33 +6564,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test XML Transformation - Method GetJsonStructureJsonToXMLNoEndlessLoop - NamedType NameText)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1366524505 - NamedType 4033951942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Company display name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TestCompanyChangePages - NamedType CompanyDisplayNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1366524505 - NamedType 1633402485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Company %1 was just created, and we are still setting it up for you.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - a company name]D;]A;(LookupHint=Codeunit TestCompanyChangePages - NamedType CompanySetUpInProgressMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1366524505 - NamedType 1482689950" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No configuration package file is defined within the specified filter]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TestCompanyChangePages - NamedType NoConfigPackDefinedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4248684771 - NamedType 2095333819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

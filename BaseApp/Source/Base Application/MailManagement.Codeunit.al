@@ -294,7 +294,6 @@ codeunit 9520 "Mail Management"
     end;
 
     // Email Item needs to be passed by var so the attachments are available
-    [Scope('OnPrem')]
     procedure SendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario")
     var
         MailManagement: Codeunit "Mail Management";

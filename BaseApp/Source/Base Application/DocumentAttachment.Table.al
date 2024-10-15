@@ -164,6 +164,19 @@ table 1173 "Document Attachment"
         NoContentErr: Label 'The selected file has no content. Please choose another file.';
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
 
+    procedure ImportAttachment(DocumentInStream: InStream; FileName: Text)
+    begin
+        Rec."Document Reference ID".ImportStream(DocumentInStream, '', '', FileName);
+        if not Rec."Document Reference ID".HasValue() then
+            Error(NoDocumentAttachedErr);
+
+        Rec.Validate("Attached Date", CurrentDateTime);
+        if IsNullGuid(Rec."Attached By") then
+            Rec."Attached By" := UserSecurityId();
+
+        Rec.Modify();
+    end;
+
     procedure Export(ShowFileDialog: Boolean) Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -214,7 +227,6 @@ table 1173 "Document Attachment"
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure SaveAttachment(RecRef: RecordRef; FileName: Text; TempBlob: Codeunit "Temp Blob")
     begin
         SaveAttachment(RecRef, FileName, TempBlob, true);

@@ -12,12 +12,12 @@ page 2000003 "EB Payment Journal Batches"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the name of the journal batch you are creating.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the journal batch you are creating.';
@@ -27,7 +27,7 @@ page 2000003 "EB Payment Journal Batches"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code linked to this journal batch.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that to see the available status, click the AssistButton.';

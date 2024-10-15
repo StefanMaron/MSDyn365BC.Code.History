@@ -75,7 +75,7 @@ page 2000022 "Domiciliation Journal"
                     ToolTip = 'Specifies a second message for the domiciliation.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the outstanding amount. The payment discounts are automatically subtracted from this amount.';
@@ -214,7 +214,7 @@ page 2000022 "Domiciliation Journal"
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that to see the available status, click the AssistButton.';

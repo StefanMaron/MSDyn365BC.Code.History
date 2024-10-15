@@ -141,7 +141,7 @@ page 2000001 "EB Payment Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment message that is to be included in this payment.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the outstanding amount.';
@@ -327,7 +327,7 @@ page 2000001 "EB Payment Journal"
                     ToolTip = 'Specifies the code expense that was defined in the export protocol.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the export protocol that is associated with the payment journal.';

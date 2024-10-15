@@ -22,7 +22,7 @@ page 11303 "Manual VAT Correction List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the VAT correction.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT correction. For example, if the corrected total of the VAT amount is 1000 instead of 1200, enter 200.';

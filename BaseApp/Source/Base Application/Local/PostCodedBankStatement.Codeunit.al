@@ -121,6 +121,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     GenJnlLine."Journal Batch Name" := BatchName;
                     GenJnlLine."Line No." := LineNo;
                     GenJnlLine."Posting Date" := "Posting Date";
+                    // 463983 - Because CODA is only used in BE and in BE the posting date is always the VAT date.
                     GenJnlLine."VAT Reporting Date" := "Posting Date";
                     GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
                     GenJnlLine.Validate("Bal. Account Type", GenJnlTemplate."Bal. Account Type");

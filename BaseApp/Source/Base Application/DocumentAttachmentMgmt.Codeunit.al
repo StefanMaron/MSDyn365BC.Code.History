@@ -28,7 +28,7 @@ codeunit 1173 "Document Attachment Mgmt"
             DocumentAttachment.DeleteAll();
     end;
 
-    local procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
+    procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
     var
         IsHandled: Boolean;
     begin
@@ -42,7 +42,7 @@ codeunit 1173 "Document Attachment Mgmt"
                 DeleteAttachedDocuments(RecRef);
     end;
 
-    local procedure AttachedDocumentsExist(RecRef: RecordRef): Boolean
+    procedure AttachedDocumentsExist(RecRef: RecordRef): Boolean
     var
         DocumentAttachment: Record "Document Attachment";
     begin
@@ -1165,7 +1165,7 @@ codeunit 1173 "Document Attachment Mgmt"
         CopyAttachmentsForPostedDocsLines(FromRecRef, ToRecRef);
     end;
 
-    local procedure CopyAttachmentsForPostedDocsLines(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
+    procedure CopyAttachmentsForPostedDocsLines(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
     var
         FromDocumentAttachmentLines: Record "Document Attachment";
         ToDocumentAttachmentLines: Record "Document Attachment";
@@ -1216,7 +1216,7 @@ codeunit 1173 "Document Attachment Mgmt"
             until FromDocumentAttachmentLines.Next() = 0;
     end;
 
-    local procedure MoveAttachmentsWithinSameRecordType(var MoveFromRecRef: RecordRef; var MoveToRecRef: RecordRef)
+    procedure MoveAttachmentsWithinSameRecordType(var MoveFromRecRef: RecordRef; var MoveToRecRef: RecordRef)
     var
         DocumentAttachmentFound: Record "Document Attachment";
         DocumentAttachmentToCreate: Record "Document Attachment";
@@ -1276,7 +1276,7 @@ codeunit 1173 "Document Attachment Mgmt"
             ShowNotFoundPrintableReportsNotification(Variant);
     end;
 
-    local procedure ShowDocPrintedToAttachmentNotification(Variant: Variant; ShowAction: Boolean)
+    procedure ShowDocPrintedToAttachmentNotification(Variant: Variant; ShowAction: Boolean)
     var
         DocumentAttachment: Record "Document Attachment";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";

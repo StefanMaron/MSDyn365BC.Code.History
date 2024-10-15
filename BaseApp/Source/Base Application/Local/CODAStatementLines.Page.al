@@ -48,7 +48,7 @@ page 2000041 "CODA Statement Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the G/L account, bank, customer, vendor or fixed asset, that the bank account statement line is linked to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the movement.';
@@ -59,7 +59,7 @@ page 2000041 "CODA Statement Lines"
                     ToolTip = 'Specifies information from the CODA file, that this movement line is linked to.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

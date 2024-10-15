@@ -20,7 +20,7 @@ page 11307 "Representative List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the identifier for the representative.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the VAT declaration representative.';

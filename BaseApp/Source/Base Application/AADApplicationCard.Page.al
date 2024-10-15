@@ -20,7 +20,7 @@ page 9861 "AAD Application Card"
                     Caption = 'Client ID';
                     ToolTip = 'Specifies the client ID for the app.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ShowMandatory = true;
                     ApplicationArea = Basic, Suite;
@@ -98,6 +98,7 @@ page 9861 "AAD Application Card"
                 }
             }
 
+#if not CLEAN22
             part(UserGroups; "User Groups User SubPage")
             {
                 ApplicationArea = Basic, Suite;
@@ -105,7 +106,12 @@ page 9861 "AAD Application Card"
                 Enabled = SetUserPermissionEnabled;
                 SubPageLink = "User Security ID" = field("User ID");
                 UpdatePropagation = Both;
+                Visible = LegacyUserGroupsVisible;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the User Subform part.';
+                ObsoleteTag = '22.0';
             }
+#endif
             part(Permissions; "User Subform")
             {
                 ApplicationArea = Basic, Suite;
@@ -153,6 +159,15 @@ page 9861 "AAD Application Card"
         }
     }
 
+#if not CLEAN22
+    trigger OnOpenPage()
+    var
+        LegacyUserGroups: Codeunit "Legacy User Groups";
+    begin
+        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
+    end;
+#endif
+
     trigger OnAfterGetCurrRecord()
     var
         AADApplicationSetup: Codeunit "AAD Application Setup";
@@ -173,6 +188,9 @@ page 9861 "AAD Application Card"
         IsVEApp: Boolean;
         SetUserPermissionEnabled: Boolean;
         EditableByNotEnabled: Boolean;
+#if not CLEAN22
+        LegacyUserGroupsVisible: Boolean;
+#endif
 
     [NonDebuggable]
     [Scope('OnPrem')]

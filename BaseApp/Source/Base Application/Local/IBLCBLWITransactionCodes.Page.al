@@ -18,7 +18,7 @@ page 2000002 "IBLC/BLWI Transaction Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transaction code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the transaction code.';

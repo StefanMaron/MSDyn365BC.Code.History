@@ -18,7 +18,7 @@ page 2000005 "Export Protocols"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code that identifies the export protocol.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the export protocol entry.';

@@ -1,0 +1,398 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Height>2in</Height>
+        <Style />
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="Company_Name">
+          <DataField>Company_Name</DataField>
+        </Field>
+        <Field Name="Company_Address">
+          <DataField>Company_Address</DataField>
+        </Field>
+        <Field Name="Company__Post_Code_______Company_City">
+          <DataField>Company__Post_Code_______Company_City</DataField>
+        </Field>
+        <Field Name="Company__Ship_to_Contact_">
+          <DataField>Company__Ship_to_Contact_</DataField>
+        </Field>
+        <Field Name="Company__Phone_No__">
+          <DataField>Company__Phone_No__</DataField>
+        </Field>
+        <Field Name="Company__Fax_No__">
+          <DataField>Company__Fax_No__</DataField>
+        </Field>
+        <Field Name="Vvatno">
+          <DataField>Vvatno</DataField>
+        </Field>
+        <Field Name="Vthird_1_">
+          <DataField>Vthird_1_</DataField>
+        </Field>
+        <Field Name="Vthird_6_">
+          <DataField>Vthird_6_</DataField>
+        </Field>
+        <Field Name="Vthird_2_">
+          <DataField>Vthird_2_</DataField>
+        </Field>
+        <Field Name="Vthird_3_">
+          <DataField>Vthird_3_</DataField>
+        </Field>
+        <Field Name="Vthird_4_">
+          <DataField>Vthird_4_</DataField>
+        </Field>
+        <Field Name="Vthird_5_">
+          <DataField>Vthird_5_</DataField>
+        </Field>
+        <Field Name="Vthird_7_">
+          <DataField>Vthird_7_</DataField>
+        </Field>
+        <Field Name="Text2">
+          <DataField>Text2</DataField>
+        </Field>
+        <Field Name="VMonth">
+          <DataField>VMonth</DataField>
+        </Field>
+        <Field Name="Text1">
+          <DataField>Text1</DataField>
+        </Field>
+        <Field Name="Pages">
+          <DataField>Pages</DataField>
+        </Field>
+        <Field Name="VMessage">
+          <DataField>VMessage</DataField>
+        </Field>
+        <Field Name="Company__Intrastat_Establishment_No__">
+          <DataField>Company__Intrastat_Establishment_No__</DataField>
+        </Field>
+        <Field Name="VYear">
+          <DataField>VYear</DataField>
+        </Field>
+        <Field Name="Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312">
+          <DataField>Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312</DataField>
+        </Field>
+        <Field Name="V1Caption">
+          <DataField>V1Caption</DataField>
+        </Field>
+        <Field Name="V2Caption">
+          <DataField>V2Caption</DataField>
+        </Field>
+        <Field Name="V3Caption">
+          <DataField>V3Caption</DataField>
+        </Field>
+        <Field Name="V4Caption">
+          <DataField>V4Caption</DataField>
+        </Field>
+        <Field Name="XCaption">
+          <DataField>XCaption</DataField>
+        </Field>
+        <Field Name="TELCaption">
+          <DataField>TELCaption</DataField>
+        </Field>
+        <Field Name="TELCaption_Control1010077">
+          <DataField>TELCaption_Control1010077</DataField>
+        </Field>
+        <Field Name="FAXCaption">
+          <DataField>FAXCaption</DataField>
+        </Field>
+        <Field Name="FAXCaption_Control1010079">
+          <DataField>FAXCaption_Control1010079</DataField>
+        </Field>
+        <Field Name="V14Caption">
+          <DataField>V14Caption</DataField>
+        </Field>
+        <Field Name="V12Caption">
+          <DataField>V12Caption</DataField>
+        </Field>
+        <Field Name="V13Caption">
+          <DataField>V13Caption</DataField>
+        </Field>
+        <Field Name="V11Caption">
+          <DataField>V11Caption</DataField>
+        </Field>
+        <Field Name="V10Caption">
+          <DataField>V10Caption</DataField>
+        </Field>
+        <Field Name="V9Caption">
+          <DataField>V9Caption</DataField>
+        </Field>
+        <Field Name="V8Caption">
+          <DataField>V8Caption</DataField>
+        </Field>
+        <Field Name="V7Caption">
+          <DataField>V7Caption</DataField>
+        </Field>
+        <Field Name="V6Caption">
+          <DataField>V6Caption</DataField>
+        </Field>
+        <Field Name="V5Caption">
+          <DataField>V5Caption</DataField>
+        </Field>
+        <Field Name="BNBB__de_Berlaimont_14__1000_BRUCaption">
+          <DataField>BNBB__de_Berlaimont_14__1000_BRUCaption</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Batch_Journal_Template_Name">
+          <DataField>Intrastat_Jnl__Batch_Journal_Template_Name</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Batch_Name">
+          <DataField>Intrastat_Jnl__Batch_Name</DataField>
+        </Field>
+        <Field Name="Company_Name_Control1010009">
+          <DataField>Company_Name_Control1010009</DataField>
+        </Field>
+        <Field Name="Company_Address_Control1010010">
+          <DataField>Company_Address_Control1010010</DataField>
+        </Field>
+        <Field Name="Company__Post_Code_______Company_City_Control1010011">
+          <DataField>Company__Post_Code_______Company_City_Control1010011</DataField>
+        </Field>
+        <Field Name="Company__Ship_to_Contact__Control1010012">
+          <DataField>Company__Ship_to_Contact__Control1010012</DataField>
+        </Field>
+        <Field Name="Company__Phone_No___Control1010037">
+          <DataField>Company__Phone_No___Control1010037</DataField>
+        </Field>
+        <Field Name="Company__Fax_No___Control1010038">
+          <DataField>Company__Fax_No___Control1010038</DataField>
+        </Field>
+        <Field Name="Vvatno_Control1010041">
+          <DataField>Vvatno_Control1010041</DataField>
+        </Field>
+        <Field Name="Vthird_1__Control1010039">
+          <DataField>Vthird_1__Control1010039</DataField>
+        </Field>
+        <Field Name="Vthird_6__Control1010044">
+          <DataField>Vthird_6__Control1010044</DataField>
+        </Field>
+        <Field Name="Vthird_2__Control1010045">
+          <DataField>Vthird_2__Control1010045</DataField>
+        </Field>
+        <Field Name="Vthird_3__Control1010046">
+          <DataField>Vthird_3__Control1010046</DataField>
+        </Field>
+        <Field Name="Vthird_4__Control1010047">
+          <DataField>Vthird_4__Control1010047</DataField>
+        </Field>
+        <Field Name="Vthird_5__Control1010048">
+          <DataField>Vthird_5__Control1010048</DataField>
+        </Field>
+        <Field Name="Vthird_7__Control1010049">
+          <DataField>Vthird_7__Control1010049</DataField>
+        </Field>
+        <Field Name="Text2_Control1010004">
+          <DataField>Text2_Control1010004</DataField>
+        </Field>
+        <Field Name="VMonth_Control1010005">
+          <DataField>VMonth_Control1010005</DataField>
+        </Field>
+        <Field Name="Text1_Control1010006">
+          <DataField>Text1_Control1010006</DataField>
+        </Field>
+        <Field Name="Pages_Control1010003">
+          <DataField>Pages_Control1010003</DataField>
+        </Field>
+        <Field Name="VMessage_Control1010013">
+          <DataField>VMessage_Control1010013</DataField>
+        </Field>
+        <Field Name="Company__Intrastat_Establishment_No___Control1010015">
+          <DataField>Company__Intrastat_Establishment_No___Control1010015</DataField>
+        </Field>
+        <Field Name="VYear_Control1010017">
+          <DataField>VYear_Control1010017</DataField>
+        </Field>
+        <Field Name="Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312_Control1010000">
+          <DataField>Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312_Control1010000</DataField>
+        </Field>
+        <Field Name="TWeight">
+          <DataField>TWeight</DataField>
+        </Field>
+        <Field Name="TValue">
+          <DataField>TValue</DataField>
+        </Field>
+        <Field Name="TUnits">
+          <DataField>TUnits</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line__Tariff_No__">
+          <DataField>Intrastat_Jnl__Line__Tariff_No__</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line__Transaction_Type_">
+          <DataField>Intrastat_Jnl__Line__Transaction_Type_</DataField>
+        </Field>
+        <Field Name="TTransportMethod">
+          <DataField>TTransportMethod</DataField>
+        </Field>
+        <Field Name="Country__Intrastat_Code_">
+          <DataField>Country__Intrastat_Code_</DataField>
+        </Field>
+        <Field Name="TIncoTerm">
+          <DataField>TIncoTerm</DataField>
+        </Field>
+        <Field Name="TArea">
+          <DataField>TArea</DataField>
+        </Field>
+        <Field Name="Index">
+          <DataField>Index</DataField>
+        </Field>
+        <Field Name="Type">
+          <DataField>Type</DataField>
+        </Field>
+        <Field Name="Text_Index">
+          <DataField>Text_Index</DataField>
+        </Field>
+        <Field Name="TValue_Total">
+          <DataField>TValue_Total</DataField>
+        </Field>
+        <Field Name="TValue_TotalFormat">
+          <DataField>TValue_TotalFormat</DataField>
+        </Field>
+        <Field Name="TWeight_Total">
+          <DataField>TWeight_Total</DataField>
+        </Field>
+        <Field Name="TWeight_TotalFormat">
+          <DataField>TWeight_TotalFormat</DataField>
+        </Field>
+        <Field Name="Nihil">
+          <DataField>Nihil</DataField>
+        </Field>
+        <Field Name="NewPageNumber">
+          <DataField>NewPageNumber</DataField>
+        </Field>
+        <Field Name="V1Caption_Control1010008">
+          <DataField>V1Caption_Control1010008</DataField>
+        </Field>
+        <Field Name="V2Caption_Control1010040">
+          <DataField>V2Caption_Control1010040</DataField>
+        </Field>
+        <Field Name="V3Caption_Control1010042">
+          <DataField>V3Caption_Control1010042</DataField>
+        </Field>
+        <Field Name="V4Caption_Control1010043">
+          <DataField>V4Caption_Control1010043</DataField>
+        </Field>
+        <Field Name="XCaption_Control1010007">
+          <DataField>XCaption_Control1010007</DataField>
+        </Field>
+        <Field Name="TELCaption_Control1010033">
+          <DataField>TELCaption_Control1010033</DataField>
+        </Field>
+        <Field Name="TELCaption_Control1010065">
+          <DataField>TELCaption_Control1010065</DataField>
+        </Field>
+        <Field Name="FAXCaption_Control1010068">
+          <DataField>FAXCaption_Control1010068</DataField>
+        </Field>
+        <Field Name="FAXCaption_Control1010069">
+          <DataField>FAXCaption_Control1010069</DataField>
+        </Field>
+        <Field Name="V14Caption_Control1010022">
+          <DataField>V14Caption_Control1010022</DataField>
+        </Field>
+        <Field Name="V12Caption_Control1010060">
+          <DataField>V12Caption_Control1010060</DataField>
+        </Field>
+        <Field Name="V13Caption_Control1010061">
+          <DataField>V13Caption_Control1010061</DataField>
+        </Field>
+        <Field Name="V11Caption_Control1010062">
+          <DataField>V11Caption_Control1010062</DataField>
+        </Field>
+        <Field Name="V10Caption_Control1010063">
+          <DataField>V10Caption_Control1010063</DataField>
+        </Field>
+        <Field Name="V9Caption_Control1010064">
+          <DataField>V9Caption_Control1010064</DataField>
+        </Field>
+        <Field Name="V8Caption_Control1010066">
+          <DataField>V8Caption_Control1010066</DataField>
+        </Field>
+        <Field Name="V7Caption_Control1010067">
+          <DataField>V7Caption_Control1010067</DataField>
+        </Field>
+        <Field Name="V6Caption_Control1010070">
+          <DataField>V6Caption_Control1010070</DataField>
+        </Field>
+        <Field Name="V5Caption_Control1010071">
+          <DataField>V5Caption_Control1010071</DataField>
+        </Field>
+        <Field Name="BNBB__de_Berlaimont_14__1000_BRUCaption_Control1010072">
+          <DataField>BNBB__de_Berlaimont_14__1000_BRUCaption_Control1010072</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line_Journal_Template_Name">
+          <DataField>Intrastat_Jnl__Line_Journal_Template_Name</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line_Journal_Batch_Name">
+          <DataField>Intrastat_Jnl__Line_Journal_Batch_Name</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line_Line_No_">
+          <DataField>Intrastat_Jnl__Line_Line_No_</DataField>
+        </Field>
+        <Field Name="Intrastat_Jnl__Line_Area">
+          <DataField>Intrastat_Jnl__Line_Area</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>

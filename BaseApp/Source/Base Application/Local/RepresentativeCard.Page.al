@@ -16,7 +16,7 @@ page 11306 "Representative Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the identifier for the representative.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the VAT declaration representative.';

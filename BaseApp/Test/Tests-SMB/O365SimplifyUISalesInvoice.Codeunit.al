@@ -4553,7 +4553,6 @@
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Date"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
-        FieldListToExclude.Add(PurchaseHeaderRef.FieldName(Id));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
 
         OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);

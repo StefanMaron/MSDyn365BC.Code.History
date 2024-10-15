@@ -1,4 +1,4 @@
-codeunit 134336 "ERM Purch. Doc. Reports - II"
+﻿codeunit 134336 "ERM Purch. Doc. Reports - II"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -29,7 +29,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     begin
         // Check Vendor Label Report with Label Format 36 x 70 mm (3 columns).
         Initialize();
-        asserterror VendorLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
+        VendorLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -41,7 +41,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     begin
         // Check Vendor Label Report with Label Format 37 x 70 mm (3 columns).
         Initialize();
-        asserterror VendorLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
+        VendorLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     begin
         // Check Vendor Label Report with Label Format 36 x 105 mm (2 columns).
         Initialize();
-        asserterror VendorLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
+        VendorLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     begin
         // Check Vendor Label Report with Label Format 37 x 105 mm (2 columns).
         Initialize();
-        asserterror VendorLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
+        VendorLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
     end;
 
     local procedure VendorLabelReport(LabelFormat: Option; NumberOfColumns: Integer)

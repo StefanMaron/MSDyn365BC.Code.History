@@ -3833,6 +3833,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with the same date
         Initialize();
         ServiceHour.DeleteAll();
+        CheckWorkDateIsWorkingDate();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
@@ -3859,6 +3860,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with the same date
         Initialize();
         ServiceHour.DeleteAll();
+        CheckWorkDateIsWorkingDate();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
@@ -3885,6 +3887,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with different dates
         Initialize();
         ServiceHour.DeleteAll();
+        CheckWorkDateIsWorkingDate();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
@@ -3912,6 +3915,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with different dates
         Initialize();
         ServiceHour.DeleteAll();
+        CheckWorkDateIsWorkingDate();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate(), 1) - 1);
@@ -5044,6 +5048,12 @@ codeunit 136101 "Service Orders"
         LibraryTemplates.EnableTemplatesFeature();
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Orders");
+    end;
+
+    local procedure CheckWorkDateIsWorkingDate()
+    begin
+        if Date2DWY(WorkDate(), 1) in [6,7] then
+            WorkDate(WorkDate() + 2);
     end;
 
     local procedure CreateCustomerWithCountryRegion(var CountryRegion: Record "Country/Region"; var Customer: Record Customer)
@@ -7178,7 +7188,7 @@ codeunit 136101 "Service Orders"
         UNTIL TempServiceLine.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareService', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
