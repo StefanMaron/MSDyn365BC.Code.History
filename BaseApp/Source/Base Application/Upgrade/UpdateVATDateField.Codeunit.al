@@ -18,7 +18,7 @@ codeunit 104051 "Update VAT Date Field"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         BlankDate: Date;
-
+        
     local procedure UpdateVATEntries()
     var
         VATEntry: Record "VAT Entry";
@@ -43,22 +43,45 @@ codeunit 104051 "Update VAT Date Field"
     local procedure UpdateGLEntries()
     var
         GLEntry: Record "G/L Entry";
-        VATDateDataTransfer: DataTransfer;
+        TotalRows: Integer;
+        FromNo, ToNo: Integer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesUpgrade()) then
             exit;
         
         GLEntry.SetFilter("VAT Reporting Date", '<>%1', BlankDate);
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             exit;
+        
+        GLEntry.Reset();
+        TotalRows := GLEntry.Count();
+        ToNo := 0;
 
+        while ToNo < TotalRows do begin
+            // Batch size 5 million
+            FromNo := ToNo + 1;
+            ToNo := FromNo + 5000000;
+            
+            if ToNo > TotalRows then
+                ToNo := TotalRows;
+            
+            DataTransferGLEntries(FromNo, ToNo);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesUpgrade());
+    end;
+
+    local procedure DataTransferGLEntries(FromEntryNo: Integer; ToEntryNo: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+        VATDateDataTransfer: DataTransfer;
+    begin
         VATDateDataTransfer.SetTables(Database::"G/L Entry", Database::"G/L Entry");
+        VATDateDataTransfer.AddSourceFilter(GLEntry.FieldNo("Entry No."), '%1..%2', FromEntryNo, ToEntryNo);
         VATDateDataTransfer.AddFieldValue(GLEntry.FieldNo("Posting Date"), GLEntry.FieldNo("VAT Reporting Date"));
         VATDateDataTransfer.UpdateAuditFields(false);
         VATDateDataTransfer.CopyFields();
         Clear(VATDateDataTransfer);
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesUpgrade());
     end;
 
     local procedure UpdatePurchSalesEntries()

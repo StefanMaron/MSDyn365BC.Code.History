@@ -3475,6 +3475,63 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandlerTwoLotsAndPackages,DummyConfirmHandler,DummyMessageHandler,WhseJournalBatchesListHandler,WhseCalculateInventoryRequestPageHandler')]
+    procedure VerifyWarehousePhysicalJournalLinesForWarehouseEntriesWithLotAndPackageTrackingNo()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WhsePhysInvtJournal: TestPage "Whse. Phys. Invt. Journal";
+    begin
+        // [SCENARIO 455411] Verify that all Warehouse Entries are inserted in Warehouse Physical Journal when Lot and Package tracking No. are used 
+        Initialize();
+
+        // [GIVEN] Set Direct Put-away and Pick to false, except Location White
+        SetDirectPutAwayOnLocation();
+
+        // [GIVEN] Create Item Tracking Item
+        CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Enter Tracking Information (Lot No., Package No., Qty.)        
+        LibraryVariableStorage.Enqueue(4);
+        EnterTrackingInfo(1, 1, 5);
+        EnterTrackingInfo(1, 2, 5);
+        EnterTrackingInfo(2, 1, 5);
+        EnterTrackingInfo(2, 2, 5);
+
+        // [GIVEN] Create Bin for PICK Zone
+        CreateBinForPickZone(Bin, LocationWhite.Code);
+
+        // [GIVEN] Create and Register Warehouse Journal Line
+        CreateAndRegisterWarehouseJournalLine(WarehouseJournalLine, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", 20);
+
+        // [GIVEN] Calculate and Post Warehouse Adjustment
+        CalculateAndPostWhseAdjustment(Item);
+
+        // [GIVEN] Enter Tracking Information (Lot No., Package No., Qty.)
+        LibraryVariableStorage.Enqueue(1);
+        EnterTrackingInfo(1, 2, 2);
+
+        // [GIVEN] Create and Register Warehouse Journal Line
+        Clear(WarehouseJournalLine);
+        CreateAndRegisterWarehouseJournalLine(WarehouseJournalLine, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", -2);
+
+        // [GIVEN] Calculate and Post Warehouse Adjustment
+        CalculateAndPostWhseAdjustment(Item);
+
+        // [WHEN] Calculate Inventory on Warehouse Physical Journal
+        CalculateInventoryOnWhsePhysInvtJournalPage(WhsePhysInvtJournal, false, Item."No.", Bin."Zone Code", Bin.Code);
+
+        // [THEN] Verify Warehouse Physical Journal Lines
+        VerifyWarehousePhysicalJournalLineExist(Bin."Zone Code", Bin.Code, Item."No.", Format(1), Format(1), 5);
+        VerifyWarehousePhysicalJournalLineExist(Bin."Zone Code", Bin.Code, Item."No.", Format(1), Format(2), 3);
+        VerifyWarehousePhysicalJournalLineExist(Bin."Zone Code", Bin.Code, Item."No.", Format(2), Format(1), 5);
+        VerifyWarehousePhysicalJournalLineExist(Bin."Zone Code", Bin.Code, Item."No.", Format(2), Format(2), 5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5918,6 +5975,69 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseRegister.TestField("No.", LastWarehouseRegisterNo);
     end;
 
+    local procedure CreateBinForPickZone(var Bin: Record Bin; LocationCode: Code[10])
+    var
+        Zone: Record Zone;
+    begin
+        FindZone(Zone, LocationCode, LibraryWarehouse.SelectBinType(false, false, true, true));
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, Zone.Code, Zone."Bin Type Code");
+    end;
+
+    local procedure SetDirectPutAwayOnLocation()
+    var
+        Location: Record Location;
+    begin
+        Location.SetFilter(Code, '<>%1', LocationWhite.Code);
+        Location.SetRange("Directed Put-away and Pick", true);
+        Location.ModifyAll("Directed Put-away and Pick", false);
+    end;
+
+    local procedure VerifyWarehousePhysicalJournalLineExist(ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; PackageNo: Code[50]; QtyCalculated: Decimal)
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        with WarehouseJournalLine do begin
+            SetRange("Zone Code", ZoneCode);
+            SetRange("Bin Code", BinCode);
+            SetRange("Item No.", ItemNo);
+            SetRange("Lot No.", LotNo);
+            SetRange("Package No.", PackageNo);
+            Assert.IsTrue(FindFirst, StrSubstNo(WarehouseLineMustExistErr, ZoneCode, BinCode, ItemNo));
+            Assert.AreEqual(QtyCalculated, "Qty. (Calculated)", QtyCalculatedErr);
+        end;
+    end;
+
+    local procedure EnterTrackingInfo(LotNo: Integer; PackageNo: Integer; Qty: Integer)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PackageNo);
+        LibraryVariableStorage.Enqueue(Qty);
+    end;
+
+    local procedure CreateAndRegisterWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(
+            WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, LocationCode);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, ZoneCode, BinCode,
+          WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+        WarehouseJournalLine.OpenItemTrackingLines();
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, false);
+    end;
+
+    local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
+    var
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Package Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -6204,6 +6324,21 @@ codeunit 137153 "SCM Warehouse - Journal"
         WhseItemTrackingLines.Next();
         WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
         WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger);
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesPageHandlerTwoLotsAndPackages(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    var
+        Counter: Integer;
+    begin
+        for Counter := 1 to LibraryVariableStorage.DequeueInteger do begin
+            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueInteger);
+            WhseItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueInteger);
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger);
+            WhseItemTrackingLines.Next();
+        end;
         WhseItemTrackingLines.OK.Invoke;
     end;
 

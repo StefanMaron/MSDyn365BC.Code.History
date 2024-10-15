@@ -119,6 +119,12 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::Resource), "No." = FIELD("No.");
+            }
             part(Control1906609707; "Resource Statistics FactBox")
             {
                 ApplicationArea = Jobs;

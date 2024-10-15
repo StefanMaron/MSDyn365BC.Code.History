@@ -19,7 +19,9 @@ report 296 "Batch Post Sales Orders"
                 IsHandled := false;
                 OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq, SalesBatchPostMgt, IsHandled);
                 if not IsHandled then begin
-                    SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                    SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Print, PrintDoc);
+                    SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDateReq);
+                    SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);
                     SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
                 end;
                 OnAfterSalesBatchPostMgt("Sales Header", SalesBatchPostMgt);
@@ -57,6 +59,12 @@ report 296 "Batch Post Sales Orders"
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post if you place a checkmark in one or both of the following boxes.';
                     }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
+                    }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -74,6 +82,12 @@ report 296 "Batch Post Sales Orders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the sales orders'' document date with the date in the Posting Date field.';
+                    }
+                    field(ReplaceVATDate; ReplaceVATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Replace VAT Date';
+                        ToolTip = 'Specifies if you want to replace the sales orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
                     {
@@ -141,7 +155,7 @@ report 296 "Batch Post Sales Orders"
     }
 
     var
-        Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
@@ -149,11 +163,13 @@ report 296 "Batch Post Sales Orders"
     protected var
         ShipReq: Boolean;
         InvReq: Boolean;
-        PostingDateReq: Date;
-        ReplacePostingDate: Boolean;
+        PostingDateReq, VATDateReq: Date;
+        ReplacePostingDate, ReplaceVATDateReq: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
 
+#if not CLEAN22
+    [Obsolete('Replaced by InitializeRequest with VAT Date parameters.', '22.0')]
     procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; CalcInvDiscParam: Boolean)
     begin
         ShipReq := ShipParam;
@@ -161,6 +177,20 @@ report 296 "Batch Post Sales Orders"
         PostingDateReq := PostingDateParam;
         ReplacePostingDate := ReplacePostingDateParam;
         ReplaceDocumentDate := ReplaceDocumentDateParam;
+        ReplaceVATDateReq := false;
+        CalcInvDisc := CalcInvDiscParam;
+    end;
+#endif
+
+    procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; VATDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; ReplaceVATDateParam: Boolean; CalcInvDiscParam: Boolean)
+    begin
+        ShipReq := ShipParam;
+        InvReq := InvoiceParam;
+        PostingDateReq := PostingDateParam;
+        VATDateReq := VATDateParam;
+        ReplacePostingDate := ReplacePostingDateParam;
+        ReplaceDocumentDate := ReplaceDocumentDateParam;
+        ReplaceVATDateReq := ReplaceVATDateParam; 
         CalcInvDisc := CalcInvDiscParam;
     end;
 
