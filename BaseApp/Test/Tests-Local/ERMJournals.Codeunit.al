@@ -272,13 +272,11 @@ codeunit 141081 "ERM Journals"
     begin
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
@@ -311,14 +309,12 @@ codeunit 141081 "ERM Journals"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
           CreateVendorWithPaymentTerms(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::Item,
-              CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
-              LibraryRandom.RandDec(10, 2));
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -335,14 +331,12 @@ codeunit 141081 "ERM Journals"
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order,
           CreateCustomerWithPaymentTerms(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
+        LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader,
-            Type::Item, CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
-              LibraryRandom.RandDec(10, 2));
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+            SalesLine.Type::Item, CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -351,12 +345,10 @@ codeunit 141081 "ERM Journals"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreatePaymentJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -375,13 +367,11 @@ codeunit 141081 "ERM Journals"
     begin
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Payment Terms Code", PaymentTerms.Code);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateGenJournalLineWithJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal; DocumentNo: Code[20])
@@ -431,13 +421,11 @@ codeunit 141081 "ERM Journals"
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.CreateGLAccount(GLAccount);
-        with GeneralPostingSetup do begin
-            Validate("Sales Pmt. Disc. Credit Acc.", GLAccount."No.");
-            Validate("Sales Pmt. Disc. Debit Acc.", GLAccount."No.");
-            Validate("Purch. Pmt. Disc. Debit Acc.", GLAccount."No.");
-            Validate("Purch. Pmt. Disc. Credit Acc.", GLAccount."No.");
-            Modify(true);
-        end;
+        GeneralPostingSetup.Validate("Sales Pmt. Disc. Credit Acc.", GLAccount."No.");
+        GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", GLAccount."No.");
+        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Debit Acc.", GLAccount."No.");
+        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Credit Acc.", GLAccount."No.");
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure UpdateGeneralLedgerSetup(AdjustForPaymentDisc: Boolean; GSTReport: Boolean; EnableGST: Boolean)
@@ -482,22 +470,18 @@ codeunit 141081 "ERM Journals"
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
-        with GSTPurchaseEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(GSTAmount, Amount, StrSubstNo(AmountErr, GSTAmount, Amount));
-        end;
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        GSTPurchaseEntry.FindFirst();
+        Assert.AreEqual(GSTAmount, GSTPurchaseEntry.Amount, StrSubstNo(AmountErr, GSTAmount, GSTPurchaseEntry.Amount));
     end;
 
     local procedure VerifyGSTSalesEntry(DocumentNo: Code[20]; GSTAmount: Decimal)
     var
         GSTSalesEntry: Record "GST Sales Entry";
     begin
-        with GSTSalesEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(GSTAmount, Amount, StrSubstNo(AmountErr, GSTAmount, Amount));
-        end;
+        GSTSalesEntry.SetRange("Document No.", DocumentNo);
+        GSTSalesEntry.FindFirst();
+        Assert.AreEqual(GSTAmount, GSTSalesEntry.Amount, StrSubstNo(AmountErr, GSTAmount, GSTSalesEntry.Amount));
     end;
 
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20])

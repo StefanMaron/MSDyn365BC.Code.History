@@ -2,18 +2,18 @@ namespace System.Environment.Configuration;
 
 using System;
 using System.Reflection;
-using System.Apps;
 using System.Tooling;
 
 page 9190 "Profile Customization List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Customized Pages';
+    Extensible = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
     UsageCategory = Lists;
-    SourceTable = "Tenant Profile Page Metadata";
+    SourceTable = "All Profile Page Metadata";
     AdditionalSearchTerms = 'Page customizations,Profile configurations,Profile customizations,Role customizations';
 
     layout
@@ -29,19 +29,21 @@ page 9190 "Profile Customization List"
                     Caption = 'Profile ID';
                     ToolTip = 'Specifies the profile that the customization has been created for.';
                 }
-                field("App ID"; Rec."App ID")
+                field("App ID"; Rec."Profile App ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile App ID';
                     ToolTip = 'Specifies the ID of the app that provided the profile that this page customization applies to.';
                     Visible = false;
+                    Editable = false;
                 }
-                field("App Name"; ExtensionManagement.GetAppName(Rec."App ID"))
+                field("App Name"; Rec."Profile App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile Source';
                     ToolTip = 'Specifies the origin of the profile that this page customization applies to, which can be either an extension, shown by its name, or a custom profile created by a user.';
                     Visible = false;
+                    Editable = false;
                 }
                 field(PageIdField; Rec."Page ID")
                 {
@@ -57,11 +59,21 @@ page 9190 "Profile Customization List"
                     ToolTip = 'Specifies the caption of the page object that has been customized.';
                     Editable = false;
                 }
-                field(OwnerField; Rec.Owner)
+                field(OwnerField; Owner)
                 {
                     ApplicationArea = Basic, Suite;
+                    OptionCaption = 'Tenant,System';
                     Caption = 'Owner';
                     ToolTip = 'Specifies whether the customization was made by a user (Tenant) or provided as part of an extension (System).';
+                    Visible = false;
+                    Editable = false;
+                }
+                field("Cust App Name"; Rec."App Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Page Customization Source';
+                    ToolTip = 'Specifies the name of the app that defines this page customization.';
+                    Editable = false;
                 }
                 field(Health; HealthStatus)
                 {
@@ -112,25 +124,25 @@ page 9190 "Profile Customization List"
 
                 trigger OnAction()
                 var
-                    TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+                    AllProfilePageMetadata: Record "All Profile Page Metadata";
                     OperationId: Guid;
                 begin
                     ShowingOnlyErrors := true;
                     TempDesignerDiagnostics.Reset();
                     TempDesignerDiagnostics.SetRange(Severity, Enum::Severity::Error);
 
-                    TenantProfilePageMetadata.CopyFilters(Rec);
-                    if TenantProfilePageMetadata.FindSet() then
+                    AllProfilePageMetadata.CopyFilters(Rec);
+                    if AllProfilePageMetadata.FindSet() then
                         repeat
-                            if SystemIdToOperationId.Get(TenantProfilePageMetadata.SystemId, OperationId) then begin
+                            if SystemIdToOperationId.Get(AllProfilePageMetadata.SystemId, OperationId) then begin
                                 TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
                                 if not TempDesignerDiagnostics.IsEmpty() then
-                                    TenantProfilePageMetadata.Mark(true);
+                                    AllProfilePageMetadata.Mark(true);
                             end;
-                        until TenantProfilePageMetadata.Next() = 0;
+                        until AllProfilePageMetadata.Next() = 0;
 
-                    TenantProfilePageMetadata.MarkedOnly(true);
-                    CurrPage.SetTableView(TenantProfilePageMetadata);
+                    AllProfilePageMetadata.MarkedOnly(true);
+                    CurrPage.SetTableView(AllProfilePageMetadata);
                     UpdateProfileDiagnosticsListPart();
                 end;
             }
@@ -186,65 +198,66 @@ page 9190 "Profile Customization List"
             Message(ScanCompletedSuccessfullyMsg);
     end;
 
-    local procedure CountNumberOfProfilesWithinFilter(var TenantProfilePageMetadata: Record "Tenant Profile Page Metadata") TotalProfiles: Integer
+    local procedure CountNumberOfProfilesWithinFilter(var AllProfilePageMetadata: Record "All Profile Page Metadata") TotalProfiles: Integer
     var
         CurrentProfileId: Code[30];
-        CurrentAppId: Guid;
+        CurrentProfileAppId: Guid;
     begin
-        if TenantProfilePageMetadata.FindSet() then
+        if AllProfilePageMetadata.FindSet() then
             repeat
-                if (CurrentProfileId <> TenantProfilePageMetadata."Profile ID") or (CurrentAppId <> TenantProfilePageMetadata."App ID") then begin
-                    CurrentProfileId := TenantProfilePageMetadata."Profile ID";
-                    CurrentAppId := TenantProfilePageMetadata."App ID";
+                if (CurrentProfileId <> AllProfilePageMetadata."Profile ID") or (CurrentProfileAppId <> AllProfilePageMetadata."Profile App ID") then begin
+                    CurrentProfileId := AllProfilePageMetadata."Profile ID";
+                    CurrentProfileAppId := AllProfilePageMetadata."Profile App ID";
                     TotalProfiles += 1;
                 end;
-            until TenantProfilePageMetadata.Next() = 0;
+            until AllProfilePageMetadata.Next() = 0;
     end;
 
     local procedure ValidatePages()
     var
-        TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+        AllProfilePageMetadata: Record "All Profile Page Metadata";
         NavDesignerConfigurationPageCustomizationValidation: DotNet NavDesignerConfigurationPageCustomizationValidation;
         ValidationProgressDialog: Dialog;
         TotalProfiles: Integer;
         CurrentProfileNumber: Integer;
         CurrentProfileId: Code[30];
-        CurrentAppId: Guid;
+        CurrentProfileAppId: Guid;
+        EmptyGuid: Guid;
     begin
         TotalProfiles := Rec.Count();
-        TenantProfilePageMetadata.CopyFilters(Rec);
-        TenantProfilePageMetadata.SetCurrentKey("App ID", "Profile ID");
-        TenantProfilePageMetadata.SetAscending("App ID", true);
-        TenantProfilePageMetadata.SetAscending("Profile ID", true);
-        TenantProfilePageMetadata.SetRange(Owner, Rec.Owner::Tenant); // We can only scan user created page customizations
-        TotalProfiles := CountNumberOfProfilesWithinFilter(TenantProfilePageMetadata);
+        AllProfilePageMetadata.CopyFilters(Rec);
+        AllProfilePageMetadata.SetCurrentKey("Profile App ID", "Profile ID");
+        AllProfilePageMetadata.SetAscending("Profile App ID", true);
+        AllProfilePageMetadata.SetAscending("Profile ID", true);
+        AllProfilePageMetadata.SetRange("App ID", EmptyGuid); // We can only scan user created page customizations
+        TotalProfiles := CountNumberOfProfilesWithinFilter(AllProfilePageMetadata);
 
         TempDesignerDiagnostics.Reset();
         TempDesignerDiagnostics.DeleteAll();
 
-        if TenantProfilePageMetadata.FindSet() then
+        if AllProfilePageMetadata.FindSet() then
             repeat
                 // We may have multiple profiles in this query, every time we see a new profile, we need to re-create the NavDesignerConfigurationPageCustomizationValidation for that profile
-                if (CurrentProfileId <> TenantProfilePageMetadata."Profile ID") or (CurrentAppId <> TenantProfilePageMetadata."App ID") then begin
-                    NavDesignerConfigurationPageCustomizationValidation := NavDesignerConfigurationPageCustomizationValidation.Create(TenantProfilePageMetadata."Profile ID", TenantProfilePageMetadata."App ID");
-                    CurrentProfileId := TenantProfilePageMetadata."Profile ID";
-                    CurrentAppId := TenantProfilePageMetadata."App ID";
-                    ValidationProgressDialog.Open(StrSubstNo(ValidatePageTxt, TenantProfilePageMetadata."Profile ID", CurrentProfileNumber, TotalProfiles));
+                if (CurrentProfileId <> AllProfilePageMetadata."Profile ID") or (CurrentProfileAppId <> AllProfilePageMetadata."Profile App ID") then begin
+                    NavDesignerConfigurationPageCustomizationValidation := NavDesignerConfigurationPageCustomizationValidation.Create(AllProfilePageMetadata."Profile ID", AllProfilePageMetadata."Profile App ID");
+                    CurrentProfileId := AllProfilePageMetadata."Profile ID";
+                    CurrentProfileAppId := AllProfilePageMetadata."Profile App ID";
+                    ValidationProgressDialog.Open(StrSubstNo(ValidatePageTxt, AllProfilePageMetadata."Profile ID", CurrentProfileNumber, TotalProfiles));
                     CurrentProfileNumber += 1;
                 end;
 
-                ValidatePageForDesignerCustomizationBase(NavDesignerConfigurationPageCustomizationValidation, TenantProfilePageMetadata);
-            until TenantProfilePageMetadata.Next() = 0;
+                ValidatePageForDesignerCustomizationBase(NavDesignerConfigurationPageCustomizationValidation, AllProfilePageMetadata);
+            until AllProfilePageMetadata.Next() = 0;
     end;
 
-    local procedure ValidatePageForDesignerCustomizationBase(NavDesignerPageCustomizationValidationBase: dotnet NavDesignerPageCustomizationValidationBase; TenantProfilePageMetadata: record "Tenant Profile Page Metadata")
+    local procedure ValidatePageForDesignerCustomizationBase(NavDesignerPageCustomizationValidationBase: dotnet NavDesignerPageCustomizationValidationBase; AllProfilePageMetadata: record "All Profile Page Metadata")
     var
         NavDesignerCompilationResult: dotnet NavDesignerCompilationResult;
         NavDesignerDiagnostic: DotNet NavDesignerDiagnostic;
         OperationId: Guid;
     begin
         // Validate page customization
-        NavDesignerCompilationResult := NavDesignerPageCustomizationValidationBase.ValidatePageCustomization(TenantProfilePageMetadata."Page ID");
+        NavDesignerCompilationResult := NavDesignerPageCustomizationValidationBase.ValidatePageCustomization(AllProfilePageMetadata."Page ID");
 
         OperationId := CreateGuid();
         TempDesignerDiagnostics."Operation ID" := OperationId;
@@ -256,7 +269,7 @@ page 9190 "Profile Customization List"
         end;
 
         // Add mapping to page diagnostics
-        SystemIdToOperationId.Set(TenantProfilePageMetadata.SystemId, OperationId);
+        SystemIdToOperationId.Set(AllProfilePageMetadata.SystemId, OperationId);
     end;
 
     local procedure CreatePageDiagnosticsMessageAndSetStyleExpr(): Text
@@ -264,7 +277,7 @@ page 9190 "Profile Customization List"
         OperationId: Guid;
     begin
         HealthStatusStyleExpr := 'Favorable';
-        if Rec.Owner = Rec.Owner::System then
+        if (not IsNullGuid(Rec."App ID")) then
             exit(CustomizationFromExtensionCannotBeScannedTxt);
 
         if not SystemIdToOperationId.Get(Rec.SystemId, OperationId) then
@@ -299,6 +312,11 @@ page 9190 "Profile Customization List"
         else
             PageCaptionText := StrSubstNo(PageTxt, Rec."Page ID");
 
+        if IsNullGuid(Rec."App ID") then
+            Owner := Owner::Tenant
+        else
+            Owner := Owner::System;
+
         HealthStatus := CreatePageDiagnosticsMessageAndSetStyleExpr();
     end;
 
@@ -320,13 +338,12 @@ page 9190 "Profile Customization List"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if Rec.Owner <> Rec.Owner::Tenant then
+        if (not IsNullGuid(Rec."App ID")) then
             Error(CannotDeleteExtensionProfileErr);
     end;
 
     var
         TempDesignerDiagnostics: Record "Designer Diagnostic" temporary;
-        ExtensionManagement: Codeunit "Extension Management";
         CannotDeleteExtensionProfileErr: Label 'You cannot delete this profile customization because it comes from an extension.';
         PageCaptionText: Text;
         ValidatePageTxt: Label 'Scanning page customizations for %1\%2 of %3 profiles scanned', Comment = '%1 = profile id, %2 and %3 are all whole numbers';
@@ -343,5 +360,6 @@ page 9190 "Profile Customization List"
         SystemIdToOperationId: Dictionary of [Guid, Guid];
         ShowProfileDiagnosticsListPart: Boolean;
         ShowingOnlyErrors: Boolean;
+        Owner: Option Tenant,System;
 }
 

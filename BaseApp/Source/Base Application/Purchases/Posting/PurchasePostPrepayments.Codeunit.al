@@ -53,6 +53,8 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Posting Prepayment Lines   #2######\';
         Text003: Label '%1 %2 -> Invoice %3';
         Text004: Label 'Posting purchases and VAT  #3######\';
@@ -60,6 +62,8 @@ codeunit 444 "Purchase-Post Prepayments"
         Text006: Label 'Posting to bal. account    #5######';
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
         SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
@@ -74,13 +78,21 @@ codeunit 444 "Purchase-Post Prepayments"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
+#pragma warning restore AA0470
         Text014: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text015: Label '%1% VAT';
         Text016: Label 'The new prepayment amount must be between %1 and %2.';
         Text017: Label 'At least one line must have %1 > 0 to distribute prepayment amount.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrepaymentPurchaseTok: Label 'Prepayment Purchase', Locked = true;
+#pragma warning disable AA0074
         text019: Label 'Invoice,Credit Memo';
+#pragma warning restore AA0074
         SuppressCommit: Boolean;
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
         PreviewMode: Boolean;
@@ -892,7 +904,7 @@ codeunit 444 "Purchase-Post Prepayments"
                                       (1 - PurchHeader."VAT Base Discount %" / 100);
                                     if VATAmountLine."VAT Base" = 0 then
                                         VATAmount := 0
-                                    else begin
+                                    else
                                         if PurchLine."Prepayment %" = 0 then
                                             VATAmount := 0
                                         else
@@ -904,7 +916,6 @@ codeunit 444 "Purchase-Post Prepayments"
                                                 VATAmount :=
                                                   TempVATAmountLineRemainder."VAT Amount" +
                                                   VATAmountLine."VAT Amount" * PrepmtAmt / VATAmountLine."Line Amount";
-                                    end;
                                     if PurchLine."Prepayment %" = 0 then
                                         NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision")
                                     else
@@ -1071,7 +1082,7 @@ codeunit 444 "Purchase-Post Prepayments"
                    (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
                 then
                     PrevVatAmountLine.Init();
-                if PurchHeader."Prices Including VAT" then begin
+                if PurchHeader."Prices Including VAT" then
                     case VATAmountLine."VAT Calculation Type" of
                         VATAmountLine."VAT Calculation Type"::"Normal VAT",
                         VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
@@ -1123,8 +1134,8 @@ codeunit 444 "Purchase-Post Prepayments"
                                 else
                                     VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
                             end;
-                    end;
-                end else
+                    end
+                else
                     case VATAmountLine."VAT Calculation Type" of
                         VATAmountLine."VAT Calculation Type"::"Normal VAT",
                         VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":

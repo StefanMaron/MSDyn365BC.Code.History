@@ -68,7 +68,9 @@ table 752 "Standard Item Journal"
         WindowUpdateDateTime: DateTime;
         NoOfJournalsToBeCreated: Integer;
         NoOfJournalsCreated: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Getting Standard Item Journal Lines @1@@@@@@@';
+#pragma warning restore AA0074
 
     procedure Initialize(StdItemJnl: Record "Standard Item Journal"; JnlBatchName: Code[10])
     begin

@@ -71,6 +71,8 @@ codeunit 137221 "SalesOrder Whse Validate Line"
 
         SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         asserterror SalesLine2.Validate(Type, SalesLine2.Type::Resource);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
+
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
         ClearLastError();
@@ -228,7 +230,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
 
         // [WHEN] Sales Order is deleted
         // [THEN] Error message about missing permissions to Warehouse Shipment Line appears 
-        AssertError SalesHeader.Delete(true);
+        asserterror SalesHeader.Delete(true);
         assert.ExpectedError(StrSubstNo(MissingPermissionsMessage, WhseShptLine.TableCaption()));
         ClearLastError();
     end;
@@ -310,8 +312,10 @@ codeunit 137221 "SalesOrder Whse Validate Line"
             ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, SalesHeader.TableCaption());
 
         asserterror LibraryInventory.UpdateSalesLine(SalesLine, FieldNo, Value);
-        if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
-            Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
+        if Reopen then
+            Assert.ExpectedTestFieldError(FieldRef.Name, '')
+        else
+            Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
         ClearLastError();
     end;
 
@@ -332,6 +336,10 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         end;
 
         asserterror SalesLine.DeleteAll(true);
+
+        if not Reopen then
+            Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
+
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
         ClearLastError();

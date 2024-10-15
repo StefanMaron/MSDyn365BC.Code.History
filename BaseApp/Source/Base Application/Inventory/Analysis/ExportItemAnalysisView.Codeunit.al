@@ -21,6 +21,7 @@ codeunit 7152 "Export Item Analysis View"
         FileMgt: Codeunit "File Management";
         NoOfColumns: Integer;
         MaxLevelDim: array[3] of Integer;
+#pragma warning disable AA0074
         Text000: Label 'You can only export Actual amounts and Budgeted amounts.\Please change the option in the Show field.';
         Text002: Label 'General Info._';
         Text003: Label 'None';
@@ -47,6 +48,7 @@ codeunit 7152 "Export Item Analysis View"
         Text035: Label 'Budg. Cost Amount';
         Text036: Label 'Budg. Quantity';
         Text039: Label 'Location';
+#pragma warning restore AA0074
         ServerFileName: Text;
         SkipDownload: Boolean;
 

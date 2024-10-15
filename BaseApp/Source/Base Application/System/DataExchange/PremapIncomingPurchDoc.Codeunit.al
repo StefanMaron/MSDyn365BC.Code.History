@@ -72,7 +72,9 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         UOMConflictItemRefWithItemErr: Label 'Unit of measure %1 in the item reference is not in the list of units of measure for the corresponding item. Make sure that a unit of measure of item reference is in the list of units of measure for the corresponding item.', Comment = '%1 item reference unit code';
         NotSpecifiedUnitOfMeasureTxt: Label '<NONE>';
         MissingCompanyInfoSetupErr: Label 'You must fill either GLN or VAT Registration No. in the Company Information window.';
+#pragma warning disable AA0470
         VendorNotFoundByNameAndAddressErr: Label 'Cannot find vendor based on the vendor''s name ''%1'' and street name ''%2'' on the incoming document. Make sure that a card for the vendor exists with the corresponding name.';
+#pragma warning restore AA0470
         InvalidCompanyInfoNameErr: Label 'The customer name ''%1'' on the incoming document does not match the name in the Company Information window.', Comment = '%1 = customer name';
         InvalidCompanyInfoAddressErr: Label 'The customer''s address ''%1'' on the incoming document does not match the Address in the Company Information window.', Comment = '%1 = customer address, street name';
         TempIntegerHeaderRecords: Record "Integer" temporary;

@@ -55,6 +55,8 @@ codeunit 1275 "Exp. Post-Mapping Gen. Jnl."
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Post-processing line no. #1######.';
+#pragma warning restore AA0470
 }
 

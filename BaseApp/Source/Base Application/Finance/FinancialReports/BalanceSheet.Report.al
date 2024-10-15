@@ -306,24 +306,22 @@ report 28024 "Balance Sheet"
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if FormatString[i] <> '' then
                 ColumnAmountText[i] := Format(ColumnAmount[i], 0, FormatString[i])
             else
                 ColumnAmountText[i] := Format(ColumnAmount[i]);
-        end;
     end;
 
     local procedure PopulateFormatString()
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if RoundingFactor = RoundingFactor::" " then
                 FormatString[i] := '<Precision,2:><Standard Format,0>'
             else
                 FormatString[i] := '<Precision,1:><Standard Format,0>';
-        end;
         FormatString[3] := '';
         FormatString[6] := '';
         DoNotRoundAmount[3] := true;
@@ -334,10 +332,9 @@ report 28024 "Balance Sheet"
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if not DoNotRoundAmount[i] then
                 ColumnAmount[i] := ReportMngmt.RoundAmount(ColumnAmount[i], RoundingFactor);
-        end;
     end;
 
     local procedure FilterGLAccount(var GLAccount: Record "G/L Account")

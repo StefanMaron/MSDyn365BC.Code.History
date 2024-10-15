@@ -82,15 +82,9 @@ table 418 "IC Inbox Transaction"
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(13; "Source Line No."; Integer)
         {
@@ -243,9 +237,6 @@ table 418 "IC Inbox Transaction"
         ICInboxTransaction2.SetRange("Source Type", "Source Type");
         ICInboxTransaction2.SetRange("Document No.", "Document No.");
         ICInboxTransaction2.SetFilter("Transaction No.", '<>%1', "Transaction No.");
-#if not CLEAN22
-        ICInboxTransaction2.SetRange("IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.");
-#endif
         ICInboxTransaction2.SetRange("IC Account Type", "IC Account Type");
         ICInboxTransaction2.SetRange("IC Account No.", "IC Account No.");
         ICInboxTransaction2.SetRange("Source Line No.", "Source Line No.");

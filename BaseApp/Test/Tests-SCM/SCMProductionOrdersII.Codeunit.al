@@ -1,4 +1,4 @@
-codeunit 137072 "SCM Production Orders II"
+﻿codeunit 137072 "SCM Production Orders II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3871,7 +3871,152 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Item Tracking] [Lot Warehouse Tracking] [Use Expiration Dates] [Production BOM] [Released Production Order] [Warehpuse Pick]
         // [SCENARIO 463293] Create Warehouse Pick from Production Order for Item with FEFO Picking when earlier Lots are already picked for another Production Order.
-        // [SCENARIO 476832] "To-Production Bin Code" must be dedicated bin.
+        Initialize();
+
+        QuantityToUse := 10;
+        ExpirationDate[1] := WorkDate() - 20;
+        ExpirationDate[2] := WorkDate() - 10;
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Component Item [1] with "Item Tracking Code".
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        ComponentItem[1].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ComponentItem[1].Modify(true);
+
+        // [GIVEN] Create Component Item [2] with "Item Tracking Code".
+        LibraryInventory.CreateItem(ComponentItem[2]);
+        ComponentItem[2].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ComponentItem[2].Modify(true);
+
+        // [GIVEN] Create Producition Item.
+        LibraryInventory.CreateItem(ProducedItem);
+        ProducedItem.Validate("Replenishment System", ProducedItem."Replenishment System"::"Prod. Order");
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM with Component Item [1] and Component Item [2] in lines.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProducedItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem[1]."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem[1]."Base Unit of Measure");
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem[2]."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem[2]."Base Unit of Measure");
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Assign Prod. BOM No. to Produced Item.
+        ProducedItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Create and setup Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+
+        // [GIVEN] Create Bin "B1" and set it as "Shipment Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+
+        // [GIVEN] Create Bin "B2" and set it as "To-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+
+        // [GIVEN] Create Bin "B3" and set it as "From-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", Bin[3].Code);
+
+        // [GIVEN] Set "Pick According to FEFO" at Location.
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        // [GIVEN] Set Warehouse Employee for Location as default.
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.DeleteAll();
+        WarehouseEmployee.Reset();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bin "B4" at Location for Stock.
+        LibraryWarehouse.CreateBin(Bin[4], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Put "Lot1" on stock.
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[1]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[1], ExpirationDate[1]);
+
+        // [GIVEN] Put "Lot2" on stock.
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[2]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[2], ExpirationDate[1]);
+
+        // [GIVEN] Put "Lot3" on stock.
+        LotNo[3] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[1]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[3], ExpirationDate[2]);
+
+        // [GIVEN] Put "Lot4" on stock.
+        LotNo[4] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[2]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[4], ExpirationDate[2]);
+
+        // [GIVEN] Create and Refresh Released Production Order 1 for Produced Item.
+        CreateAndRefreshProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
+
+        // [GIVEN] Create Warehouse Pick for Released Production Order 1.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[1]);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Create and Refresh Released Production Order 2 for Produced Item.
+        CreateAndRefreshProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
+
+        // [WHEN] Create Warehouse Pick for Released Production Order 2.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[2]);
+
+        // [THEN] Verify lines of created Warehouse Pick.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", ComponentItem[1]."No.");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.SetRange("Source No.", ProductionOrder[2]."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, QuantityToUse);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[3]);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate[2]);
+
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", ComponentItem[2]."No.");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.SetRange("Source No.", ProductionOrder[2]."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, QuantityToUse);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[4]);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    procedure S463293_VerifyWarehousePickFromProductionOrderForItemWithFEFO_WithEarlierLotAlreadyPickedForOtherProdOrder_DedicatedBin()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        ComponentItem: array[2] of Record Item;
+        ProducedItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Location: Record Location;
+        Bin: array[4] of Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: array[2] of Record "Production Order";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: array[4] of Code[20];
+        QuantityToUse: Decimal;
+        ExpirationDate: array[2] of Date;
+    begin
+        // [FEATURE] [Item Tracking] [Lot Warehouse Tracking] [Use Expiration Dates] [Production BOM] [Released Production Order] [Warehpuse Pick]
+        // [SCENARIO 463293] Create Warehouse Pick from Production Order for Item with FEFO Picking when earlier Lots are already picked for another Production Order.
+        // [SCENARIO 476832] "To-Production Bin Code" is dedicated bin.
         Initialize();
 
         QuantityToUse := 10;
@@ -5291,14 +5436,12 @@ codeunit 137072 "SCM Production Orders II"
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
-        with RoutingLine do begin
-            LibraryManufacturing.CreateRoutingLine(
-              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(5)), Type::"Work Center", WorkCenter."No.");
-            Validate("Setup Time", LibraryRandom.RandInt(10));
-            Validate("Wait Time", LibraryRandom.RandInt(10));
-            Validate("Move Time", LibraryRandom.RandInt(10));
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(5)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandInt(10));
+        RoutingLine.Validate("Wait Time", LibraryRandom.RandInt(10));
+        RoutingLine.Validate("Move Time", LibraryRandom.RandInt(10));
+        RoutingLine.Modify(true);
 
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
@@ -5677,12 +5820,10 @@ codeunit 137072 "SCM Production Orders II"
 
     local procedure FindProdOrderComponentByItem(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
-        with ProdOrderComponent do begin
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindProdOrderComponentByOrderNoAndItem(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderNo: Code[20]; ItemNo: Code[20])
@@ -5991,12 +6132,10 @@ codeunit 137072 "SCM Production Orders II"
 
     local procedure UpdateItemParametersForPlanningWorksheet(var Item: Record Item; ManufacturingPolicy: Enum "Manufacturing Policy"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
-        with Item do begin
-            Validate("Manufacturing Policy", ManufacturingPolicy);
-            Validate("Reordering Policy", ReorderingPolicy);
-            Validate("Replenishment System", ReplenishmentSystem);
-            Modify(true);
-        end
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Modify(true);
     end;
 
     local procedure UpdateQuantityOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; Quantity: Decimal)
@@ -6264,7 +6403,9 @@ codeunit 137072 "SCM Production Orders II"
         OrderTracking2: TestPage "Order Tracking";
     begin
         FindProductionOrderLine(ProdOrderLine, ItemNo);
-        OrderTracking.SetProdOrderLine(ProdOrderLine);
+        OrderTracking.SetVariantRec(
+            ProdOrderLine, ProdOrderLine."Item No.", ProdOrderLine."Remaining Qty. (Base)",
+            ProdOrderLine."Starting Date", ProdOrderLine."Ending Date");
         OrderTracking2.Trap();
         OrderTracking.Run();
         OrderTracking2."Item No.".AssertEquals(ItemNo);

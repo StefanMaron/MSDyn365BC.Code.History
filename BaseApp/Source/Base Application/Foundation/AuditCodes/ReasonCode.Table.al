@@ -4,13 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.AuditCodes;
 
-using Microsoft.Service.Contract;
-
 table 231 "Reason Code"
 {
     Caption = 'Reason Code';
-    LookupPageID = "Reason Codes";
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Reason Code is moved to Business Foundation';
+    ObsoleteState = Moved;
+    ObsoleteTag = '25.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
 
     fields
     {
@@ -27,15 +28,6 @@ table 231 "Reason Code"
         {
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
-        }
-        field(5901; "Contract Gain/Loss Amount"; Decimal)
-        {
-            AutoFormatType = 1;
-            CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Reason Code" = field(Code),
-                                                                       "Change Date" = field("Date Filter")));
-            Caption = 'Contract Gain/Loss Amount';
-            Editable = false;
-            FieldClass = FlowField;
         }
     }
 

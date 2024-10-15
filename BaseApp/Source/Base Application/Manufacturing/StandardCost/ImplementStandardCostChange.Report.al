@@ -7,11 +7,11 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -171,12 +171,16 @@ report 5855 "Implement Standard Cost Change"
         Window: Dialog;
         StdCostWkshName: Code[10];
         DocNo: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'Implementing standard cost changes...\\';
         Text001: Label 'You must specify a document no.';
         Text002: Label 'You must specify a worksheet to implement from.';
+#pragma warning disable AA0470
         Text007: Label 'Type                       #1##########\';
         Text008: Label 'No.                        #2##########';
+#pragma warning restore AA0470
         Text009: Label '\Revaluation journal lines have also been created.';
+#pragma warning restore AA0074
         RevalJnlCreated: Boolean;
         ItemCostsUpdated: Boolean;
         MachCtrCostsUpdated: Boolean;
@@ -185,10 +189,14 @@ report 5855 "Implement Standard Cost Change"
         SKUCostsUpdated: Boolean;
         NoMessage: Boolean;
         HideDuplWarning: Boolean;
+#pragma warning disable AA0074
         Text010: Label 'Costs have been updated on the following: ';
         Text011: Label ', ';
         Text012: Label '.';
+#pragma warning disable AA0470
         Text013: Label 'Standard Cost Worksheet %1 is empty.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         PostingDate: Date;
@@ -364,12 +372,11 @@ report 5855 "Implement Standard Cost Change"
     end;
 
     procedure Initialize()
-    var
-        DocNo2: Code[20];
-        PostingDate2: Date;
-        RevalItemJnlTemplate2: Code[10];
-        RevalItemJnlBatch2: Code[10];
-        NoMessage2: Boolean;
+    begin
+        Initialize('', 0D, '', '', false);
+    end;
+
+    procedure Initialize(DocNo2: Code[20]; PostingDate2: Date; RevalItemJnlTemplate2: Code[10]; RevalItemJnlBatch2: Code[10]; NoMessage2: Boolean)
     begin
         PostingDate := PostingDate2;
         DocNo := DocNo2;
@@ -416,7 +423,7 @@ report 5855 "Implement Standard Cost Change"
         if IsHandled then
             exit;
 
-#if not CLEAN23
+#if not CLEAN25
         if UpdateOldResourceCost(StandardCostWorksheet, Resource) then
             exit;
 #endif
@@ -442,7 +449,7 @@ report 5855 "Implement Standard Cost Change"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure UpdateOldResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource): Boolean;
     var
         ResourceCost: Record "Resource Cost";

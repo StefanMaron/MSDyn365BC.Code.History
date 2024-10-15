@@ -14,8 +14,12 @@ codeunit 5617 "FA Date Calculation"
     var
         DeprBook: Record "Depreciation Book";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'is later than %1';
         Text001: Label 'It was not possible to find a %1 in %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetFiscalYear(DeprBookCode: Code[10]; EndingDate: Date): Date
     var

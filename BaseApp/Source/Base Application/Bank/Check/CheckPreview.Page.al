@@ -252,9 +252,11 @@ page 404 "Check Preview"
         CheckAmount: Decimal;
         WHTAmount: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Printed Check';
         Text001: Label 'Not Printed Check';
         Text002: Label 'Placeholder';
+#pragma warning restore AA0074
 
     local procedure CalcCheck()
     var

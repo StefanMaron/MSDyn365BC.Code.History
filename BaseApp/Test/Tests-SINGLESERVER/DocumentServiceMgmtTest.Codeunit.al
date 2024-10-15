@@ -427,17 +427,15 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceConfiguration: Record "Document Service";
     begin
-        with DocumentServiceConfiguration do begin
-            Init();
-            "Service ID" := ServiceID;
-            Description := ServiceDescription;
-            Location := Loc;
-            "User Name" := Usr;
-            Password := Pwd;
-            "Document Repository" := DocRepository;
-            Folder := DocFolder;
-            Insert(true);
-        end;
+        DocumentServiceConfiguration.Init();
+        DocumentServiceConfiguration."Service ID" := ServiceID;
+        DocumentServiceConfiguration.Description := ServiceDescription;
+        DocumentServiceConfiguration.Location := Loc;
+        DocumentServiceConfiguration."User Name" := Usr;
+        DocumentServiceConfiguration.Password := Pwd;
+        DocumentServiceConfiguration."Document Repository" := DocRepository;
+        DocumentServiceConfiguration.Folder := DocFolder;
+        DocumentServiceConfiguration.Insert(true);
         Commit();
     end;
 

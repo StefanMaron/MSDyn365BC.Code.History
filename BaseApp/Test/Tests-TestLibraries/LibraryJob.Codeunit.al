@@ -247,7 +247,7 @@ codeunit 131920 "Library - Job"
         ServiceLine.Modify(true)
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
         JobGLAccountPrice.Init();

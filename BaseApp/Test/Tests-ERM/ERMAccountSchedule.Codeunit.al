@@ -1047,7 +1047,6 @@ codeunit 134902 "ERM Account Schedule"
     [Scope('OnPrem')]
     procedure BlankAccountScheduleName()
     var
-        AccScheduleName: Record "Acc. Schedule Name";
         AccSchedManagement: Codeunit AccSchedManagement;
     begin
         // Test error occurs on running Account Schedule form with Blank Account Schedule Name.
@@ -1061,14 +1060,13 @@ codeunit 134902 "ERM Account Schedule"
 
         // 3. Verify: Verify error occurs "Account Schedule Name cannot blank" on running Account Schedule form with Blank
         // Account Schedule Name.
-        Assert.ExpectedError(StrSubstNo(ExistErr, AccScheduleName.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Acc. Schedule Name");
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure BlankColumnName()
     var
-        ColumnLayoutName: Record "Column Layout Name";
         AccSchedManagement: Codeunit AccSchedManagement;
     begin
         // Test error occurs on running Column Layout form with Blank Column Layout Name.
@@ -1080,7 +1078,7 @@ codeunit 134902 "ERM Account Schedule"
         asserterror AccSchedManagement.CheckColumnName('');
 
         // 3. Verify: Verify error occurs "Column Layout Name cannot blank" on running Column Layout form with Blank Column Layout Name.
-        Assert.ExpectedError(StrSubstNo(ExistErr, ColumnLayoutName.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Column Layout Name");
     end;
 
     [Test]
@@ -4095,10 +4093,9 @@ codeunit 134902 "ERM Account Schedule"
         ResultDimValue.SetFilter(Code, AccScheduleOverview.FILTER.GetFilter("Dimension 1 Filter"));
         ResultDimValue.SetFilter("Dimension Code", StandardDimValue[1]."Dimension Code");
         Assert.AreEqual(13, ResultDimValue.Count, Dim1FilterErr);
-        for i := 1 to ArrayLen(StandardDimValue) do begin
+        for i := 1 to ArrayLen(StandardDimValue) do
             if i mod 2 = 1 then
                 VerifyDimValueExistInFilteredTable(ResultDimValue, StandardDimValue[i].Code);
-        end;
 
         AccScheduleOverview.OK().Invoke();
 
@@ -5650,14 +5647,12 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
         ComparisionDateFormula: DateFormula;
     begin
-        with ColumnLayout do begin
-            CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, AccountNo);
-            SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
-            FindFirst();
-            Evaluate(ComparisionDateFormula, '<-1Y>');
-            Validate("Comparison Date Formula", ComparisionDateFormula);
-            Modify(true);
-        end;
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, AccountNo);
+        ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
+        ColumnLayout.FindFirst();
+        Evaluate(ComparisionDateFormula, '<-1Y>');
+        ColumnLayout.Validate("Comparison Date Formula", ComparisionDateFormula);
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateAnanlysisViewWithDimensions(var AnalysisView: Record "Analysis View"; DimensionValue: array[4] of Record "Dimension Value")
@@ -5932,12 +5927,10 @@ codeunit 134902 "ERM Account Schedule"
 
     local procedure CreateColumnLayoutWithAmountType(var ColumnLayout: Record "Column Layout"; AmountType: Enum "Account Schedule Amount Type"; AccountNo: Code[20])
     begin
-        with ColumnLayout do begin
-            SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
-            FindFirst();
-            Validate("Amount Type", AmountType);
-            Modify(true);
-        end;
+        ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
+        ColumnLayout.FindFirst();
+        ColumnLayout.Validate("Amount Type", AmountType);
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateTotallingDimValue(var DimTotalValue: Code[20]; DimValue: array[2] of Code[20])
@@ -6059,28 +6052,24 @@ codeunit 134902 "ERM Account Schedule"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        with CostBudgetEntry do begin
-            Init();
-            Amount := LibraryRandom.RandDecInRange(10, 100, 2);
-            "Cost Type No." := CostTypeNo;
-            Date := WorkDate();
-            Insert();
-            exit(Amount);
-        end;
+        CostBudgetEntry.Init();
+        CostBudgetEntry.Amount := LibraryRandom.RandDecInRange(10, 100, 2);
+        CostBudgetEntry."Cost Type No." := CostTypeNo;
+        CostBudgetEntry.Date := WorkDate();
+        CostBudgetEntry.Insert();
+        exit(CostBudgetEntry.Amount);
     end;
 
     local procedure MockCostEntryWithACYAmount(CostTypeNo: Code[20]): Decimal
     var
         CostEntry: Record "Cost Entry";
     begin
-        with CostEntry do begin
-            Init();
-            "Additional-Currency Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
-            "Cost Type No." := CostTypeNo;
-            "Posting Date" := WorkDate();
-            Insert();
-            exit("Additional-Currency Amount");
-        end;
+        CostEntry.Init();
+        CostEntry."Additional-Currency Amount" := LibraryRandom.RandDecInRange(10, 100, 2);
+        CostEntry."Cost Type No." := CostTypeNo;
+        CostEntry."Posting Date" := WorkDate();
+        CostEntry.Insert();
+        exit(CostEntry."Additional-Currency Amount");
     end;
 
     local procedure OpenAccountScheduleOverviewPage(Name: Code[10])
@@ -6316,11 +6305,9 @@ codeunit 134902 "ERM Account Schedule"
 
     local procedure UpdateColumnLayoutForBudgetAndCA(var ColumnLayout: Record "Column Layout"; CostCenterTotaling: Code[20])
     begin
-        with ColumnLayout do begin
-            Validate("Cost Center Totaling", CostCenterTotaling);
-            Validate("Ledger Entry Type", "Ledger Entry Type"::"Budget Entries");
-            Modify(true);
-        end;
+        ColumnLayout.Validate("Cost Center Totaling", CostCenterTotaling);
+        ColumnLayout.Validate("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Budget Entries");
+        ColumnLayout.Modify(true);
     end;
 
     local procedure UpdateColumnLayout(var ColumnLayout: Record "Column Layout")

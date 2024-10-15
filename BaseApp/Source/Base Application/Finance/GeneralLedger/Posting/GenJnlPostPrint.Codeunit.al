@@ -30,10 +30,14 @@ codeunit 232 "Gen. Jnl.-Post+Print"
         TempJnlBatchName: Code[10];
 
         JournalsScheduledMsg: Label 'Journal lines have been scheduled for posting.';
+#pragma warning disable AA0074
         Text000: Label 'cannot be filtered when posting recurring journals';
         Text001: Label 'Do you want to post the journal lines and print the report(s)?';
         Text003: Label 'The journal lines were successfully posted.';
+#pragma warning disable AA0470
         Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

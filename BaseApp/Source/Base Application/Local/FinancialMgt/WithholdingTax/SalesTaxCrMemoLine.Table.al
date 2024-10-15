@@ -26,8 +26,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.Reflection;
@@ -446,31 +444,18 @@ table 28074 "Sales Tax Cr.Memo Line"
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
+            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+#endif
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {
             Caption = 'Appl.-from Item Entry';
-        }
-        field(5900; "Service Contract No."; Code[20])
-        {
-            Caption = 'Service Contract No.';
-            TableRelation = "Service Contract Header"."Contract No.";
-        }
-        field(5901; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-        }
-        field(5902; "Service Item No."; Code[20])
-        {
-            Caption = 'Service Item No.';
-            TableRelation = "Service Item";
-        }
-        field(5903; "Appl.-to Service Entry"; Integer)
-        {
-            Caption = 'Appl.-to Service Entry';
         }
         field(6608; "Return Reason Code"; Code[10])
         {

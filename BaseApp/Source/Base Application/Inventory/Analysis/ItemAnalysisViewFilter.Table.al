@@ -75,7 +75,11 @@ table 7153 "Item Analysis View Filter"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename an %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ValidateModifyFilter()
     var

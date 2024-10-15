@@ -27,8 +27,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Posting;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 
 codeunit 28000 "Post Code Check"
 {
@@ -214,7 +212,7 @@ codeunit 28000 "Post Code Check"
         end;
     end;
 
-    internal procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
+    procedure VerifyAddress(CurrentFieldNo: Integer; TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; var Name: Text[100]; var Name2: Text[50]; var Contact: Text[100]; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var PostCode: Code[20]; var County: Text[30]; var CountryCode: Code[10])
     begin
         if (PostCode = '') or (City = '') or (CurrentFieldNo = 0) or (not GuiAllowed) then
             exit;
@@ -288,7 +286,7 @@ codeunit 28000 "Post Code Check"
         end;
     end;
 
-    local procedure DeleteAddressIDRecords(TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to")
+    procedure DeleteAddressIDRecords(TableNo: Integer; TableKey: Text; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to")
     var
         AddressID: Record "Address ID";
     begin
@@ -2147,170 +2145,6 @@ codeunit 28000 "Post Code Check"
     local procedure PostOnAfterDeleteAfterPosting(SalesHeader: Record "Sales Header")
     begin
         DeleteAllAddressIDRecords(DATABASE::"Sales Header", SalesHeader.GetPosition());
-    end;
-
-    // Codeunit "ServContractManagement"
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ServContractManagement", 'OnCreateServHeaderOnAfterCopyFromCustomer', '', false, false)]
-    local procedure ServContractManagement(var ServiceHeader: Record "Service Header"; Customer: Record Customer)
-    begin
-        CopyAddressIDRecord(
-            DATABASE::Customer, Customer.GetPosition(), 0,
-            DATABASE::"Service Header", ServiceHeader.GetPosition(), 3);
-    end;
-
-    // Table "Service Header"
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Address', false, false)]
-    local procedure ServiceHeaderAddress(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 0,
-            Rec.Name, Rec."Name 2", Rec."Contact Name", Rec.Address, Rec."Address 2",
-            Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Address 2', false, false)]
-    local procedure ServiceHeaderAddress2(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 0,
-            Rec.Name, Rec."Name 2", Rec."Contact Name", Rec.Address, Rec."Address 2",
-            Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Bill-to Address', false, false)]
-    local procedure ServiceHeaderBillToAddress(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 1,
-            Rec."Bill-to Name", Rec."Bill-to Name 2", Rec."Bill-to Contact",
-            Rec."Bill-to Address", Rec."Bill-to Address 2", Rec."Bill-to City",
-            Rec."Bill-to Post Code", Rec."Bill-to County", Rec."Bill-to Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Bill-to Address 2', false, false)]
-    local procedure ServiceHeaderBillToAddress2(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 1,
-            Rec."Bill-to Name", Rec."Bill-to Name 2", Rec."Bill-to Contact",
-            Rec."Bill-to Address", Rec."Bill-to Address 2", Rec."Bill-to City",
-            Rec."Bill-to Post Code", Rec."Bill-to County", Rec."Bill-to Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Ship-to Address', false, false)]
-    local procedure ServiceHeaderShipToAddress(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 2,
-            Rec."Ship-to Name", Rec."Ship-to Name 2", Rec."Ship-to Contact",
-            Rec."Ship-to Address", Rec."Ship-to Address 2", Rec."Ship-to City",
-            Rec."Ship-to Post Code", Rec."Ship-to County", Rec."Ship-to Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Ship-to Address 2', false, false)]
-    local procedure ServiceHeaderShipToAddress2(var Rec: Record "Service Header"; CurrFieldNo: Integer)
-    begin
-        VerifyAddress(
-            CurrFieldNo, DATABASE::"Service Header", Rec.GetPosition(), 2,
-            Rec."Ship-to Name", Rec."Ship-to Name 2", Rec."Ship-to Contact",
-            Rec."Ship-to Address", Rec."Ship-to Address 2", Rec."Ship-to City",
-            Rec."Ship-to Post Code", Rec."Ship-to County", Rec."Ship-to Country/Region Code");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateCity', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidateCity(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyCity(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 0,
-            ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name",
-            ServiceHeader.Address, ServiceHeader."Address 2", ServiceHeader.City,
-            ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidatePostCode', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidatePostCode(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyPostCode(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 0,
-            ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name",
-            ServiceHeader.Address, ServiceHeader."Address 2", ServiceHeader.City,
-            ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateBillToCity', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidateBillToCity(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyCity(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 1,
-            ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact",
-            ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2", ServiceHeader."Bill-to City",
-            ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateBillToPostCode', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidateBillToPostCode(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyPostCode(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 1,
-            ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact",
-            ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2", ServiceHeader."Bill-to City",
-            ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateShipToCity', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidateShipToCity(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyCity(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 2,
-            ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact",
-            ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2", ServiceHeader."Ship-to City",
-            ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateShipToPostCode', '', false, false)]
-    local procedure ServiceHeaderOnBeforeValidateShipToPostCode(var ServiceHeader: Record "Service Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-        VerifyPostCode(
-            CurrentFieldNo, DATABASE::"Service Header", ServiceHeader.GetPosition(), 2,
-            ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact",
-            ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2", ServiceHeader."Ship-to City",
-            ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
-        IsHandled := true;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr', '', false, false)]
-    local procedure ServiceHeaderOnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var ServiceHeader: Record "Service Header"; ShipToAddress: Record "Ship-to Address")
-    begin
-        CopyAddressIDRecord(
-            DATABASE::"Ship-to Address", ShipToAddress.GetPosition(), 0, DATABASE::"Service Header", ServiceHeader.GetPosition(), 2);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterCopyShipToCustomerAddressFieldsFromCustomer', '', false, false)]
-    local procedure ServiceHeaderOnAfterCopyShipToCustomerAddressFieldsFromCustomer(var ServiceHeader: Record "Service Header"; SellToCustomer: Record Customer)
-    begin
-        CopyAddressIDRecord(
-            DATABASE::Customer, SellToCustomer.GetPosition(), 0, DATABASE::"Service Header", ServiceHeader.GetPosition(), 2);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterCopyBillToCustomerFields', '', false, false)]
-    local procedure ServiceHeaderOnAfterCopyBillToCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer)
-    begin
-        CopyAddressIDRecord(
-            DATABASE::Customer, Customer.GetPosition(), 0, DATABASE::"Service Header", ServiceHeader.GetPosition(), 1);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure ServiceHeaderOnAfterDeleteEvent(var Rec: Record "Service Header")
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        DeleteAddressIDRecords(DATABASE::"Service Header", Rec.GetPosition(), 0);
     end;
 
     // Table "Ship-to Address"

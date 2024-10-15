@@ -20,7 +20,6 @@ using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Pricing;
 using Microsoft.Utilities;
 
 table 7022 "Price Worksheet Line"
@@ -525,9 +524,7 @@ table 7022 "Price Worksheet Line"
             else
             if ("Asset Type" = const("Resource Group")) "Resource Group"
             else
-            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group"
-            else
-            if ("Asset Type" = const("Service Cost")) "Service Cost";
+            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group";
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -645,14 +642,14 @@ table 7022 "Price Worksheet Line"
         }
         field(28060; "Published Price"; Decimal)
         {
-            CalcFormula = Lookup(Item."Unit Price" where("No." = field("Asset No.")));
+            CalcFormula = lookup(Item."Unit Price" where("No." = field("Asset No.")));
             Caption = 'Published Price';
             Editable = false;
             FieldClass = FlowField;
         }
         field(28061; Cost; Decimal)
         {
-            CalcFormula = Lookup(Item."Unit Cost" where("No." = field("Asset No.")));
+            CalcFormula = lookup(Item."Unit Cost" where("No." = field("Asset No.")));
             Caption = 'Cost';
             Editable = false;
             FieldClass = FlowField;

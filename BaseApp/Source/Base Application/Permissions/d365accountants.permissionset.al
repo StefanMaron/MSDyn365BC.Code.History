@@ -44,12 +44,14 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata "Sales Cr.Memo Header" = R,
                   tabledata "Sales Discount Access" = Rimd,
                   tabledata "Sales Invoice Header" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = Rimd,
 #endif
                   tabledata "Sales Prepayment %" = D,
                   tabledata "Sales Shipment Header" = R,
                   tabledata "Standard Customer Sales Code" = RD,
                   tabledata "User Setup" = RIM,
+
+                  // Service
                   tabledata "Warranty Ledger Entry" = Rm;
 }

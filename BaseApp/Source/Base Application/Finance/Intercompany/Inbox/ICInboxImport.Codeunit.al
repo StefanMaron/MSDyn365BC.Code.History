@@ -136,7 +136,9 @@ codeunit 435 "IC Inbox Import"
     end;
 
     var
+#pragma warning disable AA0470
         WrongCompanyErr: Label 'The selected xml file contains data sent to %1 %2. Current company''s %3 is %4.', Comment = 'The selected xml file contains data sent to IC Partner 001. Current company''s IC Partner Code is 002.';
+#pragma warning restore AA0470
         EnterFileNameErr: Label 'Enter the file name.';
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
         ClientFileName: Text;

@@ -770,6 +770,9 @@ report 405 "Order"
                         column(SelltoCustNo_PurchHdrCaption; "Purchase Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
+                        column(ShipToPhoneNo; "Purchase Header"."Ship-to Phone No.")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -1092,15 +1095,9 @@ report 405 "Order"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-            ArchiveDocument := PurchSetup."Archive Orders";
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
-
             LogInteractionEnable := LogInteraction;
+            ArchiveDocument := PurchSetup."Archive Orders";
         end;
     }
 
@@ -1129,14 +1126,10 @@ report 405 "Order"
                 until "Purchase Header".Next() = 0;
     end;
 
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
-    end;
-
     var
+#pragma warning disable AA0074
         Text004: Label 'Order %1', Comment = '%1 = Document No.';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -1187,9 +1180,13 @@ report 405 "Order"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrepmtVATAmount: Decimal;
         PrepmtVATBaseAmount: Decimal;
         PrepmtTotalAmountInclVAT: Decimal;

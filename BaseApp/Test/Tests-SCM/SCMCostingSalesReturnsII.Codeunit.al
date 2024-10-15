@@ -22,8 +22,6 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         isInitialized: Boolean;
         ErrAmountsMustBeSame: Label 'Sales Amounts must be same.';
         CostingMethod: array[2] of Enum "Costing Method";
-        ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same.';
-        ErrAppFromItemEntryServiceTier: Label 'Appl.-from Item Entry must have a value in Sales Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
         MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
         CostNotAdjustedErr: Label 'Item cost must be adjusted.';
         ItemLedgCostAmountErr: Label 'Incorrect cost amount in item ledger entry';
@@ -524,9 +522,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Apply-from Item Entry error message.
-        Assert.AreEqual(
-          StrSubstNo(ErrAppFromItemEntryServiceTier, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No."),
-          GetLastErrorText, ErrorGeneratedMustBeSame);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Appl.-from Item Entry"), '');
 
         // Delete incorrect Sales Credit Memo.
         DeleteSalesCreditMemo(SalesHeader."No.");
@@ -774,22 +770,18 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindFirst();
 
-            exit("Entry No.");
-        end;
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20])
     begin
-        with PurchRcptLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnRcptLine: Record "Return Receipt Line"; ItemNo: Code[20])
@@ -966,13 +958,11 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with SalesShipmentHeader do begin
-            SetRange("Order No.", OrderNo);
-            FindFirst();
-            SalesShipmentLine.SetRange("Document No.", "No.");
-            SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-            FindFirst();
-        end;
+        SalesShipmentHeader.SetRange("Order No.", OrderNo);
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentHeader.FindFirst();
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
 
@@ -1099,14 +1089,12 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", Item."No.");
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)");
-                Assert.AreEqual(Item."Unit Cost" * Quantity, "Cost Amount (Actual)", ItemLedgCostAmountErr);
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+            Assert.AreEqual(Item."Unit Cost" * ItemLedgerEntry.Quantity, ItemLedgerEntry."Cost Amount (Actual)", ItemLedgCostAmountErr);
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     [Normal]

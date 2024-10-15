@@ -250,12 +250,10 @@ codeunit 137412 "SCM Prevent Negative Inventory"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::"Positive Adjmt.");
-            FindFirst();
-            TestField("Remaining Quantity", 0);
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Positive Adjmt.");
+        ItemLedgEntry.FindFirst();
+        ItemLedgEntry.TestField("Remaining Quantity", 0);
     end;
 }
 

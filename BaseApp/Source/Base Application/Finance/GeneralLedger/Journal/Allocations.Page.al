@@ -291,6 +291,21 @@ page 284 Allocations
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
             }
+            group("&Process")
+            {
+                action(ImportFromAllocationAccount)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Import from Allocation Account';
+                    Image = Import;
+                    ToolTip = 'Create general journal allocation lines based on allocation account setup.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.ChooseAndImportFromAllocationAccount();
+                    end;
+                }
+            }
         }
         area(Promoted)
         {
@@ -301,6 +316,9 @@ page 284 Allocations
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+                actionref(ImportFromAllocationAccount_Promoted; ImportFromAllocationAccount)
+                {
+                }
             }
             group(Category_Category4)
             {
@@ -309,25 +327,6 @@ page 284 Allocations
             group(Category_Category5)
             {
                 Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 4.';
-
-#if not CLEAN22
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
-#if not CLEAN22
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Report)
             {

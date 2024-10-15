@@ -9,6 +9,10 @@ table 230 "Source Code"
     Caption = 'Source Code';
     LookupPageID = "Source Codes";
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Source Code is moved to Business Foundation';
+    ObsoleteState = Moved;
+    ObsoleteTag = '25.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
 
     fields
     {

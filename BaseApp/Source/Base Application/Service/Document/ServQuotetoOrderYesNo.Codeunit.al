@@ -1,5 +1,6 @@
 namespace Microsoft.Service.Document;
-
+using Microsoft.CRM.Outlook;
+using Microsoft.Utilities;
 using System.Utilities;
 
 codeunit 5922 "Serv-Quote to Order (Yes/No)"
@@ -32,14 +33,37 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
 
         OnBeforeShowMessage(Rec, ServQuoteToOrder.ReturnOrderNo(), HideMessage);
         if not HideMessage then
-            Message(Text001, Rec."No.", ServQuoteToOrder.ReturnOrderNo());
+            ShowCreatedOrder(Rec."No.");
     end;
 
     var
         ServQuoteToOrder: Codeunit "Service-Quote to Order";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to convert the quote to an order?';
-        Text001: Label 'Service quote %1 has been converted to service order no. %2.';
+#pragma warning restore AA0074
+        OpenNewOrderQst: Label 'The Service Quote %1 has been converted to Service Order %2. Do you want to open the new Order?', Comment = '%1 - Service Quote number, %2 - Service Order number';
+
+    local procedure ShowCreatedOrder(ServiceQuoteNo: Code[20])
+    var
+        ServiceHeaderOrder: Record "Service Header";
+        ConfirmManagement: Codeunit "Confirm Management";
+        OfficeMgt: Codeunit "Office Management";
+        PageManagement: Codeunit "Page Management";
+        OpenPage: Boolean;
+    begin
+        if GuiAllowed() then
+            if OfficeMgt.AttachAvailable() then
+                OpenPage := true
+            else
+                OpenPage := ConfirmManagement.GetResponseOrDefault(StrSubstNo(OpenNewOrderQst, ServiceQuoteNo, ServQuoteToOrder.ReturnOrderNo()), true);
+
+        if not OpenPage then
+            exit;
+
+        ServiceHeaderOrder.Get(ServiceHeaderOrder."Document Type"::Order, ServQuoteToOrder.ReturnOrderNo());
+        PageManagement.PageRun(ServiceHeaderOrder);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var Rec: Record "Service Header"; OrderNo: Code[20]; var HideMessage: Boolean)

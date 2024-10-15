@@ -2634,15 +2634,6 @@ page 8901 "Finance Manager Role Center"
                         Tooltip = 'Open the VAT Reports Configuration page.';
                     }
                 }
-#if not CLEAN22
-                group("Group59")
-                {
-                    Caption = 'Intrastat';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 group("Group60")
                 {
                     Caption = 'Intercompany';

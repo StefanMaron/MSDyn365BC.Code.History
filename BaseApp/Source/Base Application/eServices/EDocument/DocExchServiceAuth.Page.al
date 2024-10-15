@@ -54,30 +54,51 @@ page 1276 "Doc. Exch. Service Auth."
     }
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure SetOAuth2Properties(AuthRequestUrl: Text; AuthInitialState: Text)
     begin
         OAuthRequestUrl := AuthRequestUrl;
         State := AuthInitialState;
     end;
+#if not CLEAN25
 
+    [Obsolete('Replaced by GetAuthCodeAsSecretText', '25.0')]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure GetAuthCode(): Text
+    begin
+        exit(GetAuthCodeAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetAuthCodeAsSecretText(): SecretText
     begin
         exit(AuthCode);
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure GetAuthError(): Text
     begin
         exit(AuthError);
     end;
 
+#if not CLEAN25
     [Scope('OnPrem')]
+    [Obsolete('Replaced by GetOAuthProperties(AuthorizationCode: Text; var CodeOut: SecretText; var StateOut: Text)', '25.0')]
     [NonDebuggable]
     procedure GetOAuthProperties(AuthorizationCode: Text; var CodeOut: Text; var StateOut: Text)
+    var
+        CodeOutAsSecretText: SecretText;
+    begin
+        CodeOutAsSecretText := CodeOut;
+        GetOAuthProperties(AuthorizationCode, CodeOutAsSecretText, StateOut);
+        CodeOut := CodeOutAsSecretText.Unwrap();
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetOAuthProperties(AuthorizationCode: Text; var CodeOut: SecretText; var StateOut: Text)
     begin
         if AuthorizationCode = '' then begin
             Session.LogMessage('0000EXT', AuthorizationCodeErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
@@ -114,8 +135,7 @@ page 1276 "Doc. Exch. Service Auth."
         OAuthRequestUrl: Text;
         [NonDebuggable]
         State: Text;
-        [NonDebuggable]
-        AuthCode: Text;
+        AuthCode: SecretText;
         [NonDebuggable]
         AuthError: Text;
         CategoryTxt: Label 'AL Document Exchange Service', Locked = true;

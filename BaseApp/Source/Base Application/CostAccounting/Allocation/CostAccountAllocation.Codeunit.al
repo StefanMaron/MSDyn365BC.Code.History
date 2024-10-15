@@ -25,11 +25,15 @@ codeunit 1104 "Cost Account Allocation"
         StartDate: Date;
         EndDate: Date;
         TotalShare: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The dynamic shares of all allocation keys will be newly calculated. \The date filter is the current work date %1.\\Do you want to start the job?';
         Text001: Label 'Update allocation keys\Allocation Targets #1########\Actual ID          #2########\Actual Line No.      #3########';
         Text002: Label '%1 allocation keys updated.';
         Text003: Label 'The next accounting period for workdate %1 is not defined.\Verify the accounting period setup.';
         Text004: Label 'Previous year is not defined in accounting period.\ID %1, line no. %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ConfirmCalcAllocationKeys()
     var

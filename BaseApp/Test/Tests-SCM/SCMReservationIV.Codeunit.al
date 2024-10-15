@@ -35,7 +35,6 @@ codeunit 137271 "SCM Reservation IV"
         NothingToCreateErr: Label 'There is nothing to create.';
         PickCreatedMsg: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
         PickActivityMsg: Label 'Pick activity no. %1 has been created.', Comment = '%1 = Document No.';
-        ReservedQtyErr: Label 'Reserved Qty. (Base) must be equal to ''0''  in Sales Line: Document Type=Order, Document No.=%1, Line No.=%2. Current value is ''%3''', Comment = '%1 = Document No., %2 = Line No., %3 = Quantity';
         TransferOrderDeletedMsg: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Document No.';
         OrderTrackingPolicyMsg: Label 'The change will not affect existing entries.';
         AvailabilityWarningMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
@@ -46,7 +45,7 @@ codeunit 137271 "SCM Reservation IV"
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetSerialNo,AssignGivenLotNo,AssignLot,ManualSetLotNo,UpdateQuantityBase,ManualSetMultipleLots;
         ReservationOption: Option ReserveFromCurrentLine,VerifyQuantity;
         ItemsPickedMsg: Label 'The items have been picked';
-        LotReservedForAnotherDocErr: Label 'Lot No. %1 is not available on inventory or it has already been reserved for another document.', Comment = 'Field("Lot No.")';
+        LotReservedForAnotherDocErr: Label 'Lot No. %1 is not available on inventory or it has already been reserved for another document.', Comment = '%1: Field("Lot No.")';
         ReserveMustNotBeNeverErr: Label 'Reserve must not be Never';
         ReserveMustBeNeverErr: Label 'Non-inventory and service items must have the reserve type Never';
 
@@ -68,7 +67,7 @@ codeunit 137271 "SCM Reservation IV"
         asserterror SalesLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
 
         // [THEN] Error while updating Location Code.
-        Assert.ExpectedError(StrSubstNo(ReservedQtyErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine.Quantity));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     [Test]
@@ -97,7 +96,7 @@ codeunit 137271 "SCM Reservation IV"
         asserterror SalesHeader.Validate("Sell-to Customer No.", CreateCustomer());
 
         // [THEN] Error while updating Sell To Customer No.
-        Assert.ExpectedError(StrSubstNo(ReservedQtyErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine.Quantity));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     [Test]
@@ -284,7 +283,6 @@ codeunit 137271 "SCM Reservation IV"
         ItemJournalLine: Record "Item Journal Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemUnitOfMeasure1: Record "Item Unit of Measure";
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetSerialNo,AssignGivenLotNo;
         LotNo: Code[50];
         LotNo1: Code[20];
     begin
@@ -903,15 +901,13 @@ codeunit 137271 "SCM Reservation IV"
     [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler,ItemTrackingListPageHandler,ConfirmHandler,EnterQuantitytoCreatePageHandler')]
     [Scope('OnPrem')]
     procedure ReservingNonSpecificITWithSerialNo()
-    var
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo;
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO] Item should be reserved after Reserve quantity with Serial No.
         ReservingNonSpecificIT('', LibraryUtility.GetGlobalNoSeriesCode(), true, false, TrackingOption::AssignSerialNo);
     end;
 
-    local procedure ReservingNonSpecificIT(SerialNos: Code[20]; LotNos: Code[20]; SNSpecific: Boolean; LNSpecific: Boolean; TrackingOption: Option)
+    local procedure ReservingNonSpecificIT(SerialNos: Code[20]; LotNos: Code[20]; SNSpecific: Boolean; LNSpecific: Boolean; ItemTrackingOption: Option)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -921,7 +917,7 @@ codeunit 137271 "SCM Reservation IV"
         // Setup: Create Tracked Item, Post Item Journal and create Sales Order with Reservation.
         Initialize(false);
         LibraryInventory.CreateTrackedItem(Item, SerialNos, LotNos, CreateItemTrackingCode(SNSpecific, LNSpecific));
-        CreateAndPostItemJournalLineWithLot(ItemJournalLine, Item."No.", TrackingOption, '', 2);  // Required at least 2 and avoid more than 2 Serial No.
+        CreateAndPostItemJournalLineWithLot(ItemJournalLine, Item."No.", ItemTrackingOption, '', 2);  // Required at least 2 and avoid more than 2 Serial No.
         CreateSalesDocument(SalesLine, Item."No.", '', ItemJournalLine.Quantity / 2);  // Used blank for Location Code.
         LibraryVariableStorage.Enqueue(ReservationOption::ReserveFromCurrentLine);  // Enqueue value for ReservationPageHandler.
         SalesLine.ShowReservation();
@@ -955,7 +951,7 @@ codeunit 137271 "SCM Reservation IV"
           LibraryUtility.GetGlobalNoSeriesCode(), '', true, false, TrackingOption::AssignSerialNo, TrackingOption::SetSerialNo);
     end;
 
-    local procedure ReservingSpecificIT(SerialNos: Code[20]; LotNos: Code[20]; SNSpecific: Boolean; LNSpecific: Boolean; TrackingOption: Option; TrackingOption2: Option)
+    local procedure ReservingSpecificIT(SerialNos: Code[20]; LotNos: Code[20]; SNSpecific: Boolean; LNSpecific: Boolean; ItemTrackingOption: Option; TrackingOption2: Option)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -965,7 +961,7 @@ codeunit 137271 "SCM Reservation IV"
         // Setup: Create Tracked Item, Post Item Journal and create 2 Sales Order and Reserved with same Lot No/Serial No.
         Initialize(false);
         LibraryInventory.CreateTrackedItem(Item, LotNos, SerialNos, CreateItemTrackingCode(SNSpecific, LNSpecific));
-        CreateAndPostItemJournalLineWithLot(ItemJournalLine, Item."No.", TrackingOption, '', 1);  // Required 1 due to avoid multiple Serial No.
+        CreateAndPostItemJournalLineWithLot(ItemJournalLine, Item."No.", ItemTrackingOption, '', 1);  // Required 1 due to avoid multiple Serial No.
         CreateSalesOrderWithITAndReserve(SalesLine, Item."No.", '', ItemJournalLine.Quantity);
         CreateSalesDocument(SalesLine2, Item."No.", '', ItemJournalLine.Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption2);  // Enqueue value for ItemTrackingLinesPageHandler.
@@ -1304,7 +1300,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine.ShowReservation();
 
         // [THEN] Reservation entry is created
-        VerifyReservationEntry(SalesLine."No.", SalesLine.Quantity, DATABASE::"Item Ledger Entry", true);
+        VerifyReservationEntry(SalesLine."No.", 1, DATABASE::"Item Ledger Entry", true);
     end;
 
     [Test]
@@ -1334,7 +1330,7 @@ codeunit 137271 "SCM Reservation IV"
           SalesLine."Location Code", WhseActivityLine."Action Type"::Place);
 
         // [THEN] Reservation entry is created
-        VerifyReservationEntry(SalesLine."No.", SalesLine.Quantity, DATABASE::"Item Ledger Entry", true);
+        VerifyReservationEntry(SalesLine."No.", 1, DATABASE::"Item Ledger Entry", true);
     end;
 
     [Test]
@@ -2745,7 +2741,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNos: array[2] of Code[20];
+        LotNos: array[2] of Code[50];
     begin
         // [FEATURE] [Item Tracking] [Pick] [Shipment] [Sales] [Breakbulk] [Unit of Measure]
         // [SCENARIO 388429] Item tracking is properly created from a pick with breakbulk lines.
@@ -2846,7 +2842,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNos: array[2] of Code[20];
+        LotNos: array[2] of Code[50];
         Qty: Decimal;
         i: Integer;
     begin
@@ -3060,8 +3056,6 @@ codeunit 137271 "SCM Reservation IV"
     var
         Item: Record Item;
         BOMComponent: Record "BOM Component";
-        LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
         LibraryInventory.CreateItem(Item);
         LibraryManufacturing.CreateBOMComponent(BOMComponent, Item."No.", BOMComponent.Type::Item, ItemNo, 1, '');
@@ -3209,15 +3203,15 @@ codeunit 137271 "SCM Reservation IV"
           ItemJournalLine, Item."No.", TrackingOption::AssignLotNo, Location.Code, LibraryRandom.RandDec(10, 2));  // Use Random Value for Quantity.
     end;
 
-    local procedure CreateAndPostItemJournalLineWithLot(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; TrackingOption: Option; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndPostItemJournalLineWithLot(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; ItemTrackingOption: Option; LocationCode: Code[10]; Quantity: Decimal)
     begin
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LocationCode, Quantity);
-        LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(ItemTrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         ItemJournalLine.OpenItemTrackingLines(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemJournalLineWithITAndReserve(var ItemJournalLine: Record "Item Journal Line"; SerialNos: Code[20]; LotNos: Code[20]; TrackingOption: Option; Serial: Boolean; Lot: Boolean; Qty: Decimal)
+    local procedure CreateAndPostItemJournalLineWithITAndReserve(var ItemJournalLine: Record "Item Journal Line"; SerialNos: Code[20]; LotNos: Code[20]; ItemTrackingOption: Option; Serial: Boolean; Lot: Boolean; Qty: Decimal)
     var
         Item: Record Item;
         Location: Record Location;
@@ -3226,15 +3220,15 @@ codeunit 137271 "SCM Reservation IV"
         LibraryInventory.CreateTrackedItem(Item, LotNos, SerialNos, CreateItemTrackingCode(Serial, Lot));
         ModifyReserveOptionOnItem(Item, Item.Reserve::Always);
         CreateLocationAndBin(Location, Bin);
-        CreateAndPostItemJournalLineWithBin(ItemJournalLine, Item."No.", TrackingOption, Location.Code, Bin.Code, Qty);
+        CreateAndPostItemJournalLineWithBin(ItemJournalLine, Item."No.", ItemTrackingOption, Location.Code, Bin.Code, Qty);
     end;
 
-    local procedure CreateAndPostItemJournalLineWithBin(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; TrackingOption: Option; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostItemJournalLineWithBin(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; ItemTrackingOption: Option; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
     begin
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LocationCode, Quantity);
         ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
-        LibraryVariableStorage.Enqueue(TrackingOption); // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(ItemTrackingOption); // Enqueue value for ItemTrackingLinesPageHandler.
         ItemJournalLine.OpenItemTrackingLines(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -3244,12 +3238,10 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        with Location do begin
-            Validate("Require Pick", true);
-            Validate("Require Put-away", true);
-            Validate("Bin Mandatory", true);
-            Modify(true);
-        end;
+        Location.Validate("Require Pick", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
@@ -3370,14 +3362,14 @@ codeunit 137271 "SCM Reservation IV"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure CreateProdOrderComponentWithITAndReserv(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10]; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo)
+    local procedure CreateProdOrderComponentWithITAndReserv(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10]; ItemTrackingOption: Option)
     var
         ProdOrderComponent: Record "Prod. Order Component";
         ConfirmOption: Option SerialSpecificTrue,SerialSpecificFalse;
     begin
         CreateProdOrderComponent(ProdOrderComponent, ProductionOrder, ItemNo, LocationCode, LibraryRandom.RandInt(10));
-        LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        if TrackingOption = TrackingOption::SetLotNo then
+        LibraryVariableStorage.Enqueue(ItemTrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
+        if ItemTrackingOption = TrackingOption::SetLotNo then
             LibraryVariableStorage.Enqueue(ProductionOrder.Quantity);  // Enqueue value for ItemTrackingLinesPageHandler.
 
         ProdOrderComponent.OpenItemTrackingLines();
@@ -3495,12 +3487,12 @@ codeunit 137271 "SCM Reservation IV"
         CreatePick(SalesLine."Location Code", SalesLine."Document No.");
     end;
 
-    local procedure CreateTrackedAndReservedTransferOrder(var TransferLine: Record "Transfer Line"; TrackingOption: Option; SerialNos: Code[20]; LotNos: Code[20]; Quantity: Decimal)
+    local procedure CreateTrackedAndReservedTransferOrder(var TransferLine: Record "Transfer Line"; ItemTrackingOption: Option; SerialNos: Code[20]; LotNos: Code[20]; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateAndPostItemJournalLineWithITAndReserve(
-          ItemJournalLine, SerialNos, LotNos, TrackingOption, SerialNos <> '', LotNos <> '', Quantity);
+          ItemJournalLine, SerialNos, LotNos, ItemTrackingOption, SerialNos <> '', LotNos <> '', Quantity);
         CreateAndReleaseTransferOrder(
           TransferLine, ItemJournalLine."Location Code", ItemJournalLine."Item No.", Quantity);
     end;
@@ -3509,7 +3501,6 @@ codeunit 137271 "SCM Reservation IV"
     local procedure CreateTrackedSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; UnitOfMeasureCode: Code[10])
     var
         SalesLine: Record "Sales Line";
-        TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,AssignGivenLotNo;
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
         SalesLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
@@ -3622,7 +3613,7 @@ codeunit 137271 "SCM Reservation IV"
         ItemLedgerEntry.FindLast();
     end;
 
-    local procedure FindLotNo(ItemNo: Code[20]; LocationCode: Code[10]): Code[10]
+    local procedure FindLotNo(ItemNo: Code[20]; LocationCode: Code[10]): Code[50]
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3631,7 +3622,7 @@ codeunit 137271 "SCM Reservation IV"
         exit(ItemLedgerEntry."Lot No.");
     end;
 
-    local procedure FindSerialNo(ItemNo: Code[20]; LocationCode: Code[10]): Code[10]
+    local procedure FindSerialNo(ItemNo: Code[20]; LocationCode: Code[10]): Code[50]
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3640,7 +3631,7 @@ codeunit 137271 "SCM Reservation IV"
         exit(ItemLedgerEntry."Serial No.");
     end;
 
-    local procedure FindLotNoFromReservationEntry(ItemNo: Code[20]): Code[20]
+    local procedure FindLotNoFromReservationEntry(ItemNo: Code[20]): Code[50]
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -3696,14 +3687,14 @@ codeunit 137271 "SCM Reservation IV"
     end;
 
     [Normal]
-    local procedure PostItemJournalLineWithUOMAndLot(ItemNo: Code[20]; Qty: Decimal; ItemUnitOfMeasure: Record "Item Unit of Measure"; TrackingOption: Option; LotNo: Code[50])
+    local procedure PostItemJournalLineWithUOMAndLot(ItemNo: Code[20]; Qty: Decimal; ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemTrackingOption: Option; LotNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, '', Qty);
         ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         ItemJournalLine.Modify(true);
-        LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(ItemTrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty * ItemUnitOfMeasure."Qty. per Unit of Measure");
         ItemJournalLine.OpenItemTrackingLines(false);
@@ -3930,15 +3921,13 @@ codeunit 137271 "SCM Reservation IV"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         Index: Integer;
     begin
-        with Item do begin
-            Get(CreateAndModifyItem("Costing Method"::Standard));
-            Validate("Replenishment System", "Replenishment System"::Assembly);
-            Validate("Assembly Policy", AssemblyPolicy);
-            Modify(true);
-            LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, "No.", LibraryRandom.RandInt(5));
-            for Index := 1 to LibraryRandom.RandIntInRange(3, 5) do
-                CreateBOMComponent("No.");
-        end;
+        Item.Get(CreateAndModifyItem(Item."Costing Method"::Standard));
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", AssemblyPolicy);
+        Item.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(5));
+        for Index := 1 to LibraryRandom.RandIntInRange(3, 5) do
+            CreateBOMComponent(Item."No.");
 
         LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ItemReference."Reference Type"::" ", '');
     end;
@@ -4006,13 +3995,11 @@ codeunit 137271 "SCM Reservation IV"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source ID", SourceID);
-            SetFilter("Lot No.", '<>%1', '');
-            Assert.RecordIsEmpty(ReservationEntry);
-        end;
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetFilter("Lot No.", '<>%1', '');
+        Assert.RecordIsEmpty(ReservationEntry);
     end;
 
     local procedure VerifyGeneralLedgerEntry(DocumentNo: Code[20]; CreditAmount: Decimal)

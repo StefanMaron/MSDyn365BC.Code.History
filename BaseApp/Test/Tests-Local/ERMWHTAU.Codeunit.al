@@ -1996,39 +1996,35 @@
         LibraryAPACLocalization.CreateWHTPostingSetupWithPayableGLAccounts(WHTPostingSetup);
         WHTPostingSetup.Validate("WHT %", 2);
         WHTPostingSetup.Modify(true);
-        with GenJournalLine do begin
-            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-            LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::Invoice,
-              "Account Type"::Vendor, CreateLocalVendor(), -10);
-            Validate("Posting Date", WorkDate());
-            Validate("Currency Code", CreateCurrencyWithTwoExchangeRates());
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
-            Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
-            Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
-            Modify(true);
-        end;
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, CreateLocalVendor(), -10);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Currency Code", CreateCurrencyWithTwoExchangeRates());
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GenJournalLine.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateAppliedFCYPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceGenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, InvoiceGenJournalLine."Journal Template Name", InvoiceGenJournalLine."Journal Batch Name",
-              "Document Type"::Payment, "Account Type"::Vendor, InvoiceGenJournalLine."Account No.", -InvoiceGenJournalLine.Amount);
-            Validate("Posting Date", WorkDate() + 10);
-            Validate("Currency Code", InvoiceGenJournalLine."Currency Code");
-            Validate("Currency Factor", 1 / 120);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", InvoiceGenJournalLine."Document No.");
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", InvoiceGenJournalLine."Bal. Account No.");
-            Validate("WHT Business Posting Group", InvoiceGenJournalLine."WHT Business Posting Group");
-            Validate("WHT Product Posting Group", InvoiceGenJournalLine."WHT Product Posting Group");
-            Modify(true);
-        end;
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, InvoiceGenJournalLine."Account No.", -InvoiceGenJournalLine.Amount);
+        GenJournalLine.Validate("Posting Date", WorkDate() + 10);
+        GenJournalLine.Validate("Currency Code", InvoiceGenJournalLine."Currency Code");
+        GenJournalLine.Validate("Currency Factor", 1 / 120);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceGenJournalLine."Document No.");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", InvoiceGenJournalLine."Bal. Account No.");
+        GenJournalLine.Validate("WHT Business Posting Group", InvoiceGenJournalLine."WHT Business Posting Group");
+        GenJournalLine.Validate("WHT Product Posting Group", InvoiceGenJournalLine."WHT Product Posting Group");
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateCurrencyWithTwoExchangeRates(): Code[10]

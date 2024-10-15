@@ -195,9 +195,13 @@ page 1032 "Available - Job Planning Lines"
         CaptionText: Text;
         CurrentSubType: Option;
 
+#pragma warning disable AA0074
         Text000: Label 'Fully reserved.';
         Text001: Label 'Do you want to cancel the reservation?';
+#pragma warning disable AA0470
         Text003: Label 'Available Quantity is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         QtyToReserve: Decimal;

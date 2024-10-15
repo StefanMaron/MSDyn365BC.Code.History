@@ -67,7 +67,7 @@ page 1312 "Office 365 Credentials"
 
     trigger OnOpenPage()
     begin
-        PasswordText := Rec.GetPassword();
+        SetPasswordGlobal();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -86,5 +86,12 @@ page 1312 "Office 365 Credentials"
         WhySignInIsNeededDescriptionMsg: Label 'To set up the Business Inbox in Outlook, we need your permission to install two add-ins in Office 365.';
         [NonDebuggable]
         PasswordText: Text;
+
+    [NonDebuggable]
+    local procedure SetPasswordGlobal()
+    begin
+        PasswordText := Rec.GetPasswordAsSecretText().Unwrap();
+    end;
+
 }
 

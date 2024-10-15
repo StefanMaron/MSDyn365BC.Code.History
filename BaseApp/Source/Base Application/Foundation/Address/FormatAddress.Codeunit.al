@@ -21,9 +21,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Text;
 
 codeunit 365 "Format Address"
@@ -34,11 +31,28 @@ codeunit 365 "Format Address"
     var
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
+#if not CLEAN25
+        ServiceFormatAddress: Codeunit "Service Format Address";
+#endif
         GLSetupRead: Boolean;
         i: Integer;
         LanguageCode: Code[10];
         BarCode: array[50] of Text[100];
 
+    /// <summary>
+    /// Formats address information based on value 'Address Format' for country, provided by CountryCode.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted address.</param>
+    /// <param name="Name">Provided name information.</param>
+    /// <param name="Name2">Provided name 2 information.</param>
+    /// <param name="Contact">Provided contact name information.</param>
+    /// <param name="Addr">Provided address information.</param>
+    /// <param name="Addr2">Provided address 2 information.</param>
+    /// <param name="City">Provided city name information.</param>
+    /// <param name="PostCode">Provided post code information.</param>
+    /// <param name="County">Provided county name information.</param>
+    /// <param name="CountryCode">Country code for selected country.</param>
+    /// <remarks>In case that CountryCode is empty 'Address Format' will be taken from general ledger setup.</remarks>
     procedure FormatAddr(var AddrArray: array[8] of Text[100]; Name: Text[100]; Name2: Text[100]; Contact: Text[100]; Addr: Text[100]; Addr2: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; CountryCode: Code[10])
     var
         Country: Record "Country/Region";
@@ -173,6 +187,16 @@ codeunit 365 "Format Address"
         CompressArray(AddrArray);
     end;
 
+    /// <summary>
+    /// Formats post code information based on value 'Address Format' for country, provided by CountryCode.
+    /// </summary>
+    /// <param name="PostCodeCityText">Parameter PostCodeCityText that will hold formatted post code information. </param>
+    /// <param name="CountyText">Parameter CountyText that will hold formatted county information. </param>
+    /// <param name="City">Provided city information. </param>
+    /// <param name="PostCode">Provided post code information. </param>
+    /// <param name="County">Provided county information. </param>
+    /// <param name="CountryCode">Country code for selected country. </param>
+    /// <remarks>In case that CountryCode is empty 'Address Format' will be taken from general ledger setup. </remarks>
     procedure FormatPostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; CountryCode: Code[10])
     var
         Country: Record "Country/Region";
@@ -195,6 +219,15 @@ codeunit 365 "Format Address"
             GeneratePostCodeCity(PostCodeCityText, CountyText, City, PostCode, County, Country);
     end;
 
+    /// <summary>
+    /// Combines post code and city information based on value 'Address Format' of provided country.
+    /// </summary>
+    /// <param name="PostCodeCityText">Parameter PostCodeCityText that will hold combined post code and city information. </param>
+    /// <param name="CountyText">Parameter CountyText that will hold formatted county information. </param>
+    /// <param name="City">Provided city name information. </param>
+    /// <param name="PostCode">Provided post code information. </param>
+    /// <param name="County">Provided county information. </param>
+    /// <param name="Country">Selected country record. </param>
     procedure GeneratePostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; Country: Record "Country/Region")
     var
         DummyString: Text;
@@ -215,19 +248,17 @@ codeunit 365 "Format Address"
                     CountyText := County;
                 end;
             Country."Address Format"::"City+County+Post Code":
-                begin
-                    if (County <> '') and (PostCode <> '') then
-                        PostCodeCityText :=
-                          DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - StrLen(County) - 3) +
-                          ', ' + County + ' ' + PostCode
-                    else
-                        if PostCode = '' then begin
-                            PostCodeCityText := City;
-                            CountyText := County;
-                        end else
-                            if (County = '') and (PostCode <> '') then
-                                PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ', ' + PostCode;
-                end;
+                if (County <> '') and (PostCode <> '') then
+                    PostCodeCityText :=
+                        DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - StrLen(County) - 3) +
+                        ', ' + County + ' ' + PostCode
+                else
+                    if PostCode = '' then begin
+                        PostCodeCityText := City;
+                        CountyText := County;
+                    end else
+                        if (County = '') and (PostCode <> '') then
+                            PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ', ' + PostCode;
             Country."Address Format"::"City+Post Code":
                 begin
                     if PostCode <> '' then
@@ -237,26 +268,22 @@ codeunit 365 "Format Address"
                     CountyText := County;
                 end;
             Country."Address Format"::"City+Post Code (no comma)":
-                begin
-                    if PostCode <> '' then
-                        PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ' ' + PostCode
-                    else
-                        PostCodeCityText := City;
-                end;
+                if PostCode <> '' then
+                    PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ' ' + PostCode
+                else
+                    PostCodeCityText := City;
             Country."Address Format"::"City+County+Post Code (no comma)":
-                begin
-                    if (County <> '') and (PostCode <> '') then
-                        PostCodeCityText :=
-                          DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - StrLen(County) - 3) +
-                          ' ' + County + ' ' + PostCode
-                    else
-                        if PostCode = '' then begin
-                            PostCodeCityText := City;
-                            CountyText := County;
-                        end else
-                            if (County = '') and (PostCode <> '') then
-                                PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ' ' + PostCode;
-                end;
+                if (County <> '') and (PostCode <> '') then
+                    PostCodeCityText :=
+                        DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - StrLen(County) - 3) +
+                        ' ' + County + ' ' + PostCode
+                else
+                    if PostCode = '' then begin
+                        PostCodeCityText := City;
+                        CountyText := County;
+                    end else
+                        if (County = '') and (PostCode <> '') then
+                            PostCodeCityText := DelStr(City, MaxStrLen(PostCodeCityText) - StrLen(PostCode) - 1) + ' ' + PostCode;
             Country."Address Format"::"Blank Line+Post Code+City":
                 begin
                     if PostCode <> '' then
@@ -312,6 +339,14 @@ codeunit 365 "Format Address"
         PostCodeCityText := DelStr(PostCodeCityLine, MaxStrLen(PostCodeCityText));
     end;
 
+    /// <summary>
+    /// Formats company information.
+    /// </summary>
+    /// <param name="RespCenterCode">Selected responsibility center code. </param>
+    /// <param name="ResponsibilityCenter">Record holding selected responsibility center. </param>
+    /// <param name="CompanyInfo">Company information record. </param>
+    /// <param name="CompanyAddr">Array that will hold company information. </param>
+    /// <remarks> in case responsibility center exists information will be taken from it, otherwise from company information. </remarks>  
     procedure GetCompanyAddr(RespCenterCode: Code[10]; var ResponsibilityCenter: Record "Responsibility Center"; var CompanyInfo: Record "Company Information"; var CompanyAddr: array[8] of Text[100])
     var
         IsHandled: Boolean;
@@ -330,6 +365,11 @@ codeunit 365 "Format Address"
             Company(CompanyAddr, CompanyInfo);
     end;
 
+    /// <summary>
+    /// Formats company name and address information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formated name and address. </param>
+    /// <param name="CompanyInfo">Source compnay information record. </param>
     procedure Company(var AddrArray: array[8] of Text[100]; var CompanyInfo: Record "Company Information")
     var
         IsHandled: Boolean;
@@ -341,11 +381,17 @@ codeunit 365 "Format Address"
 
         FormatAddr(
             AddrArray, CompanyInfo.Name, CompanyInfo."Name 2", '', CompanyInfo.Address, CompanyInfo."Address 2",
-            CompanyInfo.City, CompanyInfo."Post Code", CompanyInfo.County, '');
+            CompanyInfo.City, CompanyInfo."Post Code", CompanyInfo.County, CompanyInfo."Country/Region Code");
+
         CreateBarCode(
           DATABASE::"Company Information", CompanyInfo.GetPosition(), 0, '', '', '');
     end;
 
+    /// <summary>
+    /// Formats customer name and address information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="Cust">Source customer record. </param>
     procedure Customer(var AddrArray: array[8] of Text[100]; var Cust: Record Customer)
     var
         Handled: Boolean;
@@ -362,6 +408,11 @@ codeunit 365 "Format Address"
           Cust."No.", Cust."Global Dimension 1 Code", Cust."Global Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats vendor name and address information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="Vend">Source vendor record. </param>
     procedure Vendor(var AddrArray: array[8] of Text[100]; var Vend: Record Vendor)
     var
         Handled: Boolean;
@@ -378,6 +429,11 @@ codeunit 365 "Format Address"
           Vend."No.", Vend."Global Dimension 1 Code", Vend."Global Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats bank account name and address information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="BankAcc">Source bank account record. </param>
     procedure BankAcc(var AddrArray: array[8] of Text[100]; var BankAcc: Record "Bank Account")
     var
         IsHandled: Boolean;
@@ -395,7 +451,11 @@ codeunit 365 "Format Address"
           BankAcc."No.", BankAcc."Global Dimension 1 Code", BankAcc."Global Dimension 2 Code");
     end;
 
-
+    /// <summary>
+    /// Formats location name and address information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="Location">Source location record. </param>
     procedure Location(var AddrArray: array[8] of Text[100]; var Location: Record Location)
     var
         IsHandled: Boolean;
@@ -410,6 +470,11 @@ codeunit 365 "Format Address"
             Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
     end;
 
+    /// <summary>
+    /// Formats customer name and address information based on 'Sell-to' information of provided sales header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesHeader">Source sales header record. </param>
     procedure SalesHeaderSellTo(var AddrArray: array[8] of Text[100]; var SalesHeader: Record "Sales Header")
     var
         Handled: Boolean;
@@ -426,6 +491,11 @@ codeunit 365 "Format Address"
           SalesHeader."Sell-to Customer No.", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats customer name and address information based on 'Bill-to' information of provided sales header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesHeader">Source sales header record. </param>
     procedure SalesHeaderBillTo(var AddrArray: array[8] of Text[100]; var SalesHeader: Record "Sales Header")
     var
         Handled: Boolean;
@@ -442,6 +512,13 @@ codeunit 365 "Format Address"
           SalesHeader."Bill-to Customer No.", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats shipment address information based on 'Ship-to' information of provided sales header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted shipment information. </param>
+    /// <param name="CustAddr">Array that holds customer information. </param>
+    /// <param name="SalesHeader">Source sales header record. </param>
+    /// <returns>Returns 'true' if shipment address is different than customer address, otherwise 'false'. </returns>
     procedure SalesHeaderShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeader: Record "Sales Header") Result: Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -468,6 +545,11 @@ codeunit 365 "Format Address"
         exit(false);
     end;
 
+    /// <summary>
+    /// Formats vendor name and address information based on 'Buy-from' information of provided purchase header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="PurchHeader">Source purchase header record. </param>
     procedure PurchHeaderBuyFrom(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
@@ -485,6 +567,11 @@ codeunit 365 "Format Address"
           PurchHeader."Buy-from Vendor No.", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats vendor name and address information based on 'Pay-to' information of provided purchase header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="PurchHeader">Source purchase header record. </param>
     procedure PurchHeaderPayTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
@@ -502,6 +589,11 @@ codeunit 365 "Format Address"
           PurchHeader."Pay-to Vendor No.", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats shipment address information based on 'Ship-to' information of provided purchase header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="PurchHeader">Source purchase header record. </param>
     procedure PurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
@@ -519,26 +611,12 @@ codeunit 365 "Format Address"
           PurchHeader."Ship-to Code", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by PurchHeaderRemitTo with dictionaries.', '22.0')]
-    procedure PurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header"): Boolean
-    var
-        RemitAddress: Record "Remit Address";
-    begin
-        if PurchHeader."Remit-to Code" <> '' then begin
-            RemitAddress.Reset();
-            RemitAddress.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
-            RemitAddress.SetRange(Code, PurchHeader."Remit-to Code");
-            if RemitAddress.IsEmpty() then
-                exit(false);
-
-            RemitAddress.FindFirst();
-            VendorRemitToAddress(RemitAddress, AddrArray);
-        end;
-        exit(true);
-    end;
-#endif
-
+    /// <summary>
+    /// Gets vendor remit address information if exist.
+    /// </summary>
+    /// <param name="RemitAddressBuffer">Buffer record that will hold remit address information. </param>
+    /// <param name="PurchHeader">Source purchase header record. </param>
+    /// <returns>Returns 'false' if remit address doesn't exist, otherwise 'true'. </returns>
     procedure PurchHeaderRemitTo(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchHeader: Record "Purchase Header"): Boolean
     var
         RemitAddress: Record "Remit Address";
@@ -562,6 +640,11 @@ codeunit 365 "Format Address"
         exit(true);
     end;
 
+    /// <summary>
+    /// Formats customer name and address information based on 'Sell-to' information of provided sales shipment header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesShptHeader">Source sales shipment header record. </param>
     procedure SalesShptSellTo(var AddrArray: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header")
     var
         IsHandled: Boolean;
@@ -579,6 +662,13 @@ codeunit 365 "Format Address"
           SalesShptHeader."Sell-to Customer No.", SalesShptHeader."Shortcut Dimension 1 Code", SalesShptHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Format provided sales shipment document 'Bill-to' information.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted 'Bill-to' information. </param>
+    /// <param name="ShipToAddr">Array that holds shipment information. </param>
+    /// <param name="SalesShptHeader">Source sales shipment header record. </param>
+    /// <returns>Returns 'true' if 'Bill-to' information is different than 'Ship-to' customer information, otherwise 'false'. </returns>
     procedure SalesShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header") Result: Boolean
     var
         IsHandled: Boolean;
@@ -602,6 +692,11 @@ codeunit 365 "Format Address"
         exit(false);
     end;
 
+    /// <summary>
+    /// Formats shipment information for provided sales shipment header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formated name and address.</param>
+    /// <param name="SalesShptHeader">Source sales shipment header record.</param>
     procedure SalesShptShipTo(var AddrArray: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header")
     var
         Handled: Boolean;
@@ -618,6 +713,11 @@ codeunit 365 "Format Address"
           SalesShptHeader."Ship-to Code", SalesShptHeader."Shortcut Dimension 1 Code", SalesShptHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats customer information based on 'Sell-to' information of provided sales invoice header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesInvHeader">Source sales invoice header record. </param>
     procedure SalesInvSellTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header")
     var
         IsHandled: Boolean;
@@ -635,6 +735,11 @@ codeunit 365 "Format Address"
           SalesInvHeader."Sell-to Customer No.", SalesInvHeader."Shortcut Dimension 1 Code", SalesInvHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats customer information based on 'Bill-to' information of provided sales invoice header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesInvHeader">Source sales invoice header record. </param>
     procedure SalesInvBillTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header")
     var
         Handled: Boolean;
@@ -651,6 +756,13 @@ codeunit 365 "Format Address"
           SalesInvHeader."Bill-to Customer No.", SalesInvHeader."Shortcut Dimension 1 Code", SalesInvHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats provided sales invoice header shipment information. 
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="CustAddr">Array that holds customer information. </param>
+    /// <param name="SalesInvHeader">Source sales invoice header record. </param>
+    /// <returns>Returns 'true' if shipment information is different than provided customer information, otherwise 'false'. </returns>
     procedure SalesInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header") Result: Boolean
     var
         IsHandled: Boolean;
@@ -690,6 +802,11 @@ codeunit 365 "Format Address"
           SalesCrMemoHeader."Sell-to Customer No.", SalesCrMemoHeader."Shortcut Dimension 1 Code", SalesCrMemoHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats customer name and address information based on 'Sell-to' information of provided sales cr.memo header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesCrMemoHeader">Source sales cr.memo header record. </param>
     procedure SalesCrMemoBillTo(var AddrArray: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
         IsHandled: Boolean;
@@ -707,6 +824,11 @@ codeunit 365 "Format Address"
           SalesCrMemoHeader."Bill-to Customer No.", SalesCrMemoHeader."Shortcut Dimension 1 Code", SalesCrMemoHeader."Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Formats customer name and address information based on 'Bill-to' information of provided sales cr.memo header.
+    /// </summary>
+    /// <param name="AddrArray">Array that will hold formatted name and address. </param>
+    /// <param name="SalesCrMemoHeader">Source sales cr.memo header record. </param>
     procedure SalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
     var
         IsHandled: Boolean;
@@ -888,26 +1010,6 @@ codeunit 365 "Format Address"
           DATABASE::"Purch. Inv. Header", PurchInvHeader.GetPosition(), 2,
           PurchInvHeader."Ship-to Code", PurchInvHeader."Shortcut Dimension 1 Code", PurchInvHeader."Shortcut Dimension 2 Code");
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by PurchInvRemitTo with dictionaries.', '22.0')]
-    procedure PurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
-    var
-        RemitAddress: Record "Remit Address";
-    begin
-        if PurchInvHeader."Remit-to Code" <> '' then begin
-            RemitAddress.Reset();
-            RemitAddress.SetRange("Vendor No.", PurchInvHeader."Pay-to Vendor No.");
-            RemitAddress.SetRange(Code, PurchInvHeader."Remit-to Code");
-            if RemitAddress.IsEmpty() then
-                exit(false);
-
-            RemitAddress.FindFirst();
-            VendorRemitToAddress(RemitAddress, AddrArray);
-        end;
-        exit(true);
-    end;
-#endif
 
     procedure PurchInvRemitTo(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
     var
@@ -1324,268 +1426,120 @@ codeunit 365 "Format Address"
             Cont.City, Cont."Post Code", Cont.County, Cont."Country/Region Code");
     end;
 
-    procedure ServiceOrderSellto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceOrderSellto(var AddrArray: array[8] of Text[100]; ServHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceOrderSellto(AddrArray, ServHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServHeader.Name, ServHeader."Name 2", ServHeader."Contact Name", ServHeader.Address, ServHeader."Address 2",
-            ServHeader.City, ServHeader."Post Code", ServHeader.County, ServHeader."Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Header", ServHeader.GetPosition(), 3,
-          ServHeader."Customer No.", ServHeader."Shortcut Dimension 1 Code", ServHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceOrderSellto(AddrArray, ServHeader);
     end;
+#endif
 
-    procedure ServiceOrderShipto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceOrderShipto(var AddrArray: array[8] of Text[100]; ServHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceOrderShipto(AddrArray, ServHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServHeader."Ship-to Name", ServHeader."Ship-to Name 2", ServHeader."Ship-to Contact", ServHeader."Ship-to Address", ServHeader."Ship-to Address 2",
-            ServHeader."Ship-to City", ServHeader."Ship-to Post Code", ServHeader."Ship-to County", ServHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Header", ServHeader.GetPosition(), 2,
-          ServHeader."Ship-to Code", ServHeader."Shortcut Dimension 1 Code", ServHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceOrderShipto(AddrArray, ServHeader);
     end;
+#endif
 
-    procedure ServContractSellto(var AddrArray: array[8] of Text[100]; ServContract: Record "Service Contract Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServContractSellto(var AddrArray: array[8] of Text[100]; ServContract: Record Microsoft.Service.Contract."Service Contract Header")
     begin
-        IsHandled := false;
-        OnBeforeServContractSellto(AddrArray, ServContract, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServContract.CalcFields(Name, "Name 2", Address, "Address 2", "Post Code", City, County, "Country/Region Code");
-        FormatAddr(
-          AddrArray, ServContract.Name, ServContract."Name 2", ServContract."Contact Name", ServContract.Address, ServContract."Address 2",
-          ServContract.City, ServContract."Post Code", ServContract.County, ServContract."Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Contract Header", ServContract.GetPosition(), 3,
-          ServContract."Customer No.", ServContract."Shortcut Dimension 1 Code", ServContract."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServContractSellto(AddrArray, ServContract);
     end;
+#endif
 
-    procedure ServContractShipto(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record "Service Contract Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServContractShipto(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
     begin
-        ServiceContractHeader.CalcFields(
-            "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
-            "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
-
-        IsHandled := false;
-        OnBeforeServContractShipTo(AddrArray, ServiceContractHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-          AddrArray, ServiceContractHeader."Ship-to Name", ServiceContractHeader."Ship-to Name 2", ServiceContractHeader."Contact Name", ServiceContractHeader."Ship-to Address", ServiceContractHeader."Ship-to Address 2",
-          ServiceContractHeader."Ship-to City", ServiceContractHeader."Ship-to Post Code", ServiceContractHeader."Ship-to County", ServiceContractHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Contract Header", ServiceContractHeader.GetPosition(), 2,
-          ServiceContractHeader."Ship-to Code", ServiceContractHeader."Shortcut Dimension 1 Code", ServiceContractHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServContractShipto(AddrArray, ServiceContractHeader);
     end;
+#endif
 
-    procedure ServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceInvBillTo(AddrArray, ServiceInvHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceInvHeader."Bill-to Name", ServiceInvHeader."Bill-to Name 2", ServiceInvHeader."Bill-to Contact", ServiceInvHeader."Bill-to Address", ServiceInvHeader."Bill-to Address 2",
-            ServiceInvHeader."Bill-to City", ServiceInvHeader."Bill-to Post Code", ServiceInvHeader."Bill-to County", ServiceInvHeader."Bill-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Invoice Header", ServiceInvHeader.GetPosition(), 1,
-          ServiceInvHeader."Bill-to Customer No.", ServiceInvHeader."Shortcut Dimension 1 Code", ServiceInvHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceInvBillTo(AddrArray, ServiceInvHeader);
     end;
+#endif
 
-    procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header") Result: Boolean
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header") Result: Boolean
     var
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeServiceInvShipTo(AddrArray, CustAddr, ServiceInvHeader, IsHandled, Result);
-        if IsHandled then
-            exit(Result);
-
-        FormatAddr(
-            AddrArray, ServiceInvHeader."Ship-to Name", ServiceInvHeader."Ship-to Name 2", ServiceInvHeader."Ship-to Contact", ServiceInvHeader."Ship-to Address", ServiceInvHeader."Ship-to Address 2",
-            ServiceInvHeader."Ship-to City", ServiceInvHeader."Ship-to Post Code", ServiceInvHeader."Ship-to County", ServiceInvHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Invoice Header", ServiceInvHeader.GetPosition(), 2,
-          ServiceInvHeader."Ship-to Code", ServiceInvHeader."Shortcut Dimension 1 Code", ServiceInvHeader."Shortcut Dimension 2 Code");
-        if ServiceInvHeader."Customer No." <> ServiceInvHeader."Bill-to Customer No." then
-            exit(true);
-        for i := 1 to ArrayLen(AddrArray) do
-            if AddrArray[i] <> CustAddr[i] then
-                exit(true);
-        exit(false);
+        exit(ServiceFormatAddress.ServiceInvShipTo(AddrArray, CustAddr, ServiceInvHeader));
     end;
+#endif
 
-    procedure ServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceShptShipTo(AddrArray, ServiceShptHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceShptHeader."Ship-to Name", ServiceShptHeader."Ship-to Name 2", ServiceShptHeader."Ship-to Contact", ServiceShptHeader."Ship-to Address", ServiceShptHeader."Ship-to Address 2",
-            ServiceShptHeader."Ship-to City", ServiceShptHeader."Ship-to Post Code", ServiceShptHeader."Ship-to County", ServiceShptHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Shipment Header", ServiceShptHeader.GetPosition(), 2,
-          ServiceShptHeader."Ship-to Code", ServiceShptHeader."Shortcut Dimension 1 Code", ServiceShptHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceShptShipTo(AddrArray, ServiceShptHeader);
     end;
+#endif
 
-    procedure ServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceShptSellTo(AddrArray, ServiceShptHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceShptHeader.Name, ServiceShptHeader."Name 2", ServiceShptHeader."Contact Name", ServiceShptHeader.Address, ServiceShptHeader."Address 2",
-            ServiceShptHeader.City, ServiceShptHeader."Post Code", ServiceShptHeader.County, ServiceShptHeader."Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Shipment Header", ServiceShptHeader.GetPosition(), 3,
-          ServiceShptHeader."Customer No.", ServiceShptHeader."Shortcut Dimension 1 Code", ServiceShptHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceShptSellTo(AddrArray, ServiceShptHeader);
     end;
+#endif
 
-    procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header") Result: Boolean
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header") Result: Boolean
     begin
-        IsHandled := false;
-        OnBeforeServiceShptBillTo(AddrArray, ShipToAddr, ServiceShptHeader, IsHandled, Result);
-        if IsHandled then
-            exit(Result);
-
-        FormatAddr(
-            AddrArray, ServiceShptHeader."Bill-to Name", ServiceShptHeader."Bill-to Name 2", ServiceShptHeader."Bill-to Contact", ServiceShptHeader."Bill-to Address", ServiceShptHeader."Bill-to Address 2",
-            ServiceShptHeader."Bill-to City", ServiceShptHeader."Bill-to Post Code", ServiceShptHeader."Bill-to County", ServiceShptHeader."Bill-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Shipment Header", ServiceShptHeader.GetPosition(), 1,
-          ServiceShptHeader."Bill-to Customer No.", ServiceShptHeader."Shortcut Dimension 1 Code", ServiceShptHeader."Shortcut Dimension 2 Code");
-        if ServiceShptHeader."Bill-to Customer No." <> ServiceShptHeader."Customer No." then
-            exit(true);
-        for i := 1 to ArrayLen(AddrArray) do
-            if ShipToAddr[i] <> AddrArray[i] then
-                exit(true);
-        exit(false);
+        exit(ServiceFormatAddress.ServiceShptBillTo(AddrArray, ShipToAddr, ServiceShptHeader));
     end;
+#endif
 
-    procedure ServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceCrMemoBillTo(AddrArray, ServiceCrMemoHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceCrMemoHeader."Bill-to Name", ServiceCrMemoHeader."Bill-to Name 2", ServiceCrMemoHeader."Bill-to Contact", ServiceCrMemoHeader."Bill-to Address", ServiceCrMemoHeader."Bill-to Address 2",
-            ServiceCrMemoHeader."Bill-to City", ServiceCrMemoHeader."Bill-to Post Code", ServiceCrMemoHeader."Bill-to County", ServiceCrMemoHeader."Bill-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Cr.Memo Header", ServiceCrMemoHeader.GetPosition(), 1,
-          ServiceCrMemoHeader."Bill-to Customer No.", ServiceCrMemoHeader."Shortcut Dimension 1 Code", ServiceCrMemoHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceCrMemoBillTo(AddrArray, ServiceCrMemoHeader);
     end;
+#endif
 
-    procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header") Result: Boolean
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header") Result: Boolean
     begin
-        IsHandled := false;
-        OnBeforeServiceCrMemoShipTo(AddrArray, CustAddr, ServiceCrMemoHeader, IsHandled, Result);
-        if IsHandled then
-            exit(Result);
-
-        FormatAddr(
-            AddrArray, ServiceCrMemoHeader."Ship-to Name", ServiceCrMemoHeader."Ship-to Name 2", ServiceCrMemoHeader."Ship-to Contact", ServiceCrMemoHeader."Ship-to Address", ServiceCrMemoHeader."Ship-to Address 2",
-            ServiceCrMemoHeader."Ship-to City", ServiceCrMemoHeader."Ship-to Post Code", ServiceCrMemoHeader."Ship-to County", ServiceCrMemoHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Cr.Memo Header", ServiceCrMemoHeader.GetPosition(), 2,
-          ServiceCrMemoHeader."Ship-to Code", ServiceCrMemoHeader."Shortcut Dimension 1 Code", ServiceCrMemoHeader."Shortcut Dimension 2 Code");
-        if ServiceCrMemoHeader."Customer No." <> ServiceCrMemoHeader."Bill-to Customer No." then
-            exit(true);
-        for i := 1 to ArrayLen(AddrArray) do
-            if AddrArray[i] <> CustAddr[i] then
-                exit(true);
-        exit(false);
+        exit(ServiceFormatAddress.ServiceCrMemoShipTo(AddrArray, CustAddr, ServiceCrMemoHeader));
     end;
+#endif
 
-    procedure ServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceHeaderSellTo(AddrArray, ServiceHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name", ServiceHeader.Address, ServiceHeader."Address 2",
-            ServiceHeader.City, ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Header", ServiceHeader.GetPosition(), 3,
-          ServiceHeader."Customer No.", ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceHeaderSellTo(AddrArray, ServiceHeader);
     end;
+#endif
 
-    procedure ServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceHeaderBillTo(AddrArray, ServiceHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact", ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2",
-            ServiceHeader."Bill-to City", ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Header", ServiceHeader.GetPosition(), 1,
-          ServiceHeader."Bill-to Customer No.", ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceHeaderBillTo(AddrArray, ServiceHeader);
     end;
+#endif
 
-    procedure ServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit ServiceFormatAddress', '25.0')]
+    procedure ServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        IsHandled := false;
-        OnBeforeServiceHeaderShipTo(AddrArray, ServiceHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        FormatAddr(
-            AddrArray, ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact", ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2",
-            ServiceHeader."Ship-to City", ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
-        CreateBarCode(
-          DATABASE::"Service Header", ServiceHeader.GetPosition(), 2,
-          ServiceHeader."Ship-to Code", ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code");
+        ServiceFormatAddress.ServiceHeaderShipTo(AddrArray, ServiceHeader);
     end;
+#endif
 
-    local procedure CreateBarCode(TableNo: Integer; TableKey: Text; AddressType: Option; CustomInfo1: Code[20]; CustomInfo2: Code[20]; CustomInfo3: Code[20])
+    procedure CreateBarCode(TableNo: Integer; TableKey: Text; AddressType: Option; CustomInfo1: Code[20]; CustomInfo2: Code[20]; CustomInfo3: Code[20])
     var
         AddressID: Record "Address ID";
         BarCodeManagement: Codeunit "BarCode Management";
@@ -1845,6 +1799,19 @@ codeunit 365 "Format Address"
             AddrArray, IssuedFinChargeMemoHeader.Name, IssuedFinChargeMemoHeader."Name 2", IssuedFinChargeMemoHeader.Contact, IssuedFinChargeMemoHeader.Address, IssuedFinChargeMemoHeader."Address 2", IssuedFinChargeMemoHeader.City, IssuedFinChargeMemoHeader."Post Code", IssuedFinChargeMemoHeader.County, IssuedFinChargeMemoHeader."Country/Region Code");
     end;
 
+    procedure JobSellTo(var AddrArray: array[8] of Text[100]; var Job: Record Job)
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeJobSellTo(AddrArray, Job, IsHandled);
+        if IsHandled then
+            exit;
+
+        FormatAddr(
+            AddrArray, Job."Sell-to Customer Name", Job."Sell-to Customer Name 2", Job."Sell-to Contact", Job."Sell-to Address", Job."Sell-to Address 2",
+            Job."Sell-to City", Job."Sell-to Post Code", Job."Sell-to County", Job."Sell-to Country/Region Code");
+    end;
+
     procedure JobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job)
     var
         Handled: Boolean;
@@ -1858,13 +1825,18 @@ codeunit 365 "Format Address"
             Job."Bill-to City", Job."Bill-to Post Code", Job."Bill-to County", Job."Bill-to Country/Region Code");
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by VendorRemitToAddress.', '22.0')]
-    procedure VendorRemitToAddress(var AddrArray: array[8] of Text[100]; var RemitAddress: Record "Remit Address")
+    procedure JobShipTo(var AddrArray: array[8] of Text[100]; var Job: Record Job)
+    var
+        IsHandled: Boolean;
     begin
-        VendorRemitToAddress(RemitAddress, AddrArray);
+        OnBeforeJobShipTo(AddrArray, Job, IsHandled);
+        if IsHandled then
+            exit;
+
+        FormatAddr(
+            AddrArray, Job."Ship-to Name", Job."Ship-to Name 2", Job."Ship-to Contact", Job."Ship-to Address", Job."Ship-to Address 2",
+            Job."Ship-to City", Job."Ship-to Post Code", Job."Ship-to County", Job."Ship-to Country/Region Code");
     end;
-#endif
 
     procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var ArrayAddress: array[8] of Text[100])
     var
@@ -2154,14 +2126,6 @@ codeunit 365 "Format Address"
     begin
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by OnBeforePurchInvRemitToAddress.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchInvRemitToAddress(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
@@ -2297,88 +2261,192 @@ codeunit 365 "Format Address"
     begin
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by OnBeforePurchHeaderRemitToAddress.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchHeaderRemitToAddress(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
     begin
+        OnBeforeServContractShipTo(AddrArray, ServiceContractHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServContractSellto(AddrArray, ServiceContractHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceCrMemoBillTo(AddrArray, ServiceCrMemoHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+        OnBeforeServiceCrMemoShipTo(AddrArray, CustAddr, ServiceCrMemoHeader, IsHandled, Result);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceHeaderBillTo(AddrArray, ServiceHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceHeaderSellTo(AddrArray, ServiceHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceHeaderShipTo(AddrArray, ServiceHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceInvBillTo(AddrArray, ServiceInvHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+        OnBeforeServiceInvShipTo(AddrArray, CustAddr, ServiceInvHeader, IsHandled, Result);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceOrderSellto(AddrArray, ServHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceOrderShipto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceOrderShipto(var AddrArray: array[8] of Text[100]; var ServHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceOrderShipto(AddrArray, ServHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceOrderShipto(var AddrArray: array[8] of Text[100]; var ServHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceShptShipTo(AddrArray, ServiceShptHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceShptSellTo(AddrArray, ServiceShptHeader, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+        OnBeforeServiceShptBillTo(AddrArray, ShipToAddr, ServiceShptHeader, IsHandled, Result);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit ServiceFormatAddress', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record Microsoft.Service.History."Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLineNos(Country: Record "Country/Region"; var NameLineNo: Integer; var Name2LineNo: Integer; var AddrLineNo: Integer; var Addr2LineNo: Integer; var ContLineNo: Integer; var PostCodeCityLineNo: Integer; var CountyLineNo: Integer; var CountryLineNo: Integer; var IsHandled: Boolean)
@@ -2446,7 +2514,17 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobSellTo(var AddrArray: array[8] of Text[100]; var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobShipTo(var AddrArray: array[8] of Text[100]; var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 

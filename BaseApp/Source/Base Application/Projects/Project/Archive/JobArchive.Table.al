@@ -250,6 +250,11 @@ table 5135 "Job Archive"
         {
             Caption = 'Image';
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(1000; "WIP Method"; Code[20])
         {
             Caption = 'WIP Method';

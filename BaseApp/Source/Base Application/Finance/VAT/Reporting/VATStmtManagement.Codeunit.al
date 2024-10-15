@@ -14,10 +14,12 @@ codeunit 340 VATStmtManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'VAT';
         Text001: Label 'VAT Statement';
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Statement';
+#pragma warning restore AA0074
         OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; var VATStmtLine: Record "VAT Statement Line"; var StmtSelected: Boolean)

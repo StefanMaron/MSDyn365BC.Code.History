@@ -12991,6 +12991,9 @@ End Function
         <Field Name="SelltoCustNo_PurchHdrCaption">
           <DataField>SelltoCustNo_PurchHdrCaption</DataField>
         </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
+        </Field>
         <Field Name="PrepmtLineAmt">
           <DataField>PrepmtLineAmt</DataField>
         </Field>

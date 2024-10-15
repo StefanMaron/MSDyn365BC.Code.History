@@ -101,14 +101,18 @@ report 1301 "Print ASCII File"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Please enter the file name.';
         Text001: Label '<FF>', Locked = true;
+#pragma warning restore AA0074
         TextFile: File;
         FileName: Text;
         ServerFileName: Text;
         TextLine: Text[1024];
+#pragma warning disable AA0074
         Text002: Label 'Import';
         Text004: Label 'The file was successfully uploaded to server';
+#pragma warning restore AA0074
         Print_ASCII_FileCaptionLbl: Label 'Print ASCII File';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }

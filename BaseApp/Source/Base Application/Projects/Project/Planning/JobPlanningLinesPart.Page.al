@@ -1,7 +1,10 @@
 namespace Microsoft.Projects.Project.Planning;
 
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
@@ -555,6 +558,96 @@ page 1015 "Job Planning Lines Part"
                                   "Job Task No." = field("Job Task No.");
                     ToolTip = 'Open the project journal, for example, to post usage for a project.';
                 }
+                group("Item Availability by")
+                {
+                    Caption = 'Item Availability by';
+                    Image = ItemAvailability;
+                    action("Event")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Event';
+                        Image = "Event";
+                        ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::"Event")
+                        end;
+                    }
+                    action(Period)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Period';
+                        Image = Period;
+                        ToolTip = 'Show the projected quantity of the item over time according to time periods, such as day, week, or month.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::Period)
+                        end;
+                    }
+                    action("Variant")
+                    {
+                        ApplicationArea = Planning;
+                        Caption = 'Variant';
+                        Image = ItemVariant;
+                        ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::Variant)
+                        end;
+                    }
+                    action(UnitOfMeasure)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Unit of Measure';
+                        Image = UnitOfMeasure;
+                        ToolTip = 'View the item''s availability by a unit of measure.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::UOM);
+                        end;
+                    }
+                    action(Location)
+                    {
+                        AccessByPermission = TableData Location = R;
+                        ApplicationArea = Location;
+                        Caption = 'Location';
+                        Image = Warehouse;
+                        ToolTip = 'View the actual and projected quantity of the item per location.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::Location)
+                        end;
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
+                    action("BOM Level")
+                    {
+                        AccessByPermission = TableData "BOM Buffer" = R;
+                        ApplicationArea = Assembly;
+                        Caption = 'BOM Level';
+                        Image = BOMLevel;
+                        ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
+
+                        trigger OnAction()
+                        begin
+                            JobPlanningAvailabilityMgt.ShowItemAvailabilityFromJobPlanningLines(Rec, "Item Availability Type"::BOM)
+                        end;
+                    }
+                }
                 separator(Action16)
                 {
                 }
@@ -599,6 +692,18 @@ page 1015 "Job Planning Lines Part"
                         Rec.ShowTracking();
                     end;
                 }
+                action("Insert Ext. Texts")
+                {
+                    AccessByPermission = TableData "Extended Text Header" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Insert &Ext. Texts';
+                    Image = Text;
+                    ToolTip = 'Insert the extended item description that is set up for the item that is being processed on the line.';
+                    trigger OnAction()
+                    begin
+                        this.InsertExtendedText(true);
+                    end;
+                }
                 action(SelectMultiItems)
                 {
                     AccessByPermission = TableData Item = R;
@@ -630,6 +735,25 @@ page 1015 "Job Planning Lines Part"
                             Rec.ShowAsmToJobPlanningLines();
                         end;
                     }
+                }
+                action(CreatePurchaseOrder)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Create Purchase Order';
+                    Image = Document;
+                    ToolTip = 'Create new purchase order to buy the items that are required by this project planning line, deducting any quantity that is already available.';
+
+                    trigger OnAction()
+                    var
+                        Job: Record Job;
+                        JobTask: Record "Job Task";
+                        PurchaseDocFromJob: Codeunit "Purchase Doc. From Job";
+                    begin
+                        Job.Get(Rec."Job No.");
+                        JobTask.Get(Rec."Job No.", Rec."Job Task No.");
+                        PurchaseDocFromJob.CreateContractEntryNoFilter(JobTask);
+                        PurchaseDocFromJob.CreatePurchaseOrder(Job);
+                    end;
                 }
             }
         }
@@ -678,12 +802,11 @@ page 1015 "Job Planning Lines Part"
 
     trigger OnModifyRecord(): Boolean
     begin
-        if Rec."System-Created Entry" then begin
+        if Rec."System-Created Entry" then
             if Confirm(Text001, false) then
                 Rec."System-Created Entry" := false
             else
                 Error('');
-        end;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -704,7 +827,10 @@ page 1015 "Job Planning Lines Part"
 
     var
         JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobPlanningAvailabilityMgt: Codeunit "Job Planning Availability Mgt.";
+#pragma warning disable AA0074
         Text001: Label 'This project planning line was automatically generated. Do you want to continue?';
+#pragma warning restore AA0074
         ExtendedPriceEnabled: Boolean;
         VariantCodeMandatory: Boolean;
 
@@ -782,6 +908,8 @@ page 1015 "Job Planning Lines Part"
         if Rec."No." <> xRec."No." then
             PerformAutoReserve();
 
+        this.InsertExtendedText(false);
+
         OnAfterNoOnAfterValidate(Rec);
     end;
 
@@ -822,6 +950,20 @@ page 1015 "Job Planning Lines Part"
     begin
         PerformAutoReserve();
         if (Rec.Type = Rec.Type::Item) and (Rec.Quantity <> xRec.Quantity) then
+            CurrPage.Update(true);
+    end;
+
+    protected procedure InsertExtendedText(Unconditionally: Boolean)
+    var
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
+        if TransferExtendedText.JobCheckIfAnyExtText(Rec, Unconditionally) then begin
+            CurrPage.SaveRecord();
+            Commit();
+            TransferExtendedText.InsertJobExtText(Rec);
+        end;
+
+        if TransferExtendedText.MakeUpdate() then
             CurrPage.Update(true);
     end;
 

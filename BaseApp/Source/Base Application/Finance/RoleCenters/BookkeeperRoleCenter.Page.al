@@ -19,9 +19,6 @@ using Microsoft.Finance.WithholdingTax;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Costing;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Reports;
@@ -101,6 +98,10 @@ page 9004 "Bookkeeper Role Center"
                 ApplicationArea = Basic, Suite;
             }
             part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
             {
                 ApplicationArea = Suite;
             }
@@ -607,18 +608,6 @@ page 9004 "Bookkeeper Role Center"
                                     Recurring = const(true));
                 ToolTip = 'Define how to post transactions that recur with few or no changes to general ledger, bank, customer, vendor, or fixed asset accounts';
             }
-#if not CLEAN22
-            action("Intrastat Journals")
-            {
-                ApplicationArea = BasicEU;
-                Caption = 'Intrastat Journals';
-                RunObject = Page "Intrastat Jnl. Batches";
-                ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-#endif
         }
         area(sections)
         {

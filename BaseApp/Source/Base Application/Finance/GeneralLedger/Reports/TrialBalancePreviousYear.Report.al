@@ -17,7 +17,7 @@ report 7 "Trial Balance/Previous Year"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Account Type", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Account Type", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -40,9 +40,6 @@ report 7 "Trial Balance/Previous Year"
             {
             }
             column(SimulationGl; SimulationGlLbl)
-            {
-            }
-            column(GLEntryTypeFilter_GLAcc; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(No_GLAcc; "No.")
@@ -267,7 +264,11 @@ report 7 "Trial Balance/Previous Year"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Period: %1..%2 versus %3..%4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ReportMgmnt: Codeunit "Report Management APAC";
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;

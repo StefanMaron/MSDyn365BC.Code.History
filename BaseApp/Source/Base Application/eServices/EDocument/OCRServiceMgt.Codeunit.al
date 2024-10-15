@@ -172,7 +172,7 @@ codeunit 1294 "OCR Service Mgt."
           StrSubstNo(
             '<AuthenticationCredentials><UserName>%1</UserName><Password>%2</Password>' +
             '<AuthenticationType>SetCookie</AuthenticationType></AuthenticationCredentials>',
-            OCRServiceSetup."User Name", OCRServiceSetup.GetPassword(OCRServiceSetup."Password Key")));
+            OCRServiceSetup."User Name", OCRServiceSetup.GetPasswordAsSecretText(OCRServiceSetup."Password Key").Unwrap()));
         TempBlob.CreateInStream(InStr);
         ResponseReceived := HttpWebRequestMgt.GetResponse(InStr, HttpStatusCode, ResponseHeaders);
 
@@ -336,11 +336,10 @@ codeunit 1294 "OCR Service Mgt."
         exit(Result);
     end;
 
-    [NonDebuggable]
     local procedure RsoAddHeaders(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
     begin
         HttpWebRequestMgt.AddHeader('x-rs-version', '2011-10-14');
-        HttpWebRequestMgt.AddHeader('x-rs-key', OCRServiceSetup.GetPassword(OCRServiceSetup."Authorization Key"));
+        HttpWebRequestMgt.AddHeader('x-rs-key', OCRServiceSetup.GetPasswordAsSecretText(OCRServiceSetup."Authorization Key"));
         HttpWebRequestMgt.AddHeader('x-rs-culture', 'en-US');
         HttpWebRequestMgt.AddHeader('x-rs-uiculture', 'en-US');
     end;

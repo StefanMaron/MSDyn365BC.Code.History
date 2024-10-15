@@ -140,9 +140,28 @@ table 9651 "Report Layout Selection"
         end;
     end;
 
+    [Obsolete('Moved to codeunit Report Management Helper', '25.0')]
     procedure IsProcessingOnly(ReportID: Integer): Boolean
+    var
+        ReportManagementHelper: Codeunit "Report Management Helper";
     begin
-        exit(REPORT.DefaultLayout(ReportID) = DEFAULTLAYOUT::None);
+        exit(ReportManagementHelper.IsProcessingOnly(ReportID));
+    end;
+
+    internal procedure HasLayoutOfType(ReportID: Integer; LayoutType: ReportLayoutType): Boolean
+    begin
+        case LayoutType of
+            ReportLayoutType::RDLC:
+                exit(HasRdlcLayout(ReportID));
+            ReportLayoutType::Word:
+                exit(HasWordLayout(ReportID));
+            ReportLayoutType::Excel:
+                exit(HasExcelLayout(ReportID));
+            ReportLayoutType::Custom:
+                exit(HasExternalLayout(ReportID));
+        end;
+
+        exit(false)
     end;
 
     local procedure HasRdlcLayout(ReportID: Integer): Boolean
@@ -181,6 +200,8 @@ table 9651 "Report Layout Selection"
         exit(not ReportLayoutList.IsEmpty());
     end;
 
+
+    [Obsolete('Obsolete programming model. Replaced by HasExternalLayout', '25.0')]
     procedure HasCustomLayout(ReportID: Integer): Integer
     var
         CustomReportLayout: Record "Custom Report Layout";

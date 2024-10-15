@@ -9,6 +9,7 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Integration.SyncEngine;
+using Microsoft.Inventory.Setup;
 using Microsoft.Sales.Customer;
 using System.Telemetry;
 using Microsoft.Projects.Project.Posting;
@@ -398,6 +399,45 @@ codeunit 6610 "FS Int. Table Subscriber"
             'FS Work Order Service-Job Journal Line':
                 UpdateCorrelatedJobJournalLine(SourceRecordRef, DestinationRecordRef);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Inventory Setup", 'OnAfterValidateEvent', 'Location Mandatory', false, false)]
+    local procedure AfterValidateLocationMandatory(var Rec: Record "Inventory Setup"; var xRec: Record "Inventory Setup"; CurrFieldNo: Integer)
+    var
+        FSConnectionSetup: Record "FS Connection Setup";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        FSSetupDefaults: Codeunit "FS Setup Defaults";
+    begin
+        if not Rec."Location Mandatory" then
+            exit;
+
+        if not FSConnectionSetup.IsEnabled() then
+            exit;
+
+        if IntegrationTableMapping.Get('LOCATION') then
+            exit;
+
+        FSSetupDefaults.ResetLocationMapping(FSConnectionSetup, 'LOCATION', true, true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnResetItemProductMappingOnAfterInsertFieldsMapping', '', false, false)]
+    local procedure AddFieldServiceProductTypeFieldMapping(var Sender: Codeunit "CRM Setup Defaults"; IntegrationTableMappingName: Code[20])
+    var
+        FSConnectionSetup: Record "FS Connection Setup";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+    begin
+        if not FSConnectionSetup.IsEnabled() then
+            exit;
+
+        // Type > Field Service Product Type
+        Sender.InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          Item.FieldNo(Type),
+          CRMProduct.FieldNo(FieldServiceProductType),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', false, false);
     end;
 
     local procedure UpdateCorrelatedJobJournalLine(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -836,6 +876,8 @@ codeunit 6610 "FS Int. Table Subscriber"
         if not FSConnectionSetup.IsEnabled() then
             exit;
 
+        Codeunit.Run(Codeunit::"CRM Integration Management");
+
         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
         if not JobUsageLink.FindFirst() then begin
             Session.LogMessage('0000MN8', NoProjectUsageLinkTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -868,7 +910,6 @@ codeunit 6610 "FS Int. Table Subscriber"
             exit;
         if not FSWorkOrderService.WritePermission() then
             exit;
-        Codeunit.Run(Codeunit::"CRM Integration Management");
         if FSWorkOrderProduct.Get(CRMIntegrationRecord."CRM ID") then begin
             FSWorkOrderProduct.QuantityConsumed += JobPlanningLine.Quantity;
             if not TryModifyWorkOrderProduct(FSWorkOrderProduct) then begin
@@ -1050,7 +1091,8 @@ codeunit 6610 "FS Int. Table Subscriber"
             Database::"FS Work Order Product",
             Database::"FS Work Order Service",
             Database::"FS Resource Pay Type",
-            Database::"FS Project Task":
+            Database::"FS Project Task",
+            Database::"FS Warehouse":
                 HasField := true;
         end;
     end;
@@ -1161,7 +1203,8 @@ codeunit 6610 "FS Int. Table Subscriber"
                 Database::"FS Work Order Service",
                 Database::"FS Customer Asset",
                 Database::"FS Bookable Resource",
-                Database::"FS Resource Pay Type"] then begin
+                Database::"FS Resource Pay Type",
+                Database::"FS Warehouse"] then begin
             Session.LogMessage('0000M9F', FSEntitySynchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
             FeatureTelemetry.LogUsage('0000M9E', 'Field Service Integration', 'Entity synch');
             FeatureTelemetry.LogUptake('0000M9D', 'Field Service Integration', Enum::"Feature Uptake Status"::Used);

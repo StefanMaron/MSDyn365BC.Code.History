@@ -26,16 +26,14 @@ codeunit 132537 SelectionFilterManagementTest
         Currency: Record Currency;
         SelectionString: Text;
     begin
-        with Currency do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not Currency.FindFirst() then begin
+            Currency.Init();
+            Currency.Code := '1';
+            Currency.Insert();
         end;
+        Currency.Mark(true);
+        Currency.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Currency.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCurrency(Currency));
     end;
@@ -47,16 +45,14 @@ codeunit 132537 SelectionFilterManagementTest
         CustomerPriceGroup: Record "Customer Price Group";
         SelectionString: Text;
     begin
-        with CustomerPriceGroup do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not CustomerPriceGroup.FindFirst() then begin
+            CustomerPriceGroup.Init();
+            CustomerPriceGroup.Code := '1';
+            CustomerPriceGroup.Insert();
         end;
+        CustomerPriceGroup.Mark(true);
+        CustomerPriceGroup.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CustomerPriceGroup.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCustomerPriceGroup(CustomerPriceGroup));
     end;
@@ -68,16 +64,14 @@ codeunit 132537 SelectionFilterManagementTest
         Location: Record Location;
         SelectionString: Text;
     begin
-        with Location do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not Location.FindFirst() then begin
+            Location.Init();
+            Location.Code := '1';
+            Location.Insert();
         end;
+        Location.Mark(true);
+        Location.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Location.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForLocation(Location));
     end;
@@ -89,16 +83,14 @@ codeunit 132537 SelectionFilterManagementTest
         GLAccount: Record "G/L Account";
         SelectionString: Text;
     begin
-        with GLAccount do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not GLAccount.FindFirst() then begin
+            GLAccount.Init();
+            GLAccount."No." := '1';
+            GLAccount.Insert();
         end;
+        GLAccount.Mark(true);
+        GLAccount.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(GLAccount."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForGLAccount(GLAccount));
     end;
@@ -110,16 +102,14 @@ codeunit 132537 SelectionFilterManagementTest
         Customer: Record Customer;
         SelectionString: Text;
     begin
-        with Customer do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Customer.FindFirst() then begin
+            Customer.Init();
+            Customer."No." := '1';
+            Customer.Insert();
         end;
+        Customer.Mark(true);
+        Customer.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Customer."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCustomer(Customer));
     end;
@@ -131,16 +121,14 @@ codeunit 132537 SelectionFilterManagementTest
         Contact: Record Contact;
         SelectionString: Text;
     begin
-        with Contact do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Contact.FindFirst() then begin
+            Contact.Init();
+            Contact."No." := '1';
+            Contact.Insert();
         end;
+        Contact.Mark(true);
+        Contact.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Contact."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForContact(Contact));
     end;
@@ -152,16 +140,14 @@ codeunit 132537 SelectionFilterManagementTest
         Vendor: Record Vendor;
         SelectionString: Text;
     begin
-        with Vendor do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Vendor.FindFirst() then begin
+            Vendor.Init();
+            Vendor."No." := '1';
+            Vendor.Insert();
         end;
+        Vendor.Mark(true);
+        Vendor.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Vendor."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForVendor(Vendor));
     end;
@@ -173,16 +159,14 @@ codeunit 132537 SelectionFilterManagementTest
         Item: Record Item;
         SelectionString: Text;
     begin
-        with Item do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Item.FindFirst() then begin
+            Item.Init();
+            Item."No." := '1';
+            Item.Insert();
         end;
+        Item.Mark(true);
+        Item.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Item."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForItem(Item));
     end;
@@ -194,16 +178,14 @@ codeunit 132537 SelectionFilterManagementTest
         Resource: Record Resource;
         SelectionString: Text;
     begin
-        with Resource do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Resource.FindFirst() then begin
+            Resource.Init();
+            Resource."No." := '1';
+            Resource.Insert();
         end;
+        Resource.Mark(true);
+        Resource.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Resource."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForResource(Resource));
     end;
@@ -215,16 +197,14 @@ codeunit 132537 SelectionFilterManagementTest
         InventoryPostingGroup: Record "Inventory Posting Group";
         SelectionString: Text;
     begin
-        with InventoryPostingGroup do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not InventoryPostingGroup.FindFirst() then begin
+            InventoryPostingGroup.Init();
+            InventoryPostingGroup.Code := '1';
+            InventoryPostingGroup.Insert();
         end;
+        InventoryPostingGroup.Mark(true);
+        InventoryPostingGroup.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(InventoryPostingGroup.Code);
 
         CheckGetSelectionResults(
           SelectionString, SelectionFilterManagement.GetSelectionFilterForInventoryPostingGroup(InventoryPostingGroup));
@@ -237,16 +217,14 @@ codeunit 132537 SelectionFilterManagementTest
         GLBudgetName: Record "G/L Budget Name";
         SelectionString: Text;
     begin
-        with GLBudgetName do begin
-            if not FindFirst() then begin
-                Init();
-                Name := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Name);
+        if not GLBudgetName.FindFirst() then begin
+            GLBudgetName.Init();
+            GLBudgetName.Name := '1';
+            GLBudgetName.Insert();
         end;
+        GLBudgetName.Mark(true);
+        GLBudgetName.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(GLBudgetName.Name);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForGLBudgetName(GLBudgetName));
     end;
@@ -258,16 +236,14 @@ codeunit 132537 SelectionFilterManagementTest
         BusinessUnit: Record "Business Unit";
         SelectionString: Text;
     begin
-        with BusinessUnit do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not BusinessUnit.FindFirst() then begin
+            BusinessUnit.Init();
+            BusinessUnit.Code := '1';
+            BusinessUnit.Insert();
         end;
+        BusinessUnit.Mark(true);
+        BusinessUnit.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(BusinessUnit.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForBusinessUnit(BusinessUnit));
     end;
@@ -279,16 +255,14 @@ codeunit 132537 SelectionFilterManagementTest
         CustomerDiscountGroup: Record "Customer Discount Group";
         SelectionString: Text;
     begin
-        with CustomerDiscountGroup do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not CustomerDiscountGroup.FindFirst() then begin
+            CustomerDiscountGroup.Init();
+            CustomerDiscountGroup.Code := '1';
+            CustomerDiscountGroup.Insert();
         end;
+        CustomerDiscountGroup.Mark(true);
+        CustomerDiscountGroup.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CustomerDiscountGroup.Code);
 
         CheckGetSelectionResults(
           SelectionString, SelectionFilterManagement.GetSelectionFilterForCustomerDiscountGroup(CustomerDiscountGroup));
@@ -301,16 +275,14 @@ codeunit 132537 SelectionFilterManagementTest
         ItemDiscountGroup: Record "Item Discount Group";
         SelectionString: Text;
     begin
-        with ItemDiscountGroup do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not ItemDiscountGroup.FindFirst() then begin
+            ItemDiscountGroup.Init();
+            ItemDiscountGroup.Code := '1';
+            ItemDiscountGroup.Insert();
         end;
+        ItemDiscountGroup.Mark(true);
+        ItemDiscountGroup.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(ItemDiscountGroup.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForItemDiscountGroup(ItemDiscountGroup));
     end;
@@ -322,16 +294,14 @@ codeunit 132537 SelectionFilterManagementTest
         ItemCategory: Record "Item Category";
         SelectionString: Text;
     begin
-        with ItemCategory do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not ItemCategory.FindFirst() then begin
+            ItemCategory.Init();
+            ItemCategory.Code := '1';
+            ItemCategory.Insert();
         end;
+        ItemCategory.Mark(true);
+        ItemCategory.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(ItemCategory.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForItemCategory(ItemCategory));
     end;
@@ -343,16 +313,14 @@ codeunit 132537 SelectionFilterManagementTest
         DimensionValue: Record "Dimension Value";
         SelectionString: Text;
     begin
-        with DimensionValue do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not DimensionValue.FindFirst() then begin
+            DimensionValue.Init();
+            DimensionValue.Code := '1';
+            DimensionValue.Insert();
         end;
+        DimensionValue.Mark(true);
+        DimensionValue.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(DimensionValue.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForDimensionValue(DimensionValue));
     end;
@@ -426,16 +394,14 @@ codeunit 132537 SelectionFilterManagementTest
         ICPartner: Record "IC Partner";
         SelectionString: Text;
     begin
-        with ICPartner do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not ICPartner.FindFirst() then begin
+            ICPartner.Init();
+            ICPartner.Code := '1';
+            ICPartner.Insert();
         end;
+        ICPartner.Mark(true);
+        ICPartner.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(ICPartner.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForICPartner(ICPartner));
     end;
@@ -447,16 +413,14 @@ codeunit 132537 SelectionFilterManagementTest
         CashFlowForecast: Record "Cash Flow Forecast";
         SelectionString: Text;
     begin
-        with CashFlowForecast do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not CashFlowForecast.FindFirst() then begin
+            CashFlowForecast.Init();
+            CashFlowForecast."No." := '1';
+            CashFlowForecast.Insert();
         end;
+        CashFlowForecast.Mark(true);
+        CashFlowForecast.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CashFlowForecast."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCashFlow(CashFlowForecast));
     end;
@@ -468,16 +432,14 @@ codeunit 132537 SelectionFilterManagementTest
         CashFlowAccount: Record "Cash Flow Account";
         SelectionString: Text;
     begin
-        with CashFlowAccount do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not CashFlowAccount.FindFirst() then begin
+            CashFlowAccount.Init();
+            CashFlowAccount."No." := '1';
+            CashFlowAccount.Insert();
         end;
+        CashFlowAccount.Mark(true);
+        CashFlowAccount.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CashFlowAccount."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCashFlowAccount(CashFlowAccount));
     end;
@@ -489,16 +451,14 @@ codeunit 132537 SelectionFilterManagementTest
         CostBudgetName: Record "Cost Budget Name";
         SelectionString: Text;
     begin
-        with CostBudgetName do begin
-            if not FindFirst() then begin
-                Init();
-                Name := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Name);
+        if not CostBudgetName.FindFirst() then begin
+            CostBudgetName.Init();
+            CostBudgetName.Name := '1';
+            CostBudgetName.Insert();
         end;
+        CostBudgetName.Mark(true);
+        CostBudgetName.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CostBudgetName.Name);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCostBudgetName(CostBudgetName));
     end;
@@ -510,16 +470,14 @@ codeunit 132537 SelectionFilterManagementTest
         CostCenter: Record "Cost Center";
         SelectionString: Text;
     begin
-        with CostCenter do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not CostCenter.FindFirst() then begin
+            CostCenter.Init();
+            CostCenter.Code := '1';
+            CostCenter.Insert();
         end;
+        CostCenter.Mark(true);
+        CostCenter.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CostCenter.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCostCenter(CostCenter));
     end;
@@ -531,16 +489,14 @@ codeunit 132537 SelectionFilterManagementTest
         CostObject: Record "Cost Object";
         SelectionString: Text;
     begin
-        with CostObject do begin
-            if not FindFirst() then begin
-                Init();
-                Code := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes(Code);
+        if not CostObject.FindFirst() then begin
+            CostObject.Init();
+            CostObject.Code := '1';
+            CostObject.Insert();
         end;
+        CostObject.Mark(true);
+        CostObject.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CostObject.Code);
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCostObject(CostObject));
     end;
@@ -552,16 +508,14 @@ codeunit 132537 SelectionFilterManagementTest
         CostType: Record "Cost Type";
         SelectionString: Text;
     begin
-        with CostType do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not CostType.FindFirst() then begin
+            CostType.Init();
+            CostType."No." := '1';
+            CostType.Insert();
         end;
+        CostType.Mark(true);
+        CostType.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(CostType."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCostType(CostType));
     end;
@@ -573,16 +527,14 @@ codeunit 132537 SelectionFilterManagementTest
         Campaign: Record Campaign;
         SelectionString: Text;
     begin
-        with Campaign do begin
-            if not FindFirst() then begin
-                Init();
-                "No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("No.");
+        if not Campaign.FindFirst() then begin
+            Campaign.Init();
+            Campaign."No." := '1';
+            Campaign.Insert();
         end;
+        Campaign.Mark(true);
+        Campaign.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(Campaign."No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForCampaign(Campaign));
     end;
@@ -594,16 +546,14 @@ codeunit 132537 SelectionFilterManagementTest
         LotNoInformation: Record "Lot No. Information";
         SelectionString: Text;
     begin
-        with LotNoInformation do begin
-            if not FindFirst() then begin
-                Init();
-                "Lot No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("Lot No.");
+        if not LotNoInformation.FindFirst() then begin
+            LotNoInformation.Init();
+            LotNoInformation."Lot No." := '1';
+            LotNoInformation.Insert();
         end;
+        LotNoInformation.Mark(true);
+        LotNoInformation.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(LotNoInformation."Lot No.");
 
         CheckGetSelectionResults(SelectionString, SelectionFilterManagement.GetSelectionFilterForLotNoInformation(LotNoInformation));
     end;
@@ -615,16 +565,14 @@ codeunit 132537 SelectionFilterManagementTest
         SerialNoInformation: Record "Serial No. Information";
         SelectionString: Text;
     begin
-        with SerialNoInformation do begin
-            if not FindFirst() then begin
-                Init();
-                "Serial No." := '1';
-                Insert();
-            end;
-            Mark(true);
-            MarkedOnly(true);
-            SelectionString := SelectionFilterManagement.AddQuotes("Serial No.");
+        if not SerialNoInformation.FindFirst() then begin
+            SerialNoInformation.Init();
+            SerialNoInformation."Serial No." := '1';
+            SerialNoInformation.Insert();
         end;
+        SerialNoInformation.Mark(true);
+        SerialNoInformation.MarkedOnly(true);
+        SelectionString := SelectionFilterManagement.AddQuotes(SerialNoInformation."Serial No.");
 
         CheckGetSelectionResults(
           SelectionString, SelectionFilterManagement.GetSelectionFilterForSerialNoInformation(SerialNoInformation));
@@ -782,8 +730,7 @@ codeunit 132537 SelectionFilterManagementTest
         asserterror SelectionFilterManagement.CreateFilterFromTempTable(TempRecRef, RecRef, Customer.FieldNo("No."));
 
         // [THEN] An error "The Customer does not exist" is thrown.
-        Assert.ExpectedError('The Customer does not exist');
-        Assert.ExpectedErrorCode('DB:RecordNotFound');
+        Assert.ExpectedErrorCannotFind(Database::Customer);
     end;
 
     [Test]
@@ -840,14 +787,12 @@ codeunit 132537 SelectionFilterManagementTest
 
         SerialNoInformation.SetFilter("Item No.", ItemNo);
         SerialNoInformation.SetFilter("Serial No.", SelectionString);
-        with SerialNoInformation do begin
-            repeat
-                Mark(true);
-            until Next() = 0;
-            SetRange("Serial No.");
-            SetRange("Item No.");
-            MarkedOnly(true);
-        end;
+        repeat
+            SerialNoInformation.Mark(true);
+        until SerialNoInformation.Next() = 0;
+        SerialNoInformation.SetRange("Serial No.");
+        SerialNoInformation.SetRange("Item No.");
+        SerialNoInformation.MarkedOnly(true);
 
         CheckGetSelectionResults(
           SelectionString, SelectionFilterManagement.GetSelectionFilterForSerialNoInformation(SerialNoInformation));

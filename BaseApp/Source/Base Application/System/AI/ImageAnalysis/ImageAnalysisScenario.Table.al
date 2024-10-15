@@ -39,6 +39,8 @@ table 2023 "Image Analysis Scenario"
     procedure Enabled(Scenario: Code[20]): Boolean
     var
         Company: Record Company;
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        ImageAnalysisScenario: Record "Image Analysis Scenario";
     begin
         if Rec.Get(Scenario, CompanyName()) then
             exit(Rec.Status);
@@ -46,7 +48,7 @@ table 2023 "Image Analysis Scenario"
         if Rec.Get(Scenario, '') then
             exit(Rec.Status);
 
-        if Company.Get(CompanyName()) and Company."Evaluation Company" and Rec.WritePermission() then
+        if Company.Get(CompanyName()) and Company."Evaluation Company" and ImageAnalysisScenario.WritePermission() then
             exit(true);
 
         exit(Rec.Status);

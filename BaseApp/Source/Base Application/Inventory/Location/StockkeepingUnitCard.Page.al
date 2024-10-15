@@ -95,11 +95,6 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Qty. on Service Order"; Rec."Qty. on Service Order")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies how many item units are reserved for service orders, which is how many units are listed on outstanding service order lines.';
-                }
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = Planning;
@@ -239,12 +234,12 @@ page 5700 "Stockkeeping Unit Card"
                     field("Routing No."; Rec."Routing No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
+                        ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                     }
                     field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
+                        ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
                     }
                 }
                 group(Assembly)
@@ -650,7 +645,7 @@ page 5700 "Stockkeeping Unit Card"
                             Rec.CopyFilter("Global Dimension 1 Filter", Item."Global Dimension 1 Filter");
                             Rec.CopyFilter("Global Dimension 2 Filter", Item."Global Dimension 2 Filter");
                             Rec.CopyFilter("Drop Shipment Filter", Item."Drop Shipment Filter");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -692,7 +687,7 @@ page 5700 "Stockkeeping Unit Card"
                             Item.Get(Rec."Item No.");
                             Item.SetRange("Location Filter", Rec."Location Code");
                             Item.SetRange("Variant Filter", Rec."Variant Code");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -771,7 +766,7 @@ page 5700 "Stockkeeping Unit Card"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Entries';
                         Image = ItemTrackingLedger;
-                        ToolTip = 'View serial or lot numbers that are assigned to items.';
+                        ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                         trigger OnAction()
                         var
@@ -842,16 +837,6 @@ page 5700 "Stockkeeping Unit Card"
             group(Category_New)
             {
                 Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
-
-#if not CLEAN22
-                actionref(NewItem_Promoted; NewItem)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Process)
             {
@@ -874,15 +859,6 @@ page 5700 "Stockkeeping Unit Card"
                 actionref("&Picture_Promoted"; "&Picture")
                 {
                 }
-#if not CLEAN22
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_SKU)
             {

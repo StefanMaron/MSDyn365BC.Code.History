@@ -243,7 +243,9 @@ page 776 "Analysis Report Chart Matrix"
         ColumnCaptions: array[12] of Text[100];
         ColumnLineNos: array[12] of Integer;
         MaxColumns: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Invalid Column Layout.';
+#pragma warning restore AA0074
 
     procedure SetFilters(AnalysisReportChartSetup: Record "Analysis Report Chart Setup")
     begin

@@ -42,13 +42,8 @@ table 5097 "Segment Criteria Line"
         {
             Caption = 'View';
             ObsoleteReason = 'Replaced by field "Table View": Text[2048]';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(8; "Allow Existing Contacts"; Boolean)
         {
@@ -110,15 +105,5 @@ table 5097 "Segment Criteria Line"
                 exit(ObjTransl.TranslateObject(Type, "Table No."));
         end;
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure in page SegmentCriteria', '22.0')]
-    procedure "Filter"(): Text[250]
-    var
-        SegCriteriaManagement: Codeunit SegCriteriaManagement;
-    begin
-        exit(SegCriteriaManagement.SegCriteriaFilter("Table No.", View));
-    end;
-#endif
 }
 

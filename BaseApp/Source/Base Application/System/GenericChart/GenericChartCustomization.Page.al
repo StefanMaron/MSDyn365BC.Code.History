@@ -722,10 +722,16 @@ page 9188 "Generic Chart Customization"
         DummyInt: Integer;
         DummyCaption: Text[50];
         OptionalMeasuresEnabled: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ZAxisEnabled: Boolean;
+#pragma warning disable AA0074
         Text004: Label 'You can only select one Measure with aggregation type Count.';
         Text005: Label 'If you select Aggregation Count, the Data Column will be modified for this measure. Do you want to continue?';
+#pragma warning restore AA0074
         TitleEnabled: Boolean;
         XMLRetrieved: Boolean;
         DataColumn1Enabled: Boolean;

@@ -42,6 +42,7 @@ page 95 "Sales Quote Subform"
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account.';
+                    Visible = not TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -59,7 +60,7 @@ page 95 "Sales Quote Subform"
                     LookupPageID = "Option Lookup List";
                     TableRelation = "Option Lookup Buffer"."Option Caption" where("Lookup Type" = const(Sales));
                     ToolTip = 'Specifies the type of transaction that will be posted with the document line. If you select Comment, then you can enter any text in the Description field, such as a message to a customer. ';
-                    Visible = IsFoundation;
+                    Visible = TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -779,7 +780,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -791,7 +792,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -803,7 +804,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -816,7 +817,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -840,7 +841,7 @@ page 95 "Sales Quote Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -890,7 +891,7 @@ page 95 "Sales Quote Subform"
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     var
@@ -982,7 +983,7 @@ page 95 "Sales Quote Subform"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN23
+#if not CLEAN25
                 action("Get &Price")
                 {
                     AccessByPermission = TableData "Sales Price" = R;
@@ -1125,7 +1126,7 @@ page 95 "Sales Quote Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Sales_QuoteSalesLines',
@@ -1187,7 +1188,7 @@ page 95 "Sales Quote Subform"
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        TypeAsTextFieldVisible := ApplicationAreaMgmtFacade.IsFoundationEnabled() and not ApplicationAreaMgmtFacade.IsAdvancedEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1220,15 +1221,15 @@ page 95 "Sales Quote Subform"
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         AmountWithDiscountAllowed: Decimal;
         VariantCodeMandatory: Boolean;
-        IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;
         TypeAsText: Text[30];
+        TypeAsTextFieldVisible: Boolean;
         UseAllocationAccountNumber: Boolean;
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Type.';
         ExcelFileNameTxt: Label 'Sales Quote %1 - Lines', Comment = '%1 = document number, ex. 10000';

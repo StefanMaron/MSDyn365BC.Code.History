@@ -6,6 +6,7 @@ namespace Microsoft.Integration.SyncEngine;
 
 using System.IO;
 using System.Reflection;
+
 table 5380 "Man. Integration Table Mapping"
 {
     DataClassification = SystemMetadata;
@@ -58,11 +59,29 @@ table 5380 "Man. Integration Table Mapping"
         {
             Caption = 'Table Config Template Code';
             TableRelation = "Config. Template Header".Code where("Table ID" = field("Table ID"));
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with Table Config Template table';
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Replaced with Table Config Template table';
+            ObsoleteTag = '28.0';
+#endif
         }
         field(9; "Int. Tbl. Config Template Code"; Code[10])
         {
             Caption = 'Int. Tbl. Config Template Code';
             TableRelation = "Config. Template Header".Code where("Table ID" = field("Integration Table ID"));
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with Integration Table Config Template table';
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Replaced with Integration Table Config Template table';
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10; "Table Filter"; BLOB)
         {
@@ -83,12 +102,20 @@ table 5380 "Man. Integration Table Mapping"
     trigger OnDelete()
     var
         ManIntFieldMapping: Record "Man. Int. Field Mapping";
+        TableConfigTemplate: Record "Table Config Template";
+        IntTableConfigTemplate: Record "Int. Table Config Template";
     begin
         ManIntFieldMapping.SetRange(Name, Name);
         ManIntFieldMapping.DeleteAll(true);
+
+        TableConfigTemplate.SetRange("Integration Table Mapping Name", Name);
+        TableConfigTemplate.DeleteAll();
+
+        IntTableConfigTemplate.SetRange("Integration Table Mapping Name", Name);
+        IntTableConfigTemplate.DeleteAll();
     end;
 
-    internal procedure CreateRecord(IntegrationMappingName: Code[20]; IntegrationMappingTableId: Integer; IntegrationMappingIntTableId: Integer; IntegrationTableUID: Integer; IntTblModifiedOnId: Integer; SyncOnlyCoupledRecords: Boolean; lDirection: Option; TableFilter: Text; IntegrationTableFilter: Text; TableConfigTemplateCode: Code[20]; IntTableConfigTemplateCode: Code[20])
+    internal procedure CreateRecord(IntegrationMappingName: Code[20]; IntegrationMappingTableId: Integer; IntegrationMappingIntTableId: Integer; IntegrationTableUID: Integer; IntTblModifiedOnId: Integer; SyncOnlyCoupledRecords: Boolean; lDirection: Option; TableFilter: Text; IntegrationTableFilter: Text)
     begin
         Init();
         Name := IntegrationMappingName;
@@ -98,8 +125,6 @@ table 5380 "Man. Integration Table Mapping"
         "Int. Tbl. Modified On Id" := IntTblModifiedOnId;
         "Sync Only Coupled Records" := SyncOnlyCoupledRecords;
         Direction := lDirection;
-        "Table Config Template Code" := TableConfigTemplateCode;
-        "Int. Tbl. Config Template Code" := IntTableConfigTemplateCode;
         Insert(true);
 
         SetTableFilter(TableFilter);
@@ -107,7 +132,7 @@ table 5380 "Man. Integration Table Mapping"
         Modify(true);
     end;
 
-    internal procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; Direction: Option)
+    internal procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; SynchOnlyCoupledRecords: Boolean; Direction: Option)
     begin
         IntegrationTableMapping.CreateRecord(
             MappingName,
@@ -115,8 +140,8 @@ table 5380 "Man. Integration Table Mapping"
             IntegrationTableNo,
             IntegrationTableUIDFieldNo,
             IntegrationTableModifiedFieldNo,
-            TableConfigTemplateCode,
-            IntegrationTableConfigTemplateCode,
+            '',
+            '',
             SynchOnlyCoupledRecords,
             Direction,
             'CDS');

@@ -178,14 +178,18 @@ report 5986 "Prepaid Contr. Entries - Test"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the Post Until Date field.';
         Text001: Label 'You must fill in the Posting Date field.';
+#pragma warning restore AA0074
         ServContractHdr: Record "Service Contract Header";
         UntilDate: Date;
         PostingDate: Date;
         ErrorText: Text[250];
         ServLedgerFilters: Text;
+#pragma warning disable AA0074
         Text002: Label 'There is at least one unposted credit memo linked to this contract.';
+#pragma warning restore AA0074
         ErrorCounter: Integer;
         Prepaid_Contract_Entries___TestCaptionLbl: Label 'Prepaid Contract Entries - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

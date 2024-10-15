@@ -1,5 +1,6 @@
 namespace Microsoft.Finance.GeneralLedger.Journal;
 
+using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -7,6 +8,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
+using System.Utilities;
 
 table 221 "Gen. Jnl. Allocation"
 {
@@ -323,8 +325,14 @@ table 221 "Gen. Jnl. Allocation"
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
         DimMgt: Codeunit DimensionManagement;
+        AllocAccountImportWrongAccTypeErr: Label 'Import from Allocation Account is only allowed for G/L Account Destination account type.';
+        ImportDeletesExistingLinesQst: Label 'Importing from Allocation Account will delete all existing allocations. Do you want to continue?';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be used in allocations when they are completed on the general journal line.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected procedure CopyVATSetupToJnlLines(): Boolean
     var
@@ -596,6 +604,67 @@ table 221 "Gen. Jnl. Allocation"
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", Rec."Account No.");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    internal procedure ChooseAndImportFromAllocationAccount()
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        if ChooseAllocationAccount(AllocationAccount) then
+            ImportFromAllocationAccount(AllocationAccount);
+    end;
+
+    local procedure ChooseAllocationAccount(var AllocationAccount: Record "Allocation Account") AccountChosen: Boolean
+    var
+        AllocationAccountList: Page "Allocation Account List";
+    begin
+        AllocationAccount.SetRange("Account Type", AllocationAccount."Account Type"::Fixed);
+        AllocationAccountList.SetTableView(AllocationAccount);
+        AllocationAccountList.LookupMode(true);
+        if AllocationAccountList.RunModal() = Action::LookupOK then begin
+            AccountChosen := true;
+            AllocationAccountList.GetRecord(AllocationAccount);
+        end;
+    end;
+
+    local procedure ImportFromAllocationAccount(AllocationAccount: Record "Allocation Account")
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+        ConfirmManagement: Codeunit "Confirm Management";
+        NextLineNo: Integer;
+    begin
+        if not Rec.IsEmpty() then
+            if not ConfirmManagement.GetResponse(ImportDeletesExistingLinesQst) then
+                exit;
+
+        Rec.DeleteAll();
+
+        AllocationAccount.TestField("Account Type", AllocationAccount."Account Type"::Fixed);
+        AllocAccountDistribution.SetRange("Allocation Account No.", AllocationAccount."No.");
+        NextLineNo := 10000;
+        CheckAccountType(AllocAccountDistribution);
+        if AllocAccountDistribution.FindSet() then
+            repeat
+                Rec.Init();
+                Rec."Line No." := NextLineNo;
+                Rec.Insert();
+                NextLineNo += 10000;
+                CopyFieldsFromAllocationAccountDistribution(AllocAccountDistribution);
+            until AllocAccountDistribution.Next() = 0;
+    end;
+
+    local procedure CheckAccountType(var AllocAccountDistribution: Record "Alloc. Account Distribution")
+    begin
+        AllocAccountDistribution.SetFilter("Destination Account Type", '<>%1', AllocAccountDistribution."Destination Account Type"::"G/L Account");
+        if not AllocAccountDistribution.IsEmpty() then
+            Error(AllocAccountImportWrongAccTypeErr);
+        AllocAccountDistribution.SetRange("Destination Account Type");
+    end;
+
+    local procedure CopyFieldsFromAllocationAccountDistribution(AllocAccountDistribution: Record "Alloc. Account Distribution")
+    begin
+        Rec.Validate("Account No.", AllocAccountDistribution."Destination Account Number");
+        Rec.Validate("Allocation %", AllocAccountDistribution.Percent);
     end;
 
     local procedure CheckGLAccount(var GLAccount: Record "G/L Account")

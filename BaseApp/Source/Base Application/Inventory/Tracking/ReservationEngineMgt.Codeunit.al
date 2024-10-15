@@ -1,20 +1,12 @@
 ﻿namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 99000831 "Reservation Engine Mgt."
 {
@@ -27,26 +19,32 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be greater than 0.';
         Text001: Label '%1 must be less than 0.';
+#pragma warning restore AA0470
         Text002: Label 'Use Cancel Reservation.';
+#pragma warning disable AA0470
         Text003: Label '%1 can only be reduced.';
-        Text005: Label 'Outbound,Inbound';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Item: Record Item;
         TempSurplusEntry: Record "Reservation Entry" temporary;
         TempSortRec1: Record "Reservation Entry" temporary;
         TempSortRec2: Record "Reservation Entry" temporary;
         TempSortRec3: Record "Reservation Entry" temporary;
         TempSortRec4: Record "Reservation Entry" temporary;
+#pragma warning disable AA0074
         Text006: Label 'Signing mismatch.';
         Text007: Label 'Renaming reservation entries...';
+#pragma warning restore AA0074
         ReservMgt: Codeunit "Reservation Management";
         LostReservationQty: Decimal;
+#pragma warning disable AA0470
         CannotStateItemTrackingErr: Label 'You cannot state item tracking on a demand when it is linked to a supply by %1 = %2.';
+#pragma warning restore AA0470
         ReservationsModified: Boolean;
-        SourceDoc2Txt: Label '%1 %2', Locked = true;
-        SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
-        SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
     procedure CancelReservation(ReservEntry: Record "Reservation Entry")
     var
@@ -90,71 +88,11 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     local procedure RevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-        TransferLine: Record "Transfer Line";
-        ServiceLine: Record "Service Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComponent: Record "Prod. Order Component";
-        PlanningComponent: Record "Planning Component";
-        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        case ReservEntry."Source Type" of
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    if ReservEntry.Positive then
-                        ChangeDateFieldOnResEntry(ReservEntry, ReservEntry."Expected Receipt Date", 0D)
-                    else
-                        ChangeDateFieldOnResEntry(ReservEntry, 0D, SalesLine."Shipment Date");
-                end;
-            Database::"Purchase Line":
-                begin
-                    PurchaseLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    if ReservEntry.Positive then
-                        ChangeDateFieldOnResEntry(ReservEntry, PurchaseLine."Expected Receipt Date", 0D)
-                    else
-                        ChangeDateFieldOnResEntry(ReservEntry, 0D, ReservEntry."Shipment Date");
-                end;
-            Database::"Planning Component":
-                begin
-                    PlanningComponent.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Prod. Order Line", ReservEntry."Source Ref. No.");
-                    ChangeDateFieldOnResEntry(ReservEntry, 0D, PlanningComponent."Due Date")
-                end;
-            Database::"Item Ledger Entry":
-                begin
-                    ItemLedgerEntry.Get(ReservEntry."Source Ref. No.");
-                    ChangeDateFieldOnResEntry(ReservEntry, ItemLedgerEntry."Posting Date", 0D);
-                end;
-            Database::"Prod. Order Line":
-                begin
-                    ProdOrderLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line");
-                    ChangeDateFieldOnResEntry(ReservEntry, ProdOrderLine."Due Date", 0D);
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line", ReservEntry."Source Ref. No.");
-                    ChangeDateFieldOnResEntry(ReservEntry, 0D, ProdOrderComponent."Due Date");
-                    exit;
-                end;
-            Database::"Transfer Line":
-                begin
-                    TransferLine.Get(ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    if ReservEntry.Positive then
-                        ChangeDateFieldOnResEntry(ReservEntry, TransferLine."Receipt Date", 0D)
-                    else
-                        ChangeDateFieldOnResEntry(ReservEntry, 0D, TransferLine."Shipment Date");
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    ChangeDateFieldOnResEntry(ReservEntry, 0D, ServiceLine."Needed by Date");
-                end;
-        end;
+        OnRevertDateToSourceDate(ReservEntry);
     end;
 
-    local procedure ChangeDateFieldOnResEntry(var ReservEntry: Record "Reservation Entry"; ExpectedReceiptDate: Date; ShipmentDate: Date)
+    procedure ChangeDateFieldOnReservEntry(var ReservEntry: Record "Reservation Entry"; ExpectedReceiptDate: Date; ShipmentDate: Date)
     begin
         ReservEntry."Expected Receipt Date" := ExpectedReceiptDate;
         ReservEntry."Shipment Date" := ShipmentDate;
@@ -327,102 +265,10 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     procedure CreateText(ReservEntry: Record "Reservation Entry") SourceTypeDesc: Text[80]
-    var
-        SourceType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry","Prod. Order Line","Prod. Order Component","Planning Line","Planning Component",Transfer,Service,"Job Journal",Job,"Assembly Header","Assembly Line","Inventory Document";
-        SourceTypeText: Label 'Sales,Requisition Line,Purchase,Item Journal,BOM Journal,Item Ledger Entry,Prod. Order Line,Prod. Order Component,Planning Line,Planning Component,Transfer,Service,Project Journal,Project,Assembly Header,Assembly Line,Inventory Document';
     begin
-        case ReservEntry."Source Type" of
-            Database::"Sales Line":
-                begin
-                    SourceType := SourceType::Sales;
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Sales Document Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Purchase Line":
-                begin
-                    SourceType := SourceType::Purchase;
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Purchase Document Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Requisition Line":
-                begin
-                    SourceType := SourceType::"Requisition Line";
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        ReservEntry."Source ID", ReservEntry."Source Batch Name"));
-                end;
-            Database::"Planning Component":
-                begin
-                    SourceType := SourceType::"Planning Component";
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        ReservEntry."Source ID", ReservEntry."Source Batch Name"));
-                end;
-            Database::"Item Journal Line":
-                begin
-                    SourceType := SourceType::"Item Journal";
-                    exit(StrSubstNo(SourceDoc4Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Item Ledger Entry Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID", ReservEntry."Source Batch Name"));
-                end;
-            Database::"Job Journal Line":
-                begin
-                    SourceType := SourceType::"Job Journal";
-                    exit(StrSubstNo(SourceDoc4Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Job Journal Line Entry Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID", ReservEntry."Source Batch Name"));
-                end;
-            Database::"Item Ledger Entry":
-                begin
-                    SourceType := SourceType::"Item Ledger Entry";
-                    exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), ReservEntry."Source Ref. No."));
-                end;
-            Database::"Prod. Order Line":
-                begin
-                    SourceType := SourceType::"Prod. Order Line";
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Production Order Status".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    SourceType := SourceType::"Prod. Order Component";
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Production Order Status".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Transfer Line":
-                begin
-                    SourceType := SourceType::Transfer;
-                    exit(StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        ReservEntry."Source ID", SelectStr(ReservEntry."Source Subtype" + 1, Text005)));
-                end;
-            Database::"Service Line":
-                begin
-                    SourceType := SourceType::Service;
-                    exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), ReservEntry."Source ID"));
-                end;
-            Database::"Job Planning Line":
-                begin
-                    SourceType := SourceType::Job;
-                    exit(StrSubstNo(SourceDoc2Txt, SelectStr(SourceType, SourceTypeText), ReservEntry."Source ID"));
-                end;
-            Database::"Assembly Header":
-                begin
-                    SourceType := SourceType::"Assembly Header";
-                    exit(
-                      StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Assembly Document Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Assembly Line":
-                begin
-                    SourceType := SourceType::"Assembly Line";
-                    exit(
-                      StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Assembly Document Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-            Database::"Invt. Document Line":
-                begin
-                    SourceType := SourceType::"Inventory Document";
-                    exit(
-                      StrSubstNo(SourceDoc3Txt, SelectStr(SourceType, SourceTypeText),
-                        Enum::"Invt. Doc. Document Type".FromInteger(ReservEntry."Source Subtype"), ReservEntry."Source ID"));
-                end;
-        end;
+        OnCreateText(ReservEntry, SourceTypeDesc);
+        if SourceTypeDesc <> '' then
+            exit;
 
         SourceTypeDesc := '';
         OnAfterCreateText(ReservEntry, SourceTypeDesc);
@@ -517,9 +363,9 @@ codeunit 99000831 "Reservation Engine Mgt."
         ReservEntry2: Record "Reservation Entry";
         ActionMessageEntry: Record "Action Message Entry";
         ManufacturingSetup: Record "Manufacturing Setup";
+        DateFormula: DateFormula;
         FirstDate: Date;
         NextEntryNo: Integer;
-        DateFormula: DateFormula;
     begin
         if not (ReservEntry."Source Type" in [Database::"Prod. Order Line",
                                               Database::"Purchase Line"])
@@ -716,9 +562,9 @@ codeunit 99000831 "Reservation Engine Mgt."
                 GetItem(ReservEntry1."Item No.");
                 if (ReservEntry1."Source Type" = Database::"Item Ledger Entry") and
                    (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None)
-                then begin
-                    ReservEntry1.Delete();
-                end else begin
+                then
+                    ReservEntry1.Delete()
+                else begin
                     ReservEntry1."Reservation Status" := ReservEntry1."Reservation Status"::Surplus;
                     if CalledRecursively then begin
                         ReservEntry1.Delete();
@@ -1141,65 +987,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             exit;
 
         case TableID of
-            Database::"Sales Line",
-            Database::"Purchase Line",
-            Database::"Service Line",
-            Database::"Job Planning Line",
-            Database::"Assembly Line",
-            Database::"Invt. Document Line":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
-            Database::"Requisition Line":
-                begin
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[4] := true;  // BatchName
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
-            Database::"Item Journal Line":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[4] := true;  // BatchName
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
-            Database::"Job Journal Line":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[4] := true;  // BatchName
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
             Database::"Item Ledger Entry":
                 PointerFieldIsActive[6] := true;  // RefNo
-            Database::"Prod. Order Line":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[5] := true;  // ProdOrderLine
-                end;
-            Database::"Prod. Order Component",
-            Database::"Transfer Line":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[5] := true;  // ProdOrderLine
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
-            Database::"Planning Component":
-                begin
-                    PointerFieldIsActive[3] := true;  // ID
-                    PointerFieldIsActive[4] := true;  // BatchName
-                    PointerFieldIsActive[5] := true;  // ProdOrderLine
-                    PointerFieldIsActive[6] := true;  // RefNo
-                end;
-            Database::"Assembly Header":
-                begin
-                    PointerFieldIsActive[2] := true;  // SubType
-                    PointerFieldIsActive[3] := true;  // ID
-                end;
             else
                 PointerFieldIsActive[1] := false;  // Type is not used
         end;
@@ -1358,6 +1147,11 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemTrackingMismatch(ReservationEntry: Record "Reservation Entry"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsMismatch: Boolean)
     begin
     end;
@@ -1479,6 +1273,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyItemTrkgByReservStatus(var TempReservationEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; ReservStatus: Enum "Reservation Status"; var QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

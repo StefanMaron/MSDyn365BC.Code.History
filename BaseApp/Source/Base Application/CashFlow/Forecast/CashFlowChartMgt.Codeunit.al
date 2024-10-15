@@ -16,10 +16,12 @@ codeunit 869 "Cash Flow Chart Mgt."
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
+#pragma warning disable AA0074
         TextTotal: Label 'Total';
         TextPositive: Label 'Positive';
         TextNegative: Label 'Negative';
         Text001: Label 'Select the "Show in Chart on Role Center" field in the Cash Flow Forecast window to display the chart on the Role Center.';
+#pragma warning restore AA0074
 
     procedure OnOpenPage(var CashFlowChartSetup: Record "Cash Flow Chart Setup")
     begin

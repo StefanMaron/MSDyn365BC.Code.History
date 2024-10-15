@@ -281,7 +281,7 @@ report 16628 "Annual Information Return  WHT"
         }
         dataitem("<WHTEntry3>"; "WHT Entry")
         {
-            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") ORDER(Ascending) where("Transaction Type" = const(Purchase), "Applies-to Entry No." = filter(<> 0), "WHT %" = const(0));
+            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") order(ascending) where("Transaction Type" = const(Purchase), "Applies-to Entry No." = filter(<> 0), "WHT %" = const(0));
             column(WHT_Entry___WHT_Prod__Posting_Group_; "WHT Prod. Posting Group")
             {
             }

@@ -470,6 +470,7 @@ codeunit 7313 "Create Put-away"
         IsHandled: Boolean;
     begin
         CurrBinContent.Reset();
+        CurrBinContent.ReadIsolation(IsolationLevel::ReadCommitted);
         CurrBinContent.SetCurrentKey("Location Code", "Warehouse Class Code", Fixed, "Bin Ranking");
         CurrBinContent.SetRange("Location Code", LocationCode);
         CurrBinContent.SetRange("Warehouse Class Code", WarehouseClassCode);
@@ -975,6 +976,7 @@ codeunit 7313 "Create Put-away"
             exit(false);
 
         CurrBinContent.Reset();
+        CurrBinContent.ReadIsolation(IsolationLevel::ReadUnCommitted);
         CurrBinContent.SetRange(CurrBinContent."Location Code", CurrBin."Location Code");
         CurrBinContent.SetRange(CurrBinContent."Zone Code", CurrBin."Zone Code");
         CurrBinContent.SetRange(CurrBinContent."Bin Code", CurrBin.Code);

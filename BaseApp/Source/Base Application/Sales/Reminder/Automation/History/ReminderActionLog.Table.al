@@ -28,7 +28,17 @@ table 6752 "Reminder Action Log"
         }
         field(6; "Total Errors"; Integer)
         {
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+            ObsoleteTag = '28.0';
+#endif
         }
+
         field(7; "Last Record Processed"; RecordId)
         {
         }

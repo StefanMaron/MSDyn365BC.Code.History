@@ -684,7 +684,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Avg. Cost Calc.");
     end;
 
-    local procedure InvtSetup(AverageCostPeriod: Integer; AverageCostCalcType: Enum "Average Cost Calculation Type")
+    local procedure InvtSetup(AverageCostPeriod: Enum "Average Cost Period Type"; AverageCostCalcType: Enum "Average Cost Calculation Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -876,25 +876,21 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
     local procedure CreateCurrencyWithRoundingPrecision(var Currency: Record Currency)
     begin
-        with Currency do begin
-            LibraryERM.CreateCurrency(Currency);
-            Validate("Amount Rounding Precision", 1 / Power(10, LibraryRandom.RandInt(5)));
-            Modify(true);
-        end;
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Amount Rounding Precision", 1 / Power(10, LibraryRandom.RandInt(5)));
+        Currency.Modify(true);
     end;
 
     local procedure MockItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Qty: Decimal; RemQty: Decimal; CostAmt: Decimal; CostAmtACY: Decimal)
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Item No." := ItemNo;
-            Quantity := Qty;
-            "Remaining Quantity" := RemQty;
-            Open := "Remaining Quantity" <> 0;
-            Positive := Quantity > 0;
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry.Quantity := Qty;
+        ItemLedgerEntry."Remaining Quantity" := RemQty;
+        ItemLedgerEntry.Open := ItemLedgerEntry."Remaining Quantity" <> 0;
+        ItemLedgerEntry.Positive := ItemLedgerEntry.Quantity > 0;
+        ItemLedgerEntry.Insert();
 
         MockValueEntry(ItemLedgerEntry, CostAmt, CostAmtACY);
     end;
@@ -903,31 +899,27 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
-            "Item No." := ItemLedgerEntry."Item No.";
-            "Item Ledger Entry Quantity" := ItemLedgerEntry.Quantity;
-            "Cost Amount (Actual)" := CostAmt;
-            "Cost Amount (Actual) (ACY)" := CostAmtACY;
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
+        ValueEntry."Item No." := ItemLedgerEntry."Item No.";
+        ValueEntry."Item Ledger Entry Quantity" := ItemLedgerEntry.Quantity;
+        ValueEntry."Cost Amount (Actual)" := CostAmt;
+        ValueEntry."Cost Amount (Actual) (ACY)" := CostAmtACY;
+        ValueEntry.Insert();
     end;
 
     local procedure MockItemApplicationEntry(ItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; OutbndItemLedgEntryNo: Integer; Qty: Decimal)
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        with ItemApplicationEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemApplicationEntry, FieldNo("Entry No."));
-            "Item Ledger Entry No." := ItemLedgEntryNo;
-            "Inbound Item Entry No." := InbndItemLedgEntryNo;
-            "Outbound Item Entry No." := OutbndItemLedgEntryNo;
-            Quantity := Qty;
-            Insert();
-        end;
+        ItemApplicationEntry.Init();
+        ItemApplicationEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemApplicationEntry, ItemApplicationEntry.FieldNo("Entry No."));
+        ItemApplicationEntry."Item Ledger Entry No." := ItemLedgEntryNo;
+        ItemApplicationEntry."Inbound Item Entry No." := InbndItemLedgEntryNo;
+        ItemApplicationEntry."Outbound Item Entry No." := OutbndItemLedgEntryNo;
+        ItemApplicationEntry.Quantity := Qty;
+        ItemApplicationEntry.Insert();
     end;
 
     local procedure PostPositiveAndNegativeAdjustments(ItemNo: Code[20]; QtyDifference: Decimal; AmtDifference: Decimal; AmtACYDifference: Decimal)
@@ -995,12 +987,10 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
     local procedure UpdateAdditionalReportingCurrencyInGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup"; ACYCode: Code[10]) OldACYCode: Code[10]
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            OldACYCode := "Additional Reporting Currency";
-            "Additional Reporting Currency" := ACYCode;
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        OldACYCode := GeneralLedgerSetup."Additional Reporting Currency";
+        GeneralLedgerSetup."Additional Reporting Currency" := ACYCode;
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure CalcOpenItemLedgerEntriesAverageUnitCosts(ItemNo: Code[20]; var AverageCost: Decimal; var AverageCostACY: Decimal)
@@ -1011,20 +1001,18 @@ codeunit 137070 "SCM Avg. Cost Calc."
         AverageCost := 0;
         AverageCostACY := 0;
 
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange(Positive, true);
-            SetRange(Open, true);
-            CalcSums(Quantity);
-            TotalQuantity := Quantity;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange(Open, true);
+        ItemLedgerEntry.CalcSums(Quantity);
+        TotalQuantity := ItemLedgerEntry.Quantity;
 
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                AverageCost += "Cost Amount (Actual)";
-                AverageCostACY += "Cost Amount (Actual) (ACY)";
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+            AverageCost += ItemLedgerEntry."Cost Amount (Actual)";
+            AverageCostACY += ItemLedgerEntry."Cost Amount (Actual) (ACY)";
+        until ItemLedgerEntry.Next() = 0;
 
         AverageCost /= TotalQuantity;
         AverageCostACY /= TotalQuantity;
@@ -1034,12 +1022,10 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-            AverageCost := "Cost Amount (Actual)" / "Item Ledger Entry Quantity";
-            AverageCostACY := "Cost Amount (Actual) (ACY)" / "Item Ledger Entry Quantity";
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        AverageCost := ValueEntry."Cost Amount (Actual)" / ValueEntry."Item Ledger Entry Quantity";
+        AverageCostACY := ValueEntry."Cost Amount (Actual) (ACY)" / ValueEntry."Item Ledger Entry Quantity";
     end;
 
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])

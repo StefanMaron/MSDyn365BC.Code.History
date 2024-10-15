@@ -90,7 +90,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
             ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
             OnRunOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine);
-            if ProdOrderRtngLine.Find('-') then begin
+            if ProdOrderRtngLine.Find('-') then
                 repeat
                     BaseQtyToPost :=
                       CostCalcMgt.CalcQtyAdjdForRoutingScrap(
@@ -123,8 +123,8 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                         end;
                     end;
                     OnRunOnProdRtngLineLoopEnd(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine, NextLineNo, LineSpacing, LastItemJnlLine);
-                until ProdOrderRtngLine.Next() = 0;
-            end else
+                until ProdOrderRtngLine.Next() = 0
+            else
                 if ProdOrderLine."Remaining Quantity" > 0 then begin
                     IsHandled := false;
                     OnBeforeInsertOutputJnlLineWithoutRtngLine(Rec, ProdOrderLine, IsHandled);
@@ -154,8 +154,10 @@ codeunit 5406 "Output Jnl.-Expl. Route"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'There are not enough free line numbers to explode the route.';
         Text001: Label 'There is nothing to explode.';
+#pragma warning restore AA0074
         LastItemJnlLine: Record "Item Journal Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
 

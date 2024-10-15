@@ -106,8 +106,10 @@ report 192 "Suggest Fin. Charge Memo Lines"
         NewDateTime: DateTime;
         OldDateTime: DateTime;
 
+#pragma warning disable AA0074
         Text000: Label 'Suggesting lines...';
         Text001: Label 'Suggesting lines @1@@@@@@@@@@@@@';
         Text002: Label 'It was not possible to process some of the selected finance charge memos.\Do you want to see these finance charge memos?';
+#pragma warning restore AA0074
 }
 

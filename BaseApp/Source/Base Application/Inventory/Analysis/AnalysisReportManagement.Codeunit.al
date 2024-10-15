@@ -49,16 +49,22 @@ codeunit 7110 "Analysis Report Management"
         InventorySetupRead: Boolean;
         TryExpression: Text[250];
 
+#pragma warning disable AA0074
         Text001: Label 'DEFAULT';
         Text002: Label 'Default Lines';
         Text003: Label 'Default Columns';
+#pragma warning restore AA0074
         Text005Tok: Label 'M', Comment = 'Month';
         Text006Tok: Label 'Q', Comment = 'Quarter';
         Text007Tok: Label 'Y', Comment = 'Year';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text021: Label 'Conversion of dimension totaling filter %1 results in a filter that becomes too long.';
         Text022: Label 'You must specify an %1 on %2 %3 %4 that includes the %5 dimension.';
         Text023: Label 'Column formula: %1';
         Text024: Label 'Row formula: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ColumnFormulaMsg: Label 'Column formula: %1. \Error: %2.', Comment = '%1 - text of Column formula; %2 - text of Error';
         ShowError: Option "None","Division by Zero","Period Error","Invalid Formula","Cyclic Formula",All;
         SeparatorTok: Label ';', Locked = true;

@@ -1839,9 +1839,9 @@ codeunit 134235 "Record Set UT"
             VerifyFindRecordByDescription(Type, 'bxycxydx', 1, 'AXYBXYCXY');
 
             // first "No."/"Description" containing
-            VerifyFindRecordByDescription(Type, 'ybxy', 2, 'AXYBXY');
-            VerifyFindRecordByDescription(Type, 'ycxy', 3, 'AXYBXY');
-            VerifyFindRecordByDescription(Type, 'ydxy', 2, 'AXYBXYCXY');
+            VerifyFindRecordByDescription(Type, 'ybxy', 2, 'AXYBXY|AXYBXYCXY');
+            VerifyFindRecordByDescription(Type, 'ycxy', 3, 'AXYBXY|AXYBXYCXY|BXYCXY');
+            VerifyFindRecordByDescription(Type, 'ydxy', 2, 'AXYBXYCXY|BXYCXY');
             VerifyFindRecordByDescription(Type, 'ybxycx', 1, 'AXYBXYCXY');
             VerifyFindRecordByDescription(Type, 'ycxydx', 1, 'AXYBXYCXY');
 
@@ -1884,13 +1884,13 @@ codeunit 134235 "Record Set UT"
         // CX         DX
 
         // first "Base Unit of Measure" containing
-        VerifyFindRecordByDescription(Type, 'cxdx', 2, 'AXBXCX');
-        VerifyFindRecordByDescription(Type, 'cx''''', 2, 'AXBXCX');
+        VerifyFindRecordByDescription(Type, 'cxdx', 2, 'AXBXCX|BXCX');
+        VerifyFindRecordByDescription(Type, 'cx''''', 2, 'AXBXCX|BXCX');
         VerifyFindRecordByDescription(Type, 'bxcxdx', 1, 'AXBXCX');
         VerifyFindRecordByDescription(Type, 'b''c''d''', 1, 'AXBXCX');
-        VerifyFindRecordByDescription(Type, 'cxd', 2, 'AXBXCX');
+        VerifyFindRecordByDescription(Type, 'cxd', 2, 'AXBXCX|BXCX');
         VerifyFindRecordByDescription(Type, 'bxcxd', 1, 'AXBXCX');
-        VerifyFindRecordByDescription(Type, 'xcx', 3, 'AXBX');
+        VerifyFindRecordByDescription(Type, 'xcx', 3, 'AXBX|AXBXCX|BXCX');
         VerifyFindRecordByDescription(Type, 'xcxd', 1, 'AXBXCX');
     end;
 
@@ -2824,76 +2824,64 @@ codeunit 134235 "Record Set UT"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            "Base Unit of Measure" := BaseUnitOfMeasure;
-            Insert();
-        end;
+        Item.Init();
+        Item."No." := NewNo;
+        Item.Description := NewDescription;
+        Item."Base Unit of Measure" := BaseUnitOfMeasure;
+        Item.Insert();
     end;
 
     local procedure MockGLAccount(NewNo: Code[20]; NewName: Text[50]; DirectPosting: Boolean; AccountType: Enum "G/L Account Type"; NewBlockedValue: Boolean)
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Init();
-            "No." := NewNo;
-            Name := NewName;
-            "Direct Posting" := DirectPosting;
-            "Account Type" := AccountType;
-            Blocked := NewBlockedValue;
-            Insert();
-        end;
+        GLAccount.Init();
+        GLAccount."No." := NewNo;
+        GLAccount.Name := NewName;
+        GLAccount."Direct Posting" := DirectPosting;
+        GLAccount."Account Type" := AccountType;
+        GLAccount.Blocked := NewBlockedValue;
+        GLAccount.Insert();
     end;
 
     local procedure MockResource(NewNo: Code[20]; NewName: Text[50])
     var
         Resource: Record Resource;
     begin
-        with Resource do begin
-            Init();
-            "No." := NewNo;
-            Name := NewName;
-            Insert();
-        end;
+        Resource.Init();
+        Resource."No." := NewNo;
+        Resource.Name := NewName;
+        Resource.Insert();
     end;
 
     local procedure MockItemCharge(NewNo: Code[20]; NewDescription: Text[50])
     var
         ItemCharge: Record "Item Charge";
     begin
-        with ItemCharge do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            Insert();
-        end;
+        ItemCharge.Init();
+        ItemCharge."No." := NewNo;
+        ItemCharge.Description := NewDescription;
+        ItemCharge.Insert();
     end;
 
     local procedure MockFixedAsset(NewNo: Code[20]; NewDescription: Text[50])
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        with FixedAsset do begin
-            Init();
-            "No." := NewNo;
-            Description := NewDescription;
-            Insert();
-        end;
+        FixedAsset.Init();
+        FixedAsset."No." := NewNo;
+        FixedAsset.Description := NewDescription;
+        FixedAsset.Insert();
     end;
 
     local procedure MockStandardText(NewCode: Code[20]; NewDescription: Text[50])
     var
         StandardText: Record "Standard Text";
     begin
-        with StandardText do begin
-            Init();
-            Code := NewCode;
-            Description := NewDescription;
-            Insert();
-        end;
+        StandardText.Init();
+        StandardText.Code := NewCode;
+        StandardText.Description := NewDescription;
+        StandardText.Insert();
     end;
 
     local procedure VerifySetWasSavedCorrectly(SetID: Integer; ExpectedRecordsVariant: Variant)

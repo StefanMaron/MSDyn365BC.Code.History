@@ -101,7 +101,11 @@ page 5051 "Contact Card Subform"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'There are no answer values for this rating answer.';
+#pragma warning disable AA0470
         Text002: Label 'This answer reflects the state of the contact on %1 when the Update Contact Class. batch job was run.\To make the answer reflect the current state of the contact, run the batch job again.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

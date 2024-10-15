@@ -84,14 +84,12 @@ codeunit 133770 "ERM Remittance Report UT"
 
     local procedure CreatePaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PaymentAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment,
-              "Account Type"::Vendor, "Account No.", PaymentAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", DocumentNo);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", PaymentAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure SelectGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")

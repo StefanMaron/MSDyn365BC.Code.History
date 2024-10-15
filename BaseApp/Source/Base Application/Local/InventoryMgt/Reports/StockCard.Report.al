@@ -249,7 +249,7 @@ report 14311 "Stock Card"
                 if Previous.IsEmpty() or ("Item No." <> Previous."Item No.") or
                    (("Location Code" <> Previous."Location Code") and
                     ("Item No." = Previous."Item No."))
-                then begin
+                then
                     if GroupTotals = GroupTotals::Location then begin
                         OpeningStock := 0;
                         OpeningStockAmount := 0;
@@ -275,7 +275,6 @@ report 14311 "Stock Card"
                         OpeningStockAmount2 := OpeningStockAmount;
                         OpeningCost2 := OpeningCost;
                     end;
-                end;
 
                 if Location.Get("Location Code") then;
                 if Previous.IsEmpty() or ("Location Code" <> Previous."Location Code") then begin
@@ -299,7 +298,7 @@ report 14311 "Stock Card"
                 if Previous.IsEmpty() or ("Location Code" <> Previous."Location Code") or
                    (("Location Code" = Previous."Location Code") and
                     ("Item No." <> Previous."Item No."))
-                then begin
+                then
                     if GroupTotals = GroupTotals::"Item " then begin
                         OpeningStock := 0;
                         OpeningStockAmount := 0;
@@ -325,7 +324,6 @@ report 14311 "Stock Card"
                         OpeningStockAmount2 := OpeningStockAmount;
                         OpeningCost2 := OpeningCost;
                     end;
-                end;
 
                 if (Item."Costing Method" = Item."Costing Method"::FIFO) or
                    (Item."Costing Method" = Item."Costing Method"::LIFO) or
@@ -357,7 +355,7 @@ report 14311 "Stock Card"
                         ShowOutput := false;
                         BalanceCost := 0;
                     end;
-                end else begin
+                end else
                     if "Item Ledger Entry".Quantity > 0 then begin
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
@@ -389,7 +387,6 @@ report 14311 "Stock Card"
                         ReceivedQty := 0;
                         ReceivedCost := 0;
                     end;
-                end;
 
                 ItemTotalQty := ItemTotalQty + BalanceQty;
                 ItemTotalBalance := ItemTotalBalance + TotalBalanceAmount;

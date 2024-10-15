@@ -28,10 +28,14 @@ codeunit 5623 "FA MoveEntries"
         AccountingPeriod: Record "Accounting Period";
         FiscalYearStartDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'Only disposed fixed assets can be deleted.';
         Text001: Label 'You cannot delete a fixed asset that has ledger entries in a fiscal year that has not been closed yet.';
+#pragma warning disable AA0470
         Text002: Label 'The field %1 cannot be changed for a fixed asset with ledger entries.';
         Text003: Label 'The field %1 cannot be changed for a fixed asset with insurance coverage ledger entries.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure MoveFAEntries(FADeprBook: Record "FA Depreciation Book")
     begin

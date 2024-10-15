@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Block Changes to System Tables - NamedType ChangesToSystemTableWouldCauseTestInstabilitiesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=Codeunit Block Changes to System Tables - NamedType ChangesToSystemTableWouldCauseTestInstabilitiesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";PermissionSet 2245497529 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=PermissionSet Prev. Mtd. Upd - Obj - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Tooling)(LookupHint=PermissionSet Prev. Mtd. Upd - Obj - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

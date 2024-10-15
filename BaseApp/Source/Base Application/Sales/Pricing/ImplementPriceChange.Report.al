@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using System.Utilities;
@@ -94,13 +94,17 @@ report 7053 "Implement Price Change"
         Window: Dialog;
         DeleteWhstLine: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Updating Unit Prices...\\';
         Text005: Label 'The item prices have now been updated in accordance with the suggested price changes.\\Do you want to delete the suggested price changes?';
+#pragma warning disable AA0470
         Text007: Label 'Item No.               #1##########\';
         Text008: Label 'Sales Type             #2##########\';
         Text009: Label 'Sales Code             #3##########\';
         Text010: Label 'Currency Code          #4##########\';
         Text011: Label 'Starting Date          #5######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InitializeRequest(NewDeleteWhstLine: Boolean)
     begin

@@ -24,7 +24,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
         {
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
-            RequestFilterFields = "Date Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "Date Filter";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
@@ -35,9 +35,6 @@ report 33 "Reconcile Cust. and Vend. Accs"
             {
             }
             column(SimulationEntries; SimulationEntriesLbl)
-            {
-            }
-            column(GLAccGLEntryTypeFilter; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(No_GLAccount; "No.")

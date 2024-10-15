@@ -269,9 +269,13 @@ table 5941 "Service Item Component"
         ServOrderMgt: Codeunit ServOrderManagement;
         NextNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 can not be a component in %3 for %4 %5';
         Text001: Label '%1 must be the same as in %2 %3.';
         Text002: Label 'Component %1 has replacements\Do you want to delete this Component?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEditSerialNo()
     var

@@ -101,7 +101,9 @@ report 6033 "Get Prepaid Contract Entries"
         Currency: Record Currency;
         ServContract: Record "Service Contract Header";
         NextLine: Integer;
+#pragma warning disable AA0074
         Text000: Label 'The batch job has not been initialized.';
+#pragma warning restore AA0074
         ContractNo: Code[20];
 
     procedure Initialize(ServHeader2: Record "Service Header")

@@ -5,13 +5,22 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 751964610 - NamedType 2660645295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sorry, I couldn't generate a good result from your input. Please rephrase and try again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Foundation.NoSeries.Test)(LookupHint=Codeunit No. Series Copilot Harms Tests - NamedType InvalidPromptTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1045173997 - NamedType 3779438608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ABC00090D]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType EndingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests - NamedType EndingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1045173997 - NamedType 3104787477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType SecondNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests - NamedType SecondNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1045173997 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType StartingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests - NamedType StartingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2077928162 - NamedType 3779438608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType EndingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType EndingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2077928162 - NamedType 3104787477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType SecondNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType SecondNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2077928162 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +65,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType StartingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit ERM No. Series Tests Legacy - NamedType StartingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1488710183 - NamedType 141780555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -65,7 +74,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=No. Series Code]D;]A;(LookupHint=Codeunit No. Series Batch Tests - NamedType CannotAssignNewErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=No. Series Code]D;]A;(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Batch Tests - NamedType CannotAssignNewErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1488710183 - Method 753991080 - NamedType 1559878157" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -74,7 +83,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Batch Tests - Method TestGetNextNoWithIncompleteLine - NamedType StartingNoLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Batch Tests - Method TestGetNextNoWithIncompleteLine - NamedType StartingNoLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1742721939 - NamedType 141780555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -83,16 +92,16 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=No. Series Code]D;]A;(LookupHint=Codeunit No. Series Tests - NamedType CannotAssignNewErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=No. Series Code]D;]A;(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Tests - NamedType CannotAssignNewErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1742721939 - NamedType 1333705271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Argument NoSeriesCode in GetNoSeriesLine cannot be blank.]]></Val>
+      <Val><![CDATA[You cannot get a No. Series Line with empty No. Series Code.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Tests - NamedType CannotGetNoSeriesLineNoWithEmtpyCodeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Tests - NamedType CannotGetNoSeriesLineNoWithEmtpyCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1742721939 - Method 753991080 - NamedType 1559878157" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -101,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Tests - Method TestGetNextNoWithIncompleteLine - NamedType StartingNoLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Tests - Method TestGetNextNoWithIncompleteLine - NamedType StartingNoLbl)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

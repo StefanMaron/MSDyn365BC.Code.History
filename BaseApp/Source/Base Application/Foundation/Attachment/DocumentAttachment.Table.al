@@ -7,7 +7,6 @@ namespace Microsoft.Foundation.Attachment;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using Microsoft.EServices.EDocument;
 using System.IO;
 using System.Reflection;
@@ -270,22 +269,26 @@ table 1173 "Document Attachment"
     begin
         RecRef.GetTable(Record);
         SetRange("Table ID", RecRef.Number);
-        case RecRef.Number of
-            Database::"Sales Invoice Header",
-            Database::"Sales Cr.Memo Header",
-            Database::"Purch. Inv. Header",
-            Database::"Purch. Cr. Memo Hdr.",
-            Database::"Service Invoice Header",
-            Database::"Service Cr.Memo Header":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value();
-                    SetRange("No.", RecNo);
-                    exit(not IsEmpty());
-                end;
+        if IsPostedDocument(RecRef.Number) then begin
+            FieldRef := RecRef.Field(3);
+            RecNo := FieldRef.Value();
+            SetRange("No.", RecNo);
+            exit(not IsEmpty());
         end;
 
         exit(false);
+    end;
+
+    local procedure IsPostedDocument(TableID: Integer) Posted: Boolean
+    begin
+        if TableID in [Database::"Sales Invoice Header", Database::"Sales Cr.Memo Header"] then
+            exit(true);
+        if TableID in [Database::"Purch. Inv. Header", Database::"Purch. Cr. Memo Hdr."] then
+            exit(true);
+
+        Posted := false;
+        OnAfterIsPostedDocument(TableID, Posted);
+        exit(Posted);
     end;
 
     procedure SaveAttachment(RecRef: RecordRef; FileName: Text; TempBlob: Codeunit "Temp Blob")
@@ -307,6 +310,25 @@ table 1173 "Document Attachment"
 
         TempBlob.CreateInStream(DocStream);
         InsertAttachment(DocStream, RecRef, FileName, AllowDuplicateFileName);
+    end;
+
+    procedure SaveAttachment(Files: List of [FileUpload]; RecRef: RecordRef)
+    begin
+        // Default to MS-DOS encoding to keep consistent with existing behavior
+        SaveAttachment(Files, RecRef, TextEncoding::MSDos);
+    end;
+
+    procedure SaveAttachment(Files: List of [FileUpload]; RecRef: RecordRef; EncodingType: TextEncoding)
+    var
+        CurrentFile: FileUpload;
+        TempStream: InStream;
+    begin
+        foreach CurrentFile in Files do begin
+            CurrentFile.CreateInStream(TempStream, EncodingType);
+            Rec.Init();
+            Rec.ID := 0;
+            SaveAttachmentFromStream(TempStream, RecRef, CurrentFile.FileName, true);
+        end;
     end;
 
     procedure SaveAttachmentFromStream(DocStream: InStream; RecRef: RecordRef; FileName: Text)
@@ -663,6 +685,11 @@ table 1173 "Document Attachment"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertAttachmentOnBeforeImportStream(var DocumentAttachment: Record "Document Attachment"; DocInStream: InStream; FileName: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPostedDocument(TableID: Integer; var Posted: Boolean);
     begin
     end;
 }

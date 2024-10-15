@@ -17,7 +17,7 @@ page 1265 "Data Exch. Setup Subform"
             {
                 IndentationColumn = Rec.Depth;
                 IndentationControls = CaptionField;
-                field(CaptionField; Caption)
+                field(CaptionField; Rec.Caption)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Caption';

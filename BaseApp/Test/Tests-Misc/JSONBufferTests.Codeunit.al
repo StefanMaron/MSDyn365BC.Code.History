@@ -58,39 +58,35 @@ codeunit 139210 "JSON Buffer Tests"
     begin
         // [SCENARIO] JSON Buffer supports reading arrays
         LibraryLowerPermissions.SetO365Basic();
-        with TempJSONBuffer do begin
-            // [WHEN] A JSON string containing an array is read
-            ReadFromText('{"Result":[{"MyVar":"5"},{"OtherVar":"TestValue"}]}');
-
-            // [THEN] The structure of the JSON buffer matches that JSON string
-            Assert.AreEqual(13, Count, 'Not all JSON elements were read');
-            FindFirst();
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, "Token type"::"Start Object", '', '', '');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'Result', 'System.String', 'Result');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Start Array", '', '', 'Result');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, "Token type"::"Start Object", '', '', 'Result[0]');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, "Token type"::"Property Name", 'MyVar', 'System.String', 'Result[0].MyVar');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, "Token type"::String, '5', 'System.String', 'Result[0].MyVar');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, "Token type"::"End Object", '', '', 'Result[0]');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, "Token type"::"Start Object", '', '', 'Result[1]');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, "Token type"::"Property Name", 'OtherVar', 'System.String', 'Result[1].OtherVar');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, "Token type"::String, 'TestValue', 'System.String', 'Result[1].OtherVar');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, "Token type"::"End Object", '', '', 'Result[1]');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"End Array", '', '', 'Result');
-            VerifyJSONBuffer(TempJSONBuffer, 0, "Token type"::"End Object", '', '', '');
-
-            // [THEN] We can fetch the array and variables using FindArray and GetPropertyValue
-            FindFirst();
-            Assert.IsTrue(FindArray(TempResultArrayJSONBuffer, 'Result'), 'Could not find result array');
-            Assert.AreEqual(2, TempResultArrayJSONBuffer.Count, 'Wrong number of array entries');
-            Assert.IsTrue(TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'MyVar'), 'could not find property value for MyVar');
-            Assert.AreEqual('5', PropertyValue, '');
-            Assert.IsTrue(TempResultArrayJSONBuffer.Next() <> 0, 'There are no more elements');
-            Assert.IsTrue(
-              TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'OtherVar'), 'could not find property value for OtherVar');
-            Assert.AreEqual('TestValue', PropertyValue, '');
-            Assert.IsTrue(TempResultArrayJSONBuffer.Next() = 0, 'There should not be any more elements');
-        end;
+        // [WHEN] A JSON string containing an array is read
+        TempJSONBuffer.ReadFromText('{"Result":[{"MyVar":"5"},{"OtherVar":"TestValue"}]}');
+        // [THEN] The structure of the JSON buffer matches that JSON string
+        Assert.AreEqual(13, TempJSONBuffer.Count, 'Not all JSON elements were read');
+        TempJSONBuffer.FindFirst();
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, TempJSONBuffer."Token type"::"Start Object", '', '', '');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"Property Name", 'Result', 'System.String', 'Result');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"Start Array", '', '', 'Result');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, TempJSONBuffer."Token type"::"Start Object", '', '', 'Result[0]');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, TempJSONBuffer."Token type"::"Property Name", 'MyVar', 'System.String', 'Result[0].MyVar');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, TempJSONBuffer."Token type"::String, '5', 'System.String', 'Result[0].MyVar');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, TempJSONBuffer."Token type"::"End Object", '', '', 'Result[0]');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, TempJSONBuffer."Token type"::"Start Object", '', '', 'Result[1]');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, TempJSONBuffer."Token type"::"Property Name", 'OtherVar', 'System.String', 'Result[1].OtherVar');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 3, TempJSONBuffer."Token type"::String, 'TestValue', 'System.String', 'Result[1].OtherVar');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 2, TempJSONBuffer."Token type"::"End Object", '', '', 'Result[1]');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"End Array", '', '', 'Result');
+        VerifyJSONBuffer(TempJSONBuffer, 0, TempJSONBuffer."Token type"::"End Object", '', '', '');
+        // [THEN] We can fetch the array and variables using FindArray and GetPropertyValue
+        TempJSONBuffer.FindFirst();
+        Assert.IsTrue(TempJSONBuffer.FindArray(TempResultArrayJSONBuffer, 'Result'), 'Could not find result array');
+        Assert.AreEqual(2, TempResultArrayJSONBuffer.Count, 'Wrong number of array entries');
+        Assert.IsTrue(TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'MyVar'), 'could not find property value for MyVar');
+        Assert.AreEqual('5', PropertyValue, '');
+        Assert.IsTrue(TempResultArrayJSONBuffer.Next() <> 0, 'There are no more elements');
+        Assert.IsTrue(
+          TempResultArrayJSONBuffer.GetPropertyValue(PropertyValue, 'OtherVar'), 'could not find property value for OtherVar');
+        Assert.AreEqual('TestValue', PropertyValue, '');
+        Assert.IsTrue(TempResultArrayJSONBuffer.Next() = 0, 'There should not be any more elements');
     end;
 
     [Test]
@@ -103,30 +99,26 @@ codeunit 139210 "JSON Buffer Tests"
     begin
         // [SCENARIO] JSON Buffer supports reading variables
         LibraryLowerPermissions.SetO365Basic();
-        with TempJSONBuffer do begin
-            // [WHEN] A JSON string containing variables is read
-            ReadFromText('{"test1":"value1","test2":2.3,"test3":"value3"}');
-
-            // [THEN] The structure of the JSON buffer matches that JSON string
-            Assert.AreEqual(8, Count, 'Not all JSON elements were read');
-            FindFirst();
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, "Token type"::"Start Object", '', '', '');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'test1', 'System.String', 'test1');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::String, 'value1', 'System.String', 'test1');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'test2', 'System.String', 'test2');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::Decimal, Format(2.3), 'System.Double', 'test2');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::"Property Name", 'test3', 'System.String', 'test3');
-            VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, "Token type"::String, 'value3', 'System.String', 'test3');
-            VerifyJSONBuffer(TempJSONBuffer, 0, "Token type"::"End Object", '', '', '');
-
-            // [THEN] We can fetch the variables using GetPropertyValue
-            Assert.IsTrue(GetPropertyValue(PropertyValue, 'test1'), 'could not find property value for test1');
-            Assert.AreEqual('value1', PropertyValue, '');
-            Assert.IsTrue(GetDecimalPropertyValue(DecimalPropertyValue, 'test2'), 'could not find property value for test2');
-            Assert.AreEqual(2.3, DecimalPropertyValue, '');
-            Assert.IsTrue(GetPropertyValue(PropertyValue, 'test3'), 'could not find property value for test3');
-            Assert.AreEqual('value3', PropertyValue, '');
-        end;
+        // [WHEN] A JSON string containing variables is read
+        TempJSONBuffer.ReadFromText('{"test1":"value1","test2":2.3,"test3":"value3"}');
+        // [THEN] The structure of the JSON buffer matches that JSON string
+        Assert.AreEqual(8, TempJSONBuffer.Count, 'Not all JSON elements were read');
+        TempJSONBuffer.FindFirst();
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 0, TempJSONBuffer."Token type"::"Start Object", '', '', '');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"Property Name", 'test1', 'System.String', 'test1');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::String, 'value1', 'System.String', 'test1');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"Property Name", 'test2', 'System.String', 'test2');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::Decimal, Format(2.3), 'System.Double', 'test2');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::"Property Name", 'test3', 'System.String', 'test3');
+        VerifyJSONBufferAndFindNext(TempJSONBuffer, 1, TempJSONBuffer."Token type"::String, 'value3', 'System.String', 'test3');
+        VerifyJSONBuffer(TempJSONBuffer, 0, TempJSONBuffer."Token type"::"End Object", '', '', '');
+        // [THEN] We can fetch the variables using GetPropertyValue
+        Assert.IsTrue(TempJSONBuffer.GetPropertyValue(PropertyValue, 'test1'), 'could not find property value for test1');
+        Assert.AreEqual('value1', PropertyValue, '');
+        Assert.IsTrue(TempJSONBuffer.GetDecimalPropertyValue(DecimalPropertyValue, 'test2'), 'could not find property value for test2');
+        Assert.AreEqual(2.3, DecimalPropertyValue, '');
+        Assert.IsTrue(TempJSONBuffer.GetPropertyValue(PropertyValue, 'test3'), 'could not find property value for test3');
+        Assert.AreEqual('value3', PropertyValue, '');
     end;
 
     [Test]
@@ -265,6 +257,7 @@ codeunit 139210 "JSON Buffer Tests"
 
         // [WHEN] A JSON string containing a DateTime with seconds and milliseconds is read
         DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fff', CultureInfo.InvariantCulture);
+        Assert.IsTrue(DateTimeString.Contains('.'), 'DateTime does not contain seconds and milliseconds in the input text');
         TempJSONBuffer.ReadFromText(StrSubstNo('{"Variable":"%1"}', DateTimeString));
 
         // [THEN] JSON Buffer contains formatted DateTime with seconds and milliseconds

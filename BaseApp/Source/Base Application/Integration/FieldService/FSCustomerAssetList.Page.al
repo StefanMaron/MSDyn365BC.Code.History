@@ -6,7 +6,6 @@
 namespace Microsoft.Integration.FieldService;
 
 using Microsoft.Integration.Dataverse;
-using Microsoft.Service.Item;
 using Microsoft.Integration.D365Sales;
 using System.Environment.Configuration;
 
@@ -134,7 +133,7 @@ page 6422 "FS Customer Asset List"
         CRMAccount: Record "CRM Account";
         RecordID: RecordID;
     begin
-        if CRMIntegrationRecord.FindRecordIDFromID(Rec.CustomerAssetId, DATABASE::"Service Item", RecordID) then
+        if CRMIntegrationRecord.FindRecordIDFromID(Rec.CustomerAssetId, DATABASE::Microsoft.Service.Item."Service Item", RecordID) then
             if CurrentlyCoupledFSCustomerAsset.CustomerAssetId = Rec.CustomerAssetId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';

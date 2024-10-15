@@ -508,12 +508,10 @@ codeunit 141075 "UT REP Aged Accounts"
 
     local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text; ValidateCaption: Text; ValidateValue: Decimal)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            SetRange(XmlElementCaption, XmlValue);
-            GetLastRow();
-            AssertCurrentRowValueEquals(ValidateCaption, ValidateValue);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange(XmlElementCaption, XmlValue);
+        LibraryReportDataset.GetLastRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(ValidateCaption, ValidateValue);
     end;
 
     local procedure VerifyValuesOnAgedAccountsBackdatingReport(CurrencyCode: Code[10]; EntryAmount: Decimal)

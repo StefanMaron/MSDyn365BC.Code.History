@@ -360,27 +360,21 @@ report 28041 "Calc. and Post WHT Settlement"
                         begin
                             case AccType of
                                 AccType::"G/L Account":
-                                    begin
-                                        if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then begin
-                                            if GLAcc.Get(GLAcc."No.") then begin
-                                                GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
-                                                GLAcc.TestField(Blocked, false);
-                                                GLAccSettle := GLAcc."No.";
-                                            end;
+                                    if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
+                                        if GLAcc.Get(GLAcc."No.") then begin
+                                            GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
+                                            GLAcc.TestField(Blocked, false);
+                                            GLAccSettle := GLAcc."No.";
                                         end;
-                                    end;
                                 AccType::Vendor:
-                                    begin
-                                        if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then begin
-                                            if Vendor.Get(Vendor."No.") then begin
-                                                if Vendor."Privacy Blocked" then
-                                                    Error(PrivacyBlockedErr, Vendor."No.");
-                                                if Vendor.Blocked in [Vendor.Blocked::All] then
-                                                    Error(Text006, Vendor."No.");
-                                                GLAccSettle := Vendor."No.";
-                                            end;
+                                    if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then
+                                        if Vendor.Get(Vendor."No.") then begin
+                                            if Vendor."Privacy Blocked" then
+                                                Error(PrivacyBlockedErr, Vendor."No.");
+                                            if Vendor.Blocked in [Vendor.Blocked::All] then
+                                                Error(Text006, Vendor."No.");
+                                            GLAccSettle := Vendor."No.";
                                         end;
-                                    end;
                             end;
                         end;
 
@@ -389,11 +383,9 @@ report 28041 "Calc. and Post WHT Settlement"
                             if GLAccSettle <> '' then
                                 case AccType of
                                     AccType::"G/L Account":
-                                        begin
-                                            if GLAcc.Get(GLAccSettle) then begin
-                                                GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
-                                                GLAcc.TestField(Blocked, false);
-                                            end;
+                                        if GLAcc.Get(GLAccSettle) then begin
+                                            GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
+                                            GLAcc.TestField(Blocked, false);
                                         end;
                                     AccType::Vendor:
                                         begin
@@ -415,13 +407,12 @@ report 28041 "Calc. and Post WHT Settlement"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then begin
+                            if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
                                 if GLAcc.Get(GLAcc."No.") then begin
                                     GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
                                     GLAcc.TestField(Blocked, false);
                                     RoundAccNo := GLAcc."No.";
                                 end;
-                            end;
                         end;
 
                         trigger OnValidate()

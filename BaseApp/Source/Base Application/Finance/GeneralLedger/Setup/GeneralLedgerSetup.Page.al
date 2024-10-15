@@ -11,9 +11,6 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Period;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Setup;
 using System.Reflection;
@@ -494,7 +491,7 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum allowed amount that a payment or refund can differ from the amount on the related invoice or credit memo.';
                 }
-		        field("App. Dimension Posting"; Rec."App. Dimension Posting")
+                field("App. Dimension Posting"; Rec."App. Dimension Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies dimension source for Realized Gain/Loss application entries.';
@@ -891,19 +888,6 @@ page 118 "General Ledger Setup"
                     RunObject = Page "VAT Statement Templates";
                     ToolTip = 'Set up the reports that you use to settle VAT and report to the customs and tax authorities.';
                 }
-#if not CLEAN22
-                action("Intrastat Templates")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Templates';
-                    Image = Template;
-                    RunObject = Page "Intrastat Journal Templates";
-                    ToolTip = 'Define how you want to set up and keep track of journals to report Intrastat.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
             }
         }
         area(Promoted)
@@ -988,14 +972,6 @@ page 118 "General Ledger Setup"
                 actionref("General Journal Templates_Promoted"; "General Journal Templates")
                 {
                 }
-#if not CLEAN22
-                actionref("Intrastat Templates_Promoted"; "Intrastat Templates")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
             }
             group(Category_Report)
             {
@@ -1054,10 +1030,12 @@ page 118 "General Ledger Setup"
         "BAS Group CompanyEnable": Boolean;
         "BAS GST Division FactorEnable": Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
         Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
         Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
         Text1500000: Label 'Are you sure you want to disable this functionality?';
+#pragma warning restore AA0074
         APACBASTok: Label 'APAC Business Activity Statement', Locked = true;
 
     local procedure IsShortcutDimensionModified(): Boolean

@@ -17,9 +17,7 @@ codeunit 136205 "Marketing Setup"
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         SalespersonCode: Code[20];
-        UnknownError: Label 'Unexpected Error.';
         SalesCycleCodeError: Label 'You must fill in the %1 field.';
-        FieldErrorServiceTier: Label '%1 must have a value in %2: Primary Key=. It cannot be zero or empty.';
         SalutationCode: Code[10];
         ExpectedMessage: Label 'The field IBAN is mandatory. You will not be able to use the account in a payment file until the IBAN is correctly filled in.\\Are you sure you want to continue?';
         ControlVisibilityErr: Label 'Control visibility should be %1.';
@@ -957,10 +955,8 @@ codeunit 136205 "Marketing Setup"
     end;
 
     local procedure VerifyFieldError(FieldCaption: Text[30])
-    var
-        MarketingSetup: Record "Marketing Setup";
     begin
-        Assert.AreEqual(StrSubstNo(FieldErrorServiceTier, FieldCaption, MarketingSetup.TableCaption()), GetLastErrorText, UnknownError)
+        Assert.ExpectedTestFieldError(FieldCaption, '');
     end;
 
     [ConfirmHandler]

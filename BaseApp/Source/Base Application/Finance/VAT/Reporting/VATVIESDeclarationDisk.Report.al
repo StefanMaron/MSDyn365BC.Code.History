@@ -8,9 +8,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
-#if not CLEAN22
-using Microsoft.Foundation.Enums;
-#endif
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using System.IO;
@@ -128,19 +125,6 @@ report 88 "VAT- VIES Declaration Disk"
                         MultiLine = true;
                         ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
                     }
-#if not CLEAN22
-                    field(VATDateTypeField; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the report period.';
-                        Visible = false;
-                        Enabled = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                 }
             }
         }
@@ -195,13 +179,14 @@ report 88 "VAT- VIES Declaration Disk"
         UseAmtsInAddCurr: Boolean;
         ToFileNameTxt: Label 'Default.txt';
         HideFileDialog: Boolean;
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
+#pragma warning disable AA0074
         Text001: Label 'WwWw';
         Text002: Label 'LIST';
+#pragma warning disable AA0470
         Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
         Text004: Label 'It is not possible to display %1 in a field with a length of %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure DecimalNumeralSign(DecimalNumeral: Decimal): Text[1]
     begin

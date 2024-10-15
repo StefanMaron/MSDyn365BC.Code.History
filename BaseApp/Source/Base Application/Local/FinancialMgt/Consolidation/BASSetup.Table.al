@@ -29,7 +29,7 @@ table 11600 "BAS Setup"
         }
         field(2; "Field Label No."; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = filter(11601),
+            CalcFormula = lookup(Field.FieldName where(TableNo = filter(11601),
                                                         "No." = field("Field No.")));
             Caption = 'Field Label No.';
             Editable = false;
@@ -37,7 +37,7 @@ table 11600 "BAS Setup"
         }
         field(3; "Field Description"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = filter(11601),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = filter(11601),
                                                               "No." = field("Field No.")));
             Caption = 'Field Description';
             Editable = false;

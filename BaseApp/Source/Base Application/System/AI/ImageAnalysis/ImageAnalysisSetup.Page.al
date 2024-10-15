@@ -42,7 +42,7 @@ page 2020 "Image Analysis Setup"
 
                     trigger OnValidate()
                     begin
-                        Rec.SetApiKey(ApiKey);
+                        Rec.SetApiKey(SecretStrSubstNo(ApiKey));
 
                         if (Rec."Api Uri" <> '') and (ApiKey <> '') then
                             SetInfiniteAccess();
@@ -138,16 +138,11 @@ page 2020 "Image Analysis Setup"
 
     local procedure SetInfiniteAccess()
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsageImpl: Codeunit "Azure AI Usage Impl.";
     begin
-        AzureAIUsage.SetImageAnalysisIsSetup(true);
-        AzureAIUsage.GetSingleInstance(AzureAIUsage.Service::"Computer Vision");
-        LimitType := AzureAIUsage."Limit Period"::Year;
-        AzureAIUsage."Limit Period" := AzureAIUsage."Limit Period"::Year;
-
-        LimitValue := 999;
-        AzureAIUsage."Original Resource Limit" := 999;
-        AzureAIUsage.Modify();
+        AzureAIUsageImpl.SetInfiniteImageAnalysisAccess(Rec);
+        LimitType := AzureAIUsageImpl.GetLimitPeriod("Azure AI Service"::"Computer Vision");
+        LimitValue := AzureAIUsageImpl.GetResourceLimit("Azure AI Service"::"Computer Vision");
     end;
 }
 

@@ -1023,15 +1023,16 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure IsWordLayout(ReportID: Integer; CustomReportLayoutCode: Code[20]): Boolean
     var
         CustomReportLayout: Record "Custom Report Layout";
+        ReportManagementHelper: Codeunit "Report Management Helper";
     begin
         if CustomReportLayoutCode <> '' then begin
             CustomReportLayout.Code := CustomReportLayoutCode;
             if CustomReportLayout.Find('=') then
                 exit(CustomReportLayout.Type = CustomReportLayout.Type::Word);
 
-            exit(REPORT.DefaultLayout(ReportID) = DEFAULTLAYOUT::Word);
+            exit(ReportManagementHelper.SelectedLayoutType(ReportID) = ReportLayoutType::Word);
         end;
-        exit(REPORT.DefaultLayout(ReportID) = DEFAULTLAYOUT::Word)
+        exit(ReportManagementHelper.SelectedLayoutType(ReportID) = ReportLayoutType::Word);
     end;
 
     local procedure SetReportDataItem(var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
@@ -1529,6 +1530,7 @@ codeunit 8800 "Custom Layout Reporting"
 
     local procedure IsObjectOptionsInsertDeleteAllowed(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ObjectOptions: Record "Object Options";
         User: Record User;
     begin

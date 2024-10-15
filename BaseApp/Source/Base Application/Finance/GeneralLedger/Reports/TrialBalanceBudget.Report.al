@@ -19,7 +19,7 @@ report 9 "Trial Balance/Budget"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Account Type", "Date Filter", "Budget Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Account Type", "Date Filter", "Budget Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -57,9 +57,6 @@ report 9 "Trial Balance/Budget"
             {
             }
             column(Text28160; Text28160Lbl)
-            {
-            }
-            column(G_L_Account__GETFILTER__G_L_Entry_Type_Filter__; GetFilter("G/L Entry Type Filter"))
             {
             }
             column(G_L_Account_No_; "No.")
@@ -284,8 +281,12 @@ report 9 "Trial Balance/Budget"
         RowNumber: Integer;
         RoundingNO: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
         Text28160Lbl: Label 'This report includes simulation entries';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Trial_Balance_BudgetCaptionLbl: Label 'Trial Balance/Budget';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         GLBudgetFilterCaptionLbl: Label 'Budget Filter';

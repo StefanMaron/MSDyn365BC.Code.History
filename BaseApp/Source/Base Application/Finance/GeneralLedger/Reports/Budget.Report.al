@@ -321,7 +321,7 @@ report 8 Budget
         BudgetCaptionTxt := StrSubstNo(BudgetCaptionTok, Format(PeriodStartDate[1], 0, '<Year4>'));
         StartingDateAsText := StrSubstNo(StartingDateTok, PeriodStartDate[1]);
         if (Rounding = Rounding::" ") and (RndFactor <> RndFactor::None) then
-            RoundingFromPage := True;
+            RoundingFromPage := true;
     end;
 
     var

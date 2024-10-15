@@ -10,7 +10,7 @@ codeunit 450 "Job Queue Error Handler"
 
     trigger OnRun()
     begin
-        if Rec."Job Queue Category Code" <> '' then
+        if Rec."Job Queue Category Code" <> '' then 
             Rec.ActivateNextJobInCategoryIfAny();
         if GetRecLockedExtendedTimeout(Rec) then begin
             Rec.Status := Rec.Status::Error;
@@ -89,14 +89,14 @@ codeunit 450 "Job Queue Error Handler"
         end;
 #endif
 
-        OnAfterLogError(JobQueueEntry);
+        OnAfterLogError(JobQueueEntry, JobQueueLogEntry);
 
         JobQueueEntry.FinalizeRun();
         Commit();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLogError(var JobQueueEntry: Record "Job Queue Entry")
+    local procedure OnAfterLogError(var JobQueueEntry: Record "Job Queue Entry"; var JobQueueLogEntry: Record "Job Queue Log Entry")
     begin
     end;
 
@@ -111,9 +111,7 @@ codeunit 450 "Job Queue Error Handler"
     local procedure OnLogErrorOnAfterJobQueueLogEntryModify(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
-#endif
 
-#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('Event no longer relevant. Log entries should not be inserted if the job queue dispatcher did not manage to run the job.', '24.0')]
     local procedure OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(var JobQueueEntry: Record "Job Queue Entry")

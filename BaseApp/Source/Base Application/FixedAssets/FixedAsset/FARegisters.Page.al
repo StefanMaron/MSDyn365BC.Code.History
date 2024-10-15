@@ -12,6 +12,8 @@ page 5627 "FA Registers"
     PageType = List;
     SourceTable = "FA Register";
     UsageCategory = History;
+    AboutTitle = 'About FA Registers';
+    AboutText = 'With the **FA Registers**, you can review all the transactions posted for fixed assets with the information of Journal Type, G/L Register No., Creation Date & Time, User ID, Source Code, Journal Batch Name, From and To Entry No.';
 
     layout
     {
@@ -131,6 +133,8 @@ page 5627 "FA Registers"
                     Caption = 'F&A Ledger';
                     Image = FixedAssetLedger;
                     RunObject = Codeunit "FA Reg.-FALedger";
+                    AboutTitle = 'Review FA Ledger';
+                    AboutText = 'Review the FA Ledger entries for the selected register no.';
                     ToolTip = 'View the fixed asset ledger entries that are created when you post to fixed asset accounts. Fixed asset ledger entries are created by the posting of a purchase order, invoice, credit memo or journal line.';
                 }
                 action("Maintenance Ledger")
@@ -139,6 +143,8 @@ page 5627 "FA Registers"
                     Caption = 'Maintenance Ledger';
                     Image = MaintenanceLedgerEntries;
                     RunObject = Codeunit "FA Reg.-MaintLedger";
+                    AboutTitle = 'Review Maintenance Ledger';
+                    AboutText = 'Review the Maintenance Ledger entries for the selected register no.';
                     ToolTip = 'View the maintenance ledger entries for the selected fixed asset.';
                 }
             }

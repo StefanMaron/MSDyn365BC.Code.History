@@ -21,9 +21,13 @@ codeunit 211 "Res. Jnl.-Check Line"
         DimMgt: Codeunit DimensionManagement;
         TimeSheetMgt: Codeunit "Time Sheet Management";
 
+#pragma warning disable AA0074
         Text000: Label 'cannot be a closing date';
+#pragma warning disable AA0470
         Text002: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text003: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure RunCheck(var ResJnlLine: Record "Res. Journal Line")
     var

@@ -8,6 +8,8 @@ page 5608 "FA Posting Type Setup"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "FA Posting Type Setup";
+    AboutTitle = 'About FA Posting Type Setup';
+    AboutText = 'With the **FA Posting Type Setup**, you can define how to handle the Write-Down, Appreciation, Custom 1, and Custom 2 posting types that you use when posting to fixed assets. You can define individual definitions for each depreciation book you set up.';
 
     layout
     {

@@ -91,7 +91,7 @@ report 16631 "Monthly VAT Declaration"
             }
             dataitem("VAT Entry"; "VAT Entry")
             {
-                DataItemTableView = sorting(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") ORDER(Ascending) where(Amount = filter(<> 0));
+                DataItemTableView = sorting(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") order(ascending) where(Amount = filter(<> 0));
                 RequestFilterFields = "VAT Reporting Date", "Bill-to/Pay-to No.";
                 column(VAT_Entry_Type; "VAT Entry".Type)
                 {

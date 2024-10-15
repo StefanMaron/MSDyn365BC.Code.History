@@ -639,12 +639,14 @@ report 28 "Dimensions - Detail"
         CreditTotal: array[4] of Decimal;
         DimFilterText: Text[250];
 
+#pragma warning disable AA0074
         Text000: Label 'Enter an analysis view code.';
         Text001: Label 'Enter a date filter.';
         Text002: Label 'Include Dimensions';
         Text003: Label '(no dimension value)';
         Text004: Label 'Not updated';
         Text014: Label '(no business unit)';
+#pragma warning restore AA0074
         DateFilterCaptionLbl: Label 'Period';
         Analysis_View_CodeCaptionLbl: Label 'Analysis View';
         ViewLastUpdatedTextCaptionLbl: Label 'Last Date Updated';

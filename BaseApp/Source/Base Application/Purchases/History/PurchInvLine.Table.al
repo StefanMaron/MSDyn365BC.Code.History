@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;

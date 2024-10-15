@@ -150,9 +150,9 @@ report 28165 "GST Sales Report"
                 AmountTotal := AmountTotal + Amount;
                 BaseTotal := BaseTotal + "GST Base";
 
-                if "GST Base" <> 0 then begin
-                    GSTPercent := Format(Amount / "GST Base" * 100, 0, '<Precision,2:><Standard Format,0>');
-                end else
+                if "GST Base" <> 0 then
+                    GSTPercent := Format(Amount / "GST Base" * 100, 0, '<Precision,2:><Standard Format,0>')
+                else
                     GSTPercent := '';
 
                 LineTotal := Amount + "GST Base";

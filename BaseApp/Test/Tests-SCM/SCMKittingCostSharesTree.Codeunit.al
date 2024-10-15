@@ -10,7 +10,6 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     end;
 
     var
-        Item: Record Item;
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -20,11 +19,11 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        ERRWrongCostShare: Label 'Wrong %1 in item %2.';
-        ERRWrongCostShareCalc: Label 'Wrong %1 in item %2 - versus calculated value.';
+        ERRWrongCostShareErr: Label 'Wrong %1 in item %2.', Comment = '%1: Caption of the field with the incorrect value; %2: Item No.';
+        ERRWrongCostShareCalcErr: Label 'Wrong %1 in item %2 - versus calculated value.', Comment = '%1: Caption of the field with the incorrect value; %2: Item No.';
         GLBChangeType: Option "None","Purchase With Assembly BOM","Purchase with Prod. BOM","Prod. without Prod. BOM","Assembly without BOM";
-        ERRWrongWarningParent: Label 'Warning were not issued for parent item.';
-        ERRWrongWarningElement: Label 'Wrong BOM Warning Log found for entity %1.';
+        ERRWrongWarningParentErr: Label 'Warning were not issued for parent item.';
+        ERRWrongWarningElementErr: Label 'Wrong BOM Warning Log found for entity %1.', Comment = '%1: Warning text.';
 
     local procedure CostSharesTreeBasic(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
@@ -56,7 +55,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyBasic()
     begin
-        CostSharesTreeBasic(Item."Replenishment System"::Assembly, 2, 1, 2);
+        CostSharesTreeBasic(Enum::"Item Replenishment System"::Assembly, 2, 1, 2);
     end;
 
     [Test]
@@ -64,7 +63,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderBasic()
     begin
-        CostSharesTreeBasic(Item."Replenishment System"::"Prod. Order", 2, 1, 2);
+        CostSharesTreeBasic(Enum::"Item Replenishment System"::"Prod. Order", 2, 1, 2);
     end;
 
     local procedure CostSharesTreeOverhead(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -98,7 +97,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyOverhead()
     begin
-        CostSharesTreeOverhead(Item."Replenishment System"::Assembly, 2, 1, 2);
+        CostSharesTreeOverhead(Enum::"Item Replenishment System"::Assembly, 2, 1, 2);
     end;
 
     [Test]
@@ -106,7 +105,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderOverhead()
     begin
-        CostSharesTreeOverhead(Item."Replenishment System"::"Prod. Order", 2, 1, 2);
+        CostSharesTreeOverhead(Enum::"Item Replenishment System"::"Prod. Order", 2, 1, 2);
     end;
 
     local procedure CostSharesTreeItemScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -140,7 +139,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyItemScrap()
     begin
-        CostSharesTreeItemScrap(Item."Replenishment System"::Assembly, 2, 2, 0);
+        CostSharesTreeItemScrap(Enum::"Item Replenishment System"::Assembly, 2, 2, 0);
     end;
 
     [Test]
@@ -148,7 +147,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderItemScrap()
     begin
-        CostSharesTreeItemScrap(Item."Replenishment System"::"Prod. Order", 2, 2, 0);
+        CostSharesTreeItemScrap(Enum::"Item Replenishment System"::"Prod. Order", 2, 2, 0);
     end;
 
     local procedure CostSharesTreeBOMScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -182,7 +181,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyBOMScrap()
     begin
-        CostSharesTreeBOMScrap(Item."Replenishment System"::Assembly, 1, 2, 1);
+        CostSharesTreeBOMScrap(Enum::"Item Replenishment System"::Assembly, 1, 2, 1);
     end;
 
     [Test]
@@ -190,7 +189,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderBOMScrap()
     begin
-        CostSharesTreeBOMScrap(Item."Replenishment System"::"Prod. Order", 1, 2, 1);
+        CostSharesTreeBOMScrap(Enum::"Item Replenishment System"::"Prod. Order", 1, 2, 1);
     end;
 
     local procedure CostSharesTreeRoutingScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -224,7 +223,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyRoutingScrap()
     begin
-        CostSharesTreeRoutingScrap(Item."Replenishment System"::Assembly, 1, 1, 3);
+        CostSharesTreeRoutingScrap(Enum::"Item Replenishment System"::Assembly, 1, 1, 3);
     end;
 
     [Test]
@@ -232,7 +231,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderRoutingScrap()
     begin
-        CostSharesTreeRoutingScrap(Item."Replenishment System"::"Prod. Order", 1, 1, 3);
+        CostSharesTreeRoutingScrap(Enum::"Item Replenishment System"::"Prod. Order", 1, 1, 3);
     end;
 
     local procedure CostSharesTreeMachineCenterScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -266,7 +265,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyMCenterScrap()
     begin
-        CostSharesTreeMachineCenterScrap(Item."Replenishment System"::Assembly, 1, 1, 2);
+        CostSharesTreeMachineCenterScrap(Enum::"Item Replenishment System"::Assembly, 1, 1, 2);
     end;
 
     [Test]
@@ -274,7 +273,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderMCenterScrap()
     begin
-        CostSharesTreeMachineCenterScrap(Item."Replenishment System"::"Prod. Order", 1, 1, 2);
+        CostSharesTreeMachineCenterScrap(Enum::"Item Replenishment System"::"Prod. Order", 1, 1, 2);
     end;
 
     local procedure CostSharesTreeSubcontracting(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
@@ -308,7 +307,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblySubcontr()
     begin
-        CostSharesTreeSubcontracting(Item."Replenishment System"::Assembly, 1, 1, 2);
+        CostSharesTreeSubcontracting(Enum::"Item Replenishment System"::Assembly, 1, 1, 2);
     end;
 
     [Test]
@@ -316,7 +315,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdOrderSubcontr()
     begin
-        CostSharesTreeSubcontracting(Item."Replenishment System"::"Prod. Order", 1, 1, 2);
+        CostSharesTreeSubcontracting(Enum::"Item Replenishment System"::"Prod. Order", 1, 1, 2);
     end;
 
     local procedure CostSharesTreeWarning(TopItemReplSystem: Enum "Replenishment System"; WarningTableID: Integer; ChangeType: Option)
@@ -358,7 +357,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyBOMWarning()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::"Production BOM Header", GLBChangeType::None);
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::"Production BOM Header", GLBChangeType::None);
     end;
 
     [Test]
@@ -366,7 +365,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyRoutingWarning()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::"Routing Header", GLBChangeType::None);
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::"Routing Header", GLBChangeType::None);
     end;
 
     [Test]
@@ -374,7 +373,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyReplWarning1()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Purchase With Assembly BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Purchase With Assembly BOM");
     end;
 
     [Test]
@@ -382,7 +381,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyReplWarning2()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Purchase with Prod. BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Purchase with Prod. BOM");
     end;
 
     [Test]
@@ -390,7 +389,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyReplWarning3()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Prod. without Prod. BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Prod. without Prod. BOM");
     end;
 
     [Test]
@@ -398,7 +397,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemAssemblyReplWarning4()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Assembly without BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::Assembly, DATABASE::Item, GLBChangeType::"Assembly without BOM");
     end;
 
     [Test]
@@ -406,7 +405,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdBOMWarning()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::"Prod. Order", DATABASE::"Production BOM Header", GLBChangeType::None);
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::"Prod. Order", DATABASE::"Production BOM Header", GLBChangeType::None);
     end;
 
     [Test]
@@ -414,7 +413,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdRoutingWarning()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::"Prod. Order", DATABASE::"Routing Header", GLBChangeType::None);
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::"Prod. Order", DATABASE::"Routing Header", GLBChangeType::None);
     end;
 
     [Test]
@@ -422,7 +421,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdReplWarning1()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Purchase With Assembly BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Purchase With Assembly BOM");
     end;
 
     [Test]
@@ -430,7 +429,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdReplWarning2()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Purchase with Prod. BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Purchase with Prod. BOM");
     end;
 
     [Test]
@@ -438,7 +437,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure TopItemProdReplWarning3()
     begin
-        CostSharesTreeWarning(Item."Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Prod. without Prod. BOM");
+        CostSharesTreeWarning(Enum::"Item Replenishment System"::"Prod. Order", DATABASE::Item, GLBChangeType::"Prod. without Prod. BOM");
     end;
 
     [Test]
@@ -509,7 +508,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemAssemblyLeaf()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::Assembly, 1, true)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::Assembly, 1, true)
     end;
 
     [Test]
@@ -517,7 +516,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemAssemblyLeafLvl2()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::Assembly, 2, true)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::Assembly, 2, true)
     end;
 
     [Test]
@@ -525,7 +524,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemAssemblySub()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::Assembly, 1, false)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::Assembly, 1, false)
     end;
 
     [Test]
@@ -533,7 +532,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemAssemblySubLvl2()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::Assembly, 2, false)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::Assembly, 2, false)
     end;
 
     [Test]
@@ -541,7 +540,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemProdLeafLevel2()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::"Prod. Order", 2, true)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::"Prod. Order", 2, true)
     end;
 
     [Test]
@@ -549,7 +548,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     [Scope('OnPrem')]
     procedure ZeroQtyPerTopItemProdSubLevel2()
     begin
-        ZeroQtyPerTree(Item."Replenishment System"::"Prod. Order", 2, false)
+        ZeroQtyPerTree(Enum::"Item Replenishment System"::"Prod. Order", 2, false)
     end;
 
     [Test]
@@ -593,7 +592,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         // [SCENARIO 286910] Scrap Qty is calculated in BOM Buffer when Production BOM Line uses Calculation for Quantity and Scrap % not zero
         Initialize();
 
-        // [GIVEN] A Prodiction BOM Line with Calculation = Width*Length and Scrap % not zero
+        // [GIVEN] A Production BOM Line with Calculation = Width*Length and Scrap % not zero
         CreateProductionBOMLineWithCalculation(ProductionBOMLine);
         ProductionBOMLine.Validate("Scrap %", LibraryRandom.RandDecInDecimalRange(5, 10, 1));
         ProductionBOMLine.Modify();
@@ -606,8 +605,10 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate(), '', Item, 1);
 
         // [THEN] "Scrap Qty. per Parent" is calculated using Length and Width
-        with ProductionBOMLine do
-            ExpectedScrapQtyPerParent := Round((1 + "Scrap %" / 100) * Length * Width - Length * Width, 0.00001);
+        ExpectedScrapQtyPerParent :=
+            Round(
+                ((1 + ProductionBOMLine."Scrap %" / 100) * ProductionBOMLine.Length * ProductionBOMLine.Width - ProductionBOMLine.Length * ProductionBOMLine.Width) * ProductionBOMLine."Quantity per",
+                0.00001);
 
         BOMBuffer.TestField("Scrap Qty. per Parent", ExpectedScrapQtyPerParent);
     end;
@@ -742,17 +743,15 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with ProductionBOMLine do begin
-            Init();
-            "Line No." := LibraryUtility.GetNewRecNo(ProductionBOMLine, FieldNo("Line No."));
-            Type := Type::Item;
-            "No." := Item."No.";
-            "Quantity per" := LibraryRandom.RandInt(10);
-            Length := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
-            Width := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
-            Validate("Calculation Formula", "Calculation Formula"::"Length * Width");
-            Insert();
-        end;
+        ProductionBOMLine.Init();
+        ProductionBOMLine."Line No." := LibraryUtility.GetNewRecNo(ProductionBOMLine, ProductionBOMLine.FieldNo("Line No."));
+        ProductionBOMLine.Type := ProductionBOMLine.Type::Item;
+        ProductionBOMLine."No." := Item."No.";
+        ProductionBOMLine."Quantity per" := LibraryRandom.RandInt(10);
+        ProductionBOMLine.Length := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
+        ProductionBOMLine.Width := LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 1);
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Length * Width");
+        ProductionBOMLine.Insert();
     end;
 
     local procedure SetQtyPerInTree(ParentBOMBuffer: Record "BOM Buffer"; BOMCompType: Enum "BOM Component Type"; Indentation: Integer; IsLeaf: Boolean; NewQtyPer: Decimal)
@@ -794,28 +793,28 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                     if TempItem."No." = Item."No." then begin
                         RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
                         Assert.AreNearlyEqual(Item."Unit Cost", BOMBuf."Unit Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Unit Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Unit Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Material Cost", BOMBuf."Rolled-up Material Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Rolled-up Material Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Rolled-up Material Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Capacity Cost", BOMBuf."Rolled-up Capacity Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Rolled-up Capacity Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Rolled-up Capacity Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Subcontracted Cost", BOMBuf."Rolled-up Subcontracted Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Rolled-up Subcontracted Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Rolled-up Subcontracted Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Mfg. Ovhd Cost", BOMBuf."Rolled-up Mfg. Ovhd Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Rolled-up Cap. Overhead Cost", BOMBuf."Rolled-up Capacity Ovhd. Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), TempItem."No."));
 
                         Assert.AreNearlyEqual(Item."Single-Level Material Cost", BOMBuf."Single-Level Material Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Material Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Single-Level Material Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Single-Level Capacity Cost", BOMBuf."Single-Level Capacity Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Capacity Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Single-Level Capacity Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Single-Level Subcontrd. Cost", BOMBuf."Single-Level Subcontrd. Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Subcontrd. Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Single-Level Subcontrd. Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Single-Level Cap. Ovhd Cost", BOMBuf."Single-Level Cap. Ovhd Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Cap. Ovhd Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Single-Level Cap. Ovhd Cost"), TempItem."No."));
                         Assert.AreNearlyEqual(Item."Single-Level Mfg. Ovhd Cost", BOMBuf."Single-Level Mfg. Ovhd Cost", RoundingFactor,
-                          StrSubstNo(ERRWrongCostShare, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), TempItem."No."));
+                          StrSubstNo(ERRWrongCostShareErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), TempItem."No."));
                     end;
                 until BOMBuf.Next() = 0;
             until TempItem.Next() = 0;
@@ -864,22 +863,22 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
 
         RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
         Assert.AreNearlyEqual(RolledUpMaterialCost, BOMBuf."Rolled-up Material Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Rolled-up Material Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Rolled-up Material Cost"), Item."No."));
         Assert.AreNearlyEqual(RolledUpCapacityCost, BOMBuf."Rolled-up Capacity Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Rolled-up Capacity Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Rolled-up Capacity Cost"), Item."No."));
         Assert.AreNearlyEqual(RolledUpMfgOvhd, BOMBuf."Rolled-up Mfg. Ovhd Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), Item."No."));
         Assert.AreNearlyEqual(RolledUpCapOvhd, BOMBuf."Rolled-up Capacity Ovhd. Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Rolled-up Cap. Overhead Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Rolled-up Cap. Overhead Cost"), Item."No."));
 
         Assert.AreNearlyEqual(SglLevelMaterialCost, BOMBuf."Single-Level Material Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Single-Level Material Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Single-Level Material Cost"), Item."No."));
         Assert.AreNearlyEqual(SglLevelCapCost, BOMBuf."Single-Level Capacity Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Single-Level Capacity Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Single-Level Capacity Cost"), Item."No."));
         Assert.AreNearlyEqual(SglLevelMfgOvhd, BOMBuf."Single-Level Mfg. Ovhd Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), Item."No."));
         Assert.AreNearlyEqual(SglLevelCapOvhd, BOMBuf."Single-Level Cap. Ovhd Cost", RoundingFactor,
-          StrSubstNo(ERRWrongCostShareCalc, Item.FieldCaption("Single-Level Cap. Ovhd Cost"), Item."No."));
+          StrSubstNo(ERRWrongCostShareCalcErr, Item.FieldCaption("Single-Level Cap. Ovhd Cost"), Item."No."));
     end;
 
     local procedure VerifyTreeWithScrap(BOMBuf: Record "BOM Buffer"; Item: Record Item)
@@ -892,22 +891,23 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         BOMBuf.SetRange("No.", Item."No.");
         BOMBuf.FindFirst();
 
-        // Seem the verification of Scrap cost is wrong here
-        // Assert.AreNearlyEqual(SglLevelScrapCost,BOMBuf."Single-Level Scrap Cost",LibraryERM.GetAmountRoundingPrecision(),
-        // STRSUBSTNO(ERRWrongCostShareCalc,BOMBuf.FIELDCAPTION("Single-Level Scrap Cost"),Item."No."));
-        // Assert.AreNearlyEqual(RolledUpTreeCostWithScrap,BOMBuf."Unit Cost",LibraryERM.GetAmountRoundingPrecision(),
-        // STRSUBSTNO(ERRWrongCostShareCalc,BOMBuf.FIELDCAPTION("Rolled-up Scrap Cost"),Item."No."));
+        Assert.AreNearlyEqual(
+            SglLevelScrapCost, BOMBuf."Single-Level Scrap Cost", LibraryERM.GetAmountRoundingPrecision(),
+            STRSUBSTNO(ERRWrongCostShareCalcErr, BOMBuf.FIELDCAPTION("Single-Level Scrap Cost"), Item."No."));
+        Assert.AreNearlyEqual(
+            RolledUpTreeCostWithScrap, BOMBuf."Unit Cost", LibraryERM.GetAmountRoundingPrecision(),
+            STRSUBSTNO(ERRWrongCostShareCalcErr, BOMBuf.FIELDCAPTION("Rolled-up Scrap Cost"), Item."No."));
     end;
 
     local procedure VerifyWarnings(BOMBuf: Record "BOM Buffer"; TableID: Integer; WarningText: Text[20])
     var
         BOMWarningLog: Record "BOM Warning Log";
     begin
-        Assert.AreEqual(false, BOMBuf.AreAllLinesOk(BOMWarningLog), ERRWrongWarningParent);
+        Assert.AreEqual(false, BOMBuf.AreAllLinesOk(BOMWarningLog), ERRWrongWarningParentErr);
 
         BOMWarningLog.SetRange("Table ID", TableID);
         BOMWarningLog.SetFilter("Table Position", '*' + WarningText + '*');
-        Assert.AreEqual(1, BOMWarningLog.Count, StrSubstNo(ERRWrongWarningElement, WarningText));
+        Assert.AreEqual(1, BOMWarningLog.Count, StrSubstNo(ERRWrongWarningElementErr, WarningText));
     end;
 
     [StrMenuHandler]

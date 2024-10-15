@@ -297,10 +297,16 @@ table 7347 "Internal Movement Line"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'must not be greater than %1 units';
         Text002: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LastLineNo: Integer;
+#pragma warning disable AA0470
         ItemTrackingErr: Label 'Item tracking numbers defined for item %1 in the %2 are higher than the item quantity.\\Adjust the item tracking numbers and then increase the item quantity, if relevant.', Comment = 'Item tracking numbers should not be higher than the item quantity.';
+#pragma warning restore AA0470
 
     procedure SetUpNewLine(LastInternalMovementLine: Record "Internal Movement Line")
     var

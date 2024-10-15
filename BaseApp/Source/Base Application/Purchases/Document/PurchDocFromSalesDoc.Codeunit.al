@@ -17,7 +17,9 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         CreatePurchInvOptionQst: Label 'All Lines,Selected Lines';
         CreatePurchInvInstructionTxt: Label 'A purchase invoice will be created. Select which sales invoice lines to use.';
         SelectVentorTxt: Label 'Select a vendor';
+#pragma warning disable AA0470
         TypeNotSupportedErr: Label 'Type %1 is not supported.', Comment = 'Line or Document type';
+#pragma warning restore AA0470
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
 
     procedure CreatePurchaseInvoice(SalesHeader: Record "Sales Header"; var SelectedSalesLine: Record "Sales Line")

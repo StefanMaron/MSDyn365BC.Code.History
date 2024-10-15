@@ -379,8 +379,12 @@ table 1103 "Cost Type"
 
     var
         AccPeriod: Record "Accounting Period";
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete a cost type with entries in an open fiscal year.';
+#pragma warning disable AA0470
         Text001: Label 'You cannot change cost type %1. There are %2 associated with it.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure Modified()
     begin

@@ -459,7 +459,9 @@ page 1393 "Trial Balance"
         OperatingMarginPct2: Text;
         IncomeBeforeInterestAndTax1: Text;
         IncomeBeforeInterestAndTax2: Text;
+#pragma warning disable AA0074
         DescriptionCap: Label 'Description';
+#pragma warning restore AA0074
         PeriodVisible: Boolean;
         InstructionMsg: Label 'This chart provides a quick overview of the financial performance of your company%1. The chart is a simplified version of the G/L Trial Balance chart. The Total Revenue figure corresponds to the total in your chart of accounts.', Comment = '%1=message about the number of periods displayed, if not running on phone client';
         PeriodsMsg: Label ', displayed in two periods';

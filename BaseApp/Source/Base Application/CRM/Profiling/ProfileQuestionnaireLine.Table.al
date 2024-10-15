@@ -387,8 +387,11 @@ table 5088 "Profile Questionnaire Line"
         ProfileQuestnLine: Record "Profile Questionnaire Line";
         TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary;
         ZeroDateFormula: DateFormula;
+#pragma warning disable AA0074
         Text000: Label 'Do you want to delete the rating values?';
+#pragma warning disable AA0470
         Text001: Label '%1 cannot be changed until the rating value is deleted.';
+#pragma warning restore AA0470
         Text002: Label 'You cannot delete this line because one or more questions are depending on it.';
         Text003: Label 'You cannot delete this line because one or more rating values exists.';
         Text004: Label 'You cannot delete this question while answers exists.';
@@ -401,6 +404,7 @@ table 5088 "Profile Questionnaire Line"
         Text011: Label 'A', Comment = 'Selecting answer A';
         Text012: Label 'B', Comment = 'Selecting answer B';
         Text013: Label 'C', Comment = 'Selecting answer C';
+#pragma warning restore AA0074
 
     procedure MoveUp()
     var

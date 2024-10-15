@@ -1467,6 +1467,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ReservationEntry.SetRange(Positive, false);
     end;
 
+    /// <summary>
+    /// Sets the global option for inventory movement status.
+    /// </summary>
+    /// <param name="InvtMovement">Indicates whether the operation involves inventory movement.</param>
     procedure SetInvtMovement(InvtMovement: Boolean)
     begin
         IsInvtMovement := InvtMovement;
@@ -1479,6 +1483,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(CurrLocation."Pick According to FEFO" and WhseItemTrackingSetup.TrackingRequired());
     end;
 
+    /// <summary>
+    /// Determines and updates quantity to track.
+    /// </summary>
+    /// <param name="QtyToTrackBase">Quantity to track in base unit.</param>
+    /// <returns>Returns 'true' if there is quantity to track, otherwise 'false'.</returns>
     procedure UndefinedItemTracking(var QtyToTrackBase: Decimal): Boolean
     var
         DummyItemTrackingSetup: Record "Item Tracking Setup";
@@ -1527,6 +1536,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(TempTrackingSpecification."Qty. to Handle (Base)");
     end;
 
+    /// <summary>
+    /// Creates a temporary handling specification for a warehouse activity line.
+    /// </summary>
+    /// <param name="WarehouseActivityLine">Warehouse activity line for which the specification is created.</param>
+    /// <param name="TotalQtyToPickBase">Total quantity to pick in base unit.</param>
     procedure CreateTempHandlingSpec(WarehouseActivityLine: Record "Warehouse Activity Line"; TotalQtyToPickBase: Decimal)
     var
         EntrySummary: Record "Entry Summary";
@@ -1647,6 +1661,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(WhseWorksheetLine2.FindSet());
     end;
 
+    /// <summary>
+    /// Creates an inventory movement document for internal warehouse activities, based on provided inventory movement header.
+    /// </summary>
+    /// <param name="InternalMovementHeader">Provided internal movement header.</param>
     procedure CreateInvtMvntWithoutSource(var InternalMovementHeader: Record "Internal Movement Header")
     var
         InternalMovementLine: Record "Internal Movement Line";
@@ -1725,6 +1743,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterCreateInvtMvntWithoutSource(CurrWarehouseActivityHeader, InternalMovementHeader);
     end;
 
+    /// <summary>
+    /// Creates an inventory movement document for internal warehouse activities, based on provided warehouse worksheet line.
+    /// </summary>
+    /// <param name="InternalMovementHeader">Provided warehouse worksheet line.</param>
     procedure CreateInvtMvntWithoutSource(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
@@ -1931,6 +1953,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterPrepareItemTrackingFromWhseIT(TempReservationEntry, EntryNo);
     end;
 
+    /// <summary>
+    /// Synchronizes warehouse item tracking information with the tracking specification.
+    /// </summary>
+    /// <param name="TrackingSpecification">Provided tracking specification to synchronize.</param>
     procedure SynchronizeWhseItemTracking(var TrackingSpecification: Record "Tracking Specification")
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
@@ -1971,11 +1997,21 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves the message text for expired items.
+    /// </summary>
+    /// <returns>Text message for expired items.</returns>
     procedure GetExpiredItemMessage(): Text[100]
     begin
         exit(ExpiredItemMessageText);
     end;
 
+    /// <summary>
+    /// Determines whether strict expiration posting is required for an item based on the provided item tracking setup.
+    /// </summary>
+    /// <param name="ItemNo">Item number to check.</param>
+    /// <param name="WhseItemTrackingSetup">Item tracking setup.</param>
+    /// <returns>Returns 'true' if strict expiration posting is required, otherwise 'false'.</returns>
     procedure PickStrictExpirationPosting(ItemNo: Code[20]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         StrictExpirationPosting: Boolean;
@@ -1990,6 +2026,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(ItemTrackingManagement.StrictExpirationPosting(ItemNo) and WhseItemTrackingSetup.TrackingRequired());
     end;
 
+    /// <summary>
+    /// Creates a warehouse activity header if auto creation is enabled and no lines have been created yet.
+    /// </summary>
     procedure MakeWarehouseActivityHeader()
     var
         IsHandled: Boolean;
@@ -2009,6 +2048,13 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
+    /// <summary>
+    /// Creates a warehouse activity line based on the provided parameters and updates remaining quantity.
+    /// </summary>
+    /// <param name="NewWarehouseActivityLine">Warehouse activity line to be created.</param>
+    /// <param name="TakeBinCode">Provided bin code.</param>
+    /// <param name="QtyToPickBase">Provided quantity to pick in base unit.</param>
+    /// <param name="RemQtyToPickBase">Provided remaining quantity to pick in base unit.</param>
     procedure MakeWarehouseActivityLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20]; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal)
     var
         IsHandled: Boolean;
@@ -2026,6 +2072,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
         RemQtyToPickBase := RemQtyToPickBase - QtyToPickBase;
     end;
 
+    /// <summary>
+    /// Creates a warehouse activity line when serial number is required and updates remaining quantities.
+    /// </summary>
+    /// <param name="NewWarehouseActivityLine">Warehouse activity line to be created.</param>
+    /// <param name="TakeBinCode">Provided bin code.</param>
+    /// <param name="QtyToPickBase">Provided quantity to pick in base unit.</param>
+    /// <param name="RemQtyToPickBase">Provided remaining quantity to pick in base unit.</param>
+    /// <param name="RemQtyToPick">Provided remaining quantity to pick.</param>
     procedure MakeLineWhenSNoReq(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20]; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal; var RemQtyToPick: Decimal)
     var
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
@@ -2097,6 +2151,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterSetLineData(CurrWarehouseActivityHeader, CurrLocation, NewWarehouseActivityLine);
     end;
 
+    /// <summary>
+    /// Retrieves the special equipment code based on the provided parameters.
+    /// </summary>
+    /// <param name="ItemNo">Item number for which to retrieve the special equipment code.</param>
+    /// <param name="VariantCode">Variant code.</param>
+    /// <param name="LocationCode">Location code.</param>
+    /// <param name="BinCode">Bin code.</param>
+    /// <returns>Returns special equipment code.</returns>
     procedure GetSpecEquipmentCode(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]): Code[10]
     begin
         GetLocation(LocationCode);
@@ -2159,6 +2221,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
+    /// <summary>
+    /// Creates a warehouse activity line for assemble-to-order operation based on the provided parameters and updates remaining quantity to pick.
+    /// </summary>
+    /// <param name="NewWarehouseActivityLine">Provided warehouse activity line.</param>
+    /// <param name="BinCode">Provided bin code.</param>
+    /// <param name="RemQtyToPickBase">Provided remaining quantity to pick in base unit.</param>
     procedure CreateATOPickLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; BinCode: Code[20]; var RemQtyToPickBase: Decimal)
     var
         ATOSalesLine: Record "Sales Line";
@@ -2298,6 +2366,15 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(not BinContent.IsEmpty);
     end;
 
+    /// <summary>
+    /// Sets the option to suppress committing transactions to the database.
+    /// </summary>
+    /// <param name="NewSuppressCommit">Boolean flag indicating whether to suppress commit.</param>
+    /// <remarks>
+    /// When 'SuppressCommit' is set to 'true', it indicates that transaction committed to the
+    /// database should be suppressed. This can be useful in scenarios where batch processing or
+    /// testing requires transactions to be rolled back rather than committed permanently.
+    /// </remarks>
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;

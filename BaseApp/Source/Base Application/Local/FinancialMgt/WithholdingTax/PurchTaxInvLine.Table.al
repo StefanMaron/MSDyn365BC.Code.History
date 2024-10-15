@@ -472,9 +472,14 @@ table 28076 "Purch. Tax Inv. Line"
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
-            ObsoleteState = Pending;
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#endif
         }
         field(6608; "Return Reason Code"; Code[10])
         {

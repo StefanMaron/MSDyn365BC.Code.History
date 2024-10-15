@@ -1,22 +1,12 @@
 ﻿namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
@@ -519,12 +509,18 @@ table 336 "Tracking Specification"
         UOMMgt: Codeunit "Unit of Measure Management";
         SkipSerialNoQtyValidation: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot invoice more than %1 units.';
         Text001: Label 'You cannot handle more than %1 units.';
         Text002: Label 'must not be less than %1';
         Text003: Label '%1 must be -1, 0 or 1 when %2 is stated.';
+#pragma warning restore AA0470
         Text004: Label 'Expiration date has been established by existing entries and cannot be changed.';
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover quantity available to handle.';
+#pragma warning restore AA0470
         WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6, package number %7.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No., %7 - Package No.';
 
     procedure GetLastEntryNo(): Integer;
@@ -561,284 +557,145 @@ table 336 "Tracking Specification"
         OnAfterInitQtyToInvoice(Rec);
     end;
 
-    procedure InitFromAsmHeader(var AsmHeader: Record "Assembly Header")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit AssemblyHeaderReserve', '25.0')]
+    procedure InitFromAsmHeader(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    var
+        AssemblyHeaderReserve: Codeunit Microsoft.Assembly.Document."Assembly Header-Reserve";
     begin
-        Init();
-        SetItemData(
-            AsmHeader."Item No.", AsmHeader.Description, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Bin Code",
-            AsmHeader."Qty. per Unit of Measure", AsmHeader."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, '', 0);
-        SetQuantities(
-            AsmHeader."Quantity (Base)", AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
-            AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
-            AsmHeader."Assembled Quantity (Base)", AsmHeader."Assembled Quantity (Base)");
-
-        OnAfterInitFromAsmHeader(Rec, AsmHeader);
+        AssemblyHeaderReserve.InitFromAsmHeader(Rec, AsmHeader);
     end;
+#endif
 
-    procedure InitFromAsmLine(var AsmLine: Record "Assembly Line")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit AssemblyHeaderReserve', '25.0')]
+    procedure InitFromAsmLine(var AsmLine: Record Microsoft.Assembly.Document."Assembly Line")
+    var
+        AssemblyLineReserve: Codeunit Microsoft.Assembly.Document."Assembly Line-Reserve";
     begin
-        Init();
-        SetItemData(
-            AsmLine."No.", AsmLine.Description, AsmLine."Location Code", AsmLine."Variant Code", AsmLine."Bin Code",
-            AsmLine."Qty. per Unit of Measure", AsmLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", '', 0);
-        SetQuantities(
-            AsmLine."Quantity (Base)", AsmLine."Quantity to Consume", AsmLine."Quantity to Consume (Base)",
-            AsmLine."Quantity to Consume", AsmLine."Quantity to Consume (Base)",
-            AsmLine."Consumed Quantity (Base)", AsmLine."Consumed Quantity (Base)");
-
-        OnAfterInitFromAsmLine(Rec, AsmLine);
+        AssemblyLineReserve.InitFromAsmLine(Rec, AsmLine);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit ItemJnlLineReserve', '25.0')]
     procedure InitFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
-    begin
-        Init();
-        SetItemData(
-            ItemJnlLine."Item No.", ItemJnlLine.Description, ItemJnlLine."Location Code", ItemJnlLine."Variant Code",
-            ItemJnlLine."Bin Code", ItemJnlLine."Qty. per Unit of Measure", ItemJnlLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.",
-            ItemJnlLine."Journal Batch Name", 0);
-        SetQuantities(
-            ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity, ItemJnlLine."Quantity (Base)", ItemJnlLine.Quantity,
-            ItemJnlLine."Quantity (Base)", 0, 0);
-
-        OnAfterInitFromItemJnlLine(Rec, ItemJnlLine);
-    end;
-
-    procedure InitFromInvtDocLine(var InvtDocLine: Record "Invt. Document Line")
     var
-        QtySignFactor: Integer;
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Init();
-        SetItemData(
-            InvtDocLine."Item No.", InvtDocLine.Description, InvtDocLine."Location Code", InvtDocLine."Variant Code",
-            InvtDocLine."Bin Code", InvtDocLine."Qty. per Unit of Measure", InvtDocLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Invt. Document Line", InvtDocLine."Document Type".AsInteger(), InvtDocLine."Document No.", InvtDocLine."Line No.", '', 0);
-
-        QtySignFactor := 1;
-        if InvtDocLine.IsCorrection() then
-            QtySignFactor := -1;
-
-        SetQuantities(
-          InvtDocLine."Quantity (Base)" * QtySignFactor, InvtDocLine.Quantity * QtySignFactor, InvtDocLine."Quantity (Base)" * QtySignFactor,
-          InvtDocLine.Quantity * QtySignFactor, InvtDocLine."Quantity (Base)" * QtySignFactor, 0, 0);
+        ItemJnlLineReserve.InitFromItemJnlLine(Rec, ItemJnlLine);
     end;
+#endif
 
-    procedure InitFromJobJnlLine(var JobJnlLine: Record "Job Journal Line")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit InvtDocLineReserve', '25.0')]
+    procedure InitFromInvtDocLine(var InvtDocLine: Record Microsoft.Inventory.Document."Invt. Document Line")
+    var
+        InvtDocLineReserve: Codeunit Microsoft.Inventory.Document."Invt. Doc. Line-Reserve";
     begin
-        Init();
-        SetItemData(
-            JobJnlLine."No.", JobJnlLine.Description, JobJnlLine."Location Code", JobJnlLine."Variant Code", JobJnlLine."Bin Code",
-            JobJnlLine."Qty. per Unit of Measure", JobJnlLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Job Journal Line", JobJnlLine."Entry Type".AsInteger(), JobJnlLine."Journal Template Name", JobJnlLine."Line No.",
-            JobJnlLine."Journal Batch Name", 0);
-        SetQuantities(
-            JobJnlLine."Quantity (Base)", JobJnlLine.Quantity, JobJnlLine."Quantity (Base)", JobJnlLine.Quantity,
-            JobJnlLine."Quantity (Base)", 0, 0);
-
-        OnAfterInitFromJobJnlLine(Rec, JobJnlLine);
+        InvtDocLineReserve.InitFromInvtDocLine(Rec, InvtDocLine);
     end;
+#endif
 
-    procedure InitFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit JobJnlLineReserve', '25.0')]
+    procedure InitFromJobJnlLine(var JobJnlLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
+    var
+        JobJnlLineReserve: Codeunit Microsoft.Projects.Project.Journal."Job Jnl. Line-Reserve";
     begin
-        Init();
-        SetItemData(
-            JobPlanningLine."No.", JobPlanningLine.Description, JobPlanningLine."Location Code", JobPlanningLine."Variant Code",
-            JobPlanningLine."Bin Code", JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", '', 0);
-        SetQuantities(
-            JobPlanningLine."Remaining Qty. (Base)", JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
-            JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
-            JobPlanningLine."Quantity" - JobPlanningLine."Remaining Qty.",
-            JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)");
-
-        OnAfterInitFromJobPlanningLine(Rec, JobPlanningLine);
+        JobJnlLineReserve.InitFromJobJnlLine(Rec, JobJnlLine);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit JobPlanningLineReserve', '25.0')]
+    procedure InitFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    var
+        JobPlanningLineReserve: Codeunit Microsoft.Projects.Project.Planning."Job Planning Line-Reserve";
+    begin
+        JobPlanningLineReserve.InitFromJobPlanningLine(Rec, JobPlanningLine);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit PurchLineReserve', '25.0')]
     procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
-    begin
-        Init();
-        SetItemData(
-          PurchLine."No.", PurchLine.Description, PurchLine."Location Code", PurchLine."Variant Code", PurchLine."Bin Code",
-          PurchLine."Qty. per Unit of Measure", PurchLine."Qty. Rounding Precision (Base)");
-        SetSource(
-          Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", '', 0);
-        if PurchLine.IsCreditDocType() then
-            SetQuantities(
-              PurchLine."Quantity (Base)", PurchLine."Return Qty. to Ship", PurchLine."Return Qty. to Ship (Base)",
-              PurchLine."Qty. to Invoice", PurchLine."Qty. to Invoice (Base)", PurchLine."Return Qty. Shipped (Base)",
-              PurchLine."Qty. Invoiced (Base)")
-        else
-            SetQuantities(
-              PurchLine."Quantity (Base)", PurchLine."Qty. to Receive", PurchLine."Qty. to Receive (Base)",
-              PurchLine."Qty. to Invoice", PurchLine."Qty. to Invoice (Base)", PurchLine."Qty. Received (Base)",
-              PurchLine."Qty. Invoiced (Base)");
-
-        OnAfterInitFromPurchLine(Rec, PurchLine);
-    end;
-
-    procedure InitFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
-    begin
-        Init();
-        SetItemData(
-            ProdOrderLine."Item No.", ProdOrderLine.Description, ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
-            ProdOrderLine."Qty. per Unit of Measure", ProdOrderLine."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
-        SetQuantities(
-            ProdOrderLine."Quantity (Base)", ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)",
-            ProdOrderLine."Remaining Quantity", ProdOrderLine."Remaining Qty. (Base)", ProdOrderLine."Finished Qty. (Base)",
-            ProdOrderLine."Finished Qty. (Base)");
-
-        OnAfterInitFromProdOrderLine(Rec, ProdOrderLine);
-    end;
-
-    procedure InitFromProdOrderComp(var ProdOrderComp: Record "Prod. Order Component")
-    begin
-        Init();
-        SetItemData(
-            ProdOrderComp."Item No.", ProdOrderComp.Description, ProdOrderComp."Location Code", ProdOrderComp."Variant Code",
-            ProdOrderComp."Bin Code", ProdOrderComp."Qty. per Unit of Measure", ProdOrderComp."Qty. Rounding Precision (Base)");
-        SetSource(
-            Database::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.", '',
-            ProdOrderComp."Prod. Order Line No.");
-        SetQuantities(
-            ProdOrderComp."Remaining Qty. (Base)", ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
-            ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
-            ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)",
-            ProdOrderComp."Expected Qty. (Base)" - ProdOrderComp."Remaining Qty. (Base)");
-
-        OnAfterInitFromProdOrderComp(Rec, ProdOrderComp);
-    end;
-
-    procedure InitFromProdPlanningComp(var PlanningComponent: Record "Planning Component")
     var
-        NetQuantity: Decimal;
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
-        Init();
-        SetItemData(
-          PlanningComponent."Item No.", PlanningComponent.Description, PlanningComponent."Location Code",
-          PlanningComponent."Variant Code", '', PlanningComponent."Qty. per Unit of Measure", PlanningComponent."Qty. Rounding Precision (Base)");
-        SetSource(Database::"Planning Component", 0, PlanningComponent."Worksheet Template Name", PlanningComponent."Line No.",
-          PlanningComponent."Worksheet Batch Name", PlanningComponent."Worksheet Line No.");
-        NetQuantity :=
-          Round(PlanningComponent."Net Quantity (Base)" / PlanningComponent."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-        SetQuantities(
-          PlanningComponent."Net Quantity (Base)", NetQuantity, PlanningComponent."Net Quantity (Base)", NetQuantity,
-          PlanningComponent."Net Quantity (Base)", 0, 0);
-
-        OnAfterInitFromProdPlanningComp(Rec, PlanningComponent);
+        PurchLineReserve.InitFromPurchLine(Rec, PurchLine);
     end;
+#endif
 
-    procedure InitFromReqLine(ReqLine: Record "Requisition Line")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit ProdOrderLineReserve', '25.0')]
+    procedure InitFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    var
+        ProdOrderLineReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Line-Reserve";
     begin
-        Init();
-        SetItemData(
-          ReqLine."No.", ReqLine.Description, ReqLine."Location Code", ReqLine."Variant Code", '', ReqLine."Qty. per Unit of Measure", ReqLine."Qty. Rounding Precision (Base)");
-        SetSource(
-          Database::"Requisition Line", 0, ReqLine."Worksheet Template Name", ReqLine."Line No.", ReqLine."Journal Batch Name", 0);
-        SetQuantities(
-          ReqLine."Quantity (Base)", ReqLine.Quantity, ReqLine."Quantity (Base)", ReqLine.Quantity, ReqLine."Quantity (Base)", 0, 0);
-
-        OnAfterInitFromReqLine(Rec, ReqLine);
+        ProdOrderLineReserve.InitFromProdOrderLine(Rec, ProdOrderLine);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit ProdOrderCompReserve', '25.0')]
+    procedure InitFromProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    var
+        ProdOrderCompReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Comp.-Reserve";
+    begin
+        ProdOrderCompReserve.InitFromProdOrderComp(Rec, ProdOrderComp);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit PlngComponentReserve', '25.0')]
+    procedure InitFromProdPlanningComp(var PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
+    var
+        PlngComponentReserve: Codeunit Microsoft.Inventory.Planning."Plng. Component-Reserve";
+    begin
+        PlngComponentReserve.InitFromProdPlanningComp(Rec, PlanningComponent);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit ReqLineReserve', '25.0')]
+    procedure InitFromReqLine(ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    var
+        ReqLineReserve: Codeunit Microsoft.Inventory.Requisition."Req. Line-Reserve";
+    begin
+        ReqLineReserve.InitFromReqLine(Rec, ReqLine);
+    end;
+#endif
+
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit SalesLineReserve', '25.0')]
     procedure InitFromSalesLine(SalesLine: Record "Sales Line")
+    var
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
-        Init();
-        SetItemData(
-          SalesLine."No.", SalesLine.Description, SalesLine."Location Code", SalesLine."Variant Code", SalesLine."Bin Code",
-          SalesLine."Qty. per Unit of Measure", SalesLine."Qty. Rounding Precision (Base)");
-        SetSource(
-          Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
-        if SalesLine.IsCreditDocType() then
-            SetQuantities(
-              SalesLine."Quantity (Base)", SalesLine."Return Qty. to Receive", SalesLine."Return Qty. to Receive (Base)",
-              SalesLine."Qty. to Invoice", SalesLine."Qty. to Invoice (Base)", SalesLine."Return Qty. Received (Base)",
-              SalesLine."Qty. Invoiced (Base)")
-        else
-            SetQuantities(
-              SalesLine."Quantity (Base)", SalesLine."Qty. to Ship", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice",
-              SalesLine."Qty. to Invoice (Base)", SalesLine."Qty. Shipped (Base)", SalesLine."Qty. Invoiced (Base)");
-
-        OnAfterInitFromSalesLine(Rec, SalesLine);
+        SalesLineReserve.InitFromSalesLine(Rec, SalesLine);
     end;
+#endif
 
-    procedure InitFromServLine(var ServiceLine: Record "Service Line"; Consume: Boolean)
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit ServiceLineReserve', '25.0')]
+    procedure InitFromServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; Consume: Boolean)
+    var
+        ServiceLineReserve: Codeunit Microsoft.Service.Document."Service Line-Reserve";
     begin
-        Init();
-        SetItemData(
-          ServiceLine."No.", ServiceLine.Description, ServiceLine."Location Code", ServiceLine."Variant Code", ServiceLine."Bin Code",
-          ServiceLine."Qty. per Unit of Measure", ServiceLine."Qty. Rounding Precision (Base)");
-        SetSource(
-          Database::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", '', 0);
-
-        "Quantity (Base)" := ServiceLine."Quantity (Base)";
-        if Consume then begin
-            "Qty. to Invoice (Base)" := ServiceLine."Qty. to Consume (Base)";
-            "Qty. to Invoice" := ServiceLine."Qty. to Consume";
-            "Quantity Invoiced (Base)" := ServiceLine."Qty. Consumed (Base)";
-        end else begin
-            "Qty. to Invoice (Base)" := ServiceLine."Qty. to Invoice (Base)";
-            "Qty. to Invoice" := ServiceLine."Qty. to Invoice";
-            "Quantity Invoiced (Base)" := ServiceLine."Qty. Invoiced (Base)";
-        end;
-
-        if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then begin
-            "Qty. to Handle" := ServiceLine."Qty. to Invoice";
-            "Qty. to Handle (Base)" := ServiceLine."Qty. to Invoice (Base)";
-            "Quantity Handled (Base)" := ServiceLine."Qty. Invoiced (Base)";
-        end else begin
-            "Qty. to Handle" := ServiceLine."Qty. to Ship";
-            "Qty. to Handle (Base)" := ServiceLine."Qty. to Ship (Base)";
-            "Quantity Handled (Base)" := ServiceLine."Qty. Shipped (Base)";
-        end;
-
-        OnAfterInitFromServLine(Rec, ServiceLine);
+        ServiceLineReserve.InitFromServLine(Rec, ServiceLine, Consume);
     end;
+#endif
 
-    procedure InitFromTransLine(var TransLine: Record "Transfer Line"; var AvalabilityDate: Date; Direction: Enum "Transfer Direction")
+#if not CLEAN25
+    [Obsolete('Procedure moved to codeunit TransferLineReserve', '25.0')]
+    procedure InitFromTransLine(var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; var AvalabilityDate: Date; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
+    var
+        TransferLineReserve: Codeunit Microsoft.Inventory.Transfer."Transfer Line-Reserve";
     begin
-        case Direction of
-            Direction::Outbound:
-                begin
-                    Init();
-                    SetItemData(
-                      TransLine."Item No.", TransLine.Description, TransLine."Transfer-from Code", TransLine."Variant Code",
-                      TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
-                    SetSource(
-                      Database::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
-                      TransLine."Derived From Line No.");
-                    SetQuantities(
-                      TransLine."Quantity (Base)", TransLine."Qty. to Ship", TransLine."Qty. to Ship (Base)", TransLine.Quantity,
-                      TransLine."Quantity (Base)", TransLine."Qty. Shipped (Base)", 0);
-                    AvalabilityDate := TransLine."Shipment Date";
-                end;
-            Direction::Inbound:
-                begin
-                    Init();
-                    SetItemData(
-                      TransLine."Item No.", TransLine.Description, TransLine."Transfer-to Code", TransLine."Variant Code",
-                      TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
-                    SetSource(
-                      Database::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
-                      TransLine."Derived From Line No.");
-                    SetQuantities(
-                      TransLine."Quantity (Base)", TransLine."Qty. to Receive", TransLine."Qty. to Receive (Base)", TransLine.Quantity,
-                      TransLine."Quantity (Base)", TransLine."Qty. Received (Base)", 0);
-                    AvalabilityDate := TransLine."Receipt Date";
-                end;
-        end;
-
-        OnAfterInitFromTransLine(Rec, TransLine, Direction);
+        TransferLineReserve.InitFromTransLine(Rec, TransLine, AvalabilityDate, Direction);
     end;
+#endif
 
     local procedure CheckApplyFromItemEntrySourceType()
     var
@@ -849,34 +706,10 @@ table 336 "Tracking Specification"
         if IsHandled then
             exit;
 
-        case "Source Type" of
-            Database::"Sales Line":
-                if (("Source Subtype" in [3, 5]) and ("Quantity (Base)" < 0)) or
-                    (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0)) // sale
-                then
-                    FieldError("Quantity (Base)");
-            Database::"Item Journal Line":
-                if (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" < 0)) or
-                    (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" > 0))
-                then
-                    FieldError("Quantity (Base)");
-            Database::"Service Line":
-                if (("Source Subtype" in [3]) and ("Quantity (Base)" < 0)) or
-                    (("Source Subtype" in [1, 2]) and ("Quantity (Base)" > 0))
-                then
-                    FieldError("Quantity (Base)");
-            Database::"Invt. Document Line":
-                if (("Source Subtype" in [1, 3, 4, 5]) and ("Quantity (Base)" > 0)) or
-                    (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" < 0))
-                then
-                    FieldError("Quantity (Base)");
-            else begin
-                IsHandled := false;
-                OnValidateApplFromItemEntryOnSourceTypeCaseElse(Rec, IsHandled);
-                if not IsHandled then
-                    FieldError("Source Subtype");
-            end;
-        end;
+        IsHandled := false;
+        OnValidateApplFromItemEntryOnSourceTypeCaseElse(Rec, IsHandled);
+        if not IsHandled then
+            FieldError("Source Subtype");
     end;
 
     local procedure CheckSerialNoQty()
@@ -1065,7 +898,7 @@ table 336 "Tracking Specification"
         "Qty. per Unit of Measure" := QtyPerUoM;
     end;
 
-    local procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; QtyPerUoM: Decimal; QtyRoundingPrecision: Decimal)
+    procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; QtyPerUoM: Decimal; QtyRoundingPrecision: Decimal)
     begin
         SetItemData(ItemNo, ItemDescription, LocationCode, VariantCode, BinCode, QtyPerUoM);
         "Qty. Rounding Precision (Base)" := QtyRoundingPrecision;
@@ -1560,6 +1393,11 @@ table 336 "Tracking Specification"
         ItemTrackingCode := CachedItemTrackingCode;
     end;
 
+    procedure GetSourceShipmentDate() ShipmentDate: Date
+    begin
+        OnGetSourceShipmentDate(Rec, ShipmentDate);
+    end;
+
     local procedure CheckPackageNo(PackageNo: Code[50])
     begin
         OnCheckPackageNo(Rec, PackageNo);
@@ -1590,70 +1428,174 @@ table 336 "Tracking Specification"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record "Assembly Header")
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
+        OnAfterInitFromAsmHeader(TrackingSpecification, AssemblyHeader);
     end;
 
+    [Obsolete('Replaced same event in codeunit AssemblyHeaderReserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromAsmLine(var TrackingSpecification: Record "Tracking Specification"; AssemblyLine: Record "Assembly Line")
+    local procedure OnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromAsmLine(var TrackingSpecification: Record "Tracking Specification"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnAfterInitFromAsmLine(TrackingSpecification, AssemblyLine);
+    end;
+
+    [Obsolete('Replaced same event in codeunit AssemblyLineReserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromAsmLine(var TrackingSpecification: Record "Tracking Specification"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        OnAfterInitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
+    end;
+
+    [Obsolete('Replaced same event in codeunit ItemJnlLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromItemJnlLine(var TrackingSpecification: Record "Tracking Specification"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record "Job Journal Line")
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
     begin
+        OnAfterInitFromJobJnlLine(TrackingSpecification, JobJournalLine);
     end;
 
+    [Obsolete('Replaced same event in codeunit JobJnlLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+        OnAfterInitFromJobPlanningLine(TrackingSpecification, JobPlanningLine);
+    end;
+
+    [Obsolete('Replaced same event in codeunit JobPlanningLineReserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromPurchLine(var TrackingSpecification: Record "Tracking Specification"; PurchaseLine: Record "Purchase Line")
+    begin
+        OnAfterInitFromPurchLine(TrackingSpecification, PurchaseLine);
+    end;
+
+    [Obsolete('Replaced same event in codeunit PurchLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(var TrackingSpecification: Record "Tracking Specification"; PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdOrderLine(var TrackingSpecification: Record "Tracking Specification"; ProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromProdOrderLine(var TrackingSpecification: Record "Tracking Specification"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
+        OnAfterInitFromProdOrderLine(TrackingSpecification, ProdOrderLine);
     end;
 
+    [Obsolete('Replaced same event in codeunit ProdOrderLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdOrderComp(var TrackingSpecification: Record "Tracking Specification"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnAfterInitFromProdOrderLine(var TrackingSpecification: Record "Tracking Specification"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromProdPlanningComp(var TrackingSpecification: Record "Tracking Specification"; PlanningComponent: Record "Planning Component")
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromProdOrderComp(var TrackingSpecification: Record "Tracking Specification"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnAfterInitFromProdOrderComp(TrackingSpecification, ProdOrderComponent);
     end;
 
+    [Obsolete('Replaced same event in codeunit ProdOrderCompReserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterInitFromProdOrderComp(var TrackingSpecification: Record "Tracking Specification"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromProdPlanningComp(var TrackingSpecification: Record "Tracking Specification"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
+    begin
+        OnAfterInitFromProdPlanningComp(TrackingSpecification, PlanningComponent);
+    end;
+
+    [Obsolete('Replaced same event in codeunit PlngComponentReserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromProdPlanningComp(var TrackingSpecification: Record "Tracking Specification"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
+    begin
+    end;
+#endif
+
+#if  not CLEAN25
+    internal procedure RunOnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+        OnAfterInitFromReqLine(TrackingSpecification, RequisitionLine);
+    end;
+
+    [Obsolete('Replaced same event in codeunit ReqLineReserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
+    begin
+        OnAfterInitFromSalesLine(TrackingSpecification, SalesLine);
+    end;
+
+    [Obsolete('Event moved to codeunit SalesLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record "Service Line")
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
+        OnAfterInitFromServLine(TrackingSpecification, ServiceLine);
     end;
 
+    [Obsolete('Event moved to codeunit ServiceLineReserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record "Transfer Line"; Direction: Enum "Transfer Direction")
+    local procedure OnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
+    begin
+        OnAfterInitFromTransLine(TrackingSpecification, TransferLine, Direction);
+    end;
+
+    [Obsolete('Event moved to codeunit TransferLineReserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToInvoice(var TrackingSpecification: Record "Tracking Specification")
@@ -1907,6 +1849,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckApplyFromItemEntrySourceType(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSourceShipmentDate(var TrackingSpecification: Record "Tracking Specification"; var ShipmentDate: Date);
     begin
     end;
 }

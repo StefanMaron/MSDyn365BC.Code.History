@@ -35,8 +35,10 @@ codeunit 7710 "Miniform Move Activity List"
         ReturnedNode: DotNet XmlNode;
         DOMxmlin: DotNet XmlDocument;
         RootNode: DotNet XmlNode;
+#pragma warning disable AA0074
         Text000: Label 'Function not Found.';
         Text006: Label 'No input Node found.';
+#pragma warning restore AA0074
         TextValue: Text[250];
         ADCSUserId: Text[250];
         WhseEmpId: Text[250];
@@ -46,7 +48,9 @@ codeunit 7710 "Miniform Move Activity List"
         StackCode: Text[250];
         Remark: Text[250];
         ActiveInputField: Integer;
+#pragma warning disable AA0074
         Text009: Label 'No Documents found.';
+#pragma warning restore AA0074
 
     local procedure ProcessSelection()
     var

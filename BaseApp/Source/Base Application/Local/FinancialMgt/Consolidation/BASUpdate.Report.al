@@ -526,7 +526,7 @@ report 11604 "BAS-Update"
                     else
                         GLEntry.SetRange("BAS Doc. No.", '');
                     Amount := 0;
-                    if BASSetup2."Account Totaling" <> '' then begin
+                    if BASSetup2."Account Totaling" <> '' then
                         if GLEntry.Find('-') then
                             repeat
                                 if
@@ -567,7 +567,6 @@ report 11604 "BAS-Update"
                                     end;
                                 end;
                             until GLEntry.Next() = 0;
-                    end;
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
             BASSetup2.Type::"GST Entry Totaling":
@@ -788,7 +787,7 @@ report 11604 "BAS-Update"
                       "Posting Date",
                       GetPeriodFilter(PeriodSelection, BASCalcSheet.A3, BASCalcSheet.A4));
                     GLEntry.SetRange("BAS Doc. No.", DocumentNo);
-                    if BASSetup2."Account Totaling" <> '' then begin
+                    if BASSetup2."Account Totaling" <> '' then
                         if GLEntry.Find('-') then
                             repeat
                                 if
@@ -812,7 +811,6 @@ report 11604 "BAS-Update"
                                         end;
                                 end;
                             until GLEntry.Next() = 0;
-                    end;
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
             BASSetup2.Type::"GST Entry Totaling":

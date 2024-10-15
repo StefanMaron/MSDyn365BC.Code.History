@@ -728,7 +728,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMCouplingRecord.OK().Invoke();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SetCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -2125,7 +2125,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::Failure);
         CRMIntegrationRecord.TestField("Last Synch. CRM Job ID", JobQueueEntryID);
-        CRMIntegrationRecord.TestField("Last Synch. Result", 0);
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::" ");
         // [THEN] 'CRMACC' PrimaryContactId is not changed
         CRMAccount.Find();
         CRMAccount.TestField(PrimaryContactId, SavedPrimaryContactId);
@@ -2395,12 +2395,14 @@ codeunit 139182 "CRM Coupling Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

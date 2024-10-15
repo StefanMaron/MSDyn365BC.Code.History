@@ -286,12 +286,11 @@ report 28040 "WHT Certificate - Other"
                         Vendor.Get("Actual Vendor No.")
                     else
                         Vendor.Get("Bill-to/Pay-to No.");
-                end else begin
+                end else
                     if "Transaction Type" = "Transaction Type"::Purchase then
                         Vendor.Get("Bill-to/Pay-to No.")
                     else
                         Customer.Get("Bill-to/Pay-to No.");
-                end;
                 if "Transaction Type" = "Transaction Type"::Purchase then
                     FormatAddr.Vendor(VendAddr, Vendor)
                 else

@@ -112,18 +112,6 @@ page 5336 "CRM Coupling Record"
                 Caption = 'Fields';
                 ShowFilter = false;
             }
-#if not CLEAN22
-            part(CoupledFields; "CRM Coupled Fields")
-            {
-                ApplicationArea = Suite;
-                Caption = 'Fields';
-                ShowFilter = false;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'This page is no longer used. Use CRM Coupling Fields page instead.';
-            }
-#endif
         }
     }
 

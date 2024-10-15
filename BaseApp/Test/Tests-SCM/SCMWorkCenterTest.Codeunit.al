@@ -112,11 +112,9 @@ codeunit 137800 "SCM Work Center Test"
         StartingDate := CalcDate(StrSubstNo('<-%1D>', WaitTime * 2), EndingDate);
         MiddleDate := CalcDate(StrSubstNo('<-%1D>', WaitTime), EndingDate);
 
-        with ProdOrderLine do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            Time := "Ending Time";
-        end;
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        Time := ProdOrderLine."Ending Time";
 
         VerifyFirstProdOrderMachineCenterRtngLineDates(MachineCenterNo, StartingDate, Time, MiddleDate, Time);
         VerifyLastProdOrderMachineCenterRtngLineDates(MachineCenterNo, MiddleDate, Time, EndingDate, Time);
@@ -469,24 +467,20 @@ codeunit 137800 "SCM Work Center Test"
     var
         CapacityConstrainedResource: Record "Capacity Constrained Resource";
     begin
-        with CapacityConstrainedResource do begin
-            LibraryManufacturing.CreateCapacityConstrainedResource(
-              CapacityConstrainedResource, "Capacity Type"::"Machine Center", MachineCenterNo);
-            Validate("Critical Load %", 100);
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateCapacityConstrainedResource(
+          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Machine Center", MachineCenterNo);
+        CapacityConstrainedResource.Validate("Critical Load %", 100);
+        CapacityConstrainedResource.Modify(true);
     end;
 
     local procedure CreateWorkCenterCCR(WorkCenterNo: Code[20]; CriticalLoad: Decimal)
     var
         CapacityConstrainedResource: Record "Capacity Constrained Resource";
     begin
-        with CapacityConstrainedResource do begin
-            LibraryManufacturing.CreateCapacityConstrainedResource(
-              CapacityConstrainedResource, "Capacity Type"::"Work Center", WorkCenterNo);
-            Validate("Critical Load %", CriticalLoad);
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateCapacityConstrainedResource(
+          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenterNo);
+        CapacityConstrainedResource.Validate("Critical Load %", CriticalLoad);
+        CapacityConstrainedResource.Modify(true);
     end;
 
     local procedure CreateSimpleRouting(RoutingLineType: Enum "Capacity Type Routing"; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
@@ -540,25 +534,21 @@ codeunit 137800 "SCM Work Center Test"
           LibraryUtility.GenerateRandomCode(RoutingLine.FieldNo("Operation No."), DATABASE::"Routing Line"),
           RoutingLineType, MachineWorkCenterNo);
 
-        with RoutingLine do begin
-            Validate("Setup Time", SetupTime);
-            Validate("Run Time", RunTime);
-            Validate("Wait Time", WaitTime);
-            Validate("Move Time", MoveTime);
-            Modify();
-        end;
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Validate("Move Time", MoveTime);
+        RoutingLine.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; RoutingHeaderNo: Code[20]): Code[20]
     begin
-        with Item do begin
-            LibraryPatterns.MAKEItemSimple(Item, "Costing Method"::FIFO, LibraryPatterns.RandCost(Item));
-            Validate("Routing No.", RoutingHeaderNo);
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Reordering Policy", "Reordering Policy"::Order);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryPatterns.RandCost(Item));
+        Item.Validate("Routing No.", RoutingHeaderNo);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateProdOrder(Item: Record Item; Quantity: Decimal; DueDate: Date)
@@ -653,11 +643,9 @@ codeunit 137800 "SCM Work Center Test"
     var
         ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
     begin
-        with ShopCalendarWorkingDays do begin
-            SetRange("Shop Calendar Code", ShopCalendarCode);
-            FindFirst();
-            exit("Ending Time");
-        end;
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
+        ShopCalendarWorkingDays.FindFirst();
+        exit(ShopCalendarWorkingDays."Ending Time");
     end;
 
     local procedure FindShopCalendar(): Code[10]
@@ -672,12 +660,10 @@ codeunit 137800 "SCM Work Center Test"
     var
         MfgSetup: Record "Manufacturing Setup";
     begin
-        with MfgSetup do begin
-            Get();
-            Validate("Normal Starting Time", StartingTime);
-            Validate("Normal Ending Time", EndingTime);
-            Modify();
-        end;
+        MfgSetup.Get();
+        MfgSetup.Validate("Normal Starting Time", StartingTime);
+        MfgSetup.Validate("Normal Ending Time", EndingTime);
+        MfgSetup.Modify();
     end;
 
     local procedure UpdateThreeShiftsShopCalendarWorkingDays(ShopCalendarCode: Code[10]; WorkShiftCodes: array[3] of Code[10])
@@ -707,13 +693,11 @@ codeunit 137800 "SCM Work Center Test"
         RequisitionLine: Record "Requisition Line";
         ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetFilter("No.", ItemNoFilter);
-            ModifyAll("Accept Action Message", true);
-            FindFirst();
-            LibraryPlanning.CarryOutPlanWksh(RequisitionLine, ProdOrderChoice::"Firm Planned", 0, 0, 0, '', '', '', '');
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetFilter("No.", ItemNoFilter);
+        RequisitionLine.ModifyAll("Accept Action Message", true);
+        RequisitionLine.FindFirst();
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, ProdOrderChoice::"Firm Planned", 0, 0, 0, '', '', '', '');
     end;
 
     local procedure VerifyDayAllocatedQty(MachineCenterNo: Code[20]; var Date: Date; var AllocatedTotal: Decimal; ExpectedQty: Decimal)
@@ -734,92 +718,78 @@ codeunit 137800 "SCM Work Center Test"
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRtngLine do begin
-            SetRange(Type, Type::"Machine Center");
-            SetRange("No.", MachineCenterNo);
-            FindFirst();
-            VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
-        end;
+        ProdOrderRtngLine.SetRange(Type, ProdOrderRtngLine.Type::"Machine Center");
+        ProdOrderRtngLine.SetRange("No.", MachineCenterNo);
+        ProdOrderRtngLine.FindFirst();
+        VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
     end;
 
     local procedure VerifyLastProdOrderMachineCenterRtngLineDates(MachineCenterNo: Code[20]; ExpStartDate: Date; ExpStartTime: Time; ExpEndDate: Date; ExpEndTime: Time)
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRtngLine do begin
-            SetRange(Type, Type::"Machine Center");
-            SetRange("No.", MachineCenterNo);
-            FindLast();
-            VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
-        end;
+        ProdOrderRtngLine.SetRange(Type, ProdOrderRtngLine.Type::"Machine Center");
+        ProdOrderRtngLine.SetRange("No.", MachineCenterNo);
+        ProdOrderRtngLine.FindLast();
+        VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
     end;
 
     local procedure VerifyFirstProdOrderWorkCenterRtngLineDates(WorkCenterNo: Code[20]; ExpStartDate: Date; ExpStartTime: Time; ExpEndDate: Date; ExpEndTime: Time)
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRtngLine do begin
-            SetRange(Type, Type::"Work Center");
-            SetRange("No.", WorkCenterNo);
-            FindFirst();
-            VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
-        end;
+        ProdOrderRtngLine.SetRange(Type, ProdOrderRtngLine.Type::"Work Center");
+        ProdOrderRtngLine.SetRange("No.", WorkCenterNo);
+        ProdOrderRtngLine.FindFirst();
+        VerifyProdOrderRtngLineDates(ProdOrderRtngLine, ExpStartDate, ExpStartTime, ExpEndDate, ExpEndTime);
     end;
 
     local procedure VerifyProdOrderRtngLineDates(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ExpStartDate: Date; ExpStartTime: Time; ExpEndDate: Date; ExpEndTime: Time)
     begin
-        with ProdOrderRtngLine do begin
-            Assert.AreEqual(ExpStartDate, "Starting Date", ProdOrderRtngLineDateErr);
-            Assert.AreEqual(ExpStartTime, "Starting Time", ProdOrderRtngLineDateErr);
-            Assert.AreEqual(ExpEndDate, "Ending Date", ProdOrderRtngLineDateErr);
-            Assert.AreEqual(ExpEndTime, "Ending Time", ProdOrderRtngLineDateErr);
-        end;
+        Assert.AreEqual(ExpStartDate, ProdOrderRtngLine."Starting Date", ProdOrderRtngLineDateErr);
+        Assert.AreEqual(ExpStartTime, ProdOrderRtngLine."Starting Time", ProdOrderRtngLineDateErr);
+        Assert.AreEqual(ExpEndDate, ProdOrderRtngLine."Ending Date", ProdOrderRtngLineDateErr);
+        Assert.AreEqual(ExpEndTime, ProdOrderRtngLine."Ending Time", ProdOrderRtngLineDateErr);
     end;
 
     local procedure VerifyReqLineDates(ItemNo: Code[20]; StaringDate: Date; StartingTime: Time; EndingDate: Date; EndingTime: Time)
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(StaringDate, "Starting Date", ReqLineDatesErr);
-            Assert.AreEqual(StartingTime, "Starting Time", ReqLineDatesErr);
-            Assert.AreEqual(EndingDate, "Ending Date", ReqLineDatesErr);
-            Assert.AreEqual(EndingTime, "Ending Time", ReqLineDatesErr);
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindFirst();
+        Assert.AreEqual(StaringDate, RequisitionLine."Starting Date", ReqLineDatesErr);
+        Assert.AreEqual(StartingTime, RequisitionLine."Starting Time", ReqLineDatesErr);
+        Assert.AreEqual(EndingDate, RequisitionLine."Ending Date", ReqLineDatesErr);
+        Assert.AreEqual(EndingTime, RequisitionLine."Ending Time", ReqLineDatesErr);
     end;
 
     local procedure VerifyProdOrderComponenDates(ItemNo: Code[20]; ExpDueDate: Date; ExpDueTime: Time)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(ExpDueDate, "Due Date", ProdOrderCompDatesErr);
-            Assert.AreEqual(ExpDueTime, "Due Time", ProdOrderCompDatesErr);
-        end;
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+        Assert.AreEqual(ExpDueDate, ProdOrderComponent."Due Date", ProdOrderCompDatesErr);
+        Assert.AreEqual(ExpDueTime, ProdOrderComponent."Due Time", ProdOrderCompDatesErr);
     end;
 
     local procedure VerifyProdOrderCapNeedRoundingAndDateConsistency(MachineCenterNoFilter: Text)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
-        with ProdOrderCapacityNeed do begin
-            SetRange(Type, Type::"Machine Center");
-            SetFilter("No.", MachineCenterNoFilter);
-            FindSet();
-            repeat
-                Assert.AreEqual(0, ("Starting Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
-                Assert.AreEqual(0, ("Ending Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
-                Assert.AreEqual(0, "Allocated Time" mod 1, ProdOrderCapNeedRoundErr);
-                Assert.AreEqual(0, "Needed Time" mod 1, ProdOrderCapNeedRoundErr);
-                Assert.AreEqual("Ending Time", DT2Time("Ending Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
-                Assert.AreEqual("Starting Time", DT2Time("Starting Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
-            until Next() = 0;
-        end;
+        ProdOrderCapacityNeed.SetRange(Type, ProdOrderCapacityNeed.Type::"Machine Center");
+        ProdOrderCapacityNeed.SetFilter("No.", MachineCenterNoFilter);
+        ProdOrderCapacityNeed.FindSet();
+        repeat
+            Assert.AreEqual(0, (ProdOrderCapacityNeed."Starting Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
+            Assert.AreEqual(0, (ProdOrderCapacityNeed."Ending Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
+            Assert.AreEqual(0, ProdOrderCapacityNeed."Allocated Time" mod 1, ProdOrderCapNeedRoundErr);
+            Assert.AreEqual(0, ProdOrderCapacityNeed."Needed Time" mod 1, ProdOrderCapNeedRoundErr);
+            Assert.AreEqual(ProdOrderCapacityNeed."Ending Time", DT2Time(ProdOrderCapacityNeed."Ending Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
+            Assert.AreEqual(ProdOrderCapacityNeed."Starting Time", DT2Time(ProdOrderCapacityNeed."Starting Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
+        until ProdOrderCapacityNeed.Next() = 0;
     end;
 
     local procedure VerifyProdOrderCapNeedZeroAllocatedTimeNotExist(MachineCenterNoFilter: Text)

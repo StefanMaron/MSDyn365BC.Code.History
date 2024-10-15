@@ -500,7 +500,7 @@ codeunit 132554 "Data Exch. E2E"
         CreateDataExchFieldMapping(DataExchFieldMapping, DataExchMapping);
 
         if not TransformationRule.Get('EUCOUNTRYCODELOOKUP') then begin
-            TransformationRule.CreateRule('EUCOUNTRYCODELOOKUP', 'EU Country Lookup', Enum::"Transformation Rule Type"::"Field Lookup".AsInteger(), 0, 0, '', '');
+            TransformationRule.CreateRule('EUCOUNTRYCODELOOKUP', 'EU Country Lookup', Enum::"Transformation Rule Type"::"Field Lookup", 0, 0, '', '');
             TransformationRule.Get('EUCOUNTRYCODELOOKUP');
         end;
         TransformationRule."Table ID" := 9;
@@ -510,7 +510,7 @@ codeunit 132554 "Data Exch. E2E"
         TransformationRule.Modify();
 
         if not TransformationRule.Get('ROUNDTOINT') then begin
-            TransformationRule.CreateRule('ROUNDTOINT', 'Round to int', Enum::"Transformation Rule Type"::Round.AsInteger(), 0, 0, '', '');
+            TransformationRule.CreateRule('ROUNDTOINT', 'Round to int', Enum::"Transformation Rule Type"::Round, 0, 0, '', '');
             TransformationRule.Get('ROUNDTOINT');
         end;
         TransformationRule.Precision := 1.00;

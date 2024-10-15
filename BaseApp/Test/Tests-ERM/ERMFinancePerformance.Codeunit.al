@@ -1140,20 +1140,18 @@ codeunit 134923 "ERM Finance Performance"
     var
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
     begin
-        with AccSchedChartSetupLine do begin
-            Init();
-            "User ID" := AccountSchedulesChartSetup."User ID";
-            Name := AccountSchedulesChartSetup.Name;
-            "Account Schedule Name" := AccountSchedulesChartSetup."Account Schedule Name";
-            "Account Schedule Line No." := AccScheduleLineNo;
-            "Column Layout Name" := AccountSchedulesChartSetup."Column Layout Name";
-            "Column Layout Line No." := ColLayoutLineNo;
-            "Original Measure Name" := MeasureName;
-            "Measure Name" := MeasureName;
-            "Measure Value" := MeasureValue;
-            "Chart Type" := ChartType;
-            Insert();
-        end;
+        AccSchedChartSetupLine.Init();
+        AccSchedChartSetupLine."User ID" := AccountSchedulesChartSetup."User ID";
+        AccSchedChartSetupLine.Name := AccountSchedulesChartSetup.Name;
+        AccSchedChartSetupLine."Account Schedule Name" := AccountSchedulesChartSetup."Account Schedule Name";
+        AccSchedChartSetupLine."Account Schedule Line No." := AccScheduleLineNo;
+        AccSchedChartSetupLine."Column Layout Name" := AccountSchedulesChartSetup."Column Layout Name";
+        AccSchedChartSetupLine."Column Layout Line No." := ColLayoutLineNo;
+        AccSchedChartSetupLine."Original Measure Name" := MeasureName;
+        AccSchedChartSetupLine."Measure Name" := MeasureName;
+        AccSchedChartSetupLine."Measure Value" := MeasureValue;
+        AccSchedChartSetupLine."Chart Type" := ChartType;
+        AccSchedChartSetupLine.Insert();
     end;
 
     local procedure FilterCodeCoverageForLinesIntructionPerfTest(var CodeCoverage: Record "Code Coverage")
@@ -1281,13 +1279,11 @@ codeunit 134923 "ERM Finance Performance"
     local procedure CreateAnalysisViewBudgetEntry(var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; PostingDate: Date; AnalysisViewCode: Code[10]; GLAccountNo: Code[20])
     begin
         Clear(AnalysisViewBudgetEntry);
-        with AnalysisViewBudgetEntry do begin
-            "Analysis View Code" := AnalysisViewCode;
-            "G/L Account No." := GLAccountNo;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
+        AnalysisViewBudgetEntry."Analysis View Code" := AnalysisViewCode;
+        AnalysisViewBudgetEntry."G/L Account No." := GLAccountNo;
+        AnalysisViewBudgetEntry."Posting Date" := PostingDate;
+        AnalysisViewBudgetEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        AnalysisViewBudgetEntry.Insert();
     end;
 
     local procedure ClearDrillDownGlobalParams()
@@ -2045,11 +2041,9 @@ codeunit 134923 "ERM Finance Performance"
     local procedure FilterCodeCoverageForObject(var CodeCoverage: Record "Code Coverage"; ObjectType: Option; ObjectID: Integer)
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
     end;
 
     [MessageHandler]

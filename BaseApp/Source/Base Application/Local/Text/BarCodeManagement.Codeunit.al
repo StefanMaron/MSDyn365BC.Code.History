@@ -143,35 +143,32 @@ codeunit 28001 "BarCode Management"
     var
         i: Integer;
     begin
-        if Bar = '' then begin
-            Bar := Bar3Table[Dec + 1];
-        end else
-            for i := 1 to 64 do begin
+        if Bar = '' then
+            Bar := Bar3Table[Dec + 1]
+        else
+            for i := 1 to 64 do
                 if Bar = Bar3Table[i] then begin
                     Dec := i - 1;
                     exit;
                 end;
-            end;
     end;
 
     local procedure CEncode(var Character: Text[1]; var Bar: Text[3])
     var
         i: Integer;
     begin
-        if Character <> '' then begin
-            for i := 1 to 64 do begin
+        if Character <> '' then
+            for i := 1 to 64 do
                 if Character = CTable[i] then begin
                     Bar := Bar3Table[i];
                     exit;
-                end;
-            end;
-        end else
-            for i := 1 to 64 do begin
-                if Bar = Bar3Table[i] then begin
-                    Character := CTable[i];
-                    exit;
-                end;
-            end;
+                end
+                else
+                    for i := 1 to 64 do
+                        if Bar = Bar3Table[i] then begin
+                            Character := CTable[i];
+                            exit;
+                        end;
     end;
 
     local procedure NEncode(var Dec: Text[1]; var Bar: Text[2])
@@ -182,12 +179,11 @@ codeunit 28001 "BarCode Management"
             if Evaluate(i, Dec) then
                 Bar := Bar2Table[i + 1];
         end else
-            for i := 1 to 10 do begin
+            for i := 1 to 10 do
                 if Bar = Bar2Table[i] then begin
                     Dec := Format(i - 1);
                     exit;
                 end;
-            end;
     end;
 
     local procedure GenerateBarTables()

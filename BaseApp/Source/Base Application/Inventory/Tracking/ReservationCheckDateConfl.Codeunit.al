@@ -11,7 +11,6 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 99000815 "Reservation-Check Date Confl."
 {
@@ -312,20 +311,14 @@ codeunit 99000815 "Reservation-Check Date Confl."
         ReservMgt.AutoTrack(TransferLine."Outstanding Qty. (Base)");
     end;
 
-    procedure ServiceInvLineCheck(ServiceLine: Record "Service Line"; ForceRequest: Boolean)
-    var
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServiceLineReserve', '25.0')]
+    procedure ServiceInvLineCheck(ServiceLine: Record Microsoft.Service.Document."Service Line"; ForceRequest: Boolean)
+        ServiceLineReserve: Codeunit Microsoft.Service.Document."Service Line-Reserve";
     begin
-        if not ServiceLineReserve.FindReservEntry(ServiceLine, ReservationEntry) then
-            exit;
-        if DateConflict(ServiceLine."Needed by Date", ForceRequest, ReservationEntry) then
-            if ForceRequest then
-                IssueError(ServiceLine."Needed by Date");
-        UpdateDate(ReservationEntry, ServiceLine."Needed by Date");
-        ReservMgt.SetReservSource(ServiceLine);
-        ReservMgt.ClearSurplus();
-        ReservMgt.AutoTrack(ServiceLine."Outstanding Qty. (Base)");
+        ServiceLineReserve.ServiceInvLineCheck(ServiceLine, ForceRequest)
     end;
+#endif
 
     procedure JobPlanningLineCheck(JobPlanningLine: Record "Job Planning Line"; ForceRequest: Boolean)
     var

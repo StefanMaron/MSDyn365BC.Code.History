@@ -127,6 +127,8 @@ page 99000810 "Routing Version"
         RtngHeader: Record "Routing Header";
         CopyRouting: Codeunit "Routing Line-Copy Lines";
 
+#pragma warning disable AA0074
         Text000: Label 'Copy from routing header?';
+#pragma warning restore AA0074
 }
 

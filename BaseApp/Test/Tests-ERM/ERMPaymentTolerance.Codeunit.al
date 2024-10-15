@@ -3859,12 +3859,10 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalTemplate do begin
-            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-            Validate(Type, Type::"Cash Receipts");
-            Modify(true);
-            LibraryERM.CreateGenJournalBatch(GenJournalBatch, Name);
-        end;
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -3928,14 +3926,12 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         SelectGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            DeleteAll();
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Invoice,
-              AccountType, AccountNo, LineAmount);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-        end;
+        GenJournalLine.DeleteAll();
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -4350,14 +4346,12 @@ codeunit 134022 "ERM Payment Tolerance"
             CreateGeneralJournalTemplate(GenJournalTemplate, GenJournalTemplate.Type::"Cash Receipts");
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Customer, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
         Commit();
     end;
 
@@ -4689,26 +4683,22 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldCustLedgEntry.SetRange("Document Type", DocType);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.SetRange(Unapplied, true);
+        DtldCustLedgEntry.FindLast();
+        exit(DtldCustLedgEntry."Transaction No.");
     end;
 
     local procedure GetTransNoFromUnappliedVendDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldVendLedgEntry.SetRange("Document Type", DocType);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.SetRange(Unapplied, true);
+        DtldVendLedgEntry.FindLast();
+        exit(DtldVendLedgEntry."Transaction No.");
     end;
 
     local procedure RunChangePaymentTolerance(AllCurrency: Boolean; CurrencyCode: Code[10]; PaymentTolerancePercent: Decimal; MaxPaymentToleranceAmount: Decimal)
@@ -4841,12 +4831,10 @@ codeunit 134022 "ERM Payment Tolerance"
 
     local procedure SetupGenJnlLineForApplication(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
-        with GenJournalLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to Doc. Type", AppliesToDocType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
@@ -4935,54 +4923,46 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Document Type"::Payment, PaymentNo);
-            CalcFields("Original Amount", Amount, "Remaining Amount");
-            TestField("Original Amount", ExpectedOrigAmount);
-            TestField(Amount, ExpectedAmount);
-            TestField("Remaining Amount", ExpectedRemAmount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, PaymentNo);
+        VendorLedgerEntry.CalcFields("Original Amount", Amount, "Remaining Amount");
+        VendorLedgerEntry.TestField("Original Amount", ExpectedOrigAmount);
+        VendorLedgerEntry.TestField(Amount, ExpectedAmount);
+        VendorLedgerEntry.TestField("Remaining Amount", ExpectedRemAmount);
     end;
 
     local procedure VerifyCustomerPayment(CustomerNo: Code[20]; PaymentNo: Code[20]; ExpectedOrigAmount: Decimal; ExpectedAmount: Decimal; ExpectedRemAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Document Type"::Payment, PaymentNo);
-            CalcFields("Original Amount", Amount, "Remaining Amount");
-            TestField("Original Amount", ExpectedOrigAmount);
-            TestField(Amount, ExpectedAmount);
-            TestField("Remaining Amount", ExpectedRemAmount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        CustLedgerEntry.CalcFields("Original Amount", Amount, "Remaining Amount");
+        CustLedgerEntry.TestField("Original Amount", ExpectedOrigAmount);
+        CustLedgerEntry.TestField(Amount, ExpectedAmount);
+        CustLedgerEntry.TestField("Remaining Amount", ExpectedRemAmount);
     end;
 
     local procedure VerifyVendorInvoiceMaxPaymentToleranceAndRemAmount(VendorNo: Code[20]; InvoiceNo: Code[20]; ExpectedMaxPaymentTolerance: Decimal; ExpectedRemAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Document Type"::Invoice, InvoiceNo);
-            CalcFields("Remaining Amount");
-            TestField("Max. Payment Tolerance", ExpectedMaxPaymentTolerance);
-            TestField("Remaining Amount", ExpectedRemAmount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Max. Payment Tolerance", ExpectedMaxPaymentTolerance);
+        VendorLedgerEntry.TestField("Remaining Amount", ExpectedRemAmount);
     end;
 
     local procedure VerifyCustomerInvoiceMaxPaymentToleranceAndRemAmount(CustomerNo: Code[20]; InvoiceNo: Code[20]; ExpectedMaxPaymentTolerance: Decimal; ExpectedRemAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Document Type"::Invoice, InvoiceNo);
-            CalcFields("Remaining Amount");
-            TestField("Max. Payment Tolerance", ExpectedMaxPaymentTolerance);
-            TestField("Remaining Amount", ExpectedRemAmount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Max. Payment Tolerance", ExpectedMaxPaymentTolerance);
+        CustLedgerEntry.TestField("Remaining Amount", ExpectedRemAmount);
     end;
 
     local procedure VerifyVendorInvoiceAndPayment(VendorNo: Code[20]; InvoiceNo: Code[20]; PaymentNo: Code[20]; ExpectedInvMaxPaymentTolerance: Decimal; ExpectedInvRemAmount: Decimal; ExpectedPmtOrigAmount: Decimal; ExpectedPmtAmount: Decimal; ExpectedPmtRemAmount: Decimal)

@@ -719,7 +719,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
         VATEntry.DeleteAll();
-        
+
         // [GIVEN] Sales Invoice with Deferral % = 50 and Reverse Charge VAT 25% has Amount = 1000
         CreateSalesDocWithLineRevCharge(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
@@ -1661,11 +1661,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure UpdateDefScheduleLine(var DeferralLine: Record "Deferral Line"; DefAmount: Decimal; DefLineDescr: Text[100])
     begin
-        with DeferralLine do begin
-            Validate(Description, PadStr(DefLineDescr, MaxStrLen(Description), '0'));
-            Validate(Amount, DefAmount);
-            Modify(true);
-        end;
+        DeferralLine.Validate(Description, PadStr(DefLineDescr, MaxStrLen(DeferralLine.Description), '0'));
+        DeferralLine.Validate(Amount, DefAmount);
+        DeferralLine.Modify(true);
     end;
 
     local procedure FillTempAmountLines(var TempGLEntry: Record "G/L Entry" temporary; LineNo: Integer; GLAccountNo: Code[20]; Amount: Decimal)

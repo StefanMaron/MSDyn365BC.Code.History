@@ -394,16 +394,14 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
 
     local procedure InsertWizardData(var TempApprovalWorkflowWizard: Record "Approval Workflow Wizard" temporary; PurchInvAppWF: Boolean; SalesInvAppWF: Boolean; UseExistApprovalUserSetup: Boolean; ApproverID: Code[50]; PurchAmounApprovaltLimit: Decimal; SalesAmountApprovalLimit: Decimal)
     begin
-        with TempApprovalWorkflowWizard do begin
-            Init();
-            "Purch Invoice App. Workflow" := PurchInvAppWF;
-            "Sales Invoice App. Workflow" := SalesInvAppWF;
-            "Use Exist. Approval User Setup" := UseExistApprovalUserSetup;
-            "Approver ID" := ApproverID;
-            "Purch Amount Approval Limit" := PurchAmounApprovaltLimit;
-            "Sales Amount Approval Limit" := SalesAmountApprovalLimit;
-            Insert();
-        end;
+        TempApprovalWorkflowWizard.Init();
+        TempApprovalWorkflowWizard."Purch Invoice App. Workflow" := PurchInvAppWF;
+        TempApprovalWorkflowWizard."Sales Invoice App. Workflow" := SalesInvAppWF;
+        TempApprovalWorkflowWizard."Use Exist. Approval User Setup" := UseExistApprovalUserSetup;
+        TempApprovalWorkflowWizard."Approver ID" := ApproverID;
+        TempApprovalWorkflowWizard."Purch Amount Approval Limit" := PurchAmounApprovaltLimit;
+        TempApprovalWorkflowWizard."Sales Amount Approval Limit" := SalesAmountApprovalLimit;
+        TempApprovalWorkflowWizard.Insert();
     end;
 
     local procedure VerifyApprovalDocumentWorkflow(WorkflowCode: Code[20])

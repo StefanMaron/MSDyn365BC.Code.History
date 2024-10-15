@@ -689,19 +689,17 @@ codeunit 137050 "SCM Sales Order Management"
     var
         RecRef: RecordRef;
     begin
-        with SalesLine do begin
-            Init();
-            Validate("Document Type", SalesHeader."Document Type");
-            Validate("Document No.", SalesHeader."No.");
-            RecRef.GetTable(SalesLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        RecRef.GetTable(SalesLine);
+        SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
+        SalesLine.Insert(true);
 
-            Validate(Type, AssignType);
-            Validate("No.", AssignNo);
-            Validate(Quantity, AssignQuantity);
-            Modify(true);
-        end;
+        SalesLine.Validate(Type, AssignType);
+        SalesLine.Validate("No.", AssignNo);
+        SalesLine.Validate(Quantity, AssignQuantity);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesHeaderWithRequestedDelivery(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]) OutboundHandlingDays: Integer
@@ -714,15 +712,13 @@ codeunit 137050 "SCM Sales Order Management"
         OutboundHandlingDays := LibraryRandom.RandIntInRange(1, 3);
         Evaluate(OutboundWhseHandlingTime, '<' + Format(OutboundHandlingDays) + 'D>');
         RequestedDeliveryDate := CalcDate('<' + Format(LibraryRandom.RandIntInRange(30, 50)) + 'D>', WorkDate());
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
-            Validate("Location Code", LocationCode);
-            Validate("Shipment Date", 0D);
-            Validate("Outbound Whse. Handling Time", OutboundWhseHandlingTime);
-            Validate("Shipping Time", ShippingTime);
-            Validate("Requested Delivery Date", RequestedDeliveryDate);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("Shipment Date", 0D);
+        SalesHeader.Validate("Outbound Whse. Handling Time", OutboundWhseHandlingTime);
+        SalesHeader.Validate("Shipping Time", ShippingTime);
+        SalesHeader.Validate("Requested Delivery Date", RequestedDeliveryDate);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateLocation(var Location: Record Location; BaseCalendarCode: Code[10])
@@ -755,13 +751,12 @@ codeunit 137050 "SCM Sales Order Management"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         WeekDay: Option;
     begin
-        with CustomizedCalendarChange do
-            for WeekDay := Day::Monday to Day::Sunday do
-                if WeekDay <> SetWorkingDay then
-                    LibraryService.CreateCustomizedCalendarChange(
-                      BaseCalendarCode, CustomizedCalendarChange, "Source Type"::"Shipping Agent".AsInteger(),
-                      ShippingAgentServices."Shipping Agent Code", ShippingAgentServices.Code,
-                      "Recurring System"::"Weekly Recurring", WeekDay, true);
+        for WeekDay := CustomizedCalendarChange.Day::Monday to CustomizedCalendarChange.Day::Sunday do
+            if WeekDay <> SetWorkingDay then
+                LibraryService.CreateCustomizedCalendarChange(
+                  BaseCalendarCode, CustomizedCalendarChange, CustomizedCalendarChange."Source Type"::"Shipping Agent".AsInteger(),
+                  ShippingAgentServices."Shipping Agent Code", ShippingAgentServices.Code,
+                  CustomizedCalendarChange."Recurring System"::"Weekly Recurring", WeekDay, true);
     end;
 
     local procedure CalculatePlannedDate(var PlannedShipmentDate: Date; var PlannedDeliveryDate: Date; SalesLine: Record "Sales Line")

@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.Reports;
+﻿namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -373,10 +373,12 @@ report 411 "Vendor - Payment Receipt"
         PmtDiscInvCurr: Decimal;
         PmtTolInvCurr: Decimal;
         PmtDiscPmtCurr: Decimal;
+#pragma warning disable AA0074
         Text003: Label 'Payment Receipt';
         Text004: Label 'Payment Voucher';
         Text006: Label 'Payment Discount Given';
         Text007: Label 'Payment Discount Received';
+#pragma warning restore AA0074
         PmtTolPmtCurr: Decimal;
         ShowAmount: Decimal;
         WHTAmount: Decimal;

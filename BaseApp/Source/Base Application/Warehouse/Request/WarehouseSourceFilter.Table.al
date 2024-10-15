@@ -8,19 +8,10 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN23
-using Microsoft.Purchases.Document;
-#endif
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-#if not CLEAN23
-using Microsoft.Sales.Document;
-#endif
 using Microsoft.Sales.History;
-#if not CLEAN23
-using Microsoft.Service.Document;
-#endif
 
 table 5771 "Warehouse Source Filter"
 {
@@ -183,16 +174,7 @@ table 5771 "Warehouse Source Filter"
 
             trigger OnValidate()
             begin
-                if Type = Type::Inbound then begin
-                    "Sales Orders" := false;
-                    "Purchase Return Orders" := false;
-                    "Outbound Transfers" := false;
-                    "Service Orders" := false;
-                end else begin
-                    "Purchase Orders" := false;
-                    "Sales Return Orders" := false;
-                    "Inbound Transfers" := false;
-                end;
+                CheckType();
             end;
         }
         field(101; "Sales Orders"; Boolean)
@@ -275,7 +257,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if not Partial and not Complete then
-                    Error(Text000, FieldCaption("Shipping Advice Filter"));
+                    Error(MustBeChosenErr, FieldCaption("Shipping Advice Filter"));
             end;
         }
         field(109; Complete; Boolean)
@@ -286,18 +268,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if not Partial and not Complete then
-                    Error(Text000, FieldCaption("Shipping Advice Filter"));
-            end;
-        }
-        field(110; "Service Orders"; Boolean)
-        {
-            Caption = 'Service Orders';
-            InitValue = true;
-
-            trigger OnValidate()
-            begin
-                if Type = Type::Outbound then
-                    CheckOutboundSourceDocumentChosen();
+                    Error(MustBeChosenErr, FieldCaption("Shipping Advice Filter"));
             end;
         }
         field(1001; "Job Task No. Filter"; Code[100])
@@ -360,31 +331,26 @@ table 5771 "Warehouse Source Filter"
     {
     }
 
-    var
-        Text000: Label '%1 must be chosen.';
+    protected var
+        MustBeChosenErr: Label '%1 must be chosen.', Comment = '%1 - source type';
 
     procedure SetFilters(var GetSourceDocuments: Report "Get Source Documents"; LocationCode: Code[10])
     var
         WhseRequest: Record "Warehouse Request";
 #if not CLEAN23
-        SalesLine: Record "Sales Line";
-        PurchLine: Record "Purchase Line";
+        SalesLine: Record Microsoft.Sales.Document."Sales Line";
+        PurchLine: Record Microsoft.Purchases.Document."Purchase Line";
         TransLine: Record "Transfer Line";
-        SalesHeader: Record "Sales Header";
-        PurchHeader: Record "Purchase Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
+        SalesHeader: Record Microsoft.Sales.Document."Sales Header";
+        PurchHeader: Record Microsoft.Purchases.Document."Purchase Header";
+        ServiceHeader: Record Microsoft.Service.Document."Service Header";
+        ServiceLine: Record Microsoft.Service.Document."Service Line";
 #endif
     begin
         "Source Document" := '';
 
         if "Sales Orders" then begin
             WhseRequest."Source Document" := WhseRequest."Source Document"::"Sales Order";
-            AddFilter("Source Document", Format(WhseRequest."Source Document"));
-        end;
-
-        if "Service Orders" then begin
-            WhseRequest."Source Document" := WhseRequest."Source Document"::"Service Order";
             AddFilter("Source Document", Format(WhseRequest."Source Document"));
         end;
 
@@ -413,8 +379,10 @@ table 5771 "Warehouse Source Filter"
             AddFilter("Source Document", Format(WhseRequest."Source Document"));
         end;
 
+        OnSetFiltersOnAfterSetSourceFilters(Rec, WhseRequest);
+
         if "Source Document" = '' then
-            Error(Text000, FieldCaption("Source Document"));
+            Error(MustBeChosenErr, FieldCaption("Source Document"));
 
         WhseRequest.SetFilter("Source Document", "Source Document");
         WhseRequest.SetFilter("Source No.", "Source No. Filter");
@@ -506,13 +474,28 @@ table 5771 "Warehouse Source Filter"
     local procedure CheckInboundSourceDocumentChosen()
     begin
         if not ("Sales Return Orders" or "Purchase Orders" or "Inbound Transfers") then
-            Error(Text000, FieldCaption("Source Document"));
+            Error(MustBeChosenErr, FieldCaption("Source Document"));
     end;
 
     local procedure CheckOutboundSourceDocumentChosen()
     begin
-        if not ("Sales Orders" or "Purchase Return Orders" or "Outbound Transfers" or "Service Orders") then
-            Error(Text000, FieldCaption("Source Document"));
+        if not ("Sales Orders" or "Purchase Return Orders" or "Outbound Transfers") then
+            Error(MustBeChosenErr, FieldCaption("Source Document"));
+    end;
+
+    local procedure CheckType()
+    begin
+        if Type = Type::Inbound then begin
+            "Sales Orders" := false;
+            "Purchase Return Orders" := false;
+            "Outbound Transfers" := false;
+        end else begin
+            "Purchase Orders" := false;
+            "Sales Return Orders" := false;
+            "Inbound Transfers" := false;
+        end;
+
+        OnAfterCheckType(Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -523,13 +506,28 @@ table 5771 "Warehouse Source Filter"
 #if not CLEAN23
     [Obsolete('Related code moved to codeunits [Source Table] Warehouse Mgt. This event is replaced with similar events in [Source Table] Warehouse Mgt. codeunits.', '23.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetTableView(var WarehouseRequest: Record "Warehouse Request"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var PurchaseLine: Record "Purchase Line"; var TransferLine: Record "Transfer Line"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var WarehouseSourceFilter: Record "Warehouse Source Filter"; var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeSetTableView(
+        var WarehouseRequest: Record "Warehouse Request";
+        var SalesHeader: Record Microsoft.Sales.Document."Sales Header"; var SalesLine: Record Microsoft.Sales.Document."Sales Line";
+        var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var TransferLine: Record "Transfer Line";
+        var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line";
+        var WarehouseSourceFilter: Record "Warehouse Source Filter"; var PurchaseHeader: Record Microsoft.Purchases.Document."Purchase Header")
     begin
     end;
 #endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckType(var WarehouseSourceFilter: Record "Warehouse Source Filter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFiltersOnAfterSetSourceFilters(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 }

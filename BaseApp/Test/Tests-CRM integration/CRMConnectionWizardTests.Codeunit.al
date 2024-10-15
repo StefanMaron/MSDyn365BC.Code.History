@@ -375,6 +375,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] EnableCRMConnectionFromWizard() should execute on the context record
@@ -384,7 +385,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://somedomain.dynamics.com';
         CRMConnectionSetup."User Name" := 'user@test.net';
-        CRMConnectionSetup.SetPassword('password');
+        DummyPassword := 'password';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
         // [WHEN] EnableCRMConnectionFromWizard() on a empty CRMConnectionSetup
         TempCRMConnectionSetup.Insert();
@@ -400,6 +402,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] UpdateFromWizard() should set credentials on the context record
@@ -408,7 +411,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup."User Name" := 'user@test.net';
 
         // [WHEN] UpdateFromWizard() on the temp record
-        TempCRMConnectionSetup.UpdateFromWizard(CRMConnectionSetup, 'password');
+        DummyPassword := 'password';
+        TempCRMConnectionSetup.UpdateFromWizard(CRMConnectionSetup, DummyPassword);
 
         // [THEN] The temp record got set
         Assert.IsTrue(TempCRMConnectionSetup.Get(), 'temp record should exist');
@@ -638,6 +642,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211819] UpdateFromWizard should set "Authentication Type" = Office365 by default
@@ -646,7 +651,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         TempCRMConnectionSetup.Insert();
 
         // [WHEN] UpdateFromWizard is run
-        CRMConnectionSetup.UpdateFromWizard(TempCRMConnectionSetup, '***');
+        DummyPassword := '***';
+        CRMConnectionSetup.UpdateFromWizard(TempCRMConnectionSetup, DummyPassword);
 
         // [THEN] CRM Connection Setup "Authentication Type" = Office365 by default
         Assert.AreEqual(
@@ -660,6 +666,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        ClientSecret: Text;
     begin
         LibraryVariableStorage.Clear();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
@@ -673,7 +680,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CDSConnectionSetup."User Name" := 'test@test.com';
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
     end;
@@ -683,16 +691,15 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Trap();
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
 
-        with CRMConnectionSetupWizard do begin
-            ServerAddress.SetValue('https://test.dynamics.com');
-            ActionNext.Invoke(); // Credentials page
-            Email.SetValue('test@test.com');
-            Password.SetValue('test1234');
-            ImportCRMSolution.SetValue(false);
-            EnableBidirectionalSalesOrderIntegration.SetValue(false);
-            EnableCRMConnection.SetValue(false);
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
+        CRMConnectionSetupWizard.ActionNext.Invoke();
+        // Credentials page
+        CRMConnectionSetupWizard.Email.SetValue('test@test.com');
+        CRMConnectionSetupWizard.Password.SetValue('test1234');
+        CRMConnectionSetupWizard.ImportCRMSolution.SetValue(false);
+        CRMConnectionSetupWizard.EnableBidirectionalSalesOrderIntegration.SetValue(false);
+        CRMConnectionSetupWizard.EnableCRMConnection.SetValue(false);
+        Assert.IsFalse(CRMConnectionSetupWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure CreateCRMConnectionSetup(var CRMConnectionSetup: Record "CRM Connection Setup")

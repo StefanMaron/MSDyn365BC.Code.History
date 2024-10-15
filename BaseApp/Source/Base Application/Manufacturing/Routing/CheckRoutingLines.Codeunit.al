@@ -16,8 +16,12 @@ codeunit 99000752 "Check Routing Lines"
         UOMMgt: Codeunit "Unit of Measure Management";
         ErrList: Text[50];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Circular reference in routing %1 when calculating %2. Counted sequences %3. Max. lines %4.';
+#pragma warning restore AA0470
         Text001: Label 'back';
+#pragma warning disable AA0470
         Text002: Label 'Actual number of termination processes in route %1 is %2. They should be 1. Check %3.';
         Text003: Label 'Actual number of start processes in route %1 is %2. They should be 1. Check %3.';
         Text004: Label 'Not all routing lines are sequenced backwards on routing %1. Check %2.';
@@ -25,6 +29,8 @@ codeunit 99000752 "Check Routing Lines"
         Text006: Label 'Previous operations for %1 cannot be found.';
         Text007: Label 'Next operations for %1 cannot be found.';
         Text008: Label 'Operation %1 does not have a work center or a machine center defined.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
 
     local procedure ErrorInRouting(RoutingCode: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
