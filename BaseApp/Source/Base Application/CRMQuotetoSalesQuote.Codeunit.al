@@ -348,8 +348,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
                     Error(UnexpectedProductTypeErr, CannotCreateSalesQuoteInNAVTxt, CRMProduct.ProductNumber);
             end;
         end;
-        CRMQuotedetail.Description.CreateInStream(InStream, TEXTENCODING::UTF8);
-        InStream.Read(CRMQuoteDescription);
+        CRMQuotedetail.CalcFields(Description);
+        CRMQuotedetail.Description.CreateInStream(InStream, TEXTENCODING::UTF16);
+        InStream.ReadText(CRMQuoteDescription);
         if CRMQuoteDescription = '' then
             CRMQuoteDescription := CRMQuotedetail.ProductDescription;
         SetLineDescription(SalesHeader, SalesLine, CRMQuoteDescription);
@@ -405,16 +406,25 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RecordLink.Insert(true);
     end;
 
-    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text)
+    local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LineDescription: Text);
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ExtendedDescription: Text;
     begin
-        if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then begin
-            SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
-            CreateExtendedDescriptionQuoteLines(
-              SalesHeader,
-              CopyStr(
-                LineDescription,
-                MaxStrLen(SalesLine.Description) + 1));
-        end;
+        ExtendedDescription := LineDescription;
+
+        // in case of write-in product - write the description directly in the main sales line description
+        if SalesReceivablesSetup.Get() then
+            if SalesLine."No." = SalesReceivablesSetup."Write-in Product No." then begin
+                SalesLine.Description := CopyStr(LineDescription, 1, MaxStrLen(SalesLine.Description));
+                if StrLen(LineDescription) > MaxStrLen(SalesLine.Description) then
+                    ExtendedDescription := CopyStr(LineDescription, MaxStrLen(SalesLine.Description) + 1)
+                else
+                    ExtendedDescription := '';
+            end;
+
+        // in case of inventory item - write the item name in the main line and create extended lines with the extended description
+        CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
     end;
 
     procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
