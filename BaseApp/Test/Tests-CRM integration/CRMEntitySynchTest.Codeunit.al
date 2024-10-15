@@ -104,12 +104,12 @@ codeunit 139180 "CRM Entity Synch Test"
         // [FEATURE] [Customer]
         // [SCENARIO] Synchronizing multiple customers
         Init();
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
         // [GIVEN] A customer previously synced with a CRM account and neither updated since
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         Customer.Name := 'TestCust1';
         Customer.Modify();
         ScheduledCustomer[1] := Customer;
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
         // [GIVEN] An uncoupled customer
@@ -124,6 +124,8 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [GIVEN] A customer with an uncoupled salesperson
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Clear(IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
@@ -256,10 +258,10 @@ codeunit 139180 "CRM Entity Synch Test"
         // [FEATURE] [Customer]
         // [SCENARIO] Synchronizing a single unmodified customer
         Init();
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
 
         // [GIVEN] A customer previously synced with a CRM account and neither updated since
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
         // [WHEN] Synchronizing the customer
@@ -293,10 +295,10 @@ codeunit 139180 "CRM Entity Synch Test"
         // [FEATURE] [Customer]
         // [SCENARIO] Synchronizing a single customer modified in NAV
         Init();
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
 
         // [GIVEN] A customer previously synced with a CRM account and since modified in NAV
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
         Customer.Name := 'Noon Ame';
         Customer.Modify();
@@ -337,13 +339,13 @@ codeunit 139180 "CRM Entity Synch Test"
         // [FEATURE] [Customer]
         // [SCENARIO] Synchronizing a single customer modified in CRM
         Init();
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
 
         // [GIVEN] A customer previously synced with a CRM account and since modified in CRM
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CRMAccount.ModifiedOn := CreateDateTime(
             CalcDate('<-1D>', DT2Date(CRMAccount.ModifiedOn)), DT2Time(CRMAccount.ModifiedOn));
         CRMAccount.Modify();
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
         CRMAccount.Name := 'Noon Ame';
         CRMAccount.ModifiedOn := CurrentDateTime;
@@ -385,10 +387,10 @@ codeunit 139180 "CRM Entity Synch Test"
         // [FEATURE] [Customer]
         // [SCENARIO] Synchronizing a single customer modified in CRM and NAV, leads to forced modify of the destination
         Init();
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
 
         // [GIVEN] A coupled unsynced customer
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMAccount.Name := StrSubstNo('Not%1', Customer.Name);
         CRMAccount.Modify();
         OriginalCustomerName := Customer.Name;
@@ -440,16 +442,16 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
         CRMSystemuser: array[2] of Record "CRM Systemuser";
-        ExpectedParentName: Text;
+        ExpectedParentName: array[2] of Text;
     begin
         // [FEATURE] [Salesperson]
         // [SCENARIO 215216] Synchronizing a two salespersons modified in CRM/NAV sequently, so temporary mappings should not conflict
         Init();
-        GetIntegrationTableMapping(DATABASE::"Salesperson/Purchaser", IntegrationTableMapping);
-        ExpectedParentName := IntegrationTableMapping.Name;
 
         // [GIVEN] A salesperson previously synced with a CRM user and since updated in CRM
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[1], CRMSystemuser[1]);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMSystemuser[1].RecordId);
+        ExpectedParentName[1] := IntegrationTableMapping.Name;
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser[1].SystemUserId, true, false);
         CRMSystemuser[1].Find();
         CRMSystemuser[1].FullName := LibraryUtility.GenerateGUID();
@@ -459,6 +461,9 @@ codeunit 139180 "CRM Entity Synch Test"
 
         // [GIVEN] A salesperson previously synced with a CRM user and since updated in NAV
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[2], CRMSystemuser[2]);
+        Clear(IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMSystemuser[2].RecordId);
+        ExpectedParentName[2] := IntegrationTableMapping.Name;
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser[2].SystemUserId, true, false);
         Sleep(50);
         SalespersonPurchaser[2].Find();
@@ -477,7 +482,8 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.RecordCount(IntegrationTableMapping, 3);
         // [THEN] two mappings are temporary, created as copies of the original 'SALESPEOPLE' one,
         // [THEN] where "Parent Name" = 'SALESPEOPLE', "Delete After Synchronization" = Yes
-        IntegrationTableMapping.SetRange("Parent Name", ExpectedParentName);
+        Assert.AreEqual(ExpectedParentName[1], ExpectedParentName[2], 'Both integration mappings should be the same.');
+        IntegrationTableMapping.SetRange("Parent Name", ExpectedParentName[1]);
         IntegrationTableMapping.SetRange("Delete After Synchronization", true);
         Assert.RecordCount(IntegrationTableMapping, 2);
     end;
@@ -495,11 +501,11 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         // [FEATURE] [Salesperson]
         Init();
-        GetIntegrationTableMapping(DATABASE::"Salesperson/Purchaser", IntegrationTableMapping);
 
         // [SCENARIO] Synchronizing a single salesperson modified in CRM
         // [GIVEN] A salesperson previously synced with a CRM user and since updated in CRM
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMSystemuser.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser.SystemUserId, true, false);
         CRMSystemuser.FullName := 'Noon Ame';
         CRMSystemuser.Modify();
@@ -546,11 +552,11 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         // [FEATURE] [Salesperson]
         Init();
-        GetIntegrationTableMapping(DATABASE::"Salesperson/Purchaser", IntegrationTableMapping);
 
         // [SCENARIO] Synchronizing a single salesperson modified in NAV
         // [GIVEN] A salesperson previously synced with a CRM user and since updated in NAV
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMSystemuser.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMSystemuser.SystemUserId, true, false);
         SetLastSyncDateBackOneDayCRM(CRMSystemuser.SystemUserId);
         SalespersonPurchaser.Get(SalespersonPurchaser.Code);
@@ -601,11 +607,11 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         // [FEATURE] [Salesperson]
         Init();
-        GetIntegrationTableMapping(DATABASE::"Salesperson/Purchaser", IntegrationTableMapping);
 
         // [SCENARIO] Synchronizing a single salesperson modified in both NAV and CRM
         // [GIVEN] A salesperson coupled to a CRM user but never synced
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
+        GetIntegrationTableMapping(IntegrationTableMapping, SalespersonPurchaser.RecordId);
         OriginalCRMSystemuserName := CRMSystemuser.FullName;
         OriginalSalespersonName := SalespersonPurchaser.Name;
 
@@ -713,8 +719,8 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         // [GIVEN] Customer "X" synced with CRM Account
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
         // Modify "Last Synch. Modified On" with one day back to make sure that new value is more than latest
@@ -726,6 +732,8 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.DeleteAll();
 
         // [WHEN] Sync Customer "X" to CRM
+        Clear(IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, false, false);
 
         // [THEN] Integration Sync. Job tracked as "Modified"
@@ -907,7 +915,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
         I: Integer;
     begin
@@ -954,7 +961,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
         I: Integer;
     begin
@@ -1001,7 +1007,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
     begin
         // [SCENARIO 365486] Synchronize change to CRM and then change from CRM
@@ -1060,7 +1065,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
     begin
         // [SCENARIO 365486] Synchronize change from CRM and then change to CRM
@@ -1122,8 +1126,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
         ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
         CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
-        ContactIntegrationSynchJob: Record "Integration Synch. Job";
-        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
     begin
         // [SCENARIO 365486] The last sync timestamp should not be updated if nothing to sync
         StartCRMTimeDiffMock(CRMTimeDiffSeconds);
@@ -1183,8 +1185,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CustomerCRMIntegrationRecord: array[2] of Record "CRM Integration Record";
         ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
         CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
-        ContactIntegrationSynchJob: Record "Integration Synch. Job";
-        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
     begin
         // [SCENARIO 365486] The last sync timestamp are updated even when sync job failed
@@ -1272,8 +1272,6 @@ codeunit 139180 "CRM Entity Synch Test"
         CustomerCRMIntegrationRecord: array[2, 2] of Record "CRM Integration Record";
         ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
         CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
-        ContactIntegrationSynchJob: Record "Integration Synch. Job";
-        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
         SleepDuration: Integer;
         I: Integer;
     begin
@@ -1374,8 +1372,6 @@ codeunit 139180 "CRM Entity Synch Test"
         SalespersonCRMIntegrationRecord: Record "CRM Integration Record";
         ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
         CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
-        ContactIntegrationSynchJob: Record "Integration Synch. Job";
-        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomerNo: Code[20];
         SleepDuration: Integer;
@@ -1477,8 +1473,6 @@ codeunit 139180 "CRM Entity Synch Test"
         SalespersonCRMIntegrationRecord: Record "CRM Integration Record";
         ContactIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
         CustomerIntegrationTableMapping: array[2] of Record "Integration Table Mapping";
-        ContactIntegrationSynchJob: Record "Integration Synch. Job";
-        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomerNo: Code[20];
         SleepDuration: Integer;
@@ -2273,16 +2267,15 @@ codeunit 139180 "CRM Entity Synch Test"
         Init();
         SynchDirection := SynchDirection::ToCRM;
 
-        GetIntegrationTableMapping(DATABASE::"Customer Price Group", IntegrationTableMapping[1]);
-        GetIntegrationTableMapping(DATABASE::Item, IntegrationTableMapping[2]);
-
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-
         // [GIVEN] Customer Price Group.
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        GetIntegrationTableMapping(IntegrationTableMapping[1], CustomerPriceGroup.RecordId);
 
         // [GIVEN] Item coupled with CRM Product.
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        GetIntegrationTableMapping(IntegrationTableMapping[2], Item.RecordId);
+
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] Sales Price for the Item and the Customer Price Group.
         LibrarySales.CreateSalesPrice(
@@ -2333,17 +2326,16 @@ codeunit 139180 "CRM Entity Synch Test"
         Init(true, false);
         SynchDirection := SynchDirection::ToCRM;
 
-        GetIntegrationTableMapping(DATABASE::"Price List Header", IntegrationTableMapping[1]);
-        GetIntegrationTableMapping(DATABASE::Item, IntegrationTableMapping[2]);
-
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-
         // [GIVEN] PriceListHeader for 'All Customers'
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        GetIntegrationTableMapping(IntegrationTableMapping[2], PriceListHeader.RecordId);
 
         // [GIVEN] Item coupled with CRM Product.
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        GetIntegrationTableMapping(IntegrationTableMapping[2], Item.RecordId);
+
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
 
         // [GIVEN] PriceListLine for the Item and the 'All Customers'.
         LibraryPriceCalculation.CreatePriceListLine(
@@ -2468,7 +2460,6 @@ codeunit 139180 "CRM Entity Synch Test"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CompanyContact: Record Contact;
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationTableMapping: Record "Integration Table Mapping";
         CustomerNo: Code[20];
     begin
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
@@ -2571,17 +2562,25 @@ codeunit 139180 "CRM Entity Synch Test"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        GetIntegrationTableMapping(TableID, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, TableID);
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationFieldMapping.SetRange("Field No.", FieldID);
         IntegrationFieldMapping.FindFirst();
     end;
 
-    local procedure GetIntegrationTableMapping(TableNo: Integer; var IntegrationTableMapping: Record "Integration Table Mapping")
+    local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; RecordId: RecordId)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        IntegrationTableMapping.SetRange("Table ID", TableNo);
-        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        IntegrationTableMapping.FindFirst();
+        CRMIntegrationManagement.GetIntegrationTableMapping(IntegrationTableMapping, RecordId);
+        IntegrationTableMapping.Reset();
+    end;
+
+    local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableNo: Integer)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        CRMIntegrationManagement.GetIntegrationTableMapping(IntegrationTableMapping, TableNo);
         IntegrationTableMapping.Reset();
     end;
 
@@ -2763,4 +2762,3 @@ codeunit 139180 "CRM Entity Synch Test"
         Reply := true;
     end;
 }
-

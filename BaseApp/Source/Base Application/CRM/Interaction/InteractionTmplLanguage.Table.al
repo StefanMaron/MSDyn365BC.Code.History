@@ -204,6 +204,7 @@ table 5103 "Interaction Tmpl. Language"
             exit;
         OnOpenAttachmentOnBeforeGetAttachment(Rec, Attachment);
         Attachment.Get("Attachment No.");
+        OnBeforeOpenAttachment(Rec, Attachment);
         Attachment.OpenAttachment("Interaction Template Code" + ' ' + Description, false, "Language Code");
     end;
 
@@ -322,6 +323,11 @@ table 5103 "Interaction Tmpl. Language"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenAttachmentOnBeforeGetAttachment(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenAttachment(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; var Attachment: Record Attachment)
     begin
     end;
 }

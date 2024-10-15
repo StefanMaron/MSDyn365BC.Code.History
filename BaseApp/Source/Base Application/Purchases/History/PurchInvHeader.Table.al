@@ -362,7 +362,7 @@ table 122 "Purch. Inv. Header"
         }
         field(86; "Pay-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
         }
         field(87; "Pay-to Country/Region Code"; Code[10])
@@ -378,7 +378,7 @@ table 122 "Purch. Inv. Header"
         }
         field(89; "Buy-from County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Buy-from Country/Region Code";
+            CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
         }
         field(90; "Buy-from Country/Region Code"; Code[10])
@@ -394,7 +394,7 @@ table 122 "Purch. Inv. Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -694,7 +694,14 @@ table 122 "Purch. Inv. Header"
         UserSetupMgt: Codeunit "User Setup Management";
 
     procedure IsFullyOpen(): Boolean
+    var
+        FullyOpen: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforCheckIfPurchaseInvoiceFullyOpen(Rec, FullyOpen, IsHandled);
+        if IsHandled then
+            exit(FullyOpen);
+
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
     end;
@@ -837,6 +844,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforCheckIfPurchaseInvoiceFullyOpen(var PurchInvHeader: Record "Purch. Inv. Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

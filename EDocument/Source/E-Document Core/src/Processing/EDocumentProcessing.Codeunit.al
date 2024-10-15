@@ -113,14 +113,19 @@ codeunit 6108 "E-Document Processing"
     end;
 
     procedure GetTelemetryDimensions(EDocService: Record "E-Document Service"; var EDocument: Record "E-Document"; var Dimensions: Dictionary of [Text, Text])
+    var
+        EDocument2: Record "E-Document";
     begin
         Clear(Dimensions);
         Dimensions.Add('Category', EDocTelemetryCategoryLbl);
         Dimensions.Add('E-Doc Service', EDocService.ToString());
-        if EDocument.FindSet() then
+        EDocument2.Copy(EDocument);
+        if not EDocument2.HasFilter() then
+            EDocument2.SetRecFilter();
+        if EDocument2.FindSet() then
             repeat
-                Dimensions.Add(StrSubstNo(EDocTelemetryIdLbl, EDocument.SystemId), EDocument.ToString());
-            until EDocument.Next() = 0;
+                Dimensions.Add(StrSubstNo(EDocTelemetryIdLbl, EDocument2.SystemId), EDocument2.ToString());
+            until EDocument2.Next() = 0;
     end;
 
     procedure GetTelemetryDimensions(EDocService: Record "E-Document Service"; var EDocumentServiceStatus: Record "E-Document Service Status"; var Dimensions: Dictionary of [Text, Text])

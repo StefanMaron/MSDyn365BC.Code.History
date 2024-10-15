@@ -28,6 +28,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         CurrLineWithPrice: Interface "Line With Price";
         TempTableErr: Label 'The table passed as a parameter must be temporary.';
         PickedWrongMinQtyErr: Label 'The quantity in the line is below the minimum quantity of the picked price list line.';
+        NoSpecificReadPermissionAccessErr: Label 'Sorry, the current permissions prevented the action. (TableData %1 Read: %2)', Comment = '%1 - TableData Name, %2 - App Name';
 
     procedure GetLine(var Line: Variant)
     begin
@@ -47,8 +48,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         AmountType: Enum "Price Amount Type";
         FoundPrice: Boolean;
     begin
-        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType::Discount) then
-            exit;
+        CheckSpecificReadPermissionAccess(CurrLineWithPrice.GetPriceType(), AmountType::Discount);
         if not CurrLineWithPrice.IsDiscountAllowed() then
             exit;
         CurrLineWithPrice.Verify();
@@ -69,8 +69,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         FoundLines: Boolean;
         FoundPrice: Boolean;
     begin
-        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType::Price) then
-            exit;
+        CheckSpecificReadPermissionAccess(CurrLineWithPrice.GetPriceType(), AmountType::Price);
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
@@ -124,7 +123,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         Found := FindPriceLines(AmountType::Price, ShowAll, TempPriceListLine);
     end;
 
-    local procedure HasAccess(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"): Boolean;
+    local procedure CheckSpecificReadPermissionAccess(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PurchaseDiscountAccess: Record "Purchase Discount Access";
         PurchasePriceAccess: Record "Purchase Price Access";
@@ -135,19 +134,22 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
             "Price Type"::Purchase:
                 case AmountType of
                     "Price Amount Type"::Discount:
-                        exit(PurchaseDiscountAccess.ReadPermission());
+                        if not PurchaseDiscountAccess.ReadPermission() then
+                            Error(NoSpecificReadPermissionAccessErr, PurchaseDiscountAccess.TableCaption(), GetAppName());
                     "Price Amount Type"::Price:
-                        exit(PurchasePriceAccess.ReadPermission());
+                        if not PurchasePriceAccess.ReadPermission() then
+                            Error(NoSpecificReadPermissionAccessErr, PurchasePriceAccess.TableCaption(), GetAppName());
                 end;
             "Price Type"::Sale:
                 case AmountType of
                     "Price Amount Type"::Discount:
-                        exit(SalesDiscountAccess.ReadPermission());
+                        if not SalesDiscountAccess.ReadPermission() then
+                            Error(NoSpecificReadPermissionAccessErr, SalesDiscountAccess.TableCaption(), GetAppName());
                     "Price Amount Type"::Price:
-                        exit(SalesPriceAccess.ReadPermission());
+                        if not SalesPriceAccess.ReadPermission() then
+                            Error(NoSpecificReadPermissionAccessErr, SalesPriceAccess.TableCaption(), GetAppName());
                 end;
         end;
-        exit(true);
     end;
 
     procedure IsDiscountExists(ShowAll: Boolean) Result: Boolean;
@@ -185,8 +187,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         PriceAssetList: Codeunit "Price Asset List";
         GetPriceLine: Page "Get Price Line";
     begin
-        if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType) then
-            exit;
+        CheckSpecificReadPermissionAccess(CurrLineWithPrice.GetPriceType(), AmountType);
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
@@ -423,6 +424,14 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
             PriceListLine := BestPriceListLine;
 
         OnAfterCalcBestAmount(AmountType, PriceCalculationBufferMgt, PriceListLine, FoundBestPrice);
+    end;
+
+    local procedure GetAppName(): Text
+    var
+        ModuleInfo: ModuleInfo;
+    begin
+        NAVApp.GetCurrentModuleInfo(ModuleInfo);
+        exit(ModuleInfo.Name());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnFindSupportedSetup', '', false, false)]

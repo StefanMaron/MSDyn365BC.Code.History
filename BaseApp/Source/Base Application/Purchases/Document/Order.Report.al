@@ -28,6 +28,7 @@ report 405 "Order"
     RDLCLayout = './Purchases/Document/Order.rdlc';
     Caption = 'Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
@@ -1180,7 +1181,6 @@ report 405 "Order"
         PrepmtLineAmount: Decimal;
         PricesInclVATtxt: Text[30];
         AllowInvDisctxt: Text[30];
-        ArchiveDocumentEnable: Boolean;
         LogInteractionEnable: Boolean;
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
@@ -1236,6 +1236,7 @@ report 405 "Order"
 
     protected var
         ArchiveDocument: Boolean;
+        ArchiveDocumentEnable: Boolean;
         LogInteraction: Boolean;
         NoOfCopies: Integer;
         ShowInternalInfo: Boolean;
