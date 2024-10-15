@@ -5,7 +5,7 @@ codeunit 5472 "Graph Mgt - Vendor"
     begin
     end;
 
-    procedure PostalAddressToJSON(Vendor: Record Vendor) JSON: Text
+    procedure PostalAddressToJSON(var Vendor: Record Vendor) JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin

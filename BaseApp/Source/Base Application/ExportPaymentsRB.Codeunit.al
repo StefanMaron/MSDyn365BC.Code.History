@@ -11,10 +11,6 @@ codeunit 10091 "Export Payments (RB)"
         FileAlreadyExistsErr: Label 'File %1 already exists. Check the %2 in %3 %4.', Comment = '%1 = file name, %2 file patch, the bank account table, the identifier in the bank account table, ie the .No';
         ExportDetailsFileNotStartedErr: Label 'Cannot export details until an export file is started.';
         InvalidPaymentSpecErr: Label 'Either %1 or %2 must refer to either a %3 or a %4 for an electronic payment.', Comment = '%1 = Account Type, %2 = the account,%3 = Vendor table, %4 = Customer table';
-        VendorBankAccErr: Label 'Vendor No. %1 has no bank account setup for electronic payments.', Comment = 'The Vendor No';
-        VendorMoreThanOneBankAccErr: Label 'Vendor No. %1 has more than one bank account setup for electronic payments.', Comment = '%1 = The Vendor No.';
-        CustBankAccErr: Label 'Customer No. %1 has no bank account setup for electronic payments.', Comment = '%1 the Customer No.';
-        CustMoreThanOneBankAccErr: Label 'Customer No. %1 has more than one bank account setup for electronic payments.', Comment = '%1 the customer No.';
         ExportFileNotEndedFileNotStartedErr: Label 'Cannot end export file until an export file is started.';
         FileDoesNoteExistErr: Label 'File %1 does not exist.', Comment = '%1 = the file name.';
         DidTransmissionWorkQst: Label 'Did the transmission work properly?';
@@ -329,16 +325,17 @@ codeunit 10091 "Export Payments (RB)"
                             Error(InvalidPaymentSpecErr,
                               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption, Customer.TableCaption);
             if AcctType = 'V' then
-                GetRecipientDataFromVendor
+                GetRecipientDataFromVendor(GenJournalLine)
             else
                 if AcctType = 'C' then
                     GetRecipientDataFromCustomer(GenJournalLine);
         end;
     end;
 
-    local procedure GetRecipientDataFromVendor()
+    local procedure GetRecipientDataFromVendor(GenJournalLine: Record "Gen. Journal Line")
     var
         VendorBankAccount: Record "Vendor Bank Account";
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
     begin
         if AcctNo <> Vendor."No." then begin
             Vendor.Get(AcctNo);
@@ -354,13 +351,9 @@ codeunit 10091 "Export Payments (RB)"
         RecipientCountryCode := Vendor."Country/Region Code";
         RecipientCounty := Vendor.County;
         RecipientPostCode := Vendor."Post Code";
-        VendorBankAccount.SetRange("Vendor No.", AcctNo);
-        VendorBankAccount.SetRange("Use for Electronic Payments", true);
-        if VendorBankAccount.Count < 1 then
-            Error(VendorBankAccErr, AcctNo);
-        if VendorBankAccount.Count > 1 then
-            Error(VendorMoreThanOneBankAccErr, AcctNo);
-        VendorBankAccount.FindFirst;
+
+        EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, GenJournalLine, Vendor."No.");
+
         VendorBankAccount.TestField("Bank Account No.");
         RecipientBankNo := VendorBankAccount."Bank Branch No.";
         RecipientTransitNo := VendorBankAccount."Transit No.";
@@ -372,6 +365,7 @@ codeunit 10091 "Export Payments (RB)"
     local procedure GetRecipientDataFromCustomer(GenJournalLine: Record "Gen. Journal Line")
     var
         CustomerBankAccount: Record "Customer Bank Account";
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
     begin
         if AcctNo <> Customer."No." then begin
             Customer.Get(AcctNo);
@@ -390,13 +384,9 @@ codeunit 10091 "Export Payments (RB)"
         RecipientCountryCode := Customer."Country/Region Code";
         RecipientCounty := Customer.County;
         RecipientPostCode := Customer."Post Code";
-        CustomerBankAccount.SetRange("Customer No.", AcctNo);
-        CustomerBankAccount.SetRange("Use for Electronic Payments", true);
-        if CustomerBankAccount.Count < 1 then
-            Error(CustBankAccErr, AcctNo);
-        if CustomerBankAccount.Count > 1 then
-            Error(CustMoreThanOneBankAccErr, AcctNo);
-        CustomerBankAccount.FindFirst;
+        
+        EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, GenJournalLine, Customer."No.");
+
         CustomerBankAccount.TestField("Bank Account No.");
         RecipientBankNo := CustomerBankAccount."Bank Branch No.";
         RecipientTransitNo := CustomerBankAccount."Transit No.";

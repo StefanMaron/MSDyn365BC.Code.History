@@ -167,7 +167,7 @@ page 379 "Bank Acc. Reconciliation"
                     var
                         Notification: Notification;
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         ImportBankStatement;
 
                         Notification.Id := NotificationID;

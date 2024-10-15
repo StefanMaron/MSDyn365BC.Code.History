@@ -282,6 +282,7 @@ codeunit 10120 "Bank Rec.-Post"
                 GenJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
                 GenJnlLine."Dimension Set ID" := "Dimension Set ID";
 
+                OnPostAdjustmentToGLOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, BankRecLine2);
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
 
                 GLEntry.FindLast;
@@ -297,6 +298,11 @@ codeunit 10120 "Bank Rec.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBankLedgerEntryModify(var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; UseStatus: Option Open,Cleared,Posted; StatementNo: Code[20]; StatementLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdjustmentToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; BankRecLine: Record "Bank Rec. Line")
     begin
     end;
 }

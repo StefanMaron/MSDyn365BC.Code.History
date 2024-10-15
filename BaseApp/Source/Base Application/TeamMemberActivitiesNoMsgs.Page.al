@@ -45,10 +45,6 @@ page 9043 "Team Member Activities No Msgs"
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Approvals Activities part';
-                Visible = false;
-                ObsoleteTag = '17.0';
                 field("Requests to Approve"; "Requests to Approve")
                 {
                     ApplicationArea = Basic, Suite;

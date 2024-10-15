@@ -36,6 +36,8 @@ codeunit 142056 "UT REP Bank Reconciliation"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         AdjustmentBankAccountNoTxt: Label 'Adjustments_Bank_Account_No_';
@@ -240,6 +242,56 @@ codeunit 142056 "UT REP Bank Reconciliation"
         LibraryReportValidation.VerifyCellValue(38, 1, 'Total Outstanding Deposits');
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckRequestPageHandler,BankAccountReconcileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BankAccountReconcileForPaymentWithCheck()
+    var
+        BankAccount: Record "Bank Account";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        Amount: Integer;
+    begin
+        // [SCENARIO 375775] Check Amount is negative in report "Bank Account - Reconcile". 
+        Initialize();
+
+        // [GIVEN] Bank Account "B" with Last Check No.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Last Check No.", BankAccount."No.");
+        BankAccount.Modify(true);
+
+        // [GIVEN] Payment Journal line with Amount = 100, "Bal. Account No" = "B" and "Bank Payment Type" = "Computer Check".
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        Amount := LibraryRandom.RandInt(100);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", Amount);
+        GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Computer Check");
+        GenJnlLine.Modify(true);
+
+        // [GIVEN] Check printed for Payment Journal line.
+        Commit();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        REPORT.Run(REPORT::"Check", true, true, GenJnlLine);
+
+        // [GIVEN] Payment Journal Line posted.
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [WHEN] Report "Bank Account - Reconcile" is run for Bank Account "B".
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        REPORT.Run(REPORT::"Bank Account - Reconcile");
+
+        // [THEN] In result dataset Amount_CheckLedgEntry = -100, WithdrawAmount = -100.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Amount_CheckLedgEntry', -Amount);
+        LibraryReportDataset.AssertElementWithValueExists('WithdrawAmount', -Amount);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -480,6 +532,14 @@ codeunit 142056 "UT REP Bank Reconciliation"
           LibraryVariableStorage.DequeueText,
           BankRecTestReport."Bank Rec. Header".GetFilter("Statement No."),
           WrongFilterSetErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CheckRequestPageHandler(var Check: TestRequestPage Check)
+    begin
+        Check.BankAccount.SetValue(LibraryVariableStorage.DequeueText());
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

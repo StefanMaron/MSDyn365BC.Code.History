@@ -205,7 +205,7 @@ codeunit 10098 "Generate EFT"
             repeat
                 LocalBankAccount.Get(TempEFTExportWorkset."Bank Account No.");
                 CheckDigitCheck := not (LocalBankAccount."Export Format" in [LocalBankAccount."Export Format"::CA, LocalBankAccount."Export Format"::MX]);
-                ExportPaymentsACH.CheckVendorTransitNum(TempEFTExportWorkset."Account No.", DummyVendor, VendorBankAccount, CheckDigitCheck);
+                ExportPaymentsACH.CheckVendorTransitNum(TempEFTExportWorkset, TempEFTExportWorkset."Account No.", DummyVendor, VendorBankAccount, CheckDigitCheck);
                 VendorBankAccount.TestField("Bank Account No.");
             until TempEFTExportWorkset.Next = 0;
         end;

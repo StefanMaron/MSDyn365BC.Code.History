@@ -537,13 +537,15 @@ page 7004 "Sales Line Discounts"
         end;
     end;
 
-    local procedure GetTypeFilter(): Integer
+    local procedure GetTypeFilter() TypeFilter: Integer
     begin
         case GetFilter(Type) of
             Format(Type::Item):
                 exit(0);
             Format(Type::"Item Disc. Group"):
                 exit(1);
+            else
+                OnGetTypeFilterCaseElse(Rec, TypeFilter);
         end;
     end;
 
@@ -599,6 +601,11 @@ page 7004 "Sales Line Discounts"
 
     [IntegrationEvent(true, false)]
     local procedure OnLookupCodeFilterCaseElse(SalesLineDiscount: Record "Sales Line Discount"; var Text: Text; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetTypeFilterCaseElse(var SalesLineDiscount: Record "Sales Line Discount"; var TypeFilter: Integer)
     begin
     end;
 }

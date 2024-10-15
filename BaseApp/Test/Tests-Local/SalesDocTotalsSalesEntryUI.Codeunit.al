@@ -2541,8 +2541,10 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
     var
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibrarySetupStorage.Restore;
+        LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
             exit;
 

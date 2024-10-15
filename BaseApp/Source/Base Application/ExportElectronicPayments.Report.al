@@ -575,7 +575,6 @@
         AmountPaid: Decimal;
         TotalAmountPaid: Decimal;
         AccountTypeErr: Label 'For Electronic Payments, the %1 must be %2 or %3.', Comment = '%1=Balance account type,%2=Customer table caption,%3=Vendor table caption';
-        BankAcctElecPaymentErr: Label 'You must have exactly one %1 with %2 checked for %3 %4.', Comment = '%1=Bank account table caption,%2=Bank account field caption - use for electronic payments,%3=Vendor/Customer table caption,%4=Vendor/Customer number';
         CopyLoopLbl: Label 'COPY', Comment = 'This is the word ''copy'' in all capital letters. It is used for extra copies of a report and indicates that the specific version is not the original, and is a copy.';
         CannotVoidQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No in the Journal Template.  Do you want to continue anyway?';
         UserCancelledErr: Label 'Process cancelled at user request.';
@@ -623,15 +622,13 @@
     end;
 
     local procedure ProcessVendor(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
     begin
         FormatAddress.Vendor(PayeeAddress, Vendor);
-        VendBankAccount.SetRange("Vendor No.", Vendor."No.");
-        VendBankAccount.SetRange("Use for Electronic Payments", true);
-        if VendBankAccount.Count <> 1 then
-            Error(BankAcctElecPaymentErr,
-              VendBankAccount.TableCaption, VendBankAccount.FieldCaption("Use for Electronic Payments"),
-              Vendor.TableCaption, Vendor."No.");
-        VendBankAccount.FindFirst;
+
+        EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendBankAccount, GenJnlLine, Vendor."No.");
+
         PayeeBankTransitNo := VendBankAccount."Transit No.";
         PayeeBankAccountNo := VendBankAccount."Bank Account No.";
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
@@ -658,15 +655,13 @@
     end;
 
     local procedure ProcessCustomer(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
     begin
         FormatAddress.Customer(PayeeAddress, Customer);
-        CustBankAccount.SetRange("Customer No.", Customer."No.");
-        CustBankAccount.SetRange("Use for Electronic Payments", true);
-        if CustBankAccount.Count <> 1 then
-            Error(BankAcctElecPaymentErr,
-              CustBankAccount.TableCaption, CustBankAccount.FieldCaption("Use for Electronic Payments"),
-              Customer.TableCaption, Customer."No.");
-        CustBankAccount.FindFirst;
+
+        EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAccount, GenJnlLine, Customer."No.");
+
         PayeeBankTransitNo := CustBankAccount."Transit No.";
         PayeeBankAccountNo := CustBankAccount."Bank Account No.";
         if GenJnlLine."Applies-to Doc. No." <> '' then begin

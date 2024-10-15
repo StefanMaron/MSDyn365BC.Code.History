@@ -2550,8 +2550,10 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         InventorySetup: Record "Inventory Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibrarySetupStorage.Restore;
+        LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
             exit;
 

@@ -139,17 +139,17 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
         PaymentJournal: TestPage "Payment Journal";
-        CustomerNo: Code[20];
+        CustomerNo, CustomerBankAccountCode : Code[20];
     begin
         // Setup: Create Customer,Bank Account and General Journal Line.
         Initialize;
         CreateExportReportSelection(Layout::RDLC);
         CustomerNo := CreateCustomer;
-        CreateCustomerBankAccount(CustomerNo, ExportFormat);
+        CustomerBankAccountCode := CreateCustomerBankAccount(CustomerNo, ExportFormat);
         CreateCustLedgerEntry(CustLedgerEntry, CustomerNo);
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Customer,
-          CustomerNo, CustLedgerEntry."Document No.", ExportFormat, CustLedgerEntry.Amount);
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo,
+          CustLedgerEntry."Document No.", ExportFormat, CustLedgerEntry.Amount, CustomerBankAccountCode);
         EnqueueValuesForExportElectronicPayment(GenJournalLine);
         Commit();
         // Exercise.
@@ -219,7 +219,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         ReportSelections: Record "Report Selections";
         UTREPExportElectronicPmt: Codeunit "UT REP Export Electronic Pmt.";
         BulkVendorRemitReporting: Codeunit "Bulk Vendor Remit Reporting";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountCode : Code[20];
         ExportFormat: Option;
     begin
         // [SCENARIO 381364] Export Electronic Payments through Codeunit "Bulk Vendor Remit Reporting" when no reports in Report Selections
@@ -232,11 +232,11 @@ codeunit 142074 "UT REP Export Electronic Pmt."
 
         // [GIVEN] Gen. Journal Line ready for Export Electronic Payment
         VendorNo := CreateVendor;
-        CreateVendorBankAccount(VendorNo, ExportFormat);
+        VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat);
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor,
-          VendorNo, VendorLedgerEntry."Document No.", ExportFormat, VendorLedgerEntry.Amount);
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo,
+          VendorLedgerEntry."Document No.", ExportFormat, VendorLedgerEntry.Amount, VendorBankAccountCode);
 
         // [WHEN] Run export via the Codeunit "Bulk Vendor Remit Reporting"
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -257,16 +257,16 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         PaymentJournal: TestPage "Payment Journal";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountCode : Code[20];
     begin
         // Setup: Create Vendor,Bank Account and General Journal Line.
         Initialize;
         VendorNo := CreateVendor;
-        CreateVendorBankAccount(VendorNo, ExportFormat);
+        VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat);
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor,
-          VendorNo, VendorLedgerEntry."Document No.", ExportFormat, VendorLedgerEntry.Amount);
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo,
+          VendorLedgerEntry."Document No.", ExportFormat, VendorLedgerEntry.Amount, VendorBankAccountCode);
         if ElecPaymIAT then
             ModifyGenJnlLineBankPaymentType(GenJournalLine);
         EnqueueValuesForExportElectronicPayment(GenJournalLine);
@@ -350,7 +350,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         exit(Vendor."No.");
     end;
 
-    local procedure CreateCustomerBankAccount(CustomerNo: Code[20]; TransitNoFormat: Option ,US,CA,MX)
+    local procedure CreateCustomerBankAccount(CustomerNo: Code[20]; TransitNoFormat: Option ,US,CA,MX): Code[20]
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
@@ -370,9 +370,11 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         end;
         CustomerBankAccount."Use for Electronic Payments" := true;
         CustomerBankAccount.Insert();
+
+        exit(CustomerBankAccount.Code);
     end;
 
-    local procedure CreateVendorBankAccount(VendorNo: Code[20]; TransitNoFormat: Option ,US,CA,MX)
+    local procedure CreateVendorBankAccount(VendorNo: Code[20]; TransitNoFormat: Option ,US,CA,MX): Code[20]
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
@@ -391,14 +393,19 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         end;
         VendorBankAccount."Use for Electronic Payments" := true;
         VendorBankAccount.Insert();
+
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
-        CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
+        if CustLedgerEntry2.FindLast then
+            CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1
+        else
+            CustLedgerEntry."Entry No." := 1;
+
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." :=
@@ -422,8 +429,11 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
-        VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
+        if VendorLedgerEntry2.FindLast then
+            VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1
+        else
+            VendorLedgerEntry."Entry No." := 1;
+
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." :=
@@ -442,7 +452,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; ApplyToDocNo: Code[20]; ExportFormat: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; ApplyToDocNo: Code[20]; ExportFormat: Option; Amount: Decimal; RecipientBankAccount: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -479,6 +489,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         GenJournalLine."Transaction Type Code" := GenJournalLine."Transaction Type Code"::BUS;
         GenJournalLine."Company Entry Description" :=
           LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Company Entry Description"), DATABASE::"Gen. Journal Line");
+        GenJournalLine."Recipient Bank Account" := RecipientBankAccount;
         GenJournalLine.Insert();
     end;
 

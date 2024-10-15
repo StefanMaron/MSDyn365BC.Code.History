@@ -194,14 +194,20 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsIAT: Codeunit "Export Payments (IAT)";
-        BankAccountNo: Code[20];
+        BankAccountNo, CustomerNo, CustomerBankAccountCode : Code[20];
     begin
         // Purpose of the test is to validate StartExportBatch function of Codeunit ID - 10093 Export Payments (IAT).
 
         // Setup: Create Customer Bank Account without Transit No. Create General Journal Line with Account Type Customer.
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerBankAccount(BankAccountNo), true);  // Check Transmitted - TRUE.
+
+        CustomerBankAccountCode := LibraryRandom.RandText(20);
+        CustomerNo := CreateCustomer();
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode);
+
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountCode, true);  // Check Transmitted - TRUE.
+
         UpdateBankAccount(BankAccountNo);
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
@@ -219,16 +225,22 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsIAT: Codeunit "Export Payments (IAT)";
-        BankAccountNo: Code[20];
+        BankAccountNo, CustomerNo, CustomerBankAccountCode : Code[20];
     begin
         // Purpose of the test is to validate StartExportBatch function of Codeunit ID - 10093 Export Payments (IAT).
 
         // Setup: Create Customer Bank Account without Transit No. Create General Journal Line with Balance Account Type Customer.
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccountNo, true);  // Check Transmitted - TRUE.
+
+        CustomerBankAccountCode := LibraryRandom.RandText(20);
+        CustomerNo := CreateCustomer();
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode);
+
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountCode, true);  // Check Transmitted - TRUE.
+
         UpdateBalanceAccountOnGenJournalLine(
-          GenJournalLine, GenJournalLine."Bal. Account Type"::Customer, CreateCustomerBankAccount(BankAccountNo));
+           GenJournalLine, GenJournalLine."Bal. Account Type"::Customer, CustomerNo);
         UpdateBankAccount(BankAccountNo);
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
@@ -246,8 +258,7 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsIAT: Codeunit "Export Payments (IAT)";
-        BankAccountNo: Code[20];
-        VendorNo: Code[20];
+        BankAccountNo, VendorNo, VendorBankAccountCode : Code[20];
     begin
         // Purpose of the test is to validate StartExportBatch function of Codeunit ID - 10093 Export Payments (IAT).
 
@@ -255,7 +266,13 @@ codeunit 141040 "UT COD Electronic Payment"
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
         VendorNo := CreateVendorBankAccount(BankAccountNo);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, true);  // Check Transmitted - TRUE.
+
+        VendorBankAccountCode := LibraryRandom.RandText(20);
+        VendorNo := CreateVendor();
+        CreateVendorBankAccount(VendorNo, VendorBankAccountCode);
+
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountCode, true);  // Check Transmitted - TRUE.
+
         UpdateBankAccount(BankAccountNo);
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
@@ -273,16 +290,20 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsIAT: Codeunit "Export Payments (IAT)";
-        BankAccountNo: Code[20];
-        VendorNo: Code[20];
+        BankAccountNo, VendorNo, VendorBankAccountCode : Code[20];
     begin
         // Purpose of the test is to validate StartExportBatch function of Codeunit ID - 10093 Export Payments (IAT).
 
         // Setup: Create Vendor Bank Account without Transit No. Create General Journal Line with Balance Account Type Vendor.
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccountNo, true);  // Check Transmitted - TRUE.
-        VendorNo := CreateVendorBankAccount(BankAccountNo);
+
+        VendorBankAccountCode := LibraryRandom.RandText(20);
+        VendorNo := CreateVendor();
+        CreateVendorBankAccount(VendorNo, VendorBankAccountCode);
+
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountCode, true);  // Check Transmitted - TRUE.
+
         UpdateBalanceAccountOnGenJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::Vendor, VendorNo);
         UpdateBankAccount(BankAccountNo);
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
@@ -389,7 +410,27 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine."Transaction Code" := TransactionCode;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CheckTransmitted: Boolean)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CheckTransmitted: Boolean)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SetGeneralJournalLine(GenJournalLine, AccountType, AccountNo, CheckTransmitted);
+
+        GenJournalLine.Insert();
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; RecipientBankAccountNo: Code[20]; CheckTransmitted: Boolean)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SetGeneralJournalLine(GenJournalLine, AccountType, AccountNo, CheckTransmitted);
+
+        GenJournalLine."Recipient Bank Account" := RecipientBankAccountNo;
+
+        GenJournalLine.Insert();
+    end;
+
+    local procedure SetGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CheckTransmitted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -406,7 +447,6 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Electronic Payment";
         GenJournalLine."Check Exported" := true;
         GenJournalLine."Check Transmitted" := CheckTransmitted;
-        GenJournalLine.Insert();
     end;
 
     local procedure CreateCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; CheckNo: Code[20])
@@ -507,6 +547,16 @@ codeunit 141040 "UT COD Electronic Payment"
         exit(CustomerBankAccount."Customer No.");
     end;
 
+    local procedure CreateCustomerBankAccount(CustomerNo: Code[20]; Code: Code[20])
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        CustomerBankAccount."Customer No." := CustomerNo;
+        CustomerBankAccount.Code := Code;
+        CustomerBankAccount."Use for Electronic Payments" := true;
+        CustomerBankAccount.Insert();
+    end;
+
     local procedure CreateVendorBankAccount(BankAccountNo: Code[20]): Code[20]
     var
         VendorBankAccount: Record "Vendor Bank Account";
@@ -516,6 +566,16 @@ codeunit 141040 "UT COD Electronic Payment"
         VendorBankAccount."Bank Account No." := BankAccountNo;
         VendorBankAccount.Insert();
         exit(VendorBankAccount."Vendor No.");
+    end;
+
+    local procedure CreateVendorBankAccount(VendorNo: Code[20]; Code: Code[20])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorBankAccount."Vendor No." := VendorNo;
+        VendorBankAccount.Code := Code;
+        VendorBankAccount."Use for Electronic Payments" := true;
+        VendorBankAccount.Insert();
     end;
 
     local procedure SelectCheckLedgerEntryNo(): Integer

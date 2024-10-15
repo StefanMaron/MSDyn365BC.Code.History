@@ -39,8 +39,6 @@ codeunit 10090 "Export Payments (ACH)"
         ExportFileNotCompletedErr: Label 'Cannot start new export batch until previous batch is completed.';
         ExportDetailsFileNotStartedErr: Label 'Cannot export details until an export file is started.';
         ExportDetailsFileNotCompletedErr: Label 'Cannot export details until an export batch is started.';
-        CustBankAccErr: Label 'Customer No. %1 has no bank account setup for electronic payments.', Comment = '%1 the Customer No.';
-        CustMoreThanOneBankAccErr: Label 'Customer No. %1 has more than one bank account setup for electronic payments.', Comment = '%1 the customer No.';
         ExportBatchFileNotStartedErr: Label 'Cannot end export batch until an export file is started.';
         ExportBatchNotStartedErr: Label 'Cannot end export batch until an export batch is started.';
         ExportFileNotEndedFileNotStartedErr: Label 'Cannot end export file until an export file is started.';
@@ -51,8 +49,6 @@ codeunit 10090 "Export Payments (ACH)"
         CustomerBlockedErr: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = account type';
         ConfirmTransmissioinQst: Label 'You must now run the program that transmits the payments file to the bank. Transmit the file named %1 located at %2 to %3 (%4 %5 %6).  After the transmission is completed, you will be asked if it worked correctly.  Are you ready to transmit (answer No to cancel the transmission process)?', Comment = '%1 = full  filename, %2 = file path, %3 = file name, %4 = bank account table, %5 = bank account no.caption, %6 = bank account no. ';
-        VendorBankAccErr: Label 'Vendor%1  has no bank account setup for electronic payments.', Comment = 'The Vendor No';
-        VendorMoreThanOneBankAccErr: Label 'Vendor%1  has more than one bank account setup for electronic payments.', Comment = '%1 = The Vendor No.';
         VendorTransitNumNotValidErr: Label 'The specified transit number %1 for vendor %2  is not valid.', Comment = '%1 the transit number, %2 The Vendor No.';
         CustTransitNumNotValidErr: Label 'The specified transit number %1 for customer %2  is not valid.', Comment = '%1 the transit number, %2 The customer  No.';
         BankTransitNumNotValidErr: Label 'The specified transit number %1 for bank %2  is not valid.', Comment = '%1 the transit number, %2 The bank  No.';
@@ -219,6 +215,7 @@ codeunit 10090 "Export Payments (ACH)"
         VendorBankAcct: Record "Vendor Bank Account";
         Customer: Record Customer;
         CustBankAcct: Record "Customer Bank Account";
+        EFTRecepientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
         AcctName: Text[16];
@@ -260,7 +257,7 @@ codeunit 10090 "Export Payments (ACH)"
                               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption, Customer.TableCaption);
 
             if AcctType = 'V' then begin
-                CheckVendorTransitNum(AcctNo, Vendor, VendorBankAcct, true);
+                CheckVendorTransitNum(GenJnlLine, AcctNo, Vendor, VendorBankAcct, true);
                 AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
 
                 VendorBankAcct.TestField("Bank Account No.");
@@ -277,14 +274,7 @@ codeunit 10090 "Export Payments (ACH)"
 
                     AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
 
-                    CustBankAcct.SetRange("Customer No.", AcctNo);
-                    CustBankAcct.SetRange("Use for Electronic Payments", true);
-                    CustBankAcct.FindFirst;
-
-                    if CustBankAcct.Count < 1 then
-                        Error(CustBankAccErr, AcctNo);
-                    if CustBankAcct.Count > 1 then
-                        Error(CustMoreThanOneBankAccErr, AcctNo);
+                    EFTRecepientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJnlLine, Customer."No.");
 
                     if not CheckDigit(CustBankAcct."Transit No.") then
                         CustBankAcct.FieldError("Transit No.", StrSubstNo(CustTransitNumNotValidErr, CustBankAcct."Transit No.", Customer."No."));
@@ -597,26 +587,43 @@ codeunit 10090 "Export Payments (ACH)"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckVendorTransitNum(AccountNo: Code[20]; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; CheckTheCheckDigit: Boolean)
+    procedure CheckVendorTransitNum(GenJnlLine: Record "Gen. Journal Line"; AccountNo: Code[20]; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; CheckTheCheckDigit: Boolean)
     var
-        ExportPaymentsACH: Codeunit "Export Payments (ACH)";
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
+    begin
+        CheckVendor(Vendor, AccountNo);
+
+        EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, GenJnlLine, AccountNo);
+
+        CheckDigit(VendorBankAccount, CheckTheCheckDigit, Vendor."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckVendorTransitNum(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; AccountNo: Code[20]; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; CheckTheCheckDigit: Boolean)
+    var
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
+    begin
+        CheckVendor(Vendor, AccountNo);
+
+        EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, AccountNo);
+
+        CheckDigit(VendorBankAccount, CheckTheCheckDigit, Vendor."No.");
+    end;
+
+    local procedure CheckVendor(var Vendor: Record Vendor; AccountNo: Code[20])
     begin
         Vendor.Get(AccountNo);
         Vendor.TestField(Blocked, Vendor.Blocked::" ");
         Vendor.TestField("Privacy Blocked", false);
+    end;
 
-        VendorBankAccount.SetRange("Vendor No.", AccountNo);
-        VendorBankAccount.SetRange("Use for Electronic Payments", true);
-        VendorBankAccount.FindFirst;
-
-        if VendorBankAccount.Count < 1 then
-            Error(StrSubstNo(VendorBankAccErr, Vendor."No."));
-        if VendorBankAccount.Count > 1 then
-            Error(StrSubstNo(VendorMoreThanOneBankAccErr, Vendor."No."));
-
+    local procedure CheckDigit(var VendorBankAccount: Record "Vendor Bank Account"; CheckTheCheckDigit: Boolean; VendorNo: Code[20])
+    var
+        ExportPaymentsACH: Codeunit "Export Payments (ACH)";
+    begin
         if CheckTheCheckDigit then
             if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
-                Error(StrSubstNo(VendorTransitNumNotValidErr, VendorBankAccount."Transit No.", Vendor."No."));
+                Error(StrSubstNo(VendorTransitNumNotValidErr, VendorBankAccount."Transit No.", VendorNo));
     end;
 }
 
