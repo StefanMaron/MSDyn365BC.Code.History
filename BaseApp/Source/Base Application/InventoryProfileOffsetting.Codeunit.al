@@ -1253,6 +1253,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         xDemandInvtProfile: Record "Inventory Profile";
         xSupplyInvtProfile: Record "Inventory Profile";
+        SupplyIleInvtProfile: Record "Inventory Profile";
         NewSupplyDate: Date;
         SupplyExists: Boolean;
         CanBeRescheduled: Boolean;
@@ -1280,6 +1281,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
                 SupplyInvtProfile.SetTrackingFilter(DemandInvtProfile);
                 SupplyExists := SupplyInvtProfile.FindFirst();
+                SupplyIleInvtProfile.Copy(SupplyInvtProfile);
                 OnBeforeMatchAttributesDemandApplicationLoop(SupplyInvtProfile, DemandInvtProfile, SupplyExists);
                 while (DemandInvtProfile."Untracked Quantity" > 0) and
                       (not ApplyUntrackedQuantityToItemInventory(SupplyExists, ItemInventoryExists, DemandForAdditionalProfile))
@@ -1319,7 +1321,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                            (SupplyInvtProfile."Due Date" <= DemandInvtProfile."Due Date")
                         then
                             IncreaseQtyToMeetDemand(SupplyInvtProfile, DemandInvtProfile, false, RespectPlanningParm, false);
-
+                    if (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty.") and DemandForAdditionalProfile then
+                        DecreaseQtyForMaxQty(SupplyInvtProfile, SupplyIleInvtProfile."Untracked Quantity");
                     if SupplyInvtProfile."Untracked Quantity" < DemandInvtProfile."Untracked Quantity" then
                         SupplyExists := CloseSupply(DemandInvtProfile, SupplyInvtProfile)
                     else
@@ -1368,6 +1371,15 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.CopyFilters(xSupplyInvtProfile);
 
         OnAfterMatchAttributes(SupplyInvtProfile, DemandInvtProfile, TempTrkgReservEntry);
+    end;
+
+    local procedure DecreaseQtyForMaxQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal)
+    begin
+        if ReduceQty > 0 then begin
+            SupplyInvtProfile."Remaining Quantity (Base)" -= ReduceQty;
+            SupplyInvtProfile."Quantity (Base)" -= ReduceQty;
+            SupplyInvtProfile.Modify();
+        end;
     end;
 
     local procedure MatchReservationEntries(var FromTrkgReservEntry: Record "Reservation Entry"; var ToTrkgReservEntry: Record "Reservation Entry")
@@ -1448,7 +1460,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 UpdatePriorities(SupplyInvtProfile, IsReorderPointPlanning, ToDate);
 
                 DemandExists := DemandInvtProfile.FindSet();
-                DemandForAdditionalProfile := DemandForAdditionalLine(DemandInvtProfile);
+                DemandForAdditionalProfile := DemandForAdditionalLine(DemandInvtProfile, SupplyInvtProfile);
                 SupplyExists := SupplyInvtProfile.FindSet();
                 LatestBucketStartDate := PlanningStartDate;
                 LastProjectedInventory := 0;
@@ -1518,6 +1530,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             IsHandled := false;
                             OnPlanItemOnBeforeInitSupply(LastProjectedInventory, SupplyWithinLeadtime, TempSKU, IsHandled);
                             if not IsHandled then begin
+                                if (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty.") and DemandForAdditionalProfile then
+                                    LastProjectedInventory := 0;
                                 InitSupply(SupplyInvtProfile, 0, 0D, 0T);
                                 CreateSupplyForward(
                                 SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
@@ -5138,12 +5152,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
             RequisitionLine."Price Calculation Method" := PriceCalculationMethod;
     end;
 
-    local procedure DemandForAdditionalLine(var DemandInvtProfile: Record "Inventory Profile"): Boolean
+    local procedure DemandForAdditionalLine(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"): Boolean
     begin
-        if (TempSKU."Replenishment System" = TempSKU."Replenishment System"::"Prod. Order") and (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Lot-for-Lot")
-            and (TempSKU."Manufacturing Policy" = TempSKU."Manufacturing Policy"::"Make-to-Order") then
-            if DemandInvtProfile.Count() > 1 then
-                exit(true);
+        if (TempSKU."Replenishment System" = TempSKU."Replenishment System"::"Prod. Order") and
+            (TempSKU."Manufacturing Policy" = TempSKU."Manufacturing Policy"::"Make-to-Order") then begin
+            if TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Lot-for-Lot" then
+                if DemandInvtProfile.Count() > 1 then
+                    exit(true);
+            if TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty." then
+                if CheckItemInventoryExists(SupplyInvtProfile) then
+                    exit(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

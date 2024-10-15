@@ -689,6 +689,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATReturnPeriodClosedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 70057887 - NamedType 3482764271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Entry is in a closed VAT Return Period and can not be changed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATReturnPeriodFromClosedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2108261457 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be %1 in %2.]]></Val>
