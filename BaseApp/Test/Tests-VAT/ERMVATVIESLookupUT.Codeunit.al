@@ -53,6 +53,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegNoSrvTemplate.TestField("Validate City", false);
         VATRegNoSrvTemplate.TestField("Validate Post Code", false);
         VATRegNoSrvTemplate.TestField("Validate Street", false);
+        VATRegNoSrvTemplate.TestField("Ignore Details", false);
 
         VATRegNoSrvConfig.TestField("Default Template Code", DefaultTxt);
     end;
@@ -157,6 +158,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VerifyValidationDetailActionVisbility(VATRegLogDetailsStatus::Valid, true);
         VerifyValidationDetailActionVisbility(VATRegLogDetailsStatus::"Not Valid", true);
         VerifyValidationDetailActionVisbility(VATRegLogDetailsStatus::"Partially Valid", true);
+        VerifyValidationDetailActionVisbility(VATRegLogDetailsStatus::Ignored, true);
     end;
 
     [Test]
@@ -234,6 +236,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseDetails(Name2Txt, Address2Txt, Street2Txt, City2Txt, PostCode2Txt);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 5);
 
         VerifyDetailsLog(
@@ -268,6 +271,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseDetails('', '', '', '', '');
 
         Assert.AreEqual(false, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Verified");
         Assert.RecordIsEmpty(VATRegistrationLogDetails);
     end;
 
@@ -279,7 +283,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all response values and all check template
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, true, true, true);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, true, true, true, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -287,6 +291,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseDetails('', '', '', '', '');
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 4);
 
         VerifyDetailsLog(
@@ -311,7 +316,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all response values and all check template
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, true, true, true);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, true, true, true, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -319,6 +324,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseDetails(Name2Txt, Address2Txt, Street2Txt, City2Txt, PostCode2Txt);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 5);
 
         VerifyDetailsLog(
@@ -346,7 +352,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Name" value matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -354,6 +360,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(true, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Valid);
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -369,7 +376,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Name" value not matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -377,6 +384,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -392,7 +400,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Street" value matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, true, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, true, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -400,6 +408,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, true, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Valid);
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -415,7 +424,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Street" value not matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, true, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, true, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -423,6 +432,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -438,7 +448,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "City" value matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, true, false, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, true, false, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -446,6 +456,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, true, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Valid);
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -461,7 +472,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "City" value not matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, true, false, false);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, true, false, false, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -469,6 +480,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -484,7 +496,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Post Code" value matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, true);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, true, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -492,6 +504,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, false, true);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Valid);
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -507,7 +520,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         // [SCENARIO 342180] TAB 249 "VAT Registration Log".LogDetails() in case of all "Post Code" value not matched
         Initialize();
-        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, true);
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, true, false);
 
         MockVATRegLog(VATRegistrationLog, VATRegLogDetailsStatus::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
@@ -515,6 +528,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegistrationLog.SetResponseMatchDetails(false, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails()');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Valid");
         Assert.RecordCount(VATRegistrationLogDetails, 1);
 
         VerifyDetailsLog(
@@ -690,6 +704,110 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure LogDetails_AllResponse_Ignored()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegistrationLogDetails: Record "VAT Registration Log Details";
+    begin
+        // [SCENARIO 410603] TAB "VAT Registration Log" "VAT Registration Log".LogDetails() in case of all response values and Ignore Details enabled
+        Initialize();
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, false, true);
+
+        MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
+        UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
+        VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
+        VATRegistrationLog.SetResponseDetails(Name2Txt, Address2Txt, Street2Txt, City2Txt, PostCode2Txt);
+
+        Assert.AreEqual(true, VATRegistrationLog.LogDetails, 'VATRegistrationLog.LogDetails');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Ignored);
+        Assert.RecordCount(VATRegistrationLogDetails, 5);
+
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::Name,
+            '', NameTxt, Name2Txt, VATRegistrationLogDetails.Status::"Not Valid");
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::Address,
+            '', StreetTxt, Address2Txt, VATRegistrationLogDetails.Status::"Not Valid");
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::Street,
+            '', StreetTxt, Street2Txt, VATRegistrationLogDetails.Status::"Not Valid");
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::City,
+            '', CityTxt, City2Txt, VATRegistrationLogDetails.Status::"Not Valid");
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::"Post Code",
+            '', PostCodeTxt, PostCode2Txt, VATRegistrationLogDetails.Status::"Not Valid");
+    end;
+
+    [Test]
+    procedure LogDetails_NoResponse_Ignored()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegistrationLogDetails: Record "VAT Registration Log Details";
+    begin
+        // [SCENARIO 410603] TAB 249 "VAT Registration Log".LogDetails() in case of no response values and Ignore Details enabled
+        Initialize();
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', false, false, false, false, true);
+
+        MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
+        UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
+        VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
+        VATRegistrationLog.SetResponseDetails('', '', '', '', '');
+
+        Assert.AreEqual(false, VATRegistrationLog.LogDetails, 'VATRegistrationLog.LogDetails');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::"Not Verified");
+        Assert.RecordIsEmpty(VATRegistrationLogDetails);
+    end;
+
+    [Test]
+    procedure LogDetails_Name_Matched_Ignored()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegistrationLogDetails: Record "VAT Registration Log Details";
+    begin
+        // [SCENARIO 410603] TAB 249 "VAT Registration Log".LogDetails() in case of "Name" value matched and Ignore Details enabled
+        Initialize();
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false, true);
+
+        MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
+        UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
+        VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
+        VATRegistrationLog.SetResponseMatchDetails(TRUE, false, false, false);
+
+        Assert.AreEqual(true, VATRegistrationLog.LogDetails, 'VATRegistrationLog.LogDetails');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Ignored);
+        Assert.RecordCount(VATRegistrationLogDetails, 1);
+
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::Name,
+            NameTxt, NameTxt, '', VATRegistrationLogDetails.Status::Valid);
+    end;
+
+    [Test]
+    procedure LogDetails_Name_NotMatched_Ignored()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegistrationLogDetails: Record "VAT Registration Log Details";
+    begin
+        // [SCENARIO 410603] TAB 249 "VAT Registration Log".LogDetails() in case of "Name" value not matched and Ignore Details enabled
+        Initialize();
+        MockTemplate('T', 'GB', TemplateAccountType::None, '', true, false, false, false, true);
+
+        MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
+        UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
+        VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
+        VATRegistrationLog.SetResponseMatchDetails(FALSE, false, false, false);
+
+        Assert.AreEqual(true, VATRegistrationLog.LogDetails, 'VATRegistrationLog.LogDetails');
+        VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Ignored);
+        Assert.RecordCount(VATRegistrationLogDetails, 1);
+
+        VerifyDetailsLog(
+            VATRegistrationLog, VATRegistrationLogDetails."Field Name"::Name,
+            NameTxt, NameTxt, '', VATRegistrationLogDetails.Status::"Not Valid");
+    end;
+
     procedure Initialize()
     var
         VATRegistrationLog: Record "VAT Registration Log";
@@ -764,10 +882,10 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
 
     local procedure MockTemplateWithDisabledValidation(Code: Code[20]; Country: Code[10]; AccountType: Enum "VAT Reg. No. Srv. Template Account Type"; AccountNo: Code[20])
     begin
-        MockTemplate(Code, Country, AccountType, AccountNo, false, false, false, false);
+        MockTemplate(Code, Country, AccountType, AccountNo, false, false, false, false, false);
     end;
 
-    local procedure MockTemplate(Code: Code[20]; Country: Code[10]; AccountType: Enum "VAT Reg. No. Srv. Template Account Type"; AccountNo: Code[20]; ValidateName: Boolean; ValidateCity: Boolean; ValidateStreet: Boolean; ValidatePostCode: Boolean)
+    local procedure MockTemplate(Code: Code[20]; Country: Code[10]; AccountType: Enum "VAT Reg. No. Srv. Template Account Type"; AccountNo: Code[20]; ValidateName: Boolean; ValidateCity: Boolean; ValidateStreet: Boolean; ValidatePostCode: Boolean; IgnoreDetails: Boolean)
     var
         VATRegNoSrvTemplate: Record "VAT Reg. No. Srv. Template";
     begin
@@ -780,6 +898,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         VATRegNoSrvTemplate."Validate City" := ValidateCity;
         VATRegNoSrvTemplate."Validate Street" := ValidateStreet;
         VATRegNoSrvTemplate."Validate Post Code" := ValidatePostCode;
+        VATRegNoSrvTemplate."Ignore Details" := IgnoreDetails;
         VATRegNoSrvTemplate.Insert();
     end;
 
