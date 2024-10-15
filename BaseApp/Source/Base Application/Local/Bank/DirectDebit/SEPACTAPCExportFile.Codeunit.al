@@ -35,12 +35,40 @@ codeunit 11100 "SEPA CT APC-Export File"
     begin
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
-        PostProcessXMLDocument(TempBlob);
+        PostProcessXMLDocument(TempBlob, XMLPortID);
         CreditTransferRegister.FindLast();
         exit(FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), true) <> '');
     end;
 
     [Scope('OnPrem')]
+    procedure PostProcessXMLDocument(var TempBlob: Codeunit "Temp Blob"; XMLPortID: Integer)
+    var
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XMLDoc: DotNet XmlDocument;
+        XMLNsMgr: DotNet XmlNamespaceManager;
+        InStr: InStream;
+        OutStr: OutStream;
+    begin
+        TempBlob.CreateInStream(InStr);
+
+        XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, XMLDoc);
+        XMLNsMgr := XMLNsMgr.XmlNamespaceManager(XMLDoc.NameTable);
+        case XMLPortID of
+            XMLPort::"SEPA CT pain.001.001.09":
+                XMLNsMgr.AddNamespace('ns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+            else
+                XMLNsMgr.AddNamespace('ns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
+        end;
+        ApplyApcRequirements(XMLDoc, XMLNsMgr);
+
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutStr);
+        XMLDoc.Save(OutStr);
+    end;
+
+#if not CLEAN25
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by same procedure with an extra parameter for XMLPortID', '25.0')]
     procedure PostProcessXMLDocument(var TempBlob: Codeunit "Temp Blob")
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
@@ -61,7 +89,7 @@ codeunit 11100 "SEPA CT APC-Export File"
         TempBlob.CreateOutStream(OutStr);
         XMLDoc.Save(OutStr);
     end;
-
+#endif
     local procedure ApplyApcRequirements(var XMLDoc: DotNet XmlDocument; XMLNsMgr: DotNet XmlNamespaceManager)
     var
         NodeList: DotNet XmlNodeList;

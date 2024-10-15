@@ -6,7 +6,7 @@ namespace Microsoft.Integration.D365Sales;
 
 table 5371 "CDS Available Virtual Table"
 {
-    ExternalName = 'mserp_businesscentralentity';
+    ExternalName = 'dyn365bc_businesscentralentity';
     TableType = CRM;
     Description = 'Contains available Business Central tables in Dataverse.';
     Extensible = false;
@@ -15,7 +15,7 @@ table 5371 "CDS Available Virtual Table"
     {
         field(1; mserp_businesscentralentityId; GUID)
         {
-            ExternalName = 'mserp_businesscentralentityid';
+            ExternalName = 'dyn365bc_businesscentralentityid';
             ExternalType = 'Uniqueidentifier';
             ExternalAccess = Insert;
             Description = 'Unique identifier for table instances';
@@ -24,7 +24,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(2; mserp_physicalname; Text[100])
         {
-            ExternalName = 'mserp_physicalname';
+            ExternalName = 'dyn365bc_physicalname';
             ExternalType = 'String';
             Description = 'The name of the custom table.';
             Caption = 'Name';
@@ -32,7 +32,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(3; mserp_apiroute; Text[100])
         {
-            ExternalName = 'mserp_apiroute';
+            ExternalName = 'dyn365bc_apiroute';
             ExternalType = 'String';
             Description = '';
             Caption = 'API Route';
@@ -40,7 +40,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(4; mserp_cdsentitylogicalname; Text[100])
         {
-            ExternalName = 'mserp_cdsentitylogicalname';
+            ExternalName = 'dyn365bc_cdsentitylogicalname';
             ExternalType = 'String';
             Description = '';
             Caption = 'Dataverse Table Logical Name';
@@ -48,7 +48,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(5; mserp_displayname; Text[200])
         {
-            ExternalName = 'mserp_displayname';
+            ExternalName = 'dyn365bc_displayname';
             ExternalType = 'String';
             ExternalAccess = Insert;
             Description = 'The display name of the custom table in the current language.';
@@ -57,7 +57,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(6; mserp_hasbeengenerated; Boolean)
         {
-            ExternalName = 'mserp_hasbeengenerated';
+            ExternalName = 'dyn365bc_hasbeengenerated';
             ExternalType = 'Boolean';
             Description = '';
             Caption = 'Visible';
@@ -65,7 +65,7 @@ table 5371 "CDS Available Virtual Table"
         }
         field(7; mserp_refresh; Boolean)
         {
-            ExternalName = 'mserp_refresh';
+            ExternalName = 'dyn365bc_refresh';
             ExternalType = 'Boolean';
             Description = '';
             Caption = 'Refresh';
