@@ -1,4 +1,4 @@
-page 510 "Blanket Purchase Order Subform"
+﻿page 510 "Blanket Purchase Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -405,7 +405,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.PurchaseDocTotalsNotUpToDate;
+                            DocumentTotals.PurchaseDocTotalsNotUpToDate();
                             ValidateInvoiceDiscountAmount;
                         end;
                     }
@@ -809,6 +809,8 @@ page 510 "Blanket Purchase Order Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     procedure ApproveCalcInvDisc()
@@ -878,15 +880,30 @@ page 510 "Blanket Purchase Order Subform"
     local procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
+        CheckSendLineInvoiceDiscountResetNotification();
+    end;
+
+    local procedure CheckSendLineInvoiceDiscountResetNotification()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSendLineInvoiceDiscountResetNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
     end;
 
     local procedure UpdateEditableOnRow()
     begin
+        IsCommentLine := not HasTypeToFillMandatoryFields();
+        IsBlankNumber := IsCommentLine;
+
         InvDiscAmountEditable := CurrPage.Editable and not PurchasesPayablesSetup."Calc. Inv. Discount";
 
-        OnAfterUpdateEditableOnRow(Rec);
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     local procedure ShowOrders()
@@ -1027,12 +1044,17 @@ page 510 "Blanket Purchase Order Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line");
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSendLineInvoiceDiscountResetNotification(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

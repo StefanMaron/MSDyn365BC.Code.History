@@ -1573,7 +1573,9 @@ codeunit 10145 "E-Invoice Mgt."
         TaxType: Option Translado,Retencion;
         LineTaxes: Boolean;
         NumeroPedimento: Text;
+        Decimals: Integer;
     begin
+        Decimals := GetDecimalPlacesFromCurrency(TempDocumentHeader."Currency Code");
         InitXML33(XMLDoc, XMLCurrNode);
         with TempDocumentHeader do begin
             AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
@@ -1690,7 +1692,7 @@ codeunit 10145 "E-Invoice Mgt."
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                             AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
                             AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
-                              FormatAmount(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount))
+                              FormatDecimal(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, Decimals))
                         end else
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
                         XMLCurrNode := XMLCurrNode.ParentNode;
@@ -1769,7 +1771,9 @@ codeunit 10145 "E-Invoice Mgt."
         TaxCode: Code[10];
         TaxType: Option Translado,Retencion;
         LineTaxes: Boolean;
+        Decimals: Integer;
     begin
+        Decimals := GetDecimalPlacesFromCurrency(TempDocumentHeader."Currency Code");
         InitXML33(XMLDoc, XMLCurrNode);
         with TempDocumentHeader do begin
             AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
@@ -1873,7 +1877,7 @@ codeunit 10145 "E-Invoice Mgt."
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                             AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0'));
                             AddAttribute(XMLDoc, XMLCurrNode, 'Importe',
-                              FormatAmount(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount));
+                              FormatDecimal(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, Decimals));
                         end else
                             AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Exento');
                         TotalTaxes := TotalTaxes + (TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount);
@@ -2146,7 +2150,9 @@ codeunit 10145 "E-Invoice Mgt."
         TaxCode: Code[10];
         TaxType: Option Translado,Retencion;
         LineTaxes: Boolean;
+        Decimals: Integer;
     begin
+        Decimals := GetDecimalPlacesFromCurrency(TempDocumentHeader."Currency Code");
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
@@ -2237,7 +2243,7 @@ codeunit 10145 "E-Invoice Mgt."
                             WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                             WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
                             WriteOutStr(OutStream,
-                              FormatAmount(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount) + '|') // Importe
+                              FormatDecimal(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, Decimals) + '|') // Importe
                         end else
                             WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
                     end;
@@ -2280,7 +2286,9 @@ codeunit 10145 "E-Invoice Mgt."
         TaxCode: Code[10];
         TaxType: Option Translado,Retencion;
         LineTaxes: Boolean;
+        Decimals: Integer;
     begin
+        Decimals := GetDecimalPlacesFromCurrency(TempDocumentHeader."Currency Code");
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
@@ -2363,7 +2371,7 @@ codeunit 10145 "E-Invoice Mgt."
                         if not IsVATExemptLine(TempDocumentLine) then begin// When Sales Tax code is % then Tasa, else Exento
                             WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                             WriteOutStr(OutStream, PadStr(FormatAmount(TempDocumentLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
-                            WriteOutStr(OutStream, FormatAmount(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount) + '|'); // Importe
+                            WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, Decimals) + '|'); // Importe
                         end else
                             WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
                         TotalTaxes := TotalTaxes + (TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount);
@@ -4271,6 +4279,39 @@ codeunit 10145 "E-Invoice Mgt."
             else
                 exit(2);
         end;
+    end;
+
+    local procedure GetDecimalPlacesFromCurrency(CurrencyCode: Code[10]) Decimals: Integer
+    var
+        Currency: Record Currency;
+    begin
+        if not Currency.Get(CurrencyCode) then begin
+            GetGLSetupOnce();
+            Currency.Init();
+            Currency."Amount Decimal Places" := GLSetup."Amount Decimal Places";
+        end;
+
+        Evaluate(Decimals, GetMaxDecimalPlaces(Currency."Amount Decimal Places"));
+    end;
+
+    local procedure GetMaxDecimalPlaces(DecimalPlacesStr: Text): Text
+    var
+        Decimals: Text;
+    begin
+        // possible values: '1','1:4','2:',':2'
+        DecimalPlacesStr := DelChr(DecimalPlacesStr);
+        if DecimalPlacesStr = '' then
+            exit('0');
+
+        if StrPos(DecimalPlacesStr, ':') = 0 then
+            exit(DecimalPlacesStr);
+
+        DecimalPlacesStr := ConvertStr(DecimalPlacesStr, ':', ',');
+        Decimals := SelectStr(2, DecimalPlacesStr);
+        if Decimals = '' then
+            Decimals := SelectStr(1, DecimalPlacesStr);
+
+        exit(Decimals);
     end;
 
     local procedure GetTaxPercentage(Amount: Decimal; Tax: Decimal): Decimal

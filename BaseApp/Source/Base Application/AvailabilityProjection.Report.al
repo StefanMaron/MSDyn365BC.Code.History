@@ -1182,21 +1182,25 @@ report 10130 "Availability Projection"
                     Caption = 'Options';
                     field("PeriodStartingDate[2]"; PeriodStartingDate[2])
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the start date for the projection.';
                     }
                     field(PeriodCalculation; PeriodCalculation)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Length of Period (1W,1M)';
                         ToolTip = 'Specifies the length of the each projection period. For example, enter 30D to base the projection on 30 day intervals. The default period is 1M, or one month.';
                     }
                     field(BreakdownByVariant; BreakdownByVariant)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Breakdown by Variant';
                         ToolTip = 'Specifies if you want a separate projection for each item variant. If you do not select this field, all variants will be combined into one projection for each item.';
                     }
                     field(IncludeMfg; IncludeMfg)
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Include Manufacturing Projections';
                         OptionCaption = 'Do not include,Include released orders only,Include planned and released orders';
                         ToolTip = 'Specifies if you want to include released orders, include planned and released orders, or exclude projections from this report.';

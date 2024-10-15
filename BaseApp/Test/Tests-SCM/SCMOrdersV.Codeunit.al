@@ -3445,6 +3445,47 @@ codeunit 137158 "SCM Orders V"
         VerifySalesShipmentLine(SalesLine."No.", SalesLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceiptDateOnDerivedTransferLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Transfer Order] [Receipt]
+        // [SCENARIO 366904] Changing Receipt Date on a Transfer Line changes Receipt Dates on derived transfer lines
+        Initialize;
+
+        // [GIVEN] 100 PCS of Item on Location "BLUE" on 01-01-2022
+        LibraryInventory.CreateItem(Item);
+        CreatePurchaseOrder(
+          PurchaseHeader, PurchaseLine, '', Item."No.", LibraryRandom.RandDec(100, 0), LocationBlue.Code, false);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Transfer Order from Location "BLUE" to Location "RED" for 10 PCS of Item with "Receipt Date" = 02-01-2022
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(
+          TransferHeader, TransferLine, Item."No.",
+          LibraryRandom.RandDec(PurchaseLine.Quantity, 2));
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        // [WHEN] Change "Receipt Date" on Transfer Line to 09-01-2022
+        LibraryWarehouse.ReopenTransferOrder(TransferHeader);
+        NewDate := LibraryRandom.RandDateFrom(WorkDate, 14);
+        TransferLine.Validate("Receipt Date", NewDate);
+        TransferLine.Modify(true);
+
+        // [THEN] Derived Transfer Line has "Receipt Date" = 09-01-2022
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetFilter("Derived From Line No.", '<>%1', 0);
+        TransferLine.FindFirst;
+        TransferLine.TestField("Receipt Date", NewDate);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

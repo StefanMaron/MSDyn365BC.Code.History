@@ -1,4 +1,4 @@
-codeunit 5703 "Catalog Item Management"
+﻿codeunit 5703 "Catalog Item Management"
 {
 
     trigger OnRun()
@@ -28,6 +28,7 @@ codeunit 5703 "Catalog Item Management"
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
     begin
+        OnBeforeNonstockAutoItem(NonStock2);
         if NewItem.Get(NonStock2."Item No.") then
             Error(Text000, NonStock2."Item No.");
 
@@ -511,6 +512,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer; var NewItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonstockAutoItem(var NonStock2: Record "Nonstock Item")
     begin
     end;
 

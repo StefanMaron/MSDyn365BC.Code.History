@@ -4,6 +4,7 @@ codeunit 134370 "ERM No. Series Tests"
 
     trigger OnRun()
     begin
+        // [FEATURE] [No. Series]
     end;
 
     var
@@ -172,6 +173,43 @@ codeunit 134370 "ERM No. Series Tests"
 
         // clean up
         DeleteNumberSeries('TEST');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TheLastNoUsedDidNotChangeAfterEnabledAllowGapsInNos()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesLines: TestPage "No. Series Lines";
+        FormattedNo: Code[20];
+        LastNoUsed: Code[20];
+    begin
+        // [SCENARIO 365394] The "Last No. Used" should not changed after enabled and disabled "Allow Gaps in Nos." for No Series, which included only digits
+        Initialize();
+
+        // [GIVEN] Created No Series with "Allow Gaps in Nos." = true and "Last No. Used"
+        CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
+        NoSeriesLine."Starting No." := '1000001';
+        LastNoUsed := '1000023';
+        NoSeriesLine."Last No. Used" := LastNoUsed;
+        NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+
+        // [GIVEN] Change "Allow Gaps in Nos." to false
+        NoSeriesLine.Validate("Allow Gaps in Nos.", false);
+
+        // [GIVEN] Change "Allow Gaps in Nos." to true
+        NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+        NoSeriesLine.Modify();
+
+        // [WHEN] Open page 457 "No. Series Lines"
+        NoSeriesLines.OpenEdit();
+        NoSeriesLines.Filter.SetFilter("Series Code", NoSeriesLine."Series Code");
+        NoSeriesLines.Filter.SetFilter("Line No.", Format(NoSeriesLine."Line No."));
+        NoSeriesLines.First();
+
+        // [THEN] "Last No. Used" did not change
+        NoSeriesLines."Last No. Used".AssertEquals(LastNoUsed);
     end;
 
     local procedure CreateNewNumberSeries(NewName: Code[20]; IncrementBy: Integer; AllowGaps: Boolean; var NoSeriesLine: Record "No. Series Line")

@@ -1315,11 +1315,13 @@ page 49 "Purchase Quote"
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
-    local procedure ActivateFields()
+    protected procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+
+        OnAfterActivateFields();
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1409,6 +1411,11 @@ page 49 "Purchase Quote"
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterActivateFields()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

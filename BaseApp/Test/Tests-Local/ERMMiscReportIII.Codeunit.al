@@ -1568,6 +1568,52 @@ codeunit 142062 "ERM Misc. Report III"
         // [THEN] No RDLC rendering errors
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseAdviceSKUVisibilityRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPurchaseAdviceUseSKUOptionVisibilityInWarehouseAppArea()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Stockkeeping Unit] [Planning] [Application Area] [UT]
+        // [SCENARIO 367615] "Use Stockkeeping Unit" option of report "Purchase Advice" is available under #Planning application area        Initialize();
+        Initialize();
+
+        EnablePlanningApplicationAreaSetup();
+        Commit();
+
+        REPORT.Run(REPORT::"Purchase Advice", true, false);
+
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Planning'));
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear Down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseAdviceWithErrorRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPurchaseAdviceUseSKUOptionVisibilityInBasicAppArea()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Stockkeeping Unit] [Basic] [Application Area] [UT]
+        // [SCENARIO 367615] "Use Stockkeeping Unit" option of report "Purchase Advice" is not available under #Basic application area
+        Initialize();
+
+        LibraryApplicationArea.EnableBasicSetup();
+        Commit();
+
+        REPORT.Run(REPORT::"Purchase Advice", true, false);
+
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
+
+        // Tear Down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2151,6 +2197,18 @@ codeunit 142062 "ERM Misc. Report III"
         GeneralLedgerSetup.Modify();
     end;
 
+    local procedure EnablePlanningApplicationAreaSetup()
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+    begin
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        ApplicationAreaSetup.Validate("Company Name", CompanyName);
+        ApplicationAreaSetup.Validate(Planning, true);
+        ApplicationAreaSetup.Insert(true);
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
+    end;
+
     local procedure ValidateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     var
         VendorInvoiceNo: Code[35];
@@ -2631,6 +2689,30 @@ codeunit 142062 "ERM Misc. Report III"
         PurchaseAdvice.Item.SetFilter("Date Filter", Format(PostingDate));
         PurchaseAdvice.Item.SetFilter("No.", ItemNo);
         PurchaseAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseAdviceSKUVisibilityRequestPageHandler(var PurchaseAdvice: TestRequestPage "Purchase Advice")
+    var
+        PostingDate: Variant;
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Enqueue(PurchaseAdvice.UseSKU.Visible);
+        LibraryVariableStorage.Enqueue(PurchaseAdvice.UseSKU.Caption);
+        PurchaseAdvice.Cancel.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseAdviceWithErrorRequestPageHandler(var PurchaseAdvice: TestRequestPage "Purchase Advice")
+    var
+        PostingDate: Variant;
+        ItemNo: Variant;
+    begin
+        asserterror LibraryVariableStorage.Enqueue(PurchaseAdvice.UseSKU.Visible);
+        LibraryVariableStorage.Enqueue(GetLastErrorCode);
+        PurchaseAdvice.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

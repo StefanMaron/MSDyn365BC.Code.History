@@ -471,7 +471,7 @@ report 10051 "Drop Shipment Status"
         PurchaseLine: Record "Purchase Line";
         Customer: Record Customer;
         Item: Record Item;
-        ItemDescription: Text[30];
+        ItemDescription: Text[100];
         FilterString: Text;
         Subtitle: Text[126];
         SortOption: Option "Sales Order",Customer,Item;

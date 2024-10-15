@@ -574,6 +574,7 @@ table 6651 "Return Shipment Line"
             PurchLine."Document Type" := TempPurchLine."Document Type";
             PurchLine."Document No." := TempPurchLine."Document No.";
             PurchLine.Description := StrSubstNo(Text000, "Document No.");
+            OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(Rec, PurchLine, NextLineNo);
             PurchLine.Insert();
             NextLineNo := NextLineNo + 10000;
         end;
@@ -820,6 +821,11 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer)
     begin
     end;
 }

@@ -983,11 +983,13 @@
             FinalizeDeleteServOrdAllocat();
             FinalizeDeleteItemLines();
             FinalizeDeleteComments(PassedServHeader."Document Type");
+            OnFinalizeOnBeforeFinalizeDeleteHeader(PassedServHeader);
             FinalizeDeleteHeader(PassedServHeader);
         end else begin
             // Service Lines, Service Item Lines, Service Header
             FinalizeLines();
             FinalizeItemLines();
+            OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
             FinalizeHeader(PassedServHeader);
         end;
         if SalesTaxCalculationOverridden then
@@ -1334,6 +1336,8 @@
         TableIDArr: array[10] of Integer;
         NumberArr: array[10] of Code[20];
     begin
+        OnBeforeCheckDimValuePosting(ServiceLine2);
+
         if ServiceLine2."Line No." = 0 then begin
             TableIDArr[1] := DATABASE::Customer;
             NumberArr[1] := ServHeader."Bill-to Customer No.";
@@ -1436,6 +1440,8 @@
         if ServLine.Find('-') then
             repeat
                 with ServLine do begin
+                    OnCheckAndBlankQtysOnBeforeCheckServLine(ServLine);
+
                     // Service Charge line should not be tested.
                     if (Type <> Type::" ") and not "System-Created Entry" then begin
                         if ServDocType = DATABASE::"Service Contract Header" then
@@ -2478,6 +2484,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAndBlankQtysOnBeforeCheckServLine(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOnBeforeFinalizeDeleteHeader(var PassedServHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOnBeforeFinalizeHeader(var PassedServHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinalizeDeleteLinesOnAfterSetPServItemLineFilters(var ServiceItemLine: Record "Service Item Line")
     begin
     end;
@@ -2554,6 +2575,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetServiceLedgerEntryFilters(var ServLedgEntry: Record "Service Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePosting(var ServiceLine2: Record "Service Line")
     begin
     end;
 }

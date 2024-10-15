@@ -1,4 +1,4 @@
-codeunit 5836 "Cost Calculation Management"
+﻿codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
@@ -38,7 +38,14 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     procedure RoutingCostPerUnit(Type: Option "Work Center","Machine Center"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         UnitCostCalculation := UnitCostCalculation::Time;
         case Type of
             Type::"Work Center":
@@ -88,6 +95,8 @@ codeunit 5836 "Cost Calculation Management"
                     ShareOfTotalCapCost := Qty / Quantity;
             end;
         end;
+
+        OnAfterCalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
     end;
 
     procedure CalcProdOrderLineStdCost(ProdOrderLine: Record "Prod. Order Line"; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal)
@@ -234,55 +243,55 @@ codeunit 5836 "Cost Calculation Management"
     begin
         OnBeforeCalcProdOrderExpCapNeed(ProdOrder, ProdOrderCapNeed, ProdOrderRtngLine);
 
-        with ProdOrder do
-            if Status <> Status::Finished then begin
-                ProdOrderCapNeed.SetRange(Status, Status);
-                ProdOrderCapNeed.SetRange("Prod. Order No.", "No.");
-                ProdOrderCapNeed.SetFilter(Type, GetFilter("Capacity Type Filter"));
-                ProdOrderCapNeed.SetFilter("No.", "Capacity No. Filter");
-                ProdOrderCapNeed.SetFilter("Work Center No.", "Work Center Filter");
-                ProdOrderCapNeed.SetFilter(Date, GetFilter("Date Filter"));
-                ProdOrderCapNeed.SetRange("Requested Only", false);
-                if ProdOrderCapNeed.FindSet then begin
-                    repeat
-                        if ProdOrderCapNeed.Type = ProdOrderCapNeed.Type::"Work Center" then begin
-                            if not WorkCenter.Get(ProdOrderCapNeed."No.") then
-                                Clear(WorkCenter);
-                        end else
+        if ProdOrder.Status <> ProdOrder.Status::Finished then begin
+            ProdOrderCapNeed.SetRange(Status, ProdOrder.Status);
+            ProdOrderCapNeed.SetRange("Prod. Order No.", ProdOrder."No.");
+            ProdOrderCapNeed.SetFilter(Type, ProdOrder.GetFilter("Capacity Type Filter"));
+            ProdOrderCapNeed.SetFilter("No.", ProdOrder.GetFilter("Capacity No. Filter"));
+            ProdOrderCapNeed.SetFilter("Work Center No.", ProdOrder.GetFilter("Work Center Filter"));
+            ProdOrderCapNeed.SetFilter(Date, ProdOrder.GetFilter("Date Filter"));
+            ProdOrderCapNeed.SetRange("Requested Only", false);
+            OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(ProdOrderCapNeed, ProdOrder);
+            if ProdOrderCapNeed.FindSet() then begin
+                repeat
+                    if ProdOrderCapNeed.Type = ProdOrderCapNeed.Type::"Work Center" then begin
+                        if not WorkCenter.Get(ProdOrderCapNeed."No.") then
                             Clear(WorkCenter);
-                        if WorkCenter."Subcontractor No." = '' then begin
-                            NeededTime += ProdOrderCapNeed."Needed Time (ms)";
-                            ProdOrderCapNeed.Mark(true);
-                        end;
-                    until ProdOrderCapNeed.Next = 0;
-                    ProdOrderCapNeed.MarkedOnly(true);
-                end;
-                if DrillDown then
-                    PAGE.Run(0, ProdOrderCapNeed, ProdOrderCapNeed."Needed Time")
-                else
-                    exit(NeededTime);
-            end else begin
-                ProdOrderRtngLine.SetRange(Status, Status);
-                ProdOrderRtngLine.SetRange("Prod. Order No.", "No.");
-                if ProdOrderRtngLine.FindSet then begin
-                    repeat
-                        if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
-                            if not WorkCenter.Get(ProdOrderRtngLine."No.") then
-                                Clear(WorkCenter);
-                        end else
-                            Clear(WorkCenter);
-                        if WorkCenter."Subcontractor No." = '' then begin
-                            ExpectedCapNeed += ProdOrderRtngLine."Expected Capacity Need";
-                            ProdOrderRtngLine.Mark(true);
-                        end;
-                    until ProdOrderRtngLine.Next = 0;
-                    ProdOrderRtngLine.MarkedOnly(true);
-                end;
-                if DrillDown then
-                    PAGE.Run(0, ProdOrderRtngLine, ProdOrderRtngLine."Expected Capacity Need")
-                else
-                    exit(ExpectedCapNeed);
+                    end else
+                        Clear(WorkCenter);
+                    if WorkCenter."Subcontractor No." = '' then begin
+                        NeededTime += ProdOrderCapNeed."Needed Time (ms)";
+                        ProdOrderCapNeed.Mark(true);
+                    end;
+                until ProdOrderCapNeed.Next() = 0;
+                ProdOrderCapNeed.MarkedOnly(true);
             end;
+            if DrillDown then
+                PAGE.Run(0, ProdOrderCapNeed, ProdOrderCapNeed."Needed Time")
+            else
+                exit(NeededTime);
+        end else begin
+            ProdOrderRtngLine.SetRange(Status, ProdOrder.Status);
+            ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrder."No.");
+            if ProdOrderRtngLine.FindSet() then begin
+                repeat
+                    if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
+                        if not WorkCenter.Get(ProdOrderRtngLine."No.") then
+                            Clear(WorkCenter);
+                    end else
+                        Clear(WorkCenter);
+                    if WorkCenter."Subcontractor No." = '' then begin
+                        ExpectedCapNeed += ProdOrderRtngLine."Expected Capacity Need";
+                        ProdOrderRtngLine.Mark(true);
+                    end;
+                until ProdOrderRtngLine.Next() = 0;
+                ProdOrderRtngLine.MarkedOnly(true);
+            end;
+            if DrillDown then
+                PAGE.Run(0, ProdOrderRtngLine, ProdOrderRtngLine."Expected Capacity Need")
+            else
+                exit(ExpectedCapNeed);
+        end;
     end;
 
     procedure CalcProdOrderActTimeUsed(ProdOrder: Record "Production Order"; DrillDown: Boolean): Decimal
@@ -291,41 +300,45 @@ codeunit 5836 "Cost Calculation Management"
         WorkCenter: Record "Work Center";
         CalendarMgt: Codeunit "Shop Calendar Management";
         Qty: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeCalcProdOrderActTimeUsed(ProdOrder, CapLedgEntry);
 
-        with CapLedgEntry do begin
-            if ProdOrder.Status < ProdOrder.Status::Released then
-                exit(0);
+        if ProdOrder.Status < ProdOrder.Status::Released then
+            exit(0);
 
-            SetCurrentKey("Order Type", "Order No.");
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrder."No.");
-            if FindSet then begin
-                repeat
-                    if Type = Type::"Work Center" then begin
-                        if not WorkCenter.Get("No.") then
-                            Clear(WorkCenter);
-                    end else
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
+        CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
+        CapLedgEntry.SetRange("Order No.", ProdOrder."No.");
+        OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(CapLedgEntry, ProdOrder);
+        if CapLedgEntry.FindSet() then begin
+            repeat
+                if CapLedgEntry.Type = CapLedgEntry.Type::"Work Center" then begin
+                    if not WorkCenter.Get(CapLedgEntry."No.") then
                         Clear(WorkCenter);
-                    if WorkCenter."Subcontractor No." = '' then begin
-                        if "Qty. per Cap. Unit of Measure" = 0 then
-                            GetCapacityUoM(CapLedgEntry);
-                        Qty +=
-                          ("Setup Time" + "Run Time") /
-                          "Qty. per Cap. Unit of Measure" *
-                          CalendarMgt.TimeFactor("Cap. Unit of Measure Code");
-                        Mark(true);
-                    end;
-                until Next = 0;
-                MarkedOnly(true);
-            end;
+                end else
+                    Clear(WorkCenter);
+                if WorkCenter."Subcontractor No." = '' then begin
+                    if CapLedgEntry."Qty. per Cap. Unit of Measure" = 0 then
+                        GetCapacityUoM(CapLedgEntry);
 
-            if DrillDown then
-                PAGE.Run(0, CapLedgEntry, Quantity)
-            else
-                exit(Qty);
+                    IsHandled := false;
+                    OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry, Qty, IsHandled);
+                    if not IsHandled then
+                        Qty +=
+                            (CapLedgEntry."Setup Time" + CapLedgEntry."Run Time") /
+                            CapLedgEntry."Qty. per Cap. Unit of Measure" *
+                            CalendarMgt.TimeFactor(CapLedgEntry."Cap. Unit of Measure Code");
+                    CapLedgEntry.Mark(true);
+                end;
+            until CapLedgEntry.Next() = 0;
+            CapLedgEntry.MarkedOnly(true);
         end;
+
+        if DrillDown then
+            PAGE.Run(0, CapLedgEntry, CapLedgEntry.Quantity)
+        else
+            exit(Qty);
     end;
 
     local procedure GetCapacityUoM(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
@@ -517,14 +530,24 @@ codeunit 5836 "Cost Calculation Management"
         end;
     end;
 
-    procedure CalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal): Decimal
+    procedure CalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal) QtyAdjdForBOMScrap: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        exit(Qty * (1 + ScrapPct / 100));
+        IsHandled := FALSE;
+        OnBeforeCalcQtyAdjdForBOMScrap(Qty, ScrapPct, QtyAdjdForBomScrap, IsHandled);
+        if not IsHandled then
+            exit(Qty * (1 + ScrapPct / 100));
     end;
 
-    procedure CalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal): Decimal
+    procedure CalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal) QtyAdjdForRoutingScrap: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        exit(Qty * (1 + ScrapFactorPctAccum) + FixedScrapQtyAccum);
+        IsHandled := FALSE;
+        OnBeforeCalcQtyAdjdForRoutingScrap(Qty, ScrapFactorPctAccum, FixedScrapQtyAccum, QtyAdjdForRoutingScrap, IsHandled);
+        if not IsHandled then
+            exit(Qty * (1 + ScrapFactorPctAccum) + FixedScrapQtyAccum);
     end;
 
     procedure CalcDirCost(Cost: Decimal; OvhdCost: Decimal; VarPurchCost: Decimal): Decimal
@@ -1207,6 +1230,11 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
@@ -1227,7 +1255,22 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal; var QtyAdjdForBomScrap: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; var QtyAdjdForRoutingScrap: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcProdOrderExpCapNeed(ProductionOrder: Record "Production Order"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1253,6 +1296,21 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry: Record "Capacity Ledger Entry"; var Qty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; ProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrder: Record "Production Order")
     begin
     end;
 }

@@ -139,7 +139,7 @@ table 27006 "CFDI Relation Document"
             exit;
 
         case "Document Table ID" of
-            DATABASE::"Sales Header", DATABASE::"Sales Invoice Header":
+            DATABASE::"Sales Header", DATABASE::"Sales Invoice Header", DATABASE::"Sales Cr.Memo Header":
                 if "Related Doc. Type" = "Related Doc. Type"::Invoice then begin
                     SalesInvoiceHeader.Get("Related Doc. No.");
                     "Fiscal Invoice Number PAC" := SalesInvoiceHeader."Fiscal Invoice Number PAC";
@@ -147,7 +147,7 @@ table 27006 "CFDI Relation Document"
                     SalesCrMemoHeader.Get("Related Doc. No.");
                     "Fiscal Invoice Number PAC" := SalesCrMemoHeader."Fiscal Invoice Number PAC";
                 end;
-            DATABASE::"Service Header", DATABASE::"Service Invoice Header":
+            DATABASE::"Service Header", DATABASE::"Service Invoice Header", DATABASE::"Service Cr.Memo Header":
                 if "Related Doc. Type" = "Related Doc. Type"::Invoice then begin
                     ServiceInvoiceHeader.Get("Related Doc. No.");
                     "Fiscal Invoice Number PAC" := ServiceInvoiceHeader."Fiscal Invoice Number PAC";

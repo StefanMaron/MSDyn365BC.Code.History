@@ -1192,6 +1192,41 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryReportDataset.AssertElementWithValueExists('LineAmt', InvoiceAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('DropShipmentStatusRequestPageHandler')]
+    procedure DropShipmentStatusReportDescription();
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Description]
+        // [SCENARIO ] "Drop Shipment Status" Report accepts items with "Description" string of maximal length
+        Initialize();
+
+        // [GIVEN] Item with "Description" of maximal length
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
+        Item.Modify(true);
+
+        // [GIVEN] Drop Shipment Sales Order for the Item
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, LibraryRandom.RandDec(10, 2), CreateCustomer(''),
+          Item."No.", LibraryRandom.RandDec(10, 2));  // Taken random for Unit Price and Quantity.
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Drop Shipment Purchase Order created
+        GetSalesOrderAndCarryoutActionMessage(SalesLine, LibraryPurchase.CreateVendorNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue for DropShipmentStatusRequestPageHandler.
+
+        // [WHEN] Run "Drop Shipment Status" Report
+        REPORT.Run(REPORT::"Drop Shipment Status");
+
+        // [THEN] Item Description is fully copied to the dataset
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyValuesOnReport(SalesLine."Document No.", SalesLineDocumentNoCaption, 'ItemDescription', Item.Description);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

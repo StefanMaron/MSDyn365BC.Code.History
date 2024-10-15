@@ -376,6 +376,7 @@ report 10155 "Purchase Advice"
                     }
                     field(UseSKU; UseSKU)
                     {
+                        ApplicationArea = Planning;
                         Caption = 'Use Stockkeeping Unit';
                         ToolTip = 'Specifies if you want to only include items that are set up as SKUs. This adds SKU-related fields, such as the Location Code, Variant Code, and Qty. in Transit fields, to the report.';
                     }

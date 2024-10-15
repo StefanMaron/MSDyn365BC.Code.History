@@ -22,6 +22,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
         SelectCustErr: Label 'You must select an existing customer.';
         CannotBeZeroEmptyErr: Label 'It cannot be zero or empty.';
@@ -4013,6 +4014,82 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader.TestField("Bill-to Name", NewName);
     end;
 
+    [Test]
+    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchaseOrderFromSalesOrderWithItemWithDimensionAndBlankVendorNo()
+    var
+        DefaultDim: Record "Default Dimension";
+        DimValue: Record "Dimension Value";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        PurchDocFromSalesDoc: Codeunit "Purch. Doc. From Sales Doc.";
+        DummyPurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 364920] Create Purchase Order From Sales Order copies dimensions when user picks vendor.
+        Initialize();
+
+        // [GIVEN] Vendor with Default Dimension = "D1", Default Dimension Value = "DV1".
+        VendorNo := CreateVendorNoWithDefaultDimension();
+
+        // [GIVEN] Item with Default Dimension = "D2", blank Default Dimension Value, Value Posting = "Code Mandatory".
+        CreateItemWithDefaultDimension(Item, DimValue, DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Sales Order with Sales line with Item and Dimension "D2" with Dimension Value "DV2".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLineWithItemAndDimValue(SalesHeader, Item, DimValue);
+
+        // [WHEN] Create Purchase Order From Sales Order, user picks Vendor.
+        LibraryVariableStorage.Enqueue(VendorNo);
+        DummyPurchaseOrder.Trap();
+        PurchDocFromSalesDoc.CreatePurchaseOrder(SalesHeader);
+        DummyPurchaseOrder.Close();
+
+        // [THEN] Dimension set of created Purchase line is a combination of Dimensions "D1", "D2" with values "DV1", "DV2".
+        VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader, VendorNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SingleDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchaseOrderFromSalesOrderWithItemWithDimensionAndVendorNo()
+    var
+        DefaultDim: Record "Default Dimension";
+        DimValue: Record "Dimension Value";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        PurchDocFromSalesDoc: Codeunit "Purch. Doc. From Sales Doc.";
+        DummyPurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 364920] Create Purchase Order From Sales Order copies dimensions when item has default vendor.
+        Initialize();
+
+        // [GIVEN] Vendor with Default Dimension = "D1", Default Dimension Value = "DV1".
+        VendorNo := CreateVendorNoWithDefaultDimension();
+
+        // [GIVEN] Item with Default Dimension = "D2", blank Default Dimension Value, Value Posting = "Code Mandatory", default Vendor.
+        CreateItemWithDefaultDimension(Item, DimValue, DefaultDim."Value Posting"::"Code Mandatory");
+        Item.Validate("Vendor No.", VendorNo);
+        Item.Modify(true);
+
+        // [GIVEN] Sales Order with Sales line with Item and Dimension "D2" with Dimension Value "DV2".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLineWithItemAndDimValue(SalesHeader, Item, DimValue);
+
+        // [WHEN] Create Purchase Order From Sales Order, Vendor chosen from Item.
+        LibraryVariableStorage.Enqueue(VendorNo);
+        DummyPurchaseOrder.Trap();
+        PurchDocFromSalesDoc.CreatePurchaseOrder(SalesHeader);
+        DummyPurchaseOrder.Close();
+
+        // [THEN] Dimension set of created Purchase line is a combination of Dimensions "D1", "D2" with values "DV1", "DV2".
+        VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader, VendorNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -4129,6 +4206,16 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor.Validate(City, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(City), DATABASE::Vendor));
         Vendor.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Post Code"), DATABASE::Vendor));
         Vendor.Modify();
+    end;
+
+    local procedure CreateVendorNoWithDefaultDimension() VendorNo: Code[20]
+    var
+        DefaultDim: Record "Default Dimension";
+        DimValue: Record "Dimension Value";
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibraryDimension.CreateDefaultDimensionVendor(DefaultDim, VendorNo, DimValue."Dimension Code", DimValue.Code);
     end;
 
     local procedure CreateTwoCustomersSameName(var Customer: Record Customer)
@@ -4553,6 +4640,17 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item.Modify();
     end;
 
+    local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimValue: Record "Dimension Value"; ValuePosting: Option)
+    var
+        DefaultDim: Record "Default Dimension";
+    begin
+        LibrarySmallBusiness.CreateItem(Item);
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDim, Item."No.", DimValue."Dimension Code", '');
+        DefaultDim.Validate("Value Posting", ValuePosting);
+        DefaultDim.Modify(true);
+    end;
+
     local procedure SetupDataForDiscountTypePct(var Item: Record Item; var ItemQuantity: Integer; var Customer: Record Customer; var DiscPct: Decimal)
     var
         MinAmt: Decimal;
@@ -4629,6 +4727,15 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateSalesLineWithItemAndDimValue(var SalesHeader: Record "Sales Header"; Item: Record Item; DimValue: Record "Dimension Value")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code));
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateNewSalesLineWithDescription(SalesHeader: Record "Sales Header")
@@ -5066,6 +5173,24 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             VendorList.Cancel.Invoke
         else
             VendorList.OK.Invoke;
+    end;
+
+    local procedure VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader: Record "Sales Header"; VendorNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        DimManagement: Codeunit DimensionManagement;
+        DimSetIDArr: array[10] of Integer;
+    begin
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        DimSetIDArr[1] := SalesLine."Dimension Set ID";
+        VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        DimSetIDArr[2] := PurchaseHeader."Dimension Set ID";
+        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(
+            DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        Assert.AreEqual(DimSetIDArr[1], PurchaseLine."Dimension Set ID", '');
     end;
 
     local procedure VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo: Code[20]; DocumentType: Option; var SalesHeader: Record "Sales Header")
