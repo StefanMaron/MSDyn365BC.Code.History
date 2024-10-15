@@ -79,6 +79,7 @@ codeunit 1259 "Certificate Management"
         VerifyCert(IsolatedCertificate);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SaveCertToIsolatedStorage(IsolatedCertificate: Record "Isolated Certificate")
     var
@@ -95,6 +96,7 @@ codeunit 1259 "Certificate Management"
             Error(SavingCertErr);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePasswordToIsolatedStorage(var IsolatedCertificate: Record "Isolated Certificate")
     begin

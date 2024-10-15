@@ -1250,6 +1250,11 @@
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+    end;
+
     procedure UpdateEditableOnRow()
     begin
         if Type <> Type::" " then

@@ -115,6 +115,8 @@ page 126 "Cust. Ledg. Entries Preview"
                     Caption = 'Original Amount';
                     Editable = false;
                     ToolTip = 'Specifies the amount on the customer ledger entry before you post.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin
@@ -141,6 +143,8 @@ page 126 "Cust. Ledg. Entries Preview"
                     DrillDown = true;
                     Editable = false;
                     ToolTip = 'Specifies the net amount of all the lines in the customer entry.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin
@@ -191,6 +195,8 @@ page 126 "Cust. Ledg. Entries Preview"
                     Caption = 'Remaining Amount';
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount on the customer ledger entry before you post.';
+                    AutoFormatExpression = "Currency Code";
+                    AutoFormatType = 1;
 
                     trigger OnDrillDown()
                     begin

@@ -2264,8 +2264,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // [GIVEN] FA Posting Group "PG" having 3 allocations for Acquisition (20%,20%,60%) with different dimensions
         // [GIVEN] Fixed Asset "FA" with FA Posting Group "PG".
         DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
         CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(FixedAsset."No.");
         LibraryLowerPermissions.SetO365FASetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddO365FAEdit;
@@ -2292,8 +2292,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // [GIVEN] FA Posting Group "PG" having 3 allocations for Acquisition (20%,20%,60%) with different dimensions
         // [GIVEN] Fixed Asset "FA" with FA Posting Group "PG".
         DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
         CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(FixedAsset."No.");
         LibraryLowerPermissions.SetO365FASetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddO365FAEdit;
@@ -2320,8 +2320,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // [GIVEN] FA Posting Group "PG" having 3 allocations for Acquisition (20%,20%,60%) with different dimensions
         // [GIVEN] Fixed Asset "FA" with FA Posting Group "PG".
         DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
         CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(FixedAsset."No.");
         LibraryLowerPermissions.SetO365FASetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddO365FAEdit;
@@ -2716,10 +2716,10 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryPurchase.CreateVendor(Vendor);
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
-        // [GIVEN] Fixed Asset "FA"
+        // [GIVEN] Fixed Asset "FA" 
         DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
-        CreateFAJnlTemplateForFAAccWizard;
         CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(FixedAsset."No.");
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Currency Code");
 
         // [WHEN] Run Fixed Asset Acquire wizard for Vendor
@@ -2727,6 +2727,82 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // [THEN] There is F/A Gen. Journal Line with "Currency Code" = "C"
         // Verification is in FixedAssetGLJournalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,FAGLJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure FAAcquisitionWizardUseJournalNameFromFAJOurnalNameByDepBookCode()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalSetup: Record "FA Journal Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [SCENARIO 389699] FA Acquisition Wizard uses "FA Journal Setup" by "Depreciation Book Code"
+        Initialize();
+
+        // [GIVEN] Fixed Asset "FA" with Depreciation Book "DepBook"
+        // [GIVEN] FA Journal Setup with "User ID" = '', "Depreciation Book" = 'DepBook' and "Gen. Journal Batch" = 'GJB'
+        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
+        CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(GenJournalBatch, FixedAsset."No.");
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        FADepreciationBook.FindFirst();
+        FAJournalSetup.Get(FADepreciationBook."Depreciation Book Code", '');
+        FAJournalSetup."Gen. Jnl. Batch Name" := GenJournalBatch.Name;
+        FAJournalSetup.Modify(true);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        // [WHEN] Run Fixed Asset Acquire wizard for G/L Account
+        RunFAAcquire(FADepreciationBook."FA No.", AcquisitionOptions::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            '', true);
+
+        // [THEN] FA Acquisition wizard used Gen. Journal Batch from "FA Journal Setup"
+        // Verification is in FixedAssetGLJournalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,FAGLJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure FAAcquisitionWizardUseJournalNameFromFAJOurnalNameByDepBookCodeAndUserId()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [SCENARIO 389699] FA Acquisition Wizard uses "FA Journal Setup" by "Depreciation Book Code"
+        Initialize();
+
+        // [GIVEN] Fixed Asset "FA" with Depreciation Book "DepBook"
+        // [GIVEN] FA Journal Setup with "User ID" = 'User1', "Depreciation Book" = 'DepBook' and "Gen. Journal Batch" = 'GJB'
+        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
+        CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        CreateFAJnlTemplateForFAAccWizard(GenJournalBatch, FixedAsset."No.");
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        FADepreciationBook.FindFirst();
+        UpdateFAJournalSetupUserIDAndGenJournalBatch(FADepreciationBook."Depreciation Book Code", GenJournalBatch.Name);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        // [WHEN] Run Fixed Asset Acquire wizard for G/L Account
+        RunFAAcquire(FADepreciationBook."FA No.", AcquisitionOptions::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            '', true);
+
+        // [THEN] FA Acquisition wizard used Gen. Journal Batch from "FA Journal Setup"
+        // Verification is in FixedAssetGLJournalPageHandler
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetGenJournalBatchNameReturnsAutogenName()
+    var
+        FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389699] "Fixed Asset Acquisition Wizard".GetGenJournalBatchName() returns Gen. Journal Batch Name = 'AUTOMATIC'
+        Assert.AreEqual(FixedAssetAcquisitionWizard.GetDefaultGenJournalBatchName(),
+            FixedAssetAcquisitionWizard.GetGenJournalBatchName(''),
+            'Wrong Gen. Journal Batch Name.');
     end;
 
     local procedure Initialize()
@@ -2888,6 +2964,19 @@ codeunit 134450 "ERM Fixed Assets Journal"
         UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
     end;
 
+    local procedure UpdateFAJournalSetupUserIDAndGenJournalBatch(DepreciationBookCode: Code[10]; GenJournalBatchName: Code[10])
+    var
+        OldFAJournalSetup: Record "FA Journal Setup";
+        NewFAJournalSetup: Record "FA Journal Setup";
+    begin
+        OldFAJournalSetup.Get(DepreciationBookCode, '');
+        NewFAJournalSetup.TransferFields(OldFAJournalSetup);
+        NewFAJournalSetup."User ID" := UserId();
+        NewFAJournalSetup."Gen. Jnl. Batch Name" := GenJournalBatchName;
+        NewFAJournalSetup.Insert();
+        OldFAJournalSetup.Delete();
+    end;
+
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2910,11 +2999,17 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalBatch.Modify(true);
     end;
 
-    local procedure CreateFAJnlTemplateForFAAccWizard()
+    local procedure CreateFAJnlTemplateForFAAccWizard(FANo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateFAJnlTemplateForFAAccWizard(GenJournalBatch, FANo);
+    end;
+
+    local procedure CreateFAJnlTemplateForFAAccWizard(var GenJournalBatch: Record "Gen. Journal Batch"; FANo: Code[20])
     var
         FAJournalTemplate: Record "FA Journal Template";
         GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -2922,9 +3017,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate.Validate(Name, GenJournalTemplate.Name);
         FAJournalTemplate.Validate("Page ID");
         FAJournalTemplate.Insert(true);
-        GenJournalBatch.Get(GenJournalTemplate.Name, FixedAssetAcquisitionWizard.GetAutogenJournalBatch);
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
-        GenJournalBatch.Modify(true);
+        GenJournalBatch.Init();
+        GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalBatch.Name := FixedAssetAcquisitionWizard.GetGenJournalBatchName(FANo);// LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), Database::"Gen. Journal Batch");
+        GenJournalBatch.SetupNewBatch();
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
+        GenJournalBatch.Insert();
     end;
 
     [Normal]
@@ -4173,6 +4271,21 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GenJournalLine.SetRange("Account No.", FixedAssetGLJournal."Account No.".Value);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Currency Code", CurrencyCode);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure FAGLJournalPageHandler(var FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatchName: Code[10];
+    begin
+        GenJournalBatchName := LibraryVariableStorage.DequeueText();
+
+        GenJournalLine.SetRange("Account Type", FixedAssetGLJournal."Account Type".AsInteger());
+        GenJournalLine.SetRange("Account No.", FixedAssetGLJournal."Account No.".Value);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Journal Batch Name", GenJournalBatchName);
     end;
 }
 
