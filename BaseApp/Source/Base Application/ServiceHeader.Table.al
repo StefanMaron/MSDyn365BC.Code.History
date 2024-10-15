@@ -63,6 +63,7 @@
                             else
                                 ServLine.TestField("Shipment No.", '');
                         end;
+                        OnValidateCustomerNoOnBeforeModify(Rec, CurrFieldNo);
                         Modify(true);
 
                         IsHandled := false;
@@ -2270,7 +2271,13 @@
             trigger OnValidate()
             var
                 ShipToAddr: Record "Ship-to Address";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateServiceZoneCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ShipToAddr.Get("Customer No.", "Ship-to Code") then
                     "Service Zone Code" := ShipToAddr."Service Zone Code"
                 else
@@ -2660,7 +2667,13 @@
         TableID: array[10] of Integer;
         ContractDimensionSetID: Integer;
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCodeSetup.Get();
 
         TableID[1] := Type1;
@@ -2722,6 +2735,7 @@
         ServLine.LockTable();
         if ServLine.Find('-') then
             repeat
+                OnUpdateAllLineDimOnBeforeGetServLineNewDimSetID(ServLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if ServLine."Dimension Set ID" <> NewDimSetID then begin
                     ServLine."Dimension Set ID" := NewDimSetID;
@@ -2737,6 +2751,7 @@
         ServItemLine.LockTable();
         if ServItemLine.Find('-') then
             repeat
+                OnUpdateAllLineDimOnBeforeGetServItemLineNewDimSetID(ServItemLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServItemLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if ServItemLine."Dimension Set ID" <> NewDimSetID then begin
                     ServItemLine."Dimension Set ID" := NewDimSetID;
@@ -4346,6 +4361,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeries(var ServiceHeader: Record "Service Header"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -4376,6 +4396,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateServiceZoneCode(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -4402,6 +4427,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnBeforeDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnBeforeModify(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -4437,6 +4467,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetServLineNewDimSetID(var ServLine: Record "Service Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetServItemLineNewDimSetID(var ServItemLine: Record "Service Item Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     begin
     end;
 

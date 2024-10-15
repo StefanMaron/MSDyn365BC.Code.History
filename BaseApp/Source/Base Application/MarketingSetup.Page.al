@@ -590,6 +590,23 @@ page 5094 "Marketing Setup"
         EmailLoggingDisabledTxt: Label 'Email Logging has been disabled from Marketing Setup page', Locked = true;
         CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        QueueFolderNotAccessibleTxt: Label 'The specified Queue folder does not exist or cannot be accessed.';
+        StorageFolderNotAccessibleTxt: Label 'The specified Storage folder does not exist or cannot be accessed.';
+        EmptyAutodiscoveryEmailAddressTxt: Label 'A valid email address is needed to find an instance of Exchange Server.';
+        CannotConnectToExchangeWithTokenTxt: Label 'Could not connect to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
+        CannotConnectToExchangeWithTenantIdTxt: Label 'Could not connect to Exchange. User: %1, URL: %2, Tenant: %3.', Locked = true;
+        CannotInitializeConnectionToExchangeWithTokenTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
+        CannotInitializeConnectionToExchangeWithTenantIdTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Tenant: %3.', Locked = true;
+        ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
+        ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
+        ExchangeTenantIdNotSpecifiedTxt: Label 'Exchange tenant ID is not specified.', Locked = true;
+        ExchangeAccountNotSpecifiedTxt: Label 'Exchange account is not specified.', Locked = true;
+        ExchangeAccountSpecifiedTxt: Label 'Exchange account is specified.', Locked = true;
+        SignInAdminTxt: Label 'Sign in Exchange admin user.', Locked = true;
+        AdminSignedInTxt: Label 'Exchange admin user signed in successfuly.', Locked = true;
+        ServiceNotInitializedTxt: Label 'Service is not initialized.', Locked = true;
+        EmailLoggingSetupValidatedTxt: Label 'Email logging setup has been validated.', Locked = true;
+        InteractionTemplateSetupNotConfiguredTxt: Label 'Interaction Template Setup is not configured.', Locked = true;
         SoftwareAsAService: Boolean;
         ClientCredentialsVisible: Boolean;
         EmailLoggingEnabled: Boolean;
@@ -642,27 +659,41 @@ page 5094 "Marketing Setup"
         Token: Text;
         Initialized: Boolean;
     begin
-        if "Autodiscovery E-Mail Address" = '' then
+        if "Autodiscovery E-Mail Address" = '' then begin
+            SendTraceTag('0000D91', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyAutodiscoveryEmailAddressTxt, DataClassification::SystemMetadata);
             Error(Text006);
+        end;
 
         ExchangeWebServicesClient.InvalidateService();
 
         if not IsNullGuid("Exchange Tenant Id Key") then begin
+            SendTraceTag('0000D92', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdNotSpecifiedTxt, DataClassification::SystemMetadata);
             SetupEmailLogging.GetClientCredentialsAccessToken(GetExchangeTenantId(), Token);
             OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
             Initialized := ExchangeWebServicesClient.InitializeOnServerWithImpersonation("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials);
         end else
             if "Exchange Account User Name" <> '' then begin
+                SendTraceTag('0000D93', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountSpecifiedTxt, DataClassification::SystemMetadata);
                 CreateExchangeAccountCredentials(WebCredentials);
                 Initialized := ExchangeWebServicesClient.InitializeOnServer("Autodiscovery E-Mail Address", "Exchange Service URL", WebCredentials.Credentials);
-            end else
+            end else begin
+                SendTraceTag('0000D94', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountNotSpecifiedTxt, DataClassification::SystemMetadata);
                 Initialized := ExchangeWebServicesClient.InitializeOnClient("Autodiscovery E-Mail Address", "Exchange Service URL");
+            end;
 
-        if not Initialized then
+        if not Initialized then begin
+            SendTraceTag('0000D95', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeWithTokenTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), DataClassification::CustomerContent);
             Error(CannotInitializeConnectionToExchangeErr);
+        end;
 
-        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then
+        SendTraceTag('0000D96', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
+
+        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then begin
+            SendTraceTag('0000D97', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeWithTokenTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), DataClassification::CustomerContent);
             Error(CannotConnectToExchangeErr);
+        end;
+
+        SendTraceTag('0000D98', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
     end;
 
     [NonDebuggable]
@@ -674,19 +705,27 @@ page 5094 "Marketing Setup"
         Token: Text;
         TenantId: Text;
     begin
-        if "Autodiscovery E-Mail Address" = '' then
+        SendTraceTag('0000D99', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SignInAdminTxt, DataClassification::SystemMetadata);
+        if "Autodiscovery E-Mail Address" = '' then begin
+            SendTraceTag('0000D9A', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyAutodiscoveryEmailAddressTxt, DataClassification::SystemMetadata);
             Error(Text006);
+        end;
 
         SetupEmailLogging.PromptAdminConsent(Token);
         SetupEmailLogging.ExtractTenantIdFromAccessToken(TenantId, Token);
         OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
 
-        if not ExchangeWebServicesServer.Initialize("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials, false) then
+        if not ExchangeWebServicesServer.Initialize("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials, false) then begin
+            SendTraceTag('0000D9B', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeWithTenantIdTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", TenantId), DataClassification::CustomerContent);
             Error(CannotInitializeConnectionToExchangeErr);
+        end;
 
-        if not ExchangeWebServicesServer.ValidCredentials() then
+        if not ExchangeWebServicesServer.ValidCredentials() then begin
+            SendTraceTag('0000D9C', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeWithTenantIdTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", TenantId), DataClassification::CustomerContent);
             Error(CannotConnectToExchangeErr);
+        end;
 
+        SendTraceTag('0000D9D', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AdminSignedInTxt, DataClassification::SystemMetadata);
         SetExchangeTenantId(TenantId);
     end;
 
@@ -739,20 +778,23 @@ page 5094 "Marketing Setup"
         ProgressWindow.Open(Text013, ValidationCaption);
 
         if not TryInitExchangeService() then begin
+            SendTraceTag('0000D9E', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceNotInitializedTxt, DataClassification::SystemMetadata);
             ErrorMsg := GetLastErrorText();
             exit(false);
         end;
 
         ValidationCaption := FieldCaption("Queue Folder Path");
         ProgressWindow.Update;
-        if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetQueueFolderUID) then begin
+        if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetQueueFolderUID()) then begin
+            SendTraceTag('0000D9F', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, QueueFolderNotAccessibleTxt, DataClassification::SystemMetadata);
             ErrorMsg := Text010;
             exit(false);
         end;
 
         ValidationCaption := FieldCaption("Storage Folder Path");
         ProgressWindow.Update;
-        if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetStorageFolderUID) then begin
+        if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetStorageFolderUID()) then begin
+            SendTraceTag('0000D9G', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StorageFolderNotAccessibleTxt, DataClassification::SystemMetadata);
             ErrorMsg := Text011;
             exit(false);
         end;
@@ -760,14 +802,17 @@ page 5094 "Marketing Setup"
         // Emails cannot be automatically logged unless Interaction Template Setup configured correctly.
         ValidationCaption := Text016;
         ProgressWindow.Update;
-        if not EmailLoggingDispatcher.CheckInteractionTemplateSetup(ErrorMsg) then
+        if not EmailLoggingDispatcher.CheckInteractionTemplateSetup(ErrorMsg) then begin
+            SendTraceTag('0000D9H', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, InteractionTemplateSetupNotConfiguredTxt, DataClassification::SystemMetadata);
             exit(false);
+        end;
 
         ProgressWindow.Close;
         Clear(ErrorMsg);
         MarketingSetup.Modify();
 
         OnAfterMarketingSetupEmailLoggingCompleted;
+        SendTraceTag('0000D9I', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingSetupValidatedTxt, DataClassification::SystemMetadata);
         exit(true);
     end;
 

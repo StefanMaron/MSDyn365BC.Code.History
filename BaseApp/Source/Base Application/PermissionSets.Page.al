@@ -5,7 +5,7 @@ page 9802 "Permission Sets"
     Caption = 'Permission Sets';
     DelayedInsert = true;
     PageType = List;
-    Permissions = TableData "Permission Set Link" = d,
+    Permissions = TableData "Permission Set Link" = rd,
                   TableData "Aggregate Permission Set" = rimd;
     SourceTable = "Permission Set Buffer";
     SourceTableTemporary = true;

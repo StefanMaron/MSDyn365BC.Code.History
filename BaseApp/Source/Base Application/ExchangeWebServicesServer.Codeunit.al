@@ -9,6 +9,11 @@ codeunit 5321 "Exchange Web Services Server"
         Service: DotNet ExchangeServiceWrapper;
         ProdEndpointTxt: Label 'https://outlook.office365.com/EWS/Exchange.asmx', Locked = true;
         ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in.';
+        CategoryTxt: Label 'AL EWS Server', Locked = true;
+        ExpiredTokenTxt: Label 'Expired token.', Locked = true;
+        InvalidCredentialsTxt: Label 'Invalid credentials.', Locked = true;
+        InitializedTxt: Label 'Service has been initialized.', Locked = true;
+        NotInitializedTxt: Label 'Service has not been initialized.', Locked = true;
 
     local procedure InitializeForVersion(AutodiscoveryEmail: Text[250]; var ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean; ExchangeVersion: DotNet ExchangeVersion; Impersonation: Boolean) Result: Boolean
     var
@@ -33,6 +38,10 @@ codeunit 5321 "Exchange Web Services Server"
             ServiceUri := Service.ExchangeServiceUrl;
         end else
             Result := true;
+        if Result then
+            SendTraceTag('0000D8V', CategoryTxt, Verbosity::Normal, InitializedTxt, DataClassification::SystemMetadata)
+        else
+            SendTraceTag('0000D8W', CategoryTxt, Verbosity::Normal, NotInitializedTxt, DataClassification::SystemMetadata);
     end;
 
 
@@ -111,8 +120,10 @@ codeunit 5321 "Exchange Web Services Server"
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
         if AzureADAuthFlow.CanHandle then
-            if not Service.ValidateCredentials then
+            if not Service.ValidateCredentials then begin
+                SendTraceTag('0000D8X', CategoryTxt, Verbosity::Normal, InvalidCredentialsTxt, DataClassification::SystemMetadata);
                 Error('');
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -259,10 +270,14 @@ codeunit 5321 "Exchange Web Services Server"
                         if not Insert(true) then
                             Modify(true);
                     end;
-                end else
-                Error(ExpiredTokenErr)
-        end else
-            Error(ExpiredTokenErr)
+                end else begin
+                SendTraceTag('0000D8Y', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+                Error(ExpiredTokenErr);
+            end;
+        end else begin
+            SendTraceTag('0000D8Z', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+            Error(ExpiredTokenErr);
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -272,8 +287,10 @@ codeunit 5321 "Exchange Web Services Server"
     begin
         if TryGetEmailWithAttachments(EmailMessage, ItemID) and not IsNull(EmailMessage) then
             EmailBody := EmailMessage.TextBody
-        else
-            Error(ExpiredTokenErr)
+        else begin
+            SendTraceTag('0000D90', CategoryTxt, Verbosity::Normal, ExpiredTokenTxt, DataClassification::SystemMetadata);
+            Error(ExpiredTokenErr);
+        end;
     end;
 
     [TryFunction]

@@ -267,10 +267,10 @@ report 715 "Price List"
                     SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
                     SalesLinePrice.SetSources(PriceSourceList);
                     PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
-                    if PriceCalculation.FindPrice(TempPriceListLine, false) then
-                        CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
-                    if PriceCalculation.FindDiscount(TempPriceListLine, false) then
-                        CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
+                    PriceCalculation.FindPrice(TempPriceListLine, false);
+                    CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                    PriceCalculation.FindDiscount(TempPriceListLine, false);
+                    CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
                 end;
             }
 
@@ -294,10 +294,10 @@ report 715 "Price List"
                 SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
                 SalesLinePrice.SetSources(PriceSourceList);
                 PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
-                if PriceCalculation.FindPrice(TempPriceListLine, false) then
-                    CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
-                if PriceCalculation.FindDiscount(TempPriceListLine, false) then
-                    CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
+                PriceCalculation.FindPrice(TempPriceListLine, false);
+                CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                PriceCalculation.FindDiscount(TempPriceListLine, false);
+                CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
             end;
 
             trigger OnPreDataItem()

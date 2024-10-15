@@ -13,6 +13,7 @@ codeunit 2504 "Extension Management"
     var
         ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
         ExtensionOperationImpl: Codeunit "Extension Operation Impl";
+        ExtensionMarketplace: Codeunit "Extension Marketplace";
 
     /// <summary>
     /// Installs an extension, based on its PackageId and Locale Identifier.
@@ -189,5 +190,71 @@ codeunit 2504 "Extension Management"
     begin
         ExtensionOperationImpl.GetExtensionLogo(AppId, Logo);
     end;
+
+
+    /// <summary>
+    /// Returns a link to appsource market page
+    /// </summary>
+    /// <returns></returns>
+    [Obsolete('Replaced by "Extension Marketplace".GetMarketplaceEmbeddedUrl procedure.', '17.0')]
+    PROCEDURE GetMarketplaceEmbeddedUrl(): Text;
+    BEGIN
+        EXIT(ExtensionMarketplace.GetMarketplaceEmbeddedUrl());
+    END;
+
+    /// <summary>
+    /// Extraxts the message type from appsource response.
+    /// </summary>
+    /// <param name="JObject">Appsourece response payload as a json object</param>
+    /// <returns></returns>
+    [Obsolete('Replaced by "Extension Marketplace".GetMessageType procedure.', '17.0')]
+    PROCEDURE GetMessageType(JObject: DotNet JObject): Text;
+    BEGIN
+        EXIT(ExtensionMarketplace.GetMessageType(JObject));
+    END;
+
+    /// <summary>
+    /// Extraxts the appsource application ID from appsource response.
+    /// </summary>
+    /// <param name="JObject">Appsourece response payload as a json object</param>
+    /// <returns>Application Id in text format</returns>
+    [Obsolete('Replaced by "Extension Marketplace".GetApplicationIdFromData procedure.', '17.0')]
+    PROCEDURE GetApplicationIdFromData(JObject: DotNet JObject): Text;
+    BEGIN
+        exit(ExtensionMarketplace.GetApplicationIdFromData(JObject));
+    END;
+
+    /// <summary>
+    /// Extraxts the package ID from appsource response.
+    /// </summary>
+    /// <param name="ApplicationId">Appsource market application ID</param>
+    /// <returns>Package ID as a GUID</returns>
+    [Obsolete('Replaced by "Extension Marketplace".MapMarketplaceIdToPackageId procedure.', '17.0')]
+    PROCEDURE MapMarketplaceIdToPackageId(ApplicationId: Text): GUID;
+    BEGIN
+        exit(ExtensionMarketplace.MapMarketplaceIdToPackageId(ApplicationId));
+    END;
+
+    /// <summary>
+    /// Extracts the telemetry URL from appsource response.
+    /// </summary>
+    /// <param name="JObject">Appsourece response payload as a json object</param>
+    /// <returns></returns>
+    [Obsolete('Replaced by "Extension Marketplace".GetTelementryUrlFromData procedure.', '17.0')]
+    PROCEDURE GetTelementryUrlFromData(JObject: DotNet JObject): Text;
+    BEGIN
+        exit(ExtensionMarketplace.GetTelementryUrlFromData(JObject));
+    END;
+
+    /// <summary>
+    /// Extraxts the app ID from appsource response.
+    /// </summary>
+    /// <param name="ApplicationId">Appsource market application ID</param>
+    /// <returns></returns>
+    [Obsolete('Replaced by "Extension Marketplace".MapMarketplaceIdToAppId procedure.', '17.0')]
+    PROCEDURE MapMarketplaceIdToAppId(ApplicationId: Text): GUID;
+    BEGIN
+        exit(ExtensionMarketplace.MapMarketplaceIdToAppId(ApplicationId));
+    END;
 }
 

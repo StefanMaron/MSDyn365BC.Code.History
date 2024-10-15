@@ -1512,8 +1512,6 @@ page 26 "Vendor Card"
 
     trigger OnInit()
     begin
-        SetVendorNoVisibilityOnFactBoxes;
-
         ContactEditable := true;
     end;
 
@@ -1597,13 +1595,6 @@ page 26 "Vendor Card"
         SocialListeningMgt: Codeunit "Social Listening Management";
     begin
         SocialListeningMgt.GetVendFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
-    end;
-
-    local procedure SetVendorNoVisibilityOnFactBoxes()
-    begin
-        CurrPage.VendorHistBuyFromFactBox.PAGE.SetVendorNoVisibility(false);
-        CurrPage.VendorHistPayToFactBox.PAGE.SetVendorNoVisibility(false);
-        CurrPage.VendorStatisticsFactBox.PAGE.SetVendorNoVisibility(false);
     end;
 
     local procedure RunReport(ReportNumber: Integer)

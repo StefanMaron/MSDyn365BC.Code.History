@@ -615,7 +615,7 @@ report 15000001 "Suggest Remittance Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcPostingDate(VendorLedgerEntry: Record "Vendor Ledger Entry"; ReplacePostingDateWithDueDate: Boolean; UsePaymentDisc: Boolean; LastDueDateToPayReq: Date; NewPostingDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeCalcPostingDate(VendorLedgerEntry: Record "Vendor Ledger Entry"; ReplacePostingDateWithDueDate: Boolean; UsePaymentDisc: Boolean; LastDueDateToPayReq: Date; var NewPostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 

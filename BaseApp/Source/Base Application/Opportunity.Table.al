@@ -445,9 +445,14 @@ table 5092 Opportunity
             end;
 
             trigger OnValidate()
+            var
+                SegmentHeader: Record "Segment Header";
             begin
                 if ("Segment No." <> xRec."Segment No.") and ("Segment No." <> '') and ("Campaign No." <> '') then
                     CheckSegmentCampaignNo;
+                if "Segment No." <> '' then
+                    SegmentHeader.Get("Segment No.");
+                Validate("Segment Description", SegmentHeader.Description);
             end;
         }
         field(28; "Estimated Closing Date"; Date)

@@ -1,4 +1,4 @@
-page 508 "Blanket Sales Order Subform"
+﻿page 508 "Blanket Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -412,7 +412,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
                             ValidateInvoiceDiscountAmount;
                         end;
                     }
@@ -426,7 +426,7 @@ page 508 "Blanket Sales Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
                             ValidateInvoiceDiscountAmount;
@@ -832,7 +832,7 @@ page 508 "Blanket Sales Order Subform"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -888,6 +888,8 @@ page 508 "Blanket Sales Order Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     procedure ApproveCalcInvDisc()
@@ -955,9 +957,12 @@ page 508 "Blanket Sales Order Subform"
 
     local procedure UpdateEditableOnRow()
     begin
+        IsCommentLine := not HasTypeToFillMandatoryFields();
+        IsBlankNumber := IsCommentLine;
+
         InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
 
-        OnAfterUpdateEditableOnRow(Rec);
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     local procedure ShowOrders()
@@ -1158,7 +1163,7 @@ page 508 "Blanket Sales Order Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line");
+    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
     begin
     end;
 

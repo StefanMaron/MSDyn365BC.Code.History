@@ -68,7 +68,6 @@ codeunit 134387 "ERM Sales Documents III"
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
-        UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
         PostingPreviewNoTok: Label '***', Locked = true;
@@ -4282,15 +4281,14 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
+    [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
-    [HandlerFunctions('PostedSalesDocumentLinesHandler,MessageCaptureHandler')]
     procedure CreditMemoPriceRecalculatedCopiedFromPostedLine()
     var
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        ZeroQuantityPrice: Decimal;
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Credit Memo] [Sales Price] [Get Document Lines to Reverse]
@@ -4302,7 +4300,6 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesPrice(
           SalesPrice, LibraryInventory.CreateItemNo, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo,
           WorkDate, '', '', '', 0, LibraryRandom.RandInt(100));
-        ZeroQuantityPrice := SalesPrice."Unit Price";
 
         // [GIVEN] Sales Price 8 for item "I" and customer "C", minimum quantity is 20
         LibrarySales.CreateSalesPrice(
@@ -4332,16 +4329,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [WHEN] Change quantity in the credit memo line from 20 to 10
         SalesLine.Validate(Quantity, SalesPrice."Minimum Quantity" / 2);
 
-        // [THEN] "Unit Price" is 10
-        SalesLine.TestField("Unit Price", ZeroQuantityPrice);
-
-        // [THEN] Message appears about the changed Unit Price
-        Assert.AreEqual(
-          StrSubstNo(UnitPriceChangedMsg, SalesLine.Type, SalesLine."No."),
-          LibraryVariableStorage.DequeueText, 'Unexpected message');
-
-        // [THEN] No messages appear on further Unit Price changes
-        SalesLine.Validate(Quantity, SalesPrice."Minimum Quantity");
+        // [THEN] "Unit Price" is still 10 (TFS ID: 365623)
         SalesLine.TestField("Unit Price", SalesPrice."Unit Price");
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -4938,6 +4926,39 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] "Allow Invoice Disc." set to False
         SalesLine.TestField("Allow Invoice Disc.", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecreatingSalesLinesWithoutOrderPromisingDoesNotTouchReqLines()
+    var
+        SalesHeader: Record "Sales Header";
+        CodeCoverage: Record "Code Coverage";
+        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
+    begin
+        // [FEATURE] [Order Promising]
+        // [SCENARIO 365071] Recreating sales lines does not try to delete requisition lines when they do not exist.
+        Initialize();
+
+        // [GIVEN] Sales order.
+        CreateSalesDocumentItem(SalesHeader, SalesHeader."Document Type"::Order, LibraryInventory.CreateItemNo());
+        SalesHeader.SetHideValidationDialog(true);
+
+        // [WHEN] Turn on code coverage and change Sell-to Customer No. in the sales order.
+        CodeCoverageMgt.StartApplicationCoverage();
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        CodeCoverageMgt.StopApplicationCoverage();
+
+        // [THEN] There were no attempts to delete requisition lines for order promising.
+        CodeCoverageMgt.Refresh();
+        with CodeCoverage do begin
+            SetRange("Line Type", "Line Type"::Code);
+            SetRange("Object Type", "Object Type"::Table);
+            SetRange("Object ID", DATABASE::"Sales Header");
+            SetFilter("No. of Hits", '>%1', 0);
+            SetFilter(Line, StrSubstNo('@*%1*', 'ReqLine.DeleteAll'));
+            Assert.RecordIsEmpty(CodeCoverage);
+        end;
     end;
 
     local procedure Initialize()

@@ -902,11 +902,7 @@ codeunit 10673 "Generate SAF-T File"
         SAFTExportMgt.LogSuccess(SAFTExportLine);
         SAFTExportMgt.StartExportLinesNotStartedYet(SAFTExportHeader);
         SAFTExportHeader.Get(SAFTExportHeader.Id);
-        if SAFTExportHeader.Status = SAFTExportHeader.Status::Completed then
-            if SAFTExportHeader.AllowedToExportIntoFolder() then
-                SAFTExportMgt.GenerateZipFileFromSavedFiles(SAFTExportHeader)
-            else
-                SAFTExportMgt.BuildZipFilesWithAllRelatedXmlFiles(SAFTExportHeader);
+        SAFTExportMgt.GenerateZipFile(SAFTExportHeader);
     end;
 
     local procedure CombineWithSpace(FirstString: Text; SecondString: Text) Result: Text
