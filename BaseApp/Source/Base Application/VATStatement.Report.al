@@ -490,7 +490,7 @@ report 12 "VAT Statement"
                     VATStmtLine2.SetFilter("Row No.", VATStmtLine2."Row Totaling");
                     if VATStmtLine2.Find('-') then
                         repeat
-                            if not CalcLineTotalWithBase(VATStmtLine2, TotalAmount, TotalBase, Level) then begin
+                            if not CalcLineTotalWithNonDeductiblePart(VATStmtLine2, TotalAmount, TotalBase, TotalNDAmount, TotalNDBase, Level) then begin
                                 if Level > 1 then
                                     exit(false);
                                 for i := 1 to ArrayLen(RowNo) do

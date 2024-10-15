@@ -922,6 +922,77 @@ codeunit 144001 "VAT Tools Test"
         Assert.AreEqual(VATEntry.Amount, TotalAmount, 'Incorrect amount');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDedAmountsInVATReturnWhenVATStatementCombineBothNormalAndNonDedLines()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATStatementName: Record "VAT Statement Name";
+        VATStmtLine: Record "VAT Statement Line";
+        VATEntry: Record "VAT Entry";
+        VATReportSetup: Record "VAT Report Setup";
+        VATStatement: Report "VAT Statement";
+        RowNo: array[2] of Code[10];
+        TotalAmount: Decimal;
+        TotalBase: Decimal;
+        TotalNDAmount: Decimal;
+        TotalNDBase: Decimal;
+    begin
+        // [FEATURE] [VAT Return] [UT]
+        // [SCENARIO 450351] Non-Deductible amount are correct in the VAT return then the VAT statement contains both normal and Non-Deductible lines
+
+        Initialize();
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Report VAT Base", true);
+        VATReportSetup.Modify(true);
+
+        // Norml VAT. No Non-Deductible Setup. No VAT Entry
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        VATStmtLine."Statement Template Name" := VATStatementName."Statement Template Name";
+        VATStmtLine."Statement Name" := VATStatementName.Name;
+        VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
+        VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
+        VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Amount;
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        VATStmtLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATStmtLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
+        VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
+        VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Amount;
+        VATStmtLine."Row No." := LibraryUtility.GenerateGUID();
+        VATStmtLine.Insert();
+        RowNo[1] := VATStmtLine."Row No.";
+
+        // Normal VAT. Non-Deductible Setup. VAT Entry
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+        VATPostingSetup.Validate("Calc. Prop. Deduction VAT", true);
+        VATPostingSetup.Validate("Proportional Deduction VAT %", 30);
+        VATPostingSetup.Modify(true);
+        MockSalesVATEntryFromVATPostingSetup(VATEntry, VATPostingSetup, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+        VATStmtLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATStmtLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATStmtLine."Line No." += 10000;
+        VATStmtLine."Row No." := LibraryUtility.GenerateGUID();
+        VATStmtLine.Insert();
+        RowNo[2] := VATStmtLine."Row No.";
+
+        // Row Totaling line combaining two above
+        VATStmtLine.Type := VATStmtLine.Type::"Row Totaling";
+        VATStmtLine."Row No." := '';
+        VATStmtLine."Row Totaling" := RowNo[1] + '|' + RowNo[2];
+        VATStmtLine."Line No." += 10000;
+        VATStmtLine.Insert();
+
+        VATStatement.CalcLineTotalWithNonDeductiblePart(VATStmtLine, TotalAmount, TotalBase, TotalNDAmount, TotalNDBase, 0);
+        Assert.AreEqual(
+            Round(VATEntry.Base * (100 / VATPostingSetup."Proportional Deduction VAT %" - 1)), TotalNDBase, 'Incorrect base');
+        Assert.AreEqual(
+            Round(VATEntry.Amount * (100 / VATPostingSetup."Proportional Deduction VAT %" - 1)), TotalNDAmount, 'Incorrect amount');
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
