@@ -319,6 +319,7 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(28111; "Posting Description"; Text[100])
         {
@@ -326,6 +327,7 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

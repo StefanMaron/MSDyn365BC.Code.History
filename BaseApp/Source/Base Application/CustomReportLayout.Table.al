@@ -415,10 +415,16 @@ table 9650 "Custom Report Layout"
     end;
 
     [Scope('OnPrem')]
-    procedure UpdateLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean): Boolean
+    procedure UpdateLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
     var
         ErrorMessage: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateLayout(LayoutUpdated, IsHandled);
+        If IsHandled then
+            exit(LayoutUpdated);
+
         ErrorMessage := TryUpdateLayout(IgnoreDelete);
 
         if ErrorMessage = '' then begin
@@ -982,6 +988,11 @@ table 9650 "Custom Report Layout"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReportGetCustomRdlc(ReportId: Integer; var RdlcText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLayout(var LayoutUpdated: Boolean; var IsHandled: Boolean)
     begin
     end;
 

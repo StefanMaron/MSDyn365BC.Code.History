@@ -92,9 +92,12 @@ table 18 Customer
             begin
                 OnBeforeValidateCity(Rec, PostCode);
 
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::Customer, GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                if ((CurrFieldNo <> 0) and GuiAllowed) then
+                    PostCodeCheck.ValidateCity(
+                      CurrFieldNo, DATABASE::Customer, GetPosition, 0,
+                      Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code")
+                else
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
             end;
@@ -729,6 +732,7 @@ table 18 Customer
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(90; GLN; Code[13])
         {
@@ -843,7 +847,9 @@ table 18 Customer
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -1512,6 +1518,7 @@ table 18 Customer
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -1569,6 +1576,7 @@ table 18 Customer
             FieldClass = FlowField;
             ObsoleteReason = 'This field is not needed and it should not be used.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(9005; "Contact ID"; Guid)
         {

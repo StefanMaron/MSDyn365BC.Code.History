@@ -622,6 +622,7 @@ table 15 "G/L Account"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(28040; "WHT Business Posting Group"; Code[20])
         {
@@ -641,6 +642,7 @@ table 15 "G/L Account"
             ObsoleteState = Pending;
             OptionCaption = 'Definitive,Simulation';
             OptionMembers = Definitive,Simulation;
+            ObsoleteTag = '15.0';
         }
     }
 

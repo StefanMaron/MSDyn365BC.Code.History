@@ -18,7 +18,6 @@ codeunit 134710 "Manual Payment Registration"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         OpenCustomerDocErr: Label 'Document with No = %1 for Customer No = %2 should not be open.';
@@ -758,6 +757,7 @@ codeunit 134710 "Manual Payment Registration"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostedDocNo1: Code[20];
         PostedDocNo2: Code[20];
         PaymentDocNo1: Code[20];
@@ -770,8 +770,8 @@ codeunit 134710 "Manual Payment Registration"
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesOrder(SalesHeader2);
-        PaymentDocNo1 := GetNextPaymentDocNo;
-        PaymentDocNo2 := GetNextPaymentDocNo;
+        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
 
         TempPaymentRegistrationBuffer.PopulateTable; // TO DO: encapsulate in test library function
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, SalesHeader1."Sell-to Customer No.", PostedDocNo1);
@@ -794,6 +794,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
         SalesHeader3: Record "Sales Header";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostedDocNo1: Code[20];
         PostedDocNo2: Code[20];
         PaymentDocNo1: Code[20];
@@ -806,8 +807,8 @@ codeunit 134710 "Manual Payment Registration"
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesOrder(SalesHeader2);
-        PaymentDocNo1 := GetNextPaymentDocNo;
-        PaymentDocNo2 := GetNextPaymentDocNo;
+        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
 
         CreateAndPostSalesOrder(SalesHeader3);
 
@@ -1371,7 +1372,6 @@ codeunit 134710 "Manual Payment Registration"
     [Scope('OnPrem')]
     procedure PaymentRegisterApplicationIsNotSavedWhenPostLumpPaymentIsNotConfirmed()
     var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         CustomerNo: Code[20];
         DocumentNo: array[2] of Code[20];
@@ -1379,7 +1379,6 @@ codeunit 134710 "Manual Payment Registration"
         // [FEATURE] [Lump Payment]
         // [SCENARIO 230065] Application in Payment Registration page is not stored when Post as Lump Payment is not confirmed.
         Initialize();
-        CustLedgerEntry.DeleteAll;
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
         // [GIVEN] Two posted Sales Invoices "PSI1" and "PSI2" for Customer.
@@ -1404,7 +1403,6 @@ codeunit 134710 "Manual Payment Registration"
     [Scope('OnPrem')]
     procedure PaymentRegisterApplicationIsSavedWhenPostLumpPaymentIsConfirmed()
     var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         CustomerNo: Code[20];
         DocumentNo: array[2] of Code[20];
@@ -1412,7 +1410,6 @@ codeunit 134710 "Manual Payment Registration"
         // [FEATURE] [Lump Payment]
         // [SCENARIO 230065] Application in Payment Registration page is succeded when Post as Lump Payment is confirmed.
         Initialize();
-        CustLedgerEntry.DeleteAll;
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
         // [GIVEN] Two posted Sales Invoices "PSI1" and "PSI2" for Customer.
@@ -1537,6 +1534,45 @@ codeunit 134710 "Manual Payment Registration"
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Bank Account Ledger Entry"));
         Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Bank ledger entries expected.');
         GLPostingPreview.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('Internal')]
+    procedure PostRefundForSalesCreditMemoBalAccountGL()
+    var
+        Customer: Record Customer;
+        TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        PostedInvoiceNo: Code[20];
+        PostedCreditMemoNo: Code[20];
+        PaymentDocNo: Code[20];
+        RefundDocNo: Code[20];
+    begin
+        // [SCENARIO 340645] Post Refund and Payment for Credit Memo and Invoice for the same Customer
+        Initialize();
+
+        SetupBalAccountAsGLAccount();
+
+        // [GIVEN] Customer "C"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Posted invoice "Inv" and Credit memo "CrM" documents for "C"
+        CreatePostSalesInvoiceCreditMemoSingleCustomer(Customer, PostedInvoiceNo, PostedCreditMemoNo);
+        TempPaymentRegistrationBuffer.PopulateTable();
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, Customer."No.", PostedInvoiceNo);
+        MarkDocumentAsPaid(TempPaymentRegistrationBuffer, Customer."No.", PostedCreditMemoNo);
+
+        PaymentDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        RefundDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+
+        // [WHEN] Post temporary Payment Registration Buffer with "Inv" and "CrM"
+        PostPayments(TempPaymentRegistrationBuffer);
+
+        // [THEN] Payment for "Inv" created and posted
+        VerifyFullPaymentRegistration(Customer."No.", PostedInvoiceNo, PaymentDocNo);
+        // [THEN] Refund for "CrM" created and posted
+        VerifyFullRefundRegistration(Customer."No.", PostedCreditMemoNo, RefundDocNo);
     end;
 
     local procedure Initialize()
@@ -1672,12 +1708,11 @@ codeunit 134710 "Manual Payment Registration"
             PaymentRegistrationSetupMyUser.Delete;
     end;
 
-    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocNo: Code[20]): Integer
+    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocNo);
         CustLedgerEntry.FindLast;
-        exit(CustLedgerEntry."Entry No.")
     end;
 
     local procedure FindPaymentRegistrationBuffer(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary; CustomerNo: Code[20]; DocNo: Code[20])
@@ -1691,10 +1726,21 @@ codeunit 134710 "Manual Payment Registration"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentRegistrationSetup: Record "Payment Registration Setup";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
-        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false))
+        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false))
+    end;
+
+    local procedure GetNextPaymentDocNoPreserveNo(var NoSeriesManagement: Codeunit NoSeriesManagement): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentRegistrationSetup: Record "Payment Registration Setup";
+    begin
+        PaymentRegistrationSetup.Get(UserId);
+        GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
+        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false))
     end;
 
     local procedure IssueFinanceChargeMemoAndMarkItAsPaid(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary): Code[20]
@@ -1838,6 +1884,29 @@ codeunit 134710 "Manual Payment Registration"
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", PostedDocNo);
 
         exit(PostedDocNo);
+    end;
+
+    local procedure CreatePostSalesInvoiceCreditMemoSingleCustomer(Customer: Record Customer; var PostedInvoiceNo: Code[20]; var PostedCreditMemoNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        Clear(SalesLine);
+        Clear(SalesHeader);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        PostedCreditMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     local procedure CreatePostTwoSalesInvoices(var CustomerNo: Code[20]; var DocumentNo: array[2] of Code[20])
@@ -2047,6 +2116,17 @@ codeunit 134710 "Manual Payment Registration"
         CustLedgerEntry.TestField(Open, RemainingAmount <> 0);
     end;
 
+    local procedure VerifyCustLedgerEntryWithType(CustomerNo: Code[20]; DocNo: Code[20]; RemainingAmount: Decimal; ExpectedDocumentType: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        FindCustLedgerEntry(CustLedgerEntry, CustomerNo, DocNo);
+        CustLedgerEntry.TestField("Document Type", ExpectedDocumentType);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);
+        CustLedgerEntry.TestField(Open, RemainingAmount <> 0);
+    end;
+
     local procedure VerifyCustLedgerEntryLumpPayment(CustomerNo: Code[20]; DocNo: Code[20]; LumpAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2094,11 +2174,23 @@ codeunit 134710 "Manual Payment Registration"
     end;
 
     local procedure VerifyFullPaymentRegistration(CustomerNo: Code[20]; DocNo: Code[20]; PaymentDocNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         VerifyCustLedgerEntry(CustomerNo, DocNo, 0);
-        VerifyCustLedgerEntry(CustomerNo, PaymentDocNo, 0);
+        VerifyCustLedgerEntryWithType(CustomerNo, PaymentDocNo, 0, CustLedgerEntry."Document Type"::Payment);
         VerifyPaymentRegistrationBuffer(CustomerNo, DocNo, true);
         VerifyBatchAndBalAccountInformation(CustomerNo, PaymentDocNo);
+    end;
+
+    local procedure VerifyFullRefundRegistration(CustomerNo: Code[20]; DocNo: Code[20]; RefundDocNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        VerifyCustLedgerEntry(CustomerNo, DocNo, 0);
+        VerifyCustLedgerEntryWithType(CustomerNo, RefundDocNo, 0, CustLedgerEntry."Document Type"::Refund);
+        VerifyPaymentRegistrationBuffer(CustomerNo, DocNo, true);
+        VerifyBatchAndBalAccountInformation(CustomerNo, RefundDocNo);
     end;
 
     local procedure VerifyPartialPaymentRegistration(CustomerNo: Code[20]; DocNo: Code[20]; PaymentDocNo: Code[20]; RemainingAmount: Decimal)

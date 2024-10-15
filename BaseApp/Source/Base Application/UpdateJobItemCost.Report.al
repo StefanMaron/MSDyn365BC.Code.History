@@ -61,12 +61,7 @@ report 1095 "Update Job Item Cost"
                         JobLedgerEntryCostValue: Decimal;
                         JobLedgerEntryCostValueACY: Decimal;
                     begin
-                        ValueEntry.SetRange("Job No.", "Job Ledger Entry"."Job No.");
-                        ValueEntry.SetRange("Job Task No.", "Job Ledger Entry"."Job Task No.");
-                        ValueEntry.SetRange("Job Ledger Entry No.", "Job Ledger Entry"."Entry No.");
-                        ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.");
-                        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+                        SetValueEntryFilters(ValueEntry, "Item Ledger Entry", "Job Ledger Entry");
 
                         if ValueEntry.IsEmpty then begin
                             Item.Get("Item No.");
@@ -98,6 +93,7 @@ report 1095 "Update Job Item Cost"
                                 AddJobCostValue(JobLedgerEntryCostValue, JobLedgerEntryCostValueACY, ValueEntry2, ValueEntry.Inventoriable);
 
                                 ValueEntry2.SetRange("Job Ledger Entry No.", 0);
+
                                 ValueEntry2.ModifyAll("Job No.", ValueEntry."Job No.");
                                 ValueEntry2.ModifyAll("Job Task No.", ValueEntry."Job Task No.");
                                 ValueEntry2.ModifyAll("Job Ledger Entry No.", ValueEntry."Job Ledger Entry No.");
@@ -163,6 +159,27 @@ report 1095 "Update Job Item Cost"
         HideResult := SuppressSummary;
     end;
 
+    local procedure SetValueEntryFilters(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry"; JobLedgEntry: Record "Job Ledger Entry");
+    begin
+        ValueEntry.SetRange("Job No.", JobLedgEntry."Job No.");
+        ValueEntry.SetRange("Job Task No.", JobLedgEntry."Job Task No.");
+        ValueEntry.SetRange("Job Ledger Entry No.", JobLedgEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.");
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+
+        OnAfterSetValueEntryFilters(ValueEntry, ItemLedgEntry, JobLedgEntry);
+    end;
+
+    local procedure ModifyAllValueEntries(var ToValueEntry: Record "Value Entry"; var FromValueEntry: Record "Value Entry")
+    begin
+        ToValueEntry.ModifyAll("Job No.", FromValueEntry."Job No.");
+        ToValueEntry.ModifyAll("Job Task No.", FromValueEntry."Job Task No.");
+        ToValueEntry.ModifyAll("Job Ledger Entry No.", FromValueEntry."Job Ledger Entry No.");
+
+        OnAfterModifyAllValueEntries(ToValueEntry, FromValueEntry);
+    end;
+
     local procedure UpdatePostedTotalCost(var JobLedgerEntry: Record "Job Ledger Entry"; AdjustJobCost: Decimal; AdjustJobCostLCY: Decimal)
     var
         JobUsageLink: Record "Job Usage Link";
@@ -181,7 +198,14 @@ report 1095 "Update Job Item Cost"
     var
         AdjustJobCost: Decimal;
         AdjustJobCostLCY: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostTotalCostAdjustment(
+            JobLedgEntry, "Item Ledger Entry", JobLedgerEntryCostValue, JobLedgerEntryCostValueACY, AdjustJobCost, AdjustJobCostLCY, NoOfJobLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if JobLedgEntry."Total Cost (LCY)" <> -JobLedgerEntryCostValue then begin
             // Update Total Costs
             AdjustJobCostLCY := -JobLedgerEntryCostValue - JobLedgEntry."Total Cost (LCY)";
@@ -224,6 +248,21 @@ report 1095 "Update Job Item Cost"
             JobLedgerEntryCostValue += ValueEntry."Cost Amount (Non-Invtbl.)";
             JobLedgerEntryCostValueACY += ValueEntry."Cost Amount (Non-Invtbl.)(ACY)";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyAllValueEntries(var ToValueEntry: Record "Value Entry"; FromValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetValueEntryFilters(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry"; JobLedgEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; JobLedgerEntryCostValue: Decimal; JobLedgerEntryCostValueACY: Decimal; var AdjustJobCost: Decimal; var AdjustJobCostLCY: Decimal; var NoOfJobLedgEntry: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

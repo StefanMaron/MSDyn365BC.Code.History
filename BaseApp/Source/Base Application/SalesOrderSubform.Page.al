@@ -59,13 +59,13 @@
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         ShowShortcutDimCode(ShortcutDimCode);
 
-                        QuantityOnAfterValidate;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        QuantityOnAfterValidate();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -1617,9 +1617,11 @@
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
         then
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
 
-        SaveAndAutoAsmToOrder;
+        OnNoOnAfterValidateOnBeforeSaveAndAutoAsmToOrder();
+
+        SaveAndAutoAsmToOrder();
 
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
@@ -1760,10 +1762,10 @@
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
@@ -1872,6 +1874,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnNoOnAfterValidateOnBeforeSaveAndAutoAsmToOrder()
     begin
     end;
 }

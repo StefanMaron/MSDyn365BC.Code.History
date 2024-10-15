@@ -37,6 +37,7 @@ table 9153 "My Account"
             FieldClass = FlowField;
             ObsoleteReason = 'This flowfield is showing incomplete data.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(5; "Account Balance"; Decimal)
         {

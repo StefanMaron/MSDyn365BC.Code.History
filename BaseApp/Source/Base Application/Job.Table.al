@@ -14,7 +14,7 @@ table 167 Job
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    JobsSetup.Get;
+                    JobsSetup.Get();
                     NoSeriesMgt.TestManual(JobsSetup."Job Nos.");
                     "No. Series" := '';
                 end;
@@ -221,6 +221,7 @@ table 167 Job
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(58; "Bill-to Name"; Text[100])
         {
@@ -338,7 +339,7 @@ table 167 Job
 
                 JobTask.SetRange("Job No.", "No.");
                 JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
-                if JobTask.FindFirst then
+                if JobTask.FindFirst() then
                     if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then
                         JobTask.ModifyAll("WIP Method", "WIP Method", true);
             end;
@@ -578,7 +579,7 @@ table 167 Job
                     JobLedgerEntry.SetCurrentKey("Job No.");
                     JobLedgerEntry.SetRange("Job No.", "No.");
                     JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
-                    if JobLedgerEntry.FindFirst then begin
+                    if JobLedgerEntry.FindFirst() then begin
                         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
                         if JobUsageLink.IsEmpty then
                             Error(ApplyUsageLinkErr, TableCaption);
@@ -712,6 +713,7 @@ table 167 Job
             DataClassification = SystemMetadata;
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -760,27 +762,27 @@ table 167 Job
         JobTask.DeleteAll(true);
 
         JobResPrice.SetRange("Job No.", "No.");
-        JobResPrice.DeleteAll;
+        JobResPrice.DeleteAll();
 
         JobItemPrice.SetRange("Job No.", "No.");
-        JobItemPrice.DeleteAll;
+        JobItemPrice.DeleteAll();
 
         JobGLAccPrice.SetRange("Job No.", "No.");
-        JobGLAccPrice.DeleteAll;
+        JobGLAccPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Job);
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::Job, "No.");
 
         if "Project Manager" <> '' then
-            RemoveFromMyJobs;
+            RemoveFromMyJobs();
     end;
 
     trigger OnInsert()
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
 
         if "No." = '' then begin
             JobsSetup.TestField("Job Nos.");
@@ -804,7 +806,7 @@ table 167 Job
         DimMgt.UpdateDefaultDim(
           DATABASE::Job, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
-        InitWIPFields;
+        InitWIPFields();
 
         "Creation Date" := Today;
         "Last Date Modified" := "Creation Date";
@@ -867,7 +869,7 @@ table 167 Job
     begin
         with Job do begin
             Job := Rec;
-            JobsSetup.Get;
+            JobsSetup.Get();
             JobsSetup.TestField("Job Nos.");
             if NoSeriesMgt.SelectSeries(JobsSetup."Job Nos.", OldJob."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -887,7 +889,7 @@ table 167 Job
             UpdateJobTaskDimension(FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -900,11 +902,11 @@ table 167 Job
             if Cust."Primary Contact No." <> '' then
                 "Bill-to Contact No." := Cust."Primary Contact No."
             else begin
-                ContBusRel.Reset;
+                ContBusRel.Reset();
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                 ContBusRel.SetRange("No.", "Bill-to Customer No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     "Bill-to Contact No." := ContBusRel."Contact No.";
             end;
             "Bill-to Contact" := Cust.Contact;
@@ -918,16 +920,16 @@ table 167 Job
         Clear(JobLedgEntry);
         JobLedgEntry.SetCurrentKey("Job No.");
         JobLedgEntry.SetRange("Job No.", "No.");
-        exit(JobLedgEntry.FindFirst);
+        exit(not JobLedgEntry.IsEmpty());
     end;
 
     procedure JobPlanningLineExist(): Boolean
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.SetRange("Job No.", "No.");
-        exit(JobPlanningLine.FindFirst);
+        exit(not JobPlanningLine.IsEmpty());
     end;
 
     local procedure UpdateBillToCust(ContactNo: Code[20])
@@ -961,11 +963,16 @@ table 167 Job
     end;
 
     procedure UpdateCust()
+    var
+        IsHandled: Boolean;
     begin
         if "Bill-to Customer No." <> '' then begin
             Cust.Get("Bill-to Customer No.");
             Cust.TestField("Customer Posting Group");
-            Cust.TestField("Bill-to Customer No.", '');
+            IsHandled := false;
+            OnUpdateCustOnBeforeTestBillToCustomerNo(Rec, Cust, IsHandled);
+            if not IsHandled then
+                Cust.TestField("Bill-to Customer No.", '');
             if Cust."Privacy Blocked" then
                 Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
             if Cust.Blocked = Cust.Blocked::All then
@@ -983,7 +990,10 @@ table 167 Job
             "Bill-to City" := Cust.City;
             "Bill-to Post Code" := Cust."Post Code";
             "Bill-to Country/Region Code" := Cust."Country/Region Code";
-            "Invoice Currency Code" := Cust."Currency Code";
+            IsHandled := false;
+            OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(Rec, xRec, Cust, IsHandled);
+            if not IsHandled then
+                "Invoice Currency Code" := Cust."Currency Code";
             if "Invoice Currency Code" <> '' then
                 Validate("Currency Code", '');
             "Customer Disc. Group" := Cust."Customer Disc. Group";
@@ -992,7 +1002,7 @@ table 167 Job
             "Bill-to County" := Cust.County;
             Reserve := Cust.Reserve;
             UpdateBillToCont("Bill-to Customer No.");
-            CopyDefaultDimensionsFromCustomer;
+            CopyDefaultDimensionsFromCustomer();
         end else begin
             "Bill-to Name" := '';
             "Bill-to Name 2" := '';
@@ -1033,14 +1043,14 @@ table 167 Job
     begin
         JobPlanningLine.SetRange("Job No.", "No.");
         JobPlanningLine.SetAutoCalcFields("Qty. Transferred to Invoice");
-        JobPlanningLine.LockTable;
+        JobPlanningLine.LockTable();
         if JobPlanningLine.Find('-') then
             repeat
                 if JobPlanningLine."Qty. Transferred to Invoice" <> 0 then
                     Error(AssociatedEntriesExistErr, FieldCaption("Currency Code"), TableCaption);
                 JobPlanningLine.Validate("Currency Code", "Currency Code");
                 JobPlanningLine.Validate("Currency Date");
-                JobPlanningLine.Modify;
+                JobPlanningLine.Modify();
             until JobPlanningLine.Next = 0;
     end;
 
@@ -1054,7 +1064,7 @@ table 167 Job
             repeat
                 PurchLine.Validate("Job Currency Code", "Currency Code");
                 PurchLine.Validate("Job Task No.");
-                PurchLine.Modify;
+                PurchLine.Modify();
             until PurchLine.Next = 0;
     end;
 
@@ -1085,7 +1095,7 @@ table 167 Job
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Job, GetPosition)
         else
             Message(OnlineMapMsg);
@@ -1174,18 +1184,18 @@ table 167 Job
         if JobDefaultDimension.FindSet then
             repeat
                 DimMgt.DefaultDimOnDelete(JobDefaultDimension);
-                JobDefaultDimension.Delete;
+                JobDefaultDimension.Delete();
             until JobDefaultDimension.Next = 0;
 
         CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
         CustDefaultDimension.SetRange("No.", "Bill-to Customer No.");
         if CustDefaultDimension.FindSet then
             repeat
-                JobDefaultDimension.Init;
+                JobDefaultDimension.Init();
                 JobDefaultDimension.TransferFields(CustDefaultDimension);
                 JobDefaultDimension."Table ID" := DATABASE::Job;
                 JobDefaultDimension."No." := "No.";
-                JobDefaultDimension.Insert;
+                JobDefaultDimension.Insert();
                 DimMgt.DefaultDimOnInsert(JobDefaultDimension);
             until CustDefaultDimension.Next = 0;
 
@@ -1225,12 +1235,12 @@ table 167 Job
         QtyTotal: Decimal;
     begin
         JobPlanningLine.SetRange("Job No.", "No.");
-        QtyTotal := JobPlanningLine.Count;
+        QtyTotal := JobPlanningLine.Count();
         if QtyTotal = 0 then
             exit(0);
         JobPlanningLine.SetFilter("Planning Date", '<%1', WorkDate);
         JobPlanningLine.SetFilter("Remaining Qty.", '>%1', 0);
-        QtyOverdue := JobPlanningLine.Count;
+        QtyOverdue := JobPlanningLine.Count();
         exit((QtyOverdue / QtyTotal) * 100);
     end;
 
@@ -1266,7 +1276,7 @@ table 167 Job
                     2:
                         JobTask.Validate("Global Dimension 2 Code", ShortcutDimCode);
                 end;
-                JobTask.Modify;
+                JobTask.Modify();
             until JobTask.Next = 0;
     end;
 
@@ -1315,7 +1325,7 @@ table 167 Job
         MyJob: Record "My Job";
     begin
         if Status = Status::Open then begin
-            MyJob.Init;
+            MyJob.Init();
             MyJob."User ID" := ProjectManager;
             MyJob."Job No." := "No.";
             MyJob.Description := Description;
@@ -1324,7 +1334,7 @@ table 167 Job
             MyJob."Percent Completed" := PercentCompleted;
             MyJob."Percent Invoiced" := PercentInvoiced;
             MyJob."Exclude from Business Chart" := false;
-            MyJob.Insert;
+            MyJob.Insert();
         end;
     end;
 
@@ -1335,7 +1345,7 @@ table 167 Job
         MyJob.SetFilter("Job No.", '=%1', "No.");
         if MyJob.FindSet then
             repeat
-                MyJob.Delete;
+                MyJob.Delete();
             until MyJob.Next = 0;
     end;
 
@@ -1396,7 +1406,7 @@ table 167 Job
         Job.SetRecFilter;
         WIPQst := StrSubstNo(RunWIPFunctionsQst, GetReportCaption(REPORT::"Job Calculate WIP"));
         Confirmed := Confirm(WIPQst);
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Job Calculate WIP", not Confirmed, false, Job);
     end;
 
@@ -1504,6 +1514,16 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Job: Record Job; var xJob: Record Job; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustOnBeforeTestBillToCustomerNo(var Job: Record Job; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

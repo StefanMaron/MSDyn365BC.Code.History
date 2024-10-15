@@ -1169,9 +1169,10 @@
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := Type = Type::" ";
+        IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
+
         CurrPageIsEditable := CurrPage.Editable;
-        IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
     end;
 

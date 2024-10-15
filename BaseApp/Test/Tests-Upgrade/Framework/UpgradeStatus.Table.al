@@ -1,4 +1,4 @@
-table 128000 "Upgrade Status"
+table 132800 "Upgrade Status"
 {
     DataClassification = SystemMetadata;
     DataPerCompany = false;
