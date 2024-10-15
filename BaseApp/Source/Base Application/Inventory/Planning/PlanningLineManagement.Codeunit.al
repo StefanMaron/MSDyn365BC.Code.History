@@ -97,7 +97,11 @@ codeunit 99000809 "Planning Line Management"
         WorkCenter: Record "Work Center";
         SubcontractorPrices: Record "Subcontractor Prices";
         SubcontractingPricesMgt: Codeunit SubcontractingPricesMgt;
+        IsHandled: Boolean;	
     begin
+        OnBeforeTransferRoutingLine(PlanningRoutingLine, ReqLine, RoutingLine, IsHandled);
+        if IsHandled then
+            exit;
         PlanningRoutingLine.TransferFromReqLine(ReqLine);
         PlanningRoutingLine.TransferFromRoutingLine(RoutingLine);
 
@@ -214,7 +218,7 @@ codeunit 99000809 "Planning Line Management"
                               (1 + ProdBOMLine[Level]."Scrap %" / 100) *
                               LineQtyPerUOM / ItemQtyPerUOM;
 
-                        OnTransferBOMOnAfterCalculateReqQty(ReqQty, ProdBOMLine[Level]);
+                        OnTransferBOMOnAfterCalculateReqQty(ReqQty, ProdBOMLine[Level], PlanningRtngLine2, LineQtyPerUOM, ItemQtyPerUOM);
                         case ProdBOMLine[Level].Type of
                             ProdBOMLine[Level].Type::Item:
                                 begin
@@ -1133,7 +1137,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnAfterCalculateReqQty(var ReqQty: Decimal; ProductionBOMLine: Record "Production BOM Line");
+    local procedure OnTransferBOMOnAfterCalculateReqQty(var ReqQty: Decimal; ProductionBOMLine: Record "Production BOM Line"; PlanningRoutingLine: Record "Planning Routing Line"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal);
     begin
     end;
 
@@ -1164,6 +1168,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPlanningLevelCode(var PlanningComponent: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line"; RoutingLine: Record "Routing Line"; var IsHandled: Boolean)
     begin
     end;
 }

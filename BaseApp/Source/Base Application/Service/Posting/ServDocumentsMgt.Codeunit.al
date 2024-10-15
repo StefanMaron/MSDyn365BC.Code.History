@@ -1647,12 +1647,16 @@ codeunit 5988 "Serv-Documents Mgt."
     procedure CheckAndBlankQtys(ServDocType: Integer)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        SkipCheckContractNoAndShipmentNo: Boolean;
+        SkipCheckUnitOfMeasureCode: Boolean;
     begin
         ServLine.Reset();
         OnCheckAndBlankQtysOnAfterServLineSetFilters(ServLine);
         if ServLine.Find('-') then
             repeat
-                OnCheckAndBlankQtysOnBeforeCheckServLine(ServLine);
+                SkipCheckContractNoAndShipmentNo := false;
+                SkipCheckUnitOfMeasureCode := false;	    
+                OnCheckAndBlankQtysOnBeforeCheckServLine(ServLine, SkipCheckContractNoAndShipmentNo, SkipCheckUnitOfMeasureCode);
                 // Service Charge line should not be tested.
                 if (ServLine.Type <> ServLine.Type::" ") and not ServLine."System-Created Entry" then begin
                     if ServDocType = Database::"Service Contract Header" then
@@ -1662,8 +1666,9 @@ codeunit 5988 "Serv-Documents Mgt."
                         ServLine.TestField("Shipment No.");
                 end;
 
-                if (ServLine.Type = ServLine.Type::Item) and (ServLine."No." <> '') and (ServLine."Qty. Shipped (Base)" = 0) and (ServLine."Qty. Consumed (Base)" = 0) then
-                    ServLine.TestField("Unit of Measure Code");
+                if not SkipCheckUnitOfMeasureCode then
+                    if (ServLine.Type = ServLine.Type::Item) and (ServLine."No." <> '') and (ServLine."Qty. Shipped (Base)" = 0) and (ServLine."Qty. Consumed (Base)" = 0) then
+                        ServLine.TestField("Unit of Measure Code");
 
                 if ServLine."Qty. per Unit of Measure" = 0 then
                     ServLine."Qty. per Unit of Measure" := 1;
@@ -1807,7 +1812,7 @@ codeunit 5988 "Serv-Documents Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetNoSeries(ServHeader, Invoice, Consume, Result, IsHandled);
+        OnBeforeSetNoSeries(ServHeader, Invoice, Consume, Result, IsHandled, PServHeader, Ship);
         if IsHandled then
             exit(Result);
 
@@ -2756,7 +2761,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckAndBlankQtysOnBeforeCheckServLine(var ServiceLine: Record "Service Line")
+    local procedure OnCheckAndBlankQtysOnBeforeCheckServLine(var ServiceLine: Record "Service Line"; var SkipCheckContractNoAndShipmentNo: Boolean; var SkipCheckUnitOfMeasureCode: Boolean)
     begin
     end;
 
@@ -2909,7 +2914,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetNoSeries(var ServHeader: Record "Service Header" temporary; Invoice: Boolean; Consume: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetNoSeries(var ServHeader: Record "Service Header" temporary; Invoice: Boolean; Consume: Boolean; var Result: Boolean; var IsHandled: Boolean; var PServiceHeader: Record "Service Header"; Ship: Boolean)
     begin
     end;
 

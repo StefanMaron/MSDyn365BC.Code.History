@@ -203,13 +203,18 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestPostSalesDocumentCommit()
+    procedure TestPostSalesDocumentCommitDateOrder()
     var
+        NoSeries: Record "No. Series";
         SalesHeader: Record "Sales Header";
     begin
         // Setup
         Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        NoSeries.Get(SalesHeader."Posting No. Series");
+        NoSeries."Date Order" := true;
+        NoSeries.Modify();
         Commit();
 
         // Exercise
@@ -217,8 +222,7 @@
 
         // Verify - After Error
         asserterror Error('');
-        asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        Assert.AssertRecordNotFound();
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
     end;
 
     [Test]

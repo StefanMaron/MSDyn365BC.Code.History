@@ -105,6 +105,8 @@ codeunit 144090 "ERM Withhold"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
         WithHoldingAmountZeroErr: Label 'Withholding Amount should be 0 in Vendor Bill Line.';
+        TotalAmountErr: Label '%1 must be %2 in %3', Comment = '%1 = Total Amount, %2 = Line Amount, %3 = ComputedWithholdingTax';
+        RemainingAmountErr: Label '%1 must be %2 in %3', Comment = '%1 = Remaining Amount, %2 = Line Amount, %3 = ComputedWithholdingTax';
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -2233,6 +2235,53 @@ codeunit 144090 "ERM Withhold"
 
         // [VERIFY] Verify: Withholding Tax Amount 0 in Vendor Bill Line.
         Assert.AreEqual(0, VendorBillLine."Withholding Tax Amount", WithHoldingAmountZeroErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TotalAmtAndRemainingAmtInComputedWithholdingTaxEntryIsNegativeWhenPostPurchCrMemo()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ComputedWithholdingTax: Record "Computed Withholding Tax";
+        WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 542470] When Stan post Purchase Credit Memo then Computed Withholding Tax Entry is created with negative "Total Amount" and "Remaining Amount".
+        Initialize();
+ 
+        // [GIVEN] Create a Purchase Credit Memo.
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateVendor('', ''), false);
+ 
+        // [GIVEN] Calculate Withhold Taxes Contribution on Purchase Credit Memo page.
+        CalculateWithholdTaxesContributionOnPurchCrMemo(WithhTaxesContributionCard, PurchaseLine."Document No.");
+ 
+        // [GIVEN] Post Purchase Credit Memo.
+        PostedDocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::"Credit Memo", PurchaseLine."Document No.");
+ 
+        // [WHEN] Find Computed Withholding Tax.
+        ComputedWithholdingTax.SetRange("Document No.", PostedDocumentNo);
+        ComputedWithholdingTax.SetRange("Vendor No.", PurchaseLine."Buy-from Vendor No.");
+        ComputedWithholdingTax.FindFirst();
+ 
+        // [THEN] "Total Amount" of Computed Withholding Tax is equal to negative of "Line Amount" of Purchase Line.
+        Assert.AreEqual(
+            -PurchaseLine."Line Amount", 
+            ComputedWithholdingTax."Total Amount", 
+            StrSubstNo(
+                TotalAmountErr, 
+                ComputedWithholdingTax.FieldCaption("Total Amount"), 
+                -PurchaseLine."Line Amount", 
+                ComputedWithholdingTax.TableCaption()));
+
+        // [THEN] "Remaining Amount" of Computed Withholding Tax is equal to negative of "Line Amount" of Purchase Line.        
+        Assert.AreEqual(
+            -PurchaseLine."Line Amount", 
+            ComputedWithholdingTax."Remaining Amount", 
+            StrSubstNo(
+                RemainingAmountErr, 
+                ComputedWithholdingTax.FieldCaption("Remaining Amount"), 
+                -PurchaseLine."Line Amount", 
+                ComputedWithholdingTax.TableCaption()));
     end;
 
     local procedure Initialize()

@@ -128,6 +128,7 @@ codeunit 144050 "ERM Auto Payment"
         GLBookEntryErr: Label 'The lines of G/L Book Entry is not correct after Reverse.';
         IncorrectBankRcptTempNoErr: Label 'Incorrect Bank Receipt Temp. No.';
         DimensionCodeMissingErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.', Comment = '%1 = Dimension Code, %2 = Customer no.';
+        ContactNoSeriesErr: Label 'No. Series should be assigned from selected Series from Assist Edit.';
 
     [Test]
     [HandlerFunctions('BankSheetPrintRequestPageHandler')]
@@ -1311,6 +1312,44 @@ codeunit 144050 "ERM Auto Payment"
         FindAndVerifyVendorBillLinesAmount(Vendor."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SelectNoSeriesModalPageHandler')]
+    procedure ContactAssistEditShouldUseSelectedNoSeries()
+    var
+        MarketingSetup: Record "Marketing Setup";
+        NoSeriesLine: Record "No. Series line";
+        ContactCard: TestPage "Contact Card";
+        NoSeriesPage: TestPage "No. Series";
+        SeriesCode: Code[20];
+    begin
+        // [SCENARIO 541942]: Contact Card should use selected No. Series in from assist edit.
+        Initialize();
+
+        // [GIVEN] Create No. Series Line.
+        LibraryUtility.CreateNoSeriesLine(
+            NoSeriesLine,
+            LibraryERM.CreateNoSeriesCode(),
+            LibraryUtility.GenerateGUID(),
+            '');
+
+        // [GIVEN] Store Series Code.
+        SeriesCode := NoSeriesLine."Series Code";
+        LibraryVariableStorage.Enqueue(SeriesCode);
+
+        // [GIVEN] Get Marketing Setup and Create Relationship with Contact Nos. and Newly created No. Series.
+        MarketingSetup.Get();
+        LibraryUtility.CreateNoSeriesRelationship(MarketingSetup."Contact Nos.", NoSeriesLine."Series Code");
+
+        // [WHEN] Open Contact Card and Assist Edit.
+        NoSeriesPage.Trap();
+        ContactCard.OpenNew();
+        ContactCard."No.".AssistEdit();
+
+        // [THEN] Contact No. should be assigned from newly created No. Series.
+        NoSeriesLine.SetRange("Series Code", SeriesCode);
+        NoSeriesLine.FindFirst();
+        Assert.AreEqual(ContactCard."No.".Value(), NoSeriesLine."Last No. Used", ContactNoSeriesErr);
+    end;
 
     local procedure Initialize()
     begin
@@ -2481,6 +2520,16 @@ codeunit 144050 "ERM Auto Payment"
     procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
     begin
         PostApplication.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectNoSeriesModalPageHandler(var NoSeriesPage: TestPage "No. Series")
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.Get(LibraryVariableStorage.DequeueText());
+        NoSeriesPage.GoToRecord(NoSeries);
+        NoSeriesPage.OK().Invoke();
     end;
 
     [MessageHandler]

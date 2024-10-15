@@ -47,13 +47,13 @@ codeunit 12101 "Withholding - Contribution"
                 ComputedWithholdingTax."External Document No." := TempWithholdingSocSec."External Document No.";
 
                 if TempWithholdingSocSec."Currency Code" = ComputedWithholdingTax."Currency Code" then begin
-                    ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" - TempWithholdingSocSec."Total Amount";
+                    ComputedWithholdingTax."Remaining Amount" := Abs(ComputedWithholdingTax."Remaining Amount") - TempWithholdingSocSec."Total Amount";
                     ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
                       TempWithholdingSocSec."Base - Excluded Amount";
                     ComputedWithholdingTax."Non Taxable Remaining Amount" := ComputedWithholdingTax."Non Taxable Remaining Amount" -
                       TempWithholdingSocSec."Non Taxable Amount By Treaty";
                 end else begin
-                    ComputedWithholdingTax."Remaining Amount" := ComputedWithholdingTax."Remaining Amount" -
+                    ComputedWithholdingTax."Remaining Amount" := Abs(ComputedWithholdingTax."Remaining Amount") -
                       CurrencyExchRate.ExchangeAmtFCYToFCY(GenJnlLine."Document Date", TempWithholdingSocSec."Currency Code",
                         ComputedWithholdingTax."Currency Code", TempWithholdingSocSec."Total Amount");
                     ComputedWithholdingTax."Remaining - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount" -
@@ -634,13 +634,13 @@ codeunit 12101 "Withholding - Contribution"
         VendLedgEntry.MarkedOnly(true);
         OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(VendLedgEntry, CreateVendLedgEntry, ComputedWithholdingTax, AppliestoOccurrenceNo);
         // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
-        RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
+        RemainingWithhTaxAmount := Abs(ComputedWithholdingTax."Remaining Amount");
         if VendLedgEntry.FindSet() then begin
             repeat
                 ComputedWithholdingTax1.Reset();
                 ComputedWithholdingTax1.SetRange("Document No.", VendLedgEntry."Document No.");
                 if ComputedWithholdingTax1.FindFirst() then
-                    RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";
+                    RemainingWithhTaxAmount -= Abs(ComputedWithholdingTax1."Remaining Amount");
             until VendLedgEntry.Next() = 0
         end;
 

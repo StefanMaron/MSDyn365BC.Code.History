@@ -1564,6 +1564,70 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemEntryTypeTotalCost14', -Qty * UnitAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('PhysInventoryListRequestPageHandler')]
+    procedure PhysicalInventoryListShouldHaveCorrectDecimalQuantity()
+    var
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 542153] Calculated quantity rounded in decimal when printing Inventory List.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Store Quantity in Variable.
+        Quantity := LibraryRandom.RandDec(10, 2);
+
+        // [GIVEN] Create Purchase Invoice with Item and Stored Quantity.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+            PurchaseHeader,
+            PurchaseLine,
+            PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorNo(),
+            Item."No.",
+            Quantity,
+            '',
+            Today());
+
+        // [GIVEN] Post Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Select Item Journal Template.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
+
+        // [GIVEN] Create Item Journal Batch and Validate No. Series.
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate(ItemJournalBatch."No. Series", LibraryERM.CreateNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Create Item Journal Line.
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Run Calculate Inventory from Item Journal.
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, Today(), false, false);
+
+        // [GIVEN] Store two Variable.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Run Report Phys. Inventory List. 
+        Commit();
+        Report.Run(Report::"Phys. Inventory List", true, false, ItemJournalBatch);
+
+        // [THEN] Quantity Calculated should be same as Quantity purchased.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('QtyCalculated_ItemJnlLin', Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

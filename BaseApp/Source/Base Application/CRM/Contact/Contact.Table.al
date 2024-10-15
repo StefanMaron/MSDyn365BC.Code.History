@@ -1511,7 +1511,7 @@ table 5050 Contact
         RMSetup.Get();
         RMSetup.TestField("Contact Nos.");
         if NoSeries.LookupRelatedNoSeries(RMSetup."Contact Nos.", OldCont."No. Series", Cont."No. Series") then begin
-            "No." := NoSeries.GetNextNo(Cont."No. Series");
+            Cont."No." := NoSeries.GetNextNo(Cont."No. Series");
             OnAssistEditOnAfterNoSeriesMgtSetSeries(Cont, OldCont);
             Rec := Cont;
             exit(true);

@@ -45,33 +45,35 @@ page 6531 "Item Bin Content Inquiry"
         BinContentPage: Page "Bin Content";
     begin
         Item.SetFilter(GTIN, BarcodeNo);
+        Item.SetLoadFields("No.");
         if Item.Find('-') then begin
-            BinContent.SetFilter("Item No.", Item."No.");
+            if Item."No." <> '' then
+                BinContent.SetRange("Item No.", Item."No.");
             if BinContent.FindSet() then begin
                 BinContentPage.SetTableView(BinContent);
                 BinContentPage.RunModal();
-            end
-            else
+            end else
                 Message(ItemNotFoundLbl);
-        end
-        else begin
+        end else begin
             ItemReference.SetRange("Reference Type", Enum::"Item Reference Type"::"Bar Code");
             ItemReference.SetFilter("Reference No.", BarcodeNo);
+            ItemReference.SetLoadFields("Item No.", "Unit of Measure");
             if ItemReference.FindFirst() then begin
                 Item.Reset();
-                Item.SetFilter("No.", ItemReference."Item No.");
+                if ItemReference."Item No." <> '' then
+                    Item.SetRange("No.", ItemReference."Item No.");
                 if Item.FindFirst() then begin
-                    BinContent.SetFilter("Item No.", Item."No.");
-                    BinContent.SetFilter("Unit of Measure Code", ItemReference."Unit of Measure");
+                    if Item."No." <> '' then
+                        BinContent.SetRange("Item No.", Item."No.");
+                    if ItemReference."Unit of Measure" <> '' then
+                        BinContent.SetRange("Unit of Measure Code", ItemReference."Unit of Measure");
                     if BinContent.FindSet() then begin
                         BinContentPage.SetTableView(BinContent);
                         BinContentPage.RunModal();
-                    end
-                    else
+                    end else
                         Message(ItemNotFoundLbl);
                 end
-            end
-            else
+            end else
                 Message(ItemNotFoundLbl);
         end;
     end;
