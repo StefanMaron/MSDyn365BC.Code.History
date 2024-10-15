@@ -428,6 +428,39 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseHeader.TestField("Pay-to Name", NewName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePurchaseOrderBuyFromNameDisableSearchByName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+        NewName: Text[100];
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 424124] Pay-to Name should be editable when Purchase Order created for Vendor with Disable Search By Name = true
+        Initialize();
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        // [GIVEN] Vendor has "Disable Search by Name" = TRUE
+        SetVendorDisableSearchByName(PurchaseHeader."Buy-from Vendor No.");
+
+        // [GIVEN] "Buy-from Vendor Name" is being changed to 'Test'
+        NewName := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Buy-from Vendor Name"), DATABASE::"Purchase Header");
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder."Buy-from Vendor Name".SetValue(NewName);
+
+        // [WHEN] Pay-to = "Custom Address"
+        PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Custom Address");
+
+        // [THEN] "Pay-to Name" field is editable and the value can be changed
+        Assert.IsTrue(PurchaseOrder."Pay-to Name".Editable(), 'Pay-to Name is not editable');
+        PurchaseOrder."Pay-to Name".SetValue(NewName);
+        PurchaseOrder."Pay-to Name".AssertEquals(NewName);
+    end;
+
     local procedure Initialize()
     var
         ConfigTemplateHeader: Record "Config. Template Header";
