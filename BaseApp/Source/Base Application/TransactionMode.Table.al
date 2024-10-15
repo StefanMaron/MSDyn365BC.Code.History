@@ -156,6 +156,10 @@ table 11000004 "Transaction Mode"
                 CheckPartnerTransactionMode();
             end;
         }
+        field(24; WorldPayment; Boolean)
+        {
+            Caption = 'WorldPayment';
+        }
     }
 
     keys

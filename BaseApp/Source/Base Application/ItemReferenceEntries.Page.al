@@ -53,6 +53,9 @@ page 5737 "Item Reference Entries"
                 field("Discontinue Bar Code"; "Discontinue Bar Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ObsoleteReason = 'Not used in base application.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
                     ToolTip = 'Specifies that you want the program to discontinue a bar code item reference. This field is reserved for extensions and not used in base app.';
                     Visible = false;
                 }

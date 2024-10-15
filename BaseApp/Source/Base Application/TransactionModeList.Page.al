@@ -116,6 +116,11 @@ page 11000010 "Transaction Mode List"
                     ToolTip = 'Specifies the number series code used to assign run numbers to payment history entries.';
                     Visible = false;
                 }
+                field(WorldPayment; Rec.WorldPayment)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the payment will be processed as WorldPayment in the SEPA file export.';
+                }
             }
         }
     }

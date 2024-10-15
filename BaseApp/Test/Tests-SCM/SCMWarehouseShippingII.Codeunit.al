@@ -2581,6 +2581,40 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ShipmentDateOnWhseShipmentMatchesSalesOrders()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        // [FEATURE] [Warehouse Shipment] [Sales] [Order]
+        // [SCENARIO 418330] Shipment Date in Warehouse Shipment must match Shipment Date in Sales Order.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", LocationYellow.Code);
+        SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(60));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Shipment Date", SalesHeader."Shipment Date");
+
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        WarehouseShipmentHeader.TestField("Shipment Date", SalesHeader."Shipment Date");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

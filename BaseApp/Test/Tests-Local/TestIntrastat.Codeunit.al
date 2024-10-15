@@ -32,7 +32,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         Initialize;
 
@@ -44,15 +44,14 @@
           FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
           FindOrCreateIntrastatEntryExitPoint);
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename);
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        Assert.IsTrue(FileTempBlob.Length() > 0, FileNotCreatedErr);
 
         // Verify, error on second run
         Commit();
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename);
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob);
         Assert.ExpectedError(ExportCancelledErr);
     end;
 
@@ -63,7 +62,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         Initialize;
 
@@ -75,17 +74,15 @@
           FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
           FindOrCreateIntrastatEntryExitPoint);
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename);
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        Assert.IsTrue(FileTempBlob.Length() > 0, FileNotCreatedErr);
 
         // Verify, no error on second run
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        Assert.IsTrue(FileTempBlob.Length() > 0, FileNotCreatedErr);
     end;
 
     [Test]
@@ -95,7 +92,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         Initialize;
 
@@ -106,10 +103,9 @@
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
           FindOrCreateIntrastatTransportMethod, '', FindOrCreateIntrastatEntryExitPoint);
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // Exercise
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename);
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob);
 
         // Verify
 #if CLEAN19
@@ -288,7 +284,7 @@
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Item: Record "Item";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
@@ -312,11 +308,10 @@
         Commit();
 
         // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
-        Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
 
         // [THEN] The file is created
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        Assert.IsTrue(FileTempBlob.Length() > 0, '');
     end;
 
     local procedure Initialize()
@@ -424,12 +419,15 @@
         IntrastatJournal.Close;
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(Filename: Text)
+    local procedure RunIntrastatMakeDiskTaxAuth(var FileTempBlob: Codeunit "Temp Blob")
     var
         CreateIntrastatDeclDisk: Report "Create Intrastat Decl. Disk";
+        ExportFormat: Enum "Intrastat Export Format";
+        FileOutStream: OutStream;
     begin
-        CreateIntrastatDeclDisk.InitializeRequest(Filename);
-        CreateIntrastatDeclDisk.Run;
+        FileTempBlob.CreateOutStream(FileOutStream);
+        CreateIntrastatDeclDisk.InitializeRequest(FileOutStream, ExportFormat::"2021");
+        CreateIntrastatDeclDisk.Run();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)

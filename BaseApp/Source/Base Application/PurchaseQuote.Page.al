@@ -814,6 +814,7 @@ page 49 "Purchase Quote"
                     trigger OnAction()
                     begin
                         OpenDocumentStatistics();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

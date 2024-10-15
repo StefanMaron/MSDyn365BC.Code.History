@@ -11,7 +11,7 @@
         {
             DataItemTableView = SORTING("Journal Template Name", Name);
             MaxIteration = 1;
-            dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
+            dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type);
@@ -28,25 +28,7 @@
                     CountryRegionOfOriginCode: Code[10];
                 begin
                     Counterparty := CounterpartyInfo;
-#if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Create Intrastat Decl. Disk", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Create Intrastat Decl. Disk", true)
-                    else begin
-                        TestField("Item No.");
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transport Method");
-                        TestField("Net Weight");
-                        TestField("Total Weight");
-                        if (ExportFormat = ExportFormat::"2022") or Counterparty and (Type = Type::Shipment) then
-                            TestField("Transaction Specification")
-                        else
-                            if ExportFormat = ExportFormat::"2021" then
-                            TestField("Transaction Type");
-                    end;
-#endif
+                    CheckLine(IntrastatJnlLine);
 
                     LineNo := LineNo + 1;
 
@@ -81,7 +63,7 @@
                                 ZeroShipment := false;
                             end;
                     end;
-                    IsCorrection := CheckCorrection("Intrastat Jnl. Line");
+                    IsCorrection := CheckCorrection(IntrastatJnlLine);
 
                     Write(Format(Date, 0, '<Year4><Month,2>'));
                     Write(Format(ItemDirection));
@@ -146,7 +128,7 @@
                             Write(PadStr('', 17, ' '));
                         end;
 
-                    Write(CrLf);
+                    IntrastatFileWriter.WriteLineBreak();
                 end;
 
                 trigger OnPreDataItem()
@@ -205,7 +187,7 @@
                     Write(PADSTR2('000', 3, ' ', '<'));
                     Write(PADSTR2("Intrastat Jnl. Batch"."Currency Identifier", 1, ' ', '<'));
                     Write(PADSTR2('', 6, ' ', '<'));
-                    Write(CrLf);
+                    IntrastatFileWriter.WriteLineBreak();
                 end;
             }
 
@@ -215,6 +197,9 @@
             begin
                 TestField("Currency Identifier");
                 TestField("Statistics Period");
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
+                IntrastatFileWriter.SetStatisticsPeriod("Statistics Period");
+                IntrastatFileWriter.InitializeNextFile(IntrastatFileWriter.GetDefaultFileName());
 
                 Evaluate(Year, CopyStr("Statistics Period", 1, 2));
 
@@ -236,15 +221,7 @@
                         end;
                 end;
 
-                if Reported then begin
-                    if not Confirm(StrSubstNo(Text1000010 + Text1000011, "Journal Template Name", Name), false) then
-                        Error(Text1000012);
-                end else begin
-                    "Export Date" := Today;
-                    "Export Time" := Time;
-                    Reported := true;
-                    Modify;
-                end;
+                SetBatchIsExported("Intrastat Jnl. Batch");
 
                 if not CheckPeriod("Statistics Period", ReportYear, ReportMonth) then
                     FieldError("Statistics Period", Text1000013);
@@ -260,8 +237,7 @@
                 Write(PADSTR2(Format("Export Time", 0, '<Hours24,2><Minutes,2><Seconds,2>'), 6, ' ', '>'));
                 Write(PADSTR2(PhoneNo, 15, ' ', '>'));
                 Write(PADSTR2('', 13, ' ', '>'));
-                Write(CrLf);
-                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
+                IntrastatFileWriter.WriteLineBreak();
             end;
 
             trigger OnPreDataItem()
@@ -274,8 +250,8 @@
 
                 PhoneNo := CopyStr(LocalFunctionalityMgt.ConvertPhoneNumber(CompanyInfo."Phone No."), 1, 15);
 
-                "Intrastat Jnl. Line".CopyFilter("Journal Template Name", "Journal Template Name");
-                "Intrastat Jnl. Line".CopyFilter("Journal Batch Name", Name);
+                SetFilter("Journal Template Name", IntrastatJnlLine.GetFilter("Journal Template Name"));
+                SetFilter(Name, IntrastatJnlLine.GetFilter("Journal Batch Name"));
             end;
         }
     }
@@ -286,7 +262,7 @@
 
         layout
         {
-            area(content)
+            area(Content)
             {
                 group(Options)
                 {
@@ -316,45 +292,28 @@
     {
     }
 
+    trigger OnPreReport()
+    begin
+        IntrastatFileWriter.Initialize(false, false, 0);
+
+#if not CLEAN19
+        if IntrastatSetup.Get() then;
+#endif
+        if ExportFormatIsSpecified then
+            ExportFormat := SpecifiedExportFormat;
+
+        if ExportFormat = ExportFormat::"2022" then
+            CounterpartyInfo := true;
+    end;
+
     trigger OnPostReport()
     begin
         // Write closing record
         Write('9899');
         Write(PADSTR2('', 111, ' ', '<'));
 
-        ExportFile.Close;
-
-        // Remove trailing null
-        ExportFile.Open(ServerTempFileName);
-        ExportFile.Seek(ExportFile.Len - 1);
-        ExportFile.Trunc;
-        ExportFile.Close;
-
-        OnInitializeServerFileName(ServerFileName);
-
-        if ServerFileName = '' then
-            FileMgt.DownloadHandler(ServerTempFileName, '', '', FileMgt.GetToFilterText('', ServerTempFileName), DefaultFilenameTxt)
-        else
-            FileMgt.CopyServerFile(ServerTempFileName, ServerFileName, true);
-        FileMgt.DeleteServerFile(ServerTempFileName);
-    end;
-
-    trigger OnPreReport()
-    begin
-        ServerTempFileName := FileMgt.ServerTempFileName('');
-
-        ExportFile.TextMode := false;
-        ExportFile.WriteMode := true;
-        ExportFile.Create(ServerTempFileName);
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
-
-        if ExportFormatIsSpecified then
-            ExportFormat := SpecifiedExportFormat;
-
-        if ExportFormat = ExportFormat::"2022" then
-            CounterpartyInfo := true;
+        IntrastatFileWriter.AddCurrFileToResultFile();
+        IntrastatFileWriter.CloseAndDownloadResultFile();
     end;
 
     var
@@ -363,27 +322,59 @@
         IntrastatSetup: Record "Intrastat Setup";
 #endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
-        ExportFile: File;
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
         PhoneNo: Text[15];
-        ServerTempFileName: Text;
-        DefaultFilenameTxt: Label 'inthandl.98', Locked = true;
         Text1000008: Label 'must be E or EUR for Euro';
         Text1000007: Label 'must be E or EUR for Euro or G or NLG for Guilders';
         Text1000010: Label 'Batch %1 %2 was exported before.\';
         Text1000011: Label 'Continue?';
         Text1000012: Label 'Export cancelled.';
         Text1000013: Label 'must be filled in according to format YYMM';
-        FileMgt: Codeunit "File Management";
         LineNo: Integer;
         ReportYear: Integer;
         ReportMonth: Integer;
         ZeroReceipt: Boolean;
         ZeroShipment: Boolean;
-        ServerFileName: Text;
         CounterpartyInfo: Boolean;
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
+
+    local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+#if CLEAN19
+        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Create Intrastat Decl. Disk", true);
+#else
+        if IntrastatSetup."Use Advanced Checklist" then
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Create Intrastat Decl. Disk", true)
+        else begin
+            IntrastatJnlLine.TestField("Item No.");
+            IntrastatJnlLine.TestField("Tariff No.");
+            IntrastatJnlLine.TestField("Country/Region Code");
+            IntrastatJnlLine.TestField("Transport Method");
+            IntrastatJnlLine.TestField("Net Weight");
+            IntrastatJnlLine.TestField("Total Weight");
+            if (ExportFormat = ExportFormat::"2022") or IntrastatJnlLine.Counterparty and (IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment) then
+                IntrastatJnlLine.TestField("Transaction Specification")
+            else
+                if ExportFormat = ExportFormat::"2021" then
+                    IntrastatJnlLine.TestField("Transaction Type");
+        end;
+#endif
+    end;
+
+    local procedure SetBatchIsExported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    begin
+        if IntrastatJnlBatch.Reported then begin
+            if not Confirm(StrSubstNo(Text1000010 + Text1000011, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name), false) then
+                Error(Text1000012);
+        end else begin
+            IntrastatJnlBatch."Export Date" := Today;
+            IntrastatJnlBatch."Export Time" := Time;
+            IntrastatJnlBatch.Reported := true;
+            IntrastatJnlBatch.Modify;
+        end;
+    end;
 
     local procedure RegNoCBS(): Text[10]
     begin
@@ -441,9 +432,7 @@
 
     local procedure Write(Line: Text[1024])
     begin
-        // Writes lines and removes trailing null
-        ExportFile.Write(CopyStr(Line, 1, StrLen(Line)));
-        ExportFile.Seek(ExportFile.Pos - 1);
+        IntrastatFileWriter.Write(Line);
     end;
 
     local procedure Sign(Number: Decimal; IsCorrection: Boolean): Text[1]
@@ -454,12 +443,6 @@
         if (Number < 0) or (Number = 0) and IsCorrection then
             exit('-');
         exit('+');
-    end;
-
-    local procedure CrLf() CrLf: Text[2]
-    begin
-        CrLf[1] := 13;
-        CrLf[2] := 10;
     end;
 
     local procedure CheckCorrection(IntrastatJnlLine: Record 263): Boolean
@@ -473,23 +456,34 @@
         exit(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectionType));
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
-    procedure InitializeRequest(NewServerFileName: Text)
+    procedure InitializeRequest(newServerFileName: Text)
     begin
-        ServerFileName := NewServerFileName;
+        IntrastatFileWriter.SetServerFileName(newServerFileName);
     end;
 
-    procedure InitializeRequestWithExportFormat(NewServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
+    procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
     begin
-        ServerFileName := NewServerFileName;
+        IntrastatFileWriter.SetServerFileName(newServerFileName);
+        SpecifiedExportFormat := NewExportFormat;
+        ExportFormatIsSpecified := true;
+    end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format")
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
         SpecifiedExportFormat := NewExportFormat;
         ExportFormatIsSpecified := true;
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnInitializeServerFileName(var Filename: Text)
     begin
     end;
+#endif
 }
 

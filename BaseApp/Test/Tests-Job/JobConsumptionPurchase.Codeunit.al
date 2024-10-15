@@ -2861,6 +2861,68 @@ codeunit 136302 "Job Consumption Purchase"
         VerifyTwoJobLedgerEntriesLinkedToDiffGLEntriesByDims(JobTask, DocumentNo, GLAccountNo);
     end;
 
+    [Test]
+    procedure PurchCreditMemoWithJobViaGetReturnShipmentLine()
+    var
+        JobTask: Record "Job Task";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderReturn: Record "Purchase Header";
+        PurchaseLineReturn: Record "Purchase Line";
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReturnShipmentNo: Code[20];
+        Qty: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Credit Memo] [Get Return Shipment Lines]
+        // [SCENARIO 419395] Correct value entries on posting purchase credit memo with job created using "Get Return Shipment Lines".
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Item, job with job task.
+        LibraryInventory.CreateItem(Item);
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Purchase order with the job, quantity = 1, unit cost = 10.
+        // [GIVEN] Post the order as Receive and Invoice.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderOrder, PurchaseLineOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.",
+          Item."No.", Qty, '', WorkDate());
+        PurchaseLineOrder.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLineOrder.Modify(true);
+        AttachJobToPurchaseDocument(JobTask, PurchaseHeaderOrder, 0);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [GIVEN] Purchase return order with the job, quantity = 1.
+        // [GIVEN] Post the return order as Ship.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderReturn, PurchaseLineReturn, PurchaseHeaderReturn."Document Type"::"Return Order", Vendor."No.",
+          Item."No.", Qty, '', WorkDate());
+        AttachJobToPurchaseDocument(JobTask, PurchaseHeaderReturn, 0);
+        ReturnShipmentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderReturn, true, false);
+
+        // [GIVEN] Create purchase credit memo with the job using "Get Return Shipment Lines".
+        CreatePurchaseCreditMemoViaGetReturnShipmentLines(PurchaseHeaderCrMemo, PurchaseHeaderReturn);
+
+        // [WHEN] Post the purchase credit memo.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCrMemo, true, true);
+
+        // [THEN] Two item entries for the return shipment are created:
+        // [THEN] An entry of "Purchase" type, Quantity = -1, Invoiced Quantity = -1, "Cost Amount (Actual)" = -10.
+        // [THEN] An entry of "Negative Adjmt." type, Quantity = 1, Invoiced Quantity = 1, "Cost Amount (Actual)" = 10.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::Purchase, Item."No.", ItemLedgerEntry."Document Type"::"Purchase Return Shipment",
+          ReturnShipmentNo, JobTask."Job No.", -Qty, -Qty, Round(-Qty * UnitCost, LibraryERM.GetAmountRoundingPrecision()), 0);
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::"Negative Adjmt.", Item."No.", ItemLedgerEntry."Document Type"::"Purchase Return Shipment",
+          ReturnShipmentNo, JobTask."Job No.", Qty, Qty, Round(Qty * UnitCost, LibraryERM.GetAmountRoundingPrecision()), 0);
+    end;
+
     local procedure Initialize()
     var
         PurchasePrice: Record "Purchase Price";
@@ -3692,6 +3754,18 @@ codeunit 136302 "Job Consumption Purchase"
         end;
     end;
 
+    local procedure CreatePurchaseCreditMemoViaGetReturnShipmentLines(var PurchaseHeaderCrMemo: Record "Purchase Header"; PurchaseHeaderReturn: Record "Purchase Header")
+    var
+        ReturnShipmentLine: Record "Return Shipment Line";
+        PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderCrMemo, PurchaseHeaderCrMemo."Document Type"::"Credit Memo", PurchaseHeaderReturn."Buy-from Vendor No.");
+        ReturnShipmentLine.SetRange("Return Order No.", PurchaseHeaderReturn."No.");
+        PurchGetReturnShipments.SetPurchHeader(PurchaseHeaderCrMemo);
+        PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
+    end;
+
     local procedure SetupGLAccount(VATPostingSetup: Record "VAT Posting Setup"; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]): Code[20]
     var
         GLAccount: Record "G/L Account";
@@ -4282,7 +4356,7 @@ codeunit 136302 "Job Consumption Purchase"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
