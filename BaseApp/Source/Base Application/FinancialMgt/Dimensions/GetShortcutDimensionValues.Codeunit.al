@@ -28,9 +28,18 @@ codeunit 480 "Get Shortcut Dimension Values"
     end;
 
     local procedure GetDimSetEntry(DimSetID: Integer; DimCode: Code[20]): Code[20]
+    var
+        DimensionValue: Record "Dimension Value";
     begin
-        if TempDimSetEntry.Get(DimSetID, DimCode) then
+        if TempDimSetEntry.Get(DimSetID, DimCode) then begin
+            DimensionValue.SetRange("Dimension Code", TempDimSetEntry."Dimension Code");
+            DimensionValue.SetRange("Dimension Value ID", TempDimSetEntry."Dimension Value ID");
+            if DimensionValue.FindFirst() then
+                if DimensionValue.Code <> TempDimSetEntry."Dimension Value Code" then
+                    exit(DimensionValue.Code);
             exit(TempDimSetEntry."Dimension Value Code");
+        end;
+
         TempDimSetEntry.Init();
         if DimensionSetEntry.Get(DimSetID, DimCode) then
             TempDimSetEntry := DimensionSetEntry
