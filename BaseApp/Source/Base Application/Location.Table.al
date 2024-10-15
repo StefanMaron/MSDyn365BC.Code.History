@@ -848,11 +848,12 @@ table 14 Location
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnlineMapSetup: Record "Online Map Setup";
+        OnLineMapMgt: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::Location, GetPosition)
+        OnlineMapSetup.SetRange(Enabled, true);
+        if OnlineMapSetup.FindFirst then
+            OnLineMapMgt.MakeSelection(DATABASE::Location, GetPosition)
         else
             Message(Text012);
     end;

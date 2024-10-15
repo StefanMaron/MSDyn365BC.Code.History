@@ -1,5 +1,6 @@
 page 367 "Post Codes"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Post Codes';
     PageType = List;
     PopulateAllFields = true;

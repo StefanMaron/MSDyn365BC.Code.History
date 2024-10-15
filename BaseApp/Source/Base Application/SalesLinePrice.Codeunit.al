@@ -178,8 +178,6 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         AddActivatedCampaignsAsSource();
         PriceSourceList.Add(SourceType::"Customer Price Group", SalesLine."Customer Price Group");
         PriceSourceList.Add(SourceType::"Customer Disc. Group", SalesLine."Customer Disc. Group");
-        if SalesLine.Type = SalesLine.Type::Resource then
-            PriceSourceList.Add(SourceType::"All Jobs");
 
         OnAfterAddSources(SalesHeader, SalesLine, CurrPriceType, PriceSourceList);
     end;
@@ -201,7 +199,14 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(SalesLine, PriceListLine, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         case AmountType of
             AmountType::Price:
                 case CurrPriceType of
@@ -246,6 +251,8 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     begin
         if not SalesLine."Allow Line Disc." then
             SalesLine."Line Discount %" := 0;
+
+        OnAfterUpdate(SalesLine, CurrPriceType, AmountType);
     end;
 
     procedure AddActivatedCampaignsAsSource()
@@ -319,6 +326,16 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdate(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 

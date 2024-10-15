@@ -344,8 +344,8 @@ report 7050 "Item Price List"
                     field(SourceType; SalesSourceType)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to Type';
-                        ToolTip = 'Specifies the price source type for which the price list should be valid.';
+                        Caption = 'Assign-to Type';
+                        ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                         trigger OnValidate()
                         begin
@@ -357,9 +357,9 @@ report 7050 "Item Price List"
                     field(SourceNoCtrl; SalesSourceNo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to No.';
+                        Caption = 'Assign-to';
                         Enabled = SourceNoCtrlEnable;
-                        ToolTip = 'Specifies code for the price source type for which the price list should be valid.';
+                        ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
 
                         trigger OnLookup(var Text: Text) Result: Boolean
                         begin
@@ -482,7 +482,7 @@ report 7050 "Item Price List"
         ExclTok: Label 'Excl.';
         PageTok: Label 'Page %1', Comment = '%1 - a page number';
         AsOfTok: Label 'As of %1', Comment = '%1 - a date';
-        MissSourceNoErr: Label 'You must specify an Applies-to No., if the Applies-to Type is different from All Customers.';
+        MissSourceNoErr: Label 'You must specify an Assign-to, if the Assign-to Type is different from All Customers.';
         PriceListCaptionLbl: Label 'Price List';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';

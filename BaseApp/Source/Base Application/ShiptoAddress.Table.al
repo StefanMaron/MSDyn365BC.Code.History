@@ -256,11 +256,12 @@ table 222 "Ship-to Address"
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnlineMapSetup: Record "Online Map Setup";
+        OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::"Ship-to Address", GetPosition)
+        OnlineMapSetup.SetRange(Enabled, true);
+        if OnlineMapSetup.FindFirst then
+            OnlineMapManagement.MakeSelection(DATABASE::"Ship-to Address", GetPosition)
         else
             Message(Text001);
     end;

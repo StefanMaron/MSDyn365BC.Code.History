@@ -54,6 +54,7 @@ table 7200 "CDS Connection Setup"
             trigger OnValidate()
             var
                 CRMConnectionSetup: Record "CRM Connection Setup";
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
             begin
                 if not "Is Enabled" then begin
                     if CRMConnectionSetup.Get() then
@@ -76,6 +77,8 @@ table 7200 "CDS Connection Setup"
 
                 if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
                     Error(GetLastErrorText());
+                if rec."Is Enabled" and (CurrFieldNo <> 0) then
+                    Rec."Is Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
             end;
         }
         field(76; "Proxy Version"; Integer)
