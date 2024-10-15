@@ -221,24 +221,6 @@
       <Cmt Name="Dev"><![CDATA[Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3339774646 - NamedType 428686196" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[bcbi_CdsBaseIntegration]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CDS Integration Mgt Test - NamedType BaseSolutionUniqueNameTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3339774646 - NamedType 2334008777" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The coupling Common Data Service Business Unit is coupled to another BC Company.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Integration Mgt Test - NamedType BusinessUnitAlreadyCoupledErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3339774646 - NamedType 2732383653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A URL is required.]]></Val>
@@ -284,13 +266,40 @@
       <Cmt Name="Dev"><![CDATA[%1 = system user ID]D;]A;(LookupHint=Codeunit CDS Integration Mgt Test - NamedType UserNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3339774646 - NamedType 85946767" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2848412310 - NamedType 2697970647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[@@test@@]]></Val>
+      <Val><![CDATA[You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CDS Integration Mgt Test - NamedType TestServerAddressTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Uncoupling - NamedType ConfirmUncouplingInBackgroundTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2848412310 - NamedType 9507428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Uncoupling - NamedType ConfirmUncouplingInForegroundTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2848412310 - NamedType 3221645017" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Uncoupling is scheduled for %1 mappings. \Details are available on the Integration Synchronization Jobs page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = mapping name]D;]A;(LookupHint=Codeunit CDS Uncoupling - NamedType UncouplingScheduledTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2848412310 - NamedType 1052387165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Uncoupling completed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Uncoupling - NamedType UncouplingCompletedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 413540548 - NamedType 2529022886" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -381,15 +390,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Connection String - NamedType IsNotFoundOnThePageErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2039337448 - NamedType 3229554779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[https://test.crm.dynamics.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CRM Connection Wizard Tests - NamedType InitialCRMUrlTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2039337448 - NamedType 3451898239" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -653,22 +653,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Entity Synch Test - NamedType MultipleSyncStartedMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 120317554 - NamedType 1710659778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Sales Price record cannot be updated because it is coupled to a deleted record.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Entity Synch Test - NamedType SalesPriceCoupledToDeletedRecErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 120317554 - NamedType 521144296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Item No. %1 must be coupled to a record in %2.]]></Val>
+      <Val><![CDATA[%1 %2 must be coupled to a record in %3.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Entity Synch Test - NamedType ItemMustBeCoupledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 120317554 - NamedType 2729490826" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Price List Code %1 must be coupled to a record in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Entity Synch Test - NamedType PriceListMustBeCoupledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 120317554 - NamedType 1765044440" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -860,13 +860,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType FieldMustHaveAValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 669819362 - NamedType 1262972912" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 669819362 - NamedType 3853844891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Couldn't find a note for sales quote %1 with note text %2.]]></Val>
+      <Val><![CDATA[%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType SalesQuotenoteNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - CDS service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 669819362 - NamedType 1841495612" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -984,24 +984,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType IsCRMSolutionInstalledYesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3728609003 - NamedType 935255556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Couldn't find a note for sales order %1 with note text %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType SalesOrdernoteNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3728609003 - NamedType 405278192" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Couldn't find a note for CRM sales order %1 with note text %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType CRMSalesOrdernoteNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3728609003 - NamedType 459890777" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

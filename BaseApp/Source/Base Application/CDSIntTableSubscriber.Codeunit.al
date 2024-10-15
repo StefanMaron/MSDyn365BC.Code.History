@@ -193,6 +193,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         EmptyGuid: Guid;
         TableValue: Text;
         SourceValue: Text;
+        CoupledSalespersonPurchaserCode: Code[20];
     begin
         if IsValueFound then
             exit;
@@ -215,6 +216,32 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                     begin
                         // in case of field mapping to OwnerId, if ownership model is Person, we should find the user mapped to the Salesperson/Purchaser
                         NewValue := GetCoupledCDSUserId(SourceFieldRef.Record());
+                        IsValueFound := true;
+                        NeedsConversion := false;
+                        exit;
+                    end;
+            end;
+        end;
+
+        if SourceFieldRef.Name() = 'OwnerId' then begin
+            CDSConnectionSetup.Get();
+            case CDSConnectionSetup."Ownership Model" of
+                CDSConnectionSetup."Ownership Model"::Team:
+                    begin
+                        // in case of field mapping to OwnerId, if ownership model is Team, we don't change the value of Salesperson code
+                        NewValue := DestinationFieldRef.Value();
+                        IsValueFound := true;
+                        NeedsConversion := false;
+                        exit;
+                    end;
+                CDSConnectionSetup."Ownership Model"::Person:
+                    begin
+                        // in case of field mapping to OwnerId, if ownership model is Person, we should find the SalesPerson/Purchaser mapped to the user
+                        CoupledSalespersonPurchaserCode := GetCoupledSalespersonPurchaserCode(SourceFieldRef.Record());
+                        if CoupledSalespersonPurchaserCode <> '' then
+                            NewValue := CoupledSalespersonPurchaserCode
+                        else
+                            NewValue := DestinationFieldRef.Value();
                         IsValueFound := true;
                         NeedsConversion := false;
                         exit;
@@ -301,10 +328,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             'Customer-CRM Account',
             'Contact-CRM Contact',
             'Vendor-CRM Account':
-                begin
-                    SetCompanyId(DestinationRecordRef);
-                    SetOwnerId(SourceRecordRef, DestinationRecordRef);
-                end;
+                SetCompanyId(DestinationRecordRef);
         end;
     end;
 
@@ -344,9 +368,6 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             exit;
 
         if IntegrationRecordRef.IsEmpty() then
-            exit;
-
-        if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
         CDSIntegrationMgt.ResetCompanyId(IntegrationRecordRef);
@@ -851,6 +872,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     [Scope('OnPrem')]
     procedure SetCompanyId(DestinationRecordRef: RecordRef)
     begin
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(DestinationRecordRef) then
+            exit;
+
         CDSIntegrationMgt.SetCompanyId(DestinationRecordRef);
     end;
 
@@ -908,6 +932,43 @@ codeunit 7205 "CDS Int. Table. Subscriber"
               IntegrationTableMapping.GetExtendedIntegrationTableCaption());
 
         exit(CDSUserId);
+    end;
+
+    local procedure GetCoupledSalespersonPurchaserCode(SourceRecordRef: RecordRef): Code[20]
+    var
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        CRMSystemuser: Record "CRM Systemuser";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        SalesPersonPurchaser: Record "Salesperson/Purchaser";
+        CDSUserId: Guid;
+    begin
+        case SourceRecordRef.Number() of
+            Database::"CRM Account":
+                begin
+                    SourceRecordRef.SetTable(CRMAccount);
+                    if CRMAccount.OwnerIdType <> CRMAccount.OwnerIdType::systemuser then
+                        exit('');
+                    CDSUserId := CRMAccount.OwnerId;
+                end;
+            Database::"CRM Contact":
+                begin
+                    SourceRecordRef.SetTable(CRMContact);
+                    if CRMContact.OwnerIdType <> CRMContact.OwnerIdType::systemuser then
+                        exit('');
+                    CDSUserId := CRMContact.OwnerId;
+                end;
+            else
+                exit('');
+        end;
+
+        if not CRMIntegrationRecord.FindByCRMID(CDSUserId) then
+            Error(RecordMustBeCoupledExtErr, CRMSystemuser.TableCaption(), CDSUserId, SalesPersonPurchaser.TableCaption());
+
+        if not SalesPersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+            exit('');
+
+        exit(SalesPersonPurchaser.Code);
     end;
 
     local procedure GetSourceDestCode(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Text

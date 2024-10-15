@@ -142,9 +142,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     begin
         Customer.SetRange("Partner Type", Customer."Partner Type"::Person);
         Customer.SetFilter("Country/Region Code", RegionFilter);
-        if Customer.FindFirst then
-            exit(true);
-        exit(false);
+        exit(not Customer.IsEmpty());
     end;
 
     local procedure CompanyHasContactsInRegion(RegionFilter: Text): Boolean

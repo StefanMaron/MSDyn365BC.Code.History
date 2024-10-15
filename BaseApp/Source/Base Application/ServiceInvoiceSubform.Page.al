@@ -347,6 +347,7 @@ page 5934 "Service Invoice Subform"
                 }
                 action(GetLineDiscount)
                 {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
                     ApplicationArea = Service;
                     Caption = 'Get Li&ne Discount';
                     Ellipsis = true;

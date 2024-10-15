@@ -37,6 +37,8 @@ codeunit 137163 "SCM Orders VI"
         ReserveItemsManuallyConfirmQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
         UndoReceiptMsg: Label 'Do you really want to undo the selected Receipt lines?';
         UndoReturnShipmentMsg: Label 'Do you really want to undo the selected Return Shipment lines?';
+        UndoShipmentQst: Label 'Do you really want to undo the selected Shipment lines?';
+        UndoServiceShipmentQst: Label 'Do you want to undo the selected shipment line(s)?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
         CannotUndoReservedQuantityErr: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry';
         BlockedItemErrorMsg: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''', Comment = '%1 = Item No';
@@ -2135,6 +2137,287 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Qty. to Receive", PurchaseLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure WhseRequestIncompleteOnUndoPurchaseLine()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        ReceiptNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Order] [Undo Receipt] [Warehouse Request]
+        // [SCENARIO 373082] Stan can create warehouse receipt from purchase order for which a purchase receipt has been undone.
+        Initialize(false);
+
+        // [GIVEN] Location "L" with required receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase order on location "L".
+        // [GIVEN] Post receipt.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10),
+          Location.Code, WorkDate());
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+        ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Undo the purchase receipt line.
+        UndoPurchaseReceiptLine(ReceiptNo);
+
+        // [WHEN] Create warehouse receipt from the purchase order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] A warehouse receipt has been created.
+        FindWarehouseReceiptLine(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure WhseRequestIncompleteOnUndoSalesLine()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Undo Receipt] [Warehouse Request]
+        // [SCENARIO 373082] Stan can create warehouse shipment from sales order for which a sales shipment has been undone.
+        Initialize(false);
+
+        // [GIVEN] Location "L" with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Sales order on location "L".
+        // [GIVEN] Post shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10),
+          Location.Code, WorkDate());
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.Modify(true);
+        ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Undo the sales shipment line.
+        UndoSalesShipmentLine(ShipmentNo);
+
+        // [WHEN] Create warehouse shipment from the sales order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] A warehouse shipment has been created.
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure WhseRequestIncompleteOnUndoServiceLine()
+    var
+        Location: Record Location;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        // [FEATURE] [Service] [Order] [Undo Shipment] [Warehouse Request]
+        // [SCENARIO 373082] Stan can create warehouse shipment from service order for which a service shipment has been undone.
+        Initialize(false);
+
+        // [GIVEN] Location "L" with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        // [GIVEN] Service order with service line on location "L".
+        LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+        ServiceLine.Validate("Location Code", Location.Code);
+        ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity);
+        ServiceLine.Modify(true);
+
+        // [GIVEN] Post shipment.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Undo the service shipment line.
+        ServiceHeader.Find();
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+        UndoServiceShipmentLine(ServiceHeader."No.");
+
+        // [WHEN] Create warehouse shipment from the service order.
+        LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
+
+        // [THEN] A warehouse shipment has been created.
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Service Order", ServiceHeader."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsTrueOnRecreateSalesLinesWhenItemDropShipmentTrue()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = true.
+        Initialize(false);
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is true and it is taken from item's Purchasing Code "P".
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsFalseOnRecreateSalesLinesWhenItemDropShipmentTrue()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = true.
+        Initialize(false);
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is manually set to false.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        UpdateDropShipmentOnSalesLine(SalesLine, false);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = false for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsTrueOnRecreateSalesLinesWhenItemDropShipmentFalse()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = false.
+        Initialize(false);
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is manually set to true.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(false, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        UpdateDropShipmentOnSalesLine(SalesLine, true);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsFalseOnRecreateSalesLinesWhenItemDropShipmentFalse()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = false.
+        Initialize(false);
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is false and it is taken from item's Purchasing Code "P".
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(false, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        SalesLine.TestField("Drop Shipment", false);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = false for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShptOnRecreateSalesLinesWhenItemDropShptTrueAndPurchaseOrderLinked()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Sales Order has linked Purchase Order for drop shipment.
+        Initialize(false);
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Purchase Order that is prepared for drop shipment, it is linked to Sales Order.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        CreatePurchOrderWithSelltoCustomerNo(PurchaseHeader, LibraryPurchase.CreateVendorNo(), SalesHeader."Sell-to Customer No.");
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+        Commit();
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        asserterror SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Sales Line is not recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line.
+        Assert.ExpectedError('You cannot delete the order line because it is associated with purchase order');
+        Assert.ExpectedErrorCode('Dialog');
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -3385,6 +3668,23 @@ codeunit 137163 "SCM Orders VI"
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(CannotUndoAppliedQuantityErr, Quantity)) > 0, GetLastErrorText);
     end;
 
+    local procedure UndoSalesShipmentLine(DocumentNo: Code[20])
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        LibraryVariableStorage.Enqueue(UndoShipmentQst);
+        LibraryVariableStorage.Enqueue(true);
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
+    local procedure UndoServiceShipmentLine(DocumentNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(UndoServiceShipmentQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryService.UndoShipmentLinesByServiceOrderNo(DocumentNo);
+    end;
+
     local procedure UpdateAndPostPurchaseOrder(ItemNo: Code[20]; QuantityToReceive: Decimal) PurchaseHeaderNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3514,6 +3814,18 @@ codeunit 137163 "SCM Orders VI"
         ItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemReference.Description)));
         ItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemReference."Description 2")));
         ItemReference.Modify(true);
+    end;
+
+    local procedure UpdatePurchasingCodeOnItem(var Item: Record Item; PurchasingCode: Code[10])
+    begin
+        Item.Validate("Purchasing Code", PurchasingCode);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateDropShipmentOnSalesLine(var SalesLine: Record "Sales Line"; DropShipment: Boolean)
+    begin
+        SalesLine.Validate("Drop Shipment", DropShipment);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateJobNoAndJobTaskNoOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")

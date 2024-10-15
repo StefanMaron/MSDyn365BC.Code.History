@@ -86,6 +86,8 @@ report 11208 "SIE Import"
             DataItemTableView = SORTING("Entry No.");
 
             trigger OnAfterGetRecord()
+            var
+                GLAccountNo: Code[20];
             begin
                 DialogWindow.Update(2, Round("Entry No." / Count * 10000, 1.0));
 
@@ -96,15 +98,18 @@ report 11208 "SIE Import"
                         CreateGenJnlLine;
                     'KONTO':
                         if InsertNewAccount then begin
-                            GLAccount.Init();
-                            GLAccount.Validate("No.", DelChr("Import Field 2", '=', ' '));
-                            GLAccount.Validate(Name, CopyStr(DelChr("Import Field 3", '=', '"'), 1, 30));
-                            if (CopyStr(GLAccount."No.", 1, 1) = '1') or (CopyStr(GLAccount."No.", 1, 1) = '2') then
-                                GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet"
-                            else
-                                GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
-                            GLAccount."Direct Posting" := true;
-                            OK := GLAccount.Insert();
+                            GLAccountNo := CopyStr(DelChr("Import Field 2", '=', ' '), 1, MaxStrLen(GLAccount."No."));
+                            if GLAccountNo <> '' then begin
+                                GLAccount.Init();
+                                GLAccount.Validate("No.", GLAccountNo);
+                                GLAccount.Validate(Name, CopyStr(DelChr("Import Field 3", '=', '"'), 1, 30));
+                                if (CopyStr(GLAccount."No.", 1, 1) = '1') or (CopyStr(GLAccount."No.", 1, 1) = '2') then
+                                    GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet"
+                                else
+                                    GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
+                                GLAccount."Direct Posting" := true;
+                                OK := GLAccount.Insert();
+                            end;
                         end;
                     'VER':
                         begin

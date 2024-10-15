@@ -211,7 +211,7 @@ codeunit 134118 "Price List Header UT"
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"All Customers", '');
         Commit();
-        // [GIVEN] Open Price List Header page and set "Source Type" aas 'Customer'
+        // [GIVEN] Open Price List Header page and set "Source Type" as 'Customer'
         MockPriceListHeader.Trap();
         PriceListHeader.SetRecFilter();
         Page.Run(Page::"Mock Price List Header", PriceListHeader);
@@ -221,12 +221,11 @@ codeunit 134118 "Price List Header UT"
         SourceNo := LibrarySales.CreateCustomerNo();
         LibraryVariableStorage.Enqueue(SourceNo); // CustomerNo to LookupCustomerModalHandler
         MockPriceListHeader."Source No.".Lookup();
+        MockPriceListHeader.Close();
 
         // [THEN] Header, where "Source Type" is Customer, "Source No." is 'X'
         PriceListHeader.Find();
-        // Fails in AL test but OK in manual test
-        asserterror PriceListHeader.TestField("Source No.", SourceNo);
-        Assert.KnownFailure('Applies-to No. must be equal to', 352195);
+        PriceListHeader.TestField("Source No.", SourceNo);
     end;
 
     [Test]

@@ -1,4 +1,4 @@
-report 790 "Calculate Inventory"
+﻿report 790 "Calculate Inventory"
 {
     Caption = 'Calculate Inventory';
     ProcessingOnly = true;
@@ -488,6 +488,7 @@ report 790 "Calculate Inventory"
                         EntryType::"Negative Adjmt.":
                             WhseEntry2.SetRange("Entry Type", WhseEntry2."Entry Type"::"Positive Adjmt.");
                     end;
+                    OnReserveWarehouseOnAfterWhseEntry2SetFilters(ItemJnlLine, WhseEntry, WhseEntry2, EntryType);
                     WhseEntry2.CalcSums("Qty. (Base)");
                     if Abs(WhseEntry2."Qty. (Base)") > Abs(WhseEntry."Qty. (Base)") then
                         WhseEntry."Qty. (Base)" := 0
@@ -894,6 +895,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveBufferOnBeforeFind(var InventoryBuffer: Record "Inventory Buffer"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReserveWarehouseOnAfterWhseEntry2SetFilters(var ItemJnlLine: Record "Item Journal Line"; var WhseEntry: Record "Warehouse Entry"; var WhseEntry2: Record "Warehouse Entry"; EntryType: Option)
     begin
     end;
 }
