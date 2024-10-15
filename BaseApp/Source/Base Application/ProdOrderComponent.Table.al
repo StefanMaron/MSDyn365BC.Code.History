@@ -1022,6 +1022,7 @@ table 5407 "Prod. Order Component"
         CostCalcMgt: Codeunit "Cost Calculation Management";
         OutputQtyBase: Decimal;
         CompQtyBase: Decimal;
+        NeededQty: Decimal;
         RoundingPrecision: Decimal;
         IsHandled: Boolean;
     begin
@@ -1064,16 +1065,15 @@ table 5407 "Prod. Order Component"
             CompQtyBase := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
             OnGetNeededQtyAfterCalcCompQtyBase(Rec, CompQtyBase, OutputQtyBase);
 
+            NeededQty := UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", RoundingPrecision);
             if IncludePreviousPosting then begin
                 if Status in [Status::Released, Status::Finished] then
                     CalcFields("Act. Consumption (Qty)");
                 OnGetNeededQtyAfterCalcActConsumptionQty(Rec);
-                exit(
-                  UOMMgt.RoundToItemRndPrecision(
-                    (CompQtyBase - "Act. Consumption (Qty)") / "Qty. per Unit of Measure",
-                    RoundingPrecision));
+                exit(NeededQty -
+                  UOMMgt.RoundToItemRndPrecision("Act. Consumption (Qty)" / "Qty. per Unit of Measure", RoundingPrecision));
             end;
-            exit(UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", RoundingPrecision));
+            exit(NeededQty);
         end;
         OnGetNeededQtyOnAfterCalcBasedOn(Rec);
         exit(Round("Remaining Quantity", RoundingPrecision));
@@ -1768,11 +1768,11 @@ table 5407 "Prod. Order Component"
             "Calculation Formula"::Weight:
                 CalculatedQuantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
             else begin
-                    OldQuantity := Quantity;
-                    OnValidateCalculationFormulaEnumExtension(Rec);
-                    CalculatedQuantity := Quantity;
-                    Quantity := OldQuantity;
-                end;
+                OldQuantity := Quantity;
+                OnValidateCalculationFormulaEnumExtension(Rec);
+                CalculatedQuantity := Quantity;
+                Quantity := OldQuantity;
+            end;
         end;
     end;
     

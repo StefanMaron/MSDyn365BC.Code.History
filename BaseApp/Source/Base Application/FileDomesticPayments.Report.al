@@ -442,6 +442,9 @@ report 2000001 "File Domestic Payments"
 
             FullFileName := FileName;
         end;
+
+        if FullFileName = '' then
+            FullFileName := DomesticPaymentsFileNameTxt;
     end;
 
     var
@@ -449,6 +452,7 @@ report 2000001 "File Domestic Payments"
         Text006: Label 'You must enter a file name.';
         Text011: Label 'Journal %1 is not a general journal.';
         Text014: Label 'The combination of invoices and credit memos for %1 %2 has caused an attempt to write a negative amount to the payment file. The format of the file does not allow this.', Comment = 'Parameter 1 - account type (,Customer,Vendor), 2 - account number.';
+        DomesticPaymentsFileNameTxt: Label 'DomesticPayments.txt';
         CompanyInfo: Record "Company Information";
         EBSetup: Record "Electronic Banking Setup";
         Cust: Record Customer;

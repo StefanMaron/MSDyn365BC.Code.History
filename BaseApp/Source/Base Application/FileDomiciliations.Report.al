@@ -477,6 +477,9 @@ report 2000021 "File Domiciliations"
                 Error(Text006);
             FullFileName := FileName;
         end;
+
+        if FullFileName = '' then
+            FullFileName := DomiciliationsPaymentsTxt;
     end;
 
     var
@@ -492,6 +495,7 @@ report 2000021 "File Domiciliations"
         Text009: Label 'There are no domiciliation records.';
         Text010: Label 'There are domiciliation lines with different posting dates.';
         Text011: Label 'EUR';
+        DomiciliationsPaymentsTxt: Label 'DomiciliationsPayments.txt';
 #if not CLEAN17
         Text012: Label 'Export to text file';
 #endif
