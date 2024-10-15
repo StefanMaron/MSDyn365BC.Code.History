@@ -462,6 +462,7 @@ codeunit 18390 "GST Transfer Order Receipt"
         TaxTransactionValue: Record "Tax Transaction value")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        GSTBaseValidation: Codeunit "GST Base Validation";
         DocumentType: Enum "Document Type Enum";
         TransactionType: Enum "Transaction Type Enum";
         Sign: Integer;
@@ -488,10 +489,6 @@ codeunit 18390 "GST Transfer Order Receipt"
         DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := Sign * TaxTransactionValue.Amount;
         DetailedGSTEntryBuffer."GST Base Amount" := Sign * TransferLine.Amount;
         DetailedGSTEntryBuffer."GST %" := TaxTransactionValue.Percent;
-        DetailedGSTEntryBuffer."GST Rounding Precision" := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
-        DetailedGSTEntryBuffer."GST Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GeneralLedgerSetup."Inv. Rounding Type (LCY)");
-        DetailedGSTEntryBuffer."GST Inv. Rounding Precision" := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
-        DetailedGSTEntryBuffer."GST Inv. Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GeneralLedgerSetup."Inv. Rounding Type (LCY)");
         DetailedGSTEntryBuffer."Currency Factor" := 1;
         DetailedGSTEntryBuffer."GST Amount" := Sign * TaxTransactionValue.Amount;
         DetailedGSTEntryBuffer."Custom Duty Amount" := TransferLine."Custom Duty Amount";
@@ -504,6 +501,7 @@ codeunit 18390 "GST Transfer Order Receipt"
 
         DetailedGSTEntryBuffer."GST Component Code" := GetGSTComponent(TaxTransactionValue."Value ID");
         DetailedGSTEntryBuffer."GST Group Code" := TransferLine."GST Group Code";
+        GSTBaseValidation.GetTaxComponentRoundingPrecision(DetailedGSTEntryBuffer, TaxTransactionValue);
         DetailedGSTEntryBuffer.Insert(true);
     end;
 
@@ -573,7 +571,7 @@ codeunit 18390 "GST Transfer Order Receipt"
                     TotalGSTAmount += DetailedGSTEntryBuffer."Amount Loaded on Item" * QtyFactor;
 
                 if CurrencyCode = '' then
-                    TotalGSTAmount := GSTBaseValidation.RoundGSTPrecision(TotalGSTAmount);
+                    TotalGSTAmount := GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent(DetailedGSTEntryBuffer."GST Component Code", TotalGSTAmount);
 
             until DetailedGSTEntryBuffer.Next() = 0;
 
@@ -620,14 +618,15 @@ codeunit 18390 "GST Transfer Order Receipt"
                     QFactor := Abs(TransferLine."Qty. to Receive" / TransferLine.Quantity);
 
                 if BondedLocation."Bonded warehouse" then
-                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecision
-                                                                    (QFactor *
-                                                                    (DetailedGSTEntryBuffer."GST Assessable Value"
-                                                                    +
-                                                                    DetailedGSTEntryBuffer."Custom Duty Amount"))
+                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent
+                                                                    (DetailedGSTEntryBuffer."GST Component Code",
+                                                                    (QFactor * (DetailedGSTEntryBuffer."GST Assessable Value" +
+                                                                    DetailedGSTEntryBuffer."Custom Duty Amount")))
                 else
-                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Base Amount");
-                TempGSTPostingBufferStage."GST Amount" := -GSTBaseValidation.RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Amount");
+                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent
+                                                                    (DetailedGSTEntryBuffer."GST Component Code",
+                                                                    (QFactor * DetailedGSTEntryBuffer."GST Base Amount"));
+                TempGSTPostingBufferStage."GST Amount" := -GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent(DetailedGSTEntryBuffer."GST Component Code", (QFactor * DetailedGSTEntryBuffer."GST Amount"));
                 TempGSTPostingBufferStage."GST %" := DetailedGSTEntryBuffer."GST %";
                 TempGSTPostingBufferStage."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
                 TempGSTPostingBufferStage."Custom Duty Amount" := DetailedGSTEntryBuffer."Custom Duty Amount";
@@ -857,12 +856,12 @@ codeunit 18390 "GST Transfer Order Receipt"
 
                 if CurrencyCode = '' then
                     if GSTInvoiceRouding then
-                        TotalGSTAmount := GSTBaseValidation.RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code")
+                        TotalGSTAmount := GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent(DetailedGSTEntryBuffer."GST Component Code", TotalGSTAmount)
                     else
-                        TotalGSTAmount := GSTBaseValidation.RoundGSTPrecision(TotalGSTAmount);
+                        TotalGSTAmount := GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent(DetailedGSTEntryBuffer."GST Component Code", TotalGSTAmount);
 
                 if (CurrencyCode <> '') and GSTInvoiceRouding then
-                    TotalGSTAmount := GSTBaseValidation.RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code");
+                    TotalGSTAmount := GSTBaseValidation.RoundGSTPrecisionThroughTaxComponent(DetailedGSTEntryBuffer."GST Component Code", TotalGSTAmount);
 
             until DetailedGSTEntryBuffer.Next() = 0;
 

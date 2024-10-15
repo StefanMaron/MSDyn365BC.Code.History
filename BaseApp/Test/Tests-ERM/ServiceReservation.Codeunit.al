@@ -922,6 +922,7 @@ codeunit 136121 "Service Reservation"
         OpenServiceLinesPage(ServiceHeader."No.");
 
         // 2. Exercise: Ship and Consume Service Order.
+        ServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
         ServiceLine.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
@@ -2012,6 +2013,7 @@ codeunit 136121 "Service Reservation"
         ServiceOrder.OpenEdit;
         ServiceOrder.FILTER.SetFilter("No.", No);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.Close();
         Commit();
     end;
 

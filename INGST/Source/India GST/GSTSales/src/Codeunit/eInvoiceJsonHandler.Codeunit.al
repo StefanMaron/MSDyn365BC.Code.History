@@ -25,6 +25,7 @@ codeunit 18147 "e-Invoice Json Handler"
         JsonArrayData: JsonArray;
         JsonText: Text;
         DocumentNo: Text[20];
+        RndOffAmt: Decimal;
         IsInvoice: Boolean;
         eInvoiceNotApplicableCustErr: Label 'E-Invoicing is not applicable for Unregistered Customer.';
         eInvoiceNonGSTTransactionErr: Label 'E-Invoicing is not applicable for Non-GST Transactions.';
@@ -89,9 +90,9 @@ codeunit 18147 "e-Invoice Json Handler"
             exit;
 
         JSONManagement.InitializeObject(JsonString);
-        FieldRef := RecRef.Field(SalesInvoiceHeader.FieldNo("IRN Hash"));
-        TempIRNTxt := FieldRef.Value;
-        if TempIRNTxt = JSONManagement.GetValue(IRNTxt) then begin
+        if JSONManagement.GetValue(IRNTxt) <> '' then begin
+            FieldRef := RecRef.Field(SalesInvoiceHeader.FieldNo("IRN Hash"));
+            FieldRef.Value := JSONManagement.GetValue(IRNTxt);
             FieldRef := RecRef.Field(SalesInvoiceHeader.FieldNo("Acknowledgement No."));
             FieldRef.Value := JSONManagement.GetValue(AcknowledgementNoTxt);
 
@@ -1033,7 +1034,9 @@ codeunit 18147 "e-Invoice Json Handler"
         TotalInvoiceAmount: Decimal)
     var
         JDocTotalDetails: JsonObject;
+        RoundOffAmt: Integer;
     begin
+        RoundOffAmt := 0;
         JDocTotalDetails.Add('Assval', AssessableAmount);
         JDocTotalDetails.Add('CgstVal', CGSTAmount);
         JDocTotalDetails.Add('SgstVAl', SGSTAmount);
@@ -1042,6 +1045,12 @@ codeunit 18147 "e-Invoice Json Handler"
         JDocTotalDetails.Add('CesNonAdVal', CessNonAdvanceVal);
         JDocTotalDetails.Add('Disc', DiscountAmount);
         JDocTotalDetails.Add('OthChrg', OtherCharges);
+
+        if RndOffAmt = 0 then
+            JDocTotalDetails.Add('RndOffAmt', RoundOffAmt)
+        else
+            JDocTotalDetails.Add('RndOffAmt', RndOffAmt);
+
         JDocTotalDetails.Add('TotInvVal', TotalInvoiceAmount);
 
         JObject.Add('ValDtls', JDocTotalDetails);
@@ -1100,18 +1109,21 @@ codeunit 18147 "e-Invoice Json Handler"
                         GstRate := IGSTRate;
 
                     GetGSTValueForLine(SalesInvoiceLine."Line No.", CGSTValue, SGSTValue, IGSTValue);
-                    WriteItem(
-                      Format(Count),
-                      SalesInvoiceLine.Description + SalesInvoiceLine."Description 2",
-                      SalesInvoiceLine."HSN/SAC Code",
-                      GstRate, SalesInvoiceLine.Quantity,
-                      CopyStr(SalesInvoiceLine."Unit of Measure Code", 1, 3),
-                      SalesInvoiceLine."Unit Price",
-                      SalesInvoiceLine."Line Amount" + SalesInvoiceLine."Line Discount Amount",
-                      SalesInvoiceLine."Line Discount Amount", 0,
-                      AssessableAmount, CGSTValue, SGSTValue, IGSTValue, CessRate, CesNonAdval,
-                      AssessableAmount + CGSTValue + SGSTValue + IGSTValue,
-                      IsServc);
+                    if SalesInvoiceLine."No." <> GetInvoiceRoundingAccountForInvoice() then
+                        WriteItem(
+                          Format(Count),
+                          SalesInvoiceLine.Description + SalesInvoiceLine."Description 2",
+                          SalesInvoiceLine."HSN/SAC Code",
+                          GstRate, SalesInvoiceLine.Quantity,
+                          CopyStr(SalesInvoiceLine."Unit of Measure Code", 1, 3),
+                          SalesInvoiceLine."Unit Price",
+                          SalesInvoiceLine."Line Amount" + SalesInvoiceLine."Line Discount Amount",
+                          SalesInvoiceLine."Line Discount Amount", 0,
+                          AssessableAmount, CGSTValue, SGSTValue, IGSTValue, CessRate, CesNonAdval,
+                          AssessableAmount + CGSTValue + SGSTValue + IGSTValue,
+                          IsServc)
+                    else
+                        RndOffAmt := SalesInvoiceLine.Amount;
                     Count += 1;
                 until SalesInvoiceLine.Next() = 0;
             end;
@@ -1151,18 +1163,21 @@ codeunit 18147 "e-Invoice Json Handler"
                         GstRate := IGSTRate;
 
                     GetGSTValueForLine(SalesCrMemoLine."Line No.", CGSTValue, SGSTValue, IGSTValue);
-                    WriteItem(
-                      Format(Count),
-                      SalesCrMemoLine.Description + SalesCrMemoLine."Description 2",
-                      SalesCrMemoLine."HSN/SAC Code", GstRate,
-                      SalesCrMemoLine.Quantity,
-                      CopyStr(SalesCrMemoLine."Unit of Measure Code", 1, 3),
-                      SalesCrMemoLine."Unit Price",
-                      SalesCrMemoLine."Line Amount" + SalesCrMemoLine."Line Discount Amount",
-                      SalesCrMemoLine."Line Discount Amount", 0,
-                      AssessableAmount, CGSTValue, SGSTValue, IGSTValue, CessRate, CesNonAdval,
-                      AssessableAmount + CGSTValue + SGSTValue + IGSTValue,
-                      IsServc);
+                    if SalesCrMemoLine."No." <> GetInvoiceRoundingAccountForCreditMemo() then
+                        WriteItem(
+                          Format(Count),
+                          SalesCrMemoLine.Description + SalesCrMemoLine."Description 2",
+                          SalesCrMemoLine."HSN/SAC Code", GstRate,
+                          SalesCrMemoLine.Quantity,
+                          CopyStr(SalesCrMemoLine."Unit of Measure Code", 1, 3),
+                          SalesCrMemoLine."Unit Price",
+                          SalesCrMemoLine."Line Amount" + SalesCrMemoLine."Line Discount Amount",
+                          SalesCrMemoLine."Line Discount Amount", 0,
+                          AssessableAmount, CGSTValue, SGSTValue, IGSTValue, CessRate, CesNonAdval,
+                          AssessableAmount + CGSTValue + SGSTValue + IGSTValue,
+                          IsServc)
+                    else
+                        RndOffAmt := SalesCrMemoLine.Amount;
 
                     Count += 1;
                 until SalesCrMemoLine.Next() = 0;
@@ -1170,6 +1185,34 @@ codeunit 18147 "e-Invoice Json Handler"
 
             JObject.Add('ItemList', JsonArrayData);
         end;
+    end;
+
+    local procedure GetInvoiceRoundingAccountForInvoice(): Code[20]
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        if not SalesInvoiceHeader.Get(DocumentNo) then
+            exit;
+
+        if not CustomerPostingGroup.Get(SalesInvoiceHeader."Customer Posting Group") then
+            exit;
+
+        exit(CustomerPostingGroup."Invoice Rounding Account");
+    end;
+
+    local procedure GetInvoiceRoundingAccountForCreditMemo(): Code[20]
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        if not SalesCrMemoHeader.Get(DocumentNo) then
+            exit;
+
+        if not CustomerPostingGroup.Get(SalesCrMemoHeader."Customer Posting Group") then
+            exit;
+
+        exit(CustomerPostingGroup."Invoice Rounding Account");
     end;
 
     local procedure WriteItem(

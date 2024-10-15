@@ -242,8 +242,10 @@ codeunit 5923 "Service-Quote to Order"
                 OnBeforeTransferQuoteLineToOrderLineLoop(ServiceQuoteLine, ServiceQuoteHeader, ServiceOrderHeader, IsHandled);
                 if not IsHandled then begin
                     ServiceOrderLine := ServiceQuoteLine;
-                    ServiceOrderLine.Validate("Reserved Qty. (Base)", 0);
+                    ServiceLineReserve.TransServLineToServLine(
+                      ServiceQuoteLine, ServiceOrderLine, ServiceQuoteLine."Outstanding Qty. (Base)");
                     ServiceOrderLine."Line No." := 0;
+                    ServiceOrderLine.Validate("Reserved Qty. (Base)");
                     if GuiAllowed then
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
                             ItemCheckAvail.RaiseUpdateInterruptedError;
