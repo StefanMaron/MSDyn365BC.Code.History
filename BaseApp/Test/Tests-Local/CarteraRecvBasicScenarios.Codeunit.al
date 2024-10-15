@@ -142,7 +142,6 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PaymentMethod: Record "Payment Method";
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
-        BillNo: Code[20];
     begin
         Initialize;
 
@@ -154,10 +153,10 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
-        BillNo := UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
+        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
 
         // Verify
-        VerifyCarteraDocPaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code, BillNo);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -168,6 +167,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PaymentMethod: Record "Payment Method";
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
+        BillNo: Code[20];
     begin
         Initialize;
 
@@ -179,10 +179,10 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
+        BillNo := UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
 
         // Verify
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocPaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code, BillNo);
     end;
 
     [Test]
@@ -197,7 +197,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Initialize;
 
         // Setup
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
         LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
 
         // Exercise
@@ -206,10 +206,10 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+        UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
 
         // Verify
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code);
     end;
 
     [Test]
@@ -225,7 +225,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Initialize;
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Create Bills = No
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
         LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
 
         // [GIVEN] Cartera Document is posted for the Customer
@@ -236,10 +236,10 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
 
         // [WHEN] Modify Payment Method Code to "P2".
-        UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
 
         // [THEN] Cartera Document has Payment Method = "P2"
-        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]

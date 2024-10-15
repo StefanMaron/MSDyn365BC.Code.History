@@ -133,7 +133,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         PaymentMethod: Record "Payment Method";
         DocumentNo: Code[20];
-        BillNo: Code[20];
     begin
         Initialize;
 
@@ -145,10 +144,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
-        BillNo := UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
+        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
 
         // Verify
-        VerifyCarteraDocPaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code, BillNo);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -158,6 +157,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         PaymentMethod: Record "Payment Method";
         DocumentNo: Code[20];
+        BillNo: Code[20];
     begin
         Initialize;
 
@@ -169,10 +169,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
+        BillNo := UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, true);
 
         // Verify.
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocPaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code, BillNo);
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize;
 
         // Setup
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
         LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
 
         // Exercise
@@ -196,10 +196,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Modify Payment Method Code.
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
+        UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
 
         // Verify.
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocInvoicePaymentMethod(DocumentNo,Vendor."No.",PaymentMethod.Code);
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize;
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
         LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
 
         // [GIVEN] Cartera Document is posted for the Vendor
@@ -226,10 +226,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
 
         // [WHEN] Modify Payment Method Code to "P2"
-        UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
+        asserterror UpdateVendLedgEntryPaymentCode(DocumentNo, Vendor."No.", PaymentMethod.Code, false);
 
         // [THEN] Cartera Document has Payment Method = "P2"
-        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Vendor."No.", PaymentMethod.Code);
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
