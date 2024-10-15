@@ -128,12 +128,10 @@ page 17332 "FE Depreciation Books Subform"
             group("&Depr. Book")
             {
                 Caption = '&Depr. Book';
-                Image = Depreciationsbooks;
                 action("Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger Entries';
-                    Image = "Ledger Entries";
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
 
                     trigger OnAction()
@@ -191,7 +189,7 @@ page 17332 "FE Depreciation Books Subform"
     [Scope('OnPrem')]
     procedure ShowFAErrorLedgEntries()
     begin
-        FALedgEntry.Reset;
+        FALedgEntry.Reset();
         FALedgEntry.SetCurrentKey("Canceled from FA No.");
         FALedgEntry.SetRange("Canceled from FA No.", "FA No.");
         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");

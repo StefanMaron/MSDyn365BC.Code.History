@@ -234,7 +234,7 @@ table 17308 "Tax Calc. Header"
                 ShowGLEntriesDetails(TaxCalcLineNo);
             DATABASE::"Tax Calc. Item Entry":
                 begin
-                    TaxCalcItemEntry.Reset;
+                    TaxCalcItemEntry.Reset();
                     TaxCalcItemEntry.SetCurrentKey("Section Code");
                     CopyFilter("Date Filter", TaxCalcItemEntry."Date Filter");
                     TaxCalcItemEntry.FilterGroup(2);
@@ -250,7 +250,7 @@ table 17308 "Tax Calc. Header"
                 end;
             DATABASE::"Tax Calc. FA Entry":
                 begin
-                    TaxCalcFAEntry.Reset;
+                    TaxCalcFAEntry.Reset();
                     TaxCalcFAEntry.SetCurrentKey("Section Code");
                     TaxCalcFAEntry.FilterGroup(2);
                     TaxCalcFAEntry.SetRange("Section Code", "Section Code");
@@ -294,7 +294,7 @@ table 17308 "Tax Calc. Header"
             repeat
                 if "G/L Corr. Analysis View Code" <> '' then begin
                     GLCorrAnalysisView.Get("G/L Corr. Analysis View Code");
-                    GLCorrAnalysisViewEntry.Reset;
+                    GLCorrAnalysisViewEntry.Reset();
                     TaxDimMgt.SetDimFilters2GLCorrAnViewEntr(
                       GLCorrAnalysisViewEntry,
                       GLCorrAnalysisView,
@@ -329,7 +329,7 @@ table 17308 "Tax Calc. Header"
         if GLCorrespondenceEntry.FindSet then
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
-                if not TempGLCorrespondenceEntry.Insert then;
+                if not TempGLCorrespondenceEntry.Insert() then;
             until GLCorrespondenceEntry.Next = 0;
     end;
 
@@ -339,7 +339,7 @@ table 17308 "Tax Calc. Header"
         if GLCorrAnalysisViewEntry.FindSet then
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
-                if not TempGLCorrAnalysisViewEntry.Insert then;
+                if not TempGLCorrAnalysisViewEntry.Insert() then;
             until GLCorrAnalysisViewEntry.Next = 0;
     end;
 }

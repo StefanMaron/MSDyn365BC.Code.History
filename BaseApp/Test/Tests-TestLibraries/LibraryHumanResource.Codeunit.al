@@ -11,11 +11,12 @@ codeunit 131901 "Library - Human Resource"
         LibraryUtility: Codeunit "Library - Utility";
         FirstNameTxt: Label 'First Name';
         NameTxt: Label 'Name';
+        LibraryERM: Codeunit "Library - ERM";
 
     procedure CreateAlternativeAddress(var AlternativeAddress: Record "Alternative Address"; EmployeeNo: Code[20])
     begin
-        AlternativeAddress.Init;
-        AlternativeAddress.Validate("Person No.", EmployeeNo);
+        AlternativeAddress.Init();
+        AlternativeAddress.Validate("Employee No.", EmployeeNo);
         AlternativeAddress.Validate(
           Code,
           CopyStr(
@@ -27,15 +28,48 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateEmployee(var Employee: Record Employee)
     begin
-        Employee.Init;
+        Employee.Init();
         Employee.Insert(true);
         UpdateEmployeeName(Employee);
         Employee.Modify(true);
     end;
 
+    procedure CreateEmployeeNo(): Code[20]
+    var
+        Employee: Record Employee;
+    begin
+        CreateEmployee(Employee);
+        exit(Employee."No.");
+    end;
+
+    procedure CreateEmployeeNoWithBankAccount(): Code[20]
+    var
+        Employee: Record Employee;
+    begin
+        CreateEmployeeWithBankAccount(Employee);
+        exit(Employee."No.");
+    end;
+
+    procedure CreateEmployeeWithBankAccount(var Employee: Record Employee)
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+    begin
+        CreateEmployee(Employee);
+        Employee."Bank Account No." := LibraryUtility.GenerateGUID;
+        Employee.IBAN := LibraryUtility.GenerateGUID;
+        Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
+        Employee."Bank Branch No." := LibraryUtility.GenerateGUID;
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        EmployeePostingGroup.Insert(true);
+        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
+        Employee.Modify(true);
+    end;
+
     procedure CreateMiscArticle(var MiscArticle: Record "Misc. Article")
     begin
-        MiscArticle.Init;
+        MiscArticle.Init();
         MiscArticle.Validate(
           Code,
           CopyStr(
@@ -50,7 +84,7 @@ codeunit 131901 "Library - Human Resource"
     var
         RecRef: RecordRef;
     begin
-        MiscArticleInformation.Init;
+        MiscArticleInformation.Init();
         MiscArticleInformation.Validate("Employee No.", EmployeeNo);
         MiscArticleInformation.Validate("Misc. Article Code", MiscArticleCode);
         RecRef.GetTable(MiscArticleInformation);
@@ -62,8 +96,8 @@ codeunit 131901 "Library - Human Resource"
     var
         RecRef: RecordRef;
     begin
-        EmployeeQualification.Init;
-        EmployeeQualification.Validate("Person No.", EmployeeNo);
+        EmployeeQualification.Init();
+        EmployeeQualification.Validate("Employee No.", EmployeeNo);
         RecRef.GetTable(EmployeeQualification);
         EmployeeQualification.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeQualification.FieldNo("Line No.")));
         EmployeeQualification.Insert(true);
@@ -71,7 +105,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateEmployeeAbsence(var EmployeeAbsence: Record "Employee Absence")
     begin
-        EmployeeAbsence.Init;
+        EmployeeAbsence.Init();
         EmployeeAbsence.Insert(true);
     end;
 
@@ -79,8 +113,8 @@ codeunit 131901 "Library - Human Resource"
     var
         RecRef: RecordRef;
     begin
-        EmployeeRelative.Init;
-        EmployeeRelative.Validate("Person No.", EmployeeNo);
+        EmployeeRelative.Init();
+        EmployeeRelative.Validate("Employee No.", EmployeeNo);
         RecRef.GetTable(EmployeeRelative);
         EmployeeRelative.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeRelative.FieldNo("Line No.")));
         EmployeeRelative.Insert(true);
@@ -88,7 +122,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateEmployeeStatGroup(var EmployeeStatisticsGroup: Record "Employee Statistics Group")
     begin
-        EmployeeStatisticsGroup.Init;
+        EmployeeStatisticsGroup.Init();
         EmployeeStatisticsGroup.Validate(
           Code,
           CopyStr(
@@ -101,7 +135,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateEmploymentContract(var EmploymentContract: Record "Employment Contract")
     begin
-        EmploymentContract.Init;
+        EmploymentContract.Init();
         EmploymentContract.Validate(
           Code,
           CopyStr(
@@ -114,7 +148,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateConfidential(var Confidential: Record Confidential)
     begin
-        Confidential.Init;
+        Confidential.Init();
         Confidential.Validate(
           Code,
           CopyStr(
@@ -129,7 +163,7 @@ codeunit 131901 "Library - Human Resource"
     var
         RecRef: RecordRef;
     begin
-        ConfidentialInformation.Init;
+        ConfidentialInformation.Init();
         ConfidentialInformation.Validate("Employee No.", EmployeeNo);
         ConfidentialInformation.Validate("Confidential Code", ConfidentialCode);
         RecRef.GetTable(ConfidentialInformation);
@@ -139,7 +173,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateQualification(var Qualification: Record Qualification)
     begin
-        Qualification.Init;
+        Qualification.Init();
         Qualification.Validate(
           Code,
           CopyStr(
@@ -152,7 +186,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateRelative(var Relative: Record Relative)
     begin
-        Relative.Init;
+        Relative.Init();
         Relative.Validate(
           Code,
           CopyStr(
@@ -165,7 +199,7 @@ codeunit 131901 "Library - Human Resource"
 
     procedure CreateUnion(var Union: Record Union)
     begin
-        Union.Init;
+        Union.Init();
         Union.Validate(
           Code,
           CopyStr(
@@ -194,7 +228,7 @@ codeunit 131901 "Library - Human Resource"
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         if HumanResourcesSetup."Employee Nos." = '' then
             HumanResourcesSetup.Validate("Employee Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         HumanResourcesSetup.Modify(true);

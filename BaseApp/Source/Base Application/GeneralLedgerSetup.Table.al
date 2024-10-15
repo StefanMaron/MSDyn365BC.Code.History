@@ -522,7 +522,7 @@ table 98 "General Ledger Setup"
         }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
-            Caption = 'Check G/L Acc. Deletion After';
+            Caption = 'Allow G/L Acc. Deletion Before';
         }
         field(98; "Check G/L Account Usage"; Boolean)
         {
@@ -952,7 +952,7 @@ table 98 "General Ledger Setup"
             repeat
                 IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
                 IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-                IntrastatJnlLine.DeleteAll;
+                IntrastatJnlLine.DeleteAll();
             until IntrastatJnlBatch.Next = 0;
     end;
 
@@ -962,16 +962,16 @@ table 98 "General Ledger Setup"
             repeat
                 if AnalysisView.Blocked = false then begin
                     AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
-                    AnalysisViewEntry.DeleteAll;
+                    AnalysisViewEntry.DeleteAll();
                     AnalysisViewBudgetEntry.SetRange("Analysis View Code", AnalysisView.Code);
-                    AnalysisViewBudgetEntry.DeleteAll;
+                    AnalysisViewBudgetEntry.DeleteAll();
                     AnalysisView."Last Entry No." := 0;
                     AnalysisView."Last Budget Entry No." := 0;
                     AnalysisView."Last Date Updated" := 0D;
-                    AnalysisView.Modify;
+                    AnalysisView.Modify();
                 end else begin
                     AnalysisView."Refresh When Unblocked" := true;
-                    AnalysisView.Modify;
+                    AnalysisView.Modify();
                 end;
             until AnalysisView.Next = 0;
     end;
@@ -1040,10 +1040,10 @@ table 98 "General Ledger Setup"
     begin
         if "Enable Russian Accounting" then
             if "Cancel Curr. Prepmt. Adjmt." then begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Shipment on Invoice");
                 SalesSetup.TestField("Return Receipt on Credit Memo");
-                PurchSetup.Get;
+                PurchSetup.Get();
                 PurchSetup.TestField("Receipt on Invoice");
                 PurchSetup.TestField("Return Shipment on Credit Memo");
             end;

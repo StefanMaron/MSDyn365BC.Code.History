@@ -674,7 +674,7 @@ codeunit 134151 "ERM Intercompany"
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
         Vendor.Get(VendorNo);
         Vendor.Validate("Privacy Blocked", true);
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Exercise: Create IC Journal Line with random values, take -1 for sign factor.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
@@ -701,7 +701,7 @@ codeunit 134151 "ERM Intercompany"
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
         Vendor.Get(VendorNo);
         Vendor.Validate("Privacy Blocked", true);
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Exercise: Create General Journal Line with random values, take -1 for sign factor.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
@@ -755,7 +755,7 @@ codeunit 134151 "ERM Intercompany"
         CustomerNo := CreateCustomer(CustomerBlocked, ICPartnerCode);
         Customer.Get(CustomerNo);
         Customer.Validate("Privacy Blocked", true);
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise: Create IC Journal Line. Taking 1 for sign factor.
         asserterror CreateICJournalLine(
@@ -808,7 +808,7 @@ codeunit 134151 "ERM Intercompany"
         OldICPartnerCode := UpdateICPartnerInCompanyInformation(ICPartnerCode);
 
         // Verify: Verify that correct IC Partner Code is updated on Company Information.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("IC Partner Code", ICPartnerCode);
 
         // Tear Down: Roll back Company Information.
@@ -1136,7 +1136,7 @@ codeunit 134151 "ERM Intercompany"
         LibraryERM.CreateICPartner(ICPartner);
         ICPartner."Receivables Account" := '';
         ICPartner."Payables Account" := '';
-        ICPartner.Modify;
+        ICPartner.Modify();
 
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"IC Partner", ICPartner.Code, SignFactor);
@@ -1633,6 +1633,7 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
         PaymentTerms: Record "Payment Terms";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATAmount: Decimal;
         CustomerNo: Code[20];
     begin
         // Post an IC Invoice with both VAT and Payment discount. Verify IC Outbox Journal Line.
@@ -1650,6 +1651,7 @@ codeunit 134151 "ERM Intercompany"
         CreateAndUpdateICJournalUsingSameBatch(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo,
           LibraryRandom.RandDec(100, 2), ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.");
+        VATAmount := GenJournalLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %");
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
@@ -1657,7 +1659,13 @@ codeunit 134151 "ERM Intercompany"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
-        // Known issue
+        VerifyICOutboxJournalLineForDiscountEntry(
+          ICPartner.Code, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
+          PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate),
+          CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+        VerifyICOutboxJournalLineForDiscountEntry(
+          ICPartner.Code, GenJournalLine."Account Type"::"G/L Account", ICGLAccount."No.", CustomerNo, -VATAmount, -GenJournalLine.Amount, 0,
+          0D, 0D);
     end;
 
     [Test]
@@ -1741,14 +1749,14 @@ codeunit 134151 "ERM Intercompany"
         Initialize;
 
         // [GIVEN] Create IC Partner, fill "Customer No." field
-        ICPartner.Init;
+        ICPartner.Init();
         ICPartner.Code := LibraryUtility.GenerateRandomCode(ICPartner.FieldNo(Code), DATABASE::"IC Partner");
         LibrarySales.CreateCustomer(Customer);
         ICPartner."Customer No." := Customer."No.";
-        ICPartner.Insert;
+        ICPartner.Insert();
 
         // [GIVEN] Delete Customer
-        Customer.Delete;
+        Customer.Delete();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
 
@@ -1771,10 +1779,10 @@ codeunit 134151 "ERM Intercompany"
         Initialize;
 
         // [GIVEN] Create IC Partner, fill "Vendor No." field
-        ICPartner.Init;
+        ICPartner.Init();
         ICPartner.Code := LibraryUtility.GenerateRandomCode(ICPartner.FieldNo(Code), DATABASE::"IC Partner");
         ICPartner."Vendor No." := LibraryPurchase.CreateVendorNo;
-        ICPartner.Insert;
+        ICPartner.Insert();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
 
         // [WHEN] Delete IC Partner
@@ -1796,14 +1804,14 @@ codeunit 134151 "ERM Intercompany"
         Initialize;
 
         // [GIVEN] Create IC Partner, fill "Vendor No." field
-        ICPartner.Init;
+        ICPartner.Init();
         ICPartner.Code := LibraryUtility.GenerateRandomCode(ICPartner.FieldNo(Code), DATABASE::"IC Partner");
         LibraryPurchase.CreateVendor(Vendor);
         ICPartner."Vendor No." := Vendor."No.";
-        ICPartner.Insert;
+        ICPartner.Insert();
 
         // [GIVEN] Delete Vendor
-        Vendor.Delete;
+        Vendor.Delete();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
 
@@ -1830,7 +1838,7 @@ codeunit 134151 "ERM Intercompany"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intercompany");
     end;
 
@@ -2184,7 +2192,7 @@ codeunit 134151 "ERM Intercompany"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OldICPartnerCode := CompanyInformation."IC Partner Code";
         CompanyInformation.Validate("IC Partner Code", ICPartnerCode);
         CompanyInformation.Modify(true);

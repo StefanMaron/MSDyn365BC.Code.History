@@ -11,7 +11,7 @@ report 12487 "Copy FA"
             trigger OnAfterGetRecord()
             begin
                 if not Confirm(Text001, false, CountCopy, "No.") then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 for i := 1 to CountCopy do begin
                     FA := "Fixed Asset";
@@ -27,12 +27,12 @@ report 12487 "Copy FA"
                     FA.Insured := false;
                     FA.Insert(true);
 
-                    FABook2.Reset;
+                    FABook2.Reset();
                     FABook2.SetRange("FA No.", FA."No.");
                     if FABook2.Find('-') then
-                        FABook2.DeleteAll;
+                        FABook2.DeleteAll();
 
-                    FABook.Reset;
+                    FABook.Reset();
                     FABook.SetRange("FA No.", "Fixed Asset"."No.");
                     if FABook.Find('-') then
                         repeat
@@ -52,7 +52,7 @@ report 12487 "Copy FA"
                             FABook2."FA Posting Group" := FABook."FA Posting Group";
                             FABook2.Description := FABook.Description;
                             FABook2."Initial Acquisition" := false;
-                            FABook2.Insert;
+                            FABook2.Insert();
                         until FABook.Next = 0;
                 end;
             end;

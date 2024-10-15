@@ -809,7 +809,7 @@ page 35603 Vendors
         More: Boolean;
     begin
         CurrPage.SetSelectionFilter(Vend);
-        VendCount := Vend.Count;
+        VendCount := Vend.Count();
         if VendCount > 0 then begin
             Vend.Find('-');
             while VendCount > 0 do begin

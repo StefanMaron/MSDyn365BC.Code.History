@@ -15,15 +15,15 @@ report 17463 "Export SZV-6-3 form"
             begin
                 if InfoType = InfoType::Initial then begin
                     if not PersonifiedAccountingMgt.CheckEmployeeLaborContract(Employee, DMY2Date(1, 1, PeriodYear), DMY2Date(31, 12, PeriodYear)) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     if not PersonifiedAccountingMgt.CheckEmployeeLaborContract(
                          Employee, DMY2Date(1, 1, CorrectionalPeriodYear), DMY2Date(31, 12, CorrectionalPeriodYear))
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 TempEmployee_SZV6_3 := Employee;
-                TempEmployee_SZV6_3.Insert;
+                TempEmployee_SZV6_3.Insert();
             end;
 
             trigger OnPostDataItem()

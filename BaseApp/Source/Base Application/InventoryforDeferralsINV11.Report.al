@@ -15,12 +15,12 @@ report 14926 "Inventory for Deferrals INV-11"
 
                 trigger OnAfterGetRecord()
                 begin
-                    FADepreciationBook.Reset;
+                    FADepreciationBook.Reset();
                     FADepreciationBook.SetRange("FA No.", "FA No.");
                     FADepreciationBook.SetRange("Depreciation Book Code", "Depreciation Book Code");
                     FADepreciationBook.SetRange("FA Posting Date Filter", 0D, InvStartDate - 1);
                     if (not FADepreciationBook.FindFirst) or (FADepreciationBook."Acquisition Date" >= InvStartDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if (LocationCode = '') and ("Location Code" <> '') and (StrPos(DepartmentsLocation, "Location Code") = 0) then
                         DepartmentsLocation := DepartmentsLocation + "Location Code" + ', ';
@@ -80,7 +80,7 @@ report 14926 "Inventory for Deferrals INV-11"
             begin
                 if "Document Print Buffer".Get(UserId) then
                     if "Document Print Buffer"."Table ID" <> DATABASE::"FA Journal Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
         }
     }
@@ -248,7 +248,7 @@ report 14926 "Inventory for Deferrals INV-11"
         FALocation: Record "FA Location";
         LocManagement: Codeunit "Localisation Management";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         ExcelReportBuilderMgr.AddSection('REPORTHEADER');
         ExcelReportBuilderMgr.AddDataToSection('OKPO', CompanyInfo."OKPO Code");
@@ -487,7 +487,7 @@ report 14926 "Inventory for Deferrals INV-11"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("INV-11 Template Code");
 
         ExcelReportBuilderMgr.InitTemplate(FASetup."INV-11 Template Code");

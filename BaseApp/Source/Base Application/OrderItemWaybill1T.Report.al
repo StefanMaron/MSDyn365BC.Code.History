@@ -22,14 +22,14 @@ report 12412 "Order Item Waybill 1-T"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1."Qty. to Invoice" = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
                             SalesLine1."Amount Including VAT" :=
                               Round(
@@ -96,7 +96,7 @@ report 12412 "Order Item Waybill 1-T"
                     trigger OnPreDataItem()
                     begin
                         if not BackSideNecessary then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -104,7 +104,6 @@ report 12412 "Order Item Waybill 1-T"
                 begin
                     TotalAmount := 0;
                     AmountLineNo := 0;
-                    CurrReport.PageNo := 1;
                     QtyNotItem := 0;
                 end;
 
@@ -117,7 +116,7 @@ report 12412 "Order Item Waybill 1-T"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Header."Shipping No." = '' then begin
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
@@ -126,17 +125,17 @@ report 12412 "Order Item Waybill 1-T"
                                   NoSeriesManagement.GetNextNo(Header."Posting No. Series", Header."Posting Date", not CurrReport.Preview);
                                 Header."Shipping No." := Header."Posting No.";
                                 if not CurrReport.Preview then
-                                    Header.Modify;
+                                    Header.Modify();
                             end else begin
                                 Header."Shipping No." := Header."Posting No.";
                                 if not CurrReport.Preview then
-                                    Header.Modify;
+                                    Header.Modify();
                             end else begin
                             Clear(NoSeriesManagement);
                             Header."Shipping No." :=
                               NoSeriesManagement.GetNextNo(Header."Shipping No. Series", Header."Posting Date", not CurrReport.Preview);
                             if not CurrReport.Preview then
-                                Header.Modify;
+                                Header.Modify();
                         end;
                     end;
                     DocNo := Header."Shipping No.";
@@ -148,18 +147,18 @@ report 12412 "Order Item Waybill 1-T"
             trigger OnAfterGetRecord()
             begin
                 TestField(Status);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 DocumentDate := "Posting Date";
 
                 if not ShipmentMethod.Get("Shipment Method Code") then
-                    ShipmentMethod.Init;
+                    ShipmentMethod.Init();
 
                 if not PaymentTerms.Get("Payment Terms Code") then
-                    PaymentTerms.Init;
+                    PaymentTerms.Init();
 
                 Cust.Get("Bill-to Customer No.");
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
 

@@ -143,7 +143,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         DeprBookCode: Code[10];
         PostingDate: Date;
         FAPostingDate: Date;
-        FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         FieldErrorText: Text[250];
         Text016: Label '%1 + %2 must be %3.';
         Text017: Label '%1 + %2 must be -%3.';
@@ -200,9 +200,9 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     local procedure CheckJnlLine()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         FA.Get(FANo);
-        FASetup.Get;
+        FASetup.Get();
         DeprBook.Get(DeprBookCode);
         FADeprBook.Get(FANo, DeprBookCode);
         CheckFAPostingDate;
@@ -248,7 +248,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     AllowPostingTo := UserSetup."Allow FA Posting To";
                 end;
             if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                FASetup.Get;
+                FASetup.Get();
                 AllowPostingFrom := FASetup."Allow FA Posting From";
                 AllowPostingTo := FASetup."Allow FA Posting To";
             end;
@@ -636,7 +636,7 @@ codeunit 5631 "FA Jnl.-Check Line"
               "FA Posting Type"::Appreciation,
               "FA Posting Type"::"Write-Down"]
             then begin
-                TaxRegisterSetup.Get;
+                TaxRegisterSetup.Get();
                 if TaxRegisterSetup."Calculate TD for each FA" and DeprBook."Control FA Acquis. Cost" then
                     TestField("Tax Difference Code");
             end;
@@ -658,7 +658,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLIntegration(FAPostingType: Option; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
+    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
     begin
     end;
 

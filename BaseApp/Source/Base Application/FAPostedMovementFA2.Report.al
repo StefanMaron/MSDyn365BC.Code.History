@@ -37,7 +37,7 @@ report 14987 "FA Posted Movement FA-2"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
                 GetFAComments(Appendix, PostedFAComment.Type::Appendix);
                 CheckSignature(ReleasedBy, ReleasedBy."Employee Type"::ReleasedBy);
                 CheckSignature(ReceivedBy, ReceivedBy."Employee Type"::ReceivedBy);

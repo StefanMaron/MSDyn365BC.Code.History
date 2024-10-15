@@ -15,7 +15,7 @@ table 5600 "Fixed Asset"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     NoSeriesMgt.TestManual(FASetup."Fixed Asset Nos.");
                     "No. Series" := '';
                 end;
@@ -77,11 +77,13 @@ table 5600 "Fixed Asset"
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin
-                    if not (FASubclass."FA Class Code" in ['', "FA Class Code"]) then
-                        Error(UnexpctedSubclassErr);
-                end else
-                    Validate("FA Class Code", FASubclass."FA Class Code");
+                    if FASubclass."FA Class Code" in ['', "FA Class Code"] then
+                        exit;
 
+                    Error(UnexpctedSubclassErr);
+                end;
+
+                Validate("FA Class Code", FASubclass."FA Class Code");
                 if "FA Posting Group" = '' then
                     Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             end;
@@ -269,7 +271,7 @@ table 5600 "Fixed Asset"
                             repeat
                                 FADeprBook."Straight-Line %" := DepreciationCode."Depreciation Quota";
                                 FADeprBook.Validate("No. of Depreciation Years", DepreciationCode."Service Life");
-                                FADeprBook.Modify;
+                                FADeprBook.Modify();
                             until FADeprBook.Next = 0;
                     end;
             end;
@@ -282,7 +284,7 @@ table 5600 "Fixed Asset"
 
             trigger OnValidate()
             begin
-                FASetup.Get;
+                FASetup.Get();
                 if "FA Type" = "FA Type"::"Future Expense" then begin
                     if FASetup."Default Depr. Book" <> '' then
                         DeleteFADeprBook("No.", FASetup."Default Depr. Book");
@@ -341,7 +343,7 @@ table 5600 "Fixed Asset"
                                 then
                                     Error('');
                                 FADeprBook.Validate("Depr. Bonus %", DepreciationGroup."Depr. Bonus %");
-                                FADeprBook.Modify;
+                                FADeprBook.Modify();
                             end;
                         end;
 
@@ -754,9 +756,9 @@ table 5600 "Fixed Asset"
         if IsHandled then
             exit;
 
-        LockTable;
-        MainAssetComp.LockTable;
-        InsCoverageLedgEntry.LockTable;
+        LockTable();
+        MainAssetComp.LockTable();
+        InsCoverageLedgEntry.LockTable();
         if "Main Asset/Component" = "Main Asset/Component"::"Main Asset" then
             Error(Text000);
         FAMoveEntries.MoveFAInsuranceEntries("No.");
@@ -767,27 +769,27 @@ table 5600 "Fixed Asset"
 
         MainAssetComp.SetCurrentKey("FA No.");
         MainAssetComp.SetRange("FA No.", "No.");
-        MainAssetComp.DeleteAll;
+        MainAssetComp.DeleteAll();
         if "Main Asset/Component" = "Main Asset/Component"::Component then begin
-            MainAssetComp.Reset;
+            MainAssetComp.Reset();
             MainAssetComp.SetRange("Main Asset No.", "Component of Main Asset");
             MainAssetComp.SetRange("FA No.", '');
-            MainAssetComp.DeleteAll;
+            MainAssetComp.DeleteAll();
             MainAssetComp.SetRange("FA No.");
             if not MainAssetComp.FindFirst then begin
                 FA.Get("Component of Main Asset");
                 FA."Main Asset/Component" := FA."Main Asset/Component"::" ";
                 FA."Component of Main Asset" := '';
-                FA.Modify;
+                FA.Modify();
             end;
         end;
 
         MaintenanceRegistration.SetRange("FA No.", "No.");
-        MaintenanceRegistration.DeleteAll;
+        MaintenanceRegistration.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Fixed Asset");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::"Fixed Asset", "No.");
     end;
@@ -795,7 +797,7 @@ table 5600 "Fixed Asset"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
             NoSeriesMgt.InitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -866,7 +868,7 @@ table 5600 "Fixed Asset"
     begin
         with FA do begin
             FA := Rec;
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
             if NoSeriesMgt.SelectSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -925,7 +927,7 @@ table 5600 "Fixed Asset"
         AssessedTaxCodeDubl: Record "Assessed Tax Code";
     begin
         AssessedTaxCode.Get("Assessed Tax Code");
-        AssessedTaxCodeDubl.Reset;
+        AssessedTaxCodeDubl.Reset();
         AssessedTaxCodeDubl.SetRange("Region Code", AssessedTaxCode."Region Code");
         AssessedTaxCodeDubl.SetRange("Rate %", AssessedTaxCode."Rate %");
         AssessedTaxCodeDubl.SetRange("Dec. Rate Tax Allowance Code", AssessedTaxCode."Dec. Rate Tax Allowance Code");
@@ -948,7 +950,7 @@ table 5600 "Fixed Asset"
     begin
         AssessedTaxCode.Get("Assessed Tax Code");
         if AssessedTaxCode."Exemption Tax Allowance Code" <> '' then begin
-            AssessedTaxCodeBase.Reset;
+            AssessedTaxCodeBase.Reset();
             AssessedTaxCodeBase.SetRange("Region Code", AssessedTaxCode."Region Code");
             AssessedTaxCodeBase.SetRange("Rate %", AssessedTaxCode."Rate %");
             AssessedTaxCodeBase.SetRange("Dec. Rate Tax Allowance Code", AssessedTaxCode."Dec. Rate Tax Allowance Code");
@@ -965,11 +967,11 @@ table 5600 "Fixed Asset"
         GeneralLedgerSetup: Record "General Ledger Setup";
         FADeprBook: Record "FA Depreciation Book";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if not GeneralLedgerSetup."Enable Russian Accounting" then
             exit;
 
-        FASetup.Get;
+        FASetup.Get();
         if TaxRegisterSetup.Get then;
         if "FA Type" = "FA Type"::"Future Expense" then begin
             if FASetup."Future Depr. Book" <> '' then
@@ -1032,13 +1034,13 @@ table 5600 "Fixed Asset"
                     TaxDiffFABuffer.Difference := TaxDiffLedgerEntry.Difference;
                     TaxDiffFABuffer."Tax Amount" := TaxDiffLedgerEntry."Tax Amount";
                     TaxDiffFABuffer."FA Type" := "FA Type";
-                    TaxDiffFABuffer.Insert;
+                    TaxDiffFABuffer.Insert();
                 end else begin
                     TaxDiffFABuffer."Amount (Base)" += TaxDiffLedgerEntry."Amount (Base)";
                     TaxDiffFABuffer."Amount (Tax)" += TaxDiffLedgerEntry."Amount (Tax)";
                     TaxDiffFABuffer.Difference += TaxDiffLedgerEntry.Difference;
                     TaxDiffFABuffer."Tax Amount" += TaxDiffLedgerEntry."Tax Amount";
-                    TaxDiffFABuffer.Modify;
+                    TaxDiffFABuffer.Modify();
                 end;
             until TaxDiffLedgerEntry.Next = 0;
 
@@ -1068,7 +1070,7 @@ table 5600 "Fixed Asset"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         if "FA Type" = "FA Type"::"Future Expense" then begin
             FASetup.TestField("Future Depr. Book");
             exit(FASetup."Future Depr. Book");

@@ -79,7 +79,7 @@ codeunit 139158 "Invoice Mapping Tests"
           , PurchaseHeader.FieldNo("Amount Including VAT"), '0', 1, 0, true);
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Error;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
@@ -112,12 +112,12 @@ codeunit 139158 "Invoice Mapping Tests"
         SetupValidIntermediateTable(DataExch, BuyFromVendor, Item1, Item2, Currency, 1);
         InsertIntermediateTableRowWithRecordNoAndOptional(DataExch, DATABASE::"Purchase Header"
           , PurchaseHeader.FieldNo("Amount Including VAT"), '0', 1, 0, true);
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Entry No." := LibraryRandom.RandInt(100000);
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Warning;
-        IncomingDocument.Insert;
+        IncomingDocument.Insert();
         DataExch."Incoming Entry No." := IncomingDocument."Entry No.";
-        DataExch.Modify;
+        DataExch.Modify();
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
@@ -170,7 +170,7 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument.Get(IncomingEntryNo);
         IncomingDocument."Currency Code" := CurrencyCode;
         IncomingDocument."Amount Incl. VAT" := AmountIncVAT;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure PostPurchaseInvoice(IncomingEntryNo: Integer)
@@ -203,7 +203,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Setup(DataExch);
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Warning;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // add invoice discount
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Header",
@@ -241,7 +241,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Setup(DataExch);
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Error;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // add invoice discount
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Header",
@@ -319,7 +319,7 @@ codeunit 139158 "Invoice Mapping Tests"
 
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Error;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
@@ -426,13 +426,13 @@ codeunit 139158 "Invoice Mapping Tests"
           CopyStr(ChargeReason, 1, MaxStrLen(ItemCharge.Description)), 1, 0, true);
 
         // set up G/L Account in Text to Account Mapping
-        PurchasesPayablesSetup.Get;
-        TextToAccountMapping.Init;
+        PurchasesPayablesSetup.Get();
+        TextToAccountMapping.Init();
         TextToAccountMapping."Mapping Text" := CopyStr(ChargeReason, 1, MaxStrLen(TextToAccountMapping."Mapping Text"));
         TextToAccountMapping."Debit Acc. No." := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines";
-        TextToAccountMapping.Insert;
+        TextToAccountMapping.Insert();
         PurchasesPayablesSetup."Debit Acc. for Non-Item Lines" := '';
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Map Incoming Doc to Purch Doc", DataExch);
@@ -469,7 +469,7 @@ codeunit 139158 "Invoice Mapping Tests"
         Initialize;
 
         // Setup
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Debit Acc. for Non-Item Lines" := '';
         PurchasesPayablesSetup.Modify(true);
         ChargeAmount := LibraryRandom.RandDecInDecimalRange(1, 100, 2);
@@ -740,8 +740,8 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Invoice Mapping Tests");
 
-        IntermediateDataImport.DeleteAll;
-        TextToAccountMapping.DeleteAll;
+        IntermediateDataImport.DeleteAll();
+        TextToAccountMapping.DeleteAll();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         LibrarySetupStorage.Restore;
@@ -750,10 +750,10 @@ codeunit 139158 "Invoice Mapping Tests"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Invoice Mapping Tests");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Debit Acc. for Non-Item Lines", GLAccount."No.");
         PurchasesPayablesSetup.Modify(true);
         LibraryERMCountryData.CreateVATData;
@@ -768,7 +768,7 @@ codeunit 139158 "Invoice Mapping Tests"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("LCY Code", CurrencyCode);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -794,15 +794,15 @@ codeunit 139158 "Invoice Mapping Tests"
 
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument."Created Doc. Error Msg. Type" := IncomingDocument."Created Doc. Error Msg. Type"::Warning;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         if DataExch.FindLast then
             EntryNo += DataExch."Entry No.";
 
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Entry No." := EntryNo;
         DataExch."Incoming Entry No." := IncomingDocument."Entry No.";
-        DataExch.Insert;
+        DataExch.Insert();
     end;
 
     local procedure SetupValidIntermediateTable(DataExch: Record "Data Exch."; var BuyFromVendor: Record Vendor; var Item1: Record Item; var Item2: Record Item; var Currency: Record Currency; HeaderRecNo: Integer)
@@ -929,7 +929,7 @@ codeunit 139158 "Invoice Mapping Tests"
             SetRange("Field ID", FieldID);
 
             if FindFirst then
-                DeleteAll;
+                DeleteAll();
         end;
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseHeader.SetRange("Incoming Document Entry No.", DataExch."Incoming Entry No.");
         if PurchaseHeader.FindFirst then begin
             VATAmount := 0;
-            TempTotalPurchaseLine.Init;
+            TempTotalPurchaseLine.Init();
             CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
             CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
             if CurrentPurchaseLine.FindFirst then begin

@@ -107,27 +107,27 @@ table 17396 "Person Income FSI"
         TestField(Year);
         TestField("Person No.");
 
-        PersonIncomeFSI.Reset;
+        PersonIncomeFSI.Reset();
         PersonIncomeFSI.SetRange("Person No.", "Person No.");
         PersonIncomeFSI.SetRange(Year, Year);
         PersonIncomeFSI.SetRange(Calculation, true);
-        PersonIncomeFSI.DeleteAll;
+        PersonIncomeFSI.DeleteAll();
 
         Employee.SetRange("Person No.", "Person No.");
         if Employee.FindSet then
             repeat
-                PayrollPeriod.Reset;
+                PayrollPeriod.Reset();
                 PayrollPeriod.SetRange("Ending Date", DMY2Date(1, 1, Year), CalcDate('<+CY>', DMY2Date(1, 12, Year)));
                 if PayrollPeriod.FindSet then
                     repeat
-                        PstdPayrollDocHeader.Reset;
+                        PstdPayrollDocHeader.Reset();
                         PstdPayrollDocHeader.SetRange("Employee No.", Employee."No.");
                         PstdPayrollDocHeader.SetRange("Period Code", PayrollPeriod.Code);
                         if PstdPayrollDocHeader.FindSet then
                             repeat
                                 PayrollCalcGroup.Get(PstdPayrollDocHeader."Calc Group Code");
                                 if PayrollCalcGroup.Type <> PayrollCalcGroup.Type::Between then begin
-                                    PstdPayrollDocLine.Reset;
+                                    PstdPayrollDocLine.Reset();
                                     PstdPayrollDocLine.SetRange("Document No.", PstdPayrollDocHeader."No.");
                                     if PstdPayrollDocLine.FindSet then
                                         repeat

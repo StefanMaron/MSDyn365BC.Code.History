@@ -16,10 +16,10 @@ report 14921 "FA Phys. Inventory INV-1a"
                 trigger OnAfterGetRecord()
                 begin
                     if not FA.Get("FA No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if FA."FA Type" <> FA."FA Type"::"Intangible Asset" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not ExcelReportBuilderMgr.TryAddSectionWithPlaceForFooter('MAINPAGEBODY', 'MAINPAGEFOOTER') then begin
                         FillMainPageTotals;
@@ -53,7 +53,7 @@ report 14921 "FA Phys. Inventory INV-1a"
                 trigger OnPreDataItem()
                 begin
                     if "Document Print Buffer"."Table ID" <> DATABASE::"FA Journal Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     FillGeneralInfo;
 
@@ -179,7 +179,7 @@ report 14921 "FA Phys. Inventory INV-1a"
 
     trigger OnPreReport()
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("INV-1a Template Code");
         ExcelReportBuilderMgr.InitTemplate(FASetup."INV-1a Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');
@@ -215,7 +215,7 @@ report 14921 "FA Phys. Inventory INV-1a"
     [Scope('OnPrem')]
     procedure FillGeneralInfo()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderMgr.AddSection('FIRSTPAGE');
 
         ExcelReportBuilderMgr.AddDataToSection('CompanyName', StdRepMgt.GetCompanyName);

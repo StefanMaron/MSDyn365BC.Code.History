@@ -30,7 +30,7 @@ codeunit 17409 "Person Income Management"
         PersonIncomeHeader: Record "Person Income Header";
         BaseAmount: Decimal;
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         with PostedPayrollDocLine do begin
             Employee.Get("Employee No.");
             Person.Get(Employee."Person No.");
@@ -103,16 +103,16 @@ codeunit 17409 "Person Income Management"
             Employee.Get("Employee No.");
             PayrollPeriod.Get("Period Code");
 
-            PersonIncomeLine.Reset;
+            PersonIncomeLine.Reset();
             PersonIncomeLine.SetRange("Person No.", Employee."Person No.");
             PersonIncomeLine.SetRange("Document No.", "Document No.");
             PersonIncomeLine.SetRange("Period Code", "Period Code");
             PersonIncomeLine.SetRange(Calculation, true);
             if PersonIncomeLine.FindFirst then begin
                 PersonIncomeLine.Amount += "Payroll Amount";
-                PersonIncomeLine.Modify;
+                PersonIncomeLine.Modify();
             end else begin
-                PersonIncomeLine.Init;
+                PersonIncomeLine.Init();
                 PersonIncomeLine.Validate("Person No.", Employee."Person No.");
                 PersonIncomeLine.Validate("Period Code", "Period Code");
                 PersonIncomeLine."Document No." := "Document No.";
@@ -120,7 +120,7 @@ codeunit 17409 "Person Income Management"
                 PersonIncomeLine.Amount := "Payroll Amount";
                 PersonIncomeLine.Calculation := true;
                 if PersonIncomeLine.Amount <> 0 then
-                    PersonIncomeLine.Insert;
+                    PersonIncomeLine.Insert();
             end;
         end;
     end;
@@ -188,7 +188,7 @@ codeunit 17409 "Person Income Management"
         VendLedgEntry2: Record "Vendor Ledger Entry";
         PersonIncomeEntry2: Record "Person Income Entry";
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Payroll Ledger Entry No.");
         VendLedgEntry.SetRange("Payroll Ledger Entry No.", PayrollLedgEntry."Entry No.");
         VendLedgEntry.SetRange("Vendor No.", VendorNo);
@@ -196,7 +196,7 @@ codeunit 17409 "Person Income Management"
             repeat
                 VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                 if VendLedgEntry."Amount (LCY)" <> VendLedgEntry."Remaining Amt. (LCY)" then begin
-                    DtldVendLedgEntry.Reset;
+                    DtldVendLedgEntry.Reset();
                     DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
                     DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
                     DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
@@ -206,7 +206,7 @@ codeunit 17409 "Person Income Management"
                             if DtldVendLedgEntry."Vendor Ledger Entry No." =
                                DtldVendLedgEntry."Applied Vend. Ledger Entry No."
                             then begin
-                                DtldVendLedgEntry2.Reset;
+                                DtldVendLedgEntry2.Reset();
                                 DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                                 DtldVendLedgEntry2.SetRange(
                                   "Applied Vend. Ledger Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
@@ -274,7 +274,7 @@ codeunit 17409 "Person Income Management"
         PayrollDirectory: Record "Payroll Directory";
         NextEntryNo: Integer;
     begin
-        PersonIncomeEntry3.Reset;
+        PersonIncomeEntry3.Reset();
         PersonIncomeEntry3.SetRange("Person Income No.", PersonIncomeLine."Document No.");
         PersonIncomeEntry3.SetRange("Person Income Line No.", PersonIncomeLine."Line No.");
         if PersonIncomeEntry3.FindLast then
@@ -282,7 +282,7 @@ codeunit 17409 "Person Income Management"
         else
             NextEntryNo := 1;
 
-        PersonIncomeEntry.Init;
+        PersonIncomeEntry.Init();
         PersonIncomeEntry."Person Income No." := PersonIncomeLine."Document No.";
         PersonIncomeEntry."Person Income Line No." := PersonIncomeLine."Line No.";
         PersonIncomeEntry."Line No." := NextEntryNo;
@@ -295,7 +295,7 @@ codeunit 17409 "Person Income Management"
         PersonIncomeEntry."Tax Code" := TaxCode;
         PersonIncomeEntry."Tax %" := TaxPercent;
         if TaxCode <> '' then begin
-            PayrollDirectory.Reset;
+            PayrollDirectory.Reset();
             PayrollDirectory.SetRange(Type, PayrollDirectory.Type::Income);
             PayrollDirectory.SetRange(Code, TaxCode);
             PayrollDirectory.SetFilter("Starting Date", '..%1', PostingDate);
@@ -324,7 +324,7 @@ codeunit 17409 "Person Income Management"
         PersonIncomeEntry.Interim := Interim;
         PersonIncomeEntry."Advance Payment" := Advance;
         if (Base <> 0) or (Amount <> 0) or (TaxDeductionAmount <> 0) then
-            PersonIncomeEntry.Insert;
+            PersonIncomeEntry.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -366,14 +366,14 @@ codeunit 17409 "Person Income Management"
             Employee.Get("Employee No.");
             PayrollPeriod.Get("Period Code");
 
-            PersonIncomeLine.Reset;
+            PersonIncomeLine.Reset();
             PersonIncomeLine.SetRange("Person No.", Employee."Person No.");
             PersonIncomeLine.SetRange("Period Code", "Period Code");
             PersonIncomeLine.SetRange("Document No.", "Document No.");
             PersonIncomeLine.SetRange(Calculation, true);
             if PersonIncomeLine.FindSet then
                 repeat
-                    PersonExcludedDays.Init;
+                    PersonExcludedDays.Init();
                     PersonExcludedDays."Person No." := PersonIncomeLine."Person No.";
                     PersonExcludedDays."Period Code" := PersonIncomeLine."Period Code";
                     PersonExcludedDays."Document No." := "Document No.";
@@ -381,7 +381,7 @@ codeunit 17409 "Person Income Management"
                     PersonExcludedDays."Absence Ending Date" := "Action Ending Date";
                     PersonExcludedDays."Calendar Days" := "Days To Exclude";
                     PersonExcludedDays.Description := Description;
-                    PersonExcludedDays.Insert;
+                    PersonExcludedDays.Insert();
                 until PersonIncomeLine.Next = 0;
         end;
     end;

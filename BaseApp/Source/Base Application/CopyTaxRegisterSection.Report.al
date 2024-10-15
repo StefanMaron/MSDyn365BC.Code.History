@@ -20,13 +20,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxReg.TransferFields("Tax Register", true);
                         TaxReg."Section Code" := ToTaxRegSection.Code;
-                        TaxReg.Insert;
+                        TaxReg.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxReg.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxReg.DeleteAll;
+                        TaxReg.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Line Setup"; "Tax Register Line Setup")
@@ -38,13 +38,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegLineSetup.TransferFields("Tax Register Line Setup", true);
                         TaxRegLineSetup."Section Code" := ToTaxRegSection.Code;
-                        TaxRegLineSetup.Insert;
+                        TaxRegLineSetup.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegLineSetup.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegLineSetup.DeleteAll;
+                        TaxRegLineSetup.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Template"; "Tax Register Template")
@@ -56,13 +56,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegTemplate.TransferFields("Tax Register Template", true);
                         TaxRegTemplate."Section Code" := ToTaxRegSection.Code;
-                        TaxRegTemplate.Insert;
+                        TaxRegTemplate.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegTemplate.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegTemplate.DeleteAll;
+                        TaxRegTemplate.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Term"; "Tax Register Term")
@@ -74,13 +74,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegTerm.TransferFields("Tax Register Term", true);
                         TaxRegTerm."Section Code" := ToTaxRegSection.Code;
-                        TaxRegTerm.Insert;
+                        TaxRegTerm.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegTerm.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegTerm.DeleteAll;
+                        TaxRegTerm.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Term Formula"; "Tax Register Term Formula")
@@ -92,13 +92,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegTermFormula.TransferFields("Tax Register Term Formula", true);
                         TaxRegTermFormula."Section Code" := ToTaxRegSection.Code;
-                        TaxRegTermFormula.Insert;
+                        TaxRegTermFormula.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegTermFormula.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegTermFormula.DeleteAll;
+                        TaxRegTermFormula.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Dim. Filter"; "Tax Register Dim. Filter")
@@ -110,13 +110,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegDimFilter.TransferFields("Tax Register Dim. Filter", true);
                         TaxRegDimFilter."Section Code" := ToTaxRegSection.Code;
-                        TaxRegDimFilter.Insert;
+                        TaxRegDimFilter.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegDimFilter.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegDimFilter.DeleteAll;
+                        TaxRegDimFilter.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Dim. Comb."; "Tax Register Dim. Comb.")
@@ -128,13 +128,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegDimComb.TransferFields("Tax Register Dim. Comb.", true);
                         TaxRegDimComb."Section Code" := ToTaxRegSection.Code;
-                        TaxRegDimComb.Insert;
+                        TaxRegDimComb.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegDimComb.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegDimComb.DeleteAll;
+                        TaxRegDimComb.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Dim. Value Comb."; "Tax Register Dim. Value Comb.")
@@ -146,13 +146,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegDimValueComb.TransferFields("Tax Register Dim. Value Comb.", true);
                         TaxRegDimValueComb."Section Code" := ToTaxRegSection.Code;
-                        TaxRegDimValueComb.Insert;
+                        TaxRegDimValueComb.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegDimValueComb.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegDimValueComb.DeleteAll;
+                        TaxRegDimValueComb.DeleteAll();
                     end;
                 }
                 dataitem("Tax Register Dim. Def. Value"; "Tax Register Dim. Def. Value")
@@ -164,13 +164,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegDimDefaultValue.TransferFields("Tax Register Dim. Def. Value", true);
                         TaxRegDimDefaultValue."Section Code" := ToTaxRegSection.Code;
-                        TaxRegDimDefaultValue.Insert;
+                        TaxRegDimDefaultValue.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegDimDefaultValue.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegDimDefaultValue.DeleteAll;
+                        TaxRegDimDefaultValue.DeleteAll();
                     end;
                 }
                 dataitem("Tax Reg. G/L Corr. Dim. Filter"; "Tax Reg. G/L Corr. Dim. Filter")
@@ -182,13 +182,13 @@ report 17200 "Copy Tax Register Section"
                     begin
                         TaxRegGLCorrDimFilter.TransferFields("Tax Reg. G/L Corr. Dim. Filter", true);
                         TaxRegGLCorrDimFilter."Section Code" := ToTaxRegSection.Code;
-                        TaxRegGLCorrDimFilter.Insert;
+                        TaxRegGLCorrDimFilter.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxRegGLCorrDimFilter.SetFilter("Section Code", ToTaxRegSection.Code);
-                        TaxRegGLCorrDimFilter.DeleteAll;
+                        TaxRegGLCorrDimFilter.DeleteAll();
                     end;
                 }
 
@@ -209,7 +209,7 @@ report 17200 "Copy Tax Register Section"
                     ToTaxRegSection."Last FA Entries Date" := 0D;
                     ToTaxRegSection."Last FE Entries Date" := 0D;
                     ToTaxRegSection.Status := ToTaxRegSection.Status::Blocked;
-                    ToTaxRegSection.Modify;
+                    ToTaxRegSection.Modify();
                 end;
 
                 trigger OnPreDataItem()

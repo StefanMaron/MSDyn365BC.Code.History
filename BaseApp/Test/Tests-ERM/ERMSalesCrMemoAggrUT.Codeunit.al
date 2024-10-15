@@ -62,7 +62,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         DisableWarningOnClosingCrMemo;
 
-        Commit;
+        Commit();
 
         BindSubscription(APIMockEvents);
         BindSubscription(IntegrationRecordMockEvents);
@@ -142,7 +142,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
         SalesLine.FindFirst;
         SalesLine."Recalculate Invoice Disc." := true;
-        SalesLine.Modify;
+        SalesLine.Modify();
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
         SalesCreditMemo.Close;
 
@@ -678,7 +678,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreatePostedCrMemoDiscountTypeAmt(SalesCrMemoHeader);
 
         // Execute
-        SalesCrMemoHeader.Delete;
+        SalesCrMemoHeader.Delete();
 
         // Verify
         Assert.IsFalse(SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true), 'Aggregate should be deleted');
@@ -797,7 +797,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Execute
         ClosedCustLedgerEntry.Get(SalesCrMemoHeader."Cust. Ledger Entry No.");
-        ClosedCustLedgerEntry.Delete;
+        ClosedCustLedgerEntry.Delete();
 
         OpenCustLedgerEntry.SetRange("Entry No.", UnpaidSalesCrMemoHeader."Cust. Ledger Entry No.");
         OpenCustLedgerEntry.FindFirst;
@@ -871,9 +871,9 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateSalesHeaderWithID(SalesHeader, ExpectedGuid, SalesHeader."Document Type"::"Credit Memo");
         CreatePostedCrMemoNoDiscount(SalesCrMemoHeader);
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
-        SalesCrMemoEntityBuffer.Delete;
+        SalesCrMemoEntityBuffer.Delete();
         SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false);
-        SalesCrMemoEntityBuffer.Delete;
+        SalesCrMemoEntityBuffer.Delete();
 
         // Execute
         GraphMgtSalCrMemoBuf.UpdateBufferTableRecords;
@@ -1102,14 +1102,14 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(var SalesCreditMemo: TestPage "Sales Credit Memo")
@@ -1347,7 +1347,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesCrMemoEntityBuffer.Id);
-        TempSalesInvoiceLineAggregate.Reset;
+        TempSalesInvoiceLineAggregate.Reset();
     end;
 
     local procedure AddCrMemoDiscToCustomer(Customer: Record Customer; MinimumAmount: Decimal; Percentage: Decimal)
@@ -1387,7 +1387,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         if GeneralLedgerSetup.UseVat then begin
             Customer."Prices Including VAT" := true;
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 
@@ -1423,7 +1423,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", false);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1434,7 +1434,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     begin
         UserPreference."User ID" := UserId;
         UserPreference."Instruction Code" := 'QUERYPOSTONCLOSE';
-        if UserPreference.Insert then;
+        if UserPreference.Insert() then;
     end;
 
     local procedure ErrorMessageForFieldComparison(FieldRef1: FieldRef; FieldRef2: FieldRef; MismatchType: Text): Text
@@ -1472,7 +1472,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     begin
         RecRef.Open(TableID);
 
-        TempField.Reset;
+        TempField.Reset();
         TempField.FindFirst;
 
         repeat
@@ -1552,7 +1552,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
             SourceFieldRef := SourceRecordRef.FieldIndex(I);
             if TargetRecordRef.FieldExist(SourceFieldRef.Number) then begin
                 TargetFieldRef := TargetRecordRef.Field(SourceFieldRef.Number);
-                if Format(SourceFieldRef.Class) = 'Normal' then
+                if SourceFieldRef.Class = FieldClass::Normal then
                     if SourceFieldRef.Name <> 'Id' then
                         Assert.AreEqual(TargetFieldRef.Value, SourceFieldRef.Value, StrSubstNo('Fields %1 do not match', TargetFieldRef.Name));
             end;
@@ -1660,7 +1660,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
                     ExpectedTotalInclTaxAmount := SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal;
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
                     SalesLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
-                    NumberOfLines := SalesLine.Count;
+                    NumberOfLines := SalesLine.Count();
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
@@ -1671,7 +1671,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
                     ExpectedTotalExclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Excl. VAT".AsDEcimal;
                     ExpectedTotalInclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Incl. VAT".AsDEcimal;
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
-                    NumberOfLines := SalesCrMemoLine.Count;
+                    NumberOfLines := SalesCrMemoLine.Count();
                 end;
         end;
 
@@ -1871,7 +1871,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     begin
         Field.Get(TableID, FieldNo);
         TempField.TransferFields(Field, true);
-        TempField.Insert;
+        TempField.Insert();
     end;
 
     local procedure UpdateSalesCrMemoAggregate(var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer"; var TempFieldBuffer: Record "Field Buffer" temporary)
@@ -1907,7 +1907,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Cr. Memo Entity Buffer";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     [Scope('OnPrem')]

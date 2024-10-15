@@ -29,7 +29,7 @@ table 17430 "Payroll Calendar Line"
                     else
                         ShiftDayNo := -1;
 
-                    PayrollCalendarSetup.Reset;
+                    PayrollCalendarSetup.Reset();
                     PayrollCalendarSetup.SetRange("Calendar Code", "Calendar Code");
                     PayrollCalendarSetup.SetRange("Period Type", PayrollCalendarSetup."Period Type"::Shift);
                     PayrollCalendarSetup.SetRange("Day No.", ShiftDayNo);
@@ -43,7 +43,7 @@ table 17430 "Payroll Calendar Line"
                     end;
                 end else begin
                     // Regular calendar
-                    PayrollCalendarSetup.Reset;
+                    PayrollCalendarSetup.Reset();
                     PayrollCalendarSetup.SetRange("Calendar Code", "Calendar Code");
                     PayrollCalendarSetup.SetRange(Year, 0); // No year defined
                     if PayrollCalendarSetup.FindFirst then begin
@@ -146,7 +146,7 @@ table 17430 "Payroll Calendar Line"
     begin
         TestField(Status, Status::Open);
 
-        TimesheetLine.Reset;
+        TimesheetLine.Reset();
         TimesheetLine.SetCurrentKey("Calendar Code", Date);
         TimesheetLine.SetRange("Calendar Code", "Calendar Code");
         TimesheetLine.SetRange(Date, Date);
@@ -263,7 +263,7 @@ table 17430 "Payroll Calendar Line"
         if (PayrollCalendar."Shift Days" = 0) and (not Nonworking) then
             TestField("Work Hours");
 
-        Employee.Reset;
+        Employee.Reset();
         if Employee.FindSet then
             repeat
                 if Employee.GetJobEntry(Employee."No.", Date, EmployeeJobEntry) then
@@ -288,7 +288,7 @@ table 17430 "Payroll Calendar Line"
     begin
         Validate(Status, Status::Released);
 
-        Employee.Reset;
+        Employee.Reset();
         if Employee.FindSet then
             repeat
                 if Employee.GetJobEntry(Employee."No.", Date, EmployeeJobEntry) then

@@ -74,7 +74,7 @@ report 14950 "Job Ticket"
         if ReportSource = ReportSource::UnpostedSales then
             SalesHeader.TestField(Status, SalesHeader.Status::Released);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         FileName := DocumentTemplate.OpenTemplate(SalesReceivablesSetup."Job Ticket Template Code");
 
         wrdApp := wrdApp.ApplicationClass;

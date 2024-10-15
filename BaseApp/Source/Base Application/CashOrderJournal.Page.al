@@ -493,7 +493,7 @@ page 12438 "Cash Order Journal"
                         BankAcc: Record "Bank Account";
                         DocPrint: Codeunit "Document-Print";
                     begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -536,7 +536,7 @@ page 12438 "Cash Order Journal"
                     trigger OnAction()
                     begin
                         if Confirm(Text001, false) then begin
-                            GenJnlLine.Reset;
+                            GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
                             GenJnlLine.SetRange("Bank Payment Type", "Bank Payment Type"::"Computer Check");
                             GenJnlLine.SetRange("Check Printed", true);
@@ -586,7 +586,7 @@ page 12438 "Cash Order Journal"
                     begin
                         if "Line No." = 0 then
                             FieldError("Line No.");
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlLine.SetRange("Line No.", "Line No.");

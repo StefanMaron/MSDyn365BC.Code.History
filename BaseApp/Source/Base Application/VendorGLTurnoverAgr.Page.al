@@ -154,7 +154,7 @@ page 14915 "Vendor G/L Turnover Agr."
 
                     trigger OnAction()
                     begin
-                        Vend.Reset;
+                        Vend.Reset();
                         Vend.SetRange("No.", "Vendor No.");
                         CopyFilter("Date Filter", Vend."Date Filter");
                         CopyFilter("G/L Starting Date Filter", Vend."G/L Starting Date Filter");

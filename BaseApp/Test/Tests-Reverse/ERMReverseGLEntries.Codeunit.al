@@ -21,6 +21,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         IsInitialized: Boolean;
         OutOfBalanceError: Label 'You cannot reverse the transaction because it is out of balance.';
         ReversalErrorFromLedger: Label 'Blocked must be equal to ''No''  in G/L Account: No.=%1. Current value is ''Yes''.';
@@ -541,6 +542,46 @@ codeunit 134131 "ERM Reverse GL Entries"
     [Test]
     [HandlerFunctions('VoidCheckPageHandler')]
     [Scope('OnPrem')]
+    procedure UnApplyAndVoidCheckForAppliedEmployeeEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+        VoidType: Option "Unapply and void check","Void check only";
+    begin
+        // Verify the check ledger entry when we unapply and apply the employee ledger entries with Unapply and void check value.
+
+        // Setup: Create and post invoice and payment for employee and then unapply and apply vendor ledger entries.
+        Initialize;
+
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Employee, LibraryHumanResource.CreateEmployeeNoWithBankAccount,
+          GenJournalLine."Bank Payment Type"::"Computer Check", '', CreateBankAccount(''),
+          LibraryRandom.RandDecInRange(100, 200, 2), '');
+        GenJournalLine."Check Printed" := true;
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
+        GenJournalLine.Modify();
+        Commit();
+
+        CreateCheckLedgerForEmployee(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        DocumentNo := GenJournalLine."Document No.";
+        CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::Employee, GenJournalLine."Applies-to Doc. Type"::Payment, DocumentNo);
+        UnApplyEmployeeLedgerEntries(GenJournalLine."Document Type", GenJournalLine."Document No.");
+        ApplyingAndPostApplicationForEmployeeLedgerEntry(GenJournalLine, DocumentNo);
+        LibraryVariableStorage.Enqueue(VoidType::"Unapply and void check");
+
+        // Exercise: Unapply and void check the check ledger entry.
+        VoidCheck(DocumentNo);// GenJournalLine."Document No.");
+
+        // Verify: Verifying the Entry Status Financially Voided on Check Ledger Entry.
+        VerifyCheckLedgerEntry(DocumentNo);// GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('VoidCheckPageHandler')]
+    [Scope('OnPrem')]
     procedure UnApplyAndVoidCheckForUnAppliedVendorEntries()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -589,6 +630,43 @@ codeunit 134131 "ERM Reverse GL Entries"
 
         // Exercise: Unapply and void check the check ledger entry.
         asserterror VoidCheck(GenJournalLine."Document No.");
+
+        // Verify: Verifying error message.
+        Assert.ExpectedError(UnApplyAndVoidCheckErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('VoidCheckPageHandler')]
+    [Scope('OnPrem')]
+    procedure UnApplyAndVoidCheckForUnAppliedEmployeeEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+        VoidType: Option "Unapply and void check","Void check only";
+    begin
+        // Verify the error message when we void check with option Unapply and void check value in case of employee
+        Initialize;
+
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Employee, LibraryHumanResource.CreateEmployeeNoWithBankAccount,
+          GenJournalLine."Bank Payment Type"::"Computer Check", '', CreateBankAccount(''),
+          LibraryRandom.RandDecInRange(100, 200, 2), '');
+        GenJournalLine."Check Printed" := true;
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
+        GenJournalLine.Modify();
+        Commit();
+
+        CreateCheckLedgerForEmployee(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        DocumentNo := GenJournalLine."Document No.";
+        CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::Employee, GenJournalLine."Applies-to Doc. Type"::Payment, DocumentNo);
+        UnApplyEmployeeLedgerEntries(GenJournalLine."Document Type", GenJournalLine."Document No.");
+        LibraryVariableStorage.Enqueue(VoidType::"Unapply and void check");
+
+        // Exercise: Unapply and void check the check ledger entry.
+        asserterror VoidCheck(DocumentNo);// GenJournalLine."Document No.");
 
         // Verify: Verifying error message.
         Assert.ExpectedError(UnApplyAndVoidCheckErr);
@@ -687,7 +765,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure VoidCheckForVendorPayments()
     var
@@ -726,7 +804,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries");
     end;
 
@@ -764,6 +842,23 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
+    local procedure ApplyingAndPostApplicationForEmployeeLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20])
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, GenJournalLine."Document Type"::" ", GenJournalLine."Document No.");
+        EmployeeLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyEmployeeEntry(EmployeeLedgerEntry, EmployeeLedgerEntry."Remaining Amount");
+
+        LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, GenJournalLine."Document Type"::Payment, DocumentNo);
+        EmployeeLedgerEntry.CalcFields("Remaining Amount");
+        EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
+        EmployeeLedgerEntry.Modify(true);
+
+        LibraryERM.SetAppliestoIdEmployee(EmployeeLedgerEntry);
+        LibraryERM.PostEmplLedgerApplication(EmployeeLedgerEntry);
+    end;
+
     local procedure ReverseAccountAndVerifyMsg(GLAccountNo: Code[20]; DocumentNo: Code[20])
     var
         ReversalEntry: Record "Reversal Entry";
@@ -793,7 +888,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         AllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
         AllowPostingTo := GeneralLedgerSetup."Allow Posting To";
         UpdateGeneralLedgerSetup(0D, 0D); // Update General Ledger Setup Date Range fields with OD value.
@@ -974,8 +1069,8 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine."Check Printed" := true;
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine.Modify;
-        Commit;
+        GenJournalLine.Modify();
+        Commit();
         CreateCheckLedger(GenJournalLine);
     end;
 
@@ -985,14 +1080,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry2: Record "Check Ledger Entry";
         NextCheckEntryNo: Integer;
     begin
-        CheckLedgerEntry2.LockTable;
-        CheckLedgerEntry2.Reset;
+        CheckLedgerEntry2.LockTable();
+        CheckLedgerEntry2.Reset();
         if CheckLedgerEntry2.FindLast then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := NextCheckEntryNo;
         CheckLedgerEntry."Bank Account No." := GenJournalLine."Bal. Account No.";
         CheckLedgerEntry."Document Type" := CheckLedgerEntry."Document Type"::Payment;
@@ -1001,7 +1096,35 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
         CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Printed;
         CheckLedgerEntry.Insert(true);
-        Commit;
+        Commit();
+    end;
+
+    local procedure CreateCheckLedgerForEmployee(GenJournalLine: Record "Gen. Journal Line")
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        CheckLedgerEntry2: Record "Check Ledger Entry";
+        NextCheckEntryNo: Integer;
+    begin
+        CheckLedgerEntry2.LockTable();
+        CheckLedgerEntry2.Reset();
+        if CheckLedgerEntry2.FindLast then
+            NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
+        else
+            NextCheckEntryNo := 1;
+
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Entry No." := NextCheckEntryNo;
+        CheckLedgerEntry."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Employee;
+        CheckLedgerEntry."Bank Account No." := GenJournalLine."Bal. Account No.";
+        CheckLedgerEntry."Document Type" := CheckLedgerEntry."Document Type"::Payment;
+        CheckLedgerEntry."Document No." := GenJournalLine."Document No.";
+        CheckLedgerEntry.Amount := GenJournalLine.Amount;
+        CheckLedgerEntry."Check No." := GenJournalLine."Document No.";
+        CheckLedgerEntry."Bal. Account No." := GenJournalLine."Account No.";// ."Bal. Account No.";
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Computer Check";
+        CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Printed;
+        CheckLedgerEntry.Insert(true);
+        Commit();
     end;
 
     local procedure DateCompressForGLEntries(DocumentNo: Code[20])
@@ -1063,14 +1186,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         DimensionTranslation: Record "Dimension Translation";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        DimensionSelectionBuffer.DeleteAll;
+        DimensionSelectionBuffer.DeleteAll();
         DimensionTranslation.FindSet;
         if DimensionSelectionBuffer.IsEmpty then
             repeat
                 if not DimensionSelectionBuffer.Get(DimensionTranslation.Code) then begin
                     DimensionSelectionBuffer.Validate(Code, DimensionTranslation.Code);
                     DimensionSelectionBuffer.Validate(Selected, true);
-                    DimensionSelectionBuffer.Insert;
+                    DimensionSelectionBuffer.Insert();
                 end;
             until DimensionTranslation.Next = 0;
         DimensionSelectionBuffer.SetDimSelection(3, 98, '', RetainDimText, DimensionSelectionBuffer);
@@ -1092,6 +1215,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
+    local procedure UnApplyEmployeeLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
+    end;
+
     local procedure UpdateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
     begin
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -1103,7 +1234,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Using assignment to avoid validation errors.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" := AllowPostingFrom;
         GeneralLedgerSetup."Allow Posting To" := AllowPostingTo;
         GeneralLedgerSetup.Modify(true);
@@ -1223,14 +1354,6 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryVariableStorage.Dequeue(VoidTypeVariant);
         ConfirmFinancialVoid.InitializeRequest(WorkDate, VoidTypeVariant);
         Response := ACTION::Yes
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    begin
-        GeneralJournalTemplateList.First;
-        GeneralJournalTemplateList.OK.Invoke;
     end;
 
     [ConfirmHandler]

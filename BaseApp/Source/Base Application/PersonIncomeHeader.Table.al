@@ -21,7 +21,7 @@ table 17392 "Person Income Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HRSetup.Get;
+                    HRSetup.Get();
                     NoSeriesMgt.TestManual(HRSetup."Person Income Document Nos.");
                     "No. Series" := '';
                 end;
@@ -200,19 +200,19 @@ table 17392 "Person Income Header"
     var
         PersonIncomeLine: Record "Person Income Line";
     begin
-        PersonIncomeLine.Reset;
+        PersonIncomeLine.Reset();
         PersonIncomeLine.SetRange("Document No.", "No.");
-        PersonIncomeLine.DeleteAll;
+        PersonIncomeLine.DeleteAll();
 
-        PersonIncomeEntry.Reset;
+        PersonIncomeEntry.Reset();
         PersonIncomeEntry.SetRange("Person Income No.", "No.");
-        PersonIncomeEntry.DeleteAll;
+        PersonIncomeEntry.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            HRSetup.Get;
+            HRSetup.Get();
             TestNoSeries;
             NoSeriesMgt.InitSeries(
               HRSetup."Person Income Document Nos.", xRec."No. Series", "Document Date",
@@ -235,7 +235,7 @@ table 17392 "Person Income Header"
     procedure AssistEdit(OldPersonIncomeHeader: Record "Person Income Header"): Boolean
     begin
         PersonIncomeHeader.Copy(Rec);
-        HRSetup.Get;
+        HRSetup.Get();
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(HRSetup."Person Income Document Nos.", OldPersonIncomeHeader."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
@@ -263,29 +263,29 @@ table 17392 "Person Income Header"
         TestField(Year);
         TestField("Person No.");
 
-        PersonIncomeLine.Reset;
+        PersonIncomeLine.Reset();
         PersonIncomeLine.SetRange("Document No.", "No.");
         PersonIncomeLine.SetRange(Calculation, true);
-        PersonIncomeLine.DeleteAll;
+        PersonIncomeLine.DeleteAll();
 
-        PersonIncomeEntry.Reset;
+        PersonIncomeEntry.Reset();
         PersonIncomeEntry.SetRange("Person Income No.", "No.");
         PersonIncomeEntry.SetRange(Calculation, true);
-        PersonIncomeEntry.DeleteAll;
+        PersonIncomeEntry.DeleteAll();
 
         Employee.SetRange("Person No.", "Person No.");
         if Employee.FindSet then
             repeat
-                PayrollPeriod.Reset;
+                PayrollPeriod.Reset();
                 PayrollPeriod.SetRange("Ending Date", DMY2Date(1, 1, Year), CalcDate('<+CY>', DMY2Date(1, 12, Year)));
                 if PayrollPeriod.FindSet then
                     repeat
-                        PstdPayrollDocHeader.Reset;
+                        PstdPayrollDocHeader.Reset();
                         PstdPayrollDocHeader.SetRange("Employee No.", Employee."No.");
                         PstdPayrollDocHeader.SetRange("Period Code", PayrollPeriod.Code);
                         if PstdPayrollDocHeader.FindSet then
                             repeat
-                                PstdPayrollDocLine.Reset;
+                                PstdPayrollDocLine.Reset();
                                 PstdPayrollDocLine.SetRange("Document No.", PstdPayrollDocHeader."No.");
                                 if PstdPayrollDocLine.FindSet then
                                     repeat

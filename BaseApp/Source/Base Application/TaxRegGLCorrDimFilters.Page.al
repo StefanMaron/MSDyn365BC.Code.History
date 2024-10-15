@@ -90,7 +90,7 @@ page 17288 "Tax Reg G/L Corr. Dim. Filters"
                     end;
             end;
         end else begin
-            GLSetup.Get;
+            GLSetup.Get();
             AddValue2Fiter(GLSetup."Global Dimension 1 Code", DimCodeFilter);
             AddValue2Fiter(GLSetup."Global Dimension 2 Code", DimCodeFilter);
         end;

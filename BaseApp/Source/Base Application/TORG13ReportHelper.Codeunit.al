@@ -21,8 +21,8 @@ codeunit 14935 "TORG-13 Report Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        GeneralLedgerSetup.Get;
-        InventorySetup.Get;
+        GeneralLedgerSetup.Get();
+        InventorySetup.Get();
         InventorySetup.TestField("TORG-13 Template Code");
         ExcelReportBuilderManager.InitTemplate(InventorySetup."TORG-13 Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');

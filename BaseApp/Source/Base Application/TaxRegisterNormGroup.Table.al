@@ -134,7 +134,7 @@ table 17221 "Tax Register Norm Group"
     begin
         TaxRegNormGroup.Get(NormJurisdictionCode, NormCode);
 
-        TaxRegNormTemplateLine.Reset;
+        TaxRegNormTemplateLine.Reset();
         TaxRegNormTemplateLine.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
         TaxRegNormTemplateLine.SetRange("Norm Group Code", TaxRegNormGroup.Code);
         TaxRegNormTemplateLine.SetRange("Date Filter", StartDate, EndDate);
@@ -163,7 +163,7 @@ table 17221 "Tax Register Norm Group"
                     TaxRegValueBuffer.Quantity := TaxRegNormAccumulation.Amount;
                 end;
                 TaxRegValueBuffer."Order Line No." := TaxRegNormTemplateLine."Line No.";
-                TaxRegValueBuffer.Insert;
+                TaxRegValueBuffer.Insert();
             until TaxRegNormTemplateLine.Next(1) = 0;
         TaxRegNormTemplateLine.SetRange("Line Type");
         TaxRegNormTemplateLine.SetRange("Line Code");
@@ -171,29 +171,29 @@ table 17221 "Tax Register Norm Group"
         TemplateRecordRef.SetView(TaxRegNormTemplateLine.GetView);
         TaxRegTermMgt.CalculateTemplateEntry(
           TemplateRecordRef, EntryNoAmountBuffer, LinkAccumulateRecordRef, TaxRegValueBuffer);
-        EntryNoAmountBuffer.Reset;
+        EntryNoAmountBuffer.Reset();
         if EntryNoAmountBuffer.Find('-') then
             repeat
                 TaxRegNormAccumulation.SetRange("Template Line No.", EntryNoAmountBuffer."Entry No.");
                 TaxRegNormAccumulation.FindFirst;
                 TaxRegNormAccumulation.Amount := EntryNoAmountBuffer.Amount;
-                TaxRegNormAccumulation.Modify;
+                TaxRegNormAccumulation.Modify();
                 TaxRegNormTemplateLine.Get(NormJurisdictionCode, NormCode, TaxRegNormAccumulation."Template Line No.");
                 if TaxRegNormTemplateLine."Line Type" = TaxRegNormTemplateLine."Line Type"::"Norm Value" then begin
                     ResultAmount := TaxRegNormAccumulation.Amount;
-                    TaxRegNormDetail.Init;
+                    TaxRegNormDetail.Init();
                     TaxRegNormDetail."Norm Jurisdiction Code" := NormJurisdictionCode;
                     TaxRegNormDetail."Norm Group Code" := NormCode;
                     TaxRegNormDetail."Norm Type" := TaxRegNormDetail."Norm Type"::Amount;
                     TaxRegNormDetail."Effective Date" := EndDate;
                     TaxRegNormDetail.Norm := ResultAmount;
-                    if not TaxRegNormDetail.Insert then
-                        TaxRegNormDetail.Modify;
+                    if not TaxRegNormDetail.Insert() then
+                        TaxRegNormDetail.Modify();
                 end;
             until EntryNoAmountBuffer.Next(1) = 0;
-        TaxRegValueBuffer.Reset;
-        TaxRegValueBuffer.DeleteAll;
-        EntryNoAmountBuffer.DeleteAll;
+        TaxRegValueBuffer.Reset();
+        TaxRegValueBuffer.DeleteAll();
+        EntryNoAmountBuffer.DeleteAll();
     end;
 }
 

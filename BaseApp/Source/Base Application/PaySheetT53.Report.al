@@ -161,9 +161,9 @@ report 17457 "Pay Sheet T-53"
         if PeriodEndDate = 0D then
             Error(Text14801);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-53 Template Code");
 
         if PreviewMode then
@@ -254,7 +254,7 @@ report 17457 "Pay Sheet T-53"
                         if not TempPerson.Get(PersonNo) then begin
                             Person.Get(PersonNo);
                             TempPerson := Person;
-                            TempPerson.Insert;
+                            TempPerson.Insert();
                         end;
                 until Next = 0;
         end;

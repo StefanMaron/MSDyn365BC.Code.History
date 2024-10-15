@@ -226,7 +226,7 @@ page 35610 "Purchase Advance Reports"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }

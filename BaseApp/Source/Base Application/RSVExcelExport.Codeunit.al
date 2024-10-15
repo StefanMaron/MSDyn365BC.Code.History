@@ -26,8 +26,8 @@ codeunit 17471 "RSV Excel Export"
     begin
         if Person.IsEmpty then
             exit;
-        CompanyInfo.Get;
-        HumanResourcesSetup.Get;
+        CompanyInfo.Get();
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("RSV Template Code");
 
         FileName := CopyStr(ExcelTemplate.OpenTemplate(HumanResourcesSetup."RSV Template Code"), 1, MaxStrLen(FileName));
@@ -59,7 +59,7 @@ codeunit 17471 "RSV Excel Export"
         Page1_Fill(EndDate, EmployeeQty);
         Page2_Fill(DetailPayrollReportingBuffer, TotalPaidPayrollReportingBuffer);
 
-        DetailPayrollReportingBuffer.Reset;
+        DetailPayrollReportingBuffer.Reset();
         DetailPayrollReportingBuffer.SetRange("Code 3", '03');
         IsDisability := not DetailPayrollReportingBuffer.IsEmpty;
 
@@ -91,8 +91,8 @@ codeunit 17471 "RSV Excel Export"
         ExcelMgt.OpenSheetByNumber(StartSheetNo + 2);
         TemplateSheet12Name := ExcelMgt.GetSheetName;
 
-        PersonCount := ReportingPersonPayrollReportingBuffer.Count;
-        PersonifiedPayrollReportingBuffer.Reset;
+        PersonCount := ReportingPersonPayrollReportingBuffer.Count();
+        PersonifiedPayrollReportingBuffer.Reset();
         if ReportingPersonPayrollReportingBuffer.FindSet then
             repeat
                 RSVCalculationMgt.FilterReportingBuffer(PersonifiedPayrollReportingBuffer, ReportingPersonPayrollReportingBuffer);
@@ -152,7 +152,7 @@ codeunit 17471 "RSV Excel Export"
         Page2_FillPaymentInfo(TempTotalAmt150PayrollReportingBuffer, 24);
 
         // Fill empty Values
-        TempTotalAmt100PayrollReportingBuffer.Init;
+        TempTotalAmt100PayrollReportingBuffer.Init();
         Page2_FillPaymentInfo(TempTotalAmt100PayrollReportingBuffer, 16);
         Page2_FillPaymentInfo(TempTotalAmt100PayrollReportingBuffer, 17);
     end;
@@ -203,11 +203,11 @@ codeunit 17471 "RSV Excel Export"
             Amount206[i + 1] := -(PersonifiedPayrollReportingBuffer."Amount 8" - PersonifiedPayrollReportingBuffer."Amount 4");
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 7", '<>%1', 0);
-            Amount207[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount207[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 7");
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 3", '<>%1', 0);
-            Amount208[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount208[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 3");
 
             Amount210[i + 1] := Amount200[i + 1];
@@ -217,7 +217,7 @@ codeunit 17471 "RSV Excel Export"
             Amount214[i + 1] := -PersonifiedPayrollReportingBuffer."Amount 9";
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 9", '<>%1', 0);
-            Amount215[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount215[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 9");
         end;
 
@@ -404,7 +404,7 @@ codeunit 17471 "RSV Excel Export"
             if AmountsPayrollReportingBuffer.Get(i + 1) then
                 Page2_FillPaymentInfo(AmountsPayrollReportingBuffer, RowNo + i);
 
-        AmountsPayrollReportingBuffer.Reset;
+        AmountsPayrollReportingBuffer.Reset();
         AmountsPayrollReportingBuffer.SetRange("Entry No.", 2, 4);
         AmountsPayrollReportingBuffer.CalcSums("Amount 1", "Amount 2", "Amount 3", "Amount 4", "Amount 5", "Amount 6");
         Page2_FillPaymentInfo(AmountsPayrollReportingBuffer, RowNo + 4);
@@ -511,7 +511,7 @@ codeunit 17471 "RSV Excel Export"
     var
         TempPrintPayrollReportingBuffer: Record "Payroll Reporting Buffer" temporary;
     begin
-        TempPrintPayrollReportingBuffer.Init;
+        TempPrintPayrollReportingBuffer.Init();
         PersonifiedPayrollReportingBuffer.SetRange("Code 2", Format(PeriodNo));
         if PersonifiedPayrollReportingBuffer.FindFirst then
             TempPrintPayrollReportingBuffer := PersonifiedPayrollReportingBuffer;
@@ -544,7 +544,7 @@ codeunit 17471 "RSV Excel Export"
         PrintPayrollReportingBuffer: Record "Payroll Reporting Buffer";
         RowNo: Integer;
     begin
-        PrintPayrollReportingBuffer.Init;
+        PrintPayrollReportingBuffer.Init();
         PersonifiedPayrollReportingBuffer.SetRange("Code 2", Format(PeriodNo));
         if PersonifiedPayrollReportingBuffer.FindFirst then
             PrintPayrollReportingBuffer := PersonifiedPayrollReportingBuffer;
@@ -605,17 +605,17 @@ codeunit 17471 "RSV Excel Export"
 
     local procedure GetEmployeeSpecialCodeList(var SpecialCodeListEmployee: Record Employee; var PersonifiedPayrollReportingBuffer: Record "Payroll Reporting Buffer")
     begin
-        SpecialCodeListEmployee.DeleteAll;
+        SpecialCodeListEmployee.DeleteAll();
         PersonifiedPayrollReportingBuffer.SetFilter("Code 4", '<>%1', '');
         if PersonifiedPayrollReportingBuffer.FindSet then
             repeat
                 SpecialCodeListEmployee."No." := PersonifiedPayrollReportingBuffer."Code 4";
-                if SpecialCodeListEmployee.Insert then;
+                if SpecialCodeListEmployee.Insert() then;
             until PersonifiedPayrollReportingBuffer.Next = 0;
 
         if SpecialCodeListEmployee.IsEmpty then begin
             SpecialCodeListEmployee."No." := 'ZZZZZZZZZZ';
-            SpecialCodeListEmployee.Insert;
+            SpecialCodeListEmployee.Insert();
         end;
     end;
 

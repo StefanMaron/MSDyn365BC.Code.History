@@ -171,7 +171,7 @@ page 17314 "Tax Calc. Line Select Subf"
         DimCodeFilter: Text[1024];
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxCalcHeader.Get("Section Code", Code);
         if TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry" then
             Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
@@ -211,7 +211,7 @@ page 17314 "Tax Calc. Line Select Subf"
         TaxDifGLCorrDimFilter: Record "Tax Diff. Corr. Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxCalcHeader.Get("Section Code", Code);
         if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
             TaxDifGLCorrDimFilter.FilterGroup(2);

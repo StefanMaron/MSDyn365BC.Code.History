@@ -128,7 +128,7 @@ report 14918 "Items Receipt Act TORG-1"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Item Document Header"; "Item Document Header")
@@ -195,7 +195,7 @@ report 14918 "Items Receipt Act TORG-1"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Item Receipt Header"; "Item Receipt Header")
@@ -263,7 +263,7 @@ report 14918 "Items Receipt Act TORG-1"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(HeaderLoop; "Integer")
@@ -534,8 +534,8 @@ report 14918 "Items Receipt Act TORG-1"
     begin
         InitReportTemplate;
 
-        GLSetup.Get;
-        CompanyInformation.Get;
+        GLSetup.Get();
+        CompanyInformation.Get();
     end;
 
     trigger OnPostReport()
@@ -600,7 +600,7 @@ report 14918 "Items Receipt Act TORG-1"
         HeaderBuffer."Vendor VAT Invoice Date" := VendorVatInvoiceDate;
         HeaderBuffer."Agreement No." := AgreementNo;
         HeaderBuffer."External Agreement No." := ExtAgreementNo;
-        HeaderBuffer.Insert;
+        HeaderBuffer.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -627,7 +627,7 @@ report 14918 "Items Receipt Act TORG-1"
         LineBuffer."VAT %" := VATPercent;
         LineBuffer.Surplus := Surplus;
         LineBuffer."Special Order" := DocumentType;
-        LineBuffer.Insert;
+        LineBuffer.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -800,7 +800,7 @@ report 14918 "Items Receipt Act TORG-1"
                             TempPurchLine.Quantity := 0
                     else
                         TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
-                    TempPurchLine.Insert;
+                    TempPurchLine.Insert();
 
                 until PurchLine.Next = 0;
             PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
@@ -820,7 +820,7 @@ report 14918 "Items Receipt Act TORG-1"
 
     local procedure InitReportTemplate()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("TORG-1 Template Code");
         ExcelReportBuilderMgr.InitTemplate(PurchSetup."TORG-1 Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');

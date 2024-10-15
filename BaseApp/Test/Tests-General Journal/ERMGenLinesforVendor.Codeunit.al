@@ -239,10 +239,11 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Initialize;
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch);
-        InitStandardGenJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
+        StandardGeneralJournal.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        StandardGeneralJournal.FindFirst;
 
         // 2. Exercise: Run Create Vendor Journal Lines Report.
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         Vendor.SetRange("No.", Vendor."No.");
@@ -330,7 +331,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
           CreateGLAccountNoPurchase, 0, '', LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] General Journal Line2: "Account Type" = "Customer"
@@ -339,7 +340,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, 0, '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post General Journal
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -367,7 +368,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
           CreateGLAccountNoSales, 0, '', -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] General Journal Line2: "Account Type" = "Vendor"
@@ -376,7 +377,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
           LibraryPurchase.CreateVendorNo, 0, '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post General Journal
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -548,7 +549,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERMCountryData.UpdateGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndCheckEqualAmount(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
@@ -786,32 +787,12 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
         CreateVendorJournalLines: Report "Create Vendor Journal Lines";
     begin
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice, WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateVendorJournalLines.Run;
-    end;
-
-    local procedure InitStandardGenJournal(var StandardGeneralJournal: Record "Standard General Journal"; GenJnlTemplateName: Code[10])
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        StdGenJnlLine: Record "Standard General Journal Line";
-    begin
-        GenJnlTemplate.Get(GenJnlTemplateName);
-        StandardGeneralJournal.SetRange("Journal Template Name", GenJnlTemplate.Name);
-        StandardGeneralJournal.FindFirst;
-        with StdGenJnlLine do begin
-            Init;
-            Validate("Journal Template Name", GenJnlTemplate.Name);
-            Validate("Standard Journal Code", StandardGeneralJournal.Code);
-            "Line No." := 10000;
-            Validate("Source Code", GenJnlTemplate."Source Code");
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Validate("Account No.", LibraryERM.CreateGLAccountNo);
-            Insert(true);
-        end;
     end;
 
     local procedure VerifyAmountToApplyError(VendorLedgerEntry: Record "Vendor Ledger Entry")

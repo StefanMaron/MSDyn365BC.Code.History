@@ -8,7 +8,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader := Rec;
-        PurchInvHeader.LockTable;
+        PurchInvHeader.LockTable();
         PurchInvHeader.Find;
         PurchInvHeader."Payment Reference" := "Payment Reference";
         PurchInvHeader."Creditor No." := "Creditor No.";
@@ -16,7 +16,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader."Posting Description" := "Posting Description";
         OnBeforePurchInvHeaderModify(PurchInvHeader, Rec);
         PurchInvHeader.TestField("No.", "No.");
-        PurchInvHeader.Modify;
+        PurchInvHeader.Modify();
         Rec := PurchInvHeader;
     end;
 

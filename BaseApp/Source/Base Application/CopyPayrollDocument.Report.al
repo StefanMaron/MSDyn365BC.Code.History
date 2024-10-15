@@ -116,7 +116,7 @@ report 17412 "Copy Payroll Document"
             FromPayrollDoc.Init
         else
             if DocNo <> FromPayrollDoc."No." then begin
-                FromPayrollDoc.Init;
+                FromPayrollDoc.Init();
                 case DocType of
                     DocType::"Payroll Document":
                         FromPayrollDoc.Get(DocNo);

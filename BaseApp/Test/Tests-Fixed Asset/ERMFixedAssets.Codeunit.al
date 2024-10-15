@@ -44,6 +44,7 @@ codeunit 134451 "ERM Fixed Assets"
         BlankFirstFANoError: Label 'You must specify a number in First FA No. field or use the FA No. Series.';
         CopyFixedAssetError: Label '%1 must be equal to %2.';
         WrongDeprDaysErr: Label 'Wrong number of depreciation days.';
+        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
         MixedDerpFAUntilPostingDateErr: Label 'The value in the Depr. Until FA Posting Date field must be the same on lines for the same fixed asset %1.';
@@ -81,7 +82,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure PostCalculateDepreciation()
     var
@@ -114,7 +115,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcMessageHandler')]
     [Scope('OnPrem')]
     procedure CalculateDepreciationWithNoJournalOutput()
     var
@@ -130,7 +131,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryLowerPermissions.SetO365FAView;
         RunCalculateDepreciation('DUMMY', DepreciationBook.Code);
 
-        // 3.Verify: In MessageHandler, verify that no journal output is generated and that correct message is shown.
+        // 3.Verify: In DepreciationCalcMessageHandler, verify that no journal output is generated and that correct message is shown.
     end;
 
     [Test]
@@ -221,7 +222,7 @@ codeunit 134451 "ERM Fixed Assets"
         // [GIVEN] Fixed Asset, where FA posting group has "Appreciation Account" = 'AA'
         CreateFixedAssetSetup(DepreciationBook);
         DepreciationBook."G/L Integration - Appreciation" := true;
-        DepreciationBook.Modify;
+        DepreciationBook.Modify();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
 
@@ -230,7 +231,7 @@ codeunit 134451 "ERM Fixed Assets"
         // [GIVEN] Purchase line, where Type = "Fixed Asset", "FA Posting Type"=Appreciation, "Direct Unit Cost"= 100
         CreatePurchLine(PurchLine, PurchHeader, FixedAsset."No.", DepreciationBook.Code);
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::Appreciation);
-        PurchLine.Modify;
+        PurchLine.Modify();
 
         // [WHEN] Post the document
         asserterror LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -261,7 +262,7 @@ codeunit 134451 "ERM Fixed Assets"
         CreateFixedAssetSetup(DepreciationBook);
         DepreciationBook."G/L Integration - Acq. Cost" := true;
         DepreciationBook."G/L Integration - Appreciation" := true;
-        DepreciationBook.Modify;
+        DepreciationBook.Modify();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
 
@@ -269,7 +270,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         CreatePurchLine(PurchLine, PurchHeader, FixedAsset."No.", DepreciationBook.Code);
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::"Acquisition Cost");
-        PurchLine.Modify;
+        PurchLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // [GIVEN] Purchase Invoice for Appreciation
@@ -277,7 +278,7 @@ codeunit 134451 "ERM Fixed Assets"
         // [GIVEN] Purchase line, where Type = "Fixed Asset", "FA Posting Type"=Appreciation, "Direct Unit Cost"= 100
         CreatePurchLine(PurchLine, PurchHeader, FixedAsset."No.", DepreciationBook.Code);
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::Appreciation);
-        PurchLine.Modify;
+        PurchLine.Modify();
         AppreciationAmount := Round(PurchLine."Direct Unit Cost" * PurchLine.Quantity, 0.01);
 
         // [WHEN] Post the document
@@ -323,7 +324,7 @@ codeunit 134451 "ERM Fixed Assets"
         CreateFixedAssetSetup(DepreciationBook);
         DepreciationBook."G/L Integration - Acq. Cost" := true;
         DepreciationBook."G/L Integration - Appreciation" := true;
-        DepreciationBook.Modify;
+        DepreciationBook.Modify();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
 
@@ -331,7 +332,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         CreatePurchLine(PurchLine, PurchHeader, FixedAsset."No.", DepreciationBook.Code);
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::"Acquisition Cost");
-        PurchLine.Modify;
+        PurchLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // [GIVEN] Purchase Invoice for Appreciation
@@ -339,7 +340,7 @@ codeunit 134451 "ERM Fixed Assets"
         // [GIVEN] Purchase line, where Type = "Fixed Asset", "FA Posting Type"=Appreciation, "Direct Unit Cost"= 100
         CreatePurchLine(PurchLine, PurchHeader, FixedAsset."No.", DepreciationBook.Code);
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::Appreciation);
-        PurchLine.Modify;
+        PurchLine.Modify();
         AppreciationAmount := Round(PurchLine."Direct Unit Cost" * PurchLine.Quantity, 0.01);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
@@ -350,7 +351,7 @@ codeunit 134451 "ERM Fixed Assets"
         PurchLine.Validate("FA Posting Type", PurchLine."FA Posting Type"::Appreciation);
         PurchLine.Validate(Quantity, 1);
         PurchLine.Validate("Direct Unit Cost", AppreciationAmount);
-        PurchLine.Modify;
+        PurchLine.Modify();
 
         // [WHEN] Post the document
         CrMemoDocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -402,7 +403,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure PostSalesInvoiceWithFixedAsset()
     var
@@ -443,7 +444,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure PostSalesOrderAllowCorrError()
     var
@@ -491,7 +492,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure ProceedsOnDisposalAndGainLoss()
     var
@@ -872,7 +873,7 @@ codeunit 134451 "ERM Fixed Assets"
         Initialize;
         CreateInactiveFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        Commit;  // COMMIT needs before running batch report.
+        Commit();  // COMMIT needs before running batch report.
 
         // 2. Exercise: Run Create FA Depreciation Books Report with Copy From FA No as blank.
         // Set Depreciation Book and Copy From FA No. into FA Depreciation Books Handler.
@@ -901,7 +902,7 @@ codeunit 134451 "ERM Fixed Assets"
         Initialize;
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        Commit;  // COMMIT needs before running batch report.
+        Commit();  // COMMIT needs before running batch report.
 
         // 2. Exercise: Run Create FA Depreciation Books Report with Copy From FA No as blank.
         // Set Depreciation Book and Copy From FA No. into FA Depreciation Books Handler.
@@ -933,7 +934,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // 2.Exercise: Run Create Sum of Digits Table Report.
         LibraryLowerPermissions.SetO365FASetup;
-        Commit;  // COMMIT is important here before use Depreciation Table Card Page.
+        Commit();  // COMMIT is important here before use Depreciation Table Card Page.
         DepreciationTableCard.OpenView;
         DepreciationTableCard.FILTER.SetFilter(Code, DepreciationTableHeader.Code);
         asserterror DepreciationTableCard.CreateSumOfDigitsTable.Invoke;
@@ -961,7 +962,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // 2.Exercise: Run Create Sum of Digits Table Report.
         LibraryLowerPermissions.SetO365FASetup;
-        Commit;  // COMMIT is important here before use Depreciation Table Card Page.
+        Commit();  // COMMIT is important here before use Depreciation Table Card Page.
         DepreciationTableCard.OpenView;
         DepreciationTableCard.FILTER.SetFilter(Code, DepreciationTableHeader.Code);
         DepreciationTableCard.CreateSumOfDigitsTable.Invoke;
@@ -989,7 +990,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // 2.Exercise: Run Create Sum of Digits Table Report.
         LibraryLowerPermissions.SetO365FASetup;
-        Commit;  // COMMIT is important here before use Depreciation Table Card Page.
+        Commit();  // COMMIT is important here before use Depreciation Table Card Page.
         DepreciationTableCard.OpenView;
         DepreciationTableCard.FILTER.SetFilter(Code, DepreciationTableHeader.Code);
         asserterror DepreciationTableCard.CreateSumOfDigitsTable.Invoke;
@@ -1112,7 +1113,7 @@ codeunit 134451 "ERM Fixed Assets"
         // 1.Setup: Create Fixed Asset
         Initialize;
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAssetCount := FixedAsset.Count;
+        FixedAssetCount := FixedAsset.Count();
         NoOfFixedAssetCopied := LibraryRandom.RandInt(10);  // Using Random Generator to Copy the Number of Fixed Asset.
 
         // 2.Exercise: Run the Copy Fixed Assets with Use FA No. Series as false.
@@ -1155,7 +1156,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure WriteDownDepreciationTypeEnabled()
     var
@@ -1181,7 +1182,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure WriteDownDepreciationTypeDisabled()
     var
@@ -1281,7 +1282,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure GLEntryVATEntryLinkForVATNetDisposal()
     var
@@ -1741,7 +1742,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1773,7 +1774,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1805,7 +1806,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1837,7 +1838,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1869,7 +1870,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1901,7 +1902,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1933,7 +1934,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1965,7 +1966,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1997,7 +1998,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -2029,7 +2030,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Created FA Depreciation Book with the chosen "Depreciation Method"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -2044,7 +2045,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure UndoSalesShipmentLineFixedAsset()
     var
@@ -2078,7 +2079,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure UndoSalesReturnReceiptLineFixedAsset()
     var
@@ -2131,7 +2132,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
         DepreciationBook."G/L Integration - Acq. Cost" := true;
-        DepreciationBook.Modify;
+        DepreciationBook.Modify();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreatePurchLine(PurchaseLine, PurchaseHeader, FixedAsset."No.", DepreciationBook.Code);
@@ -2166,7 +2167,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
         DepreciationBook."G/L Integration - Acq. Cost" := true;
-        DepreciationBook.Modify;
+        DepreciationBook.Modify();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo);
         CreatePurchLine(PurchaseLine, PurchaseHeader, FixedAsset."No.", DepreciationBook.Code);
@@ -2311,7 +2312,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryERMCountryData.UpdateLocalData;
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets");
     end;
 
@@ -2350,11 +2351,11 @@ codeunit 134451 "ERM Fixed Assets"
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
         GLAccount."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
         GLAccount."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         FAPostingGroup.Get(FAPostingGroupCode);
         FAPostingGroup."Appreciation Account" := GLAccount."No.";
-        FAPostingGroup.Modify;
+        FAPostingGroup.Modify();
     end;
 
     local procedure CreateAndPostFAJournalLine(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]) DocumentNo: Code[20]
@@ -2856,7 +2857,7 @@ codeunit 134451 "ERM Fixed Assets"
         FixedAssetNo2 := FixedAssetNo;
         Clear(CreateFADepreciationBooks);
         CreateFADepreciationBooks.SetTableView(FixedAsset);
-        Commit;
+        Commit();
         CreateFADepreciationBooks.Run;
     end;
 
@@ -3095,8 +3096,8 @@ codeunit 134451 "ERM Fixed Assets"
 
     local procedure FASetupClassesAndSubclasses(var FAClass1: Record "FA Class"; var FASubclass1: Record "FA Subclass"; var FAClass2: Record "FA Class"; var FASubclass2: Record "FA Subclass"; var FASubclass: Record "FA Subclass")
     begin
-        FAClass1.DeleteAll;
-        FASubclass1.DeleteAll;
+        FAClass1.DeleteAll();
+        FASubclass1.DeleteAll();
         LibraryFixedAsset.CreateFASubclass(FASubclass);
         LibraryFixedAsset.CreateFAClass(FAClass1);
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass1, FAClass1.Code, '');
@@ -3173,8 +3174,9 @@ codeunit 134451 "ERM Fixed Assets"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text)
+    procedure DepreciationCalcMessageHandler(Message: Text[1024])
     begin
+        Assert.ExpectedMessage(CompletionStatsMsg, Message);
     end;
 }
 

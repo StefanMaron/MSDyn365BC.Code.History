@@ -6,8 +6,8 @@ codeunit 12406 PeriodReportManagement
     end;
 
     var
-        Text000: Label ' <Year4>';
-        Text001: Label '<Year4>';
+        Text000: Label ' <Year4>', Locked = true;
+        Text001: Label '<Year4>', Locked = true;
         PeriodsNames: Text[250];
         Text002: Label 'one month,two  month,three  month,four  month,five  month,six  month,';
         Text003: Label 'seven  month,eight  month,nine  month,ten  month,eleven  month ';

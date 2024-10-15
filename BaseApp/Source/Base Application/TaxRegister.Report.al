@@ -104,7 +104,7 @@ report 17208 "Tax Register"
                 trigger OnPreDataItem()
                 begin
                     if not PrintDetails then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     ExcelReportBuilderManager.SetSheet('Sheet2');
                 end;
@@ -132,7 +132,7 @@ report 17208 "Tax Register"
             var
                 TaxRegisterSetup: Record "Tax Register Setup";
             begin
-                TaxRegisterSetup.Get;
+                TaxRegisterSetup.Get();
                 TaxRegisterSetup.TestField("Tax Register Template Code");
                 ExcelReportBuilderManager.InitTemplate(TaxRegisterSetup."Tax Register Template Code");
                 ExcelReportBuilderManager.SetSheet('Sheet1');

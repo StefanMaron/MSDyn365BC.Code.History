@@ -30,7 +30,7 @@ report 17362 "Salary Reference"
                 ExcelMgt.FillCell('C9', Format(DocumentDate));
 
                 ExcelMgt.FillCell('F13', LocalReportMgt.GetCompanyName);
-                CompanyAddr.Reset;
+                CompanyAddr.Reset();
                 CompanyAddr.SetRange("Address Type", CompanyAddr."Address Type"::"Medical Fund");
                 if CompanyAddr.FindFirst then begin
                     CompanyName := CompanyAddr.Name;
@@ -117,8 +117,8 @@ report 17362 "Salary Reference"
         if DocumentDate = 0D then
             Error(Text000);
 
-        HumanResSetup.Get;
-        CompanyInfo.Get;
+        HumanResSetup.Get();
+        CompanyInfo.Get();
 
         HumanResSetup.TestField("Salary Reference Template Code");
         FileName := ExcelTemplate.OpenTemplate(HumanResSetup."Salary Reference Template Code");
@@ -278,7 +278,7 @@ report 17362 "Salary Reference"
         LaborContractSetFilter(LaborContract, PersonNo, StartYear, EndYear);
         if LaborContract.FindSet then
             repeat
-                LaborContractLine.Reset;
+                LaborContractLine.Reset();
                 LaborContractLine.SetRange("Contract No.", LaborContract."No.");
                 LaborContractLine.SetRange("Operation Type", LaborContractLine."Operation Type"::Dismissal);
                 if LaborContractLine.FindSet then
@@ -325,7 +325,7 @@ report 17362 "Salary Reference"
     var
         AltAddr: Record "Alternative Address";
     begin
-        AltAddr.Reset;
+        AltAddr.Reset();
         AltAddr.SetRange("Person No.", PersonNo);
         AltAddr.SetRange("Address Type", AltAddr."Address Type"::Registration);
         if AltAddr.FindLast then begin
@@ -362,7 +362,7 @@ report 17362 "Salary Reference"
                 AddShift := (3 - DateRec.Count) * 2;
 
             repeat
-                PersonIncomeFSI.Reset;
+                PersonIncomeFSI.Reset();
                 PersonIncomeFSI.SetCurrentKey("Person No.", Year);
                 PersonIncomeFSI.SetRange("Person No.", PersonNo);
                 PersonIncomeFSI.SetRange(Year, DateRec."Period No.");

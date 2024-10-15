@@ -1,6 +1,5 @@
 codeunit 137293 "SCM Inventory Miscellaneous"
 {
-    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -1076,7 +1075,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // [GIVEN] Regenerative plan is calculated for "I1" and "I2".
         PlanWkshtName := CreateRequisitionWorksheetName(PAGE::"Planning Worksheet");
         EnqueueFilters(ItemFilter, '');
-        Commit;
+        Commit();
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(PlanWkshtName);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;
@@ -1091,7 +1090,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         PlanningWorksheet.FILTER.SetFilter("Accept Action Message", Format(true));
 
         // [WHEN] Carry out action message for the planning worksheet with enabled "Combine Transfer Orders".
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(true);
         PlanningWorksheet.CarryOutActionMessage.Invoke;
 
@@ -1104,17 +1103,17 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInvtPutawayPickMvmtRPH,MessageHandler,ReportSelectionPrintModalPageHandler')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRPH,MessageHandler,TransferReceiptReportDataHandler')]
     [Scope('OnPrem')]
     procedure PrintInboundTransfer()
     var
-        NameValueBuffer: Record "Name/Value Buffer";
         Item: Record Item;
         TransferLine: Record "Transfer Line";
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         Location: Record Location;
-        SCMInventoryMiscellaneous: Codeunit "SCM Inventory Miscellaneous";
+        FileManagement: Codeunit "File Management";
+        ReceiptFileName: Text;
     begin
         // [FEATURE] [Transfer Order] [Warehouse] [Put-away] [Report]
         // [SCENARIO 375628] Post and print Inbound Transfer Warehouse Activity
@@ -1133,27 +1132,31 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseActivityHeader.FindFirst;
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
 
+        // Arguments for TransferReceiptReportDataHandler
+        ReceiptFileName := FileManagement.ServerTempFileName('xlsx');
+        LibraryVariableStorage.Enqueue(TransferHeader."Transfer-from Code");
+        LibraryVariableStorage.Enqueue(ReceiptFileName);
+
         // [WHEN] Post and Print Acitivity
-        NameValueBuffer.DeleteAll;
-        BindSubscription(SCMInventoryMiscellaneous);
         LibraryWarehouse.PostAndPrintInventoryActivity(WarehouseActivityHeader, false, true);
 
-        // [THEN] Report "Transfer Receipt TORG-13" output file created
-        VerifySavedFileExist;
+        // [THEN] Report output file created
+        LibraryReportValidation.SetFullFileName(ReceiptFileName);
+        LibraryReportValidation.VerifyCellValueByRef('G', 17, 1, FindReceiptNoByLocation(TransferHeader."Transfer-from Code"));
         LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('PickActivitiesMessageHandler,ItemTrackingLinesPageHandler,ReportSelectionPrintModalPageHandler')]
+    [HandlerFunctions('PickActivitiesMessageHandler,ItemTrackingLinesPageHandler,TransferShipmentReportDataHandler')]
     [Scope('OnPrem')]
     procedure PrintOutboundTransfer()
     var
-        NameValueBuffer: Record "Name/Value Buffer";
         TransferLine: Record "Transfer Line";
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
-        SCMInventoryMiscellaneous: Codeunit "SCM Inventory Miscellaneous";
+        FileManagement: Codeunit "File Management";
         LotNo: Code[20];
+        ShipmentFileName: Text;
     begin
         // [FEATURE] [Transfer Order] [Warehouse] [Pick] [Report]
         // [SCENARIO 375628] Post and print Outbound Transfer Warehouse Activity
@@ -1165,13 +1168,17 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateWarehouseActivityHeader(WarehouseActivityHeader, TransferLine, LotNo);
         TransferHeader.Get(TransferLine."Document No.");
 
+        // Arguments for TransferShipmentReportDataHandler
+        ShipmentFileName := FileManagement.ServerTempFileName('xlsx');
+        LibraryVariableStorage.Enqueue(TransferHeader."Transfer-from Code");
+        LibraryVariableStorage.Enqueue(ShipmentFileName);
+
         // [WHEN] Post and Print Acitivity
-        NameValueBuffer.DeleteAll;
-        BindSubscription(SCMInventoryMiscellaneous);
         LibraryWarehouse.PostAndPrintInventoryActivity(WarehouseActivityHeader, false, true);
 
-        // [THEN] Report "Transfer Shipment TORG-13" output file created
-        VerifySavedFileExist;
+        // [THEN] Report output file created
+        LibraryReportValidation.SetFullFileName(ShipmentFileName);
+        LibraryReportValidation.VerifyCellValueByRef('I', 24, 1, FindShipmentNoByLocation(TransferHeader."Transfer-from Code"));
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1200,7 +1207,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Miscellaneous");
     end;
 
@@ -1208,7 +1215,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
-        Commit;
+        Commit();
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
@@ -1219,7 +1226,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
-        Commit;
+        Commit();
         ReqWorksheet.OpenEdit;
         ReqWorksheet.CurrentJnlBatchName.SetValue(Name);
         ReqWorksheet.CalculatePlan.Invoke;  // Open report on Handler CalculatePlanReqWkshRequestPageHandler.
@@ -1567,7 +1574,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         GetWarehouseDocumentFromPickWorksheet;
         PickWorksheet.OpenEdit;
-        Commit;
+        Commit();
         PickWorksheet.CreatePick.Invoke;
         PickWorksheet.OK.Invoke;
     end;
@@ -1775,6 +1782,24 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         exit(WarehouseShipmentLine."No.");
     end;
 
+    local procedure FindShipmentNoByLocation(LocationCode: Code[10]): Code[20]
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        TransferShipmentHeader.SetRange("Transfer-from Code", LocationCode);
+        TransferShipmentHeader.FindFirst;
+        exit(TransferShipmentHeader."No.");
+    end;
+
+    local procedure FindReceiptNoByLocation(LocationCode: Code[10]): Code[20]
+    var
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+    begin
+        TransferReceiptHeader.SetRange("Transfer-from Code", LocationCode);
+        TransferReceiptHeader.FindFirst;
+        exit(TransferReceiptHeader."No.");
+    end;
+
     local procedure GetWarehouseDocumentFromPickWorksheet()
     var
         PickWorksheet: TestPage "Pick Worksheet";
@@ -1798,7 +1823,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        Commit;
+        Commit();
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Reserve.Invoke;
@@ -1904,10 +1929,10 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ManufacturingSetup: Record "Manufacturing Setup";
         DefaultSafetyLeadTime: DateFormula;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use Random value for Safety Lead Time.
         UpdateManufacturingSetup(true, DefaultSafetyLeadTime);
     end;
@@ -1916,7 +1941,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
         ManufacturingSetup.Modify(true);
@@ -1953,7 +1978,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", CombinedMPSMRPCalculation);
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
@@ -1963,7 +1988,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -1977,20 +2002,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
             Validate("Reorder Quantity", ReorderQty);
             Modify(true);
         end;
-    end;
-
-    local procedure GetSaveFileName(): Text
-    var
-        NameValueBuffer: Record "Name/Value Buffer";
-        FileManagement: Codeunit "File Management";
-        FileName: Text;
-    begin
-        FileName := FileManagement.ServerTempFileName('tmp');
-        NameValueBuffer.Init;
-        NameValueBuffer.Name := CopyStr(FileName, 1, MaxStrLen(NameValueBuffer.Name));
-        NameValueBuffer.Insert;
-
-        exit(FileName);
     end;
 
     local procedure VerifyDimensionOnTransferLine(DefaultDimension: Record "Default Dimension"; DimensionSetID: Integer)
@@ -2082,16 +2093,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BinContent.FindFirst;
         BinContent.CalcFields(Quantity);
         BinContent.TestField(Quantity, Quantity);
-    end;
-
-    local procedure VerifySavedFileExist()
-    var
-        NameValueBuffer: Record "Name/Value Buffer";
-        FileManagement: Codeunit "File Management";
-    begin
-        NameValueBuffer.FindFirst;
-        FileManagement.ServerFileExists(NameValueBuffer.Name);
-        NameValueBuffer.Delete;
     end;
 
     [ConfirmHandler]
@@ -2214,6 +2215,30 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Assert.IsTrue(StrPos(Message, WorksheetMsg) > 0, Message);
     end;
 
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure TransferShipmentReportDataHandler(var TransferShipment: Report "Transfer Shipment")
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        TransferShipmentHeader.Get(FindShipmentNoByLocation(CopyStr(LibraryVariableStorage.DequeueText, 1, 20)));
+        TransferShipmentHeader.SetRecFilter;
+        TransferShipment.SetTableView(TransferShipmentHeader);
+        TransferShipment.SaveAsExcel(LibraryVariableStorage.DequeueText);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure TransferReceiptReportDataHandler(var TransferReceipt: Report "Transfer Receipt")
+    var
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+    begin
+        TransferReceiptHeader.Get(FindReceiptNoByLocation(CopyStr(LibraryVariableStorage.DequeueText, 1, 20)));
+        TransferReceiptHeader.SetRecFilter;
+        TransferReceipt.SetTableView(TransferReceiptHeader);
+        TransferReceipt.SaveAsExcel(LibraryVariableStorage.DequeueText);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateInvtPutawayPickMvmtRPH(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
@@ -2227,25 +2252,6 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportSelectionPrintModalPageHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
-    begin
-        ReportSelectionPrint.OK.Invoke;
-    end;
-
-    [EventSubscriber(ObjectType::Report, 14977, 'OnBeforeExport', '', false, false)]
-    local procedure SetTranferReceiptTORG13FileNameOnBeforeExport(var FileName: Text)
-    begin
-        FileName := GetSaveFileName;
-    end;
-
-    [EventSubscriber(ObjectType::Report, 14978, 'OnBeforeExport', '', false, false)]
-    local procedure SetTranferShipmentTORG13FileNameOnBeforeExport(var FileName: Text)
-    begin
-        FileName := GetSaveFileName;
     end;
 }
 

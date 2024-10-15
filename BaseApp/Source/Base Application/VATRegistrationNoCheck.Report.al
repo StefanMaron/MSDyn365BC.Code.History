@@ -139,7 +139,7 @@ report 32 "VAT Registration No. Check"
                 begin
                     if not FormatCheck
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(Integer3; "Integer")
@@ -199,9 +199,9 @@ report 32 "VAT Registration No. Check"
                         trigger OnAfterGetRecord()
                         begin
                             if Customer2."No." = "No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if Customer2."No." > "No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -261,9 +261,9 @@ report 32 "VAT Registration No. Check"
                         trigger OnAfterGetRecord()
                         begin
                             if Vendor2."No." = "No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if Vendor2."No." > "No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -323,9 +323,9 @@ report 32 "VAT Registration No. Check"
                         trigger OnAfterGetRecord()
                         begin
                             if Contact2."No." = "No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if Contact2."No." > "No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -338,7 +338,7 @@ report 32 "VAT Registration No. Check"
                 trigger OnAfterGetRecord()
                 begin
                     if not DuplicateCheck then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
         }
@@ -412,7 +412,7 @@ report 32 "VAT Registration No. Check"
         Check: Boolean;
     begin
         if CountryCode = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             VATRegNoFormat.SetRange("Country/Region Code", CompanyInfo."Country/Region Code");
         end else
             VATRegNoFormat.SetRange("Country/Region Code", CountryCode);
@@ -420,10 +420,10 @@ report 32 "VAT Registration No. Check"
         if VATRegNoFormat.Find('-') then begin
             repeat
                 if VATRegNoFormat.Compare(VATRegNo, VATRegNoFormat.Format) = true then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             until Check or (VATRegNoFormat.Next = 0);
         end else
-            CurrReport.Skip;
+            CurrReport.Skip();
     end;
 }
 

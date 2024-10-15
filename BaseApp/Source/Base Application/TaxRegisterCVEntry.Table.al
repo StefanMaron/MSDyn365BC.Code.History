@@ -172,7 +172,7 @@ table 17210 "Tax Register CV Entry"
                 begin
                     Clear(TaxVendorLedgerEntries);
                     if OnlyOpen then begin
-                        VendLedgEntry.Reset;
+                        VendLedgEntry.Reset();
                         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
                         VendLedgEntry.SetRange("Vendor No.", "C/V No.");
                         VendLedgEntry.SetRange(Positive, PositiveEntry);
@@ -189,7 +189,7 @@ table 17210 "Tax Register CV Entry"
                 begin
                     Clear(TaxCustomerLedgerEntries);
                     if OnlyOpen then begin
-                        CustLedgEntry.Reset;
+                        CustLedgEntry.Reset();
                         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
                         CustLedgEntry.SetRange("Customer No.", "C/V No.");
                         CustLedgEntry.SetRange(Positive, PositiveEntry);

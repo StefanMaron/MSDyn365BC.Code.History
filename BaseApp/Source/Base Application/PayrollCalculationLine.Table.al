@@ -44,7 +44,7 @@ table 17407 "Payroll Calculation Line"
 
             trigger OnLookup()
             begin
-                PayrollRangeHeader.Reset;
+                PayrollRangeHeader.Reset();
                 PayrollRangeHeader.SetRange("Element Code", "Element Code");
                 PayrollRangeHeader.SetFilter("Period Code", '..%1', "Period Code");
                 if "Range Type" <> 0 then
@@ -57,7 +57,7 @@ table 17407 "Payroll Calculation Line"
 
             trigger OnValidate()
             begin
-                PayrollRangeHeader.Reset;
+                PayrollRangeHeader.Reset();
                 PayrollRangeHeader.SetRange("Element Code", "Element Code");
                 PayrollRangeHeader.SetFilter("Period Code", '..%1', "Period Code");
                 if "Range Type" <> 0 then
@@ -94,7 +94,7 @@ table 17407 "Payroll Calculation Line"
 
             trigger OnLookup()
             begin
-                PayrollElementVariable.Reset;
+                PayrollElementVariable.Reset();
                 PayrollElementVariable.SetRange("Element Code", "Element Code");
                 PayrollElementVariable.SetRange("Period Code", "Period Code");
                 if PAGE.RunModal(0, PayrollElementVariable) = ACTION::LookupOK then
@@ -104,11 +104,11 @@ table 17407 "Payroll Calculation Line"
             trigger OnValidate()
             begin
                 if (Variable <> '') and (not PayrollElementVariable.Get("Element Code", "Period Code", Variable)) then begin
-                    PayrollElementVariable.Init;
+                    PayrollElementVariable.Init();
                     PayrollElementVariable."Element Code" := "Element Code";
                     PayrollElementVariable."Period Code" := "Period Code";
                     PayrollElementVariable.Variable := Variable;
-                    PayrollElementVariable.Insert;
+                    PayrollElementVariable.Insert();
                 end;
             end;
         }
@@ -142,14 +142,14 @@ table 17407 "Payroll Calculation Line"
 
                 if Expression <> '' then begin
                     LinesFound := false;
-                    PayrollCalculationLine.Reset;
+                    PayrollCalculationLine.Reset();
                     if PayrollCalculationLine.FindSet then
                         repeat
                             if PayrollCalculationLine.Expression = Expression then begin
                                 PayrollCalculationLine.CalcFields(Structured);
                                 if PayrollCalculationLine.Structured then begin
                                     LinesFound := true;
-                                    PayrollElementExpr.Reset;
+                                    PayrollElementExpr.Reset();
                                     PayrollElementExpr.SetRange("Element Code", PayrollCalculationLine."Element Code");
                                     PayrollElementExpr.SetRange("Calculation Line No.", PayrollCalculationLine."Line No.");
                                     if PayrollElementExpr.FindSet then
@@ -157,7 +157,7 @@ table 17407 "Payroll Calculation Line"
                                             PayrollElementExpr2 := PayrollElementExpr;
                                             PayrollElementExpr2."Element Code" := "Element Code";
                                             PayrollElementExpr2."Calculation Line No." := "Line No.";
-                                            PayrollElementExpr2.Insert;
+                                            PayrollElementExpr2.Insert();
                                         until PayrollElementExpr.Next = 0;
                                 end;
                             end;
@@ -282,13 +282,13 @@ table 17407 "Payroll Calculation Line"
 
     trigger OnDelete()
     begin
-        PayrollElementExpr.Reset;
+        PayrollElementExpr.Reset();
         PayrollElementExpr.SetRange("Element Code", "Element Code");
         PayrollElementExpr.SetRange("Period Code", "Period Code");
         PayrollElementExpr.SetRange("Calculation Line No.", "Line No.");
         PayrollElementExpr.DeleteAll(true);
 
-        PayrollElementVariable.Reset;
+        PayrollElementVariable.Reset();
         PayrollElementVariable.SetRange("Element Code", "Element Code");
         PayrollElementVariable.SetRange("Period Code", "Period Code");
         PayrollElementVariable.SetRange(Variable, Variable);
@@ -314,7 +314,7 @@ table 17407 "Payroll Calculation Line"
         TestField("Line No.");
 
         if "Statement 2" = "Statement 2"::GOTO then begin // label
-            PayrollCalculationLine.Reset;
+            PayrollCalculationLine.Reset();
             PayrollCalculationLine.FilterGroup(2);
             PayrollCalculationLine.SetRange("Element Code", "Element Code");
             PayrollCalculationLine.SetRange("Period Code", "Period Code");
@@ -329,7 +329,7 @@ table 17407 "Payroll Calculation Line"
                 Expression := PayrollCalculationLine.Label;
             end;
         end else begin
-            PayrollElementExpr.Reset;
+            PayrollElementExpr.Reset();
             PayrollElementExpr.FilterGroup(2);
             PayrollElementExpr.SetRange("Element Code", "Element Code");
             PayrollElementExpr.SetRange("Period Code", "Period Code");

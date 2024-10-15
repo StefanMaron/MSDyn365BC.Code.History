@@ -14,7 +14,7 @@ report 17409 "Copy Payroll Calc Type"
                 PayrollCalcTypeLine2 := "Payroll Calc Type Line";
                 PayrollCalcTypeLine2."Calc Type Code" := PayrollCalcTypeCode2;
                 PayrollCalcTypeLine2."Line No." := NextLineNo;
-                PayrollCalcTypeLine2.Insert;
+                PayrollCalcTypeLine2.Insert();
                 NextLineNo := NextLineNo + 10000;
             end;
 

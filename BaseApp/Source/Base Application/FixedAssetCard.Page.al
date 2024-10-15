@@ -1,4 +1,4 @@
-﻿page 5600 "Fixed Asset Card"
+page 5600 "Fixed Asset Card"
 {
     Caption = 'Fixed Asset Card';
     PageType = ListPlus;

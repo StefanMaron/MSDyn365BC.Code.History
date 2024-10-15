@@ -42,7 +42,7 @@ codeunit 17414 "Payroll Expression Management"
             DecimalResult := 0;
             ExprResult := '';
 
-            PayrollDocLineExpr.Reset;
+            PayrollDocLineExpr.Reset();
             PayrollDocLineExpr.SetRange("Document No.", PayrollDocLine."Document No.");
             PayrollDocLineExpr.SetRange("Document Line No.", PayrollDocLine."Line No.");
             PayrollDocLineExpr.SetRange("Calculation Line No.", PayrollDocLineCalc."Line No.");
@@ -265,9 +265,9 @@ codeunit 17414 "Payroll Expression Management"
                 PayrollDocLineVar.Value := PayrollDocLineExpr.Rounding(PayrollDocLineExpr."Result Value");
                 PayrollDocLineVar.Calculated := true;
                 PayrollDocLineVar.Error := DivisionError;
-                PayrollDocLineVar.Modify;
+                PayrollDocLineVar.Modify();
             end else begin
-                PayrollDocLineVar.Init;
+                PayrollDocLineVar.Init();
                 PayrollDocLineVar."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineVar."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineVar."Element Code" := PayrollDocLine."Element Code";
@@ -276,7 +276,7 @@ codeunit 17414 "Payroll Expression Management"
                 PayrollDocLineVar.Value := PayrollDocLineExpr.Rounding(PayrollDocLineExpr."Result Value");
                 PayrollDocLineVar.Calculated := true;
                 PayrollDocLineVar.Error := DivisionError;
-                PayrollDocLineVar.Insert;
+                PayrollDocLineVar.Insert();
             end;
             CheckStops(PayrollDocLineVar);
         end;
@@ -287,10 +287,10 @@ codeunit 17414 "Payroll Expression Management"
             FldRef := RecRef.Field(PayrollDocLineExpr."Assign to Field No.");
             FldRef.Value(PayrollDocLineExpr.Rounding(PayrollDocLineExpr."Result Value"));
             RecRef.SetTable(PayrollDocLine);
-            RecRef.Modify;
+            RecRef.Modify();
             RecRef.Close;
         end;
-        PayrollDocLineExpr.Modify;
+        PayrollDocLineExpr.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -298,7 +298,7 @@ codeunit 17414 "Payroll Expression Management"
     begin
         if not Evaluate(PayrollDocLineExpr."Result Value", PayrollDocLineExpr.Expression) then
             PayrollDocLineExpr."Error Code" := '001';
-        PayrollDocLineExpr.Modify;
+        PayrollDocLineExpr.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -315,13 +315,12 @@ codeunit 17414 "Payroll Expression Management"
                 PayrollDocLineExpr."Error Code" := '003'
         else
             PayrollDocLineExpr."Error Code" := '003';
-        PayrollDocLineExpr.Modify;
+        PayrollDocLineExpr.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure CalcField(var PayrollDocLine: Record "Payroll Document Line"; var PayrollDocLineExpr: Record "Payroll Document Line Expr.")
     var
-        "Field": Record "Field";
         Employee: Record Employee;
         Person: Record Person;
         Position: Record Position;
@@ -346,10 +345,8 @@ codeunit 17414 "Payroll Expression Management"
                 RecRef.GetTable(PayrollDocLine);
         end;
         FldRef := RecRef.Field(PayrollDocLineExpr."Field No.");
-        Evaluate(Field.Type, Format(FldRef.Type));
-        if Field.Type = Field.Type::Decimal then begin
-            Field.Get(RecRef.Number, FldRef.Number);
-            if Field.Class = Field.Class::FlowField then
+        if FldRef.Type = FieldType::Decimal then begin
+            if FldRef.Class = FieldClass::FlowField then
                 FldRef.CalcField;
             PayrollDocLineExpr."Result Value" := FldRef.Value;
             PayrollDocLineExpr."Result Value" :=
@@ -357,7 +354,7 @@ codeunit 17414 "Payroll Expression Management"
         end else
             PayrollDocLineExpr."Error Code" := '002';
         RecRef.Close;
-        PayrollDocLineExpr.Modify;
+        PayrollDocLineExpr.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -387,9 +384,9 @@ codeunit 17414 "Payroll Expression Management"
                 PayrollDocLineVar.Value := PayrollDocLineExpr.Rounding(PayrollDocLineCalc."Result Value");
                 PayrollDocLineVar.Calculated := true;
                 PayrollDocLineVar.Error := DivisionError;
-                PayrollDocLineVar.Modify;
+                PayrollDocLineVar.Modify();
             end else begin
-                PayrollDocLineVar.Init;
+                PayrollDocLineVar.Init();
                 PayrollDocLineVar."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineVar."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineVar."Element Code" := PayrollDocLine."Element Code";
@@ -398,7 +395,7 @@ codeunit 17414 "Payroll Expression Management"
                 PayrollDocLineVar.Value := PayrollDocLineExpr.Rounding(PayrollDocLineCalc."Result Value");
                 PayrollDocLineVar.Calculated := true;
                 PayrollDocLineVar.Error := DivisionError;
-                PayrollDocLineVar.Insert;
+                PayrollDocLineVar.Insert();
             end;
             CheckStops(PayrollDocLineVar);
         end;
@@ -600,18 +597,18 @@ codeunit 17414 "Payroll Expression Management"
         PayrollDocLineExpr: Record "Payroll Document Line Expr.";
         PayrollDocLineCalc: Record "Payroll Document Line Calc.";
     begin
-        PayrollDocLineVar.Reset;
+        PayrollDocLineVar.Reset();
         PayrollDocLineVar.SetRange("Document No.", PayrollDocLine."Document No.");
         PayrollDocLineVar.SetRange("Document Line No.", PayrollDocLine."Line No.");
-        PayrollDocLineVar.DeleteAll;
+        PayrollDocLineVar.DeleteAll();
 
-        PayrollDocLineExpr.Reset;
+        PayrollDocLineExpr.Reset();
         PayrollDocLineExpr.SetRange("Document No.", PayrollDocLine."Document No.");
         PayrollDocLineExpr.SetRange("Document Line No.", PayrollDocLine."Line No.");
         PayrollDocLineExpr.ModifyAll("Result Value", 0);
         PayrollDocLineExpr.ModifyAll("Logical Result", 0);
 
-        PayrollDocLineCalc.Reset;
+        PayrollDocLineCalc.Reset();
         PayrollDocLineCalc.SetRange("Document No.", PayrollDocLine."Document No.");
         PayrollDocLineCalc.SetRange("Document Line No.", PayrollDocLine."Line No.");
         PayrollDocLineCalc.ModifyAll("Result Value", 0);

@@ -233,7 +233,7 @@ page 12471 "FA Writeoff Act Subform"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     var

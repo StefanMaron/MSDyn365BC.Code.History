@@ -60,7 +60,7 @@ report 17428 "Create Calendar Line"
         if StartDate > EndDate then
             Error(Text14802);
 
-        CalendarLine.Reset;
+        CalendarLine.Reset();
         CalendarLine.SetRange("Calendar Code", Calendar.Code);
 
         if not ClearLines then begin

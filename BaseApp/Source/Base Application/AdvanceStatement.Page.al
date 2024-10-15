@@ -165,7 +165,7 @@ page 12431 "Advance Statement"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }
@@ -370,7 +370,7 @@ page 12431 "Advance Statement"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if "No." = '' then begin
             PurchSetup.TestField("Advance Statement Nos.");
             NoSeriesMgt.InitSeries(
@@ -428,7 +428,7 @@ page 12431 "Advance Statement"
             Error(Text12400);
 
         if "Applies-to ID" <> '' then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
             VendLedgEntry.SetRange("Vendor No.", "Buy-from Vendor No.");
             VendLedgEntry.SetRange(Open, true);
@@ -442,7 +442,7 @@ page 12431 "Advance Statement"
         end;
 
         if "Applies-to Doc. No." <> '' then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             VendLedgEntry.SetRange("Vendor No.", "Buy-from Vendor No.");
             VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
@@ -459,7 +459,7 @@ page 12431 "Advance Statement"
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
         PurchHeader.Get("Document Type", "No.");
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
         PurchLine.SetRange(Type, PurchLine.Type::"Empl. Purchase");

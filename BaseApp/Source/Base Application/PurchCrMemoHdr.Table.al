@@ -194,11 +194,9 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -360,11 +358,9 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(95; "Order Address Code"; Code[10])
         {
@@ -665,12 +661,12 @@ table 124 "Purch. Cr. Memo Hdr."
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
-        LockTable;
+        LockTable();
         PostPurchDelete.DeletePurchCrMemoLines(Rec);
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::"Posted Credit Memo");
         PurchCommentLine.SetRange("No.", "No.");
-        PurchCommentLine.DeleteAll;
+        PurchCommentLine.DeleteAll();
 
         DocSignMgt.DeletePostedDocSign(DATABASE::"Purch. Cr. Memo Hdr.", "No.");
 
@@ -703,12 +699,32 @@ table 124 "Purch. Cr. Memo Hdr."
             end;
     end;
 
+    procedure PrintToDocumentAttachment(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := PurchCrMemoHdr.Count() = 1;
+        if PurchCrMemoHdr.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(PurchCrMemoHdr, ShowNotificationAction);
+            until PurchCrMemoHdr.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        PurchCrMemoHdr.SetRecFilter();
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr, PurchCrMemoHdr."No.", PurchCrMemoHdr."Buy-from Vendor No.", true);
+    end;
+
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()
@@ -739,13 +755,13 @@ table 124 "Purch. Cr. Memo Hdr."
         DocNoFilter := '';
         I := 0;
 
-        PurchCrMemoLine.Reset;
+        PurchCrMemoLine.Reset();
         PurchCrMemoLine.SetRange("Document No.", "No.");
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
         PurchCrMemoLine.SetFilter(Quantity, '>%1', 0);
         if PurchCrMemoLine.Find('-') then
             repeat
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetCurrentKey("Item No.", "Posting Date", "Document No.");
                 ValueEntry.SetRange("Document No.", PurchCrMemoHeader."No.");
                 ValueEntry.SetRange("Posting Date", PurchCrMemoHeader."Posting Date");
@@ -768,7 +784,7 @@ table 124 "Purch. Cr. Memo Hdr."
             until PurchCrMemoLine.Next = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
-        ReturnShipmentHeader.Reset;
+        ReturnShipmentHeader.Reset();
         ReturnShipmentHeader.SetFilter("No.", DocNoFilter);
         PAGE.Run(PAGE::"Posted Return Shipments", ReturnShipmentHeader);
     end;

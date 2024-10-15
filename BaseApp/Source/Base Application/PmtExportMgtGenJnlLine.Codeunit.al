@@ -37,7 +37,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         BankAccount.Get(GenJnlLine."Bal. Account No.");
         BankAccount.GetDataExchDefPaymentExport(DataExchDef);
         CreditTransferRegister.CreateNew(DataExchDef.Code, GenJnlLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         CheckGenJnlLine(GenJnlLine);
         ExportGenJnlLine(GenJnlLine, CreditTransferRegister);
@@ -56,7 +56,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             until GenJnlLine2.Next = 0;
 
         if GenJnlLine2.HasPaymentFileErrorsInBatch then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
     end;
@@ -129,7 +129,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         DataExchDef: Record "Data Exch. Def";
         PaymentMethod: Record "Payment Method";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         BankAcc.Get(GenJnlLine."Bal. Account No.");
         with TempPaymentExportData do begin
             Init;
@@ -236,7 +236,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Vendor.Get(GenJnlLine."Account No.");
 
         with TempPaymentExportData do begin
@@ -249,14 +249,8 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
 
             if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
-                if BankAccount."Country/Region Code" = VendorBankAccount."Country/Region Code" then begin
-                    Amount := GenJnlLine."Amount (LCY)";
-                    "Currency Code" := GeneralLedgerSetup."LCY Code";
-                end else begin
-                    Amount := GenJnlLine.Amount;
-                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                end;
-
+                Amount := GenJnlLine.Amount;
+                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                 "Recipient Bank Acc. No." :=
                   CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";

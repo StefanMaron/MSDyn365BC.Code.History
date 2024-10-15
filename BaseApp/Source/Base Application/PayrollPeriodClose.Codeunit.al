@@ -63,14 +63,13 @@ codeunit 17410 "Payroll Period-Close"
         AbsenceDays: Integer;
         NextEntryNo: Integer;
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Annual Vacation Group Code");
         HRSetup.TestField("Change Vacation Accr. Periodic");
 
-        if EmplAbsenceEntry.FindLast then
-            NextEntryNo := EmplAbsenceEntry."Entry No." + 1
-        else
+        if EmplAbsenceEntry.IsEmpty() then
             exit;
+        NextEntryNo := EmplAbsenceEntry.GetLastEntryNo() + 1;
 
         if Employee.FindSet then
             repeat
@@ -89,7 +88,7 @@ codeunit 17410 "Payroll Period-Close"
                     EmplAbsenceEntry.SetFilter("Start Date", '<%1', EndDate);
                     EmplAbsenceEntry.SetFilter("Time Activity Code", GetAnnualVacTimeActFilter(EndDate));
                     if EmplAbsenceEntry.FindLast then begin
-                        NewEmplAbsenceEntry.Init;
+                        NewEmplAbsenceEntry.Init();
                         NewEmplAbsenceEntry.TransferFields(EmplAbsenceEntry);
                         NewEmplAbsenceEntry."Entry No." := NextEntryNo;
                         NewEmplAbsenceEntry."Start Date" := EmplAbsenceEntry."End Date" + 1;
@@ -99,12 +98,12 @@ codeunit 17410 "Payroll Period-Close"
                         NewEmplAbsenceEntry."Working Days" := 0;
                         NewEmplAbsenceEntry.Description := HRSetup.FieldCaption("Change Vacation Accr. Periodic") +
                           ' ' + Format(EndDate, 0, '<Month Text> <Year4>');
-                        NewEmplAbsenceEntry.Insert;
+                        NewEmplAbsenceEntry.Insert();
                         NextEntryNo := NextEntryNo + 1;
                     end;
                 end;
 
-                EmplAbsenceEntry.Reset;
+                EmplAbsenceEntry.Reset();
                 EmplAbsenceEntry.SetRange("Employee No.", Employee."No.");
                 EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Accrual);
                 EmplAbsenceEntry.SetRange("End Date", StartDate, EndDate);
@@ -121,7 +120,7 @@ codeunit 17410 "Payroll Period-Close"
                         NewEndDate := CalcDate('<1Y-1D>', NewStartDate);
 
                         if not AccrualEntryExists(Employee."No.", NewStartDate, NewEndDate) then begin
-                            NewEmplAbsenceEntry.Init;
+                            NewEmplAbsenceEntry.Init();
                             NewEmplAbsenceEntry.TransferFields(EmplAbsenceEntry);
                             NewEmplAbsenceEntry."Entry No." := NextEntryNo;
                             NewEmplAbsenceEntry."Start Date" := NewStartDate;
@@ -129,7 +128,7 @@ codeunit 17410 "Payroll Period-Close"
                             NewEmplAbsenceEntry."Accrual Entry No." := EmplAbsenceEntry."Entry No.";
                             NewEmplAbsenceEntry."Calendar Days" := EmplAbsenceEntry."Calendar Days";
                             NewEmplAbsenceEntry."Working Days" := 0;
-                            NewEmplAbsenceEntry.Insert;
+                            NewEmplAbsenceEntry.Insert();
                             NextEntryNo := NextEntryNo + 1;
                         end;
                     until EmplAbsenceEntry.Next = 0;
@@ -141,7 +140,7 @@ codeunit 17410 "Payroll Period-Close"
     var
         TimeActivityFilter: Record "Time Activity Filter";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         TimesheetMgt.GetTimeGroupFilter(HRSetup."Annual Vacation Group Code", StartDate, TimeActivityFilter);
         exit(TimeActivityFilter."Activity Code Filter");
     end;

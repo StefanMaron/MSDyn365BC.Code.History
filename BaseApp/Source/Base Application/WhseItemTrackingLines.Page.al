@@ -553,17 +553,12 @@ page 6550 "Whse. Item Tracking Lines"
     end;
 
     procedure SetSource(WhseWrkshLine: Record "Whse. Worksheet Line"; SourceType: Integer)
-    var
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
-        WhseCDRequired: Boolean;
     begin
         FormUpdated := false;
         FormSourceType := SourceType;
         WhseWorksheetLine := WhseWrkshLine;
         GetItem(WhseWorksheetLine."Item No.");
-        ItemTrackingMgt.CheckWhseItemTrkgSetup(
-          WhseWorksheetLine."Item No.", WhseWorksheetLine."Location Code", WhseSNRequired, WhseLNRequired, WhseCDRequired, true);
+        ItemTrackingMgt.CheckWhseItemTrkgSetup(WhseWorksheetLine."Item No.");
 
         SetControlsAsHandle;
         Reclass := IsReclass(FormSourceType, WhseWorksheetLine."Worksheet Template Name");
@@ -704,12 +699,12 @@ page 6550 "Whse. Item Tracking Lines"
         WhseItemTrkgLine2: Record "Whse. Item Tracking Line";
     begin
         SetFilters(WhseItemTrkgLine2, FormSourceType);
-        TempWhseItemTrkgLine.Reset;
-        TempWhseItemTrkgLine.DeleteAll;
+        TempWhseItemTrkgLine.Reset();
+        TempWhseItemTrkgLine.DeleteAll();
         if WhseItemTrkgLine2.Find('-') then
             repeat
                 TempWhseItemTrkgLine := WhseItemTrkgLine2;
-                TempWhseItemTrkgLine.Insert;
+                TempWhseItemTrkgLine.Insert();
             until WhseItemTrkgLine2.Next = 0;
     end;
 
@@ -718,11 +713,11 @@ page 6550 "Whse. Item Tracking Lines"
         WhseItemTrkgLine2: Record "Whse. Item Tracking Line";
     begin
         SetFilters(WhseItemTrkgLine2, FormSourceType);
-        WhseItemTrkgLine2.DeleteAll;
+        WhseItemTrkgLine2.DeleteAll();
         if TempInitialTrkgLine.Find('-') then
             repeat
                 WhseItemTrkgLine2 := TempInitialTrkgLine;
-                WhseItemTrkgLine2.Insert;
+                WhseItemTrkgLine2.Insert();
             until TempInitialTrkgLine.Next = 0;
     end;
 
@@ -793,7 +788,7 @@ page 6550 "Whse. Item Tracking Lines"
                 TempTrkgSpec.TransferFields(TempInitialTrkgLine);
                 TempTrkgSpec."Quantity (Base)" *= -1;
                 TempTrkgSpec."Entry No." := LastEntryNo + 1;
-                TempTrkgSpec.Insert;
+                TempTrkgSpec.Insert();
                 LastEntryNo := TempTrkgSpec."Entry No.";
             until TempInitialTrkgLine.Next = 0;
 
@@ -802,7 +797,7 @@ page 6550 "Whse. Item Tracking Lines"
             repeat
                 TempTrkgSpec.TransferFields(WhseItemTrkgLine2);
                 TempTrkgSpec."Entry No." := LastEntryNo + 1;
-                TempTrkgSpec.Insert;
+                TempTrkgSpec.Insert();
                 LastEntryNo := TempTrkgSpec."Entry No.";
             until WhseItemTrkgLine2.Next = 0;
 

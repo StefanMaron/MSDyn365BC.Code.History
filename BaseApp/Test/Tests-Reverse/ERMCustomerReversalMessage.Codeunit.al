@@ -19,7 +19,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
         ReversalFromGLEntryErr: Label 'The transaction cannot be reversed, because the Cust. Ledger Entry has been compressed.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
+        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         ReversalFromLedgerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.';
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         // Setup: Create Customer, Make document line and Post from General Journal and set "Privacy Blocked" := TRUE;
         TransactionNo := CommonReversalSetup(Customer, DocumentType, BlockedType, Amount);
         Customer.Validate("Privacy Blocked", true);
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise: Reverse Invoice entries for Blocked Customer.
         ReversalEntry.SetHideDialog(true);
@@ -318,7 +318,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -429,7 +429,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Reversal Message");
     end;
 
@@ -638,9 +638,9 @@ codeunit 134127 "ERM Customer Reversal Message"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure NothingAdjustedMessageHandler(Message: Text[1024])
+    procedure StatisticsMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
+        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
 

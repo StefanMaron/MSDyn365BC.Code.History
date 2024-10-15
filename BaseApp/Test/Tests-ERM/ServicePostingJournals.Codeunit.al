@@ -17,6 +17,7 @@ codeunit 136125 "Service Posting Journals"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         IsInitialized: Boolean;
         ExpectedConfirm: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         NumberOfServiceLedgerEntriesErr: Label 'Number of Service Ledger Entries is incorrect';
@@ -39,7 +40,7 @@ codeunit 136125 "Service Posting Journals"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting Journals");
     end;
 
@@ -243,6 +244,7 @@ codeunit 136125 "Service Posting Journals"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostConsumeForServiceOrderWithMultipleLines()
     var
@@ -283,6 +285,7 @@ codeunit 136125 "Service Posting Journals"
         Item: Record Item;
         SalesPrice: Record "Sales Price";
         Currency: Record Currency;
+        PriceListLine: Record "Price List Line";
         LibraryJob: Codeunit "Library - Job";
         ExpectedUnitPrice: Decimal;
         ExpectedTotalPrice: Decimal;
@@ -305,6 +308,7 @@ codeunit 136125 "Service Posting Journals"
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.",
           WorkDate - 1, '', '', '', 0, LibraryRandom.RandIntInRange(100, 200));
         SalesPrice.TestField("Price Includes VAT", Customer."Prices Including VAT");
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // [GIVEN] Service Order "O" for "C" with service line having "Type" = Item, "Item No." = "I", "Qty. to Consume" = 2 and attached "J" with "JT"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
@@ -337,9 +341,9 @@ codeunit 136125 "Service Posting Journals"
     begin
         if FromServiceLine.FindSet then
             repeat
-                ToTempServiceLine.Init;
+                ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
-                ToTempServiceLine.Insert;
+                ToTempServiceLine.Insert();
             until FromServiceLine.Next = 0
     end;
 
@@ -477,7 +481,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Location Code", '');
-        ServiceLine.Modify;
+        ServiceLine.Modify();
     end;
 
     local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
@@ -551,7 +555,7 @@ codeunit 136125 "Service Posting Journals"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         OldAutomaticCostPosting := InventorySetup."Automatic Cost Posting";
         InventorySetup.Validate("Automatic Cost Posting", NewAutomaticCostPosting);
         InventorySetup.Modify(true);
@@ -773,6 +777,12 @@ codeunit 136125 "Service Posting Journals"
     procedure InvoiceESConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := (Question = ExpectedConfirm);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]

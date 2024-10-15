@@ -17,18 +17,18 @@ report 12465 "Combine Customer/Vendor"
                 if (OldVendor <> '') and (NewVendor <> '') then
                     with Vendor do begin
                         Vend.Get(NewVendor);
-                        TmpVendor.Init;
+                        TmpVendor.Init();
                         TmpVendor.TransferFields(Vend, false);
-                        Vend.Delete;
+                        Vend.Delete();
                         Window.Update(1, Text002);
                         if VendAgrmt.Get(OldVendor, '') then
-                            VendAgrmt.Delete;
+                            VendAgrmt.Delete();
                         if Rename(NewVendor) then begin
                             TransferFields(TmpVendor, false);
                             Modify;
                             Window.Update(1, Text003);
                         end else begin
-                            TmpVendor.Insert;
+                            TmpVendor.Insert();
                             Window.Update(1, Text004)
                         end;
                         Sleep(200);
@@ -58,18 +58,18 @@ report 12465 "Combine Customer/Vendor"
                 if (OldCustomer <> '') and (NewCustomer <> '') then
                     with Customer do begin
                         Cust.Get(NewCustomer);
-                        TmpCustomer.Init;
+                        TmpCustomer.Init();
                         TmpCustomer.TransferFields(Cust, false);
-                        Cust.Delete;
+                        Cust.Delete();
                         Window.Update(1, Text002);
                         if CustAgrmt.Get(OldCustomer, '') then
-                            CustAgrmt.Delete;
+                            CustAgrmt.Delete();
                         if Rename(NewCustomer) then begin
                             TransferFields(TmpCustomer, false);
                             Modify;
                             Window.Update(1, Text003);
                         end else begin
-                            TmpCustomer.Insert;
+                            TmpCustomer.Insert();
                             Window.Update(1, Text004)
                         end;
                         Sleep(200);

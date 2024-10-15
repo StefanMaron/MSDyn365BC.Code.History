@@ -75,7 +75,7 @@ codeunit 12472 "Copy FA Document Mgt."
                     FromPostedFADocHeader.Get(FADocHeaderDocType(FromDocType - 3), FromDocNo);
             end;
 
-            ToFADocLine.LockTable;
+            ToFADocLine.LockTable();
 
             if CreateToHeader then begin
                 Insert(true);
@@ -86,7 +86,7 @@ codeunit 12472 "Copy FA Document Mgt."
                 ToFADocLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
                     if not ToFADocLine.IsEmpty then begin
-                        Commit;
+                        Commit();
                         if not
                            Confirm(
                              Text002 +
@@ -131,7 +131,7 @@ codeunit 12472 "Copy FA Document Mgt."
                 FADocType::Release,
                 FADocType::Disposal:
                     begin
-                        FromFADocLine.Reset;
+                        FromFADocLine.Reset();
                         FromFADocLine.SetRange("Document Type", FromFADocHeader."Document Type");
                         FromFADocLine.SetRange("Document No.", FromFADocHeader."No.");
                         if FromFADocLine.FindSet then
@@ -143,9 +143,9 @@ codeunit 12472 "Copy FA Document Mgt."
                 FADocType::"Posted Release",
                 FADocType::"Posted Disposal":
                     begin
-                        FASetup.Get;
+                        FASetup.Get();
                         FromFADocHeader.TransferFields(FromPostedFADocHeader);
-                        FromPostedFADocLine.Reset;
+                        FromPostedFADocLine.Reset();
                         FromPostedFADocLine.SetRange("Document No.", FromPostedFADocHeader."No.");
                         if FromPostedFADocLine.FindSet then
                             repeat

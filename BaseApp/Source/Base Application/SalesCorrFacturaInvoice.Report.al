@@ -48,12 +48,12 @@ report 14966 "Sales Corr. Factura-Invoice"
 
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then begin
                                 FormatTotalAmounts(TotalAmountTextToDecrease, TotalsToDecrease);
                                 FormatTotalAmounts(TotalAmountTextToAdd, TotalsToIncrease);
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         FormatTotalAmounts(LastTotalAmountToDecrease, TotalsToDecrease);
@@ -61,7 +61,7 @@ report 14966 "Sales Corr. Factura-Invoice"
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1."Qty. to Invoice" = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1."Amount Including VAT (Before)" := SalesLine1."Amt. Incl. VAT (LCY) (Before)";
                                 SalesLine1."Amount Including VAT (After)" := SalesLine1."Amt. Incl. VAT (LCY) (After)";
@@ -109,7 +109,6 @@ report 14966 "Sales Corr. Factura-Invoice"
                 begin
                     Clear(TotalAmountBefore);
                     Clear(TotalAmountAfter);
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -121,14 +120,14 @@ report 14966 "Sales Corr. Factura-Invoice"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Header."Posting No." = '' then begin
                         Clear(NoSeriesManagement);
                         Header."Posting No." := NoSeriesManagement.GetNextNo(
                             Header."Posting No. Series", Header."Posting Date", not Preview);
                         if not Preview then
-                            Header.Modify;
+                            Header.Modify();
                     end;
                     ReportNos[1] := Header."Posting No.";
 
@@ -145,14 +144,14 @@ report 14966 "Sales Corr. Factura-Invoice"
                 if "Currency Code" = '' then
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
                 if SalesLine1.FindSet then
                     repeat
                         AttachedSalesLine := SalesLine1;
-                        AttachedSalesLine.Insert;
+                        AttachedSalesLine.Insert();
                     until SalesLine1.Next = 0;
 
                 SalesLine1.SetRange("Attached to Line No.");
@@ -191,8 +190,8 @@ report 14966 "Sales Corr. Factura-Invoice"
 
             trigger OnPreDataItem()
             begin
-                SalesSetup.Get;
-                CompanyInfo.Get;
+                SalesSetup.Get();
+                CompanyInfo.Get();
             end;
         }
     }
@@ -388,7 +387,7 @@ report 14966 "Sales Corr. Factura-Invoice"
         CurrencyDigitalCode := '';
         CurrencyDescription := '';
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup."LCY Code";
         end;
 

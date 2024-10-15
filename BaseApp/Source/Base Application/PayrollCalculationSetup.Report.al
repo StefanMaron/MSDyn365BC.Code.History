@@ -27,9 +27,6 @@ report 17400 "Payroll Calculation - Setup"
             column(TIME; Time)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FilterLine; FilterLine)
             {
             }
@@ -316,7 +313,7 @@ report 17400 "Payroll Calculation - Setup"
                        ("Element Group Filter" = '') and
                        ("Posting Type Filter" = '')
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     // IF NOT BaseAmountFound THEN
                     // BaseAmountFound := TRUE;
@@ -500,7 +497,7 @@ report 17400 "Payroll Calculation - Setup"
                         RangeHeader.SetRange("Period Code", "Period Code", PeriodFrom);
                         if RangeHeader.FindLast then
                             if RangeHeader."Period Code" > "Period Code" then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 end;
 
@@ -512,7 +509,7 @@ report 17400 "Payroll Calculation - Setup"
 
             trigger OnAfterGetRecord()
             begin
-                PayrollCalculation2.Reset;
+                PayrollCalculation2.Reset();
                 PayrollCalculation2.SetRange("Element Code", Code);
                 PayrollCalculation2.SetRange("Period Code", '', PeriodTo);
                 if PayrollCalculation2.FindLast then
@@ -598,7 +595,7 @@ report 17400 "Payroll Calculation - Setup"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         FilterLine := CopyStr("Payroll Element".GetFilters, 1, MaxStrLen(FilterLine));
 

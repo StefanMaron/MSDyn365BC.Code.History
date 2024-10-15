@@ -306,7 +306,7 @@ codeunit 136146 "Service Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingPageHandler,LotNoInfoListPageHandler,ItemTrackingSummaryPageHandler')]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
     procedure LotNoLookupOnItemTrackingPage()
     var
@@ -349,7 +349,7 @@ codeunit 136146 "Service Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingPageHandler,LotNoInfoListPageHandler,ItemTrackingSummaryPageHandler')]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
     procedure ItemTrackingValuesAfterLotNoLookup()
     var
@@ -1709,7 +1709,7 @@ codeunit 136146 "Service Item Tracking"
         ItemTrackingCodeRec.Get(ItemTrackingCode);
         if not ItemTrackingCodeRec."Use Expiration Dates" then begin
             ItemTrackingCodeRec.Validate("Use Expiration Dates", true);
-            ItemTrackingCodeRec.Modify;
+            ItemTrackingCodeRec.Modify();
         end;
     end;
 
@@ -1907,14 +1907,14 @@ codeunit 136146 "Service Item Tracking"
                 ItemTrackingLines."Assign Serial No.".Invoke;
         end;
         ItemTrackingLines.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         case ItemTrackingAction of
             ItemTrackingAction::AssignSerialNo:
                 ItemTrackingLines."Assign Serial No.".Invoke;
@@ -1976,7 +1976,7 @@ codeunit 136146 "Service Item Tracking"
             Assert.AreEqual(Format(ExpectedItemTrackingQty), ItemTrackingLines.Quantity_ItemTracking.Value, ItemTrackingQtyErr);
         end;
         ItemTrackingLines.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]
@@ -2226,12 +2226,6 @@ codeunit 136146 "Service Item Tracking"
         EnterCustomizedSN.Increment.SetValue(1);
         EnterCustomizedSN.QtyToCreate.SetValue(GlobalQty);
         EnterCustomizedSN.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure LotNoInfoListPageHandler(var LotNoInfoList: TestPage "Lot No. Information List")
-    begin
     end;
 }
 

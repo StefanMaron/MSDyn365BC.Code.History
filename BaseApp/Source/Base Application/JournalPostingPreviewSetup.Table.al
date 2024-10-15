@@ -52,40 +52,40 @@ table 14929 "Journal Posting Preview Setup"
         FAJnlBatch: Record "FA Journal Batch";
         JnlPostPreviewSetup: Record "Journal Posting Preview Setup";
     begin
-        JnlPostPreviewSetup.Reset;
+        JnlPostPreviewSetup.Reset();
         JnlPostPreviewSetup.SetRange("User ID", UserID);
         if JnlPostPreviewSetup.FindSet(true, false) then
             repeat
                 case JnlPostPreviewSetup."Journal Type" of
                     JnlPostPreviewSetup."Journal Type"::"General Journal":
                         if not GenJnlBatch.Get(JnlPostPreviewSetup."Journal Template Name", JnlPostPreviewSetup."Journal Batch Name") then
-                            JnlPostPreviewSetup.Delete;
+                            JnlPostPreviewSetup.Delete();
                     JnlPostPreviewSetup."Journal Type"::"FA Journal":
                         if not FAJnlBatch.Get(JnlPostPreviewSetup."Journal Template Name", JnlPostPreviewSetup."Journal Batch Name") then
-                            JnlPostPreviewSetup.Delete;
+                            JnlPostPreviewSetup.Delete();
                 end;
             until JnlPostPreviewSetup.Next = 0;
 
-        GenJnlBatch.Reset;
+        GenJnlBatch.Reset();
         if GenJnlBatch.FindSet then
             repeat
-                JnlPostPreviewSetup.Init;
+                JnlPostPreviewSetup.Init();
                 JnlPostPreviewSetup."User ID" := UserID;
                 JnlPostPreviewSetup."Journal Type" := "Journal Type"::"General Journal";
                 JnlPostPreviewSetup."Journal Template Name" := GenJnlBatch."Journal Template Name";
                 JnlPostPreviewSetup."Journal Batch Name" := GenJnlBatch.Name;
-                if JnlPostPreviewSetup.Insert then;
+                if JnlPostPreviewSetup.Insert() then;
             until GenJnlBatch.Next = 0;
 
-        FAJnlBatch.Reset;
+        FAJnlBatch.Reset();
         if FAJnlBatch.FindSet then
             repeat
-                JnlPostPreviewSetup.Init;
+                JnlPostPreviewSetup.Init();
                 JnlPostPreviewSetup."User ID" := UserID;
                 JnlPostPreviewSetup."Journal Type" := "Journal Type"::"FA Journal";
                 JnlPostPreviewSetup."Journal Template Name" := FAJnlBatch."Journal Template Name";
                 JnlPostPreviewSetup."Journal Batch Name" := FAJnlBatch.Name;
-                if JnlPostPreviewSetup.Insert then;
+                if JnlPostPreviewSetup.Insert() then;
             until FAJnlBatch.Next = 0;
     end;
 }

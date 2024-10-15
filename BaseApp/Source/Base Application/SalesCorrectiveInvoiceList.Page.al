@@ -236,7 +236,7 @@ page 36847 "Sales Corrective Invoice List"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

@@ -86,14 +86,14 @@ xmlport 26551 "Format Versions"
         if TempFormatVersion.FindSet then
             repeat
                 "Format Version" := TempFormatVersion;
-                "Format Version".Insert;
+                "Format Version".Insert();
             until TempFormatVersion.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure ImportData(PathName: Text[1024])
     begin
-        "Format Version".Reset;
+        "Format Version".Reset();
         if "Format Version".FindSet then
             repeat
                 if FormatVersion.Get("Format Version".Code) then
@@ -107,7 +107,7 @@ xmlport 26551 "Format Versions"
                     FormatVersion.ImportExcelTemplate(PathName + FormatVersion."Excel File Name");
                 if FormatVersion."XML Schema File Name" <> '' then
                     FormatVersion.ImportXMLSchema(PathName + FormatVersion."XML Schema File Name");
-                FormatVersion.Insert;
+                FormatVersion.Insert();
             until "Format Version".Next = 0;
     end;
 }

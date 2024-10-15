@@ -43,7 +43,7 @@ table 17406 "Payroll Calculation"
 
     trigger OnDelete()
     begin
-        PayrollCalculationLine.Reset;
+        PayrollCalculationLine.Reset();
         PayrollCalculationLine.SetRange("Element Code", "Element Code");
         PayrollCalculationLine.SetRange("Period Code", "Period Code");
         PayrollCalculationLine.DeleteAll(true);

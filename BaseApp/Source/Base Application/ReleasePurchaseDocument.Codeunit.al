@@ -50,7 +50,7 @@ codeunit 415 "Release Purchase Document"
             PurchLine.SetFilter(Quantity, '<>0');
             if not PurchLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Location Mandatory" then begin
                 PurchLine.SetRange(Type, PurchLine.Type::Item);
                 if PurchLine.Find('-') then
@@ -67,11 +67,11 @@ codeunit 415 "Release Purchase Document"
             NotOnlyDropShipment := PurchLine.Find('-');
             PurchLine.SetRange("Drop Shipment");
             TestTrackingSpecification(PurchaseHeader, PurchLine);
-            PurchLine.Reset;
+            PurchLine.Reset();
 
             OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             if PurchSetup."Calc. Inv. Discount" then begin
                 PostingDate := "Posting Date";
                 PrintPostedDocuments := "Print Posted Documents";
@@ -150,10 +150,10 @@ codeunit 415 "Release Purchase Document"
 
         with PurchHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
-                if Status <> Status::"Pending Prepayment" then begin
+                if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
                     Modify;
-                    Commit;
+                    Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
             end;
@@ -205,6 +205,7 @@ codeunit 415 "Release Purchase Document"
         ReservationEntry: Record "Reservation Entry";
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         CDTrackingSetup: Record "CD Tracking Setup";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
@@ -215,12 +216,6 @@ codeunit 415 "Release Purchase Document"
         TrackingQtyHandled: Decimal;
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        CDRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
-        CDInfoRequired: Boolean;
         CheckPurchLine: Boolean;
     begin
         // if a PurchaseLine is posted with ItemTracking then the whole quantity of
@@ -256,16 +251,8 @@ codeunit 415 "Release Purchase Document"
                     Inbound := (PurchLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
                     if CDTrackingSetup.Get(Item."Item Tracking Code", PurchLineToCheck."Location Code") then;
-                    ItemTrackingManagement.GetItemTrackingSettings(ItemTrackingCode, CDTrackingSetup,
-                      0,
-                      Inbound,
-                      SNRequired,
-                      LotRequired,
-                      CDRequired,
-                      SNInfoRequired,
-                      LotInfoRequired,
-                      CDInfoRequired);
-                    CheckPurchLine := CDRequired and CDTrackingSetup."CD Purchase Check on Release";
+                    ItemTrackingManagement.GetItemTrackingSetup(ItemTrackingCode, CDTrackingSetup, 0, Inbound, ItemTrackingSetup);
+                    CheckPurchLine := ItemTrackingSetup."CD No. Required" and CDTrackingSetup."CD Purchase Check on Release";
                     if CheckPurchLine then
                         if not GetTrackingQuantities(PurchLineToCheck, 0, TrackingQtyToHandle, TrackingQtyHandled) then
                             if PurchHeader."Document Type" = PurchHeader."Document Type"::Order then

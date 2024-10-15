@@ -32,7 +32,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // [SCENARIO 173442] Add-ins should always be available - if they don't exist, create them when the management page opens.
 
         // [GIVEN] None of the default add-ins exist
-        OfficeAddin.DeleteAll;
+        OfficeAddin.DeleteAll();
 
         // [WHEN] Office add-in management page is run.
         OfficeAddinManagement.Trap;
@@ -208,8 +208,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize;
-        TempOfficeAdminCredentials.DeleteAll;
-        Commit;
+        TempOfficeAdminCredentials.DeleteAll();
+        Commit();
 
         // Exerise
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
@@ -233,8 +233,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize;
-        TempOfficeAdminCredentials.DeleteAll;
-        Commit;
+        TempOfficeAdminCredentials.DeleteAll();
+        Commit();
 
         // Exerise
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
@@ -256,8 +256,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize;
-        TempOfficeAdminCredentials.DeleteAll;
-        Commit;
+        TempOfficeAdminCredentials.DeleteAll();
+        Commit();
 
         // Exerise
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
@@ -280,8 +280,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize;
-        TempOfficeAdminCredentials.DeleteAll;
-        Commit;
+        TempOfficeAdminCredentials.DeleteAll();
+        Commit();
 
         // Exerise
         GetOfficeAdminCredentials(TempOfficeAdminCredentials);
@@ -524,7 +524,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Exercise
         AddinManifestManagement.DownloadManifestToClient(OfficeAddin, Filename);
 
-        OfficeAddin2.Init;
+        OfficeAddin2.Init();
         OfficeAddin2."Manifest Codeunit" := CODEUNIT::"Hyperlink Manifest";
         AddinManifestManagement.UploadDefaultManifest(OfficeAddin2, Filename);
         OfficeAddin2.Modify(true);
@@ -578,7 +578,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         FileManagement.BLOBExportToServerFile(TempBlob, Filename);
 
         // [WHEN] User uploads the default manifest for a given add-in.
-        OfficeAddin.Init;
+        OfficeAddin.Init();
         OfficeAddin."Manifest Codeunit" := CODEUNIT::"Intelligent Info Manifest";
         AddinManifestManagement.UploadDefaultManifest(OfficeAddin, Filename);
         OfficeAddin.Modify(true);
@@ -749,7 +749,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         ManifestText := CreateGuid;
         OfficeAddin."Default Manifest".CreateOutStream(OutStream, TEXTENCODING::UTF8);
         OutStream.Write(ManifestText);
-        OfficeAddin.Modify;
+        OfficeAddin.Modify();
 
         // Exercise
         RetrievedManifestText := OfficeAddin.GetDefaultManifestText;
@@ -796,14 +796,14 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // Set up appropriate number series for the document types for hyperlink:
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         CreateSalesCrMemoNoSeries('CC0_0CC44', 'CC0_0CC444444', SalesReceivablesSetup);
         CreateSalesInvoiceNoSeries('D0D**0D0', 'D0D**D0D9', SalesReceivablesSetup);
         CreateSalesOrderNoSeries('CAE-3420', 'CAE-3423', SalesReceivablesSetup);
         CreateSalesQuoteNoSeries('10000', '99999', SalesReceivablesSetup);
 
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     [Normal]
@@ -813,14 +813,14 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // Set up appropriate number series for the document types for hyperlink:
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         CreatePurchaseInvoiceNoSeries('10000', '99999', PurchasesPayablesSetup);
         CreatePurchaseOrderNoSeries('BBB/~~~#+00', 'BBB/~~~#+99', PurchasesPayablesSetup);
         CreatePurchaseQuoteNoSeries('12345A-1', '12345A-999', PurchasesPayablesSetup);
         CreatePurchaseCrMemoNoSeries('10000', '99999', PurchasesPayablesSetup);
 
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     [Normal]
@@ -840,14 +840,14 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // Set up appropriate number series for the document types for hyperlink:
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         CreateSalesCrMemoNoSeries('10000', '99999', SalesReceivablesSetup);
         CreateSalesInvoiceNoSeries('10000', '99999', SalesReceivablesSetup);
         CreateSalesOrderNoSeries('10000', '99999', SalesReceivablesSetup);
         CreateSalesQuoteNoSeries('D0D0D0D0', 'D0D0D0D9', SalesReceivablesSetup);
 
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     [Normal]
@@ -857,14 +857,14 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         // Set up appropriate number series for the document types for hyperlink:
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         CreatePurchaseQuoteNoSeries('10000', '99999', PurchasesPayablesSetup);
         CreatePurchaseCrMemoNoSeries('10000', '99999', PurchasesPayablesSetup);
         CreatePurchaseInvoiceNoSeries('10000', '99999', PurchasesPayablesSetup);
         CreatePurchaseOrderNoSeries('10000', '99999', PurchasesPayablesSetup);
 
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     [ModalPageHandler]
@@ -1371,8 +1371,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     [Normal]
     local procedure GetOfficeAdminCredentials(var TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary)
     begin
-        TempOfficeAdminCredentials.Init;
-        TempOfficeAdminCredentials.Insert;
+        TempOfficeAdminCredentials.Init();
+        TempOfficeAdminCredentials.Insert();
         PAGE.RunModal(PAGE::"Office Admin. Credentials", TempOfficeAdminCredentials);
     end;
 

@@ -26,9 +26,6 @@ report 12441 "Customer Accounting Card"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Customer_Accounting_CardCaption; Customer_Accounting_CardCaptionLbl)
             {
             }
@@ -211,15 +208,15 @@ report 12441 "Customer Accounting Card"
                             if "Entry Type" = "Entry Type"::Application then begin
                                 if "Prepmt. Diff." then begin
                                     if HasRelatedRealizedEntry("Transaction No.") or (not IsCurrencyAdjEntry) then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end else
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end;
 
                             case "Entry Type" of
                                 "Entry Type"::"Unrealized Gain":
                                     begin
-                                        DtldCustLedgEntry2.Reset;
+                                        DtldCustLedgEntry2.Reset();
                                         DtldCustLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.");
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Gain");
@@ -228,12 +225,12 @@ report 12441 "Customer Accounting Card"
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldCustLedgEntry2."Debit Amount (LCY)"
                                             else
-                                                CurrReport.Skip;
+                                                CurrReport.Skip();
                                         end;
                                     end;
                                 "Entry Type"::"Realized Gain":
                                     begin
-                                        DtldCustLedgEntry2.Reset;
+                                        DtldCustLedgEntry2.Reset();
                                         DtldCustLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.");
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Gain");
@@ -242,7 +239,7 @@ report 12441 "Customer Accounting Card"
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldCustLedgEntry2."Credit Amount (LCY)"
                                             else
-                                                CurrReport.Skip;
+                                                CurrReport.Skip();
                                         end;
                                     end;
                             end;
@@ -289,7 +286,7 @@ report 12441 "Customer Accounting Card"
                 if ("Debit Amount (LCY)" = 0) and
                    ("Credit Amount (LCY)" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

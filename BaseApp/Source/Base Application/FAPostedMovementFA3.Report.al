@@ -45,7 +45,7 @@ report 14989 "FA Posted Movement FA-3"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 GetFAComments(Conclusion, PostedFAComment.Type::Conclusion);
                 GetFAComments(Appendix, PostedFAComment.Type::Appendix);
@@ -97,7 +97,7 @@ report 14989 "FA Posted Movement FA-3"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
     end;

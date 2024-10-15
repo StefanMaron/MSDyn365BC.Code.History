@@ -275,7 +275,7 @@ table 17438 "Payroll Document Line Expr."
 
     trigger OnDelete()
     begin
-        PayrollDocLineExpr2.Reset;
+        PayrollDocLineExpr2.Reset();
         PayrollDocLineExpr2.SetRange("Document No.", "Document No.");
         PayrollDocLineExpr2.SetRange("Document Line No.", "Document Line No.");
         PayrollDocLineExpr2.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -285,7 +285,7 @@ table 17438 "Payroll Document Line Expr."
 
     trigger OnInsert()
     begin
-        PayrollDocLineExpr2.Reset;
+        PayrollDocLineExpr2.Reset();
         PayrollDocLineExpr2.SetRange("Document No.", "Document No.");
         PayrollDocLineExpr2.SetRange("Document Line No.", "Document Line No.");
         PayrollDocLineExpr2.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -312,7 +312,7 @@ table 17438 "Payroll Document Line Expr."
         Expr: Text[250];
     begin
         Expr := '';
-        PayrollDocLineExpr.Reset;
+        PayrollDocLineExpr.Reset();
         PayrollDocLineExpr.SetRange("Document No.", "Document No.");
         PayrollDocLineExpr.SetRange("Document Line No.", "Document Line No.");
         PayrollDocLineExpr.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -351,7 +351,7 @@ table 17438 "Payroll Document Line Expr."
         case Type of
             Type::Expression:
                 begin
-                    PayrollDocLineExpr.Reset;
+                    PayrollDocLineExpr.Reset();
                     PayrollDocLineExpr.SetRange("Document No.", "Document No.");
                     PayrollDocLineExpr.SetRange("Document Line No.", "Document Line No.");
                     PayrollDocLineExpr.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -366,7 +366,7 @@ table 17438 "Payroll Document Line Expr."
                 end;
             Type::Variable:
                 begin
-                    PayrollDocLineVar.Reset;
+                    PayrollDocLineVar.Reset();
                     PayrollDocLineVar.SetRange("Element Code", "Element Code");
                     PayrollElementVariables.SetTableView(PayrollDocLineVar);
                     PayrollElementVariables.LookupMode(true);

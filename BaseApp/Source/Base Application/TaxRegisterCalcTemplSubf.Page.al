@@ -82,7 +82,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
                     trigger OnAssistEdit()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         ShowDimensionsFilters;
                         CurrPage.Update(false);
                     end;
@@ -126,7 +126,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
         GLSetup: Record "General Ledger Setup";
     begin
         if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::Term) then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if (GLSetup."Global Dimension 1 Code" <> '') or
                (GLSetup."Global Dimension 2 Code" <> '')
             then begin

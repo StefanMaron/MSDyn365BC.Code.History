@@ -104,7 +104,7 @@ table 17386 "Absence Line"
 
             trigger OnLookup()
             begin
-                EmployeeAbsenceEntry.Reset;
+                EmployeeAbsenceEntry.Reset();
                 EmployeeAbsenceEntry.SetCurrentKey("Employee No.");
                 EmployeeAbsenceEntry.SetRange("Employee No.", "Employee No.");
                 EmployeeAbsenceEntry.SetRange("Time Activity Code", "Time Activity Code");
@@ -352,7 +352,7 @@ table 17386 "Absence Line"
                       FieldCaption("Sick Leave Type"),
                       "Sick Leave Type");
 
-                EmployeeRelative.Reset;
+                EmployeeRelative.Reset();
                 EmployeeRelative.SetRange("Person No.", "Person No.");
                 if PAGE.RunModal(0, EmployeeRelative) = ACTION::LookupOK then begin
                     EmployeeRelative.TestField("Relative Person No.");
@@ -558,7 +558,7 @@ table 17386 "Absence Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';
@@ -620,7 +620,7 @@ table 17386 "Absence Line"
 
     local procedure FindFirstAbsenceHeader(var PostedAbsenceLine: Record "Posted Absence Line"; PrevDocNo: Code[20]): Boolean
     begin
-        PostedAbsenceLine.Reset;
+        PostedAbsenceLine.Reset();
         PostedAbsenceLine.SetRange("Document Type", "Document Type");
         PostedAbsenceLine.SetRange("Document No.", PrevDocNo);
         if PostedAbsenceLine.FindFirst then
@@ -637,7 +637,7 @@ table 17386 "Absence Line"
     var
         PostedAbsenceLine: Record "Posted Absence Line";
     begin
-        PostedAbsenceLine.Reset;
+        PostedAbsenceLine.Reset();
         PostedAbsenceLine.SetRange("Document Type", "Document Type");
         PostedAbsenceLine.SetRange("Sick Leave Type", "Sick Leave Type");
         PostedAbsenceLine.SetRange("Start Date", CalcDate('<-CY>', "Start Date"), CalcDate('<CY>', "Start Date"));
@@ -666,7 +666,7 @@ table 17386 "Absence Line"
     var
         HRSetup: Record "Human Resources Setup";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Official Calendar Code");
         exit(HRSetup."Official Calendar Code");
     end;

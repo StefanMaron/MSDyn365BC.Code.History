@@ -181,7 +181,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         case AccType of
             AccType::Customer:
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     CurrencyAppln := SalesSetup."Appln. between Currencies";
                     case CurrencyAppln of
                         CurrencyAppln::No:
@@ -194,7 +194,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                             end;
                         CurrencyAppln::EMU:
                             begin
-                                GLSetup.Get;
+                                GLSetup.Get();
                                 if not Currency.Get(ApplnCurrencyCode) then
                                     Currency."EMU Currency" := GLSetup."EMU Currency";
                                 if not Currency2.Get(CompareCurrencyCode) then
@@ -209,7 +209,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 end;
             AccType::Vendor:
                 begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     CurrencyAppln := PurchSetup."Appln. between Currencies";
                     case CurrencyAppln of
                         CurrencyAppln::No:
@@ -222,7 +222,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                             end;
                         CurrencyAppln::EMU:
                             begin
-                                GLSetup.Get;
+                                GLSetup.Get();
                                 if not Currency.Get(ApplnCurrencyCode) then
                                     Currency."EMU Currency" := GLSetup."EMU Currency";
                                 if not Currency2.Get(CompareCurrencyCode) then
@@ -261,7 +261,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             if not EntrySelected then
                 exit;
 
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             CustLedgEntry.SetRange("Customer No.", AccNo);
             CustLedgEntry.SetRange(Open, true);
@@ -323,7 +323,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             if not EntrySelected then
                 exit;
 
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
             VendLedgEntry.SetRange("Vendor No.", AccNo);
             VendLedgEntry.SetRange(Open, true);

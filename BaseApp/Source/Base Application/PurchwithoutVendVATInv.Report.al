@@ -17,9 +17,6 @@ report 14901 "Purch. without Vend. VAT Inv."
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(RequestFilter; RequestFilter)
             {
             }
@@ -97,7 +94,7 @@ report 14901 "Purch. without Vend. VAT Inv."
             begin
                 if ("Vendor VAT Invoice No." <> '') and ("Vendor VAT Invoice Date" <> 0D) and
                    ("Vendor VAT Invoice Rcvd Date" <> 0D) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Vendor.Get("Vendor No.");
 

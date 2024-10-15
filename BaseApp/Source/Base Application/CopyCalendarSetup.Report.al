@@ -40,14 +40,14 @@ report 17429 "Copy Calendar Setup"
     begin
         FromPayrollCalendar.Get(CalendarCode);
 
-        FromPayrollCalSetup.Reset;
+        FromPayrollCalSetup.Reset();
         FromPayrollCalSetup.SetRange("Calendar Code", CalendarCode);
         if FromPayrollCalSetup.FindSet then
             repeat
-                ToPayrollCalSetup.Init;
+                ToPayrollCalSetup.Init();
                 ToPayrollCalSetup := FromPayrollCalSetup;
                 ToPayrollCalSetup."Calendar Code" := ToPayrollCalendar.Code;
-                ToPayrollCalSetup.Insert;
+                ToPayrollCalSetup.Insert();
             until FromPayrollCalSetup.Next = 0;
     end;
 

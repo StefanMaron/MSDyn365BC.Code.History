@@ -307,7 +307,7 @@ table 12477 "FA Document Line"
     [Scope('OnPrem')]
     procedure SetDepreciationBook()
     begin
-        FASetup.Get;
+        FASetup.Get();
         case "Document Type" of
             "Document Type"::Writeoff:
                 begin
@@ -365,7 +365,7 @@ table 12477 "FA Document Line"
     begin
         Clear(Comment);
         Index := 0;
-        FAComment.Reset;
+        FAComment.Reset();
         FAComment.SetCurrentKey("Document Type", "Document No.", "Document Line No.", Type);
         FAComment.SetRange("Document Type", "Document Type");
         FAComment.SetRange("Document No.", "Document No.");

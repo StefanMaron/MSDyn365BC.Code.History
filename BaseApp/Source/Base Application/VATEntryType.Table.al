@@ -90,14 +90,14 @@ table 14949 "VAT Entry Type"
            (CustLedgerEntry."VAT Entry Type" <> SalesInvoiceHeader."VAT Entry Type")
         then begin
             SalesInvoiceHeader."VAT Entry Type" := CustLedgerEntry."VAT Entry Type";
-            SalesInvoiceHeader.Modify;
+            SalesInvoiceHeader.Modify();
         end;
 
         if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") and
            (CustLedgerEntry."VAT Entry Type" <> SalesCrMemoHeader."VAT Entry Type")
         then begin
             SalesCrMemoHeader."VAT Entry Type" := CustLedgerEntry."VAT Entry Type";
-            SalesCrMemoHeader.Modify;
+            SalesCrMemoHeader.Modify();
         end;
     end;
 
@@ -113,14 +113,14 @@ table 14949 "VAT Entry Type"
            (VendLedgerEntry."VAT Entry Type" <> PurchInvHeader."VAT Entry Type")
         then begin
             PurchInvHeader."VAT Entry Type" := VendLedgerEntry."VAT Entry Type";
-            PurchInvHeader.Modify;
+            PurchInvHeader.Modify();
         end;
 
         if PurchCrMemoHdr.Get(VendLedgerEntry."Document No.") and
            (VendLedgerEntry."VAT Entry Type" <> PurchCrMemoHdr."VAT Entry Type")
         then begin
             PurchCrMemoHdr."VAT Entry Type" := VendLedgerEntry."VAT Entry Type";
-            PurchCrMemoHdr.Modify;
+            PurchCrMemoHdr.Modify();
         end;
     end;
 

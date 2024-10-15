@@ -38,33 +38,33 @@ page 17316 "Tax Calc. Terms"
                         TaxCalcTermLine: Record "Tax Calc. Term Formula";
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         if "Term Code" = '' then
                             exit;
-                        TaxCalcTermLine.Reset;
+                        TaxCalcTermLine.Reset();
                         TaxCalcTermLine.FilterGroup(2);
                         TaxCalcTermLine.SetRange("Section Code", "Section Code");
                         TaxCalcTermLine.FilterGroup(0);
                         TaxCalcTermLine.SetRange("Term Code", "Term Code");
                         if ("Expression Type" = "Expression Type"::Compare) and not (TaxCalcTermLine.Count = 3) then begin
                             if not (TaxCalcTermLine.Count = 0) then
-                                TaxCalcTermLine.DeleteAll;
-                            TaxCalcTermLine.Init;
+                                TaxCalcTermLine.DeleteAll();
+                            TaxCalcTermLine.Init();
                             TaxCalcTermLine."Section Code" := "Section Code";
                             TaxCalcTermLine."Term Code" := "Term Code";
                             TaxCalcTermLine."Account Type" := TaxCalcTermLine."Account Type"::Termin;
                             TaxCalcTermLine.Operation := TaxCalcTermLine.Operation::"Less 0";
                             TaxCalcTermLine."Line No." := 10000;
-                            TaxCalcTermLine.Insert;
+                            TaxCalcTermLine.Insert();
                             TaxCalcTermLine.Operation := TaxCalcTermLine.Operation::"Equ 0";
                             TaxCalcTermLine."Line No." := 20000;
-                            TaxCalcTermLine.Insert;
+                            TaxCalcTermLine.Insert();
                             TaxCalcTermLine.Operation := TaxCalcTermLine.Operation::"Grate 0";
                             TaxCalcTermLine."Line No." := 30000;
-                            TaxCalcTermLine.Insert;
+                            TaxCalcTermLine.Insert();
                             TaxCalcTermLine."Line No." := 10000;
                             TaxCalcTermLine.Find;
-                            Commit;
+                            Commit();
                         end;
                         PAGE.RunModal(0, TaxCalcTermLine);
                         Expression :=

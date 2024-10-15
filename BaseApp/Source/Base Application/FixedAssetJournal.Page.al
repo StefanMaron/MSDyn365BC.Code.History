@@ -1,4 +1,4 @@
-﻿page 5629 "Fixed Asset Journal"
+page 5629 "Fixed Asset Journal"
 {
     ApplicationArea = FixedAssets;
     AutoSplitKey = true;
@@ -508,7 +508,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -542,7 +543,7 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -567,7 +568,7 @@
         CurrentJnlBatchName: Code[10];
         FADescription: Text[100];
         ShortcutDimCode: array[8] of Code[20];
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

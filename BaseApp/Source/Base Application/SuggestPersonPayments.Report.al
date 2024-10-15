@@ -22,7 +22,7 @@ report 17455 "Suggest Person Payments"
                     Employee.SetRange("Org. Unit Code", OrgUnitCodeFilter);
                 if Employee.FindSet then
                     repeat
-                        PostedPayrollDoc.Reset;
+                        PostedPayrollDoc.Reset();
                         PostedPayrollDoc.SetCurrentKey("Employee No.");
                         PostedPayrollDoc.SetRange("Employee No.", Employee."No.");
                         PostedPayrollDoc.SetRange("Posting Date", StartingDate, EndingDate);
@@ -59,7 +59,7 @@ report 17455 "Suggest Person Payments"
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if GenJnlLine.FindLast then begin
                     LineNo := GenJnlLine."Line No.";
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                 end;
                 LineNo := LineNo + 10000;
 
@@ -152,7 +152,7 @@ report 17455 "Suggest Person Payments"
                 BankAccount.TestField("Credit Cash Order No. Series");
         end;
 
-        HRSetup.Get;
+        HRSetup.Get();
     end;
 
     var
@@ -200,7 +200,7 @@ report 17455 "Suggest Person Payments"
     [Scope('OnPrem')]
     procedure CreateJnlLine()
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
 
         GenJnlLine."Line No." := LineNo;
         GenJnlLine.Validate("Posting Date", PostingDate);
@@ -228,7 +228,7 @@ report 17455 "Suggest Person Payments"
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Computer Check";
         GenJnlLine."Applies-to ID" := '';
         GenJnlLine."Applies-to Doc. Date" := 0D;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         LineNo := LineNo + 10000;
     end;
 }

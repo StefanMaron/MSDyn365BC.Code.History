@@ -55,7 +55,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateOpenApprovalEntryForCurrentUser(GenJournalBatch.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         asserterror PreviewPost(GenJournalBatch.Name);
         GLPostingPreview.Close;
@@ -91,7 +91,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // Exercise
@@ -131,7 +131,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // Exercise
@@ -169,7 +169,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // Verify
@@ -200,7 +200,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // Verify
@@ -237,7 +237,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -290,7 +290,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -340,7 +340,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -380,7 +380,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateGeneralJournalBatchWithOneNotBalancedJournalLine(GenJournalBatch);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // Verify
@@ -412,7 +412,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalBatch.RecordId);
         ShowApprovalEntries(GenJournalBatch.Name);
 
@@ -448,7 +448,7 @@ codeunit 134321 "General Journal Batch Approval"
         CreateOpenApprovalEntryForCurrentUser(GenJournalBatch.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalBatch.RecordId);
         ShowApprovalEntries(GenJournalBatch.Name);
 
@@ -479,7 +479,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
         CancelApprovalRequestBatch(GenJournalLine."Journal Batch Name");
 
@@ -513,10 +513,10 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
-        Commit;
+        Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
 
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
         RequestorUserSetup.Get(UserId);
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
@@ -554,8 +554,8 @@ codeunit 134321 "General Journal Batch Approval"
 
         // Exercise
         GenJournalBatch."Allow Payment Export" := true;
-        GenJournalBatch.Modify;
-        Commit;
+        GenJournalBatch.Modify();
+        Commit();
         asserterror GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
 
         // Verify
@@ -672,7 +672,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         // Exercise
         GenJournalBatch."Allow Payment Export" := false;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
 
         // Verify: No error.
@@ -695,7 +695,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [FEATURE] [UI]
         // [SCENARIO] Batch workflow status factbox becomes visible when the batch is sent for approval on General Journal Page
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Journal batch with one or more journal lines
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -733,7 +733,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [SCENARIO 209814] Batch workflow status factbox becomes not visible when the batch is cancel for approval on General Journal Page
 
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Journal batch with one or more journal lines
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -918,7 +918,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryVariableStorage.Clear;
 
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -1027,7 +1027,7 @@ codeunit 134321 "General Journal Batch Approval"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Document Type" := ApprovalEntry."Document Type"::" ";
         ApprovalEntry."Document No." := '';
         ApprovalEntry."Table ID" := RecordID.TableNo;
@@ -1035,7 +1035,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalEntry."Approver ID" := UserId;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Sequence No." := 1;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure FindWorkflowStepArgument(Workflow: Record Workflow; var WorkflowStepArgument: Record "Workflow Step Argument")
@@ -1122,7 +1122,7 @@ codeunit 134321 "General Journal Batch Approval"
     local procedure AssignApprovalEntry(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
         ApprovalEntry."Approver ID" := UserSetup."User ID";
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
     end;
 
     local procedure Approve(GenJournalBatchName: Code[10])
@@ -1201,7 +1201,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         UserSetup."Approval Administrator" := true;
-        UserSetup.Modify;
+        UserSetup.Modify();
     end;
 
     [PageHandler]
@@ -1252,7 +1252,7 @@ codeunit 134321 "General Journal Batch Approval"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";

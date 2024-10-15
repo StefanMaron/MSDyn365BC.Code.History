@@ -22,7 +22,7 @@ codeunit 14941 GLCorrAnViewEntrToGLCorrEntr
     begin
         GLCorrAnalysisView.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code");
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         StartDate := GLCorrAnalysisViewEntry."Posting Date";
         EndDate := StartDate;
@@ -106,7 +106,7 @@ codeunit 14941 GLCorrAnViewEntrToGLCorrEntr
                        UpdateGLCorrAnalysisView.DimSetIDInFilter("Credit Dimension Set ID", GLCorrAnalysisView)
                     then begin
                         TempGLCorrEntry := GLCorrEntry;
-                        if TempGLCorrEntry.Insert then;
+                        if TempGLCorrEntry.Insert() then;
                     end;
                 until Next = 0;
         end;

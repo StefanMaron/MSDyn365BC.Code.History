@@ -20,7 +20,7 @@ table 17366 "Group Order Header"
                 TestField(Status, Status::Open);
 
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -94,15 +94,15 @@ table 17366 "Group Order Header"
     begin
         TestField(Status, Status::Open);
 
-        GroupOrderLine.Reset;
+        GroupOrderLine.Reset();
         GroupOrderLine.SetRange("Document Type", "Document Type");
         GroupOrderLine.SetRange("Document No.", "No.");
-        GroupOrderLine.DeleteAll;
+        GroupOrderLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
 
         if "No." = '' then begin
             TestNoSeries;
@@ -135,7 +135,7 @@ table 17366 "Group Order Header"
     begin
         with GroupOrderHeader do begin
             Copy(Rec);
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldGroupOrderHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

@@ -229,9 +229,23 @@ table 6520 "Item Tracing Buffer"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhereUsedMgt: Codeunit "Item Tracing Mgt.";
 
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+        "CD No." := ItemLedgEntry."CD No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
     procedure SetDescription(Description2: Text[100])
     begin
         Description := Format(Description2, -MaxStrLen(Description));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var ItemTracingBuffer: Record "Item Tracing Buffer"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
     end;
 }
 

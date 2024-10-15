@@ -19,9 +19,6 @@ report 12448 "Bank Account Card"
             column(ApplicationLocalization_Date2Text_DateStartedOfPeriod___________ApplicationLocalization_Date2Text_EndingPeriodDate_; ApplicationLocalization.Date2Text(DateStartedOfPeriod) + '  ..  ' + ApplicationLocalization.Date2Text(EndingPeriodDate))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -260,13 +257,13 @@ report 12448 "Bank Account Card"
                             "Debit Amount (LCY)" := "Credit Amount (LCY)";
                             "Credit Amount (LCY)" := Value;
                         end else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if ExclNonpostedEntries then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Posting Date", BeginingDateNonPosted, EndingDateNonPosted);
                 end;
             }

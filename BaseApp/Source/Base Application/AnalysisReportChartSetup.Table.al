@@ -241,13 +241,13 @@ table 770 "Analysis Report Chart Setup"
         GetMeasuresInTemp(TempAnalysisReportChartLine);
 
         SetLinkToLines(AnalysisReportChartLine);
-        AnalysisReportChartLine.DeleteAll;
+        AnalysisReportChartLine.DeleteAll();
 
-        AnalysisReportChartLine.Reset;
+        AnalysisReportChartLine.Reset();
         if TempAnalysisReportChartLine.FindSet then
             repeat
                 AnalysisReportChartLine := TempAnalysisReportChartLine;
-                AnalysisReportChartLine.Insert;
+                AnalysisReportChartLine.Insert();
             until TempAnalysisReportChartLine.Next = 0;
     end;
 
@@ -306,7 +306,7 @@ table 770 "Analysis Report Chart Setup"
     var
         AnalysisReportChartLine: Record "Analysis Report Chart Line";
     begin
-        TempAnalysisReportChartLine.Init;
+        TempAnalysisReportChartLine.Init();
         TempAnalysisReportChartLine."User ID" := "User ID";
         TempAnalysisReportChartLine."Analysis Area" := "Analysis Area";
         TempAnalysisReportChartLine.Name := Name;
@@ -347,7 +347,7 @@ table 770 "Analysis Report Chart Setup"
         then
             TempAnalysisReportChartLine."Chart Type" := AnalysisReportChartLine."Chart Type";
 
-        TempAnalysisReportChartLine.Insert;
+        TempAnalysisReportChartLine.Insert();
     end;
 
     local procedure SetChartTypesToDefault(var TempAnalysisReportChartLine: Record "Analysis Report Chart Line" temporary)
@@ -358,7 +358,7 @@ table 770 "Analysis Report Chart Setup"
 
         SetMeasureChartTypesToDefault(TempAnalysisReportChartLine2);
 
-        TempAnalysisReportChartLine2.Reset;
+        TempAnalysisReportChartLine2.Reset();
         SetLinkToDimensionLines(TempAnalysisReportChartLine2);
         TempAnalysisReportChartLine2.SetFilter("Chart Type", '<>%1', TempAnalysisReportChartLine2."Chart Type"::" ");
         if TempAnalysisReportChartLine2.IsEmpty then
@@ -371,17 +371,17 @@ table 770 "Analysis Report Chart Setup"
         MaxNumMeasures: Integer;
         NumOfMeasuresToBeSet: Integer;
     begin
-        AnalysisReportChartLine.Reset;
+        AnalysisReportChartLine.Reset();
         SetLinkToMeasureLines(AnalysisReportChartLine);
         AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
         MaxNumMeasures := BusinessChartBuffer.GetMaxNumberOfMeasures;
-        NumOfMeasuresToBeSet := MaxNumMeasures - AnalysisReportChartLine.Count;
+        NumOfMeasuresToBeSet := MaxNumMeasures - AnalysisReportChartLine.Count();
         if NumOfMeasuresToBeSet > 0 then begin
             AnalysisReportChartLine.SetRange("Chart Type", AnalysisReportChartLine."Chart Type"::" ");
             if AnalysisReportChartLine.FindSet then
                 repeat
                     AnalysisReportChartLine."Chart Type" := AnalysisReportChartLine.GetDefaultChartType;
-                    AnalysisReportChartLine.Modify;
+                    AnalysisReportChartLine.Modify();
                     NumOfMeasuresToBeSet -= 1;
                 until (NumOfMeasuresToBeSet = 0) or (AnalysisReportChartLine.Next = 0);
         end;
@@ -389,7 +389,7 @@ table 770 "Analysis Report Chart Setup"
 
     procedure SetDimensionChartTypesToDefault(var AnalysisReportChartLine: Record "Analysis Report Chart Line")
     begin
-        AnalysisReportChartLine.Reset;
+        AnalysisReportChartLine.Reset();
         SetLinkToDimensionLines(AnalysisReportChartLine);
         AnalysisReportChartLine.SetRange("Chart Type", AnalysisReportChartLine."Chart Type"::" ");
         AnalysisReportChartLine.ModifyAll("Chart Type", AnalysisReportChartLine.GetDefaultChartType);
@@ -402,7 +402,7 @@ table 770 "Analysis Report Chart Setup"
         AnalysisReportChartLine.SetRange("User ID", "User ID");
         AnalysisReportChartLine.SetRange("Analysis Area", "Analysis Area");
         AnalysisReportChartLine.SetRange(Name, Name);
-        AnalysisReportChartLine.DeleteAll;
+        AnalysisReportChartLine.DeleteAll();
     end;
 }
 

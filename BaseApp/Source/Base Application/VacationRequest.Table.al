@@ -12,7 +12,7 @@ table 17434 "Vacation Request"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -88,7 +88,7 @@ table 17434 "Vacation Request"
                 LocMgt.CheckPeriodDates("Start Date", xRec."End Date");
 
                 if ("Start Date" <> 0D) and ("End Date" <> 0D) then begin
-                    HRSetup.Get;
+                    HRSetup.Get();
                     HRSetup.TestField("Official Calendar Code");
                     "Calendar Days" :=
                       CalendarMgt.GetPeriodInfo(
@@ -188,7 +188,7 @@ table 17434 "Vacation Request"
             var
                 VacationScheduleLines: Page "Vacation Schedule Lines";
             begin
-                VacationScheduleLine.Reset;
+                VacationScheduleLine.Reset();
                 VacationScheduleLine.SetRange(Year, "Scheduled Year");
                 VacationScheduleLine.SetRange("Employee No.", "Employee No.");
 
@@ -292,7 +292,7 @@ table 17434 "Vacation Request"
 
     trigger OnInsert()
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Request Date", "No.", "No. Series");
@@ -333,7 +333,7 @@ table 17434 "Vacation Request"
     begin
         with VacationRequest do begin
             Copy(Rec);
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldVacationRequest."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -390,7 +390,7 @@ table 17434 "Vacation Request"
     begin
         TestField(Status, Status::Approved);
 
-        AbsenceLine.Reset;
+        AbsenceLine.Reset();
         AbsenceLine.SetRange("Vacation Request No.", "No.");
         if not AbsenceLine.IsEmpty then
             Error(Text001);
@@ -422,7 +422,7 @@ table 17434 "Vacation Request"
             if TimeActivity."Use Accruals" then begin
                 TestField("Scheduled Year");
                 TestField("Scheduled Start Date");
-                VacationScheduleLine.Reset;
+                VacationScheduleLine.Reset();
                 VacationScheduleLine.SetRange(Year, "Scheduled Year");
                 VacationScheduleLine.SetRange("Employee No.", "Employee No.");
                 VacationScheduleLine.SetRange("Start Date", "Scheduled Start Date");
@@ -430,7 +430,7 @@ table 17434 "Vacation Request"
                     VacationScheduleLine."Actual Start Date" := "Start Date";
                     if VacationScheduleLine."Actual Start Date" <> VacationScheduleLine."Start Date" then
                         VacationScheduleLine."Carry Over Reason" := TableCaption + ' ' + "No.";
-                    VacationScheduleLine.Modify;
+                    VacationScheduleLine.Modify();
                 end;
             end;
             Modify;

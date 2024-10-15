@@ -13,7 +13,7 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("M-4 Template Code");
         InitReportTemplate(PurchSetup."M-4 Template Code");
     end;
@@ -112,11 +112,11 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
     [Scope('OnPrem')]
     procedure InsertBuffer(var InvPostBuffer: Record "Invoice Post. Buffer"; AccountNo: Code[20]; var AccountNoToUpdate: Code[20])
     begin
-        InvPostBuffer.Reset;
+        InvPostBuffer.Reset();
         InvPostBuffer.SetRange("G/L Account", AccountNo);
         if not InvPostBuffer.FindFirst then begin
             InvPostBuffer."G/L Account" := AccountNo;
-            InvPostBuffer.Insert;
+            InvPostBuffer.Insert();
             if AccountNoToUpdate = '' then
                 AccountNoToUpdate := AccountNo;
         end;

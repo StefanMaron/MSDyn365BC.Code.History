@@ -209,15 +209,15 @@ table 12458 "Direct Transfer Header"
         MoveEntries: Codeunit MoveEntries;
     begin
         DirectTransLine.SetRange("Document No.", "No.");
-        DirectTransLine.DeleteAll;
+        DirectTransLine.DeleteAll();
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Direct Transfer");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         PostedDocSignature.SetRange("Table ID", DATABASE::"Direct Transfer Header");
         PostedDocSignature.SetRange("Document No.", "No.");
-        PostedDocSignature.DeleteAll;
+        PostedDocSignature.DeleteAll();
 
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Direct Transfer Line", 0, "No.", '', 0, 0, true);
@@ -255,14 +255,14 @@ table 12458 "Direct Transfer Header"
                 1:
                     REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, DirectTransHeader);
                 else begin
-                        ReportSelectionTmp.Reset;
-                        ReportSelectionTmp.DeleteAll;
+                        ReportSelectionTmp.Reset();
+                        ReportSelectionTmp.DeleteAll();
                         repeat
-                            ReportSelectionTmp.Init;
+                            ReportSelectionTmp.Init();
                             ReportSelectionTmp := ReportSelection;
-                            ReportSelectionTmp.Insert;
+                            ReportSelectionTmp.Insert();
                         until ReportSelection.Next = 0;
-                        Commit;
+                        Commit();
                         ReportSelectionTmp.Find('-');
                         if PAGE.RunModal(PAGE::"Report Selection - Print", ReportSelectionTmp) = ACTION::LookupOK then begin
                             ReportSelectionTmp.SetRange(Default, true);
@@ -270,7 +270,7 @@ table 12458 "Direct Transfer Header"
                                 repeat
                                     REPORT.RunModal(ReportSelectionTmp."Report ID", ShowRequestForm, false, DirectTransHeader)
                                 until ReportSelectionTmp.Next = 0;
-                            ReportSelectionTmp.DeleteAll;
+                            ReportSelectionTmp.DeleteAll();
                         end;
                     end;
             end;

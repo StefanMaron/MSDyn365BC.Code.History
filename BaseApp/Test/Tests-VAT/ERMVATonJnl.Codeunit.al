@@ -266,7 +266,7 @@ codeunit 134044 "ERM VAT on Jnl"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalTemplate.Validate("Allow VAT Difference", true);
         GenJournalTemplate.Modify(true);
-        Commit; // due to expected error message
+        Commit(); // due to expected error message
 
         // [GIVEN] Open page "General Journal Templates"
         GeneralJournalTemplates.OpenEdit;
@@ -669,7 +669,6 @@ codeunit 134044 "ERM VAT on Jnl"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify that correct GL Entry VAT Entry Link exists for posted entry.
-        exit; // Known issue
         FindGLEntry(GLEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         FindVATEntry(VATEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         GLEntryVATEntryLink.Get(GLEntry."Entry No.", VATEntry."Entry No.");
@@ -687,7 +686,7 @@ codeunit 134044 "ERM VAT on Jnl"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure AllowVATDifferenceInTemplate(JournalTemplateName: Code[10]; AllowVATDifference: Boolean)
@@ -904,7 +903,7 @@ codeunit 134044 "ERM VAT on Jnl"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         MaxVATDiffAllowedOld := GeneralLedgerSetup."Max. VAT Difference Allowed";
         GeneralLedgerSetup.Validate("Max. VAT Difference Allowed", MaxVATDifferenceAllowed);
         GeneralLedgerSetup.Modify(true);
@@ -970,7 +969,7 @@ codeunit 134044 "ERM VAT on Jnl"
         GLEntry: Record "G/L Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GLEntry."Document Type"::Payment, DocumentNo);
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -985,7 +984,7 @@ codeunit 134044 "ERM VAT on Jnl"
         VATEntry: Record "VAT Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindVATEntry(VATEntry, VATEntry."Document Type"::Payment, DocumentNo);
         Assert.AreNearlyEqual(
           Base, VATEntry.Base, GeneralLedgerSetup."Amount Rounding Precision",

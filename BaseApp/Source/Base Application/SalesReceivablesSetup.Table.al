@@ -194,11 +194,9 @@ table 311 "Sales & Receivables Setup"
                 PrepaymentMgt.CreateAndStartJobQueueEntrySales("Prepmt. Auto Update Frequency");
             end;
         }
-        field(35; "Default Posting Date"; Option)
+        field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            OptionCaption = 'Work Date,No Date';
-            OptionMembers = "Work Date","No Date";
         }
         field(36; "Default Quantity to Ship"; Option)
         {
@@ -467,6 +465,19 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Exact Cost Reversing Mandatory';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            InitValue = "Lowest Price";
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+            end;
+        }
         field(7101; "Customer Group Dimension Code"; Code[20])
         {
             Caption = 'Customer Group Dimension Code';
@@ -479,7 +490,7 @@ table 311 "Sales & Receivables Setup"
         }
         field(7103; "Freight G/L Acc. No."; Code[20])
         {
-            Caption = 'Freight G/L Account No.';
+            Caption = 'Freight G/L Acc. No.';
             TableRelation = "G/L Account";
 
             trigger OnValidate()
@@ -744,7 +755,7 @@ table 311 "Sales & Receivables Setup"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" then
             if CheckValue then
                 GLSetup.TestField("Cancel Curr. Prepmt. Adjmt.", false);

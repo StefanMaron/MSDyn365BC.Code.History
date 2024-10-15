@@ -66,7 +66,7 @@ table 5077 "Segment Line"
                 if "Segment No." <> '' then begin
                     if UniqueAttachmentExists then begin
                         Modify;
-                        SegInteractLanguage.Reset;
+                        SegInteractLanguage.Reset();
                         SegInteractLanguage.SetRange("Segment No.", "Segment No.");
                         SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
                         SegInteractLanguage.DeleteAll(true);
@@ -101,11 +101,9 @@ table 5077 "Segment Line"
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
         }
-        field(6; "Correspondence Type"; Option)
+        field(6; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
 
             trigger OnValidate()
             var
@@ -153,7 +151,7 @@ table 5077 "Segment Line"
                 Modify;
 
                 if "Segment No." <> '' then begin
-                    SegInteractLanguage.Reset;
+                    SegInteractLanguage.Reset();
                     SegInteractLanguage.SetRange("Segment No.", "Segment No.");
                     SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
                     SegInteractLanguage.DeleteAll(true);
@@ -375,11 +373,9 @@ table 5077 "Segment Line"
             Caption = 'Interaction Group Code';
             TableRelation = "Interaction Group";
         }
-        field(31; "Document Type"; Option)
+        field(31; "Document Type"; Enum "Interaction Log Entry Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Qte.,Sales Blnkt. Ord,Sales Ord. Cnfrmn.,Sales Inv.,Sales Shpt. Note,Sales Cr. Memo,Sales Stmnt.,Sales Rmdr.,Serv. Ord. Create,Serv. Ord. Post,Purch.Qte.,Purch. Blnkt. Ord.,Purch. Ord.,Purch. Inv.,Purch. Rcpt.,Purch. Cr. Memo,Cover Sheet';
-            OptionMembers = " ","Sales Qte.","Sales Blnkt. Ord","Sales Ord. Cnfrmn.","Sales Inv.","Sales Shpt. Note","Sales Cr. Memo","Sales Stmnt.","Sales Rmdr.","Serv. Ord. Create","Serv. Ord. Post","Purch.Qte.","Purch. Blnkt. Ord.","Purch. Ord.","Purch. Inv.","Purch. Rcpt.","Purch. Cr. Memo","Cover Sheet";
         }
         field(32; "Document No."; Code[20])
         {
@@ -412,12 +408,10 @@ table 5077 "Segment Line"
             Caption = 'Opportunity No.';
             TableRelation = Opportunity;
         }
-        field(9501; "Wizard Step"; Option)
+        field(9501; "Wizard Step"; Enum "Segment Line Wizard Step")
         {
             Caption = 'Wizard Step';
             Editable = false;
-            OptionCaption = ' ,1,2,3,4,5,6';
-            OptionMembers = " ","1","2","3","4","5","6";
         }
         field(9502; "Wizard Contact Name"; Text[100])
         {
@@ -479,7 +473,7 @@ table 5077 "Segment Line"
     begin
         CampaignTargetGrMgt.DeleteSegfromTargetGr(Rec);
 
-        SegInteractLanguage.Reset;
+        SegInteractLanguage.Reset();
         SegInteractLanguage.SetRange("Segment No.", "Segment No.");
         SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
         SegInteractLanguage.DeleteAll(true);
@@ -493,9 +487,9 @@ table 5077 "Segment Line"
             if SegHeader."No. of Criteria Actions" > 1 then
                 if Confirm(Text006, true) then begin
                     SegmentCriteriaLine.SetRange("Segment No.", "Segment No.");
-                    SegmentCriteriaLine.DeleteAll;
+                    SegmentCriteriaLine.DeleteAll();
                     SegmentHistory.SetRange("Segment No.", "Segment No.");
-                    SegmentHistory.DeleteAll;
+                    SegmentHistory.DeleteAll();
                 end;
         end;
         if "Contact No." <> '' then begin
@@ -595,7 +589,7 @@ table 5077 "Segment Line"
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
         if not SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
-            SegInteractLanguage.Init;
+            SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "Segment No.";
             SegInteractLanguage."Segment Line No." := "Line No.";
             SegInteractLanguage."Language Code" := "Language Code";
@@ -627,7 +621,7 @@ table 5077 "Segment Line"
             if (Attachment."Last Date Modified" <> Attachment2."Last Date Modified") or
                (Attachment."Last Time Modified" <> Attachment2."Last Time Modified")
             then begin
-                SegInteractLanguage.Init;
+                SegInteractLanguage.Init();
                 SegInteractLanguage."Segment No." := "Segment No.";
                 SegInteractLanguage."Segment Line No." := "Line No.";
                 SegInteractLanguage."Language Code" := "Language Code";
@@ -648,7 +642,7 @@ table 5077 "Segment Line"
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
         if not SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
-            SegInteractLanguage.Init;
+            SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "Segment No.";
             SegInteractLanguage."Segment Line No." := "Line No.";
             SegInteractLanguage."Language Code" := "Language Code";
@@ -849,7 +843,7 @@ table 5077 "Segment Line"
     [Scope('OnPrem')]
     procedure CreateInteractionFromContact(var Contact: Record Contact)
     begin
-        DeleteAll;
+        DeleteAll();
         Init;
         if Contact.Type = Contact.Type::Person then
             SetRange("Contact Company No.", Contact."Company No.");
@@ -867,7 +861,7 @@ table 5077 "Segment Line"
 
     procedure CreateInteractionFromSalesperson(var Salesperson: Record "Salesperson/Purchaser")
     begin
-        DeleteAll;
+        DeleteAll();
         Init;
         Validate("Salesperson Code", Salesperson.Code);
         SetRange("Salesperson Code", Salesperson.Code);
@@ -1107,7 +1101,7 @@ table 5077 "Segment Line"
                     Clear(TempAttachment);
                     LoadTempAttachment(false);
                     TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode);
-                    Commit;
+                    Commit();
                 end;
                 if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
                     if Mail.GetErrorDesc <> '' then
@@ -1166,12 +1160,14 @@ table 5077 "Segment Line"
                     if ImportedFileName = '' then
                         Message(Text004)
                     else begin
-                        TempAttachment.DeleteAll;
+                        TempAttachment.DeleteAll();
                         TempAttachment.SetAttachmentFileFromBlob(TempBlob);
                         TempAttachment."File Extension" := CopyStr(FileMgt.GetExtension(ImportedFileName), 1, 250);
-                        TempAttachment.Insert;
+                        TempAttachment.Insert();
                     end;
                 end;
+            else
+                OnHandleTriggerCaseElse(Rec, InteractTmpl);
         end;
     end;
 
@@ -1181,13 +1177,13 @@ table 5077 "Segment Line"
             exit;
         Attachment.Get("Attachment No.");
         Attachment.CalcFields("Attachment File");
-        TempAttachment.DeleteAll;
+        TempAttachment.DeleteAll();
         TempAttachment.WizEmbeddAttachment(Attachment);
         TempAttachment."No." := 0;
         TempAttachment."Read Only" := false;
         if Attachment.IsHTML then
             TempAttachment."File Extension" := Attachment."File Extension";
-        TempAttachment.Insert;
+        TempAttachment.Insert();
     end;
 
     procedure LoadContentBodyTextFromCustomLayoutAttachment(): Text
@@ -1227,17 +1223,17 @@ table 5077 "Segment Line"
             InterLogEntryCommentLine.SetRange("Entry No.", "Line No.");
             if InterLogEntryCommentLine.Find('-') then
                 repeat
-                    TempInterLogEntryCommentLine.Init;
+                    TempInterLogEntryCommentLine.Init();
                     TempInterLogEntryCommentLine.TransferFields(InterLogEntryCommentLine, false);
                     TempInterLogEntryCommentLine."Line No." := InterLogEntryCommentLine."Line No.";
-                    TempInterLogEntryCommentLine.Insert;
+                    TempInterLogEntryCommentLine.Insert();
                 until InterLogEntryCommentLine.Next = 0;
             ResumedAttachmentNo := "Attachment No.";
         end;
         if "Attachment No." <> 0 then
             LoadTempAttachment(ForceReload)
         else begin
-            TempAttachment.DeleteAll;
+            TempAttachment.DeleteAll();
             Clear(TempAttachment);
         end;
     end;
@@ -1270,7 +1266,7 @@ table 5077 "Segment Line"
     begin
         OnBeforeStartWizard2(Rec);
 
-        InteractionTmplSetup.Get;
+        InteractionTmplSetup.Get();
         InteractionTmplSetup.TestField("Outg. Calls");
 
         "Wizard Step" := "Wizard Step"::"1";
@@ -1315,10 +1311,10 @@ table 5077 "Segment Line"
         SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, false, false);
 
         if SegLine.Get("Segment No.", "Line No.") then begin
-            SegLine.LockTable;
+            SegLine.LockTable();
             SegLine."Contact Via" := "Contact Via";
             SegLine."Wizard Step" := SegLine."Wizard Step"::" ";
-            SegLine.Modify;
+            SegLine.Modify();
         end;
     end;
 
@@ -1329,12 +1325,12 @@ table 5077 "Segment Line"
 
     procedure SetComments(var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line")
     begin
-        TempInterLogEntryCommentLine.DeleteAll;
+        TempInterLogEntryCommentLine.DeleteAll();
 
         if InterLogEntryCommentLine.FindSet then
             repeat
                 TempInterLogEntryCommentLine := InterLogEntryCommentLine;
-                TempInterLogEntryCommentLine.Insert;
+                TempInterLogEntryCommentLine.Insert();
             until InterLogEntryCommentLine.Next = 0;
     end;
 
@@ -1388,7 +1384,7 @@ table 5077 "Segment Line"
 
     procedure FilterContactCompanyOpportunities(var Opportunity: Record Opportunity)
     begin
-        Opportunity.Reset;
+        Opportunity.Reset();
         Opportunity.SetRange(Closed, false);
         if "Salesperson Code" <> '' then
             Opportunity.SetRange("Salesperson Code", "Salesperson Code");

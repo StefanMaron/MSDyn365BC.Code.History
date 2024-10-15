@@ -1,156 +1,117 @@
-table 17442 "Timesheet Detail"
+table 952 "Time Sheet Detail"
 {
-    Caption = 'Timesheet Detail';
-    LookupPageID = "Timesheet Details";
+    Caption = 'Time Sheet Detail';
 
     fields
     {
-        field(1; "Employee No."; Code[20])
+        field(1; "Time Sheet No."; Code[20])
         {
-            Caption = 'Employee No.';
-            Editable = false;
-            TableRelation = Employee;
+            Caption = 'Time Sheet No.';
+            TableRelation = "Time Sheet Header";
         }
-        field(2; Date; Date)
+        field(2; "Time Sheet Line No."; Integer)
+        {
+            Caption = 'Time Sheet Line No.';
+        }
+        field(3; Date; Date)
         {
             Caption = 'Date';
-            ClosingDates = true;
-            Editable = false;
         }
-        field(3; "Time Activity Code"; Code[10])
+        field(4; Type; Option)
         {
-            Caption = 'Time Activity Code';
-            NotBlank = true;
+            Caption = 'Type';
+            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
+            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
+        }
+        field(5; "Resource No."; Code[20])
+        {
+            Caption = 'Resource No.';
+            TableRelation = Resource;
+        }
+        field(6; "Job No."; Code[20])
+        {
+            Caption = 'Job No.';
+            TableRelation = Job;
+        }
+        field(7; "Job Task No."; Code[20])
+        {
+            Caption = 'Job Task No.';
+            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+        }
+        field(9; "Cause of Absence Code"; Code[10])
+        {
+            Caption = 'Cause of Absence Code';
             TableRelation = "Time Activity";
-
-            trigger OnValidate()
-            begin
-                if "Time Activity Code" <> '' then begin
-                    TimeActivity.Get("Time Activity Code");
-                    "Timesheet Code" := TimeActivity."Timesheet Code";
-                    Overtime := TimeActivity."Allow Overtime";
-
-                    TimesheetDetail.Reset;
-                    TimesheetDetail.SetRange("Employee No.", "Employee No.");
-                    TimesheetDetail.SetRange(Date, Date);
-                    TimesheetDetail.SetFilter("Time Activity Code", '<>%1&<>%2', '', "Time Activity Code");
-                    if not TimeActivity."Allow Combination" then begin
-                        if not TimesheetDetail.IsEmpty then
-                            Error(Text002, "Time Activity Code")
-                    end
-                end else
-                    "Timesheet Code" := '';
-            end;
         }
-        field(4; "Time Activity Name"; Text[50])
+        field(13; "Service Order No."; Code[20])
         {
-            CalcFormula = Lookup ("Time Activity".Description WHERE(Code = FIELD("Time Activity Code")));
-            Caption = 'Time Activity Name';
-            Editable = false;
-            FieldClass = FlowField;
+            Caption = 'Service Order No.';
+            TableRelation = IF (Posted = CONST(false)) "Service Header"."No." WHERE("Document Type" = CONST(Order));
         }
-        field(5; "Calendar Code"; Code[10])
+        field(14; "Service Order Line No."; Integer)
         {
-            Caption = 'Calendar Code';
-            Editable = false;
-            TableRelation = "Payroll Calendar";
+            Caption = 'Service Order Line No.';
         }
-        field(7; "Actual Hours"; Decimal)
+        field(15; Quantity; Decimal)
         {
-            AutoFormatType = 1;
-            Caption = 'Actual Hours';
-            DecimalPlaces = 0 : 1;
-            NotBlank = true;
-
-            trigger OnValidate()
-            var
-                PlannedActivityCode: Code[10];
-                DayStatus: Option " ",Weekend,Holiday;
-            begin
-                TimeActivity.Get("Time Activity Code");
-
-                Employee.Reset;
-                Employee.SetRange("Employee No. Filter", "Employee No.");
-                Employee.SetRange("Date Filter", Date);
-                Employee.CalcFields("Actual Hours", "Overtime Hours");
-
-                PlannedHours := CalendarMgt.GetDateInfo("Calendar Code", Date, PlannedActivityCode, DayStatus);
-
-                if Overtime then begin
-                    if ("Actual Hours" - xRec."Actual Hours") > 24 - Employee."Actual Hours" - Employee."Overtime Hours" then
-                        FieldError("Actual Hours", StrSubstNo(Text000, 24))
-                end else
-                    if "Actual Hours" > PlannedHours then
-                        FieldError("Actual Hours", StrSubstNo(Text000, PlannedHours));
-            end;
-        }
-        field(8; Overtime; Boolean)
-        {
-            Caption = 'Overtime';
+            Caption = 'Quantity';
             Editable = false;
         }
-        field(9; Description; Text[50])
+        field(16; "Posted Quantity"; Decimal)
         {
-            Caption = 'Description';
+            Caption = 'Posted Quantity';
         }
-        field(10; "Org. Unit Code"; Code[10])
+        field(18; "Assembly Order No."; Code[20])
         {
-            Caption = 'Org. Unit Code';
-            Editable = false;
-            TableRelation = "Organizational Unit";
+            Caption = 'Assembly Order No.';
+            TableRelation = IF (Posted = CONST(false)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order));
         }
-        field(11; "User ID"; Code[50])
+        field(19; "Assembly Order Line No."; Integer)
         {
-            Caption = 'User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-            TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
-            ValidateTableRelation = false;
+            Caption = 'Assembly Order Line No.';
         }
-        field(15; "Timesheet Code"; Code[10])
+        field(20; Status; Enum "Time Sheet Status")
         {
-            Caption = 'Timesheet Code';
-            TableRelation = "Timesheet Code";
+            Caption = 'Status';
         }
-        field(25; "Document Type"; Option)
+        field(23; Posted; Boolean)
         {
-            Caption = 'Document Type';
-            Editable = false;
-            OptionCaption = ' ,Vacation,Sick Leave,Travel,Other Absence';
-            OptionMembers = " ",Vacation,"Sick Leave",Travel,"Other Absence";
+            Caption = 'Posted';
         }
-        field(27; "Document No."; Code[20])
+        field(480; "Dimension Set ID"; Integer)
         {
-            Caption = 'Document No.';
+            Caption = 'Dimension Set ID';
+            DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(28; "Document Date"; Date)
+        field(8000; Id; Guid)
         {
-            Caption = 'Document Date';
-            Editable = false;
+            Caption = 'Id';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
-        field(29; "Previous Time Activity Code"; Code[10])
+        field(8001; "Last Modified DateTime"; DateTime)
         {
-            Caption = 'Previous Time Activity Code';
-            Editable = false;
+            Caption = 'Last Modified DateTime';
+        }
+        field(8002; "Job Id"; Guid)
+        {
+            Caption = 'Job Id';
+            DataClassification = SystemMetadata;
+            TableRelation = Job.Id;
         }
     }
 
     keys
     {
-        key(Key1; "Employee No.", Date, "Time Activity Code")
+        key(Key1; "Time Sheet No.", "Time Sheet Line No.", Date)
         {
             Clustered = true;
-            SumIndexFields = "Actual Hours";
         }
-        key(Key2; "Employee No.", "Org. Unit Code", "Timesheet Code", Date, Overtime)
+        key(Key2; Type, "Job No.", "Job Task No.", Status, Posted)
         {
-            SumIndexFields = "Actual Hours";
-        }
-        key(Key3; "Document No.", "Document Date")
-        {
+            SumIndexFields = Quantity;
         }
     }
 
@@ -158,46 +119,57 @@ table 17442 "Timesheet Detail"
     {
     }
 
-    trigger OnDelete()
-    begin
-        TestField("Document No.", '');
-        TimesheetMgt.CheckTimesheetStatus("Employee No.", "Calendar Code", Date);
-
-        "User ID" := UserId;
-    end;
-
     trigger OnInsert()
     begin
-        TestField("Document No.", '');
-        TimeActivity.Get("Time Activity Code");
-        if not TimeActivity."Allow Override" then
-            TimesheetMgt.CheckTimesheetStatus("Employee No.", "Calendar Code", Date);
-
-        "User ID" := UserId;
+        TimeSheetMgt.CheckAccPeriod(Date);
+        SetLastModifiedDateTime;
     end;
 
     trigger OnModify()
     begin
-        TestField("Document No.", '');
-        TimesheetMgt.CheckTimesheetStatus("Employee No.", "Calendar Code", Date);
-
-        "User ID" := UserId;
+        TimeSheetMgt.CheckAccPeriod(Date);
+        SetLastModifiedDateTime;
     end;
 
     trigger OnRename()
     begin
-        Error(Text003, TableCaption);
+        SetLastModifiedDateTime;
     end;
 
     var
-        TimeActivity: Record "Time Activity";
-        TimesheetDetail: Record "Timesheet Detail";
-        Employee: Record Employee;
-        CalendarMgt: Codeunit "Payroll Calendar Management";
-        TimesheetMgt: Codeunit "Timesheet Management RU";
-        PlannedHours: Decimal;
-        Text000: Label 'per day cannot exceed %1.';
-        Text002: Label '%1 cannot be entered together with other codes.';
-        Text003: Label 'You cannot rename a %1.';
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+
+    procedure CopyFromTimeSheetLine(TimeSheetLine: Record "Time Sheet Line")
+    begin
+        "Time Sheet No." := TimeSheetLine."Time Sheet No.";
+        "Time Sheet Line No." := TimeSheetLine."Line No.";
+        Type := TimeSheetLine.Type;
+        "Job No." := TimeSheetLine."Job No.";
+        "Job Id" := TimeSheetLine."Job Id";
+        "Job Task No." := TimeSheetLine."Job Task No.";
+        "Cause of Absence Code" := TimeSheetLine."Cause of Absence Code";
+        "Service Order No." := TimeSheetLine."Service Order No.";
+        "Service Order Line No." := TimeSheetLine."Service Order Line No.";
+        "Assembly Order No." := TimeSheetLine."Assembly Order No.";
+        "Assembly Order Line No." := TimeSheetLine."Assembly Order Line No.";
+        Status := TimeSheetLine.Status;
+
+        OnAfterCopyFromTimeSheetLine(Rec, TimeSheetLine);
+    end;
+
+    procedure GetMaxQtyToPost(): Decimal
+    begin
+        exit(Quantity - "Posted Quantity");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromTimeSheetLine(var TimeSheetDetail: Record "Time Sheet Detail"; TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    local procedure SetLastModifiedDateTime()
+    begin
+        "Last Modified DateTime" := CurrentDateTime;
+    end;
 }
 

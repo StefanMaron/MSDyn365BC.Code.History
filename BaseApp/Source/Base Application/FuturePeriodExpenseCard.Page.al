@@ -213,7 +213,7 @@ page 17331 "Future Period Expense Card"
 
                     trigger OnAction()
                     begin
-                        FA.Reset;
+                        FA.Reset();
                         FA.SetRange("No.", "No.");
                         if FA.FindFirst then
                             REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FA);

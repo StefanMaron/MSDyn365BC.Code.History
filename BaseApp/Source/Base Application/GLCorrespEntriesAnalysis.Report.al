@@ -24,9 +24,6 @@ report 12435 "G/L Corresp Entries Analysis"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Double_Entries_AnalysisCaption; Double_Entries_AnalysisCaptionLbl)
             {
             }
@@ -254,7 +251,7 @@ report 12435 "G/L Corresp Entries Analysis"
                         else
                             VirtualCrossReference.Next;
                         if VirtualCrossReference."Use Duplication List" then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         GLAcc1.Get(VirtualCrossReference."G/L Account");
 
                         DebitAmountText := '';
@@ -268,7 +265,7 @@ report 12435 "G/L Corresp Entries Analysis"
                                 NetChangeCredit := NetChangeCredit + VirtualCrossReference1.Amount;
                                 CreditAmountText := Format(VirtualCrossReference1.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                                 VirtualCrossReference1."Use Duplication List" := true;
-                                VirtualCrossReference1.Modify;
+                                VirtualCrossReference1.Modify();
                             end;
                         end else
                             if VirtualCrossReference.Type = 1 then begin
@@ -280,7 +277,7 @@ report 12435 "G/L Corresp Entries Analysis"
                                     NetChangeDebit := NetChangeDebit + VirtualCrossReference1.Amount;
                                     DebitAmountText := Format(VirtualCrossReference1.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                                     VirtualCrossReference1."Use Duplication List" := true;
-                                    VirtualCrossReference1.Modify;
+                                    VirtualCrossReference1.Modify();
                                 end;
                             end;
 
@@ -294,7 +291,7 @@ report 12435 "G/L Corresp Entries Analysis"
                           or (NumberOfLinesByDebit = 0)
                           or (NumberOfLinesByCredit = 0)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, NumberOfLinesByDebit + NumberOfLinesByCredit);
                         NetChangeDebit := 0;
                         NetChangeCredit := 0;
@@ -412,7 +409,7 @@ report 12435 "G/L Corresp Entries Analysis"
                         if (NumberOfLinesByDebit = 0)
                           or (not DebitCreditSeparately and not (NumberOfLinesByCredit = 0))
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, NumberOfLinesByDebit);
                         VirtualCrossReference.SetRange(Type, 0);
 
@@ -534,7 +531,7 @@ report 12435 "G/L Corresp Entries Analysis"
                         if (NumberOfLinesByCredit = 0)
                           or (not DebitCreditSeparately and not (NumberOfLinesByDebit = 0))
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, NumberOfLinesByCredit);
                         VirtualCrossReference.SetRange(Type, 1);
 
@@ -583,18 +580,18 @@ report 12435 "G/L Corresp Entries Analysis"
                 if WithoutZeroNetChanges
                   and (NetChangeDebitGLAcc = 0) and (NetChangeCreditGLAcc = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if ExcludingZeroLine
                   and (BalanceBegining = 0) and (BalanceEnding = 0)
                   and (NetChangeDebitGLAcc = 0) and (NetChangeCreditGLAcc = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 AccReportingManagement.CreateCrossMatrixForGLAccount(
                   VirtualCrossReference, GLAccForReport, NumberOfLinesByDebit, NumberOfLinesByCredit,
                   DateStartedOfPeriod, EndingPeriodDate, WithoutZeroNetChanges);
                 if (NumberOfLinesByDebit = 0) and (NumberOfLinesByCredit = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

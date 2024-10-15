@@ -100,7 +100,7 @@ report 12458 "Posted Cash Ingoing Order"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CashOrderReportHelper.InitIngoingReportTmpl;
     end;
 

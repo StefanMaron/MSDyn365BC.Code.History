@@ -24,10 +24,10 @@ report 14910 "Customer - Reconciliation Act"
                     begin
                         if Number = 1 then begin
                             if not TempAppDtldCustLedgEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempAppDtldCustLedgEntry.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         OldAppldCustPays."Entry Type" := OldAppldCustPays."Entry Type"::Application;
                         CustPayProcessing(OldAppldCustPays, OldCustInvoices, CurrencyCode);
@@ -107,7 +107,7 @@ report 14910 "Customer - Reconciliation Act"
                         if FindAppldCustLedgEntry("Entry No.", MinDate, MaxDate) then
                             FindAppldCustLedgEntry("Entry No.", 0D, MaxDate)
                         else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     SetFilter("Date Filter", '..%1', "Posting Date");
                     GetCustAmounts(OldCustInvoices, CurrencyCode, DocumentAmount, TempAmount);
@@ -170,10 +170,10 @@ report 14910 "Customer - Reconciliation Act"
                     begin
                         if Number = 1 then begin
                             if not TempAppDtldCustLedgEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempAppDtldCustLedgEntry.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         AppldCustPays."Entry Type" := AppldCustPays."Entry Type"::Application;
                         CustPayProcessing(AppldCustPays, CustInvoices, CurrencyCode);
@@ -255,7 +255,7 @@ report 14910 "Customer - Reconciliation Act"
                     IsAgreementTransfer := CheckCustTransfBetweenAgreements(CustInvoices);
 
                     if ExcludeCustDoc(CustInvoices, CurrencyCode) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     SetFilter("Date Filter", '..%1', "Posting Date");
                     GetCustAmounts(CustInvoices, CurrencyCode, DocumentAmount, TempAmount);
@@ -332,7 +332,7 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if OtherCurrApplAmount = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         InvCounter += 1;
 
                         if ShowDetails = 2 then
@@ -346,7 +346,7 @@ report 14910 "Customer - Reconciliation Act"
                 trigger OnAfterGetRecord()
                 begin
                     if ExcludeCustDoc(CustPayments, CurrencyCode) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     SetFilter("Date Filter", DateFilter);
                     GetCustPay(CustPayments, CurrencyCode, DocumentAmount, RemainingAmount, OtherCurrApplAmount);
@@ -355,7 +355,7 @@ report 14910 "Customer - Reconciliation Act"
 
                     if ShowDetails = ShowDetails::Full then
                         if (RemainingAmount + OtherCurrApplAmount = 0) and ("Document Type" <> "Document Type"::Refund) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     TotalPayAmount += RemainingAmount;
                     PayCounter += 1;
 
@@ -403,7 +403,7 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if OtherCurrApplAmount = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         InvCounter += 1;
 
                         if ShowDetails = 2 then
@@ -417,13 +417,13 @@ report 14910 "Customer - Reconciliation Act"
                 trigger OnAfterGetRecord()
                 begin
                     if CustEntryIsClosed(OldCustPayments, CurrencyCode, MaxDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     SetFilter("Date Filter", '..%1', MaxDate);
                     GetCustPay(OldCustPayments, CurrencyCode, DocumentAmount, RemainingAmount, OtherCurrApplAmount);
 
                     if RemainingAmount + OtherCurrApplAmount = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     TotalPayAmount += RemainingAmount;
                     PayCounter += 1;
                     InvCounter := 0;
@@ -465,7 +465,7 @@ report 14910 "Customer - Reconciliation Act"
 
                 trigger OnAfterGetRecord()
                 begin
-                    DtldCustLedgEntry.Reset;
+                    DtldCustLedgEntry.Reset();
                     DtldCustLedgEntry.SetRange("Customer No.", Customer."No.");
                     DtldCustLedgEntry.SetRange("Posting Date", MinDate, MaxDate);
                     DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::Application);
@@ -513,13 +513,13 @@ report 14910 "Customer - Reconciliation Act"
                         begin
                             if Number = 1 then begin
                                 if not TempAppDtldVendLedgEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempAppDtldVendLedgEntry.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if not (TempAppDtldVendLedgEntry."Posting Date" in [MinDate .. MaxDate]) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             OldAppldVendPays."Entry Type" := OldAppldVendPays."Entry Type"::Application;
                             VendPayProcessing(OldAppldVendPays, OldVendInvoices, false, CurrencyCode);
@@ -586,7 +586,7 @@ report 14910 "Customer - Reconciliation Act"
                         GetVendAmounts(OldVendInvoices, CurrencyCode, TempAmount, RemainingAmount);
                         RemainingAmount := -RemainingAmount;
                         if RemainingAmount = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         IsInvProcessedInPrevPeriod("Entry No.", false);
 
@@ -626,13 +626,13 @@ report 14910 "Customer - Reconciliation Act"
                         begin
                             if Number = 1 then begin
                                 if not TempAppDtldVendLedgEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempAppDtldVendLedgEntry.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if TempAppDtldVendLedgEntry."Posting Date" < MinDate then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             AppldVendPays."Entry Type" := AppldVendPays."Entry Type"::Application;
                             VendPayProcessing(AppldVendPays, VendInvoices, true, CurrencyCode);
@@ -697,11 +697,11 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if ExcludeVendDoc(VendInvoices, CurrencyCode) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if "Posting Date" <= FirstDate then
                             if (not CurrentPeriodApplicationExists("Entry No.")) or IsInvProcessedInPrevPeriod("Entry No.", true) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                         SetFilter("Date Filter", '..%1', "Posting Date");
                         GetVendAmounts(VendInvoices, CurrencyCode, DocumentAmount, TempAmount);
@@ -749,7 +749,7 @@ report 14910 "Customer - Reconciliation Act"
                         trigger OnAfterGetRecord()
                         begin
                             if OtherCurrApplAmount = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             InvCounter += 1;
 
                             if ShowDetails = 2 then
@@ -763,13 +763,13 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if ExcludeVendDoc(VendPayments, CurrencyCode) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         SetFilter("Date Filter", DateFilter);
                         GetVendPay(VendPayments, CurrencyCode, DocumentAmount, RemainingAmount, OtherCurrApplAmount);
 
                         if (RemainingAmount + OtherCurrApplAmount = 0) and ("Document Type" <> "Document Type"::Refund) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         DebitTurnover2 += RemainingAmount + OtherCurrApplAmount;
                         TotalPayAmount += RemainingAmount;
                         PayCounter += 1;
@@ -814,7 +814,7 @@ report 14910 "Customer - Reconciliation Act"
                         trigger OnAfterGetRecord()
                         begin
                             if OtherCurrApplAmount = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             InvCounter += 1;
 
                             if ShowDetails = 2 then
@@ -831,7 +831,7 @@ report 14910 "Customer - Reconciliation Act"
                         GetVendPay(OldVendPayments, CurrencyCode, DocumentAmount, RemainingAmount, OtherCurrApplAmount);
 
                         if RemainingAmount + OtherCurrApplAmount = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         TotalPayAmount += RemainingAmount;
                         PayCounter += 1;
                         InvCounter := 0;
@@ -948,7 +948,7 @@ report 14910 "Customer - Reconciliation Act"
             begin
                 ExclAmountCredit := 0;
                 ExclAmountDebit := 0;
-                DtldCustLedgEntry.Reset;
+                DtldCustLedgEntry.Reset();
                 DtldCustLedgEntry.SetCurrentKey(
                   "Customer No.", "Initial Document Type", "Document Type", "Entry Type", "Posting Date", "Currency Code");
                 DtldCustLedgEntry.SetRange("Customer No.", "No.");
@@ -1088,8 +1088,8 @@ report 14910 "Customer - Reconciliation Act"
         if (MinDate = 0D) or (MaxDate = 0D) then
             Error(Text002);
         DateFilter := Format(MinDate) + '..' + Format(MaxDate);
-        CompanyInfo.Get;
-        GLSetup.Get;
+        CompanyInfo.Get();
+        GLSetup.Get();
     end;
 
     var
@@ -1181,7 +1181,7 @@ report 14910 "Customer - Reconciliation Act"
     local procedure GetCustApplicationEntry(SourceEntry: Record "Detailed Cust. Ledg. Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; GetLedgEntry: Boolean; var CustLedgEntry: Record "Cust. Ledger Entry"; var OtherCurrApplAmount: Decimal)
     begin
         with SourceEntry do begin
-            DtldCustLedgEntry.Reset;
+            DtldCustLedgEntry.Reset();
             FilterApplDtldCustLedgEntry(DtldCustLedgEntry, "Applied Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Transaction No.", "Transaction No.");
             if DtldCustLedgEntry.FindSet then
@@ -1206,7 +1206,7 @@ report 14910 "Customer - Reconciliation Act"
             RemainingAmount := -RemainingAmount;
             if CurrencyCode = '' then
                 exit;
-            DtldCustLedgEntry.Reset;
+            DtldCustLedgEntry.Reset();
             DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
             DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
@@ -1249,7 +1249,7 @@ report 14910 "Customer - Reconciliation Act"
         with PayEntry do
             if "Entry Type" <> "Entry Type"::Application then begin
                 if CurrencyCode <> '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 PostingDate := "Posting Date";
                 EntryDescription := GetCustEntryDescription(InvEntry);
                 TempAmount := "Amount (LCY)";
@@ -1314,8 +1314,8 @@ report 14910 "Customer - Reconciliation Act"
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
     begin
-        TempAppDtldCustLedgEntry.Reset;
-        TempAppDtldCustLedgEntry.DeleteAll;
+        TempAppDtldCustLedgEntry.Reset();
+        TempAppDtldCustLedgEntry.DeleteAll();
 
         DtldCustLedgEntry1.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgEntry1.SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
@@ -1327,7 +1327,7 @@ report 14910 "Customer - Reconciliation Act"
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
                 then begin
-                    DtldCustLedgEntry2.Init;
+                    DtldCustLedgEntry2.Init();
                     DtldCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
                     DtldCustLedgEntry2.SetRange(
                       "Applied Cust. Ledger Entry No.", DtldCustLedgEntry1."Applied Cust. Ledger Entry No.");
@@ -1341,7 +1341,7 @@ report 14910 "Customer - Reconciliation Act"
                             TempAppDtldCustLedgEntry := DtldCustLedgEntry2;
                             TempAppDtldCustLedgEntry.Amount := -TempAppDtldCustLedgEntry.Amount;
                             TempAppDtldCustLedgEntry."Amount (LCY)" := -TempAppDtldCustLedgEntry."Amount (LCY)";
-                            if TempAppDtldCustLedgEntry.Insert then;
+                            if TempAppDtldCustLedgEntry.Insert() then;
                         until DtldCustLedgEntry2.Next = 0;
                     end;
                 end else
@@ -1350,7 +1350,7 @@ report 14910 "Customer - Reconciliation Act"
                     then begin
                         TempAppDtldCustLedgEntry := DtldCustLedgEntry1;
                         TempAppDtldCustLedgEntry."Cust. Ledger Entry No." := TempAppDtldCustLedgEntry."Applied Cust. Ledger Entry No.";
-                        if TempAppDtldCustLedgEntry.Insert then;
+                        if TempAppDtldCustLedgEntry.Insert() then;
                     end;
             until DtldCustLedgEntry1.Next = 0;
         end;
@@ -1425,7 +1425,7 @@ report 14910 "Customer - Reconciliation Act"
     local procedure GetVendApplicationEntry(SourceEntry: Record "Detailed Vendor Ledg. Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; GetLedgEntry: Boolean; var VendLedgEntry: Record "Vendor Ledger Entry"; var OtherCurrApplAmount: Decimal)
     begin
         with SourceEntry do begin
-            DtldVendLedgEntry.Reset;
+            DtldVendLedgEntry.Reset();
             DtldVendLedgEntry.SetFilter("Entry No.", '%1|%2', "Entry No." - 1, "Entry No." + 1);
             DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
             DtldVendLedgEntry.SetRange("Transaction No.", "Transaction No.");
@@ -1449,7 +1449,7 @@ report 14910 "Customer - Reconciliation Act"
             GetVendAmounts(Rec, CurrencyCode, DocumentAmount, RemainingAmount);
             if CurrencyCode = '' then
                 exit;
-            DtldVendLedgEntry.Reset;
+            DtldVendLedgEntry.Reset();
             DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
             DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
             DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
@@ -1490,7 +1490,7 @@ report 14910 "Customer - Reconciliation Act"
             if "Entry Type" <> "Entry Type"::Application then begin
                 VendLedgEntry.Get("Vendor Ledger Entry No.");
                 if CurrencyCode <> '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 PostingDate := "Posting Date";
                 EntryDescription := Format(InvEntry."Document Type") + ' ' + InvEntry."Document No." + ' ' + InvEntry.Description;
                 TempAmount := -"Amount (LCY)";
@@ -1534,7 +1534,7 @@ report 14910 "Customer - Reconciliation Act"
                 end;
                 if TempAppDtldVendLedgEntry."Prepmt. Diff." then begin
                     if TempAmount = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     DebitAppliedAmt := 0;
                     CreditAppliedAmt := TempAmount;
                 end else
@@ -1632,8 +1632,8 @@ report 14910 "Customer - Reconciliation Act"
         AppliedDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        TempAppDtldVendLedgEntry.Reset;
-        TempAppDtldVendLedgEntry.DeleteAll;
+        TempAppDtldVendLedgEntry.Reset();
+        TempAppDtldVendLedgEntry.DeleteAll();
 
         SourceDtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
         SourceDtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntryNo);
@@ -1645,7 +1645,7 @@ report 14910 "Customer - Reconciliation Act"
                 if SourceDtldVendLedgEntry."Vendor Ledger Entry No." =
                    SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No."
                 then begin
-                    AppliedDtldVendLedgEntry.Init;
+                    AppliedDtldVendLedgEntry.Init();
                     AppliedDtldVendLedgEntry.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                     AppliedDtldVendLedgEntry.SetRange(
                       "Applied Vend. Ledger Entry No.", SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No.");
@@ -1661,7 +1661,7 @@ report 14910 "Customer - Reconciliation Act"
                                     TempAppDtldVendLedgEntry.Amount := -TempAppDtldVendLedgEntry.Amount;
                                     TempAppDtldVendLedgEntry."Amount (LCY)" := -TempAppDtldVendLedgEntry."Amount (LCY)";
                                     if not AppliedDtldVendLedgEntry."Prepmt. Diff." then
-                                        if TempAppDtldVendLedgEntry.Insert then;
+                                        if TempAppDtldVendLedgEntry.Insert() then;
                                 end;
                         until AppliedDtldVendLedgEntry.Next = 0;
                     end;
@@ -1669,7 +1669,7 @@ report 14910 "Customer - Reconciliation Act"
                     if AppliedVendLedgEntry.Get(SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No.") then begin
                         TempAppDtldVendLedgEntry := SourceDtldVendLedgEntry;
                         TempAppDtldVendLedgEntry."Vendor Ledger Entry No." := TempAppDtldVendLedgEntry."Applied Vend. Ledger Entry No.";
-                        if TempAppDtldVendLedgEntry.Insert then;
+                        if TempAppDtldVendLedgEntry.Insert() then;
                     end;
             until SourceDtldVendLedgEntry.Next = 0;
         end;
@@ -1774,10 +1774,10 @@ report 14910 "Customer - Reconciliation Act"
         TotalPayAmount := 0;
         InitialDebitBalance2 := 0;
         InitialCreditBalance2 := 0;
-        TempProcPayDtldVendLedgEntry.Reset;
-        TempProcPayDtldVendLedgEntry.DeleteAll;
-        TempProcInvVendLedgEntry.Reset;
-        TempProcInvVendLedgEntry.DeleteAll;
+        TempProcPayDtldVendLedgEntry.Reset();
+        TempProcPayDtldVendLedgEntry.DeleteAll();
+        TempProcInvVendLedgEntry.Reset();
+        TempProcInvVendLedgEntry.DeleteAll();
     end;
 
     local procedure WasProcessedInPrevPeriod(var PayDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; CurrentPeriod: Boolean): Boolean
@@ -1789,7 +1789,7 @@ report 14910 "Customer - Reconciliation Act"
             exit(not TempProcPayDtldVendLedgEntry.IsEmpty);
         end;
         TempProcPayDtldVendLedgEntry."Entry No." := PayDtldVendLedgEntry."Entry No.";
-        if TempProcPayDtldVendLedgEntry.Insert then;
+        if TempProcPayDtldVendLedgEntry.Insert() then;
         exit(false);
     end;
 
@@ -1800,7 +1800,7 @@ report 14910 "Customer - Reconciliation Act"
             exit(not TempProcInvVendLedgEntry.IsEmpty);
         end;
         TempProcInvVendLedgEntry."Entry No." := EntryNo;
-        if TempProcInvVendLedgEntry.Insert then;
+        if TempProcInvVendLedgEntry.Insert() then;
         exit(false);
     end;
 

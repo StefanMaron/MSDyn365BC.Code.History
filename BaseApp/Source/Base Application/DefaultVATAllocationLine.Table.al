@@ -197,7 +197,7 @@ table 14926 "Default VAT Allocation Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';

@@ -20,15 +20,15 @@ report 12472 "Sales Shipment M-15"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         CopyArray(LastTotalAmount, TotalAmount, 1);
 
                         if SalesLine1."Qty. to Invoice" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         SalesLine1.Amount := SalesLine1."Amount (LCY)";
                         SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
                         SalesLine1."Unit Price" :=
@@ -40,7 +40,7 @@ report 12472 "Sales Shipment M-15"
                             LineVATText[2] :=
                               StdRepMgt.FormatReportValue(SalesLine1."Amount Including VAT" - SalesLine1.Amount, 2);
 
-                        InvPostingSetup.Reset;
+                        InvPostingSetup.Reset();
                         InvPostingSetup.SetRange("Location Code", SalesLine1."Location Code");
                         InvPostingSetup.SetRange("Invt. Posting Group Code", SalesLine1."Posting Group");
                         if InvPostingSetup.FindFirst then
@@ -65,7 +65,6 @@ report 12472 "Sales Shipment M-15"
                 trigger OnAfterGetRecord()
                 begin
                     Clear(TotalAmount);
-                    CurrReport.PageNo := 1;
 
                     FillReportHeader;
                     FillPageHeader;
@@ -80,7 +79,7 @@ report 12472 "Sales Shipment M-15"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Header."Document Type" = Header."Document Type"::"Return Order" then
                         AssignPostingNo(Header."Return Receipt No.", Header."Return Receipt No. Series")
@@ -99,14 +98,14 @@ report 12472 "Sales Shipment M-15"
             trigger OnAfterGetRecord()
             begin
                 TestField(Status);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter(Type, '<>%1', SalesLine1.Type::" ");
 
-                LineCount := SalesLine1.Count;
+                LineCount := SalesLine1.Count();
 
                 CheckSignature(PassedBy, PassedBy."Employee Type"::PassedBy);
                 CheckSignature(ApprovedBy, PassedBy."Employee Type"::Responsible);
@@ -275,7 +274,7 @@ report 12472 "Sales Shipment M-15"
             PostingNo := NoSeriesMgt.GetNextNo(
                 SeriesNoCode, Header."Posting Date", not Preview);
             if not Preview then
-                Header.Modify;
+                Header.Modify();
         end;
     end;
 

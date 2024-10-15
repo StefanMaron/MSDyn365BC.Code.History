@@ -8,11 +8,11 @@ codeunit 12435 "Sales Cr.Memo Header - Edit"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader := Rec;
-        SalesCrMemoHeader.LockTable;
+        SalesCrMemoHeader.LockTable();
         SalesCrMemoHeader.Find;
         SalesCrMemoHeader."Consignor No." := "Consignor No.";
         SalesCrMemoHeader.TestField("No.", "No.");
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;
     end;
 }

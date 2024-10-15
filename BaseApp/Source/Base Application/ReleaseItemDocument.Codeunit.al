@@ -7,7 +7,7 @@ codeunit 12453 "Release Item Document"
         if Status = Status::Released then
             exit;
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         if InvtSetup."Location Mandatory" then
             TestField("Location Code");
         TestField(Status, Status::Open);
@@ -17,7 +17,7 @@ codeunit 12453 "Release Item Document"
         ItemDocLine.SetFilter(Quantity, '<>0');
         if not ItemDocLine.FindFirst then
             Error(Text002, "No.");
-        ItemDocLine.Reset;
+        ItemDocLine.Reset();
 
         Validate(Status, Status::Released);
         Modify;

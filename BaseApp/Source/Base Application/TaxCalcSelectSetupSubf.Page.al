@@ -30,7 +30,7 @@ page 17312 "Tax Calc. Select Setup Subf"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Account No.");
                             if GLAcc.FindFirst then;
@@ -55,7 +55,7 @@ page 17312 "Tax Calc. Select Setup Subf"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Bal. Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Bal. Account No.");
                             if GLAcc.FindFirst then;
@@ -140,7 +140,7 @@ page 17312 "Tax Calc. Select Setup Subf"
         TemplateDimFilter: Record "Tax Calc. Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxCalcHeader.Get("Section Code", "Register No.");
         if (TaxCalcHeader."Table ID" <> DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
             TemplateDimFilter.FilterGroup(2);
@@ -161,7 +161,7 @@ page 17312 "Tax Calc. Select Setup Subf"
         TaxDifGLCorrDimFilter: Record "Tax Diff. Corr. Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxCalcHeader.Get("Section Code", "Register No.");
         if (TaxCalcHeader."Table ID" = DATABASE::"Tax Calc. G/L Entry") and ("Line No." <> 0) then begin
             TaxDifGLCorrDimFilter.FilterGroup(2);

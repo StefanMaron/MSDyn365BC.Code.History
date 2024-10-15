@@ -138,7 +138,7 @@ report 17357 "HR Generic Report"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         ExcelMgt.CreateBook;
         ExcelMgt.OpenSheetByNumber(1);
@@ -214,7 +214,7 @@ report 17357 "HR Generic Report"
         HRFieldGroup.SetCurrentKey("Print Order");
         if HRFieldGroup.FindSet then
             repeat
-                HRFieldGroupLine.Reset;
+                HRFieldGroupLine.Reset();
                 HRFieldGroupLine.SetCurrentKey("Field Group Code", "Field Print Order No.", "Table No.", "Field No.");
                 HRFieldGroupLine.SetRange("Field Group Code", HRFieldGroup.Code);
                 if HRFieldGroupLine.FindSet then
@@ -344,7 +344,7 @@ report 17357 "HR Generic Report"
         HRFieldGroup.SetCurrentKey("Print Order");
         if HRFieldGroup.FindSet then
             repeat
-                HRFieldGroupLine.Reset;
+                HRFieldGroupLine.Reset();
                 HRFieldGroupLine.SetCurrentKey("Field Group Code", "Field Print Order No.", "Table No.", "Field No.");
                 HRFieldGroupLine.SetRange("Field Group Code", HRFieldGroup.Code);
                 if HRFieldGroupLine.FindSet then
@@ -363,7 +363,7 @@ report 17357 "HR Generic Report"
         HRFieldGroup: Record "HR Field Group";
     begin
         if LineCounter + 1 <= LastLinePointer then begin
-            HRFieldGroup.Reset;
+            HRFieldGroup.Reset();
             HRFieldGroup.CopyFilters(HeaderGroups);
             FillExcelRowsWithTableInfo(TableNo, HRFieldGroup,
               LineCounter, LineCounter + 1, LastLinePointer);

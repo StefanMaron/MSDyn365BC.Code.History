@@ -16,11 +16,9 @@ table 289 "Payment Method"
         {
             Caption = 'Description';
         }
-        field(3; "Bal. Account Type"; Option)
+        field(3; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
 
             trigger OnValidate()
             begin
@@ -80,10 +78,10 @@ table 289 "Payment Method"
                     repeat
                         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
                         if DataExchDef.Type = DataExchDef.Type::"Payment Export" then begin
-                            TempDataExchLineDef.Init;
+                            TempDataExchLineDef.Init();
                             TempDataExchLineDef.Code := DataExchLineDef.Code;
                             TempDataExchLineDef.Name := DataExchLineDef.Name;
-                            if TempDataExchLineDef.Insert then;
+                            if TempDataExchLineDef.Insert() then;
                         end;
                     until DataExchLineDef.Next = 0;
                     if PAGE.RunModal(PAGE::"Pmt. Export Line Definitions", TempDataExchLineDef) = ACTION::LookupOK then
@@ -151,7 +149,7 @@ table 289 "Payment Method"
         PaymentMethodTranslation: Record "Payment Method Translation";
     begin
         PaymentMethodTranslation.SetRange("Payment Method Code", Code);
-        PaymentMethodTranslation.DeleteAll;
+        PaymentMethodTranslation.DeleteAll();
     end;
 
     trigger OnInsert()

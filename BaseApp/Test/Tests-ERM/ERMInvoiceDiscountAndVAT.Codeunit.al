@@ -39,6 +39,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         UpdInvDiscQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         WrongFieldValueErr: Label 'Wrong value of field %1.', Comment = '%1 = Field Caption';
         ChangedInvDiscountAmountErr: Label 'Invoice Discount Amount must not be changed';
+        CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         CalcTotalPurchAmountOnlyDiscountAllowedErr: Label 'Total Amount of Purchase lines with allowed discount is incorrect.';
         CalcTotalSalesAmountOnlyDiscountAllowedErr: Label 'Total Amount of Sales lines with allowed discount is incorrect.';
         GetInvoiceDiscountPctErr: Label 'Discount % is incorrect';
@@ -296,7 +297,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     end;
 
     [Test]
-    [HandlerFunctions('CalculateDepreciationRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure DepreciationAmountWithAppreciationEntry()
     var
@@ -1450,7 +1451,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Invoice Discount And VAT");
     end;
 
@@ -1578,14 +1579,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure CalculateInvoiceDiscountOnSalesInvoice(SalesHeader: Record "Sales Header")
     begin
         SalesHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader); // InvDiscountAmount will be set in handler
     end;
 
     local procedure CalculateInvoiceDiscountOnPurchaseInvoice(PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchaseHeader); // InvDiscountAmount will be set in handler
     end;
 
@@ -2264,16 +2265,16 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true); // Creating empty Document for Copy function.
-        Commit;
+        Commit();
         SalesCopyDocument(SalesHeader, DocumentNo, FromDocType);
     end;
 
     local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true); // Creating empty Document for Copy function.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, false);
@@ -2641,14 +2642,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure OpenSalesOrderStatistics(SalesHeader: Record "Sales Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader);
     end;
 
     local procedure OpenPurchOrderStatistics(PurchHeader: Record "Purchase Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchHeader);
     end;
 
@@ -2997,10 +2998,12 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
-    [MessageHandler]
+    [ConfirmHandler]
     [Scope('OnPrem')]
-    procedure MessageHandler(Msg: Text)
+    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
+        Assert.ExpectedMessage(CompletionStatsGenJnlQst, Question);
+        Reply := false;
     end;
 }
 

@@ -52,17 +52,16 @@ codeunit 139052 "Office Addin Initiate Tasks"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageInvoicePostAndSendDefault()
     var
         OfficeAddinContext: Record "Office Add-in Context";
         CustomerCard: TestPage "Customer Card";
         SalesInvoice: TestPage "Sales Invoice";
-        PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // [FEATURE] [Contact] [Customer] [Invoice]
-        // [SCENARIO 156492] Stan initiates task Post from the Sales Invoice - Post & Send is not allowed
+        // [SCENARIO 156492] Stan initiates task Post & Send from the Sales Invoice - no default sending profile exists
 
         // [GIVEN] New contact with email is created and assigned to customer
         CreateOfficeAddinContext(OfficeAddinContext);
@@ -77,25 +76,23 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
         // [WHEN] New Invoice Created and user selects Post and Send with no default sendong profile exists
         CreateSalesInvoiceLine(SalesInvoice);
-        PostedSalesInvoice.Trap;
-        SalesInvoice.Post.Invoke;
-        PostedSalesInvoice.Close;
+        SalesInvoice.PostAndSend.Invoke;
 
         // [THEN] Email with reply is opened with PDF attached
+        // Verified in ActionHandler that email was reply with PDF attached
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageInvoicePostAndSendEmailPDFOnly()
     var
         OfficeAddinContext: Record "Office Add-in Context";
         CustomerCard: TestPage "Customer Card";
         SalesInvoice: TestPage "Sales Invoice";
-        PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // [FEATURE] [Contact] [Customer] [Invoice]
-        // [SCENARIO 156492] Stan initiates task Post - no send available
+        // [SCENARIO 156492] Stan initiates task Post & Send but default sending profile is not email with PDF
 
         SetupSMTPMail;
 
@@ -112,26 +109,23 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
         // [WHEN] New Invoice Created and user selects Post and Send when sending profile is not email with PDF
         CreateSalesInvoiceLine(SalesInvoice);
-        PostedSalesInvoice.Trap;
-        SalesInvoice.Post.Invoke;
-        PostedSalesInvoice.Close;
+        SalesInvoice.PostAndSend.Invoke;
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageCreditMemoPostAndSendDefault()
     var
         OfficeAddinContext: Record "Office Add-in Context";
         CustomerCard: TestPage "Customer Card";
         SalesCreditMemo: TestPage "Sales Credit Memo";
-        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
         // [FEATURE] [Contact] [Customer] [Credit Memo]
-        // [SCENARIO 156493] Stan can initiate task Post from the Credit Memo - Post & send not available
+        // [SCENARIO 156493] Stan can initiate task Post & Send from the Credit Memo - no default sending profile
 
         // [GIVEN] New contact with email is created and assigned to customer
         CreateOfficeAddinContext(OfficeAddinContext);
@@ -146,26 +140,23 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
         // [WHEN] New Credit Memo Created and user selects Post and Send with no default sendong profile exists
         CreateSalesCreditMemoLine(SalesCreditMemo);
-        PostedSalesCreditMemo.Trap;
-        SalesCreditMemo.Post.Invoke;
-        PostedSalesCreditMemo.Close;
+        SalesCreditMemo.PostAndSend.Invoke;
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that email was reply with PDF attached
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ActionHandler')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageCreditMemoPostAndSendEmailPDFOnly()
     var
         OfficeAddinContext: Record "Office Add-in Context";
         CustomerCard: TestPage "Customer Card";
         SalesCreditMemo: TestPage "Sales Credit Memo";
-        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
         // [FEATURE] [Contact] [Customer] [Credit Memo]
-        // [SCENARIO 156493] Stan initiates Post on Credit Memo but send is not an option
+        // [SCENARIO 156493] Stan initiates Post & Send on Credit Memo but default sending profile is not email/PDF
 
         // [GIVEN] New contact with email is created and assigned to customer
         UpdateCustomerDocSendingProfile(CreateOfficeAddinContext(OfficeAddinContext), DefaultDocSendingProfileTxt);
@@ -180,9 +171,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
         // [WHEN] New Invoice Created and user selects Post and Send when sending profile is not email with PDF
         CreateSalesCreditMemoLine(SalesCreditMemo);
-        PostedSalesCreditMemo.Trap;
-        SalesCreditMemo.Post.Invoke;
-        PostedSalesCreditMemo.Close;
+        SalesCreditMemo.PostAndSend.Invoke;
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
@@ -254,6 +243,41 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SalesQuote.Email.Invoke;
 
         // [THEN] EmailActionHandler verifies that the expected JS function is called with the correct parameters
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderShipAndInvoiceHandler,ShipAndInvoiceActionHandler')]
+    [Scope('OnPrem')]
+    procedure MailEngineCustomerPageCreateOrderPostAndSendShipAndInvoice()
+    var
+        OfficeAddinContext: Record "Office Add-in Context";
+        Item: Record Item;
+        CustomerCard: TestPage "Customer Card";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Contact] [Customer]
+        // [SCENARIO 156484] Stan can attach both the shipment and invoice document for an order
+        CreateOfficeAddinContext(OfficeAddinContext);
+
+        // [WHEN] Customer card is opened for associated email
+        RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
+
+        // [WHEN] New sales order is created from the customer card
+        SalesOrder.Trap;
+        CustomerCard.NewSalesOrder.Invoke;
+        SalesOrder."Sell-to Customer Name".Value(CustomerCard."No.".Value);
+
+        // [WHEN] An item is entered on the order
+        LibraryInventory.CreateItem(Item);
+        SalesOrder.SalesLines.Type.SetValue(2);
+        SalesOrder.SalesLines."No.".SetValue(Item."No.");
+        SalesOrder.SalesLines.Quantity.SetValue(5);
+        LibraryVariableStorage.Enqueue(CustomerCard."No.".Value);
+
+        // [WHEN] Post and send action is invoked from the sales order page
+        SalesOrder.PostAndSend.Invoke;
+
+        // [THEN] EmailActionHandler verifies that both the shipment and invoice documents are attached to the email
     end;
 
     [Test]
@@ -629,7 +653,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Reminder.Trap;
         CustomerCard.NewReminder.Invoke;
         // Need to run commit because run request page modal issue
-        Commit;
+        Commit();
         // [THEN] PrintDoc option is disabled
         Reminder.Issue.Invoke;
     end;
@@ -687,7 +711,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -701,8 +725,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -710,9 +734,9 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure RandomEmail(): Text[80]
@@ -725,10 +749,10 @@ codeunit 139052 "Office Addin Initiate Tasks"
         MarketingSetup: Record "Marketing Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
             MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CreateContactFromCustomer(Email: Text[80]; var ContactNo: Code[20]; var NewBusinessRelationCode: Code[10]): Code[20]
@@ -757,7 +781,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeForCustomers);
         MarketingSetup.Modify(true);
     end;
@@ -851,11 +875,29 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := ReportID;
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Validate(Type, ReportLayoutSelection.Type::"RDLC (built-in)");
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ActionHandler(Message: Text[1024])
+    var
+        ExpectedAction: Variant;
+        ExpectedParam2: Variant;
+        ActualAction: Text;
+        ActualParam1: Text;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedAction);
+        LibraryVariableStorage.Dequeue(ExpectedParam2);
+        ExtractComponent(Message, ActualAction);
+        ExtractComponent(Message, ActualParam1);
+
+        Assert.AreEqual(ExpectedAction, ActualAction, 'Incorrect JavaScript action called from C/AL.');
+        Assert.AreNotEqual('', ActualParam1, 'The file URL is empty.');
     end;
 
     [MessageHandler]
@@ -879,6 +921,55 @@ codeunit 139052 "Office Addin Initiate Tasks"
             1000 - StrLen(StrSubstNo('%1|%2|%3|', ActualAction, ActualUrl, ActualFileName)));
         Assert.AreEqual(ExpectedEmailBody, ActualEmailBody, 'Incorrect body text passed to function.');
         Assert.AreNotEqual('', ActualUrl, 'The file URL is empty.');
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ShipAndInvoiceActionHandler(Message: Text[1024])
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ActualAction: Text;
+        ActualUrl1: Text;
+        ActualUrl2: Text;
+        ActualFileName1: Text;
+        ActualFileName2: Text;
+        InvoiceFileName: Text;
+        ActualEmailBody: Text;
+        ExpectedEmailBody: Text;
+        DummyEmailAddress: Text[250];
+        InvoiceNo: Text;
+        NoPos: Integer;
+        CustNo: Code[20];
+    begin
+        ExtractComponent(Message, ActualAction);
+        ExtractComponent(Message, ActualUrl1);
+        ExtractComponent(Message, ActualUrl2);
+        ExtractComponent(Message, ActualFileName1);
+        ExtractComponent(Message, ActualFileName2);
+        ExtractComponent(Message, ActualEmailBody);
+
+        if StrPos(LowerCase(ActualFileName1), 'invoice') > 0 then
+            InvoiceFileName := ActualFileName1
+        else
+            InvoiceFileName := ActualFileName2;
+
+        NoPos := StrPos(LowerCase(InvoiceFileName), 'invoice') + 8;
+        InvoiceNo := CopyStr(InvoiceFileName, NoPos, StrPos(InvoiceFileName, '.') - NoPos);
+        SalesInvoiceHeader.SetRange("No.", InvoiceNo);
+        CustNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20);
+        ReportSelections.GetEmailBody(TempEmailItem."Body File Path",
+          ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, CustNo, DummyEmailAddress);
+
+        ExpectedEmailBody := CopyStr(TempEmailItem.GetBodyText, 1,
+            1000 - StrLen(StrSubstNo('%1|%2|%3|%4|%5|', ActualAction, ActualUrl1, ActualUrl2, ActualFileName1, ActualFileName2)));
+
+        Assert.AreNotEqual('', ActualUrl1, 'Two document urls not provided.');
+        Assert.AreNotEqual('', ActualUrl2, 'Two document urls not provided.');
+        Assert.AreNotEqual('', ActualFileName1, 'Two document names not provided.');
+        Assert.AreNotEqual('', ActualFileName2, 'Two document names not provided.');
+        Assert.AreEqual(ExpectedEmailBody, ActualEmailBody, 'Unexpected email body.');
     end;
 
     local procedure ExtractComponent(var String: Text; var Component: Text)
@@ -907,8 +998,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
-        DocumentSendingProfile.DeleteAll;
-        DocumentSendingProfile.Init;
+        DocumentSendingProfile.DeleteAll();
+        DocumentSendingProfile.Init();
         DocumentSendingProfile.Code := DefaultDocSendingProfileTxt;
         DocumentSendingProfile.Default := true;
         DocumentSendingProfile.Validate(Printer, DocumentSendingProfile.Printer::"Yes (Prompt for Settings)");
@@ -936,7 +1027,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Allow Blank Payment Info.", true);
         CompanyInformation.Modify(true);
     end;
@@ -947,7 +1038,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         with SMTPMailSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "SMTP Server" := 'localhost';
             "SMTP Server Port" := 9999;
@@ -964,7 +1055,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         DocNoSeries: Code[20];
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         DocNoSeries := SalesReceivablesSetup."Quote Nos.";
         QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate, false);
     end;
@@ -982,6 +1073,13 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         Assert.IsFalse(IssueReminders.PrintDoc.Enabled = true, 'PrintDoc should be disabled.');
         IssueReminders.PrintDoc.AssertEquals('Email');
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderShipAndInvoiceHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 3;
     end;
 }
 

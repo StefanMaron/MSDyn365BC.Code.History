@@ -32,7 +32,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FANo: Code[20];
         BudgetNo: Code[20];
         DeprBookCode: Code[10];
-        FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         FAPostingDate: Date;
         Amount2: Decimal;
         SalvageValue: Decimal;
@@ -55,7 +55,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 "Posting Date" := "FA Posting Date";
 
             FA.Get("FA No.");
-            FASetup.Get;
+            FASetup.Get();
             if FASetup."FA Location Mandatory" then begin
                 if "Location Code" = '' then
                     "Location Code" := FA."FA Location Code";
@@ -104,13 +104,13 @@ codeunit 5632 "FA Jnl.-Post Line"
                 exit;
             if "FA Posting Date" = 0D then
                 "FA Posting Date" := "Posting Date";
-            GLSetup.Get;
+            GLSetup.Get();
             if not GLSetup."Enable Russian Accounting" then
                 if "Journal Template Name" = '' then
                     Quantity := 0;
 
             FA.Get("Account No.");
-            FASetup.Get;
+            FASetup.Get();
             if FASetup."FA Location Mandatory" then begin
                 if "FA Location Code" = '' then
                     "FA Location Code" := FA."FA Location Code";
@@ -163,19 +163,19 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostFixedAsset()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         FADeprBook.Get(FANo, DeprBookCode);
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" and (FAPostingType = FAPostingType::"Acquisition Cost") then begin
             if FADeprBook."Depreciation Starting Date" = 0D then
                 FADeprBook."Depreciation Starting Date" := CalcDate('<CM+1D>', FALedgEntry."FA Posting Date");
             FADeprBook.Validate("Depreciation Starting Date");
-            FADeprBook.Modify;
+            FADeprBook.Modify();
         end;
 
         MakeFALedgEntry.CopyFromFACard(FALedgEntry, FA, FADeprBook);
@@ -210,7 +210,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostMaintenance()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FADeprBook.Get(FANo, DeprBookCode);
@@ -593,7 +593,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
         if FAReg.FindLast then begin
             FAReg."G/L Register No." := GLRegNo;
-            FAReg.Modify;
+            FAReg.Modify();
         end;
     end;
 
@@ -705,14 +705,14 @@ codeunit 5632 "FA Jnl.-Post Line"
     procedure UnmarkDeprBonusBaseEntries(DeprBonus: Boolean; FAPostingDate: Date)
     begin
         if DeprBonus and (FAPostingType = FAPostingType::Depreciation) then begin
-            FALedgEntry.Reset;
+            FALedgEntry.Reset();
             FALedgEntry.SetCurrentKey(
               "FA No.", "Depreciation Book Code", "FA Posting Category",
               "FA Posting Type", "FA Posting Date", "Depr. Bonus");
             FALedgEntry.SetRange("FA No.", FANo);
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
             FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
-            FALedgEntry.SetFilter("FA Posting Type", '%1|%2', FAPostingType::"Acquisition Cost", FAPostingType::Appreciation);
+            FALedgEntry.SetFilter("FA Posting Type", '%1|%2', FALedgEntry."FA Posting Type"::"Acquisition Cost", FALedgEntry."FA Posting Type"::Appreciation);
             FALedgEntry.SetRange("FA Posting Date", 0D, CalcDate('<-CM-1D>', FAPostingDate));
             FALedgEntry.SetRange("Depr. Bonus", true);
             if FALedgEntry.Find('-') then
@@ -726,11 +726,11 @@ codeunit 5632 "FA Jnl.-Post Line"
         GLSetup: Record "General Ledger Setup";
         FALedgEntry2: Record "FA Ledger Entry";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLSetup."Enable Russian Accounting" then
             exit;
 
-        FALedgEntry2.Reset;
+        FALedgEntry2.Reset();
         FALedgEntry2.SetCurrentKey("FA No.", "Depreciation Book Code");
         FALedgEntry2.SetRange("FA No.", FANo2);
         FALedgEntry2.SetRange("Depreciation Book Code", DeprBookCode2);
@@ -745,7 +745,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure ResultOnDisposalExist(FALedgEntry: Record "FA Ledger Entry"): Boolean
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLSetup."Enable Russian Accounting" then
             exit(false);
         exit(FALedgEntry."Result on Disposal" <> FALedgEntry."Result on Disposal"::" ");

@@ -115,7 +115,7 @@ page 17230 "Tax Register (2.9) CV"
     begin
         CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
         FilterGroup(2);
         SectionCode := GetRangeMin("Section Code");
         FilterGroup(0);

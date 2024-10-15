@@ -141,7 +141,7 @@ page 17440 "Timesheet Status"
 
                     trigger OnAction()
                     begin
-                        PayrollPeriod.Reset;
+                        PayrollPeriod.Reset();
                         if PayrollPeriod.FindSet then
                             repeat
                                 CopyFilter("Employee No.", Employee2."No.");
@@ -169,7 +169,7 @@ page 17440 "Timesheet Status"
                         if TimesheetStatus.FindSet then
                             repeat
                                 TimesheetStatus.Calculate;
-                                TimesheetStatus.Modify;
+                                TimesheetStatus.Modify();
                             until TimesheetStatus.Next = 0;
                     end;
                 }

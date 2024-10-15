@@ -55,7 +55,7 @@ table 8614 "Config. Package Record"
         ConfigPackageData.SetRange("Package Code", "Package Code");
         ConfigPackageData.SetRange("Table ID", "Table ID");
         ConfigPackageData.SetRange("No.", "No.");
-        ConfigPackageData.DeleteAll;
+        ConfigPackageData.DeleteAll();
 
         ConfigPackageManagement.CleanRecordError(Rec);
     end;
@@ -68,7 +68,7 @@ table 8614 "Config. Package Record"
         RecRefTemp: RecordRef;
         FieldRef: FieldRef;
     begin
-        ConfigPackageData.Reset;
+        ConfigPackageData.Reset();
         ConfigPackageData.SetRange("Package Code", "Package Code");
         ConfigPackageData.SetRange("Table ID", "Table ID");
         ConfigPackageData.SetRange("No.", "No.");
@@ -83,7 +83,7 @@ table 8614 "Config. Package Record"
                 end else
                     exit(false);
             until ConfigPackageFilter.Next = 0;
-            RecRefTemp.Insert;
+            RecRefTemp.Insert();
             if RecRefTemp.IsEmpty then
                 exit(false);
         end;
@@ -92,7 +92,7 @@ table 8614 "Config. Package Record"
 
     local procedure FindProcessingRuleFilters(var ConfigPackageFilter: Record "Config. Package Filter"; RuleNo: Integer): Boolean
     begin
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         ConfigPackageFilter.SetRange("Package Code", "Package Code");
         ConfigPackageFilter.SetRange("Table ID", "Table ID");
         ConfigPackageFilter.SetRange("Processing Rule No.", RuleNo);

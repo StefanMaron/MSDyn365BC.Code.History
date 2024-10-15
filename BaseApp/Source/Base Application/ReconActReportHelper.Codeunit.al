@@ -13,7 +13,7 @@ codeunit 14955 "Recon. Act Report Helper"
     [Scope('OnPrem')]
     procedure InitReportTemplate()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("C/V Recon. Act Template Code");
         ExcelReportBuilderManager.InitTemplate(GLSetup."C/V Recon. Act Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');

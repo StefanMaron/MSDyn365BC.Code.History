@@ -83,7 +83,7 @@ page 17281 "Tax Reg. Norm Template Setup"
                     trigger OnAssistEdit()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         DimensionsFilters;
                         CurrPage.Update(false);
                     end;
@@ -144,7 +144,7 @@ page 17281 "Tax Reg. Norm Template Setup"
         GLSetup: Record "General Ledger Setup";
     begin
         if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::Term) then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if (GLSetup."Global Dimension 1 Code" <> '') or
                (GLSetup."Global Dimension 2 Code" <> '')
             then begin

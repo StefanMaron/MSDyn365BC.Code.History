@@ -1339,8 +1339,8 @@ codeunit 134251 "Match General Jnl Lines Test"
         Term2 := LibraryUtility.GenerateGUID;
         Term3 := CopyStr(Term1 + Term2, 1, 45);
         LibrarySmallBusiness.CreateVendor(Vendor);
-        TextToAccMapping.Reset;
-        TextToAccMapping.DeleteAll;
+        TextToAccMapping.Reset();
+        TextToAccMapping.DeleteAll();
         CreateAccountMapping(TextToAccMapping, Term1, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");
         CreateAccountMapping(TextToAccMapping, Term2, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");
         CreateAccountMapping(TextToAccMapping, Term3, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");
@@ -1350,7 +1350,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         Assert.AreEqual(1, TextToAccMapping.SearchEnteriesInText(TextToAccMapping, Term3, Vendor."No."),
           'Expected that there is one match for this vendor');
         Assert.AreEqual(Term3, TextToAccMapping."Mapping Text", 'Expected that the mapping text and searched term are the same');
-        TextToAccMapping.Reset;
+        TextToAccMapping.Reset();
         CreateAccountMapping(TextToAccMapping, Term1, TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
         CreateAccountMapping(TextToAccMapping, Term2, TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
         CreateAccountMapping(TextToAccMapping, Term3, TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
@@ -1360,8 +1360,8 @@ codeunit 134251 "Match General Jnl Lines Test"
         Assert.AreEqual(Term3, TextToAccMapping."Mapping Text",
           'Expected that the mapping text and searched term are the same');
 
-        Vendor.Delete;
-        TextToAccMapping.DeleteAll;
+        Vendor.Delete();
+        TextToAccMapping.DeleteAll();
     end;
 
     [Test]
@@ -1379,16 +1379,16 @@ codeunit 134251 "Match General Jnl Lines Test"
         Term2 := CopyStr(CreateGuid, 2, 15);
         CommonSubstring := StrSubstNo('%1 %2', Term1, Term2);
         LibrarySmallBusiness.CreateVendor(Vendor);
-        TextToAccMapping.Reset;
-        TextToAccMapping.DeleteAll;
+        TextToAccMapping.Reset();
+        TextToAccMapping.DeleteAll();
         CreateAccountMapping(TextToAccMapping, Term1, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");
         CreateAccountMapping(TextToAccMapping, Term2, TextToAccMapping."Bal. Source Type"::"G/L Account", '', Vendor."No.");
 
         Assert.AreEqual(2, TextToAccMapping.SearchEnteriesInText(TextToAccMapping, CommonSubstring, Vendor."No."),
           'Expected that returns and error');
 
-        Vendor.Delete;
-        TextToAccMapping.DeleteAll;
+        Vendor.Delete();
+        TextToAccMapping.DeleteAll();
     end;
 
     [Test]
@@ -1412,8 +1412,8 @@ codeunit 134251 "Match General Jnl Lines Test"
         Assert.AreEqual(MappingTxt, TextToAccMapping."Mapping Text",
           'Expected that correct mapping is returned');
 
-        Vendor.Delete;
-        TextToAccMapping.DeleteAll;
+        Vendor.Delete();
+        TextToAccMapping.DeleteAll();
     end;
 }
 

@@ -22,7 +22,7 @@ codeunit 17351 "Average Headcount Calculation"
         StandardCalendarWorkHours: Decimal;
         AdjustedDaysOff: Decimal;
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Official Calendar Code");
         HRSetup.TestField("Average Headcount Group Code");
 

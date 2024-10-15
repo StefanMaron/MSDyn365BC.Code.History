@@ -68,7 +68,7 @@ codeunit 737 "VAT Report Mgt."
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID");
         CODEUNIT.Run(VATReportSetup."Manual Receive Period CU ID");
     end;
@@ -78,7 +78,7 @@ codeunit 737 "VAT Report Mgt."
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Receive Submitted Return CU ID");
         CODEUNIT.Run(VATReportSetup."Receive Submitted Return CU ID", VATReturnPeriod);
     end;
@@ -113,7 +113,7 @@ codeunit 737 "VAT Report Mgt."
 
     local procedure OpenVATReturnCard(VATReportHeader: Record "VAT Report Header")
     begin
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"VAT Report", VATReportHeader);
     end;
 
@@ -122,7 +122,7 @@ codeunit 737 "VAT Report Mgt."
     var
         VATReturnPeriod: Record "VAT Return Period";
     begin
-        Commit;
+        Commit();
         if VATReturnPeriod.Get(VATReportHeader."Return Period No.") then
             PAGE.RunModal(PAGE::"VAT Return Period Card", VATReturnPeriod);
     end;
@@ -137,7 +137,7 @@ codeunit 737 "VAT Report Mgt."
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("Report Version");
         with VATReportHeader do begin
             "VAT Report Config. Code" := "VAT Report Config. Code"::"VAT Return";
@@ -149,10 +149,10 @@ codeunit 737 "VAT Report Mgt."
     local procedure UpdateVATReturn(var VATReportHeader: Record "VAT Report Header"; var VATReturnPeriod: Record "VAT Return Period")
     begin
         VATReturnPeriod.CopyToVATReturn(VATReportHeader);
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
 
         VATReturnPeriod."VAT Return No." := VATReportHeader."No.";
-        VATReturnPeriod.Modify;
+        VATReturnPeriod.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -208,7 +208,7 @@ codeunit 737 "VAT Report Mgt."
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         if (VATReportSetup."Auto Receive Period CU ID" = 0) or
            (VATReportSetup."Update Period Job Frequency" = VATReportSetup."Update Period Job Frequency"::Never)
         then
@@ -240,7 +240,7 @@ codeunit 737 "VAT Report Mgt."
         VATReportSetup: Record "VAT Report Setup";
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", VATReportSetup."Auto Receive Period CU ID");

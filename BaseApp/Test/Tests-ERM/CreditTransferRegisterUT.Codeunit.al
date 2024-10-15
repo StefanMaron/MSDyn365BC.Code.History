@@ -21,6 +21,7 @@ codeunit 132570 "Credit Transfer Register UT"
         UnexpectedCTEntryErr: Label 'Unexpected credit transfer entry shown.';
         UnexpectedIBANErr: Label 'Unexpected creditor IBAN shown.';
         UnexpectedMsgToCreditorErr: Label 'Unexpected message to creditor shown.';
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         IsInitialized: Boolean;
         UnexpectedAmountErr: Label 'Unexpected transfer amount shown.';
 
@@ -52,7 +53,7 @@ codeunit 132570 "Credit Transfer Register UT"
 
         // Exercise
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         // Verify
         CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No.");
@@ -64,7 +65,7 @@ codeunit 132570 "Credit Transfer Register UT"
 
         // Exercise
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::Canceled);
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         // Verify
         CreditTransferEntry.FindSet;
@@ -109,7 +110,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
           GenJnlLine."Recipient Bank Account", CTEntryMessageToRecipient2);
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         // Verify that corresponding credit transfer register entries are shown, by checking the entry no.
         // Explicitly verify that message to recipient and vendor bank account IBAN are shown
@@ -162,7 +163,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Refund,
           GenJnlLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
         GenJnlLine."Recipient Bank Account" := CustomerBankAccount.Code;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Setup
         CTEntryNo := LibraryRandom.RandInt(1000);
@@ -172,7 +173,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         // Verify that corresponding credit transfer register entries are shown, by checking the entry no.
         // Explicitly verify that message to recipient and vendor bank account IBAN are shown
@@ -182,6 +183,63 @@ codeunit 132570 "Credit Transfer Register UT"
         Assert.AreEqual(CTEntryNo, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.AreEqual(CustomerBankAccount.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         Assert.AreEqual(GenJnlLine.Amount, CreditTransferRegEntries."Transfer Amount".AsDEcimal, UnexpectedAmountErr);
+        Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
+        CreditTransferRegEntries.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestShowCTEntriesForEmployee()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlLine: Record "Gen. Journal Line";
+        Employee: Record Employee;
+        CreditTransferRegEntries: TestPage "Credit Transfer Reg. Entries";
+        CTEntryNo: Integer;
+        CTEntryMessageToRecipient1: Text[70];
+        CTEntryMessageToRecipient2: Text[70];
+    begin
+        // Verify that after invoking codeunit "Gen. Jnl.-Show CT Entries" on a General Journal Line,
+        // corresponding credit transfer register entries are shown, by checking their entry no.
+        // Explicitly verify that message to recipient and vendor bank account IBAN are shown in the credit transfer entries
+
+        Initialize;
+        PreSetupForEmployee(BankAcc, Employee, GenJnlLine);
+
+        // Setup
+        CTEntryNo := LibraryRandom.RandInt(1000);
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CTEntryMessageToRecipient1 := CopyStr(LibraryUtility.GenerateRandomText(70), 1, 70);
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
+          GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
+          GenJnlLine."Recipient Bank Account", CTEntryMessageToRecipient1);
+        CTEntryMessageToRecipient2 := CopyStr(LibraryUtility.GenerateRandomText(70), 1, 70);
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo + 1,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
+          GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
+          GenJnlLine."Recipient Bank Account", CTEntryMessageToRecipient2);
+        CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
+        CreditTransferRegister.Modify();
+
+        // Verify that corresponding credit transfer register entries are shown, by checking the entry no.
+        // Explicitly verify that message to recipient and vendor bank account IBAN are shown
+        CreditTransferRegEntries.Trap;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Show CT Entries", GenJnlLine);
+        CreditTransferRegEntries.First;
+        Assert.AreEqual(CTEntryMessageToRecipient1, CreditTransferRegEntries."Message to Recipient".Value, UnexpectedMsgToCreditorErr);
+        Assert.AreEqual(CTEntryNo, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
+        Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
+          LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
+        Assert.AreEqual(Employee.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
+        CreditTransferRegEntries.Next;
+        Assert.AreEqual(CTEntryNo + 1, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
+        Assert.AreEqual(Employee.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
+        Assert.AreEqual(CTEntryMessageToRecipient2, CreditTransferRegEntries."Message to Recipient".Value, UnexpectedMsgToCreditorErr);
+        Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
+          LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
         Assert.IsFalse(CreditTransferRegEntries.Next, UnexpectedCTEntryErr);
         CreditTransferRegEntries.Close;
     end;
@@ -216,7 +274,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // Setup
         // Create three CT Entries in two CT Registers, one of which is cancelled, and the other one exported to file
         CTEntryNo := LibraryRandom.RandInt(1000);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreditTransferEntry.SetAutoCalcFields(Canceled);
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo,
@@ -228,7 +286,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry2Amount, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         CreditTransferRegister2.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister2."No.", CTEntryNo + 2,
@@ -236,7 +294,62 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry3Amount, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister2.Validate(Status, CreditTransferRegister2.Status::Canceled);
-        CreditTransferRegister2.Modify;
+        CreditTransferRegister2.Modify();
+
+        Assert.AreNearlyEqual(CTEntry1Amount + CTEntry2Amount, GenJnlLine.TotalExportedAmount,
+          LibraryERM.GetAmountRoundingPrecision, 'Total Exported Amount wrongly calculated.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestTotalExportedAmountForGenJnlLineForEmployee()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        CreditTransferRegister2: Record "Credit Transfer Register";
+        GenJnlLine: Record "Gen. Journal Line";
+        Employee: Record Employee;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CTEntryNo: Integer;
+        CTEntry1Amount: Decimal;
+        CTEntry2Amount: Decimal;
+        CTEntry3Amount: Decimal;
+    begin
+        // Verify that flow field "Total Exported Amount" on General Journal Line, shows
+        // the sum of Transfer Amount values from
+        // all non-cancelled Credit Transfer Register Entries for that General journal Line
+
+        Initialize;
+        PreSetupForEmployee(BankAcc, Employee, GenJnlLine);
+        CTEntry1Amount := GenJnlLine.Amount / 2;
+        CTEntry2Amount := GenJnlLine.Amount / 4;
+        CTEntry3Amount := GenJnlLine.Amount / 8;
+
+        // Setup
+        // Create three CT Entries in two CT Registers, one of which is cancelled, and the other one exported to file
+        CreditTransferEntry.SetAutoCalcFields(Canceled);
+        GeneralLedgerSetup.Get();
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CTEntryNo := LibraryRandom.RandInt(1000);
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
+          GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry1Amount, '',
+          GenJnlLine."Recipient Bank Account", '');
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo + 1,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
+          GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry2Amount, '',
+          GenJnlLine."Recipient Bank Account", '');
+
+        CreditTransferRegister2.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CreditTransferEntry.CreateNew(CreditTransferRegister2."No.", CTEntryNo + 2,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
+          GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry3Amount, '',
+          GenJnlLine."Recipient Bank Account", '');
+        CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
+        CreditTransferRegister.Modify();
+        CreditTransferRegister2.Validate(Status, CreditTransferRegister2.Status::Canceled);
+        CreditTransferRegister2.Modify();
 
         Assert.AreNearlyEqual(CTEntry1Amount + CTEntry2Amount, GenJnlLine.TotalExportedAmount,
           LibraryERM.GetAmountRoundingPrecision, 'Total Exported Amount wrongly calculated.');
@@ -272,17 +385,17 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine2."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         LibraryERM.CreateCurrency(Currency);
         GenJnlLine2."Currency Code" := Currency.Code;
-        GenJnlLine2.Modify;
+        GenJnlLine2.Modify();
         CTEntry1Amount := GenJnlLine2.Amount / 2;
         CTEntry2Amount := GenJnlLine2.Amount / 4;
         CTEntry3Amount := GenJnlLine2.Amount / 8;
 
         // Setup
         // Create three CT Entries in two CT Registers, one of which is cancelled, and the other one exported to file
-        CTEntryNo := LibraryRandom.RandInt(1000);
-        GeneralLedgerSetup.Get;
         CreditTransferEntry.SetAutoCalcFields(Canceled);
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        GeneralLedgerSetup.Get();
+        CTEntryNo := LibraryRandom.RandInt(1000);
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo,
           GenJnlLine2."Account Type", GenJnlLine."Account No.", GenJnlLine2."Source Line No.",
           GenJnlLine2."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine2."Currency Code"), CTEntry1Amount, '',
@@ -292,7 +405,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine2."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine2."Currency Code"), CTEntry2Amount, '',
           GenJnlLine2."Recipient Bank Account", '');
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         CreditTransferRegister2.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister2."No.", CTEntryNo + 2,
@@ -300,7 +413,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine2."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry3Amount, '',
           GenJnlLine2."Recipient Bank Account", '');
         CreditTransferRegister2.Validate(Status, CreditTransferRegister2.Status::Canceled);
-        CreditTransferRegister2.Modify;
+        CreditTransferRegister2.Modify();
 
         Assert.AreNearlyEqual(CTEntry1Amount + CTEntry2Amount, GenJnlLine2.TotalExportedAmount,
           LibraryERM.GetAmountRoundingPrecision, 'Total Exported Amount wrongly calculated.');
@@ -330,7 +443,7 @@ codeunit 132570 "Credit Transfer Register UT"
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
         // simulate the user manually setting "Applies-to Doc. No." to blank
         GenJnlLine."Applies-to Doc. No." := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         LibraryERM.CreateCurrency(Currency);
         CTEntry1Amount := GenJnlLine.Amount / 2;
@@ -340,7 +453,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // Setup
         // Create three CT Entries in two CT Registers, one of which is cancelled, and the other one exported to file
         CTEntryNo := LibraryRandom.RandInt(1000);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreditTransferEntry.SetAutoCalcFields(Canceled);
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo,
@@ -352,7 +465,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry2Amount, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::"File Created");
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         CreditTransferRegister2.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister2."No.", CTEntryNo + 2,
@@ -360,7 +473,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code"), CTEntry3Amount, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister2.Validate(Status, CreditTransferRegister2.Status::Canceled);
-        CreditTransferRegister2.Modify;
+        CreditTransferRegister2.Modify();
 
         Assert.AreNearlyEqual(CTEntry1Amount + CTEntry2Amount, GenJnlLine.TotalExportedAmount,
           LibraryERM.GetAmountRoundingPrecision, 'Total Exported Amount wrongly calculated.');
@@ -393,7 +506,7 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
           GenJnlLine."Recipient Bank Account", '');
         CreditTransferRegister.Validate(Status, CreditTransferRegister.Status::Canceled);
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
 
         // Verify that corresponding credit transfer register entries are shown
         CreditTransferRegEntries.Trap;
@@ -438,10 +551,10 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Recipient Bank Account", '');
 
         // Pre-Exercise
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         GenJnlLine."Data Exch. Entry No." := DataExch."Entry No.";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Exp. User Feedback Gen. Jnl.", DataExch);
@@ -504,7 +617,7 @@ codeunit 132570 "Credit Transfer Register UT"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
         VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
         VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        VendorBankAcc.Modify;
+        VendorBankAcc.Modify();
     end;
 
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
@@ -512,7 +625,7 @@ codeunit 132570 "Credit Transfer Register UT"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
         CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID;
         CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
     end;
 
     local procedure CreateDummyCreditTransferRegister(var CreditTransferRegister: Record "Credit Transfer Register"; AddFileToBlob: Boolean)
@@ -521,14 +634,27 @@ codeunit 132570 "Credit Transfer Register UT"
     begin
         if CreditTransferRegister.FindLast then;
         CreditTransferRegister."No." += 1;
-        CreditTransferRegister.Insert;
+        CreditTransferRegister.Insert();
 
         if not AddFileToBlob then
             exit;
 
         CreditTransferRegister."Exported File".CreateOutStream(Stream);
         Stream.WriteText('File content.');
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
+    end;
+
+    local procedure CreateBalanceSheetAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate(Blocked, false);
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure Initialize()
@@ -548,7 +674,7 @@ codeunit 132570 "Credit Transfer Register UT"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
     end;
@@ -571,7 +697,7 @@ codeunit 132570 "Credit Transfer Register UT"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
         PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDec(1000, 2);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         VendorLedgerEntry.FindLast;
 
@@ -582,7 +708,37 @@ codeunit 132570 "Credit Transfer Register UT"
         GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
         GenJnlLine."Applies-to Doc. No." := PurchInvoiceNo;
         GenJnlLine."Source Line No." := VendorLedgerEntry."Entry No.";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
+    end;
+
+    local procedure PreSetupForEmployee(var BankAcc: Record "Bank Account"; var Employee: Record Employee; var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        LibraryERM.CreateBankAccount(BankAcc);
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
+
+        Amount := LibraryRandom.RandDecInRange(1, 100, 2);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::" ",
+          GenJnlLine."Account Type"::"G/L Account", CreateBalanceSheetAccount,
+          GenJnlLine."Bal. Account Type"::Employee, Employee."No.", Amount);
+        DocumentNo := GenJnlLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        EmployeeLedgerEntry.FindLast;
+
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::" ",
+          GenJnlLine."Account Type"::Employee, Employee."No.", Amount);
+        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
+        GenJnlLine."Applies-to Doc. No." := DocumentNo;
+        GenJnlLine."Source Line No." := EmployeeLedgerEntry."Entry No.";
+        GenJnlLine.Modify();
     end;
 }
 

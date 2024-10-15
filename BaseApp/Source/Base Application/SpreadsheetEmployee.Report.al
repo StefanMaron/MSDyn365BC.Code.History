@@ -12,7 +12,7 @@ report 17451 "Spreadsheet Employee"
 
             trigger OnAfterGetRecord()
             begin
-                PayrollLedgerEntry.Reset;
+                PayrollLedgerEntry.Reset();
                 PayrollLedgerEntry.SetCurrentKey("Employee No.", "Period Code", "Element Code");
                 PayrollLedgerEntry.SetRange("Employee No.", "No.");
                 PayrollLedgerEntry.SetRange("Period Code", PeriodCode);
@@ -34,7 +34,7 @@ report 17451 "Spreadsheet Employee"
 
                                     PayrollCalcBuffer."Print Priority" := PayrollLedgerEntry."Print Priority";
                                     PayrollCalcBuffer."Line No." := PayrollCalcBuffer."Line No." + 10000;
-                                    PayrollCalcBuffer.Insert;
+                                    PayrollCalcBuffer.Insert();
                                 end;
                     until PayrollLedgerEntry.Next = 0;
             end;
@@ -49,7 +49,7 @@ report 17451 "Spreadsheet Employee"
                             PayrollElement.Get(ColumnBuffer."Element Code");
                             ColumnBuffer."Element Description" := PayrollElement.Description;
                             ColumnBuffer."Print Priority" := PayrollCalcBuffer."Print Priority";
-                            ColumnBuffer.Insert;
+                            ColumnBuffer.Insert();
                         end;
                     until PayrollCalcBuffer.Next = 0;
 
@@ -61,7 +61,7 @@ report 17451 "Spreadsheet Employee"
                             EmployeeBuffer."No." := PayrollCalcBuffer."No.";
                             EmployeeBuffer."Last Name & Initials" := Employee."Last Name" + ' ' + Employee.Initials;
                             EmployeeBuffer."Appointment Name" := Employee.GetJobTitleName;
-                            EmployeeBuffer.Insert;
+                            EmployeeBuffer.Insert();
                         end;
                     until PayrollCalcBuffer.Next = 0;
 
@@ -83,7 +83,7 @@ report 17451 "Spreadsheet Employee"
             begin
                 FilterText := Employee.GetFilters;
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 HumanResSetup.TestField("Work Time Group Code");
                 HumanResSetup.TestField("Tariff Work Group Code");
@@ -249,8 +249,8 @@ report 17451 "Spreadsheet Employee"
 
     trigger OnPreReport()
     begin
-        HumanResSetup.Get;
-        CompanyInfo.Get;
+        HumanResSetup.Get();
+        CompanyInfo.Get();
 
         if PreviewMode then
             DocNo := 'XXXXXXXXXX'

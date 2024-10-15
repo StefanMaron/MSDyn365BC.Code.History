@@ -31,7 +31,7 @@ table 17367 "Group Order Line"
                     LaborContract.CalcFields("Person Name");
                     Validate("Employee Name", LaborContract."Person Name");
                     if "Document Type" = "Document Type"::Transfer then begin
-                        LaborContractLine.Reset;
+                        LaborContractLine.Reset();
                         LaborContractLine.SetRange("Contract No.", "Contract No.");
                         LaborContractLine.SetRange("Operation Type", "Document Type");
                         if LaborContractLine.FindFirst then
@@ -49,7 +49,7 @@ table 17367 "Group Order Line"
 
             trigger OnLookup()
             begin
-                LaborContractLine.Reset;
+                LaborContractLine.Reset();
                 if "Contract No." <> '' then
                     LaborContractLine.SetRange("Contract No.", "Contract No.");
                 LaborContractLine.SetRange("Operation Type", "Document Type");

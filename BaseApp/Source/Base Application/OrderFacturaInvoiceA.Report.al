@@ -67,7 +67,7 @@ report 12411 "Order Factura-Invoice (A)"
                         trigger OnPreDataItem()
                         begin
                             if not MultipleCD then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TrackingSpecCount);
                         end;
@@ -79,19 +79,19 @@ report 12411 "Order Factura-Invoice (A)"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then begin
                                 FacturaInvoiceHelper.FormatTotalAmounts(
                                   TotalAmountText, TotalAmount, Sign, false, VATExemptTotal);
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         CopyArray(LastTotalAmount, TotalAmount, 1);
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1."Qty. to Invoice" = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1.Amount := SalesLine1."Amount (LCY)";
                                 SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
@@ -140,7 +140,6 @@ report 12411 "Order Factura-Invoice (A)"
                 trigger OnAfterGetRecord()
                 begin
                     Clear(TotalAmount);
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -152,14 +151,14 @@ report 12411 "Order Factura-Invoice (A)"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Header."Posting No." = '' then begin
                         Clear(NoSeriesManagement);
                         Header."Posting No." := NoSeriesManagement.GetNextNo(
                             Header."Posting No. Series", Header."Posting Date", not Preview);
                         if not Preview then
-                            Header.Modify;
+                            Header.Modify();
                     end;
 
                     SetRange(Number, 1, CopiesNumber);
@@ -180,14 +179,14 @@ report 12411 "Order Factura-Invoice (A)"
                 else
                     Sign := 1;
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
                 if SalesLine1.FindSet then
                     repeat
                         AttachedSalesLine := SalesLine1;
-                        AttachedSalesLine.Insert;
+                        AttachedSalesLine.Insert();
                     until SalesLine1.Next = 0;
 
                 SalesLine1.SetRange("Attached to Line No.", 0);
@@ -237,8 +236,8 @@ report 12411 "Order Factura-Invoice (A)"
 
             trigger OnPreDataItem()
             begin
-                SalesSetup.Get;
-                CompanyInfo.Get;
+                SalesSetup.Get();
+                CompanyInfo.Get();
             end;
         }
     }
@@ -455,16 +454,11 @@ report 12411 "Order Factura-Invoice (A)"
     var
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         CDTrackingSetup: Record "CD Tracking Setup";
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         TrackedQty: Decimal;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
-        CDRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LNInfoRequired: Boolean;
-        CDInfoRequired: Boolean;
     begin
         MultipleCD := false;
         CDNo := '';
@@ -480,43 +474,41 @@ report 12411 "Order Factura-Invoice (A)"
                         SalesLine1.TestField("Appl.-to Item Entry", 0);
                         SalesLine1.TestField("Appl.-from Item Entry", 0);
                         ItemTrackingCode.Code := Item."Item Tracking Code";
-                        ItemTrackingMgt.GetItemTrackingSettings(
-                          ItemTrackingCode, CDTrackingSetup, 1, false, SNRequired, LNRequired, CDRequired, SNInfoRequired, LNInfoRequired,
-                          CDInfoRequired);
-                        if CDRequired then begin
+                        ItemTrackingMgt.GetItemTrackingSetup(ItemTrackingCode, CDTrackingSetup, 1, false, ItemTrackingSetup);
+                        if ItemTrackingSetup."CD No. Required" then begin
                             // find tracking specifiation
-                            TrackingSpecBuffer.Reset;
+                            TrackingSpecBuffer.Reset();
                             TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                               "Source Prod. Order Line", "Source Ref. No.");
                             TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Sales Line");
                             TrackingSpecBuffer.SetRange("Source Subtype", SalesLine1."Document Type");
                             TrackingSpecBuffer.SetRange("Source ID", SalesLine1."Document No.");
                             TrackingSpecBuffer.SetRange("Source Ref. No.", SalesLine1."Line No.");
-                            TrackingSpecBuffer2.DeleteAll;
+                            TrackingSpecBuffer2.DeleteAll();
                             if TrackingSpecBuffer.FindSet then
                                 repeat
                                     TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
                                     if TrackingSpecBuffer2.FindFirst then begin
                                         TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
                                         TrackedQty += TrackingSpecBuffer."Quantity (Base)";
-                                        TrackingSpecBuffer2.Modify;
+                                        TrackingSpecBuffer2.Modify();
                                     end else begin
-                                        TrackingSpecBuffer2.Init;
+                                        TrackingSpecBuffer2.Init();
                                         TrackingSpecBuffer2 := TrackingSpecBuffer;
                                         TrackingSpecBuffer2.TestField("Quantity (Base)");
                                         TrackedQty += TrackingSpecBuffer."Quantity (Base)";
                                         TrackingSpecBuffer2."Lot No." := '';
                                         TrackingSpecBuffer2."Serial No." := '';
-                                        TrackingSpecBuffer2.Insert;
+                                        TrackingSpecBuffer2.Insert();
                                     end;
                                 until TrackingSpecBuffer.Next = 0;
-                            TrackingSpecBuffer2.Reset;
-                            TrackingSpecCount := TrackingSpecBuffer2.Count;
+                            TrackingSpecBuffer2.Reset();
+                            TrackingSpecCount := TrackingSpecBuffer2.Count();
                             if TrackingSpecCount = 0 then begin
                                 // find reservation specification
                                 SalesLine1.CalcFields("Reserved Qty. (Base)");
                                 if SalesLine1."Reserved Qty. (Base)" <> 0 then begin
-                                    ReservEntry.Reset;
+                                    ReservEntry.Reset();
                                     ReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
                                     ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
                                     ReservEntry.SetRange("Source Subtype", SalesLine1."Document Type");
@@ -525,12 +517,12 @@ report 12411 "Order Factura-Invoice (A)"
                                     if ReservEntry.FindSet then
                                         repeat
                                             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-                                            TrackingSpecBuffer2.Init;
+                                            TrackingSpecBuffer2.Init();
                                             TrackingSpecBuffer2.TransferFields(ReservEntry2);
                                             TrackedQty += TrackingSpecBuffer2."Quantity (Base)";
                                             TrackingSpecBuffer2."Lot No." := '';
                                             TrackingSpecBuffer2."Serial No." := '';
-                                            TrackingSpecBuffer2.Insert;
+                                            TrackingSpecBuffer2.Insert();
                                         until ReservEntry.Next = 0;
                                 end;
                             end;
@@ -541,8 +533,8 @@ report 12411 "Order Factura-Invoice (A)"
                                   SalesLine1."Qty. to Ship (Base)" - TrackedQty,
                                   TrackingSpecBuffer2."Item No.", SalesLine1."Line No.");
 
-                            TrackingSpecBuffer2.Reset;
-                            TrackingSpecCount := TrackingSpecBuffer2.Count;
+                            TrackingSpecBuffer2.Reset();
+                            TrackingSpecCount := TrackingSpecBuffer2.Count();
                             case TrackingSpecCount of
                                 1:
                                     begin
@@ -632,7 +624,7 @@ report 12411 "Order Factura-Invoice (A)"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if IsProforma then begin
             SalesReceivablesSetup.TestField("Proforma Template Code");
             exit(SalesReceivablesSetup."Proforma Template Code");

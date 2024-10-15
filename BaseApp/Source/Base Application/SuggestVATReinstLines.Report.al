@@ -72,12 +72,12 @@ report 14972 "Suggest VAT Reinst. Lines"
     [Scope('OnPrem')]
     procedure GetBuffer(var NewVATDocumentEntryBuffer: Record "VAT Document Entry Buffer")
     begin
-        NewVATDocumentEntryBuffer.Reset;
-        NewVATDocumentEntryBuffer.DeleteAll;
+        NewVATDocumentEntryBuffer.Reset();
+        NewVATDocumentEntryBuffer.DeleteAll();
         if VATDocumentEntryBuffer.FindSet then
             repeat
                 NewVATDocumentEntryBuffer := VATDocumentEntryBuffer;
-                NewVATDocumentEntryBuffer.Insert;
+                NewVATDocumentEntryBuffer.Insert();
             until VATDocumentEntryBuffer.Next = 0;
     end;
 }

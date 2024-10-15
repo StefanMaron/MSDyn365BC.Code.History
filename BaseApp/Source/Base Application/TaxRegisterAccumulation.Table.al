@@ -116,7 +116,7 @@ table 17208 "Tax Register Accumulation"
         case TaxRegTemplate."Expression Type" of
             TaxRegTemplate."Expression Type"::Link:
                 begin
-                    TaxRegAccumulation.Reset;
+                    TaxRegAccumulation.Reset();
                     TaxRegAccumulation.FilterGroup(2);
                     TaxRegAccumulation.SetRange("Section Code", TaxRegTemplate."Section Code");
                     TaxRegAccumulation.FilterGroup(0);

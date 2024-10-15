@@ -14,7 +14,7 @@ table 5200 Employee
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(HumanResSetup."Employee Nos.");
                     "No. Series" := '';
                 end;
@@ -264,11 +264,9 @@ table 5200 Employee
         {
             Caption = 'Union Membership No.';
         }
-        field(24; Gender; Option)
+        field(24; Gender; Enum "Employee Gender")
         {
             Caption = 'Gender';
-            OptionCaption = ' ,Female,Male';
-            OptionMembers = " ",Female,Male;
 
             trigger OnValidate()
             begin
@@ -327,7 +325,7 @@ table 5200 Employee
                     TestField("Contract No.", '');
 
                 if "Employment Date" <> 0D then begin
-                    PayrollPeriod.Reset;
+                    PayrollPeriod.Reset();
                     LaborContract.Get("Contract No.");
                     if LaborContract."Ending Date" = 0D then
                         PayrollPeriod.SetFilter(Code, '%1..',
@@ -344,10 +342,10 @@ table 5200 Employee
                         repeat
                             TimesheetMgmt.CreateTimesheet(Rec, PayrollPeriod);
                             if not PayrollStatus.Get(PayrollPeriod.Code, "No.") then begin
-                                PayrollStatus.Init;
+                                PayrollStatus.Init();
                                 PayrollStatus."Period Code" := PayrollPeriod.Code;
                                 PayrollStatus."Employee No." := "No.";
-                                PayrollStatus.Insert;
+                                PayrollStatus.Insert();
                             end;
                         until PayrollPeriod.Next = 0;
                 end;
@@ -1023,25 +1021,25 @@ table 5200 Employee
         CheckRemoveLaborContract;
 
         AlternativeAddr.SetRange("Person No.", "Person No.");
-        AlternativeAddr.DeleteAll;
+        AlternativeAddr.DeleteAll();
 
         EmployeeQualification.SetRange("Person No.", "Person No.");
-        EmployeeQualification.DeleteAll;
+        EmployeeQualification.DeleteAll();
 
         Relative.SetRange("Person No.", "Person No.");
-        Relative.DeleteAll;
+        Relative.DeleteAll();
 
         EmployeeAbsence.SetRange("Employee No.", "No.");
-        EmployeeAbsence.DeleteAll;
+        EmployeeAbsence.DeleteAll();
 
         MiscArticleInformation.SetRange("Employee No.", "No.");
-        MiscArticleInformation.DeleteAll;
+        MiscArticleInformation.DeleteAll();
 
         ConfidentialInformation.SetRange("Employee No.", "No.");
-        ConfidentialInformation.DeleteAll;
+        ConfidentialInformation.DeleteAll();
 
         HumanResComment.SetRange("No.", "No.");
-        HumanResComment.DeleteAll;
+        HumanResComment.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::Employee, "No.");
     end;
@@ -1052,14 +1050,14 @@ table 5200 Employee
         Resource: Record Resource;
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         if "No." = '' then begin
             HumanResSetup.TestField("Employee Nos.");
             NoSeriesMgt.InitSeries(HumanResSetup."Employee Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
         if HumanResSetup."Automatically Create Resource" then begin
-            ResourcesSetup.Get;
-            Resource.Init;
+            ResourcesSetup.Get();
+            Resource.Init();
             if NoSeriesMgt.ManualNoAllowed(ResourcesSetup."Resource Nos.") then begin
                 Resource."No." := "No.";
                 Resource.Insert(true);
@@ -1072,7 +1070,7 @@ table 5200 Employee
           DATABASE::Employee, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         if "Country/Region Code" = '' then
             "Country/Region Code" := HumanResSetup."Country/Region Code";
         if "Tax Payer Category" = '' then
@@ -1134,7 +1132,7 @@ table 5200 Employee
 
     procedure AssistEdit(): Boolean
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("Employee Nos.");
         if NoSeriesMgt.SelectSeries(HumanResSetup."Employee Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
@@ -1244,7 +1242,7 @@ table 5200 Employee
     [Scope('OnPrem')]
     procedure GetJobEntry(EmployeeNo: Code[20]; CurrDate: Date; var EmplJobEntry: Record "Employee Job Entry"): Boolean
     begin
-        EmplJobEntry.Reset;
+        EmplJobEntry.Reset();
         EmplJobEntry.SetCurrentKey("Employee No.", "Starting Date", "Ending Date");
         EmplJobEntry.SetRange("Employee No.", EmployeeNo);
         EmplJobEntry.SetFilter("Starting Date", '..%1', CurrDate);

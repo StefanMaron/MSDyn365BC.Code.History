@@ -105,7 +105,7 @@ codeunit 134152 "ERM Intercompany II"
         ImportICTransactionFromFile(FileName);
 
         // [THEN] IC Inbox contains 2 transactions from IC Partner "B": Sales Document and Purchase Document.
-        ICInboxTransaction.Reset;
+        ICInboxTransaction.Reset();
         ICInboxTransaction.SetRange("IC Partner Code", ICPartnerCode[2]);
         ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Sales Document");
         ICInboxTransaction.FindFirst;
@@ -2386,7 +2386,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(ReceivedPurchaseHeader, true, true);
 
         // [THEN] Document posted successfuly
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.SetRange("No.", PurchInvoiceNo);
         Assert.RecordIsNotEmpty(PurchInvHeader);
     end;
@@ -2432,7 +2432,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchCreditMemoNo := LibraryPurchase.PostPurchaseDocument(ReceivedPurchaseHeader, true, true);
 
         // [THEN] Document posted successfuly
-        PurchCrMemoHdr.Init;
+        PurchCrMemoHdr.Init();
         PurchCrMemoHdr.SetRange("No.", PurchCreditMemoNo);
         Assert.RecordIsNotEmpty(PurchCrMemoHdr);
     end;
@@ -3082,7 +3082,7 @@ codeunit 134152 "ERM Intercompany II"
         // [SCENARIO] Duplicate warning when attempting to post both purchase order and invoice from same IC transaction when purchase order is posted first.
 
         // [GIVEN] No pre-existing posted purchase invoices
-        PurchInvHeader.DeleteAll;
+        PurchInvHeader.DeleteAll();
 
         // [GIVEN] A purchase order and a purchase invoice.
         ItemNo := LibraryInventory.CreateItemNo;
@@ -3103,7 +3103,7 @@ codeunit 134152 "ERM Intercompany II"
           LibraryUtility.GenerateRandomCodeWithLength(
             InvoicePurchaseHeader.FieldNo("Vendor Order No."), DATABASE::"Purchase Header",
             MaxStrLen(InvoicePurchaseHeader."Vendor Order No."));
-        InvoicePurchaseHeader.Modify;
+        InvoicePurchaseHeader.Modify();
 
         // [WHEN] When posting the order and then the invoice.
         LibraryVariableStorage.Enqueue(PostedInvoiceFromSameTransactionQst);
@@ -3132,7 +3132,7 @@ codeunit 134152 "ERM Intercompany II"
         // [SCENARIO] Duplicate warning when attempting to post both purchase order and invoice from same IC transaction when purchase invoice is posted first.
 
         // [GIVEN] No pre-existing posted purchase invoices
-        PurchInvHeader.DeleteAll;
+        PurchInvHeader.DeleteAll();
 
         // [GIVEN] A purchase order and a purchase invoice.
         ItemNo := LibraryInventory.CreateItemNo;
@@ -3153,7 +3153,7 @@ codeunit 134152 "ERM Intercompany II"
           LibraryUtility.GenerateRandomCodeWithLength(
             InvoicePurchaseHeader.FieldNo("Vendor Order No."), DATABASE::"Purchase Header",
             MaxStrLen(InvoicePurchaseHeader."Vendor Order No."));
-        InvoicePurchaseHeader.Modify;
+        InvoicePurchaseHeader.Modify();
 
         // [WHEN] When posting the invoice and then the order.
         LibraryVariableStorage.Enqueue(PostedInvoiceDuplicateQst);
@@ -3214,8 +3214,8 @@ codeunit 134152 "ERM Intercompany II"
           ReceiptNo,
           PurchaseLine."Receipt No.",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Receipt No.")));
-        ItemEntryRelation.DeleteAll;
-        TrackingSpecification.DeleteAll;
+        ItemEntryRelation.DeleteAll();
+        TrackingSpecification.DeleteAll();
     end;
 
     [Test]
@@ -3346,9 +3346,9 @@ codeunit 134152 "ERM Intercompany II"
 
         // [THEN] Assembly Order is created with "Quantity" = "Q". Sales Line Is created with "Reserved Quantity" = "Q"
         VerifyQuantityOnSalesLineAndAssemblyHeader(SalesHeader."No.", Qty);
-        PurchaseHeader.DeleteAll;
-        SalesHeader.DeleteAll;
-        Item.DeleteAll;
+        PurchaseHeader.DeleteAll();
+        SalesHeader.DeleteAll();
+        Item.DeleteAll();
     end;
 
     [Test]
@@ -3713,7 +3713,7 @@ codeunit 134152 "ERM Intercompany II"
           SalesHeader, PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, CustNo);
 
         HandleICInboxTransaction(HandledICInboxTrans, ICInboxTransaction);
-        ICInboxSalesHeader.Delete;
+        ICInboxSalesHeader.Delete();
 
         // [WHEN] Recreate Inbox Transaction in codeunit ICInboxOutboxMgt
         ICInboxOutboxMgt.RecreateInboxTransaction(HandledICInboxTrans);
@@ -3755,7 +3755,7 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseHeader, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, VendorNo);
 
         HandleICInboxTransaction(HandledICInboxTrans, ICInboxTransaction);
-        ICInboxPurchaseHeader.Delete;
+        ICInboxPurchaseHeader.Delete();
 
         // [WHEN] Recreate Inbox Transaction in codeunit ICInboxOutboxMgt
         ICInboxOutboxMgt.RecreateInboxTransaction(HandledICInboxTrans);
@@ -3940,7 +3940,7 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Sales Order for Customer "C" with Sales Line Type = Item
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -3988,7 +3988,7 @@ codeunit 134152 "ERM Intercompany II"
 
         // [GIVEN] Purchase Invoice for Vendor "V" with Purchase Line Type = Item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -4598,7 +4598,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -4697,14 +4697,14 @@ codeunit 134152 "ERM Intercompany II"
     var
         ItemCrossReference: Record "Item Cross Reference";
     begin
-        ItemCrossReference.Init;
+        ItemCrossReference.Init();
         ItemCrossReference."Item No." := ItemNo;
         ItemCrossReference."Variant Code" := VariantCode;
         ItemCrossReference."Unit of Measure" := UnitOfMeasureCode;
         ItemCrossReference."Cross-Reference Type" := CrossReferenceType;
         ItemCrossReference."Cross-Reference Type No." := CrossReferenceTypeNo;
         ItemCrossReference."Cross-Reference No." := CrossReferenceNo;
-        ItemCrossReference.Insert;
+        ItemCrossReference.Insert();
         exit(CrossReferenceNo);
     end;
 
@@ -5003,7 +5003,7 @@ codeunit 134152 "ERM Intercompany II"
 
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode));
         SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandIntInRange(10, 100));
@@ -5040,7 +5040,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateICCustomer(CreateICPartner));
         SalesHeader.Validate("Prices Including VAT", true);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
         SalesLine.Validate("Unit Price", 0.9);
@@ -5068,7 +5068,7 @@ codeunit 134152 "ERM Intercompany II"
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCode));
         PurchaseHeader.Validate("Prices Including VAT", PricesInclVAT);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
@@ -5416,7 +5416,7 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; Customer: Record Customer)
     begin
-        ICInboxSalesHeader.Init;
+        ICInboxSalesHeader.Init();
         ICInboxSalesHeader."IC Transaction No." :=
           LibraryUtility.GetNewRecNo(ICInboxSalesHeader, ICInboxSalesHeader.FieldNo("IC Transaction No."));
         ICInboxSalesHeader."IC Partner Code" := Customer."IC Partner Code";
@@ -5429,7 +5429,7 @@ codeunit 134152 "ERM Intercompany II"
             LibraryUtility.GenerateRandomText(MaxStrLen(ICInboxSalesHeader."Ship-to County")),
             MaxStrLen(ICInboxSalesHeader."Ship-to County"));
         ICInboxSalesHeader."Posting Date" := WorkDate;
-        ICInboxSalesHeader.Insert;
+        ICInboxSalesHeader.Insert();
     end;
 
     local procedure MockICInboxPurchHeaderWithShipToCountryRegionAndCounty(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header")
@@ -5439,7 +5439,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         ICPartnerCode := CreateICPartner;
         VendorNo := CreateICVendor(ICPartnerCode);
-        ICInboxPurchaseHeader.Init;
+        ICInboxPurchaseHeader.Init();
         ICInboxPurchaseHeader."IC Transaction No." :=
           LibraryUtility.GetNewRecNo(ICInboxPurchaseHeader, ICInboxPurchaseHeader.FieldNo("IC Transaction No."));
         ICInboxPurchaseHeader."IC Partner Code" := ICPartnerCode;
@@ -5451,7 +5451,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxPurchaseHeader."Ship-to County" := PadStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(ICInboxPurchaseHeader."Ship-to County")),
             MaxStrLen(ICInboxPurchaseHeader."Ship-to County"));
-        ICInboxPurchaseHeader.Insert;
+        ICInboxPurchaseHeader.Insert();
     end;
 
     local procedure MockICInboxSalesLine(var ICInboxSalesLine: Record "IC Inbox Sales Line"; ICInboxSalesHeader: Record "IC Inbox Sales Header"; ItemNo: Code[20]; UnitPrice: Decimal; Qty: Decimal; AmtInclVAT: Decimal)
@@ -5536,14 +5536,14 @@ codeunit 134152 "ERM Intercompany II"
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get(ICPartnerCode);
-        ICPartner.Delete;
+        ICPartner.Delete();
     end;
 
     local procedure GenerateExternalDocumentNo(): Code[35]
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         exit(CopyStr(LibraryUtility.GenerateRandomText(
               MaxStrLen(SalesHeader."External Document No.")), 1, MaxStrLen(SalesHeader."External Document No.")));
     end;
@@ -5565,17 +5565,17 @@ codeunit 134152 "ERM Intercompany II"
     begin
         ItemLedgerEntry.FindLast;
 
-        ItemEntryRelation.Init;
+        ItemEntryRelation.Init();
         ItemEntryRelation."Item Entry No." := ItemLedgerEntry."Entry No." + 10000;
         ItemEntryRelation."Source Type" := SourceType;
         ItemEntryRelation."Source ID" := DocumentNo;
         ItemEntryRelation."Source Ref. No." := 10000;
-        ItemEntryRelation.Insert;
+        ItemEntryRelation.Insert();
 
-        TrackingSpecification.Init;
+        TrackingSpecification.Init();
         TrackingSpecification."Entry No." := ItemEntryRelation."Item Entry No.";
         TrackingSpecification."Quantity (Base)" := LibraryRandom.RandDec(100, 2);
-        TrackingSpecification.Insert;
+        TrackingSpecification.Insert();
     end;
 
     local procedure SendSalesDocumentReceivePurchaseDocument(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; ICPartnerCode: Code[10]; VendorNo: Code[20])
@@ -5757,7 +5757,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."IC Partner Code" := ICPartnerCode;
         CompanyInformation.Modify(true);
     end;
@@ -5991,7 +5991,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         OldLocationMandatory := InventorySetup."Location Mandatory";
         InventorySetup.Validate("Location Mandatory", LocationMandatory);
         InventorySetup.Modify(true);
@@ -6150,9 +6150,9 @@ codeunit 134152 "ERM Intercompany II"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."LCY Code" := LibraryUtility.GenerateGUID;
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     local procedure UpdateCustomerWithDefaultGlobalDimensionSet(CustomerNo: Code[20])
@@ -6161,7 +6161,7 @@ codeunit 134152 "ERM Intercompany II"
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -6176,7 +6176,7 @@ codeunit 134152 "ERM Intercompany II"
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -6307,7 +6307,7 @@ codeunit 134152 "ERM Intercompany II"
           ICInboxTransaction."Transaction No.", ICInboxTransaction."IC Partner Code", ICInboxTransaction."Transaction Source",
           ICInboxTransaction."Document Type");
 
-        ICInboxTransaction.Delete;
+        ICInboxTransaction.Delete();
     end;
 
     local procedure VerifyICOutboxJournalLine(ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
@@ -6329,7 +6329,7 @@ codeunit 134152 "ERM Intercompany II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FilterGLEntry(GLEntry, GLEntry."Document Type"::Invoice, DocumentNo, AccountNo);
         GLEntry.FindFirst;
         GLEntry.TestField("IC Partner Code", ICPartnerCode);

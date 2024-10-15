@@ -26,7 +26,7 @@ codeunit 137406 "SCM Item Reservation"
         isInitialized: Boolean;
         AppliesToEntryMustBeBlankErr: Label 'Applies-to Entry must not be filled out when reservations exist in Item Ledger Entry Entry No.=''%1''.';
         ReservationDoesNotExistErr: Label 'Reservation does not exist for Item %1.';
-        NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
+        ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
     [Test]
     [HandlerFunctions('ReservationHandler,AvailableItemLedgEntriesHandler')]
@@ -80,7 +80,7 @@ codeunit 137406 "SCM Item Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ReservationHandler,AvailableItemLedgEntriesHandler,NothingPostedMessageHandler')]
+    [HandlerFunctions('ReservationHandler,AvailableItemLedgEntriesHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ProductionOrderWithItemReservation()
     var
@@ -484,7 +484,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Reservation");
     end;
 
@@ -1139,9 +1139,9 @@ codeunit 137406 "SCM Item Reservation"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure NothingPostedMessageHandler(Message: Text[1024])
+    procedure StatisticsMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(NothingToPostTxt, Message);
+        Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 }
 

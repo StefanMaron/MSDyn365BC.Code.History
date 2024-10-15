@@ -64,11 +64,9 @@ table 17315 "Tax Calc. G/L Entry"
         {
             Caption = 'Correction';
         }
-        field(25; "Source Type"; Option)
+        field(25; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,Employee';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset",Employee;
         }
         field(26; "Source No."; Code[20])
         {

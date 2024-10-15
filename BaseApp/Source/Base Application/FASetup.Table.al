@@ -25,7 +25,7 @@ table 5603 "FA Setup"
                 if "Insurance Depr. Book" = '' then
                     Validate("Insurance Depr. Book", "Default Depr. Book");
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Enable Russian Tax Accounting" then
                     if ("Default Depr. Book" <> xRec."Default Depr. Book") and
                        ("Default Depr. Book" <> '')

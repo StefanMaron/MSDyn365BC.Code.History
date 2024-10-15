@@ -12,7 +12,7 @@ table 17373 "Staff List Order Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -126,14 +126,14 @@ table 17373 "Staff List Order Header"
 
     trigger OnDelete()
     begin
-        StaffListOrderLine.Reset;
+        StaffListOrderLine.Reset();
         StaffListOrderLine.SetRange("Document No.", "No.");
-        StaffListOrderLine.DeleteAll;
+        StaffListOrderLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
 
         if "No." = '' then begin
             TestNoSeries;
@@ -157,7 +157,7 @@ table 17373 "Staff List Order Header"
     [Scope('OnPrem')]
     procedure InitRecord()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         Validate("HR Manager No.", CompanyInfo."HR Manager No.");
         Validate("Chief Accountant No.", CompanyInfo."Accountant No.");
 
@@ -171,7 +171,7 @@ table 17373 "Staff List Order Header"
     begin
         with StaffListOrderHeader do begin
             Copy(Rec);
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldStaffListOrderHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

@@ -32,11 +32,11 @@ codeunit 179 "Reversal-Post"
                 exit;
 
         if "Reversal Type" = "Reversal Type"::Register then begin
-            TempGLReg.DeleteAll;
+            TempGLReg.DeleteAll();
             FromRegNo := 0;
             repeat
                 TempGLReg."No." := "G/L Register No.";
-                if TempGLReg.Insert then;
+                if TempGLReg.Insert() then;
                 if FromRegNo = 0 then
                     FromRegNo := TempGLReg."No."
                 else
@@ -96,7 +96,7 @@ codeunit 179 "Reversal-Post"
                     end;
             end;
         end;
-        DeleteAll;
+        DeleteAll();
         PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetGLDeferralDocType, ReversalEntry."Document No.", '', 0, '');
         if not HideDialog then
             Message(Text003);

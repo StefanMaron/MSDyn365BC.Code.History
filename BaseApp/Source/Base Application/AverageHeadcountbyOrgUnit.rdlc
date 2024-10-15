@@ -408,7 +408,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=cstr(First(Fields!CurrReport_PAGENOCaption.Value)) + " " + cstr(First(Fields!CurrReport_PAGENO.Value))</Value>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -2791,9 +2791,6 @@ End Function
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
@@ -2811,9 +2808,6 @@ End Function
         </Field>
         <Field Name="Quarter">
           <DataField>Quarter</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control34">
-          <DataField>CurrReport_PAGENO_Control34</DataField>
         </Field>
         <Field Name="Month1_Control42">
           <DataField>Month1_Control42</DataField>
@@ -2895,9 +2889,6 @@ End Function
         </Field>
         <Field Name="Organizational_Unit_NameCaption">
           <DataField>Organizational_Unit_NameCaption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control34Caption">
-          <DataField>CurrReport_PAGENO_Control34Caption</DataField>
         </Field>
         <Field Name="Org__Unit_CodeCaption_Control78">
           <DataField>Org__Unit_CodeCaption_Control78</DataField>

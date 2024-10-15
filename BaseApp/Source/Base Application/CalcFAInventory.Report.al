@@ -16,7 +16,7 @@ report 12423 "Calc. FA Inventory"
             begin
                 Window.Update;
 
-                FADepreciationBook.Reset;
+                FADepreciationBook.Reset();
                 if FADepreciationBook.Get("No.", FADeprCode) then begin
                     FADepreciationBook.GetLocationAtDate("FA Location Code", "Responsible Employee", PostingDate);
                     if "FA Location Code" <> FALocation.Code then begin
@@ -45,7 +45,7 @@ report 12423 "Calc. FA Inventory"
 
                     if (FactAcquisitionCost <> 0) or (CalcAcquisitionCost <> 0) then begin
                         LineNo := LineNo + 10000;
-                        FAJournalLine.Init;
+                        FAJournalLine.Init();
                         FAJournalLine."Journal Template Name" := FAJournalBatch."Journal Template Name";
                         FAJournalLine."Journal Batch Name" := FAJournalBatch.Name;
                         FAJournalLine."Line No." := LineNo;
@@ -76,7 +76,7 @@ report 12423 "Calc. FA Inventory"
                                 FAJournalLine."Actual  Remaining Amount" := 0;
                         end;
 
-                        FAJournalLine.Insert;
+                        FAJournalLine.Insert();
                     end;
                 end;
             end;
@@ -193,7 +193,7 @@ report 12423 "Calc. FA Inventory"
         BatchName: Code[10];
         BatchDescr: Text[50];
     begin
-        FAJournalBatch.Reset;
+        FAJournalBatch.Reset();
         FAJournalBatch.SetRange("Journal Template Name", FATemp);
         if FALocation.Code <> '' then begin
             FAJournalBatch.SetRange(Name, FALocation.Code);
@@ -206,14 +206,14 @@ report 12423 "Calc. FA Inventory"
         end;
 
         if not FAJournalBatch.Find('-') then begin
-            FAJournalBatch.Init;
+            FAJournalBatch.Init();
             FAJournalBatch."Journal Template Name" := FATemp;
             FAJournalBatch.Name := BatchName;
             FAJournalBatch.Validate(Description, BatchDescr);
             FAJournalBatch.Insert(true);
         end;
 
-        FAJournalLine.Reset;
+        FAJournalLine.Reset();
         FAJournalLine.SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalBatch.Name);
         if FAJournalLine.Find('+') then

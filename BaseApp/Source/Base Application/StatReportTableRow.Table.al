@@ -76,7 +76,7 @@ table 26553 "Stat. Report Table Row"
         StatReportTableMapping.SetRange("Table Row No.", "Line No.");
         StatReportTableMapping.SetFilter("Table Column No.", '>0');
         if not StatReportTableMapping.IsEmpty then
-            StatReportTableMapping.DeleteAll;
+            StatReportTableMapping.DeleteAll();
     end;
 
     var

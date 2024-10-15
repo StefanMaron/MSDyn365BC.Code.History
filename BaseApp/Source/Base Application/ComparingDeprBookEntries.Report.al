@@ -22,9 +22,6 @@ report 14970 "Comparing Depr. Book Entries"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CurrentDate; CurrentDate)
             {
             }
@@ -232,7 +229,7 @@ report 14970 "Comparing Depr. Book Entries"
                 Clear(FADeprBook1);
                 Clear(FADeprBook2);
                 if not FADeprBook1.Get("No.", DeprBookCode1) and not FADeprBook2.Get("No.", DeprBookCode2) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupByDeprGroup then begin
                     if DepreciationGroup.Get("Depreciation Group") then;
@@ -394,11 +391,11 @@ report 14970 "Comparing Depr. Book Entries"
 
         trigger OnOpenPage()
         begin
-            FASetup.Get;
+            FASetup.Get();
             if DeprBook.Get(FASetup."Release Depr. Book") then
                 DeprBookCode1 := DeprBook.Code;
 
-            TaxRegisterSetup.Get;
+            TaxRegisterSetup.Get();
             if DeprBook.Get(TaxRegisterSetup."Tax Depreciation Book") then
                 DeprBookCode2 := DeprBook.Code;
 

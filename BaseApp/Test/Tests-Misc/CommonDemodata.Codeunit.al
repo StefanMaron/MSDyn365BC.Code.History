@@ -39,7 +39,7 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO] There are 4 fields filled in the Interaction Template Setup
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mails");
         InteractionTemplateSetup.TestField("Cover Sheets");
         InteractionTemplateSetup.TestField("Outg. Calls");
@@ -53,7 +53,7 @@ codeunit 138500 "Common Demodata"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO] There Business Relation and Number Series fields are filled in the Marketing Setup
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Contact Nos.");
         MarketingSetup.TestField("Segment Nos.");
         MarketingSetup.TestField("Campaign Nos.");
@@ -101,7 +101,7 @@ codeunit 138500 "Common Demodata"
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
         // [SCENARIO] Human Resources Setup contains a number series
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Employee Nos.");
     end;
 
@@ -142,7 +142,7 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO 199993] Email Draft interaction template code should be defined in Interaction Template Setup
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mail Draft");
     end;
 
@@ -211,7 +211,7 @@ codeunit 138500 "Common Demodata"
         // [FEATURE] [Country/Region] [ISO Code]
         CountryRegion.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(CountryRegion);
-        CountryRegion.Reset;
+        CountryRegion.Reset();
         CountryRegion.SetRange("ISO Numeric Code", '');
         Assert.RecordIsEmpty(CountryRegion);
     end;
@@ -225,9 +225,22 @@ codeunit 138500 "Common Demodata"
         // [FEATURE] [Currency] [ISO Code]
         Currency.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(Currency);
-        Currency.Reset;
+        Currency.Reset();
         Currency.SetRange("ISO Numeric Code", '');
         Assert.RecordIsEmpty(Currency);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceCalculationSetupIsEmpty()
+    var
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
+    begin
+        // [FEATURE] [Price Calculation Setup]
+        // [THEN] "Price Calculation Setup" and "Dtld. Price Calculation Setup" tables are empty
+        Assert.RecordIsEmpty(PriceCalculationSetup);
+        Assert.RecordIsEmpty(DtldPriceCalculationSetup);
     end;
 
     [Test]

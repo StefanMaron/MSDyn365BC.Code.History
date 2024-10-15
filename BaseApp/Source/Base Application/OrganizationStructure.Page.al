@@ -50,7 +50,7 @@ page 17384 "Organization Structure"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Employee.Reset;
+                        Employee.Reset();
                         Employee.SetCurrentKey("Position No.");
                         Employee.SetRange("Position No.", "Position No.");
                         PAGE.Run(0, Employee);
@@ -186,7 +186,7 @@ page 17384 "Organization Structure"
             PositionAvailability := 0;
 
         EmployeeNames := '';
-        Employee.Reset;
+        Employee.Reset();
         Employee.SetCurrentKey("Position No.");
         Employee.SetRange("Position No.", "Position No.");
         if Employee.FindSet then
@@ -208,7 +208,7 @@ page 17384 "Organization Structure"
         Position2: Record Position;
     begin
         if CurrentPositionNo = '' then begin
-            Position2.Reset;
+            Position2.Reset();
             Position2.SetCurrentKey("Parent Position No.");
             Position2.SetRange("Parent Position No.", '');
             Position2.FindFirst;
@@ -235,8 +235,8 @@ page 17384 "Organization Structure"
     var
         Position2: Record Position;
     begin
-        ViewBuffer.DeleteAll;
-        ViewBuffer.Reset;
+        ViewBuffer.DeleteAll();
+        ViewBuffer.Reset();
 
         Position2.Get(CurrentPositionNo);
         CurrentLevel := Position2.Level;
@@ -246,7 +246,7 @@ page 17384 "Organization Structure"
         ViewBuffer.Hide := false;
         ViewBuffer.Expanded := false;
         ViewBuffer.Level := Position2.Level - CurrentLevel;
-        ViewBuffer.Insert;
+        ViewBuffer.Insert();
 
         EnlistChildren(CurrentPositionNo);
         UpdateView(1);
@@ -257,7 +257,7 @@ page 17384 "Organization Structure"
     var
         Position2: Record Position;
     begin
-        Position2.Reset;
+        Position2.Reset();
         Position2.SetCurrentKey("Parent Position No.");
         Position2.SetRange("Parent Position No.", ReportingTo);
         if Position2.FindSet then
@@ -268,7 +268,7 @@ page 17384 "Organization Structure"
                 ViewBuffer.Hide := true;
                 ViewBuffer.Expanded := false;
                 ViewBuffer.Level := Position2.Level - CurrentLevel;
-                ViewBuffer.Insert;
+                ViewBuffer.Insert();
                 Position2.CalcFields("Organization Size");
                 if Position2."Organization Size" > 0 then
                     EnlistChildren(Position2."No.")
@@ -278,7 +278,7 @@ page 17384 "Organization Structure"
     [Scope('OnPrem')]
     procedure UpdateView(ID: Integer)
     begin
-        DeleteAll;
+        DeleteAll();
         if ViewBuffer.FindFirst then
             repeat
                 if not ViewBuffer.Hide then begin
@@ -301,7 +301,7 @@ page 17384 "Organization Structure"
                     Position.CalcFields("Organization Size");
                     if Position."Organization Size" > 0 then begin
                         ViewBuffer.Expanded := true;
-                        ViewBuffer.Modify;
+                        ViewBuffer.Modify();
                     end;
                 end;
             until ViewBuffer.Next = 0;
@@ -328,7 +328,7 @@ page 17384 "Organization Structure"
                     ViewBuffer.Hide := true;
                     if ViewBuffer.Expanded then
                         ViewBuffer.Expanded := false;
-                    ViewBuffer.Modify;
+                    ViewBuffer.Modify();
                     CurrViewBufferElement := ViewBuffer;
                     CollapseChildren(ViewBuffer."Position No.");
                     ViewBuffer := CurrViewBufferElement;
@@ -341,22 +341,22 @@ page 17384 "Organization Structure"
         if Expanded then begin // Collapse one level
             ViewBuffer.Get(ID);
             ViewBuffer.Expanded := false;
-            ViewBuffer.Modify;
+            ViewBuffer.Modify();
             CollapseChildren(ViewBuffer."Position No.");
         end else begin // Expand one level
-            ViewBuffer.Reset;
+            ViewBuffer.Reset();
             ViewBuffer.SetCurrentKey("Manager No.");
             ViewBuffer.SetRange("Manager No.", "Position No.");
             if ViewBuffer.FindSet then begin
                 repeat
                     if ViewBuffer.Hide then begin
                         ViewBuffer.Hide := false;
-                        ViewBuffer.Modify;
+                        ViewBuffer.Modify();
                     end;
                 until ViewBuffer.Next = 0;
                 ViewBuffer.Get(ID);
                 ViewBuffer.Expanded := true;
-                ViewBuffer.Modify;
+                ViewBuffer.Modify();
             end;
         end;
         ViewBuffer.SetRange("Manager No.");

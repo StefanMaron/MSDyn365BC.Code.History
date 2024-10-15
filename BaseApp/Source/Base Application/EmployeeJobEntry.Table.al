@@ -279,17 +279,24 @@ table 17363 "Employee Job Entry"
         EmployeeJobEntry: Record "Employee Job Entry";
         Text14702: Label '%1 is not employed for period from %2 to %3.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure PositionChangeExist(EmployeeNo: Code[20]; StartDate: Date; EndDate: Date): Boolean
     var
         JobsNo: Integer;
     begin
-        EmployeeJobEntry.Reset;
+        EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetCurrentKey("Employee No.", "Starting Date", "Ending Date");
         EmployeeJobEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeJobEntry.SetFilter("Starting Date", '..%1', EndDate);
         EmployeeJobEntry.SetFilter("Ending Date", '%1|%2..', 0D, StartDate);
-        JobsNo := EmployeeJobEntry.Count;
+        JobsNo := EmployeeJobEntry.Count();
         case JobsNo of
             0:
                 Error(Text14702, EmployeeNo, StartDate, EndDate);
@@ -303,7 +310,7 @@ table 17363 "Employee Job Entry"
     [Scope('OnPrem')]
     procedure GetEmployeeNo(PositionNo: Code[20]; CurrDate: Date): Code[20]
     begin
-        EmployeeJobEntry.Reset;
+        EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetCurrentKey("Employee No.", "Starting Date", "Ending Date");
         EmployeeJobEntry.SetRange("Position No.", PositionNo);
         EmployeeJobEntry.SetFilter("Starting Date", '..%1', CurrDate);

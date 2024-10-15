@@ -20,10 +20,10 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 DisposalDate: Date;
                 FAIsSold: Boolean;
             begin
-                TaxDiffFAPostingBuffer.Reset;
-                TaxDiffFAPostingBuffer.DeleteAll;
+                TaxDiffFAPostingBuffer.Reset();
+                TaxDiffFAPostingBuffer.DeleteAll();
 
-                FALedgerEntry.Reset;
+                FALedgerEntry.Reset();
                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
                 FALedgerEntry.SetRange("FA No.", "No.");
                 FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
@@ -33,7 +33,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 if FALedgerEntry.FindLast then
                     DisposalDate := FALedgerEntry."FA Posting Date"
                 else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 SourceType := GetTDESourceType;
 
@@ -44,9 +44,9 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                     FADepreciationBook.CalcFields("Proceeds on Disposal");
                     FAIsSold := FADepreciationBook."Proceeds on Disposal" <> 0;
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                FALedgerEntry.Reset;
+                FALedgerEntry.Reset();
                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
                 FALedgerEntry.SetRange("FA No.", "No.");
                 FALedgerEntry.SetRange("Depreciation Book Code", FASetup."Release Depr. Book");
@@ -56,7 +56,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 if FALedgerEntry.FindLast then
                     AccBookValueOnDisposal := FALedgerEntry.Amount;
 
-                FALedgerEntry.Reset;
+                FALedgerEntry.Reset();
                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");
                 FALedgerEntry.SetRange("FA No.", "No.");
                 FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
@@ -66,7 +66,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 if FALedgerEntry.FindLast then
                     TaxBookValueOnDisposal := FALedgerEntry.Amount;
 
-                TaxDiffLedgerEntry.Reset;
+                TaxDiffLedgerEntry.Reset();
                 TaxDiffLedgerEntry.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.");
                 TaxDiffLedgerEntry.SetRange("Source Type", SourceType);
                 TaxDiffLedgerEntry.SetRange("Source No.", "No.");
@@ -76,10 +76,10 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                         UpdateTaxDiffPostBuf(TaxDiffLedgerEntry."Tax Diff. Code");
                     until TaxDiffLedgerEntry.Next = 0;
 
-                TaxDiffFAPostingBuffer.Reset;
+                TaxDiffFAPostingBuffer.Reset();
                 if TaxDiffFAPostingBuffer.FindSet then begin
                     repeat
-                        TaxDiffLedgerEntry.Reset;
+                        TaxDiffLedgerEntry.Reset();
                         TaxDiffLedgerEntry.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.", "Posting Date");
                         TaxDiffLedgerEntry.SetRange("Tax Diff. Code", TaxDiffFAPostingBuffer."Tax Diff. Code");
                         TaxDiffLedgerEntry.SetRange("Source Type", SourceType);
@@ -245,13 +245,13 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
 
     trigger OnInitReport()
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Use Group Depr. Method from", 0D);
         TaxRegisterSetup.TestField("Tax Depreciation Book");
         TaxRegisterSetup.TestField("Calculate TD for each FA", true);
         if TaxRegisterSetup."Depr. Bonus Recovery from" <> 0D then
             TaxRegisterSetup.TestField("Depr. Bonus Recov. Per. (Year)");
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     trigger OnPreReport()
@@ -300,7 +300,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; SourceNo: Code[20]; AmountBase: Decimal; AmountTax: Decimal; DisposalDate: Date; DisposalMode: Integer; DeprBonusRecover: Boolean; CalcMode: Integer)
     begin
         xRecTaxDiffJnlLine := TaxDiffJnlLine;
-        TaxDiffJnlLine.Init;
+        TaxDiffJnlLine.Init();
         TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
         TaxDiffJnlLine."Journal Template Name" := TemplateName;
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
@@ -318,7 +318,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
         TaxDiffJnlLine."Depr. Bonus Recovery" := DeprBonusRecover;
         TaxDiffJnlLine."Source Entry Type" := TaxDiffJnlLine."Source Entry Type"::"Disposed FA";
         TaxDiffJnlLine.Validate("Tax Diff. Calc. Mode", CalcMode);
-        TaxDiffJnlLine.Insert;
+        TaxDiffJnlLine.Insert();
         LineNo += 10000;
     end;
 
@@ -340,7 +340,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
     begin
         if not TaxDiffFAPostingBuffer.Get(0, TaxDiffCode) then begin
             TaxDiffFAPostingBuffer."Tax Diff. Code" := TaxDiffCode;
-            TaxDiffFAPostingBuffer.Insert;
+            TaxDiffFAPostingBuffer.Insert();
             LineNo += 10000;
         end;
     end;

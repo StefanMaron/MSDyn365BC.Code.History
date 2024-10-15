@@ -30,7 +30,7 @@ page 17478 "Payroll Document Stat. Subform"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(GetDimensions; GetDimensions)
+                field(GetDimensions; GetDimensionsList)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
@@ -54,7 +54,7 @@ page 17478 "Payroll Document Stat. Subform"
     [Scope('OnPrem')]
     procedure SetPayrollDocBuffer(var NewPayrollDocBuffer: Record "Payroll Document Buffer")
     begin
-        DeleteAll;
+        DeleteAll();
         if NewPayrollDocBuffer.FindSet then
             repeat
                 Copy(NewPayrollDocBuffer);
@@ -65,7 +65,7 @@ page 17478 "Payroll Document Stat. Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure GetDimensions() Dimensions: Text[1024]
+    procedure GetDimensionsList() Dimensions: Text[1024]
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin

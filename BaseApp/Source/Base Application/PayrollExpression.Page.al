@@ -119,7 +119,7 @@ page 17436 "Payroll Expression"
     [Scope('OnPrem')]
     procedure SetFromCalcLine(NewPayrollCalcLine: Record "Payroll Calculation Line")
     begin
-        ParentExprLine.Init;
+        ParentExprLine.Init();
         ParentExprLine."Element Code" := NewPayrollCalcLine."Element Code";
         ParentExprLine."Period Code" := NewPayrollCalcLine."Period Code";
         ParentExprLine."Calculation Line No." := NewPayrollCalcLine."Line No.";
@@ -130,7 +130,7 @@ page 17436 "Payroll Expression"
     [Scope('OnPrem')]
     procedure SetFromElementExpr(NewPayrollElementExpr: Record "Payroll Element Expression")
     begin
-        ParentExprLine.Init;
+        ParentExprLine.Init();
         ParentExprLine."Element Code" := NewPayrollElementExpr."Element Code";
         ParentExprLine."Period Code" := NewPayrollElementExpr."Period Code";
         ParentExprLine."Calculation Line No." := NewPayrollElementExpr."Calculation Line No.";
@@ -141,7 +141,7 @@ page 17436 "Payroll Expression"
     [Scope('OnPrem')]
     procedure SetFromDocLineCalc(NewDocLineCalc: Record "Payroll Document Line Calc.")
     begin
-        ParentExprLine.Init;
+        ParentExprLine.Init();
         ParentExprLine."Element Code" := NewDocLineCalc."Element Code";
         ParentExprLine."Period Code" := NewDocLineCalc."Period Code";
         ParentExprLine."Calculation Line No." := NewDocLineCalc."Line No.";

@@ -16,7 +16,6 @@ codeunit 139031 "Change Log"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryCDTracking: Codeunit "Library - CD Tracking";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
         Assert: Codeunit Assert;
@@ -58,7 +57,7 @@ codeunit 139031 "Change Log"
         DummyLog;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure TearDown()
@@ -66,7 +65,7 @@ codeunit 139031 "Change Log"
         CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer";
     begin
         SetChangeLogSetup(OldChangeLogActivated);
-        CVLedgerEntryBuffer.DeleteAll;
+        CVLedgerEntryBuffer.DeleteAll();
     end;
 
     local procedure NoSeriesSetup()
@@ -83,14 +82,14 @@ codeunit 139031 "Change Log"
         ChangeLogSetupField: Record "Change Log Setup (Field)";
         ChangeLogEntry: Record "Change Log Entry";
     begin
-        ChangeLogSetupField.Reset;
-        ChangeLogSetupField.DeleteAll;
+        ChangeLogSetupField.Reset();
+        ChangeLogSetupField.DeleteAll();
 
-        ChangeLogSetupTable.Reset;
-        ChangeLogSetupTable.DeleteAll;
+        ChangeLogSetupTable.Reset();
+        ChangeLogSetupTable.DeleteAll();
 
-        ChangeLogEntry.Reset;
-        ChangeLogEntry.DeleteAll;
+        ChangeLogEntry.Reset();
+        ChangeLogEntry.DeleteAll();
 
         OldChangeLogActivated := SetChangeLogSetup(true);
         ChangeLogManagement.InitChangeLog;
@@ -134,7 +133,7 @@ codeunit 139031 "Change Log"
         ChangeLogSetupPage.Close;
 
         // Verify
-        ChangeLogSetup.Get;
+        ChangeLogSetup.Get();
         Assert.IsTrue(ChangeLogSetup."Change Log Activated", 'Change Log was not activated.');
 
         // Tear down
@@ -160,7 +159,7 @@ codeunit 139031 "Change Log"
         ChangeLogSetupPage.Close;
 
         // Verify
-        ChangeLogSetup.Get;
+        ChangeLogSetup.Get();
         Assert.IsFalse(ChangeLogSetup."Change Log Activated", 'Change Log was activated.');
 
         // Tear down
@@ -318,7 +317,7 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(LocalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise: Setting the field value to max length.
-        TestTableWithLargeField.Init;
+        TestTableWithLargeField.Init();
         TestTableWithLargeField.PK := 1;
         TestTableWithLargeField.Description :=
           CopyStr(LibraryRandom.RandText(MaxStrLen(TestTableWithLargeField.Description)),
@@ -340,8 +339,8 @@ codeunit 139031 "Change Log"
           ChangeLogEntry."New Value",
           'ChangelogEntry should have correct value for field: New Value.');
 
-        ChangeLogEntry.DeleteAll;
-        TestTableWithLargeField.DeleteAll;
+        ChangeLogEntry.DeleteAll();
+        TestTableWithLargeField.DeleteAll();
     end;
 
     [Test]
@@ -441,7 +440,7 @@ codeunit 139031 "Change Log"
     var
         Contact: Record Contact;
         RecRef: RecordRef;
-        ObsoleteFieldID : Integer;
+        ObsoleteFieldID: Integer;
     begin
         // Setup
         Initialize;
@@ -521,7 +520,7 @@ codeunit 139031 "Change Log"
         // Exercise - modify one field and check when option is log all fields
         CreateModifyAndLogModify(RecRef, xRecRef);
 
-        Commit;
+        Commit();
         // Verify
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 5); // including modified flag
         AssertEntry(RecRef, xRecRef, GlobalFieldNo[2], TypeOfChangeOption::Modification);
@@ -833,7 +832,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry: Record "Change Log Entry";
         AffectedRecRef: RecordRef;
     begin
-        Commit;
+        Commit();
         ChangeLogEntry.SetRange("Table No.", RecRef.Number);
         ChangeLogEntry.SetRange("Type of Change", TypeOfChange);
         ChangeLogEntry.SetRange("User ID", UserId);
@@ -1007,7 +1006,7 @@ codeunit 139031 "Change Log"
 
         // Delete
         RecRef.GetTable(CVLedgerEntryBuffer);
-        CVLedgerEntryBuffer.Delete;
+        CVLedgerEntryBuffer.Delete();
         ChangeLogManagement.LogDeletion(RecRef);
 
         // re-initialize change log
@@ -1016,41 +1015,38 @@ codeunit 139031 "Change Log"
 
     local procedure HasValue(FieldRef: FieldRef): Boolean
     var
-        "Field": Record "Field";
         HasValue: Boolean;
         Int: Integer;
         Dec: Decimal;
         D: Date;
         T: Time;
     begin
-        Evaluate(Field.Type, Format(FieldRef.Type));
-
-        case Field.Type of
-            Field.Type::Boolean:
+        case FieldRef.Type of
+            FieldType::Boolean:
                 HasValue := FieldRef.Value;
-            Field.Type::Option:
+            FieldType::Option:
                 HasValue := true;
-            Field.Type::Integer:
+            FieldType::Integer:
                 begin
                     Int := FieldRef.Value;
                     HasValue := Int <> 0;
                 end;
-            Field.Type::Decimal:
+            FieldType::Decimal:
                 begin
                     Dec := FieldRef.Value;
                     HasValue := Dec <> 0;
                 end;
-            Field.Type::Date:
+            FieldType::Date:
                 begin
                     D := FieldRef.Value;
                     HasValue := D <> 0D;
                 end;
-            Field.Type::Time:
+            FieldType::Time:
                 begin
                     T := FieldRef.Value;
                     HasValue := T <> 0T;
                 end;
-            Field.Type::BLOB:
+            FieldType::BLOB:
                 HasValue := false;
             else
                 HasValue := Format(FieldRef.Value) <> '';
@@ -1061,10 +1057,7 @@ codeunit 139031 "Change Log"
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
     begin
-        if Format(FieldRef.Class) = 'Normal' then
-            exit(true);
-
-        exit(false);
+        exit(FieldRef.Class = FieldClass::Normal)
     end;
 
     local procedure SetFieldsForChangeLog(TableNo: Integer; FieldNo: Integer; LogInsertion: Boolean; LogModification: Boolean; LogDeletion: Boolean)
@@ -1096,18 +1089,18 @@ codeunit 139031 "Change Log"
         TempItem: Record Item temporary;
         RecRef: RecordRef;
     begin
-        TempItem.Init;
+        TempItem.Init();
 
         // Year 1932
         TempItem."Last Date Modified" := DMY2Date(31, 12, 1932);
-        TempItem.Insert;
+        TempItem.Insert();
 
         RecRef.GetTable(TempItem);
         AssertFormatValue(RecRef, 62, '1932-12-31');
 
         // Year 2032
         TempItem."Last Date Modified" := DMY2Date(31, 12, 2032);
-        TempItem.Modify;
+        TempItem.Modify();
         RecRef.GetTable(TempItem);
         AssertFormatValue(RecRef, 62, '2032-12-31');
     end;
@@ -1119,9 +1112,9 @@ codeunit 139031 "Change Log"
         TempToDo: Record "To-do" temporary;
         RecRef: RecordRef;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
         TempToDo."Start Time" := 235900T;
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 28, '23:59:00');
@@ -1138,9 +1131,9 @@ codeunit 139031 "Change Log"
     begin
         OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00Z').ToLocalTime.Offset;
 
-        TempJobLedgerEntry.Init;
+        TempJobLedgerEntry.Init();
         TempJobLedgerEntry."DateTime Adjusted" := CreateDateTime(19321231D, 235900T) + OffsetFromUtc;
-        TempJobLedgerEntry.Insert;
+        TempJobLedgerEntry.Insert();
 
         RecRef.GetTable(TempJobLedgerEntry);
         AssertFormatValue(RecRef, 1029, '1932-12-31T23:59:00Z');
@@ -1154,12 +1147,12 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
         Duration: Duration;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
 
         Duration := CreateDateTime(20090505D, 133001T) - CreateDateTime(20090101D, 080000T);
 
         TempToDo.Duration := Duration;
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 29, 'P124DT4H30M1.0S');
@@ -1172,9 +1165,9 @@ codeunit 139031 "Change Log"
         TempToDo: Record "To-do" temporary;
         RecRef: RecordRef;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
         TempToDo."Unit Cost (LCY)" := 11111.22;
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 41, '11111.22');
@@ -1187,15 +1180,15 @@ codeunit 139031 "Change Log"
         TempToDo: Record "To-do" temporary;
         RecRef: RecordRef;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
         TempToDo.Closed := true;
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 13, 'true');
 
         TempToDo.Closed := false;
-        TempToDo.Modify;
+        TempToDo.Modify();
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 13, 'false');
     end;
@@ -1207,9 +1200,9 @@ codeunit 139031 "Change Log"
         TempToDo: Record "To-do" temporary;
         RecRef: RecordRef;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
         TempToDo.Type := TempToDo.Type::"Phone Call";
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 8, Format(TempToDo.Type::"Phone Call", 0, 9));
@@ -1223,9 +1216,9 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
         TempChar: Char;
     begin
-        TempToDo.Init;
+        TempToDo.Init();
         TempToDo.Description := '<xmlnode attr="1">value</xmlnode>';
-        TempToDo.Insert;
+        TempToDo.Insert();
 
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 12, '<xmlnode attr="1">value</xmlnode>');
@@ -1233,7 +1226,7 @@ codeunit 139031 "Change Log"
         // Special character
         TempChar := 211;
         TempToDo.Description := Format(TempChar);
-        TempToDo.Modify;
+        TempToDo.Modify();
         RecRef.GetTable(TempToDo);
         AssertFormatValue(RecRef, 12, Format(TempChar));
     end;
@@ -1529,7 +1522,7 @@ codeunit 139031 "Change Log"
         TmpDuration: Duration;
         TmpDurationParsed: Duration;
     begin
-        ToDo.Init;
+        ToDo.Init();
         ToDo.Date := DMY2Date(1, 1, 2000);
         RecRef.GetTable(ToDo);
         FieldRef := RecRef.Field(ToDo.FieldNo(Duration));
@@ -1680,76 +1673,6 @@ codeunit 139031 "Change Log"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure CommentsActionOnCDNoInformationCardDoesNotCreateOnInsertLogEntries()
-    var
-        DummyCDNoHeader: Record "CD No. Header";
-        CDNoInformation: Record "CD No. Information";
-        CDNoInformationCard: TestPage "CD No. Information Card";
-        ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information Card
-        Initialize;
-
-        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
-        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
-
-        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
-        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
-        RecRef.GetTable(CDNoInformation);
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        // [WHEN] Open Item Tracking Comments from CD No. Information Card for Item "X"
-        CDNoInformationCard.OpenView;
-        CDNoInformationCard.GotoRecord(CDNoInformation);
-        ItemTrackingComments.Trap;
-        CDNoInformationCard.Comment.Invoke;
-        ItemTrackingComments.Close;
-
-        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        TearDown;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CommentsActionOnCDNoInformationListDoesNotCreateOnInsertLogEntries()
-    var
-        DummyCDNoHeader: Record "CD No. Header";
-        CDNoInformation: Record "CD No. Information";
-        CDNoInformationList: TestPage "CD No. Information List";
-        ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information List
-        Initialize;
-
-        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
-        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
-
-        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
-        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
-        RecRef.GetTable(CDNoInformation);
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        // [WHEN] Open Item Tracking Comments from CD No. Information List for Item "X"
-        CDNoInformationList.OpenView;
-        CDNoInformationList.GotoRecord(CDNoInformation);
-        ItemTrackingComments.Trap;
-        CDNoInformationList.Comment.Invoke;
-        ItemTrackingComments.Close;
-
-        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
-        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
-
-        TearDown;
-    end;
-
-    [Test]
     [HandlerFunctions('REP510RequestPageHandlerFilterSet')]
     [Scope('OnPrem')]
     procedure DeleteLogEntriesRequestPageFilterSet()
@@ -1811,7 +1734,7 @@ codeunit 139031 "Change Log"
         // [GIVEN] The user has admin rights and a changelogentry exists
         DeleteAllLogEntries;
         CreateChangeLogEntry(CalcDate('<-2Y>', Today));
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetO365BusFull;
         Assert.AreNotEqual(0, ChangeLogEntry.Count, 'No entries created');
 
@@ -1835,9 +1758,9 @@ codeunit 139031 "Change Log"
         Initialize;
 
         // [GIVEN] Change Log is activated.
-        ChangeLogSetup.Get;
-        ChangeLogSetup.Validate("Change Log Activated",true);
-        ChangeLogSetup.Modify;
+        ChangeLogSetup.Get();
+        ChangeLogSetup.Validate("Change Log Activated", true);
+        ChangeLogSetup.Modify();
 
         // [WHEN] Insert new Tenant Permission Set.
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
@@ -1862,9 +1785,9 @@ codeunit 139031 "Change Log"
         Initialize;
 
         // [GIVEN] Change Log is activated.
-        ChangeLogSetup.Get;
+        ChangeLogSetup.Get();
         ChangeLogSetup.Validate("Change Log Activated", true);
-        ChangeLogSetup.Modify;
+        ChangeLogSetup.Modify();
 
         // [WHEN] Insert new Tenant Permission.
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
@@ -1957,31 +1880,31 @@ codeunit 139031 "Change Log"
         TenantPermission.FindFirst;
     end;
 
-    local procedure GenerateRandomTenantPermissionRoleID() : Code[20]
+    local procedure GenerateRandomTenantPermissionRoleID(): Code[20]
     var
-      TenantPermission: Record "Tenant Permission";
+        TenantPermission: Record "Tenant Permission";
     begin
-      exit(LibraryUtility.GenerateRandomCode20(TenantPermission.FieldNo("Role ID"), DATABASE::"Tenant Permission"));
+        exit(LibraryUtility.GenerateRandomCode20(TenantPermission.FieldNo("Role ID"), DATABASE::"Tenant Permission"));
     end;
 
     local procedure CreateChangeLogEntry(EventDate: Date)
     var
         ChangeLogEntry: Record "Change Log Entry";
     begin
-        ChangeLogEntry.Init;
+        ChangeLogEntry.Init();
         ChangeLogEntry."Date and Time" := CreateDateTime(EventDate, 0T);
         ChangeLogEntry."Table No." := DATABASE::"Change Log Entry";
         ChangeLogEntry."Field No." := ChangeLogEntry.FieldNo("Field No.");
-        ChangeLogEntry.Insert;
+        ChangeLogEntry.Insert();
     end;
 
     local procedure DeleteAllLogEntries()
     var
         ChangeLogEntry: Record "Change Log Entry";
     begin
-        ChangeLogEntry.Reset;
-        ChangeLogEntry.DeleteAll;
-        Commit;
+        ChangeLogEntry.Reset();
+        ChangeLogEntry.DeleteAll();
+        Commit();
     end;
 
     [Test]
@@ -2001,7 +1924,7 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(LocalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise: Setting the primary key value, exceeding the max length for ChangeLogEntry fields.
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
         TenantWebService."Service Name" :=
           CopyStr(LibraryRandom.RandText(MaxStrLen(ChangeLogEntry."Primary Key Field 2 Value") + 1),

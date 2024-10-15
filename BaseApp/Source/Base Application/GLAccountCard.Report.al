@@ -21,9 +21,6 @@ report 12437 "G/L Account Card"
             column(HeaderPeriodTitle; StrSubstNo(Text005, LocMgt.Date2Text(StartDate), LocMgt.Date2Text(EndDate)))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(CurrentDate; CurrentDate)
             {
             }
@@ -204,7 +201,7 @@ report 12437 "G/L Account Card"
                         begin
                             if (GLCorrEntry."Debit Account No." <> GLEntry."G/L Account No.") and
                                (GLCorrEntry."Credit Account No." <> GLEntry."G/L Account No.") or not ShowCorr then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             if GLCorrEntry."Debit Account No." = GLEntry."G/L Account No." then begin
                                 CorrAccount := GLCorrEntry."Credit Account No.";
@@ -223,9 +220,9 @@ report 12437 "G/L Account Card"
 
                         if (GLEntry."Document No." = CurrDocNo) and
                            (GLEntry."Transaction No." = CurrTransNo) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
-                        GLEntry1.Reset;
+                        GLEntry1.Reset();
                         GLEntry1.SetRange("Transaction No.", "Transaction No.");
                         GLEntry1.SetRange("Document No.", "Document No.");
                         GLEntry1.SetRange("G/L Account No.", "G/L Account No.");
@@ -240,7 +237,7 @@ report 12437 "G/L Account Card"
                         then begin
                             DebetAmount := 0;
                             CreditAmount := 0;
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
 
                         CurrDocNo := GLEntry."Document No.";
@@ -268,7 +265,7 @@ report 12437 "G/L Account Card"
                 LineAmount[3] := "Debit Amount";
                 LineAmount[4] := "Credit Amount";
                 if (LineAmount[3] = 0) and (LineAmount[4] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TotalDebetAmount := LineAmount[3];
                 TotalCreditAmount := LineAmount[4];

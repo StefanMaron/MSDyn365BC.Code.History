@@ -204,12 +204,12 @@ table 17387 "Posted Absence Header"
     var
         HROrderCommentLine: Record "HR Order Comment Line";
     begin
-        LockTable;
+        LockTable();
         DeletePostedAbsenceLines(Rec);
 
         HROrderCommentLine.SetRange("Table Name", HROrderCommentLine."Table Name"::"P.Absence Order");
         HROrderCommentLine.SetRange("No.", "No.");
-        HROrderCommentLine.DeleteAll;
+        HROrderCommentLine.DeleteAll();
     end;
 
     trigger OnRename()
@@ -237,7 +237,7 @@ table 17387 "Posted Absence Header"
     begin
         PostedAbsenceLine.SetRange("Document Type", PostedAbsenceHeader."Document Type");
         PostedAbsenceLine.SetRange("Document No.", PostedAbsenceHeader."No.");
-        PostedAbsenceLine.DeleteAll;
+        PostedAbsenceLine.DeleteAll();
     end;
 
     [Scope('OnPrem')]

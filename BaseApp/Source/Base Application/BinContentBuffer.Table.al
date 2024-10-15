@@ -107,5 +107,12 @@ table 7330 "Bin Content Buffer"
     fieldgroups
     {
     }
+
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+        "CD No." := WhseActivityLine."CD No.";
+    end;
 }
 

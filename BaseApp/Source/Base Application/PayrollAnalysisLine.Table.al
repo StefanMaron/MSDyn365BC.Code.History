@@ -303,7 +303,7 @@ table 14962 "Payroll Analysis Line"
             else begin
                 Clear(PayrollAnalysisView);
                 if not HasGLSetup then
-                    GLSetup.Get;
+                    GLSetup.Get();
                 HasGLSetup := true;
                 PayrollAnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                 PayrollAnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";

@@ -515,20 +515,20 @@ xmlport 17200 "Tax Register Setup"
         if TempTaxRegisterSection.FindSet then
             repeat
                 "Tax Register Section" := TempTaxRegisterSection;
-                "Tax Register Section".Insert;
+                "Tax Register Section".Insert();
 
                 TaxRegisterName.SetRange("Section Code", TempTaxRegisterSection.Code);
                 if TaxRegisterName.FindSet then
                     repeat
                         "Tax Register" := TaxRegisterName;
-                        "Tax Register".Insert;
+                        "Tax Register".Insert();
 
                         TaxRegisterLineSetup.SetRange("Section Code", TaxRegisterName."Section Code");
                         TaxRegisterLineSetup.SetRange("Tax Register No.", TaxRegisterName."No.");
                         if TaxRegisterLineSetup.FindSet then
                             repeat
                                 "Tax Register Line Setup" := TaxRegisterLineSetup;
-                                "Tax Register Line Setup".Insert;
+                                "Tax Register Line Setup".Insert();
                             until TaxRegisterLineSetup.Next = 0;
 
                         TaxRegisterTemplate.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -536,7 +536,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegisterTemplate.FindSet then
                             repeat
                                 "Tax Register Template" := TaxRegisterTemplate;
-                                "Tax Register Template".Insert;
+                                "Tax Register Template".Insert();
                             until TaxRegisterTemplate.Next = 0;
 
                         TaxRegDimCombination.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -544,7 +544,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegDimCombination.FindSet then
                             repeat
                                 "Tax Register Dim. Comb." := TaxRegDimCombination;
-                                "Tax Register Dim. Comb.".Insert;
+                                "Tax Register Dim. Comb.".Insert();
                             until TaxRegDimCombination.Next = 0;
 
                         TaxRegDimValueCombination.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -552,7 +552,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegDimValueCombination.FindSet then
                             repeat
                                 "Tax Register Dim. Value Comb." := TaxRegDimValueCombination;
-                                "Tax Register Dim. Value Comb.".Insert;
+                                "Tax Register Dim. Value Comb.".Insert();
                             until TaxRegDimValueCombination.Next = 0;
 
                         TaxRegDimDefaultValue.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -560,7 +560,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegDimDefaultValue.FindSet then
                             repeat
                                 "Tax Register Dim. Def. Value" := TaxRegDimDefaultValue;
-                                "Tax Register Dim. Def. Value".Insert;
+                                "Tax Register Dim. Def. Value".Insert();
                             until TaxRegDimDefaultValue.Next = 0;
 
                         TaxRegDimFilter.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -568,7 +568,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegDimFilter.FindSet then
                             repeat
                                 "Tax Register Dim. Filter" := TaxRegDimFilter;
-                                "Tax Register Dim. Filter".Insert;
+                                "Tax Register Dim. Filter".Insert();
                             until TaxRegDimFilter.Next = 0;
 
                         TaxRegGLCorrDimFilter.SetRange("Section Code", TaxRegisterName."Section Code");
@@ -576,7 +576,7 @@ xmlport 17200 "Tax Register Setup"
                         if TaxRegGLCorrDimFilter.FindSet then
                             repeat
                                 "Tax Reg. G/L Corr. Dim. Filter" := TaxRegGLCorrDimFilter;
-                                "Tax Reg. G/L Corr. Dim. Filter".Insert;
+                                "Tax Reg. G/L Corr. Dim. Filter".Insert();
                             until TaxRegGLCorrDimFilter.Next = 0;
                     until TaxRegisterName.Next = 0;
 
@@ -584,14 +584,14 @@ xmlport 17200 "Tax Register Setup"
                 if TaxRegisterTermName.FindSet then
                     repeat
                         "Tax Register Term" := TaxRegisterTermName;
-                        "Tax Register Term".Insert;
+                        "Tax Register Term".Insert();
 
                         TaxRegisterTermLine.SetRange("Section Code", TempTaxRegisterSection.Code);
                         TaxRegisterTermLine.SetRange("Term Code", TaxRegisterTermName."Term Code");
                         if TaxRegisterTermLine.FindSet then
                             repeat
                                 "Tax Register Term Formula" := TaxRegisterTermLine;
-                                "Tax Register Term Formula".Insert;
+                                "Tax Register Term Formula".Insert();
                             until TaxRegisterTermLine.Next = 0;
                     until TaxRegisterTermName.Next = 0;
             until TempTaxRegisterSection.Next = 0;
@@ -609,7 +609,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterSection.Delete(true);
                         TaxRegisterSection := "Tax Register Section";
                     end;
-                    TaxRegisterSection.Insert;
+                    TaxRegisterSection.Insert();
                 until Next = 0;
         end;
 
@@ -622,7 +622,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterName.Delete(true);
                         TaxRegisterName := "Tax Register";
                     end;
-                    TaxRegisterName.Insert;
+                    TaxRegisterName.Insert();
                 until Next = 0;
         end;
 
@@ -635,7 +635,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterLineSetup.Delete(true);
                         TaxRegisterLineSetup := "Tax Register Line Setup";
                     end;
-                    TaxRegisterLineSetup.Insert;
+                    TaxRegisterLineSetup.Insert();
                 until Next = 0;
         end;
 
@@ -648,7 +648,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterTemplate.Delete(true);
                         TaxRegisterTemplate := "Tax Register Template";
                     end;
-                    TaxRegisterTemplate.Insert;
+                    TaxRegisterTemplate.Insert();
                 until Next = 0;
         end;
 
@@ -661,7 +661,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegDimCombination.Delete(true);
                         TaxRegDimCombination := "Tax Register Dim. Comb.";
                     end;
-                    TaxRegDimCombination.Insert;
+                    TaxRegDimCombination.Insert();
                 until Next = 0;
         end;
 
@@ -674,7 +674,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegDimValueCombination.Delete(true);
                         TaxRegDimValueCombination := "Tax Register Dim. Value Comb.";
                     end;
-                    TaxRegDimValueCombination.Insert;
+                    TaxRegDimValueCombination.Insert();
                 until Next = 0;
         end;
 
@@ -687,7 +687,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegDimDefaultValue.Delete(true);
                         TaxRegDimDefaultValue := "Tax Register Dim. Def. Value";
                     end;
-                    TaxRegDimDefaultValue.Insert;
+                    TaxRegDimDefaultValue.Insert();
                 until Next = 0;
         end;
 
@@ -700,7 +700,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegDimFilter.Delete(true);
                         TaxRegDimFilter := "Tax Register Dim. Filter";
                     end;
-                    TaxRegDimFilter.Insert;
+                    TaxRegDimFilter.Insert();
                 until Next = 0;
         end;
 
@@ -713,7 +713,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegGLCorrDimFilter.Delete(true);
                         TaxRegGLCorrDimFilter := "Tax Reg. G/L Corr. Dim. Filter";
                     end;
-                    TaxRegGLCorrDimFilter.Insert;
+                    TaxRegGLCorrDimFilter.Insert();
                 until Next = 0;
         end;
 
@@ -726,7 +726,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterTermName.Delete(true);
                         TaxRegisterTermName := "Tax Register Term";
                     end;
-                    TaxRegisterTermName.Insert;
+                    TaxRegisterTermName.Insert();
                 until Next = 0;
         end;
 
@@ -739,7 +739,7 @@ xmlport 17200 "Tax Register Setup"
                         TaxRegisterTermLine.Delete(true);
                         TaxRegisterTermLine := "Tax Register Term Formula";
                     end;
-                    TaxRegisterTermLine.Insert;
+                    TaxRegisterTermLine.Insert();
                 until Next = 0;
         end;
     end;

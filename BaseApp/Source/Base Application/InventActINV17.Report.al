@@ -83,7 +83,7 @@ report 14914 "Invent. Act INV-17"
 
             trigger OnPreDataItem()
             begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
             end;
         }
     }

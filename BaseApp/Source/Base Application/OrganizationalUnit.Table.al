@@ -342,7 +342,7 @@ table 12422 "Organizational Unit"
     begin
         Level := 0;
         if "Parent Code" <> '' then begin
-            OrganizationalUnit.Reset;
+            OrganizationalUnit.Reset();
             OrganizationalUnit.SetRange(Code, "Parent Code");
             if OrganizationalUnit.FindFirst then
                 Level := OrganizationalUnit.Level + 1
@@ -356,7 +356,7 @@ table 12422 "Organizational Unit"
     procedure Approve(IsChangeOrder: Boolean)
     begin
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
         end;
 
@@ -378,10 +378,10 @@ table 12422 "Organizational Unit"
         TestField(Status, Status::Approved);
 
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
 
-            Position.Reset;
+            Position.Reset();
             Position.SetRange("Org. Unit Code", Code);
             if not Position.IsEmpty then
                 Error(Text14700, Code);
@@ -397,10 +397,10 @@ table 12422 "Organizational Unit"
         TestField(Status, Status::Approved);
 
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
 
-            Position.Reset;
+            Position.Reset();
             Position.SetRange("Org. Unit Code", Code);
             Position.SetFilter(Status, '<>%1', Position.Status::Closed);
             if not Position.IsEmpty then

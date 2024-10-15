@@ -19,18 +19,18 @@ report 17206 "Create Item Batch"
                         ItemLedgEntry."Entry No." := "Entry No."
                     else begin
                         if not ItemLedgEntry.Get(ItemApplEntry."Inbound Item Entry No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         while ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer do begin
                             ItemApplEntry0.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                             ItemApplEntry0.FindFirst;
                             if ItemApplEntry0."Transferred-from Entry No." = 0 then
                                 ItemApplEntry0."Transferred-from Entry No." := ItemApplEntry0."Transferred-from Entry No.";
                             if not ItemLedgEntry.Get(ItemApplEntry0."Transferred-from Entry No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
                     end;
                     ItemApplEntry."Batch Item Ledger Entry No." := ItemLedgEntry."Entry No.";
-                    ItemApplEntry.Modify;
+                    ItemApplEntry.Modify();
                 end;
 
                 trigger OnPreDataItem()

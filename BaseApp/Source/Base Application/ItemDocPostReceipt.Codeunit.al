@@ -24,7 +24,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
             CODEUNIT.Run(CODEUNIT::"Release Item Document", Rec);
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
             Status := Status::Released;
         end;
         ItemDocHeader := Rec;
@@ -38,7 +38,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
 
             DocSignMgt.CheckDocSignatures(DATABASE::"Item Document Header", "Document Type", "No.");
 
-            ItemDocLine.Reset;
+            ItemDocLine.Reset();
             ItemDocLine.SetRange("Document Type", "Document Type");
             ItemDocLine.SetRange("Document No.", "No.");
             ItemDocLine.SetFilter(Quantity, '>0');
@@ -55,23 +55,23 @@ codeunit 12460 "Item Doc.-Post Receipt"
 
             Window.Update(1, StrSubstNo(Text004, "No."));
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Item Receipt";
-            InvtSetup.Get;
+            InvtSetup.Get();
             InvtSetup.TestField("Posted Item Receipt Nos.");
             InventoryPostingSetup.SetRange("Location Code", "Location Code");
             InventoryPostingSetup.FindFirst;
 
-            NoSeriesLine.LockTable;
+            NoSeriesLine.LockTable();
             if NoSeriesLine.FindLast then;
             if InvtSetup."Automatic Cost Posting" then begin
-                GLEntry.LockTable;
+                GLEntry.LockTable();
                 if GLEntry.FindLast then;
             end;
 
             // Insert receipt header
-            ItemRcptHeader.LockTable;
-            ItemRcptHeader.Init;
+            ItemRcptHeader.LockTable();
+            ItemRcptHeader.Init();
             ItemRcptHeader."Location Code" := "Location Code";
             ItemRcptHeader."Document Date" := "Document Date";
             ItemRcptHeader."Posting Date" := "Posting Date";
@@ -89,7 +89,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
             ItemRcptHeader."Posting Description" := "Posting Description";
             ItemRcptHeader.Correction := Correction;
             ItemRcptHeader."Dimension Set ID" := "Dimension Set ID";
-            ItemRcptHeader.Insert;
+            ItemRcptHeader.Insert();
 
             DocSignMgt.MoveDocSignToPostedDocSign(
               DocSign, DATABASE::"Item Document Header", "Document Type", "No.",
@@ -99,7 +99,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
 
             // Insert receipt lines
             LineCount := 0;
-            ItemRcptLine.LockTable;
+            ItemRcptLine.LockTable();
             ItemDocLine.SetRange(Quantity);
             if ItemDocLine.Find('-') then begin
                 repeat
@@ -111,7 +111,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
                         Item.TestField(Blocked, false);
                     end;
 
-                    ItemRcptLine.Init;
+                    ItemRcptLine.Init();
                     ItemRcptLine."Document No." := ItemRcptHeader."No.";
                     ItemRcptLine."Posting Date" := ItemRcptHeader."Posting Date";
                     ItemRcptLine."Document Date" := ItemRcptHeader."Document Date";
@@ -145,14 +145,14 @@ codeunit 12460 "Item Doc.-Post Receipt"
                     ItemRcptLine."Applies-to Entry" := ItemDocLine."Applies-to Entry";
                     ItemRcptLine."Applies-from Entry" := ItemDocLine."Applies-from Entry";
                     ItemRcptLine."Dimension Set ID" := ItemDocLine."Dimension Set ID";
-                    ItemRcptLine.Insert;
+                    ItemRcptLine.Insert();
 
                     PostItemJnlLine(ItemDocLine, ItemRcptHeader, ItemRcptLine);
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, ItemRcptLine.RowID1);
                 until ItemDocLine.Next = 0;
             end;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -160,11 +160,11 @@ codeunit 12460 "Item Doc.-Post Receipt"
                 InvtAdjmt.MakeMultiLevelAdjmt;
             end;
 
-            LockTable;
+            LockTable();
             Delete(true);
 
             InsertValueEntryRelation;
-            Commit;
+            Commit();
             Window.Close;
         end;
         UpdateAnalysisView.UpdateAll(0, true);
@@ -205,7 +205,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Posting Date" := ItemRcptHeader2."Posting Date";
         ItemJnlLine."Document Date" := ItemRcptHeader2."Document Date";
         ItemJnlLine."Document No." := ItemRcptHeader2."No.";
@@ -278,7 +278,7 @@ codeunit 12460 "Item Doc.-Post Receipt"
                 InvtCommentLine2 := InvtCommentLine;
                 InvtCommentLine2."Document Type" := ToDocumentType;
                 InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert;
+                InvtCommentLine2.Insert();
             until InvtCommentLine.Next = 0;
     end;
 
@@ -340,13 +340,13 @@ codeunit 12460 "Item Doc.-Post Receipt"
     var
         ValueEntryRelation: Record "Value Entry Relation";
     begin
-        TempValueEntryRelation.Reset;
+        TempValueEntryRelation.Reset();
         if TempValueEntryRelation.Find('-') then begin
             repeat
                 ValueEntryRelation := TempValueEntryRelation;
-                ValueEntryRelation.Insert;
+                ValueEntryRelation.Insert();
             until TempValueEntryRelation.Next = 0;
-            TempValueEntryRelation.DeleteAll;
+            TempValueEntryRelation.DeleteAll();
         end;
     end;
 

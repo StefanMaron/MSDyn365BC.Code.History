@@ -465,7 +465,7 @@ page 9247 "Abs. Overview by Period Matrix"
         EmplAbsenceEntry: Record "Employee Absence Entry";
     begin
         SetDateFilter(ColumnID);
-        EmplAbsenceEntry.Reset;
+        EmplAbsenceEntry.Reset();
         EmplAbsenceEntry.SetCurrentKey("Employee No.");
         EmplAbsenceEntry.SetRange("Employee No.", Rec."No.");
         EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Usage);

@@ -215,7 +215,7 @@ page 497 "Reservation Entries"
                                      ReservEngineMgt.CreateFromText(Rec))
                                 then begin
                                     ReservEngineMgt.CancelReservation(ReservEntry);
-                                    Commit;
+                                    Commit();
                                 end;
                             until ReservEntry.Next = 0;
                     end;
@@ -271,7 +271,7 @@ page 497 "Reservation Entries"
             case "Source Type" of
                 DATABASE::"Sales Line":
                     begin
-                        SalesLine.Reset;
+                        SalesLine.Reset();
                         SalesLine.SetRange("Document Type", "Source Subtype");
                         SalesLine.SetRange("Document No.", "Source ID");
                         SalesLine.SetRange("Line No.", "Source Ref. No.");
@@ -279,7 +279,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Requisition Line":
                     begin
-                        ReqLine.Reset;
+                        ReqLine.Reset();
                         ReqLine.SetRange("Worksheet Template Name", "Source ID");
                         ReqLine.SetRange("Journal Batch Name", "Source Batch Name");
                         ReqLine.SetRange("Line No.", "Source Ref. No.");
@@ -287,7 +287,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Purchase Line":
                     begin
-                        PurchLine.Reset;
+                        PurchLine.Reset();
                         PurchLine.SetRange("Document Type", "Source Subtype");
                         PurchLine.SetRange("Document No.", "Source ID");
                         PurchLine.SetRange("Line No.", "Source Ref. No.");
@@ -295,7 +295,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Item Journal Line":
                     begin
-                        ItemJnlLine.Reset;
+                        ItemJnlLine.Reset();
                         ItemJnlLine.SetRange("Journal Template Name", "Source ID");
                         ItemJnlLine.SetRange("Journal Batch Name", "Source Batch Name");
                         ItemJnlLine.SetRange("Line No.", "Source Ref. No.");
@@ -304,13 +304,13 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Item Ledger Entry":
                     begin
-                        ItemLedgEntry.Reset;
+                        ItemLedgEntry.Reset();
                         ItemLedgEntry.SetRange("Entry No.", "Source Ref. No.");
                         PAGE.RunModal(0, ItemLedgEntry);
                     end;
                 DATABASE::"Prod. Order Line":
                     begin
-                        ProdOrderLine.Reset;
+                        ProdOrderLine.Reset();
                         ProdOrderLine.SetRange(Status, "Source Subtype");
                         ProdOrderLine.SetRange("Prod. Order No.", "Source ID");
                         ProdOrderLine.SetRange("Line No.", "Source Prod. Order Line");
@@ -318,7 +318,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Prod. Order Component":
                     begin
-                        ProdOrderComp.Reset;
+                        ProdOrderComp.Reset();
                         ProdOrderComp.SetRange(Status, "Source Subtype");
                         ProdOrderComp.SetRange("Prod. Order No.", "Source ID");
                         ProdOrderComp.SetRange("Prod. Order Line No.", "Source Prod. Order Line");
@@ -327,7 +327,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Planning Component":
                     begin
-                        PlanningComponent.Reset;
+                        PlanningComponent.Reset();
                         PlanningComponent.SetRange("Worksheet Template Name", "Source ID");
                         PlanningComponent.SetRange("Worksheet Batch Name", "Source Batch Name");
                         PlanningComponent.SetRange("Worksheet Line No.", "Source Prod. Order Line");
@@ -336,7 +336,7 @@ page 497 "Reservation Entries"
                     end;
                 DATABASE::"Transfer Line":
                     begin
-                        TransLine.Reset;
+                        TransLine.Reset();
                         TransLine.SetRange("Document No.", "Source ID");
                         TransLine.SetRange("Line No.", "Source Ref. No.");
                         TransLine.SetRange("Derived From Line No.", "Source Prod. Order Line");

@@ -21,7 +21,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation II");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation II");
     end;
 
@@ -184,7 +184,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, SalesLine."Line No.",
           SalesLine."Variant Code",
-          SalesLine."Location Code", '', '', '',
+          SalesLine."Location Code", '', '',
           SalesLine."Qty. per Unit of Measure");
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         asserterror
@@ -193,7 +193,7 @@ codeunit 137925 "SCM Assembly Reservation II"
             'Test',
             AvailabilityDate,
             0, QtyToReserve,
-            '', '', '');
+            '', '');
 
         // Verification
         Assert.AreEqual(GetLastErrorText, StrSubstNo('Reserved quantity cannot be greater than %1.', AvailableToReserve), '');
@@ -248,7 +248,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, 0,
           AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '', '',
+          AssemblyHeader."Location Code", '', '',
           AssemblyHeader."Qty. per Unit of Measure");
         SalesLineReserve.CreateReservationSetFrom(TrackingSpecification);
         SalesLineReserve.CreateReservation(
@@ -256,7 +256,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader.Description,
           AssemblyHeader."Due Date",
           0, QtyToReserve,
-          '', '', '');
+          '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
@@ -707,7 +707,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, 0,
           AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '', '',
+          AssemblyHeader."Location Code", '', '',
           AssemblyHeader."Qty. per Unit of Measure");
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
@@ -716,7 +716,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader."Due Date",
           0,
           QtyToReserve,
-          '', '', '');
+          '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
@@ -1395,7 +1395,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, PurchLine."Line No.",
           PurchLine."Variant Code",
-          PurchLine."Location Code", '', '', '',
+          PurchLine."Location Code", '', '',
           PurchLine."Qty. per Unit of Measure");
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
@@ -1404,7 +1404,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           PurchLine."Expected Receipt Date",
           Round(QtyToReserve / AssemblyLine."Qty. per Unit of Measure", 0.00001),
           QtyToReserve,
-          '', '', '');
+          '', '');
     end;
 
     local procedure CreateAsmHdrResFromSalesLine(var AssemblyHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line")
@@ -1440,7 +1440,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, SalesLine."Line No.",
           SalesLine."Variant Code",
-          SalesLine."Location Code", '', '', '',
+          SalesLine."Location Code", '', '',
           SalesLine."Qty. per Unit of Measure");
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         AsmHeaderReserve.CreateReservation(
@@ -1449,19 +1449,19 @@ codeunit 137925 "SCM Assembly Reservation II"
           AvailabilityDate,
           0,
           QtyToReserve,
-          '', '', '');
+          '', '');
     end;
 
     local procedure MockItem(var Item: Record Item)
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := IDcode20('Kit');
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure MockSalesOrderLine(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal; LineNo: Integer)
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
         SalesLine."Document No." := IDcode20('so');
         SalesLine."Line No." := LineNo;
@@ -1475,12 +1475,12 @@ codeunit 137925 "SCM Assembly Reservation II"
         SalesLine."Outstanding Qty. (Base)" := CalcBaseQty(SalesLine."Outstanding Quantity", QtyPrUnit);
         SalesLine."Shipment Date" := Date;
         SalesLine."Qty. per Unit of Measure" := QtyPrUnit;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockPurchOrderLine(var PurchLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal; LineNo: Integer)
     begin
-        PurchLine.Init;
+        PurchLine.Init();
         PurchLine."Document Type" := PurchLine."Document Type"::Order;
         PurchLine."Document No." := IDcode20('pol');
         PurchLine."Line No." := LineNo;
@@ -1494,7 +1494,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         PurchLine."Outstanding Qty. (Base)" := CalcBaseQty(PurchLine."Outstanding Quantity", QtyPrUnit);
         PurchLine."Expected Receipt Date" := Date;
         PurchLine."Qty. per Unit of Measure" := QtyPrUnit;
-        PurchLine.Insert;
+        PurchLine.Insert();
     end;
 
     local procedure MockAsmOrderHeader(var AssemblyHeader: Record "Assembly Header"; DocNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal)
@@ -1506,7 +1506,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
     local procedure MockAsmHeader(var AssemblyHeader: Record "Assembly Header"; DocNo: Code[20]; DocumentType: Integer; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal)
     begin
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader."Document Type" := DocumentType;
         AssemblyHeader."No." := DocNo;
         AssemblyHeader."Item No." := ItemNo;
@@ -1518,12 +1518,12 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyHeader."Quantity (Base)" := CalcBaseQty(AssemblyHeader.Quantity, QtyPrUnit);
         AssemblyHeader."Remaining Quantity (Base)" := CalcBaseQty(AssemblyHeader."Remaining Quantity", QtyPrUnit);
         AssemblyHeader."Qty. per Unit of Measure" := QtyPrUnit;
-        AssemblyHeader.Insert;
+        AssemblyHeader.Insert();
     end;
 
     local procedure MockAsmOrderLine(var AssemblyLine: Record "Assembly Line"; DocNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Date: Date; Qty: Decimal; RemainingQty: Decimal; QtyPrUnit: Decimal; LineNo: Integer)
     begin
-        AssemblyLine.Init;
+        AssemblyLine.Init();
         AssemblyLine."Document Type" := AssemblyLine."Document Type"::Order;
         AssemblyLine."Document No." := DocNo;
         AssemblyLine."Line No." := LineNo;
@@ -1537,12 +1537,12 @@ codeunit 137925 "SCM Assembly Reservation II"
         AssemblyLine."Quantity (Base)" := CalcBaseQty(AssemblyLine.Quantity, QtyPrUnit);
         AssemblyLine."Remaining Quantity (Base)" := CalcBaseQty(AssemblyLine."Remaining Quantity", QtyPrUnit);
         AssemblyLine."Qty. per Unit of Measure" := QtyPrUnit;
-        AssemblyLine.Insert;
+        AssemblyLine.Insert();
     end;
 
     local procedure MockReservEntry(var ReservEntry: Record "Reservation Entry"; SourceType: Option "0","1","2","3","4","5","6","7","8","9","10"; SourceID: Code[20]; SourceSubType: Integer; SourceRefNo: Integer; QtyBase: Decimal; Qty: Decimal)
     begin
-        ReservEntry.Init;
+        ReservEntry.Init();
         ReservEntry."Source Type" := SourceType;
         ReservEntry."Source ID" := SourceID;
         ReservEntry."Source Subtype" := SourceSubType;
@@ -1551,7 +1551,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         ReservEntry.Quantity := Qty;
         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Reservation;
         ReservEntry."Entry No." := 0;
-        ReservEntry.Insert;
+        ReservEntry.Insert();
     end;
 
     local procedure FindLastRerservationByLink(SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; SourceRefNo: Integer; var ReservEntry: Record "Reservation Entry"): Boolean

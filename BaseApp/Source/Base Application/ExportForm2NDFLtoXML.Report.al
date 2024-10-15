@@ -24,10 +24,10 @@ report 17430 "Export Form 2-NDFL to XML"
                         TempPersonIncomeEntry.SetRange("Tax Code", "Tax Code");
                         if TempPersonIncomeEntry.FindFirst then begin
                             TempPersonIncomeEntry.Base += Base;
-                            TempPersonIncomeEntry.Modify;
+                            TempPersonIncomeEntry.Modify();
                         end else begin
                             TempPersonIncomeEntry := PersonIncomeEntry1;
-                            TempPersonIncomeEntry.Insert;
+                            TempPersonIncomeEntry.Insert();
                         end;
                     end;
 
@@ -54,7 +54,7 @@ report 17430 "Export Form 2-NDFL to XML"
                                         end;
                                     end;
                                 until Next = 0;
-                            DeleteAll;
+                            DeleteAll();
                         end;
                     end;
 
@@ -73,7 +73,7 @@ report 17430 "Export Form 2-NDFL to XML"
                                 SetRange("Tax %", "Tax %"::"35");
                         end;
 
-                        TempPersonIncomeEntry.Reset;
+                        TempPersonIncomeEntry.Reset();
                         TempPersonIncomeEntry.SetRange("Person Income No.", PersonIncomeHeader."No.");
                         TempPersonIncomeEntry.SetRange("Person No.", PersonIncomeHeader."Person No.");
 
@@ -86,7 +86,7 @@ report 17430 "Export Form 2-NDFL to XML"
 
                     trigger OnAfterGetRecord()
                     begin
-                        PayrollDirectory.Reset;
+                        PayrollDirectory.Reset();
                         PayrollDirectory.SetRange(Type, PayrollDirectory.Type::Income);
                         PayrollDirectory.SetRange("Tax Deduction Code", "Tax Deduction Code");
                         PayrollDirectory.SetFilter("Starting Date", '..%1', DirectoryStartDate);
@@ -106,7 +106,7 @@ report 17430 "Export Form 2-NDFL to XML"
                         NonLinkedDeductDirectoryFilter := '';
 
                         if PersentTax <> PersentTax::"13" then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange("Person Income No.", PersonIncomeHeader."No.");
                         SetRange("Person No.", PersonIncomeHeader."Person No.");
@@ -128,7 +128,7 @@ report 17430 "Export Form 2-NDFL to XML"
                         trigger OnPostDataItem()
                         begin
                             if TaxDeductAmount <> 0 then begin
-                                PersonTaxDeduction.Reset;
+                                PersonTaxDeduction.Reset();
                                 PersonTaxDeduction.SetRange("Person No.", "Person No.");
                                 PersonTaxDeduction.SetRange(Year, PersonIncomeHeader.Year);
                                 PersonTaxDeduction.SetRange("Deduction Code", PayrollDirectoryStandart.Code);
@@ -154,7 +154,7 @@ report 17430 "Export Form 2-NDFL to XML"
                     trigger OnPreDataItem()
                     begin
                         if NonLinkedDeductDirectoryFilter = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("Starting Date", '..%1', DirectoryStartDate);
                         SetFilter(Code, NonLinkedDeductDirectoryFilter);
@@ -179,7 +179,7 @@ report 17430 "Export Form 2-NDFL to XML"
                             ExtDocIssuedByMaxStrLen: Integer;
                         begin
                             if TaxDeductAmount > 0 then begin
-                                PersonTaxDeduction.Reset;
+                                PersonTaxDeduction.Reset();
                                 PersonTaxDeduction.SetRange("Document No.", PersonIncomeHeader."No.");
                                 PersonTaxDeduction.SetRange("Person No.", PersonIncomeHeader."Person No.");
                                 PersonTaxDeduction.SetRange("Deduction Code", PayrollDirectoryNonStandart.Code);
@@ -188,12 +188,12 @@ report 17430 "Export Form 2-NDFL to XML"
                                     TaxDeductAmount := TaxDeductAmount + PersonTaxDeduction."Deduction Amount";
                                 end;
                                 if TaxDeductAmount <> 0 then begin
-                                    PayrollElement.Reset;
+                                    PayrollElement.Reset();
                                     PayrollElement.SetCurrentKey("Directory Code");
                                     PayrollElement.SetRange("Directory Code", PayrollDirectoryNonStandart.Code);
                                     if PayrollElement.FindSet then
                                         repeat
-                                            EmplLedgEntry.Reset;
+                                            EmplLedgEntry.Reset();
                                             EmplLedgEntry.SetCurrentKey("Employee No.");
                                             EmplLedgEntry.SetRange("Employee No.", Employee."No.");
                                             EmplLedgEntry.SetRange("Element Code", PayrollElement.Code);
@@ -236,7 +236,7 @@ report 17430 "Export Form 2-NDFL to XML"
                     trigger OnPreDataItem()
                     begin
                         if NonLinkedDeductDirectoryFilter = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("Starting Date", '..%1', DirectoryStartDate);
                     end;
@@ -266,7 +266,7 @@ report 17430 "Export Form 2-NDFL to XML"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 4 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     case Number of
                         1:
@@ -280,7 +280,7 @@ report 17430 "Export Form 2-NDFL to XML"
                     end;
 
                     if not Person."Non-Resident" and (PersentTax = PersentTax::"30") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     BaseAmount := GetTotalTaxableIncomeForTax(PersonIncomeHeader, PersentTax);
                     TaxAmount := GetTotalTaxDeduction(PersonIncomeHeader, PersentTax);
@@ -288,7 +288,7 @@ report 17430 "Export Form 2-NDFL to XML"
                     PaidToPersonAmount := GetTotalPaidToPersonForTax(PersonIncomeHeader, PersentTax);
 
                     if (BaseAmount = 0) and (TaxAmount = 0) and (AccruedAmount = 0) and (PaidToPersonAmount = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     XMLExcelReportsMgt.AddSubNode(CurrNode[1], CurrNode[2], IncomeTxt);
                     XMLExcelReportsMgt.AddAttribute(CurrNode[2], RateTxt, Format(PersentTax));
@@ -308,7 +308,7 @@ report 17430 "Export Form 2-NDFL to XML"
                 Person.Get("Person No.");
                 Employee.SetRange("Person No.", Person."No.");
                 if not Employee.FindFirst then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 DocumentIdentificator := IncStr(DocumentIdentificator);
 
@@ -375,7 +375,7 @@ report 17430 "Export Form 2-NDFL to XML"
 
                 AddressPresent := false;
 
-                AltAddr.Reset;
+                AltAddr.Reset();
                 AltAddr.SetRange("Person No.", Person."No.");
                 AltAddr.SetRange("Address Type", AltAddr."Address Type"::Registration);
                 if (not AltAddr.FindLast) and (not Person."Non-Resident") then
@@ -429,7 +429,7 @@ report 17430 "Export Form 2-NDFL to XML"
                       Person.FieldCaption("No."), Person."No.");
 
                 if (Person.Citizenship <> CompanyInfo."Country/Region Code") and (not AddressRegPresent) then begin
-                    AltAddr.Reset;
+                    AltAddr.Reset();
                     AltAddr.SetRange("Person No.", Person."No.");
                     AltAddr.SetRange("Address Type", AltAddr."Address Type"::Permanent);
                     if (not AltAddr.FindLast) and (not AddressPresent) then
@@ -478,8 +478,8 @@ report 17430 "Export Form 2-NDFL to XML"
                 if not FindSet then
                     Error(NoDataMsg);
 
-                CompanyInfo.Get;
-                HRSetup.Get;
+                CompanyInfo.Get();
+                HRSetup.Get();
 
                 if CreateRegister then
                     HRSetup.TestField("NDFL Register Template Code");
@@ -552,8 +552,8 @@ report 17430 "Export Form 2-NDFL to XML"
 
         trigger OnOpenPage()
         begin
-            CompanyInfo.Get;
-            HRSetup.Get;
+            CompanyInfo.Get();
+            HRSetup.Get();
             NoGUID := CreateGuid;
             HRSetup.TestField("Tax Inspection Code");
             CompanyInfo.TestField("VAT Registration No.");
@@ -911,7 +911,7 @@ report 17430 "Export Form 2-NDFL to XML"
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
 
         if not ExportEmpIncRegToExcel.BufferIsEmpty then begin
             ExportEmpIncRegToExcel.SetParameters(

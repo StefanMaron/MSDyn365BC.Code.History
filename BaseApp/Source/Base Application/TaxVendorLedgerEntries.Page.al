@@ -287,7 +287,7 @@ page 17244 "Tax Vendor Ledger Entries"
         if FindSet then
             repeat
                 TmpVendLedgerEntry := Rec;
-                TmpVendLedgerEntry.Insert;
+                TmpVendLedgerEntry.Insert();
             until Next = 0;
 
         Reset;
@@ -301,7 +301,7 @@ page 17244 "Tax Vendor Ledger Entries"
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin
                     TmpVendLedgerEntry := Rec;
-                    if TmpVendLedgerEntry.Insert then;
+                    if TmpVendLedgerEntry.Insert() then;
                 end;
             until Next = 0;
 
@@ -316,7 +316,7 @@ page 17244 "Tax Vendor Ledger Entries"
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin
                     TmpVendLedgerEntry := Rec;
-                    if TmpVendLedgerEntry.Insert then;
+                    if TmpVendLedgerEntry.Insert() then;
                 end;
             until Next = 0;
         Reset;

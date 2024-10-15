@@ -14,7 +14,7 @@ report 17417 "Delete Empty Payroll Register"
             begin
                 PayLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if PayLedgEntry.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
                 Delete;
@@ -22,14 +22,14 @@ report 17417 "Delete Empty Payroll Register"
                 Window.Update(3, NoOfDeleted);
                 if NoOfDeleted >= NoOfDeleted2 + 10 then begin
                     NoOfDeleted2 := NoOfDeleted;
-                    Commit;
+                    Commit();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text001 +

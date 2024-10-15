@@ -67,7 +67,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not MultipleCD then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TrackingSpecCount);
                         end;
@@ -79,18 +79,18 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                     begin
                         if Number = 1 then begin
                             if not PurchInvLine.FindFirst then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if PurchInvLine.Next(1) = 0 then begin
                                 FormatTotalAmounts;
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         CopyArray(LastTotalAmount, TotalAmount, 1);
 
                         if PurchInvLine.Type <> PurchInvLine.Type::" " then begin
                             if PurchInvLine.Quantity = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 PurchInvLine.Amount := PurchInvLine."Amount (LCY)";
                                 PurchInvLine."Amount Including VAT" := PurchInvLine."Amount Including VAT (LCY)";
@@ -139,7 +139,6 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     Clear(TotalAmount);
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -151,7 +150,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                 trigger OnPreDataItem()
                 begin
                     if not PurchInvLine.FindFirst then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, CopiesNumber);
                 end;
@@ -162,7 +161,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                 Vendor: Record Vendor;
                 VendAgrmt: Record "Vendor Agreement";
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Vendor.Get("Buy-from Vendor No.");
 
@@ -171,13 +170,13 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
                 Sign := 1;
-                PurchInvLine.Reset;
+                PurchInvLine.Reset();
                 PurchInvLine.SetRange("Document No.", "No.");
                 PurchInvLine.SetFilter("Attached to Line No.", '<>%1', 0);
                 if PurchInvLine.FindSet then
                     repeat
                         AttachedPurchInvLine := PurchInvLine;
-                        AttachedPurchInvLine.Insert;
+                        AttachedPurchInvLine.Insert();
                     until PurchInvLine.Next = 0;
 
                 PurchInvLine.SetRange("Attached to Line No.", 0);
@@ -263,7 +262,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
 
     trigger OnInitReport()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Factura Template Code");
         FacturaInvoiceHelper.InitReportTemplate(SalesSetup."Factura Template Code");
     end;
@@ -492,31 +491,31 @@ report 14939 "Pstd. Purch. Factura-Invoice"
         case PurchInvLine.Type of
             PurchInvLine.Type::Item:
                 begin
-                    TrackingSpecBuffer.Reset;
+                    TrackingSpecBuffer.Reset();
                     TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                       "Source Prod. Order Line", "Source Ref. No.");
                     TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Purch. Inv. Line");
                     TrackingSpecBuffer.SetRange("Source Subtype", 0);
                     TrackingSpecBuffer.SetRange("Source ID", PurchInvLine."Document No.");
                     TrackingSpecBuffer.SetRange("Source Ref. No.", PurchInvLine."Line No.");
-                    TrackingSpecBuffer2.DeleteAll;
+                    TrackingSpecBuffer2.DeleteAll();
                     if TrackingSpecBuffer.FindSet then
                         repeat
                             TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
                             if TrackingSpecBuffer2.FindFirst then begin
                                 TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
-                                TrackingSpecBuffer2.Modify;
+                                TrackingSpecBuffer2.Modify();
                             end else begin
-                                TrackingSpecBuffer2.Init;
+                                TrackingSpecBuffer2.Init();
                                 TrackingSpecBuffer2 := TrackingSpecBuffer;
                                 TrackingSpecBuffer2.TestField("Quantity (Base)");
                                 TrackingSpecBuffer2."Lot No." := '';
                                 TrackingSpecBuffer2."Serial No." := '';
-                                TrackingSpecBuffer2.Insert;
+                                TrackingSpecBuffer2.Insert();
                             end;
                         until TrackingSpecBuffer.Next = 0;
-                    TrackingSpecBuffer2.Reset;
-                    TrackingSpecCount := TrackingSpecBuffer2.Count;
+                    TrackingSpecBuffer2.Reset();
+                    TrackingSpecCount := TrackingSpecBuffer2.Count();
                     case TrackingSpecCount of
                         1:
                             begin

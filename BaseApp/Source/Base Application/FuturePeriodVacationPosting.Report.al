@@ -22,7 +22,7 @@ report 17420 "Future Period Vacation Posting"
                         PayrollPostingGroup.TestField("Future Vacation G/L Acc. No.");
                         PayrollPostingGroup.TestField("Account No.");
 
-                        GenJnlLine.Init;
+                        GenJnlLine.Init();
                         GenJnlLine."Document No." := "Document No.";
                         GenJnlLine.Validate("Posting Date", PayrollPeriod."Ending Date");
                         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
@@ -125,7 +125,7 @@ report 17420 "Future Period Vacation Posting"
     var
         PayrollPeriod: Record "Payroll Period";
     begin
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         PayrollPeriod.SetFilter("Ending Date", '%1..', Date);
         if PayrollPeriod.FindFirst then
             if PayrollPeriod."Starting Date" <= Date then

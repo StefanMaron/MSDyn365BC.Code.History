@@ -13,7 +13,7 @@ codeunit 14944 "Sales Shipment M-15 Helper"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Sales Shipment M-15 Templ.Code");
         InitReportTemplate(SalesSetup."Sales Shipment M-15 Templ.Code");
     end;

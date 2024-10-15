@@ -37,7 +37,7 @@ codeunit 17373 "Export Emp. Inc. Reg. to Excel"
     var
         FileName: Text;
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("NDFL Register Template Code");
         FileName := ExcelTemplate.OpenTemplate(HumanResourcesSetup."NDFL Register Template Code");
 
@@ -100,10 +100,10 @@ codeunit 17373 "Export Emp. Inc. Reg. to Excel"
     procedure AddEmployee(EmployeeNo: Code[20]; RefNo: Text[30])
     begin
         if not TempEmployee.Get(RefNo) then begin
-            TempEmployee.Init;
+            TempEmployee.Init();
             TempEmployee."No." := RefNo;
             TempEmployee."Manager No." := EmployeeNo;
-            TempEmployee.Insert;
+            TempEmployee.Insert();
         end;
     end;
 

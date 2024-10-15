@@ -16,7 +16,7 @@ table 12407 "CD No. Header"
 
             trigger OnValidate()
             begin
-                CDNoInfo.Reset;
+                CDNoInfo.Reset();
                 CDNoInfo.SetRange("CD Header No.", "No.");
                 if not CDNoInfo.IsEmpty then
                     if Confirm(Text001, true) then
@@ -69,7 +69,7 @@ table 12407 "CD No. Header"
 
             trigger OnValidate()
             begin
-                CDNoInfo.Reset;
+                CDNoInfo.Reset();
                 CDNoInfo.SetRange("CD Header No.", "No.");
                 if not CDNoInfo.IsEmpty then
                     if Confirm(Text001, true) then
@@ -111,13 +111,13 @@ table 12407 "CD No. Header"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("CD No.");
         ItemLedgEntry.SetRange("CD No.", "No.");
         if ItemLedgEntry.FindFirst then
             Error(Text002, "No.");
 
-        CDNoInfo.Reset;
+        CDNoInfo.Reset();
         CDNoInfo.SetRange("CD Header No.", "No.");
         CDNoInfo.DeleteAll(true);
     end;
@@ -132,7 +132,7 @@ table 12407 "CD No. Header"
 
     trigger OnRename()
     begin
-        CDNoInfo.Reset;
+        CDNoInfo.Reset();
         CDNoInfo.SetRange("CD Header No.", xRec."No.");
         if CDNoInfo.FindFirst then
             Error(Text000, xRec."No.");
@@ -151,10 +151,10 @@ table 12407 "CD No. Header"
     [Scope('OnPrem')]
     procedure AssistEdit(OldCDNoHeader: Record "CD No. Header"): Boolean
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldCDNoHeader."No. Series", "No. Series") then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             TestNoSeries;
             NoSeriesMgt.SetSeries("No.");
             exit(true);
@@ -163,13 +163,13 @@ table 12407 "CD No. Header"
 
     local procedure TestNoSeries()
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         InvtSetup.TestField("CD Header Nos.");
     end;
 
     local procedure GetNoSeriesCode(): Code[20]
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         exit(InvtSetup."CD Header Nos.");
     end;
 }

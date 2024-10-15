@@ -68,7 +68,7 @@ table 14965 "Payroll Analysis View"
                             if not PayrollElement.Mark then begin
                                 PayrollAnalysisViewEntry.SetRange("Analysis View Code", Code);
                                 PayrollAnalysisViewEntry.SetRange("Element Code", PayrollElement.Code);
-                                PayrollAnalysisViewEntry.DeleteAll;
+                                PayrollAnalysisViewEntry.DeleteAll();
                             end;
                         until PayrollElement.Next = 0;
                 end;
@@ -101,19 +101,19 @@ table 14965 "Payroll Analysis View"
                     if Employee.FindSet then
                         repeat
                             TempEmployee := Employee;
-                            TempEmployee.Insert;
+                            TempEmployee.Insert();
                         until Employee.Next = 0;
-                    TempEmployee.Init;
+                    TempEmployee.Init();
                     TempEmployee."No." := '';
-                    TempEmployee.Insert;
+                    TempEmployee.Insert();
                     TempEmployee.SetFilter("No.", "Employee Filter");
-                    TempEmployee.DeleteAll;
+                    TempEmployee.DeleteAll();
                     TempEmployee.SetRange("No.");
                     if TempEmployee.FindSet then
                         repeat
                             PayrollAnalysisViewEntry.SetRange("Analysis View Code", Code);
                             PayrollAnalysisViewEntry.SetRange("Employee No.", TempEmployee."No.");
-                            PayrollAnalysisViewEntry.DeleteAll;
+                            PayrollAnalysisViewEntry.DeleteAll();
                         until TempEmployee.Next = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Employee Filter" <> '') and
@@ -233,7 +233,7 @@ table 14965 "Payroll Analysis View"
     begin
         PayrollAnalysisViewReset;
         PayrollAnalysisViewFilter.SetRange("Analysis View Code", Code);
-        PayrollAnalysisViewFilter.DeleteAll;
+        PayrollAnalysisViewFilter.DeleteAll();
     end;
 
     var
@@ -269,7 +269,7 @@ table 14965 "Payroll Analysis View"
                 PayrollAnalysisViewEntry.SetRange("Analysis View Code", Code);
                 if PayrollAnalysisViewEntry.FindSet then
                     repeat
-                        PayrollAnalysisViewEntry.Delete;
+                        PayrollAnalysisViewEntry.Delete();
                         NewPayrollAnalysisViewEntry := PayrollAnalysisViewEntry;
                         case DimFieldName of
                             FieldCaption("Dimension 1 Code"):
@@ -290,13 +290,13 @@ table 14965 "Payroll Analysis View"
     [Scope('OnPrem')]
     procedure InsertPayrollAnalysisViewEntry()
     begin
-        if not NewPayrollAnalysisViewEntry.Insert then begin
+        if not NewPayrollAnalysisViewEntry.Insert() then begin
             NewPayrollAnalysisViewEntry.Find;
             NewPayrollAnalysisViewEntry."Payroll Amount" :=
               NewPayrollAnalysisViewEntry."Payroll Amount" + PayrollAnalysisViewEntry."Payroll Amount";
             NewPayrollAnalysisViewEntry."Taxable Amount" :=
               NewPayrollAnalysisViewEntry."Taxable Amount" + PayrollAnalysisViewEntry."Taxable Amount";
-            NewPayrollAnalysisViewEntry.Modify;
+            NewPayrollAnalysisViewEntry.Modify();
         end;
     end;
 
@@ -306,7 +306,7 @@ table 14965 "Payroll Analysis View"
         PayrollAnalysisViewEntry: Record "Payroll Analysis View Entry";
     begin
         PayrollAnalysisViewEntry.SetRange("Analysis View Code", Code);
-        PayrollAnalysisViewEntry.DeleteAll;
+        PayrollAnalysisViewEntry.DeleteAll();
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
     end;

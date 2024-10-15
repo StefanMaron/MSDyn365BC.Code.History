@@ -83,12 +83,12 @@ table 17203 "Tax Register G/L Corr. Entry"
     begin
         TaxRegDimCorrFilter.SetRange("Section Code", "Section Code");
         TaxRegDimCorrFilter.SetRange("G/L Corr. Entry No.", "Entry No.");
-        TaxRegDimCorrFilter.DeleteAll;
+        TaxRegDimCorrFilter.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        TaxRegGLCorrEntry.Reset;
+        TaxRegGLCorrEntry.Reset();
         TaxRegGLCorrEntry.SetCurrentKey("Section Code", "Entry No.");
         TaxRegGLCorrEntry.SetRange("Section Code", "Section Code");
         if TaxRegGLCorrEntry.FindLast then

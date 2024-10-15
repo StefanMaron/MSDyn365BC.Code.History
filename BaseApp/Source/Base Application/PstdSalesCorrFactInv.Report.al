@@ -47,7 +47,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
 
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then begin
                                 if TotalDiff[1] >= 0 then begin
@@ -57,7 +57,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                                     UpdateTotalAmountText(TotalAmountTextToDecrease, TotalDiff);
                                     ClearTotalAmountText(TotalAmountTextToAdd);
                                 end;
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         if TotalDiff[1] >= 0 then begin
@@ -70,7 +70,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1.Quantity = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1."Amount Including VAT (Before)" := SalesLine1."Amt. Incl. VAT (LCY) (Before)";
                                 SalesLine1."Amount Including VAT (After)" := SalesLine1."Amt. Incl. VAT (LCY) (After)";
@@ -124,7 +124,6 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                 begin
                     Clear(TotalAmountBefore);
                     Clear(TotalAmountAfter);
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -136,7 +135,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, CopiesNumber);
                 end;
@@ -150,13 +149,13 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
                 if "Currency Code" = '' then
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
                 if SalesLine1.FindSet then
                     repeat
                         AttachedSalesLine := SalesLine1;
-                        AttachedSalesLine.Insert;
+                        AttachedSalesLine.Insert();
                     until SalesLine1.Next = 0;
 
                 SalesLine1.SetRange("Attached to Line No.");
@@ -191,8 +190,8 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
 
             trigger OnPreDataItem()
             begin
-                SalesSetup.Get;
-                CompanyInfo.Get;
+                SalesSetup.Get();
+                CompanyInfo.Get();
             end;
         }
     }
@@ -381,7 +380,7 @@ report 14967 "Pstd. Sales Corr. Fact. Inv."
         CurrencyDigitalCode := '';
         CurrencyDescription := '';
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup."LCY Code";
         end;
 

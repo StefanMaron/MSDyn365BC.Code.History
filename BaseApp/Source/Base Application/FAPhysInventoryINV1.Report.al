@@ -54,7 +54,7 @@ report 12486 "FA Phys. Inventory INV-1"
 
             trigger OnPreDataItem()
             begin
-                CompanyInf.Get;
+                CompanyInf.Get();
                 if FindFirst then
                     InvSheetNo := "Document No.";
 
@@ -176,7 +176,7 @@ report 12486 "FA Phys. Inventory INV-1"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("INV-1 Template Code");
         ExcelReportBuilderMgr.InitTemplate(FASetup."INV-1 Template Code");
     end;

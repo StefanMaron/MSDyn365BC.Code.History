@@ -13,7 +13,7 @@ report 12403 "Cash Ingoing Order"
             begin
                 CurrencyText := EmptyCurrencyTxt;
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
                 TestField("Bal. Account No.");
@@ -85,7 +85,7 @@ report 12403 "Cash Ingoing Order"
                             if "External Document No." = '' then
                                 "External Document No." := "Document No.";
 
-                            CheckLedgEntry.Init;
+                            CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := "Bal. Account No.";
                             CheckLedgEntry."Posting Date" := "Posting Date";
                             CheckLedgEntry."Check Date" := "Posting Date";

@@ -61,7 +61,7 @@ codeunit 17381 "Employee Journal - Check Line"
                     AllowPostingTo := UserSetup."Allow Posting To";
                 end;
             if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 AllowPostingFrom := GLSetup."Allow Posting From";
                 AllowPostingTo := GLSetup."Allow Posting To";
             end;

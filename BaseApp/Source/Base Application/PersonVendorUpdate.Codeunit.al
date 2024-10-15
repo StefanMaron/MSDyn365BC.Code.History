@@ -37,12 +37,12 @@ codeunit 17352 "Person\Vendor Update"
     var
         NewVendor: Record Vendor;
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Person Vendor No. Series");
 
         Person.TestField("Vendor No.", '');
 
-        NewVendor.Init;
+        NewVendor.Init();
         NewVendor."No. Series" := HRSetup."Person Vendor No. Series";
         NewVendor.Insert(true);
         NewVendor.Name := CopyStr(Person."Full Name", 1, MaxStrLen(NewVendor.Name));
@@ -51,10 +51,10 @@ codeunit 17352 "Person\Vendor Update"
         NewVendor."Gen. Bus. Posting Group" := HRSetup."Pers. Vend.Gen.Bus. Posting Gr";
         NewVendor."VAT Bus. Posting Group" := HRSetup."Pers. Vend.VAT Bus. Posting Gr";
         NewVendor."VAT Registration No." := Person."VAT Registration No.";
-        NewVendor.Modify;
+        NewVendor.Modify();
 
         Person."Vendor No." := NewVendor."No.";
-        Person.Modify;
+        Person.Modify();
     end;
 }
 

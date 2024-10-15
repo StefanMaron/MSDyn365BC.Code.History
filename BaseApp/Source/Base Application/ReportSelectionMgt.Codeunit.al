@@ -534,14 +534,14 @@ codeunit 1901 "Report Selection Mgt."
         ReportSelections: Record "Report Selections";
     begin
         if not ReportSelections.Get(ReportUsage, Sequence) then begin
-            ReportSelections.Init;
+            ReportSelections.Init();
             ReportSelections.Usage := ReportUsage;
             ReportSelections.Sequence := Sequence;
             ReportSelections."Report ID" := ReportID;
             ReportSelections.Default := Default;
             ReportSelections."Excel Export" := ExcelExport;
             ReportSelections."Use for Email Attachment" := UseForEmailAttachment;
-            ReportSelections.Insert;
+            ReportSelections.Insert();
         end;
     end;
 
@@ -550,11 +550,11 @@ codeunit 1901 "Report Selection Mgt."
         ReportSelectionWhse: Record "Report Selection Warehouse";
     begin
         if not ReportSelectionWhse.Get(ReportUsage, Sequence) then begin
-            ReportSelectionWhse.Init;
+            ReportSelectionWhse.Init();
             ReportSelectionWhse.Usage := ReportUsage;
             ReportSelectionWhse.Sequence := Sequence;
             ReportSelectionWhse."Report ID" := ReportID;
-            ReportSelectionWhse.Insert;
+            ReportSelectionWhse.Insert();
         end;
     end;
 

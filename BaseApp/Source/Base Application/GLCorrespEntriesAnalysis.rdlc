@@ -2666,9 +2666,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Double_Entries_AnalysisCaption">
           <DataField>Double_Entries_AnalysisCaption</DataField>
         </Field>

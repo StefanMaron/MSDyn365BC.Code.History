@@ -23,12 +23,12 @@ report 14920 "Calculate Assessed Tax"
                         Window.Update(2, 2);
                         FillSpecialInfo(2);
 
-                        AssessedTaxCode.Reset;
+                        AssessedTaxCode.Reset();
                         AssessedTaxCode.SetRange("Region Code", OKATO."Region Code");
                         AssessedTaxCode.SetRange("Exemption Tax Allowance Code", '');
                         if AssessedTaxCode.Find('-') then
                             repeat
-                                TempFixedAsset.Reset;
+                                TempFixedAsset.Reset();
                                 SetATCodeExemptFilters;
 
                                 // Property Type = 1
@@ -217,7 +217,7 @@ report 14920 "Calculate Assessed Tax"
                                     until AssessedTaxCodeExempt.Next = 0;
 
                             until AssessedTaxCode.Next = 0;
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                 }
                 dataitem(Chapter1; "Integer")
@@ -305,15 +305,15 @@ report 14920 "Calculate Assessed Tax"
                         DeleteSheet[1] := true;
                         ExcelMgt.WriteAllToCurrentSheet;
 
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempFixedAsset.Reset;
-                    TempFixedAsset.DeleteAll;
-                    FixedAsset.Reset;
+                    TempFixedAsset.Reset();
+                    TempFixedAsset.DeleteAll();
+                    FixedAsset.Reset();
                     if FixedAsset.Find('-') then begin
                         FixedAsset.SetRange(Blocked, false);
                         FixedAsset.SetRange("FA Type", FixedAsset."FA Type"::"Fixed Assets");
@@ -333,16 +333,16 @@ report 14920 "Calculate Assessed Tax"
                                         ReportingDate := CalcDate('<-1D>', ReportingDate);
                                 end;
                                 if InsertTempFA and (not TempFixedAsset.Get(FixedAsset."No.")) then begin
-                                    TempFixedAsset.Init;
+                                    TempFixedAsset.Init();
                                     TempFixedAsset.TransferFields(FixedAsset);
-                                    TempFixedAsset.Insert;
+                                    TempFixedAsset.Insert();
                                 end;
                             until FixedAsset.Next = 0;
                         end;
                     end;
 
                     if TempFixedAsset.Count = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     OKATOCounter := OKATOCounter + 1;
 
@@ -464,7 +464,7 @@ report 14920 "Calculate Assessed Tax"
                         if CopyStr(ExcelMgt.GetSheetName, 6) = '#1' then
                             ExcelMgt.SetSheetName(CopyStr(ExcelMgt.GetSheetName, 1, 5));
                     end;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
 
@@ -491,8 +491,8 @@ report 14920 "Calculate Assessed Tax"
                 ExcelTemplate: Record "Excel Template";
                 FileName: Text[250];
             begin
-                CompanyInfo.Get;
-                FASetup.Get;
+                CompanyInfo.Get();
+                FASetup.Get();
                 Employee.Get(CompanyInfo."Director No.");
                 CheckATCodeDuplicate;
                 if ReportingPeriod = 3 then begin
@@ -1017,7 +1017,7 @@ report 14920 "Calculate Assessed Tax"
         EmployeeNo: Code[20];
     begin
         TempDeprCost := 0;
-        FADeprBook.Reset;
+        FADeprBook.Reset();
         FADeprBook.SetRange("FA No.", FANo);
         FADeprBook.SetRange("Depreciation Book Code", FASetup."Release Depr. Book");
         FADeprBook.SetRange("FA Posting Date Filter", 0D, CalcDate('<-1D>', CalculationDate));
@@ -1069,7 +1069,7 @@ report 14920 "Calculate Assessed Tax"
     [Scope('OnPrem')]
     procedure SetATCodeExemptFilters()
     begin
-        AssessedTaxCodeExempt.Reset;
+        AssessedTaxCodeExempt.Reset();
         AssessedTaxCodeExempt.SetRange("Region Code", OKATO."Region Code");
         AssessedTaxCodeExempt.SetRange("Rate %", AssessedTaxCode."Rate %");
         AssessedTaxCodeExempt.SetRange("Dec. Rate Tax Allowance Code", AssessedTaxCode."Dec. Rate Tax Allowance Code");
@@ -1083,15 +1083,15 @@ report 14920 "Calculate Assessed Tax"
         AssessedTaxCodeDublicate: Record "Assessed Tax Code";
         OKATO1: Record OKATO;
     begin
-        OKATO1.Reset;
+        OKATO1.Reset();
         OKATO1.SetRange("Tax Authority No.", TaxAuthNo);
         if OKATO1.Find('-') then
             repeat
-                AssessedTaxCode.Reset;
+                AssessedTaxCode.Reset();
                 AssessedTaxCode.SetRange("Region Code", OKATO1."Region Code");
                 if AssessedTaxCode.Find('-') then
                     repeat
-                        AssessedTaxCodeDublicate.Reset;
+                        AssessedTaxCodeDublicate.Reset();
                         AssessedTaxCodeDublicate.SetFilter(Code, '<>%1', AssessedTaxCode.Code);
                         AssessedTaxCodeDublicate.SetRange("Region Code", AssessedTaxCode."Region Code");
                         AssessedTaxCodeDublicate.SetRange("Rate %", AssessedTaxCode."Rate %");
@@ -1115,7 +1115,7 @@ report 14920 "Calculate Assessed Tax"
     var
         AssessedTaxCodeBase: Record "Assessed Tax Code";
     begin
-        AssessedTaxCodeBase.Reset;
+        AssessedTaxCodeBase.Reset();
         AssessedTaxCodeBase.SetRange("Region Code", AssessedTaxCode."Region Code");
         AssessedTaxCodeBase.SetRange("Rate %", AssessedTaxCode."Rate %");
         AssessedTaxCodeBase.SetRange("Dec. Rate Tax Allowance Code", AssessedTaxCode."Dec. Rate Tax Allowance Code");

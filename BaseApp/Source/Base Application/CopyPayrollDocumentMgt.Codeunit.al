@@ -46,7 +46,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
                     FromPostedPayrollDoc.Get(FromDocNo);
             end;
 
-            ToPayrollDocLine.LockTable;
+            ToPayrollDocLine.LockTable();
 
             if CreateToHeader then begin
                 Insert(true);
@@ -55,7 +55,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
                 ToPayrollDocLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
                     if not ToPayrollDocLine.IsEmpty then begin
-                        Commit;
+                        Commit();
                         if not Confirm(Text002 + Text003, true, "No.") then
                             exit;
                         ToPayrollDocLine.DeleteAll(true);
@@ -95,7 +95,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
             case FromDocType of
                 DocType::"Payroll Document":
                     begin
-                        FromPayrollDocLine.Reset;
+                        FromPayrollDocLine.Reset();
                         FromPayrollDocLine.SetRange("Document No.", FromPayrollDoc."No.");
                         if FromPayrollDocLine.FindSet then
                             repeat
@@ -105,7 +105,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
                 DocType::"Posted Payroll Document":
                     begin
                         FromPayrollDoc.TransferFields(FromPostedPayrollDoc);
-                        FromPostedPayrollDocLine.Reset;
+                        FromPostedPayrollDocLine.Reset();
                         FromPostedPayrollDocLine.SetRange("Document No.", FromPostedPayrollDoc."No.");
                         if FromPostedPayrollDocLine.FindSet then
                             repeat
@@ -128,7 +128,7 @@ codeunit 17408 "Copy Payroll Document Mgt."
         NextLineNo := NextLineNo + 10000;
         ToPayrollDocLine."Document No." := ToPayrollDoc."No.";
         ToPayrollDocLine."Line No." := NextLineNo;
-        ToPayrollDocLine.Insert;
+        ToPayrollDocLine.Insert();
     end;
 }
 

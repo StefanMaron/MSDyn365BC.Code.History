@@ -72,7 +72,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                     ValueEntryPostedToGL.CalcSums("Cost Posted to G/L");
                     if "Cost Amount (Actual)" <> ValueEntryPostedToGL."Cost Posted to G/L" then
                         Error(Text21000902);
-                    TaxRegItemEntry.Init;
+                    TaxRegItemEntry.Init();
                     TaxRegItemEntry."Section Code" := SectionCode;
                     TaxRegItemEntry."Starting Date" := StartDate;
                     TaxRegItemEntry."Ending Date" := EndDate;
@@ -108,7 +108,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                             TaxRegItemEntry."Credit Qty." := Quantity;
                             TaxRegItemEntry."Credit Amount" := AmountForTaxAccounting;
                             TaxRegItemEntry."Entry No." += 1;
-                            TaxRegItemEntry.Insert;
+                            TaxRegItemEntry.Insert();
                         end else begin
                             DocumentAmountForTaxAccounting := 0;
                             TaxRegItemEntry."Qty. (Document)" := -Quantity;
@@ -122,13 +122,13 @@ codeunit 17206 "Create Tax Register Item Entry"
                                 repeat
                                     if ItemApplEntry.Quantity < 0 then begin
                                         if not ItemLedgEntry2.Get(ItemApplEntry."Inbound Item Entry No.") then
-                                            ItemLedgEntry2.Init;
+                                            ItemLedgEntry2.Init();
                                         if ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Transfer then
                                             repeat
                                                 ItemApplEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
                                                 ItemApplEntry2.FindFirst;
                                                 if not ItemLedgEntry2.Get(ItemApplEntry2."Transferred-from Entry No.") then
-                                                    ItemLedgEntry2.Init;
+                                                    ItemLedgEntry2.Init();
                                             until ItemLedgEntry2."Entry Type" <> ItemLedgEntry2."Entry Type"::Transfer;
 
                                         if ItemLedgEntry2.Quantity <> 0 then
@@ -161,7 +161,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                                             TaxRegItemEntry."Amount (Batch)" += AmountEntry;
                                             TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
                                             DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
-                                            TaxRegItemEntry.Modify;
+                                            TaxRegItemEntry.Modify();
                                             AmountEntry := 0;
                                         end;
                                     end;
@@ -179,7 +179,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                                 DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
                                 TaxRegItemEntry."Entry Secondary Batch" := SecondaryBatch;
                                 TaxRegItemEntry."Entry No." += 1;
-                                TaxRegItemEntry.Insert;
+                                TaxRegItemEntry.Insert();
                             end;
                             ModifyTaxRegEntry(TaxRegItemEntry, DocumentAmountForTaxAccounting);
                         end;
@@ -380,10 +380,10 @@ codeunit 17206 "Create Tax Register Item Entry"
             TaxRegItemEntry2."Amount (Batch)" += TaxRegItemEntry."Amount (Batch)";
             TaxRegItemEntry2."Debit Qty." += TaxRegItemEntry."Debit Qty.";
             TaxRegItemEntry2."Debit Amount" += TaxRegItemEntry."Debit Amount";
-            TaxRegItemEntry2.Modify;
+            TaxRegItemEntry2.Modify();
         end else begin
             TaxRegItemEntry."Entry No." += 1;
-            TaxRegItemEntry.Insert;
+            TaxRegItemEntry.Insert();
             SecondaryBatch := true;
         end;
     end;
@@ -410,19 +410,19 @@ codeunit 17206 "Create Tax Register Item Entry"
             exit;
 
         TempGLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
-        TempGLCorrEntry.Insert;
+        TempGLCorrEntry.Insert();
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Reset;
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Reset();
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
 
-        TaxRegLineSetup.Reset;
+        TaxRegLineSetup.Reset();
         TaxRegLineSetup.SetRange("Section Code", SectionCode);
 
         Clear(TaxDimMgt);
@@ -431,17 +431,17 @@ codeunit 17206 "Create Tax Register Item Entry"
         repeat
             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
             if TaxRegLineSetup.FindFirst then begin
-                TempTaxRegTemplate.DeleteAll;
+                TempTaxRegTemplate.DeleteAll();
                 TaxRegTemplate.SetRange("Section Code", SectionCode);
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
                 if TaxRegTemplate.FindSet then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
                         TempTaxRegTemplate.Value := 0;
-                        TempTaxRegTemplate.Insert;
+                        TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next = 0;
 
-                TaxRegItemEntry.Reset;
+                TaxRegItemEntry.Reset();
                 TaxRegItemEntry.SetCurrentKey("Section Code", "Ending Date");
                 TaxRegItemEntry.SetRange("Section Code", SectionCode);
                 TaxRegItemEntry.SetRange("Ending Date", EndDate);
@@ -453,7 +453,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                           TaxRegItemEntry."Dimension 3 Value Code", TaxRegItemEntry."Dimension 4 Value Code");
                         TempGLCorrEntry."Debit Account No." := TaxRegItemEntry."Debit Account No.";
                         TempGLCorrEntry."Credit Account No." := TaxRegItemEntry."Credit Account No.";
-                        TempGLCorrEntry.Modify;
+                        TempGLCorrEntry.Modify();
                         TaxRegLineSetup.FindSet;
                         repeat
                             if (TaxRegLineSetup."Account No." <> '') or
@@ -503,7 +503,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                                                 end;
                                                 if AddValue <> 0 then begin
                                                     TempTaxRegTemplate.Value += AddValue;
-                                                    TempTaxRegTemplate.Modify;
+                                                    TempTaxRegTemplate.Modify();
                                                 end;
                                             end;
                                         until TempTaxRegTemplate.Next(1) = 0;
@@ -512,7 +512,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                         until TaxRegLineSetup.Next(1) = 0;
                     until TaxRegItemEntry.Next(1) = 0;
 
-                TempTaxRegTemplate.Reset;
+                TempTaxRegTemplate.Reset();
                 if TempTaxRegTemplate.FindSet then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
@@ -532,10 +532,10 @@ codeunit 17206 "Create Tax Register Item Entry"
                             TempTaxRegTemplate.Period);
                         TaxRegAccumulation.Amount := TaxRegAccumulation."Amount Period";
                         TaxRegAccumulation."Entry No." += 1;
-                        TaxRegAccumulation.Insert;
+                        TaxRegAccumulation.Insert();
                         if TempTaxRegTemplate.Period <> '' then begin
                             TaxRegAccumulation2 := TaxRegAccumulation;
-                            TaxRegAccumulation2.Reset;
+                            TaxRegAccumulation2.Reset();
                             TaxRegAccumulation2.SetCurrentKey(
                               "Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxRegAccumulation2.SetRange("Section Code", TaxRegAccumulation."Section Code");
@@ -545,12 +545,12 @@ codeunit 17206 "Create Tax Register Item Entry"
                             TaxRegAccumulation2.SetFilter("Ending Date", TaxRegAccumulation."Amount Date Filter");
                             TaxRegAccumulation2.CalcSums("Amount Period");
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
-                            TaxRegAccumulation.Modify;
+                            TaxRegAccumulation.Modify();
                         end;
                     until TempTaxRegTemplate.Next = 0;
             end;
         until TaxReg.Next(1) = 0;
-        TempTaxRegTemplate.DeleteAll;
+        TempTaxRegTemplate.DeleteAll();
     end;
 
     local procedure ModifyTaxRegEntry(TaxRegItemEntry: Record "Tax Register Item Entry"; DocAmount: Decimal)
@@ -569,7 +569,7 @@ codeunit 17206 "Create Tax Register Item Entry"
         if TaxRegItemEntry2.FindSet(true, false) then
             repeat
                 TaxRegItemEntry2."Amount (Document)" := DocAmount;
-                TaxRegItemEntry2.Modify;
+                TaxRegItemEntry2.Modify();
             until TaxRegItemEntry2.Next(1) = 0;
     end;
 

@@ -63,7 +63,7 @@ page 9126 "Lot Numbers by Bin FactBox"
         LotNosByBinCode.SetFilter(Lot_No, '<>%1', '');
         LotNosByBinCode.Open;
 
-        DeleteAll;
+        DeleteAll();
 
         while LotNosByBinCode.Read do begin
             Init;

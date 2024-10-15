@@ -20,7 +20,7 @@ report 17415 "Calculate Person Income"
                 trigger OnAfterGetRecord()
                 begin
                     if "Employment Date" = 0D then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     PayrollPeriod.SetFilter(Code, '%1..', PayrollPeriod.PeriodByDate("Employment Date"));
                     if PayrollPeriod.FindSet then

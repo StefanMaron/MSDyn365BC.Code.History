@@ -182,7 +182,7 @@ table 17422 "Payroll Element Expression"
 
             trigger OnLookup()
             begin
-                PayrollElementVariable.Reset;
+                PayrollElementVariable.Reset();
                 PayrollElementVariable.SetRange("Element Code", "Element Code");
                 PayrollElementVariable.SetRange("Period Code", "Period Code");
                 if PAGE.RunModal(0, PayrollElementVariable) = ACTION::LookupOK then
@@ -194,11 +194,11 @@ table 17422 "Payroll Element Expression"
                 if ("Assign to Variable" <> '') and
                    (not PayrollElementVariable.Get("Element Code", "Period Code", "Assign to Variable"))
                 then begin
-                    PayrollElementVariable.Init;
+                    PayrollElementVariable.Init();
                     PayrollElementVariable."Element Code" := "Element Code";
                     PayrollElementVariable."Period Code" := "Period Code";
                     PayrollElementVariable.Variable := "Assign to Variable";
-                    PayrollElementVariable.Insert;
+                    PayrollElementVariable.Insert();
                 end;
             end;
         }
@@ -287,7 +287,7 @@ table 17422 "Payroll Element Expression"
 
     trigger OnDelete()
     begin
-        PayrollElementExpr2.Reset;
+        PayrollElementExpr2.Reset();
         PayrollElementExpr2.SetRange("Element Code", "Element Code");
         PayrollElementExpr2.SetRange("Period Code", "Period Code");
         PayrollElementExpr2.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -297,7 +297,7 @@ table 17422 "Payroll Element Expression"
 
     trigger OnInsert()
     begin
-        PayrollElementExpr2.Reset;
+        PayrollElementExpr2.Reset();
         PayrollElementExpr2.SetRange("Element Code", "Element Code");
         PayrollElementExpr2.SetRange("Period Code", "Period Code");
         PayrollElementExpr2.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -325,7 +325,7 @@ table 17422 "Payroll Element Expression"
         Expr: Text[250];
     begin
         Expr := '';
-        PayrollElementExpr.Reset;
+        PayrollElementExpr.Reset();
         PayrollElementExpr.SetRange("Element Code", "Element Code");
         PayrollElementExpr.SetRange("Period Code", "Period Code");
         PayrollElementExpr.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -352,7 +352,7 @@ table 17422 "Payroll Element Expression"
         case Type of
             Type::Expression:
                 begin
-                    PayrollElementExpr.Reset;
+                    PayrollElementExpr.Reset();
                     PayrollElementExpr.SetRange("Element Code", "Element Code");
                     PayrollElementExpr.SetRange("Period Code", "Period Code");
                     PayrollElementExpr.SetRange("Calculation Line No.", "Calculation Line No.");
@@ -368,7 +368,7 @@ table 17422 "Payroll Element Expression"
                 end;
             Type::Variable:
                 begin
-                    PayrollElementVariable.Reset;
+                    PayrollElementVariable.Reset();
                     PayrollElementVariable.SetRange("Element Code", "Element Code");
                     PayrollElementVariable.SetRange("Period Code", "Period Code");
                     Variables.SetTableView(PayrollElementVariable);

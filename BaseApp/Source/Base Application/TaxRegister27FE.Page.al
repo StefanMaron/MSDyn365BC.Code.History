@@ -156,7 +156,7 @@ page 17228 "Tax Register (2.7) FE"
     begin
         CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
         ShowNewData;
     end;
 

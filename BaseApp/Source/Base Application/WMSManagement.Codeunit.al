@@ -130,9 +130,6 @@ codeunit 7302 "WMS Management"
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         QtyAbsBase: Decimal;
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
-        WhseCDRequired: Boolean;
     begin
         GetItem(WhseJnlLine."Item No.");
         with WhseJnlLine do begin
@@ -293,8 +290,7 @@ codeunit 7302 "WMS Management"
                            ("From Bin Code" <> Location."Adjustment Bin Code") and
                            Location."Directed Put-away and Pick"
                         then begin
-                            ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", "Location Code", WhseSNRequired, WhseLNRequired, WhseCDRequired, false);
-                            if not (WhseSNRequired or WhseLNRequired or WhseCDRequired) then begin
+                            if not ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
                                 BinContent.Get(
                                   "Location Code", "From Bin Code",
                                   "Item No.", "Variant Code", "Unit of Measure Code");
@@ -713,7 +709,7 @@ codeunit 7302 "WMS Management"
 
                         WhseActivLine3.SetRange("Item No.", "Item No.");
                         WhseActivLine3.SetRange("Variant Code", "Variant Code");
-                        WhseActivLine3.SetTrackingFilter("Serial No.", "Lot No.", "CD No.");
+                        WhseActivLine3.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
                         OnCheckBalanceQtyToHandleOnAfterSetFilters(WhseActivLine3, WhseActivLine);
 
                         if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
@@ -724,7 +720,7 @@ codeunit 7302 "WMS Management"
                                 repeat
                                     QtyToPick := QtyToPick + WhseActivLine3."Qty. to Handle (Base)";
                                     TempWhseActivLine := WhseActivLine3;
-                                    TempWhseActivLine.Insert;
+                                    TempWhseActivLine.Insert();
                                 until WhseActivLine3.Next = 0;
                         end;
 
@@ -736,7 +732,7 @@ codeunit 7302 "WMS Management"
                                 repeat
                                     QtyToPutAway := QtyToPutAway + WhseActivLine3."Qty. to Handle (Base)";
                                     TempWhseActivLine := WhseActivLine3;
-                                    TempWhseActivLine.Insert;
+                                    TempWhseActivLine.Insert();
                                 until WhseActivLine3.Next = 0;
                         end;
 
@@ -827,7 +823,7 @@ codeunit 7302 "WMS Management"
     procedure InitErrorLog()
     begin
         LogErrors := true;
-        TempErrorLog.DeleteAll;
+        TempErrorLog.DeleteAll();
         NextLineNo := 1;
     end;
 
@@ -856,7 +852,7 @@ codeunit 7302 "WMS Management"
     begin
         TempErrorLog."Line No." := NextLineNo;
         TempErrorLog.Text := ErrorText;
-        TempErrorLog.Insert;
+        TempErrorLog.Insert();
         NextLineNo := NextLineNo + 1;
     end;
 
@@ -968,7 +964,7 @@ codeunit 7302 "WMS Management"
            (ItemUnitOfMeasure.Code <> UOMCode)
         then
             if not ItemUnitOfMeasure.Get(ItemNo, UOMCode) then
-                ItemUnitOfMeasure.Init;
+                ItemUnitOfMeasure.Init();
     end;
 
     procedure GetBaseUOM(ItemNo: Code[20]): Code[10]
@@ -1028,42 +1024,42 @@ codeunit 7302 "WMS Management"
         case WhseDocType of
             WhseDocType::Receipt:
                 begin
-                    WhseRcptLine.Reset;
+                    WhseRcptLine.Reset();
                     WhseRcptLine.SetRange("No.", WhseDocNo);
                     WhseRcptLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Whse. Receipt Lines", WhseRcptLine);
                 end;
             WhseDocType::"Posted Receipt":
                 begin
-                    PostedWhseRcptLine.Reset;
+                    PostedWhseRcptLine.Reset();
                     PostedWhseRcptLine.SetRange("No.", WhseDocNo);
                     PostedWhseRcptLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Posted Whse. Receipt Lines", PostedWhseRcptLine);
                 end;
             WhseDocType::Shipment:
                 begin
-                    WhseShptLine.Reset;
+                    WhseShptLine.Reset();
                     WhseShptLine.SetRange("No.", WhseDocNo);
                     WhseShptLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Whse. Shipment Lines", WhseShptLine);
                 end;
             WhseDocType::"Internal Put-away":
                 begin
-                    WhseInternalPutawayLine.Reset;
+                    WhseInternalPutawayLine.Reset();
                     WhseInternalPutawayLine.SetRange("No.", WhseDocNo);
                     WhseInternalPutawayLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Whse. Internal Put-away Lines", WhseInternalPutawayLine);
                 end;
             WhseDocType::"Internal Pick":
                 begin
-                    WhseInternalPickLine.Reset;
+                    WhseInternalPickLine.Reset();
                     WhseInternalPickLine.SetRange("No.", WhseDocNo);
                     WhseInternalPickLine.SetRange("Line No.", WhseDocLineNo);
                     PAGE.RunModal(PAGE::"Whse. Internal Pick Lines", WhseInternalPickLine);
                 end;
             WhseDocType::Production:
                 begin
-                    ProdOrderLine.Reset;
+                    ProdOrderLine.Reset();
                     ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
                     ProdOrderLine.SetRange("Prod. Order No.", WhseDocNo);
                     ProdOrderLine.SetRange("Line No.", WhseDocLineNo);
@@ -1085,7 +1081,7 @@ codeunit 7302 "WMS Management"
     var
         PostedWhseShptLine: Record "Posted Whse. Shipment Line";
     begin
-        PostedWhseShptLine.Reset;
+        PostedWhseShptLine.Reset();
         PostedWhseShptLine.SetCurrentKey("Whse. Shipment No.", "Whse Shipment Line No.");
         PostedWhseShptLine.SetRange("Whse. Shipment No.", WhseDocNo);
         PostedWhseShptLine.SetRange("Whse Shipment Line No.", WhseDocLineNo);
@@ -1105,7 +1101,7 @@ codeunit 7302 "WMS Management"
         case SourceType of
             DATABASE::"Sales Line":
                 begin
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                     SalesLine.SetRange("Document Type", SourceSubType);
                     SalesLine.SetRange("Document No.", SourceNo);
                     SalesLine.SetRange("Line No.", SourceLineNo);
@@ -1116,7 +1112,7 @@ codeunit 7302 "WMS Management"
                 end;
             DATABASE::"Purchase Line":
                 begin
-                    PurchLine.Reset;
+                    PurchLine.Reset();
                     PurchLine.SetRange("Document Type", SourceSubType);
                     PurchLine.SetRange("Document No.", SourceNo);
                     PurchLine.SetRange("Line No.", SourceLineNo);
@@ -1127,7 +1123,7 @@ codeunit 7302 "WMS Management"
                 end;
             DATABASE::"Transfer Line":
                 begin
-                    TransLine.Reset;
+                    TransLine.Reset();
                     TransLine.SetRange("Document No.", SourceNo);
                     TransLine.SetRange("Line No.", SourceLineNo);
                     IsHandled := false;
@@ -1137,7 +1133,7 @@ codeunit 7302 "WMS Management"
                 end;
             DATABASE::"Prod. Order Component":
                 begin
-                    ProdOrderComp.Reset;
+                    ProdOrderComp.Reset();
                     ProdOrderComp.SetRange(Status, SourceSubType);
                     ProdOrderComp.SetRange("Prod. Order No.", SourceNo);
                     ProdOrderComp.SetRange("Prod. Order Line No.", SourceLineNo);
@@ -1187,37 +1183,37 @@ codeunit 7302 "WMS Management"
         case PostedSourceDoc of
             PostedSourceDoc::"Posted Shipment":
                 begin
-                    SalesShipmentHeader.Reset;
+                    SalesShipmentHeader.Reset();
                     SalesShipmentHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Sales Shipment", SalesShipmentHeader);
                 end;
             PostedSourceDoc::"Posted Receipt":
                 begin
-                    PurchRcptHeader.Reset;
+                    PurchRcptHeader.Reset();
                     PurchRcptHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Purchase Receipt", PurchRcptHeader);
                 end;
             PostedSourceDoc::"Posted Return Shipment":
                 begin
-                    ReturnShipmentHeader.Reset;
+                    ReturnShipmentHeader.Reset();
                     ReturnShipmentHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Return Shipment", ReturnShipmentHeader);
                 end;
             PostedSourceDoc::"Posted Return Receipt":
                 begin
-                    ReturnReceiptHeader.Reset;
+                    ReturnReceiptHeader.Reset();
                     ReturnReceiptHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Return Receipt", ReturnReceiptHeader);
                 end;
             PostedSourceDoc::"Posted Transfer Shipment":
                 begin
-                    TransShipmentHeader.Reset;
+                    TransShipmentHeader.Reset();
                     TransShipmentHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Transfer Shipment", TransShipmentHeader);
                 end;
             PostedSourceDoc::"Posted Transfer Receipt":
                 begin
-                    TransReceiptHeader.Reset;
+                    TransReceiptHeader.Reset();
                     TransReceiptHeader.SetRange("No.", PostedSourceNo);
                     PAGE.RunModal(PAGE::"Posted Transfer Receipt", TransReceiptHeader);
                 end;
@@ -1277,22 +1273,19 @@ codeunit 7302 "WMS Management"
 
     local procedure TransferWhseItemTrkg(var WhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
     var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
-        WhseCDRequired: Boolean;
     begin
-        ItemTrackingMgt.CheckWhseItemTrkgSetup(
-          ItemJnlLine."Item No.", ItemJnlLine."Location Code", WhseSNRequired, WhseLNRequired, WhseCDRequired, false);
-        if not (WhseSNRequired or WhseLNRequired or WhseCDRequired) then
+        ItemTrackingMgt.GetWhseItemTrkgSetup(ItemJnlLine."Item No.", WhseItemTrackingSetup);
+        if not WhseItemTrackingSetup.TrackingRequired() then
             exit;
-        if WhseSNRequired then begin
+        if WhseItemTrackingSetup."Serial No. Required" then begin
             WhseJnlLine.TestField("Qty. per Unit of Measure", 1);
             WhseJnlLine."Serial No." := ItemJnlLine."Serial No.";
         end;
-        if WhseLNRequired then
+        if WhseItemTrackingSetup."Lot No. Required" then
             WhseJnlLine."Lot No." := ItemJnlLine."Lot No.";
-        if WhseCDRequired then
+        if WhseItemTrackingSetup."CD No. Required" then
             WhseJnlLine."CD No." := ItemJnlLine."CD No.";
         WhseJnlLine."Warranty Date" := ItemJnlLine."Warranty Date";
         WhseJnlLine."Expiration Date" := ItemJnlLine."Item Expiration Date";
@@ -1717,7 +1710,7 @@ codeunit 7302 "WMS Management"
                 ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Line No.", true);
                 ReservEntry.SetSourceFilter("Journal Batch Name", 0);
             end;
-            ReservEntry.SetTrackingFilter("Serial No.", "Lot No.", "CD No.");
+            ReservEntry.SetTrackingFilterFromWhseJnlLine(WhseJnlLine);
             if ReservEntry.FindFirst then
                 exit(ReservEntry."Quantity (Base)");
             exit("Qty. (Base)");
@@ -1824,7 +1817,7 @@ codeunit 7302 "WMS Management"
     begin
         if BinCode = '' then
             exit(AdjBinCode);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         if SourceCode = SourceCodeSetup."Service Management" then
             exit(BinCode);
         exit(AdjBinCode);

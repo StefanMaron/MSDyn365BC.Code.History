@@ -147,7 +147,7 @@ report 14940 "Analytic Account Card by Dim."
                 ExcelMgt.OpenSheet(SheetBuffer."Search Name");
                 FillSheetHeader;
 
-                GLCorrAnalysisViewEntry.Reset;
+                GLCorrAnalysisViewEntry.Reset();
                 GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", GLCorrAnalysisViewCode);
                 GLCorrAnalysisViewEntry.SetFilter("Business Unit Code", BusUnitFilter);
                 GLCorrAnalysisViewEntry.SetRange("Debit Account No.", GLAccount."No.");
@@ -395,7 +395,7 @@ report 14940 "Analytic Account Card by Dim."
             end;
 
             ValidateLineDimCode;
-            UpdateFiltersControls;
+            PageUpdateFiltersControls;
         end;
     }
 
@@ -422,7 +422,7 @@ report 14940 "Analytic Account Card by Dim."
         if EndDate = 0D then
             Error(Text002, Text010);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Analytic Acc. Card Code");
 
         FileName := ExcelTemplate.OpenTemplate(GLSetup."Analytic Acc. Card Code");
@@ -537,8 +537,8 @@ report 14940 "Analytic Account Card by Dim."
 
         Window.Open(Text006);
 
-        SheetBuffer.Reset;
-        TotalQty := SheetBuffer.Count;
+        SheetBuffer.Reset();
+        TotalQty := SheetBuffer.Count();
 
         if SheetBuffer.FindLast then
             repeat
@@ -566,7 +566,7 @@ report 14940 "Analytic Account Card by Dim."
                     SheetBuffer."No." := GLAccount."No.";
                     SheetBuffer.Name := GLAccount.Name;
                     SheetBuffer."Search Name" := GetSheetName(GLAccount."No.");
-                    SheetBuffer.Insert;
+                    SheetBuffer.Insert();
                 end;
             until GLAccount.Next = 0;
     end;
@@ -823,8 +823,8 @@ report 14940 "Analytic Account Card by Dim."
     var
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
     begin
-        GLCorrBuffer.Reset;
-        GLCorrBuffer.DeleteAll;
+        GLCorrBuffer.Reset();
+        GLCorrBuffer.DeleteAll();
 
         GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", GLCorrAnalysisViewCode);
         GLCorrAnalysisViewEntry.SetRange("Debit Account No.", AccountNo);
@@ -838,7 +838,7 @@ report 14940 "Analytic Account Card by Dim."
                 then begin
                     GLCorrBuffer."Debit Account No." := GLCorrAnalysisViewEntry."Debit Account No.";
                     GLCorrBuffer."Credit Account No." := GLCorrAnalysisViewEntry."Credit Account No.";
-                    GLCorrBuffer.Insert;
+                    GLCorrBuffer.Insert();
                     GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", '>%1', GLCorrAnalysisViewEntry."Credit Account No.");
                 end;
             until GLCorrAnalysisViewEntry.Next = 0;
@@ -853,7 +853,7 @@ report 14940 "Analytic Account Card by Dim."
                 then begin
                     GLCorrBuffer."Debit Account No." := GLCorrAnalysisViewEntry."Debit Account No.";
                     GLCorrBuffer."Credit Account No." := GLCorrAnalysisViewEntry."Credit Account No.";
-                    GLCorrBuffer.Insert;
+                    GLCorrBuffer.Insert();
                     GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", '>%1', GLCorrAnalysisViewEntry."Debit Account No.");
                 end;
             until GLCorrAnalysisViewEntry.Next = 0;
@@ -936,15 +936,6 @@ report 14940 "Analytic Account Card by Dim."
                 Str := Str + ', ' + AddStr
             else
                 Str := AddStr;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateFiltersControls()
-    begin
-        if IsServiceTier then begin
-            PageUpdateFiltersControls;
-            exit;
         end;
     end;
 

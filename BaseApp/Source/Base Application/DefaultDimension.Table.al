@@ -184,7 +184,7 @@ table 352 "Default Dimension"
 
     trigger OnDelete()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", '');
         if "Dimension Code" = GLSetup."Global Dimension 2 Code" then
@@ -194,7 +194,7 @@ table 352 "Default Dimension"
 
     trigger OnInsert()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", "Dimension Value Code");
         if "Dimension Code" = GLSetup."Global Dimension 2 Code" then
@@ -205,7 +205,7 @@ table 352 "Default Dimension"
 
     trigger OnModify()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", "Dimension Value Code");
         if "Dimension Code" = GLSetup."Global Dimension 2 Code" then
@@ -602,7 +602,7 @@ table 352 "Default Dimension"
     var
         CustAgrmt: Record "Customer Agreement";
     begin
-        CustAgrmt.Reset;
+        CustAgrmt.Reset();
         CustAgrmt.SetCurrentKey("No.");
         CustAgrmt.SetRange("No.", AgrmtNo);
         if CustAgrmt.FindFirst then begin
@@ -620,7 +620,7 @@ table 352 "Default Dimension"
     var
         VendAgrmt: Record "Vendor Agreement";
     begin
-        VendAgrmt.Reset;
+        VendAgrmt.Reset();
         VendAgrmt.SetCurrentKey("No.");
         VendAgrmt.SetRange("No.", AgrmtNo);
         if VendAgrmt.FindFirst then begin
@@ -756,7 +756,16 @@ table 352 "Default Dimension"
         UpdateParentId;
         UpdateDimensionId;
         UpdateDimensionValueId;
-        Modify;
+        ModifyIfIsDirty(false);
+    end;
+
+    local procedure ModifyIfIsDirty(RunTrigger: Boolean)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Rec);
+        If RecRef.IsDirty() then
+            Modify(RunTrigger);
     end;
 
     local procedure ThrowEntityNotSupportedError(var IntegrationRecord: Record "Integration Record")

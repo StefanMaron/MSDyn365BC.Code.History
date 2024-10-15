@@ -35,13 +35,13 @@ table 17217 "Tax Register Dim. Def. Value"
 
             trigger OnLookup()
             begin
-                Dimension.Reset;
+                Dimension.Reset();
                 Dimension.FilterGroup(2);
                 Dimension.SetFilter(Code, '<>%1&<>%2', "Dimension 1 Code", "Dimension 2 Code");
                 Dimension.FilterGroup(0);
                 if Dimension.Get("Dimension Code") then;
                 if ACTION::LookupOK = PAGE.RunModal(0, Dimension) then begin
-                    TaxRegDimDefValue.Reset;
+                    TaxRegDimDefValue.Reset();
                     TaxRegDimDefValue.SetRange("Section Code", "Section Code");
                     TaxRegDimDefValue.SetRange("Tax Register No.", "Tax Register No.");
                     TaxRegDimDefValue.SetRange("Line No.", "Line No.");

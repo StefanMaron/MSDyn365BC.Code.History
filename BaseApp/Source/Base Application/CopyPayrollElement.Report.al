@@ -14,63 +14,63 @@ report 17407 "Copy Payroll Element"
             begin
                 NewElementCode := PayrollElement2.Code;
 
-                PayrollElement2.Init;
+                PayrollElement2.Init();
                 PayrollElement2 := PayrollElement;
                 PayrollElement2.Code := NewElementCode;
-                PayrollElement2.Insert;
+                PayrollElement2.Insert();
 
-                PayrollBaseAmount.Reset;
+                PayrollBaseAmount.Reset();
                 PayrollBaseAmount.SetRange("Element Code", PayrollElement.Code);
                 if PayrollBaseAmount.FindSet then
                     repeat
                         PayrollBaseAmount2 := PayrollBaseAmount;
                         PayrollBaseAmount2."Element Code" := NewElementCode;
-                        PayrollBaseAmount2.Insert;
+                        PayrollBaseAmount2.Insert();
                     until PayrollBaseAmount.Next = 0;
 
-                RangeHeader.Reset;
+                RangeHeader.Reset();
                 RangeHeader.SetRange("Element Code", PayrollElement.Code);
                 if RangeHeader.FindSet then
                     repeat
                         RangeHeader2 := RangeHeader;
                         RangeHeader2."Element Code" := NewElementCode;
-                        RangeHeader2.Insert;
+                        RangeHeader2.Insert();
                     until RangeHeader.Next = 0;
 
-                RangeLine.Reset;
+                RangeLine.Reset();
                 RangeLine.SetRange("Element Code", PayrollElement.Code);
                 if RangeLine.FindSet then
                     repeat
                         RangeLine2 := RangeLine;
                         RangeLine2."Element Code" := NewElementCode;
-                        RangeLine2.Insert;
+                        RangeLine2.Insert();
                     until RangeLine.Next = 0;
 
-                PayrollCalculation.Reset;
+                PayrollCalculation.Reset();
                 PayrollCalculation.SetRange("Element Code", PayrollElement.Code);
                 if PayrollCalculation.FindSet then
                     repeat
                         PayrollCalculation2 := PayrollCalculation;
                         PayrollCalculation2."Element Code" := NewElementCode;
-                        PayrollCalculation2.Insert;
+                        PayrollCalculation2.Insert();
                     until PayrollCalculation.Next = 0;
 
-                PayrollCalcLine.Reset;
+                PayrollCalcLine.Reset();
                 PayrollCalcLine.SetRange("Element Code", PayrollElement.Code);
                 if PayrollCalcLine.FindSet then
                     repeat
                         PayrollCalcLine2 := PayrollCalcLine;
                         PayrollCalcLine2."Element Code" := NewElementCode;
-                        PayrollCalcLine2.Insert;
+                        PayrollCalcLine2.Insert();
                     until PayrollCalcLine.Next = 0;
 
-                PayrollExprLine.Reset;
+                PayrollExprLine.Reset();
                 PayrollExprLine.SetRange("Element Code", PayrollElement.Code);
                 if PayrollExprLine.FindSet then
                     repeat
                         PayrollExprLine2 := PayrollExprLine;
                         PayrollExprLine2."Element Code" := NewElementCode;
-                        PayrollExprLine2.Insert;
+                        PayrollExprLine2.Insert();
                     until PayrollExprLine.Next = 0;
             end;
         }

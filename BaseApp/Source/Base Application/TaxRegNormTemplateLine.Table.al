@@ -30,7 +30,7 @@ table 17239 "Tax Reg. Norm Template Line"
             begin
                 ValidateChange("Line Type" <> xRec."Line Type");
                 if "Line Type" <> "Line Type"::" " then begin
-                    TaxRegNormTemplateLine.Reset;
+                    TaxRegNormTemplateLine.Reset();
                     TaxRegNormTemplateLine.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                     TaxRegNormTemplateLine.SetRange("Norm Group Code", "Norm Group Code");
                     TaxRegNormTemplateLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -89,7 +89,7 @@ table 17239 "Tax Reg. Norm Template Line"
             begin
                 if "Expression Type" = "Expression Type"::Norm then begin
                     TestField("Jurisdiction Code");
-                    TaxRegNormGroup.Reset;
+                    TaxRegNormGroup.Reset();
                     TaxRegNormGroup.FilterGroup(2);
                     TaxRegNormGroup.SetRange("Norm Jurisdiction Code", "Jurisdiction Code");
                     TaxRegNormGroup.FilterGroup(0);
@@ -104,7 +104,7 @@ table 17239 "Tax Reg. Norm Template Line"
                     end;
                 end;
                 if "Expression Type" = "Expression Type"::Term then begin
-                    TaxRegNormTermName.Reset;
+                    TaxRegNormTermName.Reset();
                     TaxRegNormTermName.FilterGroup(2);
                     TaxRegNormTermName.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                     TaxRegNormTermName.FilterGroup(0);
@@ -297,7 +297,7 @@ table 17239 "Tax Reg. Norm Template Line"
         GenTemplateProfile."Dimension Code (Dim)" := TaxRegNormDimFilter.FieldNo("Dimension Code");
         GenTemplateProfile."Dimension Value Filter (Dim)" := TaxRegNormDimFilter.FieldNo("Dimension Value Filter");
 
-        GenTemplateProfile.Insert;
+        GenTemplateProfile.Insert();
     end;
 }
 

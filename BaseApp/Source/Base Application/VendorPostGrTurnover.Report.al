@@ -19,9 +19,6 @@ report 12443 "Vendor Post. Gr. Turnover"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -225,16 +222,16 @@ report 12443 "Vendor Post. Gr. Turnover"
                 trigger OnAfterGetRecord()
                 begin
                     if SkipZeroBalances and (LineAmount[5] = 0) and (LineAmount[6] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if SkipZeroNetChanges and (LineAmount[3] = 0) and (LineAmount[4] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if SkipZeroLines and
                       (LineAmount[1] = 0) and (LineAmount[2] = 0) and
                       (LineAmount[3] = 0) and (LineAmount[4] = 0) and
                       (LineAmount[5] = 0) and (LineAmount[6] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     for I := 1 to 6 do
                         TotalAmount[I] += LineAmount[I];

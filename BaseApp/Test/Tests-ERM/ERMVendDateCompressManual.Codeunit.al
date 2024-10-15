@@ -84,7 +84,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vend Date Compress Manual");
     end;
 

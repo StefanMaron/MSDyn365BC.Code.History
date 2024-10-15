@@ -78,7 +78,7 @@ report 17371 "Create Positions from Budget"
 
         if Confirm(Text14700, false, PositionNumber, PositionRate, Position."No.") then begin
             while PositionNumber > 0 do begin
-                Position2.Init;
+                Position2.Init();
                 Position2.TransferFields(Position, false);
 
                 Position2."No." := '';
@@ -100,7 +100,7 @@ report 17371 "Create Positions from Budget"
                 PositionNumber := PositionNumber - 1;
                 Position.Rate := Position.Rate - Position2.Rate;
             end;
-            Position.Modify;
+            Position.Modify();
         end;
     end;
 

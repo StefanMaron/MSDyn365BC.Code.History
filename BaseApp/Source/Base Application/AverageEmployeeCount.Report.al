@@ -94,8 +94,8 @@ report 17376 "Average Employee Count"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        HRSetup.Get;
+        CompanyInfo.Get();
+        HRSetup.Get();
         HRSetup.TestField("Avg. Headcount Template Code");
 
         AnalyzableDate := DMY2Date(31, 12, Year);

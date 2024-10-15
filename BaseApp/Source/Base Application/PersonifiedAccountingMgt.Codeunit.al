@@ -251,7 +251,7 @@ codeunit 17460 "Personified Accounting Mgt."
         FullAddress: Text[1024];
         Counter: Integer;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         CheckEmployees(Employee);
 
@@ -354,7 +354,7 @@ codeunit 17460 "Personified Accounting Mgt."
         if Employee.IsEmpty then
             exit;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FileName := ExcelTemplate.OpenTemplate(GetExcelTemplate(FormType));
         ExcelMgt.OpenBookForUpdate(FileName);
         ExcelMgt.OpenSheetByNumber(1);
@@ -513,7 +513,7 @@ codeunit 17460 "Personified Accounting Mgt."
                     i += 1;
                     Window.Update(1, Round(i / Employee.Count * 10000, 1));
                     Person.Get(Employee."Person No.");
-                    TempPersonMedicalInfoDisability.Reset;
+                    TempPersonMedicalInfoDisability.Reset();
                     TempPersonMedicalInfoDisability.SetRange("Employee No.", Employee."No.");
                     TempPersonMedicalInfoDisability.SetRange("Disability Group", CategoryType);
                     TempPersonMedicalInfoDisability.FindSet;
@@ -868,10 +868,10 @@ codeunit 17460 "Personified Accounting Mgt."
                 if LaborContract.Get(EmplBuffer."Contract No.") then
                     if LaborContract."Contract Type" = LaborContract."Contract Type"::"Labor Contract" then begin
                         EmplLaborBuffer.Copy(EmplBuffer);
-                        EmplLaborBuffer.Insert;
+                        EmplLaborBuffer.Insert();
                     end else begin
                         EmplCivilBuffer.Copy(EmplBuffer);
-                        EmplCivilBuffer.Insert;
+                        EmplCivilBuffer.Insert();
                     end;
             until EmplBuffer.Next = 0;
     end;
@@ -906,7 +906,7 @@ codeunit 17460 "Personified Accounting Mgt."
 
         if Employee.FindSet then
             repeat
-                TempPersonMedicalInfoDisability.Reset;
+                TempPersonMedicalInfoDisability.Reset();
                 TempPersonMedicalInfoDisability.SetRange("Employee No.", Employee."No.");
                 TempPersonMedicalInfoDisability.SetRange("Disability Group", CategoryType);
                 if TempPersonMedicalInfoDisability.FindSet then
@@ -947,7 +947,7 @@ codeunit 17460 "Personified Accounting Mgt."
         if Employee.FindSet then
             repeat
                 Counter += 1;
-                TempPersonMedicalInfoDisability.Reset;
+                TempPersonMedicalInfoDisability.Reset();
                 TempPersonMedicalInfoDisability.SetRange("Employee No.", Employee."No.");
                 TempPersonMedicalInfoDisability.SetRange("Disability Group", CategoryType);
                 if TempPersonMedicalInfoDisability.FindSet then
@@ -1015,7 +1015,7 @@ codeunit 17460 "Personified Accounting Mgt."
 
     local procedure AddCompanyInfo()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         XMLAddComplexElement(PackCreatorTxt);
         AddCompanyTaxNumberInfo;
         XMLAddSimpleElement(CodEGRIPTxt, '');
@@ -1942,7 +1942,7 @@ codeunit 17460 "Personified Accounting Mgt."
 
     local procedure GetXMLFileName(StartDate: Date; CompanyPackNo: Integer; DepartmentNo: Integer; DepartmentPackNo: Integer): Text
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Pension Fund Registration No.");
         exit(
           'PFR-700-' +
@@ -2073,7 +2073,7 @@ codeunit 17460 "Personified Accounting Mgt."
 
         LaborContract.SetRange("Contract Type", LaborContract."Contract Type"::"Civil Contract");
         if LaborContract.FindFirst then begin
-            LaborContractLine.Init;
+            LaborContractLine.Init();
             LaborContractLine."Starting Date" := LaborContract."Starting Date";
             LaborContractLine."Ending Date" := LaborContract."Ending Date";
             LaborContractLine."Record of Service Additional" := CONTRACTTxt;
@@ -2088,7 +2088,7 @@ codeunit 17460 "Personified Accounting Mgt."
             repeat
                 TimeActivity.Get(EmployeeAbsenceEntry."Time Activity Code");
                 if TimeActivity."PF Reporting Absence Code" <> '' then begin
-                    LaborContractLine.Init;
+                    LaborContractLine.Init();
                     LaborContractLine."Starting Date" := EmployeeAbsenceEntry."Start Date";
                     LaborContractLine."Ending Date" := EmployeeAbsenceEntry."End Date";
                     LaborContractLine."Record of Service Additional" := TimeActivity."PF Reporting Absence Code";
@@ -2110,7 +2110,7 @@ codeunit 17460 "Personified Accounting Mgt."
         Period."Contract No." := '';
         Period."Operation Type" := 0;
 
-        ExperienceBuffer.Reset;
+        ExperienceBuffer.Reset();
         if ExperienceBuffer.FindSet then
             repeat
                 // if there is no periods intersection
@@ -2118,12 +2118,12 @@ codeunit 17460 "Personified Accounting Mgt."
                    (ExperienceBuffer."Starting Date" > Period."Ending Date")
                 then begin
                     NewExperienceBuffer := ExperienceBuffer;
-                    NewExperienceBuffer.Insert;
+                    NewExperienceBuffer.Insert();
                 end else
                     // if labor conditions are the same
                     if CheckPeriodsConditions(ExperienceBuffer, Period) then begin
                         NewExperienceBuffer := ExperienceBuffer;
-                        NewExperienceBuffer.Insert;
+                        NewExperienceBuffer.Insert();
                     end else
                         // otherwise add periods
                         case true of
@@ -2134,7 +2134,7 @@ codeunit 17460 "Personified Accounting Mgt."
                             // change old period data to new period's
                             NewExperienceBuffer := ExperienceBuffer;
                             CopyPeriodSpecialConditions(Period, NewExperienceBuffer);
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                         end;
                     // new period is earler than old one
                     (ExperienceBuffer."Starting Date" = Period."Starting Date") and
@@ -2143,12 +2143,12 @@ codeunit 17460 "Personified Accounting Mgt."
                             // first is new period
                             NewExperienceBuffer := Period;
                             NewExperienceBuffer."Supplement No." := FormatDateSupplement(Period."Starting Date");
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                             // next is rest of old period
                             NewExperienceBuffer := ExperienceBuffer;
                             NewExperienceBuffer."Starting Date" := Period."Ending Date" + 1;
                             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                         end;
                     // new period is inside the old one
                     (ExperienceBuffer."Starting Date" <> Period."Starting Date") and
@@ -2157,20 +2157,20 @@ codeunit 17460 "Personified Accounting Mgt."
                             // first is a beginnig part of old period
                             NewExperienceBuffer := ExperienceBuffer;
                             NewExperienceBuffer."Ending Date" := Period."Starting Date" - 1;
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
 
                             // second - whole new period
                             NewExperienceBuffer."Starting Date" := Period."Starting Date";
                             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
                             NewExperienceBuffer."Ending Date" := Period."Ending Date";
                             CopyPeriodSpecialConditions(Period, NewExperienceBuffer);
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
 
                             // thirt - rest of the old period
                             NewExperienceBuffer := ExperienceBuffer;
                             NewExperienceBuffer."Starting Date" := Period."Ending Date" + 1;
                             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                         end;
                     // new period is later than old one
                     (ExperienceBuffer."Starting Date" <> Period."Starting Date") and
@@ -2179,13 +2179,13 @@ codeunit 17460 "Personified Accounting Mgt."
                             // first is a beginning part of the old period
                             NewExperienceBuffer := ExperienceBuffer;
                             NewExperienceBuffer."Ending Date" := Period."Starting Date" - 1;
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                             // second is a new period
                             NewExperienceBuffer."Starting Date" := Period."Starting Date";
                             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
                             NewExperienceBuffer."Ending Date" := Period."Ending Date";
                             CopyPeriodSpecialConditions(Period, NewExperienceBuffer);
-                            NewExperienceBuffer.Insert;
+                            NewExperienceBuffer.Insert();
                         end;
                         end;
             until ExperienceBuffer.Next = 0
@@ -2194,16 +2194,16 @@ codeunit 17460 "Personified Accounting Mgt."
             NewExperienceBuffer."Supplement No." := FormatDateSupplement(NewExperienceBuffer."Starting Date");
             NewExperienceBuffer."Ending Date" := Period."Ending Date";
             CopyPeriodSpecialConditions(Period, NewExperienceBuffer);
-            NewExperienceBuffer.Insert;
+            NewExperienceBuffer.Insert();
         end;
 
-        ExperienceBuffer.Reset;
-        ExperienceBuffer.DeleteAll;
+        ExperienceBuffer.Reset();
+        ExperienceBuffer.DeleteAll();
 
         if NewExperienceBuffer.FindSet then
             repeat
                 ExperienceBuffer := NewExperienceBuffer;
-                ExperienceBuffer.Insert;
+                ExperienceBuffer.Insert();
             until NewExperienceBuffer.Next = 0;
     end;
 
@@ -2242,8 +2242,8 @@ codeunit 17460 "Personified Accounting Mgt."
         PeriodEndDate: Date;
         TempDate: Date;
     begin
-        TempPersonMedicalInfoDisability.Reset;
-        TempPersonMedicalInfoDisability.DeleteAll;
+        TempPersonMedicalInfoDisability.Reset();
+        TempPersonMedicalInfoDisability.DeleteAll();
 
         PersonMedicalInfo.SetRange("Person No.", Employee."Person No.");
         PersonMedicalInfo.SetRange(Type, PersonMedicalInfo.Type::Disability);
@@ -2270,39 +2270,39 @@ codeunit 17460 "Personified Accounting Mgt."
                     if TempPersonMedicalInfoDisability."Ending Date" < PeriodStartDate
                     then begin
                         TempDate := TempPersonMedicalInfoDisability."Ending Date";
-                        TempPersonMedicalInfoDisability.Init;
+                        TempPersonMedicalInfoDisability.Init();
                         TempPersonMedicalInfoDisability."Starting Date" := CalcDate('<+1D>', TempDate);
                         TempPersonMedicalInfoDisability."Ending Date" := CalcDate('<-1D>', PeriodStartDate);
-                        TempPersonMedicalInfoDisability.Insert;
-                        TempPersonMedicalInfoDisability.Init;
+                        TempPersonMedicalInfoDisability.Insert();
+                        TempPersonMedicalInfoDisability.Init();
                         TempPersonMedicalInfoDisability."Starting Date" := PeriodStartDate;
                         TempPersonMedicalInfoDisability."Ending Date" := PeriodEndDate;
                         TempPersonMedicalInfoDisability."Disability Group" := TempPersonMedicalInfoDisability."Disability Group"::"1";
-                        TempPersonMedicalInfoDisability.Insert;
+                        TempPersonMedicalInfoDisability.Insert();
                     end else begin
                         TempPersonMedicalInfoDisability."Ending Date" := PeriodEndDate;
-                        TempPersonMedicalInfoDisability.Modify;
+                        TempPersonMedicalInfoDisability.Modify();
                     end;
                 end else begin
-                    TempPersonMedicalInfoDisability.Init;
+                    TempPersonMedicalInfoDisability.Init();
                     TempPersonMedicalInfoDisability."Starting Date" := PeriodStartDate;
                     TempPersonMedicalInfoDisability."Ending Date" := PeriodEndDate;
                     TempPersonMedicalInfoDisability."Disability Group" := TempPersonMedicalInfoDisability."Disability Group"::"1";
-                    TempPersonMedicalInfoDisability.Insert;
+                    TempPersonMedicalInfoDisability.Insert();
                 end;
             until PersonMedicalInfo.Next = 0;
 
             if PeriodEndDate < EndDate then begin
-                TempPersonMedicalInfoDisability.Init;
+                TempPersonMedicalInfoDisability.Init();
                 TempPersonMedicalInfoDisability."Starting Date" := PeriodEndDate + 1;
                 TempPersonMedicalInfoDisability."Ending Date" := EndDate;
-                TempPersonMedicalInfoDisability.Insert;
+                TempPersonMedicalInfoDisability.Insert();
             end;
         end else begin
-            TempPersonMedicalInfoDisability.Init;
+            TempPersonMedicalInfoDisability.Init();
             TempPersonMedicalInfoDisability."Starting Date" := StartDate;
             TempPersonMedicalInfoDisability."Ending Date" := EndDate;
-            TempPersonMedicalInfoDisability.Insert;
+            TempPersonMedicalInfoDisability.Insert();
         end;
 
         if TempPersonMedicalInfoDisability.FindFirst then
@@ -2310,10 +2310,10 @@ codeunit 17460 "Personified Accounting Mgt."
                (TempPersonMedicalInfoDisability."Starting Date" > StartDate)
             then begin
                 PeriodEndDate := TempPersonMedicalInfoDisability."Starting Date" - 1;
-                TempPersonMedicalInfoDisability.Init;
+                TempPersonMedicalInfoDisability.Init();
                 TempPersonMedicalInfoDisability."Starting Date" := StartDate;
                 TempPersonMedicalInfoDisability."Ending Date" := PeriodEndDate;
-                TempPersonMedicalInfoDisability.Insert;
+                TempPersonMedicalInfoDisability.Insert();
             end;
     end;
 
@@ -2325,8 +2325,8 @@ codeunit 17460 "Personified Accounting Mgt."
         EmployeePeriodStartDate: Date;
         EmployeePeriodEndDate: Date;
     begin
-        TempPersonMedicalInfoDisability.Reset;
-        TempPersonMedicalInfoDisability.DeleteAll;
+        TempPersonMedicalInfoDisability.Reset();
+        TempPersonMedicalInfoDisability.DeleteAll();
 
         if Employee.FindSet then
             repeat
@@ -2343,7 +2343,7 @@ codeunit 17460 "Personified Accounting Mgt."
                         TempPersonMedicalInfoDisability := TempPersonMedicalInfoPeriod;
                         TempPersonMedicalInfoDisability."Person No." := Employee."No."; // for case when 2 employees per person
                         TempPersonMedicalInfoDisability."Employee No." := Employee."No.";
-                        TempPersonMedicalInfoDisability.Insert;
+                        TempPersonMedicalInfoDisability.Insert();
 
                         if TempPersonMedicalInfoPeriod."Disability Group" =
                            TempPersonMedicalInfoPeriod."Disability Group"::" "
@@ -2355,12 +2355,12 @@ codeunit 17460 "Personified Accounting Mgt."
 
                 if WithDisabilityPeriod then begin
                     TempEmployeeWithDisability := Employee;
-                    TempEmployeeWithDisability.Insert;
+                    TempEmployeeWithDisability.Insert();
                 end;
 
                 if WithoutDisabilityPeriod then begin
                     TempEmployeeWithoutDisability := Employee;
-                    TempEmployeeWithoutDisability.Insert;
+                    TempEmployeeWithoutDisability.Insert();
                 end;
             until Employee.Next = 0;
     end;
@@ -2427,7 +2427,7 @@ codeunit 17460 "Personified Accounting Mgt."
     local procedure GetHRSetup()
     begin
         if not HRSetupRead then
-            HRSetup.Get;
+            HRSetup.Get();
         HRSetupRead := true;
     end;
 

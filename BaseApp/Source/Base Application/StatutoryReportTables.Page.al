@@ -323,7 +323,7 @@ page 26552 "Statutory Report Tables"
             if StatutoryReportTable.Find('+') then
                 repeat
                     StatutoryReportTable."Sequence No." := StatutoryReportTable."Sequence No." + 1;
-                    StatutoryReportTable.Modify;
+                    StatutoryReportTable.Modify();
                 until StatutoryReportTable.Next(-1) = 0;
             "Sequence No." := SequenceNo;
         end;
@@ -347,7 +347,7 @@ page 26552 "Statutory Report Tables"
         if UpperStatutoryReportTable.FindLast then begin
             SequenceNo := UpperStatutoryReportTable."Sequence No.";
             UpperStatutoryReportTable."Sequence No." := "Sequence No.";
-            UpperStatutoryReportTable.Modify;
+            UpperStatutoryReportTable.Modify();
 
             "Sequence No." := SequenceNo;
             Modify;
@@ -366,7 +366,7 @@ page 26552 "Statutory Report Tables"
         if LowerStatutoryReportTable.FindFirst then begin
             SequenceNo := LowerStatutoryReportTable."Sequence No.";
             LowerStatutoryReportTable."Sequence No." := "Sequence No.";
-            LowerStatutoryReportTable.Modify;
+            LowerStatutoryReportTable.Modify();
 
             "Sequence No." := SequenceNo;
             Modify;

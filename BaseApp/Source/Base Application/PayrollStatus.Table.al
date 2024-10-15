@@ -162,7 +162,7 @@ table 17457 "Payroll Status"
     begin
         PayrollPeriod.Get("Period Code");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
 
         with PayrollStatus do begin
             if HumanResSetup."Wages Element Code" <> '' then
@@ -238,7 +238,7 @@ table 17457 "Payroll Status"
     begin
         PayrollPeriod.Get("Period Code");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         with PayrollStatus do begin
             if HumanResSetup."Wages Element Code" <> '' then
                 "Posted Wages" :=
@@ -337,7 +337,7 @@ table 17457 "Payroll Status"
         LaborContractTerms: Record "Labor Contract Terms";
     begin
         PayrollPeriod.Get("Period Code");
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         LaborContract.SetRange("Employee No.", "Employee No.");
         if not LaborContract.FindFirst then
             exit(false);

@@ -26,28 +26,22 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VendUnapplyErr: Label 'You cannot unapply Vendor Ledger Entry No. %1 because the entry';
         ErrorsMustMatchTxt: Label 'Errors must match.';
         UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
-        ReversedSuccessfullyMsg: Label 'The entries were successfully reversed.';
-        WrongPostingDateErr: Label 'Wrong Posting Date in G/L Entry.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostAndReverseEntries()
     var
+        GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
-        VATPostingSetup: Record "VAT Posting Setup";
         GLRegisterNo: Integer;
         DocumentNo: Code[20];
     begin
         // Create and Post General Journal Line and Reverse them and Check Reversed Entries.
 
         Initialize();
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        DocumentNo :=
-          PostGeneralLineAndReverse(
-            GLRegisterNo, GenJournalLine."Account Type"::"G/L Account",
-            LibraryERM.CreateGLAccountWithVATPostingSetup(
-              VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale));
+        LibraryERM.FindGLAccount(GLAccount);
+        DocumentNo := PostGeneralLineAndReverse(GLRegisterNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
         // Verify: Verify that Posted entry has been reversed successfully on G/L Entry, Bank Ledger Entry, G/L Register and VAT Entry.
         VerifyGLRegister(GLRegisterNo);
@@ -61,19 +55,16 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     [Scope('OnPrem')]
     procedure PostReverseAndReverseError()
     var
+        GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         ReversalEntry: Record "Reversal Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
         GLRegisterNo: Integer;
     begin
         // Create and Post General Journal Line, Reverse them and check error when try to reverse again.
 
         Initialize();
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        PostGeneralLineAndReverse(
-          GLRegisterNo, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(
-            VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale));
+        LibraryERM.FindGLAccount(GLAccount);
+        PostGeneralLineAndReverse(GLRegisterNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
         // Verify: Verify that after reversed successfully error raised when try to Reversed again.
         ReversalEntry.SetHideDialog(true);
@@ -132,14 +123,15 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VATEntry: Record "VAT Entry";
         CustNo: Code[20];
         DocNo: Code[20];
+        PmtDocNo: Code[20];
         TransactionNo: Integer;
     begin
         // Setup: Set "Unrealized VAT", Create Customer, Create and Post Invoice, Create, Post, and Apply/Unapply Payment
         Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         DocNo := CreateAndPostSalesDocumentUnrealizedVAT(CustNo);
-        CreatePostAndApplyUnapplyCustPmt(CustNo, DocNo);
-        TransactionNo := GetPmtVATTransactionNo(VATEntry, DocNo);
+        PmtDocNo := CreatePostAndApplyUnapplyCustPmt(CustNo, DocNo);
+        TransactionNo := GetPmtVATTransactionNo(VATEntry, PmtDocNo);
 
         // Exercise: Reverse Posted Entry from Customer Legder.
         ReversalEntry.SetHideDialog(true);
@@ -162,14 +154,15 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VATEntry: Record "VAT Entry";
         VendNo: Code[20];
         DocNo: Code[20];
+        PmtDocNo: Code[20];
         TransactionNo: Integer;
     begin
         // Setup: Set "Unrealized VAT", Create Vendor, Create and Post Invoice, Create, Post, and Apply/Unapply Payment
         Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         DocNo := CreateAndPostPurchDocumentUnrealizedVAT(VendNo);
-        CreatePostAndApplyUnapplyVendPmt(VendNo, DocNo);
-        TransactionNo := GetPmtVATTransactionNo(VATEntry, DocNo);
+        PmtDocNo := CreatePostAndApplyUnapplyVendPmt(VendNo, DocNo);
+        TransactionNo := GetPmtVATTransactionNo(VATEntry, PmtDocNo);
 
         // Exercise: Reverse Posted Entry from Customer Legder.
         ReversalEntry.SetHideDialog(true);
@@ -331,35 +324,6 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         VerifyGLEntryNotReversed(InvoiceNo);
     end;
 
-    [Test]
-    [HandlerFunctions('ReverseEntriesOnDateHandler,VATReverseDateHandler,MessageHandlerForReverse,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ReverseOnDateWithinAllowedPeriod()
-    var
-        GLRegister: Record "G/L Register";
-        ReversalEntry: Record "Reversal Entry";
-        AllowPostingFrom: Date;
-        AllowPostingTo: Date;
-        GLAccountNo: Code[20];
-    begin
-        // [FEATURE] [Reverse On Date] [Allow Posting]
-        // [SCENARIO 362827] Reverse on Date (in allowed period) should reverse transaction posted in period closed by "Allow Posting From"
-        Initialize();
-        // [GIVEN] Post simple General Journal Line on date "D1"
-        // [GIVEN] Set General Ledger Setup: "Allow Period From" = "D2" (where "D2" > "D1")
-        ReverseAllowPeriodSetup(GLAccountNo, AllowPostingFrom, AllowPostingTo, CalcDate('<-1D>', WorkDate));
-
-        // [WHEN] Run "Reverse on Date" and set "Posting Date" = "D2"
-        GLRegister.FindLast;
-        ReversalEntry.ReverseRegister(GLRegister."No.");
-
-        // [THEN] Last G/L Entry is posted on date "D2"
-        VerifyPostingDateInLastGLEntry(GLAccountNo, WorkDate);
-
-        // Tear Down.
-        UpdateGeneralLedgerSetup(AllowPostingFrom, AllowPostingTo);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -377,7 +341,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -414,8 +378,6 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        GenJournalBatch."Copy VAT Setup to Jnl. Lines" := true;
-        GenJournalBatch.Modify;
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -503,18 +465,12 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     end;
 
     local procedure GetPmtVATTransactionNo(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]): Integer
-    var
-        RealizedVATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
+            SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", DocumentNo);
             FindFirst;
-
-            RealizedVATEntry.SetRange("Unrealized VAT Entry No.", "Entry No.");
-            RealizedVATEntry.FindFirst;
-            VATEntry := RealizedVATEntry;
-            exit(RealizedVATEntry."Transaction No.");
+            exit("Transaction No.");
         end;
     end;
 
@@ -845,61 +801,6 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         exit(GenJnlLine."Document No.");
     end;
 
-    local procedure VerifyPostingDateInLastGLEntry(GLAccountNo: Code[20]; ExpectedPostingDate: Date)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
-        Assert.AreEqual(ExpectedPostingDate, GLEntry."Posting Date", WrongPostingDateErr);
-    end;
-
-    local procedure ReverseAllowPeriodSetup(var GLAccountNo: Code[20]; var AllowPostingFrom: Date; var AllowPostingTo: Date; PostingDate: Date): Code[20]
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        GeneralLedgerSetup.Get;
-        AllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
-        AllowPostingTo := GeneralLedgerSetup."Allow Posting To";
-        UpdateGeneralLedgerSetup(0D, 0D); // Update General Ledger Setup Date Range fields with OD value.
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
-        CreatePaymentGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
-          GLAccountNo, LibraryRandom.RandInt(100)); // Using RANDOM for Amount field.
-        UpdateGeneralJournalLine(GenJournalLine, PostingDate);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        UpdateGeneralLedgerSetup(WorkDate, WorkDate);
-        exit(GenJournalLine."Document No.");
-    end;
-
-    local procedure UpdateGeneralLedgerSetup(AllowPostingFrom: Date; AllowPostingTo: Date)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Using assignment to avoid validation errors.
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup."Allow Posting From" := AllowPostingFrom;
-        GeneralLedgerSetup."Allow Posting To" := AllowPostingTo;
-        GeneralLedgerSetup.Modify(true);
-    end;
-
-    local procedure CreatePaymentGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
-    end;
-
-    local procedure UpdateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
-    begin
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify(true);
-    end;
-
     local procedure CreatePostGenJnlLinesWithApplyToOldest(AccountType: Option; AccountNo: Code[20]; Sign: Integer; var PaymentNo: Code[20]; var InvoiceNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -933,28 +834,6 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandlerForReverse(Msg: Text)
-    begin
-        Assert.ExpectedMessage(ReversedSuccessfullyMsg, Msg);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ReverseEntriesOnDateHandler(var ReverseEntries: TestPage "Reverse Entries")
-    begin
-        ReverseEntries.ReverseOnDate.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure VATReverseDateHandler(var VATReversalOnDate: TestPage "VAT Reversal on Date")
-    begin
-        VATReversalOnDate.PostingDate.SetValue(WorkDate);
-        VATReversalOnDate.Yes.Invoke;
     end;
 }
 

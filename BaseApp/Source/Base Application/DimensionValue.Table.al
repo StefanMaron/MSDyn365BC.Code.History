@@ -156,7 +156,7 @@ table 349 "Dimension Value"
         DimValueComb.SetRange("Dimension 1 Value Code", Code);
         DimValueComb.DeleteAll(true);
 
-        DimValueComb.Reset;
+        DimValueComb.Reset();
         DimValueComb.SetRange("Dimension 2 Code", "Dimension Code");
         DimValueComb.SetRange("Dimension 2 Value Code", Code);
         DimValueComb.DeleteAll(true);
@@ -250,7 +250,7 @@ table 349 "Dimension Value"
         GLBudgetEntry2: Record "G/L Budget Entry";
         BudgDimNo: Integer;
     begin
-        GLBudget.LockTable;
+        GLBudget.LockTable();
         if GLBudget.Find('-') then
             repeat
             until GLBudget.Next = 0;
@@ -292,12 +292,12 @@ table 349 "Dimension Value"
                                 BudgDimNo = 4:
                                     GLBudgetEntry2."Budget Dimension 4 Code" := Code;
                             end;
-                            GLBudgetEntry2.Modify;
+                            GLBudgetEntry2.Modify();
                         until GLBudgetEntry.Next = 0;
-                    GLBudgetEntry.Reset;
+                    GLBudgetEntry.Reset();
                 until GLBudget.Next = 0;
             end;
-            GLBudget.Reset;
+            GLBudget.Reset();
         end;
     end;
 
@@ -310,7 +310,7 @@ table 349 "Dimension Value"
         AnalysisViewBudgEntry2: Record "Analysis View Budget Entry";
         DimensionNo: Integer;
     begin
-        AnalysisView.LockTable;
+        AnalysisView.LockTable();
         if AnalysisView.Find('-') then
             repeat
             until AnalysisView.Next = 0;
@@ -365,10 +365,10 @@ table 349 "Dimension Value"
                                 DimensionNo = 4:
                                     AnalysisViewEntry2."Dimension 4 Value Code" := Code;
                             end;
-                            AnalysisViewEntry.Delete;
-                            AnalysisViewEntry2.Insert;
+                            AnalysisViewEntry.Delete();
+                            AnalysisViewEntry2.Insert();
                         until AnalysisViewEntry.Next = 0;
-                    AnalysisViewEntry.Reset;
+                    AnalysisViewEntry.Reset();
                     if AnalysisViewBudgEntry.Find('-') then
                         repeat
                             AnalysisViewBudgEntry2 := AnalysisViewBudgEntry;
@@ -382,12 +382,12 @@ table 349 "Dimension Value"
                                 DimensionNo = 4:
                                     AnalysisViewBudgEntry2."Dimension 4 Value Code" := Code;
                             end;
-                            AnalysisViewBudgEntry.Delete;
-                            AnalysisViewBudgEntry2.Insert;
+                            AnalysisViewBudgEntry.Delete();
+                            AnalysisViewBudgEntry2.Insert();
                         until AnalysisViewBudgEntry.Next = 0;
-                    AnalysisViewBudgEntry.Reset;
+                    AnalysisViewBudgEntry.Reset();
                 until AnalysisView.Next = 0;
-            AnalysisView.Reset;
+            AnalysisView.Reset();
         end;
     end;
 
@@ -398,7 +398,7 @@ table 349 "Dimension Value"
         ItemBudgetEntry2: Record "Item Budget Entry";
         BudgDimNo: Integer;
     begin
-        ItemBudget.LockTable;
+        ItemBudget.LockTable();
         if ItemBudget.Find('-') then
             repeat
             until ItemBudget.Next = 0;
@@ -437,12 +437,12 @@ table 349 "Dimension Value"
                                 BudgDimNo = 3:
                                     ItemBudgetEntry2."Budget Dimension 3 Code" := Code;
                             end;
-                            ItemBudgetEntry2.Modify;
+                            ItemBudgetEntry2.Modify();
                         until ItemBudgetEntry.Next = 0;
-                    ItemBudgetEntry.Reset;
+                    ItemBudgetEntry.Reset();
                 until ItemBudget.Next = 0;
             end;
-            ItemBudget.Reset;
+            ItemBudget.Reset();
         end;
     end;
 
@@ -455,7 +455,7 @@ table 349 "Dimension Value"
         ItemAnalysisViewBudgEntry2: Record "Item Analysis View Budg. Entry";
         DimensionNo: Integer;
     begin
-        ItemAnalysisView.LockTable;
+        ItemAnalysisView.LockTable();
         if ItemAnalysisView.Find('-') then
             repeat
             until ItemAnalysisView.Next = 0;
@@ -503,10 +503,10 @@ table 349 "Dimension Value"
                                 DimensionNo = 3:
                                     ItemAnalysisViewEntry2."Dimension 3 Value Code" := Code;
                             end;
-                            ItemAnalysisViewEntry.Delete;
-                            ItemAnalysisViewEntry2.Insert;
+                            ItemAnalysisViewEntry.Delete();
+                            ItemAnalysisViewEntry2.Insert();
                         until ItemAnalysisViewEntry.Next = 0;
-                    ItemAnalysisViewEntry.Reset;
+                    ItemAnalysisViewEntry.Reset();
                     if ItemAnalysisViewBudgEntry.Find('-') then
                         repeat
                             ItemAnalysisViewBudgEntry2 := ItemAnalysisViewBudgEntry;
@@ -518,12 +518,12 @@ table 349 "Dimension Value"
                                 DimensionNo = 3:
                                     ItemAnalysisViewBudgEntry2."Dimension 3 Value Code" := Code;
                             end;
-                            ItemAnalysisViewBudgEntry.Delete;
-                            ItemAnalysisViewBudgEntry2.Insert;
+                            ItemAnalysisViewBudgEntry.Delete();
+                            ItemAnalysisViewBudgEntry2.Insert();
                         until ItemAnalysisViewBudgEntry.Next = 0;
-                    ItemAnalysisViewBudgEntry.Reset;
+                    ItemAnalysisViewBudgEntry.Reset();
                 until ItemAnalysisView.Next = 0;
-            ItemAnalysisView.Reset;
+            ItemAnalysisView.Reset();
         end;
     end;
 
@@ -564,7 +564,7 @@ table 349 "Dimension Value"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case "Dimension Code" of
             GeneralLedgerSetup."Global Dimension 1 Code":
                 exit(1);

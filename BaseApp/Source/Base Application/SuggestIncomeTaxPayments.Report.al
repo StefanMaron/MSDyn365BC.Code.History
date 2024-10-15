@@ -12,14 +12,14 @@ report 17459 "Suggest Income Tax Payments"
 
             trigger OnAfterGetRecord()
             begin
-                PostedPayrollDoc.Reset;
+                PostedPayrollDoc.Reset();
                 PostedPayrollDoc.SetCurrentKey("Employee No.");
                 PostedPayrollDoc.SetRange("Employee No.", Employee."No.");
                 PostedPayrollDoc.SetRange("Posting Date", StartingDate, EndingDate);
                 if PostedPayrollDoc.FindSet then
                     repeat
                         if PostedPayrollDoc."Calc Group Code" <> '' then begin
-                            PostedPayrollDocLine.Reset;
+                            PostedPayrollDocLine.Reset();
                             PostedPayrollDocLine.SetCurrentKey("Document No.", "Element Type");
                             PostedPayrollDocLine.SetRange("Document No.", PostedPayrollDoc."No.");
                             PostedPayrollDocLine.SetRange("Element Type", PostedPayrollDocLine."Element Type"::"Income Tax");
@@ -28,13 +28,13 @@ report 17459 "Suggest Income Tax Payments"
                                     if PostedPayrollDocLine."Payroll Amount" <> 0 then
                                         if TempPayrollAEBuffer.Get(PostedPayrollDocLine."Period Code", PostedPayrollDocLine."Element Code") then begin
                                             TempPayrollAEBuffer.Amount += PostedPayrollDocLine."Payroll Amount";
-                                            TempPayrollAEBuffer.Modify;
+                                            TempPayrollAEBuffer.Modify();
                                         end else begin
-                                            TempPayrollAEBuffer.Init;
+                                            TempPayrollAEBuffer.Init();
                                             TempPayrollAEBuffer."Period Code" := PostedPayrollDocLine."Period Code";
                                             TempPayrollAEBuffer."Element Code" := PostedPayrollDocLine."Element Code";
                                             TempPayrollAEBuffer.Amount := PostedPayrollDocLine."Payroll Amount";
-                                            TempPayrollAEBuffer.Insert;
+                                            TempPayrollAEBuffer.Insert();
                                         end;
                                 until PostedPayrollDocLine.Next = 0;
                         end;
@@ -43,13 +43,13 @@ report 17459 "Suggest Income Tax Payments"
 
             trigger OnPostDataItem()
             begin
-                TempPayrollAEBuffer.Reset;
+                TempPayrollAEBuffer.Reset();
                 if TempPayrollAEBuffer.FindSet then
                     repeat
                         CreateJnlLine(TempPayrollAEBuffer);
                     until TempPayrollAEBuffer.Next = 0;
 
-                TempPayrollAEBuffer.DeleteAll;
+                TempPayrollAEBuffer.DeleteAll();
             end;
 
             trigger OnPreDataItem()
@@ -58,7 +58,7 @@ report 17459 "Suggest Income Tax Payments"
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if GenJnlLine.FindLast then begin
                     LineNo := GenJnlLine."Line No.";
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                 end;
                 LineNo := LineNo + 10000;
 
@@ -140,7 +140,7 @@ report 17459 "Suggest Income Tax Payments"
                 BankAccount.TestField("Credit Cash Order No. Series");
         end;
 
-        HRSetup.Get;
+        HRSetup.Get();
     end;
 
     var
@@ -185,7 +185,7 @@ report 17459 "Suggest Income Tax Payments"
     var
         PayrollDocCalc: Codeunit "Payroll Document - Calculate";
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
 
         GenJnlLine."Line No." := LineNo;
         GenJnlLine.Validate("Posting Date", PostingDate);
@@ -209,7 +209,7 @@ report 17459 "Suggest Income Tax Payments"
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Computer Check";
         GenJnlLine."Applies-to ID" := '';
         GenJnlLine."Applies-to Doc. Date" := 0D;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         LineNo := LineNo + 10000;
     end;
 }

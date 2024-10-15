@@ -1,4 +1,4 @@
-﻿page 5601 "Fixed Asset List"
+page 5601 "Fixed Asset List"
 {
     AdditionalSearchTerms = 'fa list';
     ApplicationArea = FixedAssets;
@@ -252,7 +252,7 @@
                     var
                         FA: Record "Fixed Asset";
                     begin
-                        FA.Reset;
+                        FA.Reset();
                         FA.SetRange("No.", "No.");
                         if FA.Find('-') then
                             REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FA);

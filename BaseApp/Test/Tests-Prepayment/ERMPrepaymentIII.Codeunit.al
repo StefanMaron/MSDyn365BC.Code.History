@@ -1354,7 +1354,7 @@ codeunit 134102 "ERM Prepayment III"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment III");
     end;
@@ -1491,7 +1491,7 @@ codeunit 134102 "ERM Prepayment III"
         GLAccount.Get(CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
         GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10])
@@ -1572,7 +1572,7 @@ codeunit 134102 "ERM Prepayment III"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
         SalesLine."Prepmt. Line Amount" := PrepmtLineAmount;
         SalesLine."Prepmt. Amt. Inv." := PrepmtAmtInv;
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreateSalesPrepaymentPct(var SalesPrepaymentPct: Record "Sales Prepayment %"; CustomerNo: Code[20])
@@ -1608,7 +1608,7 @@ codeunit 134102 "ERM Prepayment III"
         CreateSalesDocumentWithPremtSetup(SalesHeader, SalesLine);
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
         SalesPostPrepayments.Invoice(SalesHeader);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor(CurrencyCode: Code[10]; VATBusPostingGroup: Code[20]): Code[20]
@@ -1737,7 +1737,7 @@ codeunit 134102 "ERM Prepayment III"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PostedPrepmtInvNosOld := PurchasesPayablesSetup."Posted Prepmt. Inv. Nos.";
         PurchasesPayablesSetup.Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
         PurchasesPayablesSetup.Modify(true);
@@ -1785,7 +1785,7 @@ codeunit 134102 "ERM Prepayment III"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Prepayment Unrealized VAT", PrepaymentUnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;

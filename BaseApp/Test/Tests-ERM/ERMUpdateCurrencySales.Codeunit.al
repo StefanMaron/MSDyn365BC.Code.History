@@ -35,10 +35,9 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -607,30 +606,34 @@ codeunit 134087 "ERM Update Currency - Sales"
     end;
 
     [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure LossEntryAdjustExchangeRate()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustomerNo: Code[20];
     begin
         // Check that after Modify lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
         // GL Entry updated with Correct Amount for Customer.
-        exit; // Known issue
 
         // 1. Setup: Create and Post General Journal Line for Customer and Update Exchange rate.
-        // Initialize;
-        // CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+        Initialize;
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Required Random Value for Amount.
-        // CustomerNo := CreateCustomerWithCurrency('');
-        // CreateGeneralJournalLine(
-        // GenJournalLine,CurrencyExchangeRate."Starting Date",CurrencyExchangeRate."Currency Code",CustomerNo,
-        // LibraryRandom.RandDec(100,2),GenJournalLine."Document Type"::Invoice,GenJournalLine."Account Type"::Customer);
-        // LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        // UpdateLowerExchangeRate(CurrencyExchangeRate);
+        CustomerNo := CreateCustomerWithCurrency('');
+        CreateGeneralJournalLine(
+          GenJournalLine, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Currency Code", CustomerNo,
+          LibraryRandom.RandDec(100, 2), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        UpdateLowerExchangeRate(CurrencyExchangeRate);
 
         // 2. Exercise: Run Adjust Exchange Rate batch job.
-        // RunAdjustExchangeRates(CurrencyExchangeRate,GenJournalLine."Document No.");
+        RunAdjustExchangeRates(CurrencyExchangeRate, GenJournalLine."Document No.");
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
-        // VerifyGLEntryLowerExchangeRate(GenJournalLine,CurrencyExchangeRate);
+        VerifyGLEntryLowerExchangeRate(GenJournalLine, CurrencyExchangeRate);
     end;
 
     [Test]
@@ -672,6 +675,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     end;
 
     [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure LossAdjustExchangeRateForBank()
     var
@@ -680,7 +684,6 @@ codeunit 134087 "ERM Update Currency - Sales"
     begin
         // Check that after Modify Lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
         // GL Entry updated with Correct Amount for Bank.
-        exit; // Known issue
 
         // 1. Setup: Create and Post General Journal Line for Bank Account and Update Lower Exchange rate.
         Initialize;
@@ -981,7 +984,7 @@ codeunit 134087 "ERM Update Currency - Sales"
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
         until CustLedgerEntry.Next = 0;
-        Commit;
+        Commit();
         GenJnlApply.Run(GenJournalLine);
     end;
 
@@ -1111,10 +1114,10 @@ codeunit 134087 "ERM Update Currency - Sales"
 
     local procedure CreateJob(var TempJob: Record Job temporary; BillToCustomerNo: Code[20])
     begin
-        TempJob.Init;
-        TempJob.Insert;
+        TempJob.Init();
+        TempJob.Insert();
         TempJob.Validate("Bill-to Customer No.", BillToCustomerNo);
-        TempJob.Modify;
+        TempJob.Modify();
     end;
 
     local procedure FindSalesInvoiceAmount(DocumentNo: Code[20]) SalesInvoiceAmount: Decimal
@@ -1175,10 +1178,13 @@ codeunit 134087 "ERM Update Currency - Sales"
     local procedure UpdateSalesLines(DocumentType: Option; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
+        ItemNo: code[20];
     begin
         FindSalesLines(SalesLine, DocumentType, DocumentNo);
         repeat
-            SalesLine.Validate("No.");
+            ItemNo := SalesLine."No.";
+            SalesLine."No." := '';
+            SalesLine.Validate("No.", ItemNo);
             SalesLine.Modify(true);
         until SalesLine.Next = 0;
     end;
@@ -1503,12 +1509,12 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Starting Date", LibraryVariableStorage.DequeueDate);
         CurrencyExchangeRate.Validate("Currency Code", CopyStr(LibraryVariableStorage.DequeueText, 1, 10));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Insert;
+        CurrencyExchangeRate.Insert();
         Response := ACTION::OK;
     end;
 }

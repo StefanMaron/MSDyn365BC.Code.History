@@ -35,9 +35,6 @@ report 17380 "Employee Journal - Test"
                 column(USERID; UserId)
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(Job_Journal_Line__TABLECAPTION__________JobJnlLineFilter; "Employee Journal Line".TableCaption + ': ' + EmplJnlLineFilter)
                 {
                 }
@@ -200,7 +197,7 @@ report 17380 "Employee Journal - Test"
                                         AllowPostingTo := UserSetup."Allow Posting To";
                                     end;
                                 if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                                    GLSetup.Get;
+                                    GLSetup.Get();
                                     AllowPostingFrom := GLSetup."Allow Posting From";
                                     AllowPostingTo := GLSetup."Allow Posting To";
                                 end;
@@ -234,11 +231,6 @@ report 17380 "Employee Journal - Test"
                     end;
                 }
             }
-
-            trigger OnAfterGetRecord()
-            begin
-                CurrReport.PageNo := 1;
-            end;
         }
     }
 

@@ -32,7 +32,7 @@ report 17302 "Calculate FE Depreciation"
                               DeprBook.Code);
                         if not (DeprBook."No. of Days in Fiscal Year" in [0, 360]) then
                             if not Confirm(Text12412, false, DeprBook.Code, DeprBook."No. of Days in Fiscal Year") then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     if not (DeprBook."Posting Book Type" in
@@ -62,7 +62,7 @@ report 17302 "Calculate FE Depreciation"
                             FAJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
                             FAJnlLineTmp."Depr. Period Starting Date" := Period;
                             FAJnlLineTmp."Depreciation Book Code" := "Depreciation Book Code";
-                            FAJnlLineTmp.Insert;
+                            FAJnlLineTmp.Insert();
                         end else begin
                             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, JnlNextLineNoLoc);
                             GenJnlLineTmp."Account No." := "FA No.";
@@ -74,7 +74,7 @@ report 17302 "Calculate FE Depreciation"
                             GenJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
                             GenJnlLineTmp."Depr. Period Starting Date" := Period;
                             GenJnlLineTmp."Depreciation Book Code" := "Depreciation Book Code";
-                            GenJnlLineTmp.Insert;
+                            GenJnlLineTmp.Insert();
                         end;
 
                     if DeprAmount <> 0 then
@@ -90,7 +90,7 @@ report 17302 "Calculate FE Depreciation"
                             FAJnlLineTmp."Location Code" := "Fixed Asset"."FA Location Code";
                             FAJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
                             FAJnlLineTmp."Depreciation Book Code" := "Depreciation Book Code";
-                            FAJnlLineTmp.Insert;
+                            FAJnlLineTmp.Insert();
                         end else begin
                             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, JnlNextLineNoLoc);
                             GenJnlLineTmp."Account No." := "FA No.";
@@ -102,7 +102,7 @@ report 17302 "Calculate FE Depreciation"
                             GenJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
                             GenJnlLineTmp."Depr. Period Starting Date" := Period;
                             GenJnlLineTmp."Depreciation Book Code" := "Depreciation Book Code";
-                            GenJnlLineTmp.Insert;
+                            GenJnlLineTmp.Insert();
                         end;
                 end;
 
@@ -116,15 +116,15 @@ report 17302 "Calculate FE Depreciation"
             trigger OnAfterGetRecord()
             begin
                 if Inactive or Blocked or "Undepreciable FA" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPostDataItem()
             begin
                 with FAJnlLine do begin
-                    FAJnlLineTmp.Reset;
+                    FAJnlLineTmp.Reset();
                     if FAJnlLineTmp.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         repeat
                             if (FAJnlLineTmp."Journal Template Name" <> "Journal Template Name") or
                                (FAJnlLineTmp."Journal Batch Name" <> "Journal Batch Name")
@@ -166,9 +166,9 @@ report 17302 "Calculate FE Depreciation"
                 end;
 
                 with GenJnlLine do begin
-                    GenJnlLineTmp.Reset;
+                    GenJnlLineTmp.Reset();
                     if GenJnlLineTmp.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         repeat
                             if (GenJnlLineTmp."Journal Template Name" <> "Journal Template Name") or
                                (GenJnlLineTmp."Journal Batch Name" <> "Journal Batch Name")

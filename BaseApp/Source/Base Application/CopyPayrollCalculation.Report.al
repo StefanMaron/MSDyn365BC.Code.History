@@ -12,40 +12,40 @@ report 17408 "Copy Payroll Calculation"
 
             trigger OnAfterGetRecord()
             begin
-                PayrollCalcLine.Reset;
+                PayrollCalcLine.Reset();
                 PayrollCalcLine.SetRange("Element Code", FromElementCode);
                 PayrollCalcLine.SetRange("Period Code", FromPeriodCode);
                 if PayrollCalcLine.FindSet then
                     repeat
-                        PayrollCalcLine2.Init;
+                        PayrollCalcLine2.Init();
                         PayrollCalcLine2 := PayrollCalcLine;
                         PayrollCalcLine2."Element Code" := PayrollCalculation."Element Code";
                         PayrollCalcLine2."Period Code" := PayrollCalculation."Period Code";
-                        PayrollCalcLine2.Insert;
+                        PayrollCalcLine2.Insert();
                     until PayrollCalcLine.Next = 0;
 
-                PayrollElementExpr.Reset;
+                PayrollElementExpr.Reset();
                 PayrollElementExpr.SetRange("Element Code", FromElementCode);
                 PayrollElementExpr.SetRange("Period Code", FromPeriodCode);
                 if PayrollElementExpr.FindSet then
                     repeat
-                        PayrollElementExpr2.Init;
+                        PayrollElementExpr2.Init();
                         PayrollElementExpr2 := PayrollElementExpr;
                         PayrollElementExpr2."Element Code" := PayrollCalculation."Element Code";
                         PayrollElementExpr2."Period Code" := PayrollCalculation."Period Code";
-                        PayrollElementExpr2.Insert;
+                        PayrollElementExpr2.Insert();
                     until PayrollElementExpr.Next = 0;
 
-                PayrollElementVar.Reset;
+                PayrollElementVar.Reset();
                 PayrollElementVar.SetRange("Element Code", FromElementCode);
                 PayrollElementVar.SetRange("Period Code", FromPeriodCode);
                 if PayrollElementVar.FindFirst then
                     repeat
-                        PayrollElementVar2.Init;
+                        PayrollElementVar2.Init();
                         PayrollElementVar2 := PayrollElementVar;
                         PayrollElementVar2."Element Code" := PayrollCalculation."Element Code";
                         PayrollElementVar2."Period Code" := PayrollCalculation."Period Code";
-                        PayrollElementVar2.Insert;
+                        PayrollElementVar2.Insert();
                     until PayrollElementExpr.Next = 0;
             end;
         }

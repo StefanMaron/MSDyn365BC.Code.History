@@ -117,7 +117,7 @@ report 14907 "Change Vendor VAT Invoice"
                     Error(Text001);
                 VATPrepmtPost.PostVendVAT(VendLedgEntry, VATProdPostingGrCode, VATBase, VATAmount);
 
-                Commit;
+                Commit();
                 if CurrReport.UseRequestPage then
                     Message(Text002, "Document No.");
             end;

@@ -82,12 +82,10 @@ table 167 Job
                 CheckDate;
             end;
         }
-        field(19; Status; Option)
+        field(19; Status; Enum "Job Status")
         {
             Caption = 'Status';
             InitValue = Open;
-            OptionCaption = 'Planning,Quote,Open,Completed';
-            OptionMembers = Planning,Quote,Open,Completed;
 
             trigger OnValidate()
             var
@@ -140,11 +138,9 @@ table 167 Job
             Caption = 'Job Posting Group';
             TableRelation = "Job Posting Group";
         }
-        field(24; Blocked; Option)
+        field(24; Blocked; Enum "Job Blocked")
         {
             Caption = 'Blocked';
-            OptionCaption = ' ,Posting,All';
-            OptionMembers = " ",Posting,All;
         }
         field(29; "Last Date Modified"; Date)
         {
@@ -304,12 +300,10 @@ table 167 Job
         {
             Caption = 'Bill-to Name 2';
         }
-        field(117; Reserve; Option)
+        field(117; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(140; Image; Media)
         {
@@ -703,6 +697,30 @@ table 167 Job
             Caption = 'Project Manager';
             TableRelation = "User Setup";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+            end;
+        }
+        field(7001; "Cost Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Cost Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Cost Calculation Method", PriceType::Purchase);
+            end;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -872,6 +890,42 @@ table 167 Job
                 exit(true);
             end;
         end;
+    end;
+
+    procedure GetCostCalculationMethod() Method: Enum "Price Calculation Method";
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        if "Cost Calculation Method" <> Method::" " then
+            Method := "Cost Calculation Method"
+        else begin
+            PurchasesPayablesSetup.Get();
+            Method := PurchasesPayablesSetup."Price Calculation Method";
+        end;
+    end;
+
+    procedure GetPriceCalculationMethod() Method: Enum "Price Calculation Method";
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        if "Price Calculation Method" <> Method::" " then
+            Method := "Price Calculation Method"
+        else begin
+            Method := GetCustomerPriceGroupPriceCalcMethod();
+            if Method = Method::" " then begin
+                SalesReceivablesSetup.Get();
+                Method := SalesReceivablesSetup."Price Calculation Method";
+            end;
+        end;
+    end;
+
+    local procedure GetCustomerPriceGroupPriceCalcMethod(): Enum "Price Calculation Method";
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+    begin
+        if "Customer Price Group" <> '' then
+            if CustomerPriceGroup.Get("Customer Price Group") then
+                exit(CustomerPriceGroup."Price Calculation Method");
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; ShortcutDimCode: Code[20])

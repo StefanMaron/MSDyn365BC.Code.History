@@ -250,8 +250,8 @@ codeunit 5601 "FA Insert G/L Account"
         SkipInsert: Boolean;
     begin
         OnBeforeGetBalAccLocal(GenJnlLine);
-        TempFAGLPostBuf.DeleteAll;
-        TempGenJnlLine.Init;
+        TempFAGLPostBuf.DeleteAll();
+        TempGenJnlLine.Init();
         with GenJnlLine do begin
             Reset;
             Find;
@@ -291,7 +291,7 @@ codeunit 5601 "FA Insert G/L Account"
                     InsertGenJnlLine(GenJnlLine);
                 until TempFAGLPostBuf.Next = 0;
         end;
-        TempFAGLPostBuf.DeleteAll;
+        TempFAGLPostBuf.DeleteAll();
         exit(GenJnlLine."Line No.");
     end;
 
@@ -454,16 +454,17 @@ codeunit 5601 "FA Insert G/L Account"
 
     local procedure InsertBufferEntry()
     begin
-        if TempFAGLPostBuf.Find('+') then
-            NextEntryNo := TempFAGLPostBuf."Entry No." + 1
+        if TempFAGLPostBuf.IsEmpty() then
+            NextEntryNo := GLEntryNo
         else
-            NextEntryNo := GLEntryNo;
+            NextEntryNo := TempFAGLPostBuf.GetLastEntryNo() + 1;
+
         TempFAGLPostBuf := FAGLPostBuf;
         TempFAGLPostBuf."Entry No." := NextEntryNo;
         TempFAGLPostBuf."Original General Journal Line" := OrgGenJnlLine;
         TempFAGLPostBuf."Net Disposal" := NetDisp;
         OnInsertBufferEntryOnBeforeBufferInsert(TempFAGLPostBuf, FAGLPostBuf);
-        TempFAGLPostBuf.Insert;
+        TempFAGLPostBuf.Insert();
         NumberOfEntries := NumberOfEntries + 1;
     end;
 
@@ -488,7 +489,7 @@ codeunit 5601 "FA Insert G/L Account"
 
     procedure DeleteAllGLAcc()
     begin
-        TempFAGLPostBuf.DeleteAll;
+        TempFAGLPostBuf.DeleteAll();
         DisposalEntryNo := 0;
         BookValueEntry := false;
     end;
@@ -536,7 +537,7 @@ codeunit 5601 "FA Insert G/L Account"
         else
             TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss;
         OnBeforeTempFAGLPostBufModify(FAPostingGr2, TempFAGLPostBuf, GLAmount);
-        TempFAGLPostBuf.Modify;
+        TempFAGLPostBuf.Modify();
         FAGLPostBuf := TempFAGLPostBuf;
         if LastDisposal then
             exit;
@@ -660,7 +661,7 @@ codeunit 5601 "FA Insert G/L Account"
         with FALedgEntry do begin
             if Amount = 0 then
                 exit;
-            GLSetup.Get;
+            GLSetup.Get();
             if not GLSetup."Enable Russian Accounting" then
                 exit;
             FA.Get("FA No.");

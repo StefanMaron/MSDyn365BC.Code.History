@@ -29,20 +29,16 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
 
         with TaxDiffEntry do begin
             if NextEntryNo = 0 then begin
-                LockTable;
-                if FindLast then
-                    NextEntryNo := "Entry No.";
+                LockTable();
+                NextEntryNo := GetLastEntryNo();
 
-                TaxDiffReg.LockTable;
-                if TaxDiffReg.FindLast then
-                    TaxDiffReg."No." := TaxDiffReg."No." + 1
-                else
-                    TaxDiffReg."No." := 1;
-                TaxDiffReg.Init;
+                TaxDiffReg.LockTable();
+                TaxDiffReg."No." := TaxDiffReg.GetLastEntryNo() + 1;
+                TaxDiffReg.Init();
                 TaxDiffReg."Journal Batch Name" := TaxDiffJnlLine."Journal Batch Name";
                 TaxDiffReg."Creation Date" := Today;
                 TaxDiffReg."User ID" := UserId;
-                TaxDiffReg.Insert;
+                TaxDiffReg.Insert();
             end;
             NextEntryNo := NextEntryNo + 1;
 
@@ -151,7 +147,7 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
             end;
         end;
 
-        TaxDiffEntry.Insert;
+        TaxDiffEntry.Insert();
 
         with TaxDiffReg do begin
             Get("No.");
@@ -168,7 +164,7 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
         GLReg: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Journal Batch Name" := TaxDiffJnlLine."Journal Batch Name";
         GenJnlLine."Posting Date" := PostingDate;
         GenJnlLine."Document Date" := PostingDate;
@@ -265,7 +261,7 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
     begin
         with TaxDiffJnlLine do
             if "Depr. Bonus Recovery" then begin
-                TaxRegisterSetup.Get;
+                TaxRegisterSetup.Get();
                 TaxRegisterSetup.TestField("Tax Depreciation Book");
                 FALedgerEntry.SetCurrentKey(
                   "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");

@@ -99,7 +99,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogEntry.Delete(true);
 
         // [THEN] Insert of a new customer is not blocked
-        ChangeGlobalDimLogEntry.Insert; // to mock a block if TempBlockAllObjWithCaption contains Customer record
+        ChangeGlobalDimLogEntry.Insert(); // to mock a block if TempBlockAllObjWithCaption contains Customer record
         Assert.IsTrue(Customer.Insert, 'customer should be inserted');
     end;
 
@@ -170,16 +170,16 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Change Global Dim. Buffer Mgt.");
-        ChangeGlobalDimLogEntry.DeleteAll;
+        ChangeGlobalDimLogEntry.DeleteAll();
     end;
 
     local procedure InsertODataEdmTypeEntry()
     var
         ODataEdmType: Record "OData Edm Type";
     begin
-        ODataEdmType.Init;
+        ODataEdmType.Init();
         ODataEdmType.Key := LibraryUtility.GenerateGUID;
-        ODataEdmType.Insert;
+        ODataEdmType.Insert();
     end;
 
     local procedure MockChangeGlobalDimLogEntry(): Integer
@@ -189,7 +189,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::Customer;
         ChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status::"In Progress";
         ChangeGlobalDimLogEntry."Total Records" := 1;
-        ChangeGlobalDimLogEntry.Insert;
+        ChangeGlobalDimLogEntry.Insert();
         exit(ChangeGlobalDimLogEntry."Table ID");
     end;
 

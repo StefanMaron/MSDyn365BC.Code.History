@@ -303,7 +303,7 @@ table 17400 "Payroll Element"
     begin
         DimMgt.DeleteDefaultDim(DATABASE::"Payroll Element", Code);
 
-        PayrollLedgerEntry.Reset;
+        PayrollLedgerEntry.Reset();
         PayrollLedgerEntry.SetCurrentKey("Element Code");
         PayrollLedgerEntry.SetRange("Element Code", Code);
         PayrollLedgerEntry.SetRange("Posting Date", DMY2Date(1, 1, Date2DMY(WorkDate, 3)), 99991231D);
@@ -312,49 +312,49 @@ table 17400 "Payroll Element"
         PayrollLedgerEntry.SetRange("Posting Date");
         PayrollLedgerEntry.ModifyAll("Element Code", '');
 
-        PayrollBaseAmount.Reset;
+        PayrollBaseAmount.Reset();
         PayrollBaseAmount.SetCurrentKey("Element Code");
         PayrollBaseAmount.SetRange("Element Code", Code);
-        PayrollBaseAmount.DeleteAll;
+        PayrollBaseAmount.DeleteAll();
 
-        PayrollCalcTypeLine.Reset;
+        PayrollCalcTypeLine.Reset();
         PayrollCalcTypeLine.SetCurrentKey("Element Code");
         PayrollCalcTypeLine.SetRange("Element Code", Code);
-        PayrollCalcTypeLine.DeleteAll;
+        PayrollCalcTypeLine.DeleteAll();
 
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetCurrentKey("Element Code");
         PayrollDocLine.SetRange("Element Code", Code);
         if not PayrollDocLine.IsEmpty then
             Error(Text007, Code, PayrollDocLine.TableCaption);
-        PayrollDocLine.DeleteAll;
+        PayrollDocLine.DeleteAll();
 
-        PayrollRangeHeader.Reset;
+        PayrollRangeHeader.Reset();
         PayrollRangeHeader.SetCurrentKey("Element Code");
         PayrollRangeHeader.SetRange("Element Code", Code);
         PayrollRangeHeader.DeleteAll(true);
 
-        PayrollRangeLine.Reset;
+        PayrollRangeLine.Reset();
         PayrollRangeLine.SetCurrentKey("Element Code");
         PayrollRangeLine.SetRange("Element Code", Code);
-        PayrollRangeLine.DeleteAll;
+        PayrollRangeLine.DeleteAll();
 
-        PayrollCalculation.Reset;
+        PayrollCalculation.Reset();
         PayrollCalculation.SetCurrentKey("Element Code");
         PayrollCalculation.SetRange("Element Code", Code);
         PayrollCalculation.DeleteAll(true);
 
-        PayrollElementInclusion.Reset;
+        PayrollElementInclusion.Reset();
         PayrollElementInclusion.SetCurrentKey("Element Code");
         PayrollElementInclusion.SetRange("Element Code", Code);
-        PayrollElementInclusion.DeleteAll;
+        PayrollElementInclusion.DeleteAll();
     end;
 
     trigger OnModify()
     begin
         "Last Change Date" := Today;
 
-        PayrollCalcTypeLine.Reset;
+        PayrollCalcTypeLine.Reset();
         PayrollCalcTypeLine.SetCurrentKey("Element Code");
         PayrollCalcTypeLine.SetRange("Element Code", Code);
         if Type <> xRec.Type then
@@ -366,7 +366,7 @@ table 17400 "Payroll Element"
         if Calculate <> xRec.Calculate then
             PayrollCalcTypeLine.ModifyAll(Calculate, Calculate);
 
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetCurrentKey("Element Code");
         PayrollDocLine.SetRange("Element Code", Code);
         if Type <> xRec.Type then
@@ -411,7 +411,7 @@ table 17400 "Payroll Element"
     var
         PayrollLedgEntry: Record "Payroll Ledger Entry";
     begin
-        PayrollLedgEntry.Reset;
+        PayrollLedgEntry.Reset();
         PayrollLedgEntry.SetCurrentKey("Element Code");
         PayrollLedgEntry.SetRange("Element Code", Code);
         PayrollLedgEntry.ModifyAll("Directory Code", "Directory Code");
@@ -422,7 +422,7 @@ table 17400 "Payroll Element"
     var
         HRSetup: Record "Human Resources Setup";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("AE Calculation Function Code");
 
         PayrollCalculationLine.SetRange("Element Code", Code);

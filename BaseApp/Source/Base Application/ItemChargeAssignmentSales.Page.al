@@ -365,7 +365,7 @@ page 5814 "Item Charge Assignment (Sales)"
         else
             UnitCost := 0;
 
-        ItemChargeAssgntSales.Reset;
+        ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetCurrentKey("Document Type", "Document No.", "Document Line No.");
         ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", "Document No.");

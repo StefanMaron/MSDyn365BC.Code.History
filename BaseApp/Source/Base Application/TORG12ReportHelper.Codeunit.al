@@ -21,7 +21,7 @@ codeunit 14934 "TORG-12 Report Helper"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("TORG-12 Template Code");
         ExcelReportBuilderManager.InitTemplate(SalesReceivablesSetup."TORG-12 Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');

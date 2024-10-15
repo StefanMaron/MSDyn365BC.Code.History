@@ -17,10 +17,10 @@ report 17470 "Export RSV form"
             begin
                 Employee.SetRange("Person No.", "No.");
                 if Employee.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempPerson := Person;
-                TempPerson.Insert;
+                TempPerson.Insert();
             end;
 
             trigger OnPostDataItem()

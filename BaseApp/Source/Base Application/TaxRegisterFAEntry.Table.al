@@ -69,15 +69,13 @@ table 17211 "Tax Register FA Entry"
             Caption = 'Depreciation Group';
             Editable = false;
         }
-        field(64; "Depreciation Method"; Option)
+        field(64; "Depreciation Method"; Enum "FA Depreciation Method")
         {
             CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Method" WHERE("FA No." = FIELD("FA No."),
                                                                                      "Depreciation Book Code" = FIELD("Depreciation Book Code")));
             Caption = 'Depreciation Method';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Straight-Line,Declining-Balance 1,Declining-Balance 2,DB1/SL,DB2/SL,User-Defined,Manual,SL-RU,DB/SL-RU,DB/SL-RU Tax Group';
-            OptionMembers = "Straight-Line","Declining-Balance 1","Declining-Balance 2","DB1/SL","DB2/SL","User-Defined",Manual,"SL-RU","DB/SL-RU","DB/SL-RU Tax Group";
         }
         field(65; "No. of Depreciation Months"; Decimal)
         {

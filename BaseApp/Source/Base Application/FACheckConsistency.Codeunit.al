@@ -242,7 +242,7 @@ codeunit 5606 "FA Check Consistency"
             end;
 
         OnSetFAPostingDateOnBeforeFADeprBookModify(FADeprBook, FALedgEntry2, MaxDate, MinDate, GLDate);
-        FADeprBook.Modify;
+        FADeprBook.Modify();
     end;
 
     local procedure CheckInsuranceIntegration()
@@ -254,7 +254,7 @@ codeunit 5606 "FA Check Consistency"
             exit;
         if InsCoverageLedgEntry.IsEmpty then
             exit;
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         if DeprBook.Code <> FASetup."Insurance Depr. Book" then
             exit;
@@ -370,7 +370,7 @@ codeunit 5606 "FA Check Consistency"
         if not PstdFADocHeader.Get(PstdFADocHeader."Document Type"::Movement, FALedgEntry."Document No.") then
             exit(false);
 
-        FALedgEntry3.Reset;
+        FALedgEntry3.Reset();
         FALedgEntry3.CopyFilters(FALedgEntry);
         FALedgEntry3.SetRange("Document No.", PstdFADocHeader."No.");
         FALedgEntry3.SetRange("Reclassification Entry", true);

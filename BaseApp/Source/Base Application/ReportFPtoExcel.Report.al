@@ -16,7 +16,7 @@ report 17485 "Report FP to Excel"
             begin
                 BDRangeNo := CalcEmployeeBDRange("Birth Date", Gender);
                 if BDRangeNo = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalcTaxAmounts("No.", 2, StartingDate, AmtByBDRange[1, BDRangeNo]);
 
@@ -64,8 +64,8 @@ report 17485 "Report FP to Excel"
                 ExcelMgt.OpenBookForUpdate(FileName);
                 ExcelMgt.OpenSheet('ï¿ßÔ1');
 
-                HumanSetup.Get;
-                CompanyInfo.Get;
+                HumanSetup.Get();
+                CompanyInfo.Get();
                 RoundFactor := 1;
                 SetBDRanges(DMY2Date(1, 1, 1870), DMY2Date(31, 12, 1966), Sex::Female, 1);
                 SetBDRanges(DMY2Date(1, 1, 1870), DMY2Date(31, 12, 1966), Sex::Male, 1);
@@ -197,12 +197,12 @@ report 17485 "Report FP to Excel"
 
     trigger OnPreReport()
     begin
-        HumanSetup.Get;
+        HumanSetup.Get();
         HumanSetup.TestField("PF Report Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumanSetup."PF Report Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -236,7 +236,7 @@ report 17485 "Report FP to Excel"
     procedure CalcTaxAmounts(EmployeeNo: Code[20]; FieldNo: Integer; Dates: array[3] of Date; var TaxAmounts: array[5] of Decimal)
     begin
         /** TODO
-        SSTData.RESET;
+        SSTData.Reset();
         SSTData.SETRANGE("Employee No.",EmployeeNo);
         SSTData.SETRANGE(Year,DATE2DMY(Dates[3],3));
         SSTData.SETFILTER("Month No.",'<%1',DATE2DMY(Dates[1],2));
@@ -258,7 +258,7 @@ report 17485 "Report FP to Excel"
     procedure CalcExceededTaxAmounts(EmployeeNo: Code[20]; FieldNo: Integer; Dates: array[3] of Date; Range: Integer; var TaxAmounts: array[5] of Decimal)
     begin
         /** TODO
-        SSTData.RESET;
+        SSTData.Reset();
         SSTData.SETRANGE("Employee No.",EmployeeNo);
         SSTData.SETRANGE(Year,DATE2DMY(Dates[3],3));
         SSTData.SETRANGE("Month No.",DATE2DMY(Dates[1],2) - 1);
@@ -328,7 +328,7 @@ report 17485 "Report FP to Excel"
         i: Integer;
         AvgAmount: Decimal;
     begin
-        Employee.Reset;
+        Employee.Reset();
         if Employee.Find('-') then
             repeat
                 AvgAmount := 0;

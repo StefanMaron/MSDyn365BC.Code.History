@@ -36,15 +36,15 @@ codeunit 367 CheckManagement
         CheckLedgEntry2: Record "Check Ledger Entry";
     begin
         if NextCheckEntryNo = 0 then begin
-            CheckLedgEntry2.LockTable;
-            CheckLedgEntry2.Reset;
+            CheckLedgEntry2.LockTable();
+            CheckLedgEntry2.Reset();
             if CheckLedgEntry2.FindLast then
                 NextCheckEntryNo := CheckLedgEntry2."Entry No." + 1
             else
                 NextCheckEntryNo := 1;
         end;
 
-        CheckLedgEntry2.Reset;
+        CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
         CheckLedgEntry2.SetRange("Bank Account No.", CheckLedgEntry."Bank Account No.");
         CheckLedgEntry2.SetFilter(
@@ -60,7 +60,7 @@ codeunit 367 CheckManagement
         CheckLedgEntry."User ID" := UserId;
         CheckLedgEntry."Entry No." := NextCheckEntryNo;
         CheckLedgEntry."Record ID to Print" := RecordIdToPrint;
-        CheckLedgEntry.Insert;
+        CheckLedgEntry.Insert();
         NextCheckEntryNo := NextCheckEntryNo + 1;
     end;
 
@@ -69,8 +69,12 @@ codeunit 367 CheckManagement
         Currency: Record Currency;
         CheckLedgEntry2: Record "Check Ledger Entry";
         CheckAmountLCY: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeVoidCheck(GenJnlLine);
+        IsHandled := false;
+        OnBeforeVoidCheck(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
         GenJnlLine.TestField("Bank Payment Type", GenJnlLine2."Bank Payment Type"::"Computer Check");
         GenJnlLine.TestField("Check Printed", true);
@@ -85,7 +89,7 @@ codeunit 367 CheckManagement
         if GenJnlLine."Currency Code" <> '' then
             Currency.Get(GenJnlLine."Currency Code");
 
-        GenJnlLine2.Reset;
+        GenJnlLine2.Reset();
         GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
         GenJnlLine2.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine2.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -119,11 +123,11 @@ codeunit 367 CheckManagement
                     GenJnlLine2."Check Printed" := false;
                     GenJnlLine2.UpdateSource;
                     OnBeforeVoidCheckGenJnlLine2Modify(GenJnlLine2, GenJnlLine);
-                    GenJnlLine2.Modify;
+                    GenJnlLine2.Modify();
                 end;
             until GenJnlLine2.Next = 0;
 
-        CheckLedgEntry2.Reset;
+        CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
         //IF GenJnlLine.Amount <= 0 THEN
         //  CheckLedgEntry2.SETRANGE("Bank Account No.",GenJnlLine."Account No.")
@@ -136,7 +140,7 @@ codeunit 367 CheckManagement
         CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Voided;
         CheckLedgEntry2."Positive Pay Exported" := false;
         CheckLedgEntry2.Open := false;
-        CheckLedgEntry2.Modify;
+        CheckLedgEntry2.Modify();
 
         OnAfterVoidCheck(GenJnlLine, CheckLedgEntry2);
     end;
@@ -147,8 +151,12 @@ codeunit 367 CheckManagement
         AmountToVoid: Decimal;
         CheckAmountLCY: Decimal;
         BalanceAmountLCY: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeFinancialVoidCheck(CheckLedgEntry);
+        IsHandled := false;
+        OnBeforeFinancialVoidCheck(CheckLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         FinancialVoidCheckPreValidation(CheckLedgEntry);
 
@@ -163,7 +171,7 @@ codeunit 367 CheckManagement
           GenJnlLine2, CheckLedgEntry."Document No.", ConfirmFinancialVoid.GetVoidDate,
           GenJnlLine2."Account Type"::"Bank Account", CheckLedgEntry."Bank Account No.",
           StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No."));
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Void Payment as Correction" then begin
             GenJnlLine2.Validate(Amount, -AmountToVoid);
             GenJnlLine2.Validate(Correction, true);
@@ -314,7 +322,7 @@ codeunit 367 CheckManagement
             BankAccLedgEntry2.Open := false;
             BankAccLedgEntry2."Remaining Amount" := 0;
             BankAccLedgEntry2."Statement Status" := BankAccLedgEntry2."Statement Status"::Closed;
-            BankAccLedgEntry2.Modify;
+            BankAccLedgEntry2.Modify();
         end;
 
         // rounding error from currency conversion
@@ -322,7 +330,7 @@ codeunit 367 CheckManagement
             PostRoundingAmount(BankAcc, CheckLedgEntry, ConfirmFinancialVoid.GetVoidDate, -(CheckAmountLCY + BalanceAmountLCY));
 
         MarkCheckEntriesVoid(CheckLedgEntry, ConfirmFinancialVoid.GetVoidDate);
-        Commit;
+        Commit();
         UpdateAnalysisView.UpdateAll(0, true);
 
         OnAfterFinancialVoidCheck(CheckLedgEntry);
@@ -500,7 +508,7 @@ codeunit 367 CheckManagement
                         RelatedCheckLedgerEntry2.Open := false;
                         RelatedCheckLedgerEntry2."Statement Status" := RelatedCheckLedgerEntry2."Statement Status"::Closed;
                     end;
-                    RelatedCheckLedgerEntry2.Modify;
+                    RelatedCheckLedgerEntry2.Modify();
                 until Next = 0;
         end;
 
@@ -547,7 +555,7 @@ codeunit 367 CheckManagement
 
     local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; Description: Text[50])
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Financial Void" := true;
         GenJnlLine."Document No." := DocumentNo;
@@ -601,7 +609,7 @@ codeunit 367 CheckManagement
             TestField("Bal. Account Type", Rec."Bal. Account Type"::"Bank Account");
             BankAcc.Get("Bal. Account No.");
 
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.FilterGroup(2);
             GenJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -647,8 +655,15 @@ codeunit 367 CheckManagement
     begin
         if LocalCheckLedgEntryRec.Get(CheckLedgEntryRecSource."Entry No.") then begin
             LocalCheckLedgEntryRec := CheckLedgEntryRecSource;
-            LocalCheckLedgEntryRec.Modify;
+            LocalCheckLedgEntryRec.Modify();
         end;
+    end;
+
+    local procedure IsElectronicBankPaymentType(BankPaymentType: Enum "Bank Payment Type") IsElectronicPaymentType: Boolean
+    begin
+        IsElectronicPaymentType := BankPaymentType in [BankPaymentType::"Electronic Payment", BankPaymentType::"Electronic Payment-IAT"];
+
+        OnAfterIsElectronicBankPaymentType(BankPaymentType, IsElectronicPaymentType);
     end;
 
     procedure ProcessElectronicPayment(var GenJournalLine: Record "Gen. Journal Line"; WhichProcess: Option ,Void,Transmit)
@@ -657,10 +672,7 @@ codeunit 367 CheckManagement
         CheckLedgEntry3: Record "Check Ledger Entry";
         BankAccountNo: Code[20];
     begin
-        if not (GenJournalLine."Bank Payment Type" in
-                [GenJournalLine."Bank Payment Type"::"Electronic Payment",
-                 GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT"])
-        then
+        if not IsElectronicBankPaymentType(GenJournalLine."Bank Payment Type") then
             GenJournalLine.FieldError("Bank Payment Type");
         GenJournalLine.TestField("Exported to Payment File", true);
         if not (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund]) then
@@ -677,7 +689,7 @@ codeunit 367 CheckManagement
             end else
                 Error(BankAccountTypeErr, GenJournalLine.FieldCaption("Account Type"), GenJournalLine.FieldCaption("Bal. Account Type"));
 
-        CheckLedgEntry2.Reset;
+        CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetRange("Bank Account No.", BankAccountNo);
         CheckLedgEntry2.SetRange("Entry Status", CheckLedgEntry2."Entry Status"::Exported);
         CheckLedgEntry2.SetRange("Check No.", GenJournalLine."Document No.");
@@ -694,7 +706,7 @@ codeunit 367 CheckManagement
                     WhichProcess::Transmit:
                         CheckLedgEntry3."Entry Status" := CheckLedgEntry3."Entry Status"::Transmitted;
                 end;
-                CheckLedgEntry3.Modify;
+                CheckLedgEntry3.Modify();
             until CheckLedgEntry2.Next = 0;
 
         if WhichProcess = WhichProcess::Void then
@@ -710,11 +722,11 @@ codeunit 367 CheckManagement
         GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJournalLine, CreditTransferEntry);
         if CreditTransferEntry.FindLast then begin
             if CreditTransferRegister.Get(CreditTransferEntry."Credit Transfer Register No.") then
-                CreditTransferRegister.Delete;
+                CreditTransferRegister.Delete();
             // For journal entries with multiple lines, the register would have already been deleted,
             // but subsequent lines still need to be deleted.
-            CreditTransferEntry.Delete;
-            Commit;
+            CreditTransferEntry.Delete();
+            Commit();
         end;
     end;
 
@@ -724,7 +736,7 @@ codeunit 367 CheckManagement
         Currency: Record Currency;
     begin
         Currency.Get(BankAcc."Currency Code");
-        GenJnlLine2.Init;
+        GenJnlLine2.Init();
         GenJnlLine2."System-Created Entry" := true;
         GenJnlLine2."Financial Void" := true;
         GenJnlLine2."Document No." := CheckLedgEntry."Document No.";
@@ -770,7 +782,7 @@ codeunit 367 CheckManagement
         CheckLedgEntry.TestField("Bal. Account No.");
         BankAcc.Get(CheckLedgEntry."Bank Account No.");
         BankAccLedgEntry2.Get(CheckLedgEntry."Bank Account Ledger Entry No.");
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         with GLEntry do begin
             SetCurrentKey("Transaction No.");
             SetRange("Transaction No.", BankAccLedgEntry2."Transaction No.");
@@ -784,12 +796,12 @@ codeunit 367 CheckManagement
 
     local procedure ClearBankLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
-        BankAccountLedgerEntry.Reset;
+        BankAccountLedgerEntry.Reset();
         BankAccountLedgerEntry.FindLast;
         BankAccountLedgerEntry.Open := false;
         BankAccountLedgerEntry."Remaining Amount" := 0;
         BankAccountLedgerEntry."Statement Status" := BankAccLedgEntry2."Statement Status"::Closed;
-        BankAccountLedgerEntry.Modify;
+        BankAccountLedgerEntry.Modify();
     end;
 
     [IntegrationEvent(false, false)]
@@ -808,12 +820,12 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVoidCheck(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnBeforeVoidCheck(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry")
+    local procedure OnBeforeFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -871,5 +883,11 @@ codeunit 367 CheckManagement
     local procedure OnUnApplyVendInvoicesOnBeforePost(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsElectronicBankPaymentType(BankPaymenType: Enum "Bank Payment Type"; var IsElectronicPaymentType: Boolean)
+    begin
+    end;
+
 }
 

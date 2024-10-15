@@ -57,7 +57,7 @@ report 14919 "Item Report TORG-29"
                 trigger OnPreDataItem()
                 begin
                     if not ShowCostReceipts then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -77,7 +77,7 @@ report 14919 "Item Report TORG-29"
 
             trigger OnPreDataItem()
             begin
-                TempValueEntryReceipts.Reset;
+                TempValueEntryReceipts.Reset();
                 if AmountType = AmountType::Price then
                     TempValueEntryReceipts.SetFilter("Item Ledger Entry Quantity", '<>0');
                 SetRange(Number, 1, TempValueEntryReceipts.Count);
@@ -96,7 +96,7 @@ report 14919 "Item Report TORG-29"
                 trigger OnPreDataItem()
                 begin
                     if not ShowCostReceipts then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -145,7 +145,7 @@ report 14919 "Item Report TORG-29"
                 trigger OnPreDataItem()
                 begin
                     if not ShowCostShipment then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -167,8 +167,8 @@ report 14919 "Item Report TORG-29"
             trigger OnPreDataItem()
             begin
                 if ShipmentDetailing = ShipmentDetailing::Sum then
-                    CurrReport.Break;
-                TempValueEntryShipment.Reset;
+                    CurrReport.Break();
+                TempValueEntryShipment.Reset();
                 if AmountType = AmountType::Price then
                     TempValueEntryShipment.SetFilter("Item Ledger Entry Quantity", '<>0');
 
@@ -189,7 +189,7 @@ report 14919 "Item Report TORG-29"
                 trigger OnPreDataItem()
                 begin
                     if not ShowCostShipment then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -226,7 +226,7 @@ report 14919 "Item Report TORG-29"
 
             trigger OnPreDataItem()
             begin
-                ErrorBuffer.Reset;
+                ErrorBuffer.Reset();
                 SetRange(Number, 1, ErrorBuffer.Count);
                 TORG29Helper.SetErrorsSheet;
                 TORG29Helper.FillErrorReportHeader;
@@ -340,7 +340,7 @@ report 14919 "Item Report TORG-29"
 
                         trigger OnValidate()
                         begin
-                            UpdateControls;
+                            PageUpdateControls;
                         end;
                     }
                     field(SalesTypeCtrl; SalesType)
@@ -355,7 +355,7 @@ report 14919 "Item Report TORG-29"
 
                         trigger OnValidate()
                         begin
-                            UpdateControls;
+                            PageUpdateControls;
                             SalesCode := '';
                         end;
                     }
@@ -421,7 +421,7 @@ report 14919 "Item Report TORG-29"
         var
             LocationLookup: Record Location;
         begin
-            UpdateControls;
+            PageUpdateControls;
             if LocationCode <> '' then
                 if not LocationLookup.Get(LocationCode) then
                     LocationCode := ''
@@ -448,7 +448,7 @@ report 14919 "Item Report TORG-29"
     trigger OnInitReport()
     begin
         ReportDate := WorkDate;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     trigger OnPostReport()
@@ -456,7 +456,7 @@ report 14919 "Item Report TORG-29"
         if not CurrReport.Preview then begin
             if Evaluate(Location."Last Goods Report No.", ReportNo) then;
             Location."Last Goods Report Date" := EndDate;
-            Location.Modify;
+            Location.Modify();
         end;
 
         if FileName = '' then
@@ -528,22 +528,6 @@ report 14919 "Item Report TORG-29"
         CtrlEnable: Boolean;
         SalesCodeCtrlEnable: Boolean;
         TNTxt: Label 't.n.', Comment = 'Should be translated "Ô.¡."';
-
-    [Scope('OnPrem')]
-    procedure UpdateControls()
-    begin
-        if IsServiceTier then begin
-            PageUpdateControls;
-            exit;
-        end;
-        CtrlEnable := AmountType <> AmountType::Cost;
-
-        if SalesType = SalesType::"All Customers" then begin
-            SalesCodeCtrlEnable := false;
-            SalesCode := '';
-        end else
-            SalesCodeCtrlEnable := CtrlEnable;
-    end;
 
     local procedure LocationCodeOnAfterValidate()
     var

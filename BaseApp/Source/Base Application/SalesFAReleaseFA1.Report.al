@@ -136,7 +136,7 @@ report 14982 "Sales FA Release FA-1"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 FA1Helper.CheckSignature(
                   ReleasedBy, DATABASE::"Sales Header", "Document Type", "No.", ReleasedBy."Employee Type"::ReleasedBy);
@@ -263,7 +263,7 @@ report 14982 "Sales FA Release FA-1"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
     end;

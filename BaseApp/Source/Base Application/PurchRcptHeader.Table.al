@@ -201,11 +201,9 @@
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -353,11 +351,9 @@
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(95; "Order Address Code"; Code[10])
         {
@@ -536,12 +532,12 @@
     var
         PostPurchDelete: Codeunit "PostPurch-Delete";
     begin
-        LockTable;
+        LockTable();
         PostPurchDelete.DeletePurchRcptLines(Rec);
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::Receipt);
         PurchCommentLine.SetRange("No.", "No.");
-        PurchCommentLine.DeleteAll;
+        PurchCommentLine.DeleteAll();
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
     end;
 
@@ -565,10 +561,11 @@
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()
@@ -600,20 +597,20 @@
         DocNoFilter := '';
         I := 0;
 
-        PurchRcptLine.Reset;
+        PurchRcptLine.Reset();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchRcptLine.SetRange(PurchRcptLine.Type, PurchRcptLine.Type::Item);
         PurchRcptLine.SetFilter("Quantity Invoiced", '>%1', 0);
         if PurchRcptLine.Find('-') then
             repeat
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Document No.");
                 ItemLedgEntry.SetRange("Document No.", PurchRcptHeader."No.");
                 ItemLedgEntry.SetRange("Posting Date", PurchRcptHeader."Posting Date");
                 ItemLedgEntry.SetRange("Item No.", PurchRcptLine."No.");
                 if ItemLedgEntry.Find('-') then
                     repeat
-                        ValueEntry.Reset;
+                        ValueEntry.Reset();
                         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
                         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                         if ValueEntry.Find('-') then
@@ -633,7 +630,7 @@
             until PurchRcptLine.Next = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
-        PurchInvHeader.Reset;
+        PurchInvHeader.Reset();
         PurchInvHeader.SetFilter("No.", DocNoFilter);
         PAGE.Run(PAGE::"Posted Purchase Invoices", PurchInvHeader);
     end;

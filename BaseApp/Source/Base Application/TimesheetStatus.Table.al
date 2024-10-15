@@ -104,7 +104,7 @@ table 17440 "Timesheet Status"
 
         PayrollPeriod.Get("Period Code");
 
-        TimesheetLine.Reset;
+        TimesheetLine.Reset();
         TimesheetLine.SetRange("Employee No.", "Employee No.");
         TimesheetLine.SetRange(Date, PayrollPeriod."Starting Date", PayrollPeriod."Ending Date");
         TimesheetLine.DeleteAll(true);
@@ -130,7 +130,7 @@ table 17440 "Timesheet Status"
         if Status = Status::Released then
             exit;
 
-        TimesheetStatus.Reset;
+        TimesheetStatus.Reset();
         TimesheetStatus.SetRange("Employee No.", "Employee No.");
         TimesheetStatus.SetFilter("Period Code", '<%1', "Period Code");
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Open);
@@ -149,7 +149,7 @@ table 17440 "Timesheet Status"
         if Status = Status::Open then
             exit;
 
-        PayrollLedgEntry.Reset;
+        PayrollLedgEntry.Reset();
         PayrollLedgEntry.SetCurrentKey("Employee No.");
         PayrollLedgEntry.SetRange("Employee No.", "Employee No.");
         PayrollLedgEntry.SetRange("Period Code", "Period Code");
@@ -157,14 +157,14 @@ table 17440 "Timesheet Status"
         if not PayrollLedgEntry.IsEmpty then
             Error(Text14800);
 
-        PayrollDoc.Reset;
+        PayrollDoc.Reset();
         PayrollDoc.SetCurrentKey("Employee No.");
         PayrollDoc.SetRange("Employee No.", "Employee No.");
         PayrollDoc.SetRange("Period Code", "Period Code");
         if not PayrollDoc.IsEmpty then
             Error(Text14801);
 
-        TimesheetStatus.Reset;
+        TimesheetStatus.Reset();
         TimesheetStatus.SetRange("Employee No.", "Employee No.");
         TimesheetStatus.SetFilter("Period Code", '>%1', "Period Code");
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Released);
@@ -183,7 +183,7 @@ table 17440 "Timesheet Status"
     begin
         PayrollPeriod.Get("Period Code");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("Work Time Group Code");
         HumanResSetup.TestField("Night Work Group Code");
         HumanResSetup.TestField("Overtime 1.5 Group Code");
@@ -204,7 +204,7 @@ table 17440 "Timesheet Status"
         "Holiday Work Days" := 0;
         "Holiday Work Hours" := 0;
 
-        EmployeeJobEntry.Reset;
+        EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetCurrentKey("Employee No.");
         EmployeeJobEntry.SetRange("Employee No.", "Employee No.");
         EmployeeJobEntry.SetRange("Position Changed", true);

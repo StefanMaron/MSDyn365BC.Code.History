@@ -6,7 +6,7 @@ codeunit 17308 "FA Entry - Edit"
     trigger OnRun()
     begin
         FALedgerEntry := Rec;
-        FALedgerEntry.LockTable;
+        FALedgerEntry.LockTable();
         FALedgerEntry.Find;
 
         if FALedgerEntry."Tax Difference Code" <> "Tax Difference Code" then
@@ -14,7 +14,7 @@ codeunit 17308 "FA Entry - Edit"
 
         FALedgerEntry."Depr. Bonus" := "Depr. Bonus";
         FALedgerEntry."Tax Difference Code" := "Tax Difference Code";
-        FALedgerEntry.Modify;
+        FALedgerEntry.Modify();
         Rec := FALedgerEntry;
     end;
 
@@ -33,7 +33,7 @@ codeunit 17308 "FA Entry - Edit"
         DepreciationBook.Get(OldFALedgerEntry."Depreciation Book Code");
         DepreciationBook.TestField("Control FA Acquis. Cost", true);
 
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         FixedAsset.Get(OldFALedgerEntry."FA No.");
 
         OldFALedgerEntry.TestField(Reversed, false);

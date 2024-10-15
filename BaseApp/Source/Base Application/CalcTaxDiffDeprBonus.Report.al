@@ -149,11 +149,11 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
 
     trigger OnInitReport()
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Use Group Depr. Method from", 0D);
         TaxRegisterSetup.TestField("Tax Depreciation Book");
         TaxRegisterSetup.TestField("Calculate TD for each FA", true);
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     trigger OnPreReport()
@@ -198,7 +198,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; AmountBase: Decimal; AmountTax: Decimal; SourceType: Option; SourceNo: Code[20])
     begin
         xRecTaxDiffJnlLine := TaxDiffJnlLine;
-        TaxDiffJnlLine.Init;
+        TaxDiffJnlLine.Init();
         TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
         TaxDiffJnlLine."Journal Template Name" := TemplateName;
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
@@ -212,7 +212,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
         TaxDiffJnlLine.Validate("Amount (Base)", AmountBase);
         TaxDiffJnlLine.Validate("Amount (Tax)", AmountTax);
         TaxDiffJnlLine."Source Entry Type" := TaxDiffJnlLine."Source Entry Type"::"Depr. Bonus";
-        TaxDiffJnlLine.Insert;
+        TaxDiffJnlLine.Insert();
         LineNo += 10000;
     end;
 

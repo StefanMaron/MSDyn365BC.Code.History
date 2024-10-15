@@ -34,7 +34,7 @@ report 12400 "Bank Payment Order"
                             OKUD := '0401061';
                         end;
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 if "Gen. Journal Line".KBK <> '' then
@@ -105,7 +105,7 @@ report 12400 "Bank Payment Order"
                         BankPaymentOrderHelper.FillRequestTitle(
                           OKUD, StrSubstNo(TitleDoc, "Document No."), '', "Document Date", Format("Payment Method"), CompStat);
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 TransferLineValues(LineValue, "Gen. Journal Line");
@@ -120,7 +120,7 @@ report 12400 "Bank Payment Order"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 BankPaymentOrderHelper.InitReportTemplate;
             end;
         }
@@ -278,7 +278,7 @@ report 12400 "Bank Payment Order"
                     end;
                     "Check Printed" := true;
                     Modify(true);
-                    CheckLedgEntry.Init;
+                    CheckLedgEntry.Init();
                     CheckLedgEntry."Bank Account No." := "Bal. Account No.";
                     CheckLedgEntry."Posting Date" := "Posting Date";
                     CheckLedgEntry."Check Date" := "Document Date";

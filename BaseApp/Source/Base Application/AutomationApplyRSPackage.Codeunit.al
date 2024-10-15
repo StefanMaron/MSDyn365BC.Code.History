@@ -18,7 +18,7 @@ codeunit 5433 "Automation - Apply RSPackage"
         Find;
         Validate("Apply Status", "Apply Status"::Completed);
         Modify(true);
-        Commit;
+        Commit();
     end;
 }
 

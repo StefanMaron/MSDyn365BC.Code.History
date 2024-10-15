@@ -178,7 +178,7 @@ page 17326 "Tax Calc. Item Entries"
         CopyFilter("Date Filter", Calendar."Period End");
         CopyFilter("Date Filter", "Posting Date");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
     end;
 
     var

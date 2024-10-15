@@ -78,7 +78,7 @@ codeunit 99000808 PlanningRoutingManagement
                         end;
                     until PlanningRtngLine2.Next = 0;
             end;
-            PlanningRtngLine.Modify;
+            PlanningRtngLine.Modify();
 
             if PlanningRtngLine."Previous Operation No." <> '' then begin
                 PlanningRtngLine2.SetFilter("Operation No.", PlanningRtngLine."Previous Operation No.");
@@ -104,7 +104,7 @@ codeunit 99000808 PlanningRoutingManagement
                         PlanningRtngLine2."Sequence No.(Backward)" := SequenceNo
                     else
                         PlanningRtngLine2."Sequence No. (Actual)" := SequenceNo;
-                    PlanningRtngLine2.Modify;
+                    PlanningRtngLine2.Modify();
                     SequenceNo := SequenceNo + 1;
                 until PlanningRtngLine2.Next(-1) = 0;
         end;
@@ -141,7 +141,7 @@ codeunit 99000808 PlanningRoutingManagement
                         end;
                     until PlanningRtngLine2.Next = 0;
             end;
-            PlanningRtngLine.Modify;
+            PlanningRtngLine.Modify();
 
             if PlanningRtngLine."Next Operation No." <> '' then begin
                 PlanningRtngLine2.SetFilter("Operation No.", PlanningRtngLine."Next Operation No.");
@@ -167,7 +167,7 @@ codeunit 99000808 PlanningRoutingManagement
                         PlanningRtngLine2."Sequence No.(Forward)" := SequenceNo
                     else
                         PlanningRtngLine2."Sequence No. (Actual)" := SequenceNo;
-                    PlanningRtngLine2.Modify;
+                    PlanningRtngLine2.Modify();
                     SequenceNo := SequenceNo + 1;
                 until PlanningRtngLine2.Next = 0;
         end;
@@ -186,7 +186,7 @@ codeunit 99000808 PlanningRoutingManagement
         PlanningRtngLine.ModifyAll("Fixed Scrap Qty. (Accum.)", 0);
         PlanningRtngLine.ModifyAll("Scrap Factor % (Accumulated)", 0);
 
-        MaxSeq := PlanningRtngLine.Count;
+        MaxSeq := PlanningRtngLine.Count();
 
         PlanningRtngLine.SetFilter("Next Operation No.", '%1', '');
         PlanningRtngLine.FindFirst;
@@ -204,7 +204,7 @@ codeunit 99000808 PlanningRoutingManagement
 
         PlanningRtngLine.ModifyAll("Sequence No.(Forward)", 0);
 
-        MaxSeq := PlanningRtngLine.Count;
+        MaxSeq := PlanningRtngLine.Count();
 
         PlanningRtngLine.SetFilter("Previous Operation No.", '%1', '');
         PlanningRtngLine.FindFirst;
@@ -228,7 +228,7 @@ codeunit 99000808 PlanningRoutingManagement
         PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
         PlanningRtngLine2.ModifyAll("Sequence No. (Actual)", 0);
 
-        MaxSeq := PlanningRtngLine2.Count;
+        MaxSeq := PlanningRtngLine2.Count();
 
         case Direction of
             Direction::Forward:
@@ -288,7 +288,7 @@ codeunit 99000808 PlanningRoutingManagement
                 CalcScrapQty := CalcScrapQty + PlanningRtngLine."Fixed Scrap Quantity";
                 PlanningRtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 PlanningRtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;
-                PlanningRtngLine.Modify;
+                PlanningRtngLine.Modify();
             until PlanningRtngLine.Next = 0;
 
         PlanningRtngLine.ModifyAll(Recalculate, false);
@@ -307,7 +307,7 @@ codeunit 99000808 PlanningRoutingManagement
 
         PlanningRtngLine.SetFilter("Next Operation No.", '%1', '');
 
-        NoOfProcesses := PlanningRtngLine.Count;
+        NoOfProcesses := PlanningRtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(PlanningRtngLine);
@@ -321,7 +321,7 @@ codeunit 99000808 PlanningRoutingManagement
 
         PlanningRtngLine.SetFilter("Previous Operation No.", '%1', '');
         PlanningRtngLine.SetRange("Next Operation No.");
-        NoOfProcesses := PlanningRtngLine.Count;
+        NoOfProcesses := PlanningRtngLine.Count();
         if NoOfProcesses <> 1 then begin
             repeat
                 InsertInErrList(PlanningRtngLine);

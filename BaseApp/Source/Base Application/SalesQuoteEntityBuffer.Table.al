@@ -5,13 +5,11 @@ table 5505 "Sales Quote Entity Buffer"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
             DataClassification = CustomerContent;
             InitValue = Invoice;
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Sell-to Customer No."; Code[20])
         {

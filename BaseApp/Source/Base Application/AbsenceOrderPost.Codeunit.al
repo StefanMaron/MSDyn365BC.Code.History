@@ -14,7 +14,7 @@ codeunit 17387 "Absence Order-Post"
         WagePeriodCode: Code[10];
     begin
         ClearAll;
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Change Vacation Accr. By Doc");
         AbsenceHeader := Rec;
         with AbsenceHeader do begin
@@ -33,11 +33,11 @@ codeunit 17387 "Absence Order-Post"
             if Status = Status::Open then
                 CODEUNIT.Run(CODEUNIT::"Release Absence Order", AbsenceHeader);
 
-            AbsenceLine.LockTable;
-            LockTable;
-            EmplAbsenceEntry.LockTable;
+            AbsenceLine.LockTable();
+            LockTable();
+            EmplAbsenceEntry.LockTable();
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             case "Document Type" of
                 "Document Type"::Vacation:
                     SourceCodeSetup.TestField("Vacation Order");
@@ -55,19 +55,19 @@ codeunit 17387 "Absence Order-Post"
                 NextEntryNo := 0;
 
             // Insert posted absence header
-            PostedAbsenceHeader.LockTable;
-            PostedAbsenceHeader.Init;
+            PostedAbsenceHeader.LockTable();
+            PostedAbsenceHeader.Init();
             PostedAbsenceHeader.TransferFields(AbsenceHeader);
-            PostedAbsenceHeader.Insert;
+            PostedAbsenceHeader.Insert();
 
             CopyCommentLines("No.", PostedAbsenceHeader."No.", false);
             RecordLinkManagement.CopyLinks(Rec, PostedAbsenceHeader);
 
             // Lines
-            PostedAbsenceLine.LockTable;
+            PostedAbsenceLine.LockTable();
 
             LineCount := 0;
-            AbsenceLine.Reset;
+            AbsenceLine.Reset();
             AbsenceLine.SetRange("Document Type", "Document Type");
             AbsenceLine.SetRange("Document No.", "No.");
             if AbsenceLine.FindSet then
@@ -78,9 +78,9 @@ codeunit 17387 "Absence Order-Post"
                     Employee.Get(AbsenceLine."Employee No.");
 
                     // insert posted lines
-                    PostedAbsenceLine.Init;
+                    PostedAbsenceLine.Init();
                     PostedAbsenceLine.TransferFields(AbsenceLine);
-                    PostedAbsenceLine.Insert;
+                    PostedAbsenceLine.Insert();
 
                     ApplyEmplAbsenceEntry(AbsenceLine);
 
@@ -94,7 +94,7 @@ codeunit 17387 "Absence Order-Post"
 
                     if PayrollElement."Distribute by Periods" then begin
                         FirstEntryNo := 0;
-                        PayrollPeriod.Reset;
+                        PayrollPeriod.Reset();
                         PayrollPeriod.SetRange(Code, PayrollPeriodFrom.Code, PayrollPeriodTo.Code);
                         if PayrollPeriod.FindSet then
                             repeat
@@ -276,10 +276,10 @@ codeunit 17387 "Absence Order-Post"
                 until AbsenceLine.Next = 0;
 
             // Delete posted order
-            AbsenceLine.DeleteAll;
+            AbsenceLine.DeleteAll();
             Delete;
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -318,7 +318,7 @@ codeunit 17387 "Absence Order-Post"
         EmplJnlLine: Record "Employee Journal Line";
         EntryNo: Integer;
     begin
-        EmplJnlLine.Init;
+        EmplJnlLine.Init();
         EmplJnlLine."Document Type" := AbsenceLine."Document Type" + 1;
         EmplJnlLine.Validate("Employee No.", AbsenceHeader."Employee No.");
         EmplJnlLine.Validate("Time Activity Code", AbsenceLine."Time Activity Code");
@@ -448,9 +448,9 @@ codeunit 17387 "Absence Order-Post"
                 else
                     HROrderComment2."Table Name" := HROrderComment2."Table Name"::"P.Absence Order";
                 HROrderComment2."No." := ToNumber;
-                HROrderComment2.Insert;
+                HROrderComment2.Insert();
             until HROrderComment.Next = 0;
-            HROrderComment.DeleteAll;
+            HROrderComment.DeleteAll();
         end;
     end;
 
@@ -465,7 +465,7 @@ codeunit 17387 "Absence Order-Post"
         TimeActivity.Get(AbsenceLine."Time Activity Code");
         if TimeActivity."Use Accruals" then begin
             DaysToUse := AbsenceLine."Calendar Days";
-            EmplAbsenceEntry2.Reset;
+            EmplAbsenceEntry2.Reset();
             EmplAbsenceEntry2.SetRange("Employee No.", AbsenceLine."Employee No.");
             EmplAbsenceEntry2.SetRange("Time Activity Code", AbsenceLine."Time Activity Code");
             EmplAbsenceEntry2.SetRange("Entry Type", EmplAbsenceEntry2."Entry Type"::Accrual);
@@ -504,7 +504,7 @@ codeunit 17387 "Absence Order-Post"
     [Scope('OnPrem')]
     procedure InsertEmplAbsenceEntry(AbsenceLine: Record "Absence Line"; CalendarDays: Decimal; WorkingDays: Decimal; AccruedEntryNo: Integer)
     begin
-        EmplAbsenceEntry.Init;
+        EmplAbsenceEntry.Init();
         NextEntryNo := NextEntryNo + 1;
         EmplAbsenceEntry."Entry No." := NextEntryNo;
         EmplAbsenceEntry."Employee No." := AbsenceHeader."Employee No.";
@@ -526,7 +526,7 @@ codeunit 17387 "Absence Order-Post"
         EmplAbsenceEntry."Sick Leave Type" := AbsenceLine."Sick Leave Type";
         EmplAbsenceEntry."Person No." := AbsenceLine."Person No.";
         EmplAbsenceEntry."Relative Code" := AbsenceLine."Relative Person No.";
-        EmplAbsenceEntry.Insert;
+        EmplAbsenceEntry.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -555,7 +555,7 @@ codeunit 17387 "Absence Order-Post"
                     4) +
                   AbsenceLine."Calendar Days";
                 if VacExtDays > TimeActivity."Min Days Allowed per Year" then begin
-                    EmplAbsenceEntry.Init;
+                    EmplAbsenceEntry.Init();
                     EmplAbsenceEntry.TransferFields(EmplAbsenceEntry2);
                     NextEntryNo := NextEntryNo + 1;
                     LinkedEmplAbsenceEntry.SetRange("Accrual Entry No.", EmplAbsenceEntry2."Entry No.");
@@ -575,7 +575,7 @@ codeunit 17387 "Absence Order-Post"
                     EmplAbsenceEntry."Document No." := AbsenceLine."Document No.";
                     EmplAbsenceEntry."Document Date" := AbsenceHeader."Document Date";
                     EmplAbsenceEntry.Description := TimeActivity.Description;
-                    EmplAbsenceEntry.Insert;
+                    EmplAbsenceEntry.Insert();
                 end;
             end;
         end;
@@ -623,37 +623,37 @@ codeunit 17387 "Absence Order-Post"
         TimeSheetStatus.Get(PostedAbsenceHeader."Period Code", PostedAbsenceHeader."Employee No.");
         TimeSheetStatus.TestField(Status, TimeSheetStatus.Status::Open);
 
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetCurrentKey("Employee No.");
         EmplLedgEntry.SetRange("Employee No.", PostedAbsenceHeader."Employee No.");
         EmplLedgEntry.SetRange("Document Type", PostedAbsenceHeader."Document Type" + 1);
         EmplLedgEntry.SetRange("Document No.", PostedAbsenceHeader."No.");
         if EmplLedgEntry.FindFirst then begin
             PayrollRegNo := GetPayrollReg(EmplLedgEntry);
-            EmplLedgEntry.DeleteAll;
+            EmplLedgEntry.DeleteAll();
             if PayrollRegNo <> 0 then
                 EmplJnlPostLine.CancelRegister(PayrollRegNo);
         end;
 
-        EmplAbsenceEntry.Reset;
+        EmplAbsenceEntry.Reset();
         EmplAbsenceEntry.SetRange("Employee No.", PostedAbsenceHeader."Employee No.");
         EmplAbsenceEntry.SetRange("Document Type", PostedAbsenceHeader."Document Type" + 1);
         EmplAbsenceEntry.SetRange("Document No.", PostedAbsenceHeader."No.");
-        EmplAbsenceEntry.DeleteAll;
+        EmplAbsenceEntry.DeleteAll();
 
-        AbsenceHeader.Init;
+        AbsenceHeader.Init();
         AbsenceHeader.TransferFields(PostedAbsenceHeader);
-        AbsenceHeader.Insert;
+        AbsenceHeader.Insert();
         NewDocNo := AbsenceHeader."No.";
 
         PostedAbsenceLine.SetRange("Document Type", PostedAbsenceHeader."Document Type");
         PostedAbsenceLine.SetRange("Document No.", PostedAbsenceHeader."No.");
         if PostedAbsenceLine.FindSet then
             repeat
-                AbsenceLine.Init;
+                AbsenceLine.Init();
                 AbsenceLine.TransferFields(PostedAbsenceLine);
                 AbsenceLine."Document No." := AbsenceHeader."No.";
-                AbsenceLine.Insert;
+                AbsenceLine.Insert();
 
                 TimesheetMgt.IsPostedOrderCancellation(true);
 
@@ -701,7 +701,7 @@ codeunit 17387 "Absence Order-Post"
     var
         VacationAccrualEntry: Record "Employee Absence Entry";
     begin
-        EmplAbsenceEntry.Reset;
+        EmplAbsenceEntry.Reset();
         EmplAbsenceEntry.SetRange("Employee No.", AbsenceLine."Employee No.");
         EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Accrual);
         EmplAbsenceEntry.SetRange("Accrual Entry No.", 0);
@@ -710,7 +710,7 @@ codeunit 17387 "Absence Order-Post"
           GetAnnualVacTimeActFilter(CalcDate('<CY>', AbsenceLine."End Date")));
         if EmplAbsenceEntry.FindLast then begin
             NextEntryNo := NextEntryNo + 1;
-            VacationAccrualEntry.Init;
+            VacationAccrualEntry.Init();
             VacationAccrualEntry.TransferFields(EmplAbsenceEntry);
             VacationAccrualEntry."Entry No." := NextEntryNo;
             VacationAccrualEntry."Start Date" := CalcDate('<+1D>', EmplAbsenceEntry."End Date");
@@ -718,7 +718,7 @@ codeunit 17387 "Absence Order-Post"
             VacationAccrualEntry."Accrual Entry No." := 0;
             VacationAccrualEntry."Calendar Days" := EmplAbsenceEntry."Calendar Days";
             VacationAccrualEntry."Working Days" := 0;
-            VacationAccrualEntry.Insert;
+            VacationAccrualEntry.Insert();
             exit(VacationAccrualEntry."Entry No.");
         end;
 

@@ -190,7 +190,7 @@ page 624 "Unapply Vendor Entries"
                     VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry2, DocNo, PostingDate);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll;
+                    DeleteAll();
                     Message(Text009);
 
                     CurrPage.Close;
@@ -255,7 +255,7 @@ page 624 "Unapply Vendor Entries"
             DtldVendLedgEntry.SetRange("Transaction No.", DtldVendLedgEntry2."Transaction No.");
         end;
         DtldVendLedgEntry.SetRange("Vendor No.", DtldVendLedgEntry2."Vendor No.");
-        DeleteAll;
+        DeleteAll();
         if DtldVendLedgEntry.Find('-') then
             repeat
                 if (DtldVendLedgEntry."Entry Type" <> DtldVendLedgEntry."Entry Type"::"Initial Entry") and

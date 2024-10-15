@@ -30,6 +30,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         WrongAmountErr: Label 'Wrong amount.';
         PeriodTxt: Label '12';
         OnlyOneDefaultDeprBookErr: Label 'Default FA Depreciation Book Only one fixed asset depreciation book can be marked as the default book';
+        CompletionStatsTok: Label 'The depreciation has been calculated.';
 
     [Test]
     [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
@@ -54,7 +55,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,GeneralJournalBatchesModalPageHandler')]
+    [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ShowAllowPaymentExportForPaymentBatches()
     var
@@ -655,7 +656,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
     procedure FAJournalWithCalcDepreciation()
     var
@@ -683,7 +684,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Amount := Round((Amount * FADepreciationBook."Declining-Balance %" / 100) * NoOfMonth / 12);
 
         // Verify: Verify FA Journal Line with Calculated Depreciation Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FAJournalLine.SetRange("FA No.", FADepreciationBook."FA No.");
         FAJournalLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -773,7 +774,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         CreateAndPostFAJournalLines(FADepreciationBook);
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
-        Commit;  // COMMIT required for Batch Report.
+        Commit();  // COMMIT required for Batch Report.
         DepreciationBook := LibraryFixedAsset.GetDefaultDeprBook;
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget.
@@ -806,7 +807,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FixedAsset.Validate(Inactive, true);
         FixedAsset.Modify(true);
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
-        Commit;  // COMMIT required for Batch Report.
+        Commit();  // COMMIT required for Batch Report.
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget.
         LibraryLowerPermissions.SetO365FAEdit;
@@ -820,7 +821,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntriesAfterReclassification()
     var
@@ -901,7 +902,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure CalcDepreciationAfterReversingFADepreciation()
     var
@@ -945,18 +946,18 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         DocumentNo := RunCalculateDepeciationWithBalAccount(FADepreciationBook, 1);
 
         // [THEN] Gen. Journal Line is created for Fixed Asset with Amount = -10 on "DeprDate"
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Document No.", DocumentNo);
         GenJournalLine.SetRange("Account No.", FixedAsset."No.");
         GenJournalLine.FindFirst;
         GenJournalLine.TestField("Posting Date", FALedgerEntry."Posting Date");
         GenJournalLine.TestField(Amount, FALedgerEntry.Amount);
         GenJournalLine.SetRange("Account No.");
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure DepriciationAfterReclassification()
     var
@@ -1201,7 +1202,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryLowerPermissions.SetO365FASetup;
         LibraryLowerPermissions.AddJournalsPost;
         LibraryLowerPermissions.AddO365FAEdit;
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBook(SetupFADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", FASetup."Default Depr. Book");
 
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -1235,7 +1236,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
 
-        FASetup.Get;
+        FASetup.Get();
         FASetup.Validate("Default Depr. Book", '');
         FASetup.Modify(true);
 
@@ -1297,11 +1298,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateFAPostingGroup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
     end;
 
@@ -1730,8 +1730,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FAJournalTemplate.SetRange(Recurring, false);
         LibraryFixedAsset.FindFAJournalTemplate(FAJournalTemplate);
         LibraryFixedAsset.FindFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
-        FAJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
-        FAJournalBatch.Modify(true);
         FAJournalLine.SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalBatch.Name);
         FAJournalLine.DeleteAll(true);
@@ -1741,7 +1739,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.Validate("Allow Posting to Main Assets", AllowPostingToMainAssets);
         FASetup.Modify(true);
     end;
@@ -1846,7 +1844,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.FindFirst;
@@ -1905,13 +1903,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Dummy message handler
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: boolean)
-    begin
-        Reply := true;
-    end;
-
     local procedure FindCustomer(var Customer: Record Customer)
     begin
         // Filter Customer so that errors are not generated due to mandatory fields.
@@ -1924,19 +1915,21 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Customer.FindFirst;
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if 0 <> StrPos(Question, CompletionStatsTok) then
+            Reply := false
+        else
+            Reply := true;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueBoolean, GeneralJournalBatches."Allow Payment Export".Visible, '');
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    begin
-        GeneralJournalTemplateList.First;
-        GeneralJournalTemplateList.OK.Invoke;
     end;
 }
 

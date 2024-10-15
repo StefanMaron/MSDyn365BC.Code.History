@@ -64,7 +64,7 @@ page 17330 "Tax Calc. Cor. Dim. Filters"
         TemplateDimCorrespFilter: Record "Tax Calc. Dim. Corr. Filter";
         TemplateDimFilter: Record "Tax Calc. Dim. Filter";
     begin
-        TemplateDimFilter.Reset;
+        TemplateDimFilter.Reset();
         TemplateDimFilter.SetCurrentKey("Section Code", "Entry No.");
         TemplateDimFilter.SetRange("Section Code", SectionCode);
 

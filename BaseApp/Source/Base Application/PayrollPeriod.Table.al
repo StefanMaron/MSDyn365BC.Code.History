@@ -72,7 +72,7 @@ table 17426 "Payroll Period"
     begin
         TestField(Closed, false);
 
-        TimesheetStatus.Reset;
+        TimesheetStatus.Reset();
         TimesheetStatus.SetRange("Period Code", Code);
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Released);
         if not TimesheetStatus.IsEmpty then
@@ -80,7 +80,7 @@ table 17426 "Payroll Period"
         TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Open);
         TimesheetStatus.DeleteAll(true);
 
-        PayrollStatus.Reset;
+        PayrollStatus.Reset();
         PayrollStatus.SetRange("Period Code", Code);
         PayrollStatus.SetFilter("Payroll Status", '<>%1', PayrollStatus."Payroll Status"::" ");
     end;
@@ -90,7 +90,7 @@ table 17426 "Payroll Period"
         TestField("Ending Date");
         TestField("Starting Date");
 
-        Employee.Reset;
+        Employee.Reset();
         if Employee.FindSet then
             repeat
                 TimesheetMgt.CreateTimesheet(Employee, Rec);
@@ -122,7 +122,7 @@ table 17426 "Payroll Period"
     var
         PayrollPeriod: Record "Payroll Period";
     begin
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         PayrollPeriod.SetFilter("Ending Date", '%1..', Date);
         if not PayrollPeriod.FindFirst then
             exit('');
@@ -155,7 +155,7 @@ table 17426 "Payroll Period"
     var
         PayrollPeriod: Record "Payroll Period";
     begin
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         PayrollPeriod.SetFilter("Ending Date", '%1..', Date);
         PayrollPeriod.FindFirst;
     end;

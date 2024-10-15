@@ -412,7 +412,7 @@ table 330 "Currency Exchange Rate"
               CurrencyExchRate3[2]."Exchange Rate Amount");
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" then
             Error(Text12400, CurrencyExchRate3[1]."Currency Code", CurrencyExchRate3[2]."Currency Code");
     end;

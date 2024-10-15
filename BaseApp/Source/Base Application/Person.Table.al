@@ -12,7 +12,7 @@ table 17350 Person
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(HumanResSetup."Person Nos.");
                     "No. Series" := '';
                 end;
@@ -33,7 +33,7 @@ table 17350 Person
                 Validate("Full Name", GetFullName);
 
                 if "First Name" <> xRec."First Name" then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll("First Name", "First Name");
@@ -55,7 +55,7 @@ table 17350 Person
                 Validate("Full Name", GetFullName);
 
                 if "Middle Name" <> xRec."Middle Name" then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll("Middle Name", "Middle Name");
@@ -74,7 +74,7 @@ table 17350 Person
                 Validate("Full Name", GetFullName);
 
                 if "Last Name" <> xRec."Last Name" then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll("Last Name", "Last Name");
@@ -136,7 +136,7 @@ table 17350 Person
             trigger OnValidate()
             begin
                 if "Birth Date" <> xRec."Birth Date" then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll("Birth Date", "Birth Date");
@@ -197,7 +197,7 @@ table 17350 Person
             trigger OnValidate()
             begin
                 if Gender <> xRec.Gender then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll(Gender, Gender);
@@ -249,7 +249,7 @@ table 17350 Person
             trigger OnValidate()
             begin
                 if "Citizenship Country/Region" <> xRec."Citizenship Country/Region" then begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetCurrentKey("Person No.");
                     Employee.SetRange("Person No.", "No.");
                     Employee.ModifyAll("Country/Region Code", "Citizenship Country/Region");
@@ -403,7 +403,7 @@ table 17350 Person
                 if ("Vendor No." <> xRec."Vendor No.") and
                    ("Vendor No." <> '')
                 then begin
-                    Person.Reset;
+                    Person.Reset();
                     Person.SetRange("Vendor No.", "Vendor No.");
                     Person.SetFilter("No.", '<>%1', "No.");
                     if Person.FindFirst then
@@ -533,13 +533,13 @@ table 17350 Person
     trigger OnDelete()
     begin
         PersonNameHistory.SetRange("Person No.", "No.");
-        PersonNameHistory.DeleteAll;
+        PersonNameHistory.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Person Nos.");
             NoSeriesMgt.InitSeries(HumanResSetup."Person Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -572,10 +572,10 @@ table 17350 Person
     begin
         with Person do begin
             Person := Rec;
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Position Nos.");
             if NoSeriesMgt.SelectSeries(HumanResSetup."Person Nos.", OldPerson."No. Series", "No. Series") then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("Person Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Person;
@@ -648,7 +648,7 @@ table 17350 Person
     procedure GetIdentityDoc(CurrDate: Date; var PersonDoc: Record "Person Document")
     begin
         TestField("Identity Document Type");
-        PersonDoc.Reset;
+        PersonDoc.Reset();
         PersonDoc.SetRange("Person No.", "No.");
         PersonDoc.SetRange("Document Type", "Identity Document Type");
         PersonDoc.SetRange("Valid from Date", 0D, CurrDate);
@@ -710,7 +710,7 @@ table 17350 Person
         Relative: Record Relative;
     begin
         Kids := 0;
-        EmployeeRelative.Reset;
+        EmployeeRelative.Reset();
         EmployeeRelative.SetRange("Person No.", "No.");
         if EmployeeRelative.FindSet then
             repeat
@@ -726,7 +726,7 @@ table 17350 Person
     [Scope('OnPrem')]
     procedure UsedAsEmployee(): Boolean
     begin
-        Employee.Reset;
+        Employee.Reset();
         Employee.SetCurrentKey("Person No.");
         Employee.SetRange("Person No.", "No.");
         exit(not Employee.IsEmpty);
@@ -735,7 +735,7 @@ table 17350 Person
     [Scope('OnPrem')]
     procedure GetBirthPlace() BirthPlace: Text[50]
     begin
-        AlternativeAddress.Reset;
+        AlternativeAddress.Reset();
         AlternativeAddress.SetRange("Person No.", "No.");
         AlternativeAddress.SetRange("Address Type", AlternativeAddress."Address Type"::Birthplace);
         if AlternativeAddress.FindFirst then

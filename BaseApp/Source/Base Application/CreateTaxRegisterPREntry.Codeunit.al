@@ -45,8 +45,8 @@ codeunit 17208 "Create Tax Register PR Entry"
                         Window.Update(3, Round((Processed / Total) * 10000, 1));
 
                     if not Employee.Get("Employee No.") then
-                        Employee.Init;
-                    TaxRegPREntry.Init;
+                        Employee.Init();
+                    TaxRegPREntry.Init();
                     TaxRegPREntry."Section Code" := SectionCode;
                     TaxRegPREntry."Starting Date" := StartDate;
                     TaxRegPREntry."Ending Date" := EndDate;
@@ -84,7 +84,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                     TaxDimMgt.SetLedgEntryDim(SectionCode, "Dimension Set ID");
                     if ValidateWhereUsedRegisterIDs(TaxRegPREntry) then begin
                         TaxRegPREntry."Entry No." += 1;
-                        TaxRegPREntry.Insert;
+                        TaxRegPREntry.Insert();
                     end;
                 until Next(1) = 0;
         end;
@@ -112,19 +112,19 @@ codeunit 17208 "Create Tax Register PR Entry"
             exit;
 
         TempGLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
-        TempGLCorrEntry.Insert;
+        TempGLCorrEntry.Insert();
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Reset;
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Reset();
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
 
-        TaxRegLineSetup.Reset;
+        TaxRegLineSetup.Reset();
         TaxRegLineSetup.SetRange("Section Code", SectionCode);
 
         Clear(TaxDimMgt);
@@ -133,17 +133,17 @@ codeunit 17208 "Create Tax Register PR Entry"
         repeat
             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
             if TaxRegLineSetup.Find('-') then begin
-                TempTaxRegTemplate.DeleteAll;
+                TempTaxRegTemplate.DeleteAll();
                 TaxRegTemplate.SetRange("Section Code", SectionCode);
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
                 if TaxRegTemplate.Find('-') then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
                         TempTaxRegTemplate.Value := 0;
-                        TempTaxRegTemplate.Insert;
+                        TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next = 0;
 
-                TaxRegPREntry.Reset;
+                TaxRegPREntry.Reset();
                 TaxRegPREntry.SetCurrentKey("Section Code", "Ending Date");
                 TaxRegPREntry.SetRange("Section Code", SectionCode);
                 TaxRegPREntry.SetRange("Ending Date", EndDate);
@@ -154,7 +154,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                           TaxRegPREntry."Dimension 1 Value Code", TaxRegPREntry."Dimension 2 Value Code",
                           TaxRegPREntry."Dimension 3 Value Code", TaxRegPREntry."Dimension 4 Value Code");
                         TempGLCorrEntry."Debit Account No." := TaxRegPREntry."Employee Payroll Account No.";
-                        TempGLCorrEntry.Modify;
+                        TempGLCorrEntry.Modify();
                         TaxRegLineSetup.Find('-');
                         repeat
                             GLCorrFound := TaxRegLineSetup."Account No." = '';
@@ -183,7 +183,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                                             end;
                                             if AddValue <> 0 then begin
                                                 TempTaxRegTemplate.Value += AddValue;
-                                                TempTaxRegTemplate.Modify;
+                                                TempTaxRegTemplate.Modify();
                                             end;
                                         end;
                                     until TempTaxRegTemplate.Next(1) = 0;
@@ -191,7 +191,7 @@ codeunit 17208 "Create Tax Register PR Entry"
                         until TaxRegLineSetup.Next(1) = 0;
                     until TaxRegPREntry.Next(1) = 0;
 
-                TempTaxRegTemplate.Reset;
+                TempTaxRegTemplate.Reset();
                 if TempTaxRegTemplate.Find('-') then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
@@ -211,10 +211,10 @@ codeunit 17208 "Create Tax Register PR Entry"
                             TempTaxRegTemplate.Period);
                         TaxRegAccumulation.Amount := TaxRegAccumulation."Amount Period";
                         TaxRegAccumulation."Entry No." += 1;
-                        TaxRegAccumulation.Insert;
+                        TaxRegAccumulation.Insert();
                         if TempTaxRegTemplate.Period <> '' then begin
                             TaxRegAccumulation2 := TaxRegAccumulation;
-                            TaxRegAccumulation2.Reset;
+                            TaxRegAccumulation2.Reset();
                             TaxRegAccumulation2.SetCurrentKey(
                               "Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxRegAccumulation2.SetRange("Section Code", TaxRegAccumulation."Section Code");
@@ -224,12 +224,12 @@ codeunit 17208 "Create Tax Register PR Entry"
                             TaxRegAccumulation2.SetFilter("Ending Date", TaxRegAccumulation."Amount Date Filter");
                             TaxRegAccumulation2.CalcSums("Amount Period");
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
-                            TaxRegAccumulation.Modify;
+                            TaxRegAccumulation.Modify();
                         end;
                     until TempTaxRegTemplate.Next = 0;
             end;
         until TaxReg.Next(1) = 0;
-        TempTaxRegTemplate.DeleteAll;
+        TempTaxRegTemplate.DeleteAll();
     end;
 
     local procedure ValidateTemplateFilters(TaxRegPREntry: Record "Tax Register PR Entry"; TempTaxRegTemplate: Record "Tax Register Template"): Boolean
@@ -275,7 +275,7 @@ codeunit 17208 "Create Tax Register PR Entry"
         TaxRegLineSetup: Record "Tax Register Line Setup";
         TempTaxRegTemplate: Record "Tax Register Template";
     begin
-        TempTaxRegTemplate.Init;
+        TempTaxRegTemplate.Init();
         with TaxRegPREntry do begin
             TaxReg.SetRange("Section Code", "Section Code");
             TaxReg.SetRange("Table ID", DATABASE::"Tax Register PR Entry");
@@ -310,9 +310,9 @@ codeunit 17208 "Create Tax Register PR Entry"
             if TaxRegLineSetup."Account No." <> '' then begin
                 CheckBuffer."Order No." := "Employee Payroll Account No.";
                 CheckBuffer.SetFilter("Order No.", TaxRegLineSetup."Account No.");
-                CheckBuffer.Insert;
+                CheckBuffer.Insert();
                 InsertEntry := CheckBuffer.Find;
-                CheckBuffer.Delete;
+                CheckBuffer.Delete();
             end;
 
             if FieldActive("Employee Statistics Group Code") and
@@ -321,9 +321,9 @@ codeunit 17208 "Create Tax Register PR Entry"
                 if InsertEntry and (TaxRegLineSetup."Employee Statistics Group Code" <> '') then begin
                     CheckBuffer."Order No." := "Employee Statistics Group Code";
                     CheckBuffer.SetFilter("Order No.", TaxRegLineSetup."Employee Statistics Group Code");
-                    CheckBuffer.Insert;
+                    CheckBuffer.Insert();
                     InsertEntry := CheckBuffer.Find;
-                    CheckBuffer.Delete;
+                    CheckBuffer.Delete();
                 end;
 
             if FieldActive("Employee Category Code") and
@@ -332,9 +332,9 @@ codeunit 17208 "Create Tax Register PR Entry"
                 if InsertEntry and (TaxRegLineSetup."Employee Category Code" <> '') then begin
                     CheckBuffer."Order No." := "Employee Category Code";
                     CheckBuffer.SetFilter("Order No.", TaxRegLineSetup."Employee Category Code");
-                    CheckBuffer.Insert;
+                    CheckBuffer.Insert();
                     InsertEntry := CheckBuffer.Find;
-                    CheckBuffer.Delete;
+                    CheckBuffer.Delete();
                 end;
 
             if FieldActive("Payroll Posting Group") and
@@ -343,9 +343,9 @@ codeunit 17208 "Create Tax Register PR Entry"
                 if InsertEntry and (TaxRegLineSetup."Payroll Posting Group" <> '') then begin
                     CheckBuffer."Order No." := "Payroll Posting Group";
                     CheckBuffer.SetFilter("Order No.", TaxRegLineSetup."Payroll Posting Group");
-                    CheckBuffer.Insert;
+                    CheckBuffer.Insert();
                     InsertEntry := CheckBuffer.Find;
-                    CheckBuffer.Delete;
+                    CheckBuffer.Delete();
                 end;
 
             if InsertEntry then
@@ -354,12 +354,12 @@ codeunit 17208 "Create Tax Register PR Entry"
                   TaxRegLineSetup."Element Type Totaling", TempTaxRegTemplate."Element Type Totaling", Totaling);
 
             if InsertEntry and (Totaling <> '') then begin
-                CheckBuffer.Reset;
+                CheckBuffer.Reset();
                 CheckBuffer."Order Line No." := "Payroll Element Type";
                 CheckBuffer.SetFilter("Order Line No.", Totaling);
-                CheckBuffer.Insert;
+                CheckBuffer.Insert();
                 InsertEntry := CheckBuffer.Find;
-                CheckBuffer.Delete;
+                CheckBuffer.Delete();
             end;
 
             if InsertEntry then
@@ -368,12 +368,12 @@ codeunit 17208 "Create Tax Register PR Entry"
                   TaxRegLineSetup."Payroll Source Totaling", TempTaxRegTemplate."Payroll Source Totaling", Totaling);
 
             if InsertEntry and (Totaling <> '') then begin
-                CheckBuffer.Reset;
+                CheckBuffer.Reset();
                 CheckBuffer."Order Line No." := "Payroll Source";
                 CheckBuffer.SetFilter("Order Line No.", Totaling);
-                CheckBuffer.Insert;
+                CheckBuffer.Insert();
                 InsertEntry := CheckBuffer.Find;
-                CheckBuffer.Delete;
+                CheckBuffer.Delete();
             end;
         end;
     end;

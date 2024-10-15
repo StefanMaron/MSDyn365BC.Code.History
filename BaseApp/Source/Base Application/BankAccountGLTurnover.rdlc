@@ -1931,9 +1931,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Bank_Account__No__">
           <DataField>Bank_Account__No__</DataField>
         </Field>

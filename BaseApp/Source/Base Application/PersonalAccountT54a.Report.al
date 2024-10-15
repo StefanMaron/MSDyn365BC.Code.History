@@ -33,7 +33,7 @@ report 17354 "Personal Account T-54a"
                 ExcelMgt.FillCell('DU18', Person."Social Security No.");
                 ExcelMgt.FillCell('DH18', Person."VAT Registration No.");
 
-                AltAddr.Reset;
+                AltAddr.Reset();
                 AltAddr.SetRange("Person No.", Employee."No.");
                 AltAddr.SetRange("Address Type", AltAddr."Address Type"::Registration);
                 if AltAddr.FindFirst then;
@@ -50,7 +50,7 @@ report 17354 "Personal Account T-54a"
                 ExcelMgt.FillCell('DW33', CopyStr(Format(DSYear), 3, 2));
 
                 // Employee Job Entry
-                EmployeeJobEntry.Reset;
+                EmployeeJobEntry.Reset();
                 EmployeeJobEntry.SetCurrentKey("Employee No.");
                 EmployeeJobEntry.SetRange("Employee No.", "No.");
                 EmployeeJobEntry.SetFilter("Position No.", '<>%1', '');
@@ -59,7 +59,7 @@ report 17354 "Personal Account T-54a"
                 EmployeeJobEntry.SetRange("Position Changed", true);
 
                 // Employee Vacation Entry
-                EmplAbsenceEntry.Reset;
+                EmplAbsenceEntry.Reset();
                 EmplAbsenceEntry.SetCurrentKey("Employee No.");
                 EmplAbsenceEntry.SetRange("Employee No.", "No.");
                 EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Usage);
@@ -108,7 +108,7 @@ report 17354 "Personal Account T-54a"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if GetRangeMin("No.") <> GetRangeMax("No.") then
                     Error(Text14800);
             end;
@@ -174,7 +174,7 @@ report 17354 "Personal Account T-54a"
         if StrLen(DSMonth) < 2 then
             DSMonth := '0' + DSMonth;
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-54a Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumanResSetup."T-54a Template Code");

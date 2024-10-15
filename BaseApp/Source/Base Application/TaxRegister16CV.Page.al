@@ -150,7 +150,7 @@ page 17223 "Tax Register (1.6) CV"
     begin
         CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
         FilterGroup(2);
         SectionCode := GetRangeMin("Section Code");
         FilterGroup(0);

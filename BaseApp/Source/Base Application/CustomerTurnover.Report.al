@@ -18,9 +18,6 @@ report 12439 "Customer Turnover"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -225,14 +222,14 @@ report 12439 "Customer Turnover"
                     LineAmountAgr[4] := Round(Abs("Credit Amount (LCY)"), Decimals, '=');
 
                     if SkipZeroBalances and (LineAmountAgr[1] = 0) and (LineAmountAgr[2] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if SkipZeroNetChanges and (LineAmountAgr[3] = 0) and (LineAmountAgr[4] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if SkipZeroLines and
                       (LineAmountAgr[1] = 0) and (LineAmountAgr[2] = 0) and
                       (LineAmountAgr[3] = 0) and (LineAmountAgr[4] = 0) and
                       (LineAmountAgr[5] = 0) and (LineAmountAgr[6] = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TextLineValues(SkipZeroValues, LineAmountAgr, LineAgrText);
                 end;
@@ -240,7 +237,7 @@ report 12439 "Customer Turnover"
                 trigger OnPreDataItem()
                 begin
                     if not PrintAgreements then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -269,14 +266,14 @@ report 12439 "Customer Turnover"
                 LineAmount[4] := Round(Abs("Credit Amount (LCY)"), Decimals, '=');
 
                 if SkipZeroBalances and (LineAmount[1] = 0) and (LineAmount[2] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipZeroNetChanges and (LineAmount[3] = 0) and (LineAmount[4] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipZeroLines and
                   (LineAmount[1] = 0) and (LineAmount[2] = 0) and
                   (LineAmount[3] = 0) and (LineAmount[4] = 0) and
                   (LineAmount[5] = 0) and (LineAmount[6] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TextLineValues(SkipZeroValues, LineAmount, LineText);
             end;
@@ -354,7 +351,7 @@ report 12439 "Customer Turnover"
 
         trigger OnOpenPage()
         begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             if SalesSetup."Customer Agreement Dim. Code" = '' then
                 "Print by AgreementsVisible" := false;
         end;

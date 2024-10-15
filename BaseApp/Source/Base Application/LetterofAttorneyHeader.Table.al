@@ -200,20 +200,20 @@ table 14905 "Letter of Attorney Header"
         TestStatusOpen;
 
         LetterOfAttorneyLine.SetRange("Letter of Attorney No.", "No.");
-        LetterOfAttorneyLine.DeleteAll;
+        LetterOfAttorneyLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Letter of Attorney Nos.");
             "No." := NoSeriesManagement.GetNextNo(PurchSetup."Letter of Attorney Nos.", WorkDate, true);
         end;
 
         Validate("Document Date", WorkDate);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         "User ID" := UserId;
         "Last Modified" := CurrentDateTime;
 
@@ -264,12 +264,12 @@ table 14905 "Letter of Attorney Header"
     begin
         TestStatusOpen;
 
-        LetterOfAttorneyLine.Reset;
+        LetterOfAttorneyLine.Reset();
         LetterOfAttorneyLine.SetRange("Letter of Attorney No.", "No.");
         if LetterOfAttorneyLine.FindFirst then begin
             if not Confirm(Text001) then
                 exit;
-            LetterOfAttorneyLine.DeleteAll;
+            LetterOfAttorneyLine.DeleteAll();
         end;
 
         PurchaseLine.SetRange("Document Type", "Source Document Type" - 1);
@@ -279,7 +279,7 @@ table 14905 "Letter of Attorney Header"
                 if (PurchaseLine."Qty. to Receive" <> 0) or
                    (PurchaseLine.Type = PurchaseLine.Type::" ")
                 then begin
-                    LetterOfAttorneyLine.Init;
+                    LetterOfAttorneyLine.Init();
                     LetterOfAttorneyLine."Letter of Attorney No." := "No.";
                     LetterOfAttorneyLine."Line No." := PurchaseLine."Line No.";
                     case PurchaseLine.Type of
@@ -299,7 +299,7 @@ table 14905 "Letter of Attorney Header"
                     LetterOfAttorneyLine.Quantity := PurchaseLine."Qty. to Receive";
                     LetterOfAttorneyLine."Unit of Measure Code" := PurchaseLine."Unit of Measure Code";
                     LetterOfAttorneyLine."Unit of Measure" := PurchaseLine."Unit of Measure";
-                    LetterOfAttorneyLine.Insert;
+                    LetterOfAttorneyLine.Insert();
                 end;
             until PurchaseLine.Next = 0;
     end;
@@ -323,7 +323,7 @@ table 14905 "Letter of Attorney Header"
     [Scope('OnPrem')]
     procedure AssistEdit(): Boolean
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Letter of Attorney Nos.");
         if NoSeriesManagement.SelectSeries(PurchSetup."Letter of Attorney Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesManagement.SetSeries("No.");

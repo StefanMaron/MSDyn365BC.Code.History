@@ -49,7 +49,7 @@ report 17492 "Vacation Schedule T-7"
             trigger OnAfterGetRecord()
             begin
                 if RowNo > 23 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ExcelMgt.SetSheetName(FieldCaption(Year) + ' ' + Format(Year));
 
@@ -108,9 +108,9 @@ report 17492 "Vacation Schedule T-7"
 
     trigger OnPreReport()
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-7 Template Code");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

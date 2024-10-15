@@ -79,7 +79,7 @@ codeunit 7152 "Export Item Analysis View"
         SignValue: Integer;
         NoOfLeadingColumns: Integer;
     begin
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
 
         ItemAnalysisViewEntry2.Copy(ItemAnalysisViewEntry);
         ItemAnalysisView.Get(ItemAnalysisViewEntry."Analysis Area", ItemAnalysisViewEntry."Analysis View Code");
@@ -148,8 +148,8 @@ codeunit 7152 "Export Item Analysis View"
         ItemAnalysisViewFilter: Record "Item Analysis View Filter";
         RowNoCount: Integer;
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
 
         with ItemAnalysisViewEntry do begin
             FillCell(1, 1, ItemAnalysisView.TableCaption);
@@ -424,9 +424,9 @@ codeunit 7152 "Export Item Analysis View"
         if DimValue.Find('-') then
             repeat
                 TempDimValue2.Copy(DimValue);
-                TempDimValue2.Insert;
+                TempDimValue2.Insert();
                 TempDimValue3.Copy(DimValue);
-                TempDimValue3.Insert;
+                TempDimValue3.Insert();
             until DimValue.Next = 0;
         TempDimValue2.SetFilter(Code, DimFilter);
         if TempDimValue2.Find('-') then
@@ -438,7 +438,7 @@ codeunit 7152 "Export Item Analysis View"
 
     local procedure FindDimParent(var Account: Code[20]; DimensionCode: Code[20])
     begin
-        TempDimValue3.Reset;
+        TempDimValue3.Reset();
         TempDimValue3.SetRange("Dimension Code", DimensionCode);
         TempDimValue3.Get(DimensionCode, Account);
         if TempDimValue3.Indentation <> 0 then begin
@@ -460,7 +460,7 @@ codeunit 7152 "Export Item Analysis View"
             if TempDimValue2.Get(DimCode, DimValueCode) then
                 TempDimValue2.Mark(true)
             else
-                TempDimValue2.Init;
+                TempDimValue2.Init();
             DimValueCode2 := DimValueCode;
             Indent := TempDimValue2.Indentation;
             if (Indent <> 0) and (DimValueCode2 <> '') then
@@ -540,7 +540,7 @@ codeunit 7152 "Export Item Analysis View"
         RowNo: Integer;
     begin
         RowNo := TempExcelBuffer."Row No." + 1;
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", 0);
     end;
@@ -585,11 +585,11 @@ codeunit 7152 "Export Item Analysis View"
 
     local procedure AddParentToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; id: Integer; AccountNumber: Text[250]; AccountName: Text[250])
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := id;
         NameValueBuffer.Name := AccountNumber;
         NameValueBuffer.Value := AccountName;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 
     local procedure WriteDimLine(DimNo: Integer; DimFilter: Text; DimCode: Code[20]; NoOfLeadingColumns: Integer; ShowName: Boolean)

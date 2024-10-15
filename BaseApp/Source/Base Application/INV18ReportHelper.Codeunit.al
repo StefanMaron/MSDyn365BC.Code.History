@@ -16,7 +16,7 @@ codeunit 14947 "INV-18 Report Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("INV-18 Template Code");
         ExcelReportBuilderManager.InitTemplate(FASetup."INV-18 Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');
@@ -27,7 +27,7 @@ codeunit 14947 "INV-18 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);

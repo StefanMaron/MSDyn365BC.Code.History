@@ -36,14 +36,14 @@ codeunit 17203 "Create Tax Register GL Entry"
         Window.Update(2, EndDate);
 
         Clear(TaxDimMgt);
-        TaxRegSetup.Get;
+        TaxRegSetup.Get();
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Reset;
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Reset();
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
@@ -61,7 +61,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                         TempTaxRegTemplate := TaxRegTemplate;
 
                         if TaxRegTemplate.Expression <> '' then begin
-                            TaxRegLineSetup.Reset;
+                            TaxRegLineSetup.Reset();
                             TaxRegLineSetup.SetRange("Section Code", TaxReg."Section Code");
                             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
                             if TaxRegTemplate."Term Line Code" <> '' then
@@ -69,7 +69,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                             if TaxRegLineSetup.FindSet then
                                 repeat
                                     if TaxReg."G/L Corr. Analysis View Code" <> '' then begin
-                                        GLCorrAnalysisViewEntry.Reset;
+                                        GLCorrAnalysisViewEntry.Reset();
                                         GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", TaxReg."G/L Corr. Analysis View Code");
                                         GLCorrAnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
                                         TaxDimMgt.SetDimFilters2GLCorrAnViewEntry(
@@ -127,7 +127,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                                                     end;
                                             end;
                                     end else begin
-                                        GLCorrEntry.Reset;
+                                        GLCorrEntry.Reset();
                                         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
                                         GLCorrEntry.SetRange("Posting Date", StartDate, EndDate);
                                         with TaxRegLineSetup do
@@ -186,7 +186,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                                 until TaxRegLineSetup.Next = 0;
                         end;
 
-                        TempTaxRegTemplate.Insert;
+                        TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next = 0;
 
                 if TempTaxRegTemplate.FindSet then
@@ -208,10 +208,10 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TempTaxRegTemplate.Period);
                         TaxRegAccumulation.Amount := TaxRegAccumulation."Amount Period";
                         TaxRegAccumulation."Entry No." += 1;
-                        TaxRegAccumulation.Insert;
+                        TaxRegAccumulation.Insert();
                         if TempTaxRegTemplate.Period <> '' then begin
                             TaxRegAccumulation2 := TaxRegAccumulation;
-                            TaxRegAccumulation2.Reset;
+                            TaxRegAccumulation2.Reset();
                             TaxRegAccumulation2.SetCurrentKey(
                               "Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxRegAccumulation2.SetRange("Section Code", TaxRegAccumulation."Section Code");
@@ -221,11 +221,11 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TaxRegAccumulation2.SetFilter("Ending Date", TaxRegAccumulation."Amount Date Filter");
                             TaxRegAccumulation2.CalcSums("Amount Period");
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
-                            TaxRegAccumulation.Modify;
+                            TaxRegAccumulation.Modify();
                         end;
                     until TempTaxRegTemplate.Next = 0;
 
-                TempTaxRegTemplate.DeleteAll;
+                TempTaxRegTemplate.DeleteAll();
             until TaxReg.Next = 0;
     end;
 
@@ -245,7 +245,7 @@ codeunit 17203 "Create Tax Register GL Entry"
     begin
         TaxRegMgt.ValidateStartDateEndDate(StartDate, EndDate, SectionCode);
 
-        TaxReg.Reset;
+        TaxReg.Reset();
         TaxReg.SetRange("Section Code", SectionCode);
         if not TaxReg.Find('-') then
             exit;
@@ -255,9 +255,9 @@ codeunit 17203 "Create Tax Register GL Entry"
         Window.Update(2, EndDate);
         Window.Update(4, GLCorrespondEntry.TableCaption);
 
-        TaxRegLineSetup.Reset;
+        TaxRegLineSetup.Reset();
         TaxRegLineSetup.SetRange("Section Code", SectionCode);
-        Total := TaxRegLineSetup.Count;
+        Total := TaxRegLineSetup.Count();
         TaxRegGLCorresp."Section Code" := SectionCode;
 
         DebitGLAcc.SetRange("Account Type", DebitGLAcc."Account Type"::Posting);
@@ -314,7 +314,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         TaxRegiName: Record "Tax Register";
     begin
         TaxRegGLCorrEntry := TaxRegGLCorrespond;
-        TmpTaxRegDimCorrFilter.Reset;
+        TmpTaxRegDimCorrFilter.Reset();
         with TaxRegGLCorrespond do begin
             SetRange("Section Code", "Section Code");
             SetRange("Debit Account No.", "Debit Account No.");
@@ -346,7 +346,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                     repeat
                         TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
                         TaxRegDimCorrFilter."G/L Corr. Entry No." := "Entry No.";
-                        TaxRegDimCorrFilter.Insert;
+                        TaxRegDimCorrFilter.Insert();
                     until TmpTaxRegDimCorrFilter.Next(1) = 0;
                 end;
             end else begin
@@ -361,7 +361,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                 repeat
                     TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
                     TaxRegDimCorrFilter."G/L Corr. Entry No." := "Entry No.";
-                    if TaxRegDimCorrFilter.Insert then;
+                    if TaxRegDimCorrFilter.Insert() then;
                 until TmpTaxRegDimCorrFilter.Next(1) = 0;
             TmpTaxRegDimCorrFilter.SetRange("Connection Type");
             Modify;
@@ -374,7 +374,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
     begin
-        TempTaxRegDimCorrFilter.DeleteAll;
+        TempTaxRegDimCorrFilter.DeleteAll();
 
         TempTaxRegDimCorrFilter."Section Code" := TaxRegLineSetup."Section Code";
         TempTaxRegDimCorrFilter."G/L Corr. Entry No." := 0;
@@ -387,7 +387,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         if TaxRegDimFilter.FindSet then
             repeat
                 TempTaxRegDimCorrFilter."Connection Entry No." := TaxRegDimFilter."Entry No.";
-                TempTaxRegDimCorrFilter.Insert;
+                TempTaxRegDimCorrFilter.Insert();
             until TaxRegDimFilter.Next(1) = 0;
 
         TempTaxRegDimCorrFilter."Connection Type" := TempTaxRegDimCorrFilter."Connection Type"::Combinations;
@@ -397,7 +397,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         if TaxRegDimComb.FindSet then
             repeat
                 TempTaxRegDimCorrFilter."Connection Entry No." := TaxRegDimComb."Entry No.";
-                TempTaxRegDimCorrFilter.Insert;
+                TempTaxRegDimCorrFilter.Insert();
             until TaxRegDimComb.Next(1) = 0;
     end;
 
@@ -461,7 +461,7 @@ codeunit 17203 "Create Tax Register GL Entry"
             repeat
                 WhereUsedRegisterID := '~' + TaxRegID + '~';
                 if CheckTaxRegGLEntryPresence(WhereUsedRegisterID, GLCorrEntry."Debit Entry No.") then begin
-                    TaxRegGLEntry.Init;
+                    TaxRegGLEntry.Init();
                     TaxRegGLEntry."Entry No." := EntryNo;
                     TaxRegGLEntry."Section Code" := SectionCode;
                     TaxRegGLEntry."Starting Date" := StartDate;
@@ -473,7 +473,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                     TaxRegGLEntry."Debit Dimension 2 Value Code" := GLCorrEntry."Debit Global Dimension 2 Code";
                     TaxRegGLEntry."Credit Dimension 1 Value Code" := GLCorrEntry."Credit Global Dimension 1 Code";
                     TaxRegGLEntry."Credit Dimension 2 Value Code" := GLCorrEntry."Credit Global Dimension 2 Code";
-                    TaxRegGLEntry.Insert;
+                    TaxRegGLEntry.Insert();
                     EntryNo += 1;
                 end;
             until GLCorrEntry.Next = 0;
@@ -498,14 +498,14 @@ codeunit 17203 "Create Tax Register GL Entry"
 
         if GLCorrAnalysisViewEntry.FindSet then
             repeat
-                TempGLCorrEntry.Reset;
-                TempGLCorrEntry.DeleteAll;
+                TempGLCorrEntry.Reset();
+                TempGLCorrEntry.DeleteAll();
                 GLCorrAnViewEntrToGLCorrEntr.GetGLCorrEntries(GLCorrAnalysisViewEntry, TempGLCorrEntry);
                 if TempGLCorrEntry.FindSet then
                     repeat
                         WhereUsedRegisterID := '~' + TaxRegID + '~';
                         if CheckTaxRegGLEntryPresence(WhereUsedRegisterID, TempGLCorrEntry."Debit Entry No.") then begin
-                            TaxRegGLEntry.Init;
+                            TaxRegGLEntry.Init();
                             TaxRegGLEntry."Entry No." := EntryNo;
                             TaxRegGLEntry."Section Code" := SectionCode;
                             TaxRegGLEntry."Starting Date" := StartDate;
@@ -521,7 +521,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TaxRegGLEntry."Credit Dimension 1 Value Code" := GLCorrAnalysisViewEntry."Credit Dimension 1 Value Code";
                             TaxRegGLEntry."Credit Dimension 2 Value Code" := GLCorrAnalysisViewEntry."Credit Dimension 2 Value Code";
                             TaxRegGLEntry."Credit Dimension 3 Value Code" := GLCorrAnalysisViewEntry."Credit Dimension 3 Value Code";
-                            TaxRegGLEntry.Insert;
+                            TaxRegGLEntry.Insert();
 
                             EntryNo += 1;
                         end;

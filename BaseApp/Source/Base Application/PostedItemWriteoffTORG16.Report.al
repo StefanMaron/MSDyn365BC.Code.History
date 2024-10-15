@@ -155,7 +155,7 @@ report 14931 "Posted Item Write-off TORG-16"
         CompanyInfo: Record "Company Information";
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if DocSignature.Get(12454, 0, ItemDocNo, DocSignature."Employee Type"::Chairman) then begin
             Member[1, 1] := DocSignature."Employee Job Title";
             Member[1, 2] := DocSignature."Employee Name";

@@ -13,8 +13,8 @@ codeunit 12424 "VAT Invoice Journal Management"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        TempVendorLedgerEntry.Reset;
-        TempVendorLedgerEntry.DeleteAll;
+        TempVendorLedgerEntry.Reset();
+        TempVendorLedgerEntry.DeleteAll();
 
         if Vendor.FindSet then
             repeat
@@ -55,8 +55,8 @@ codeunit 12424 "VAT Invoice Journal Management"
     var
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        TempVendorLedgerEntry.Reset;
-        TempVendorLedgerEntry.DeleteAll;
+        TempVendorLedgerEntry.Reset();
+        TempVendorLedgerEntry.DeleteAll();
 
         if Customer.FindSet then
             repeat
@@ -159,7 +159,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         AppliedAmountLCY: Decimal;
         AppliedAmountFCY: Decimal;
     begin
-        TempVendorLedgerEntry.Init;
+        TempVendorLedgerEntry.Init();
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
@@ -199,7 +199,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         TempVendorLedgerEntry."VAT Entry Type" := VendorLedgerEntry."VAT Entry Type";
 
         if TempVendorLedgerEntry."Purchase (LCY)" > 0 then
-            TempVendorLedgerEntry.Insert;
+            TempVendorLedgerEntry.Insert();
     end;
 
     local procedure InsertCustLE(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry"; DatePeriod: Record Date; ReportType: Option Received,Issued; ShowCorrection: Boolean)
@@ -211,7 +211,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         AppliedAmountLCY: Decimal;
         AppliedAmountFCY: Decimal;
     begin
-        TempVendorLedgerEntry.Init;
+        TempVendorLedgerEntry.Init();
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
@@ -257,7 +257,7 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         TempVendorLedgerEntry."VAT Entry Type" := CustLedgerEntry."VAT Entry Type";
         if TempVendorLedgerEntry."Purchase (LCY)" > 0 then
-            TempVendorLedgerEntry.Insert;
+            TempVendorLedgerEntry.Insert();
     end;
 
     local procedure GetInitialVendAmounts(var AmountLCY: Decimal; var AmountFCY: Decimal; EntryNo: Integer; VendorNo: Code[20]): Decimal
@@ -413,7 +413,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         if not VATEntry."VAT Agent" then
             exit;
 
-        TempVendorLedgerEntry.Init;
+        TempVendorLedgerEntry.Init();
 
         LastEntryNo += 1;
         TempVendorLedgerEntry."Entry No." := LastEntryNo;
@@ -434,7 +434,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         TempVendorLedgerEntry."Purchase (LCY)" := Abs(Round(AmountLCY, 0.01));
 
         if TempVendorLedgerEntry."Purchase (LCY)" > 0 then
-            TempVendorLedgerEntry.Insert;
+            TempVendorLedgerEntry.Insert();
     end;
 
     local procedure IsCorrectiveDocument(var CorrVATEntry: Record "VAT Entry"; CVNo: Code[20]; DocType: Option; DocNo: Code[20]; EntryType: Option Purchase,Sale): Boolean
@@ -463,7 +463,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         VATRegNoKPP := '';
         if CVType = CVType::Customer then
             if VATLedgerType = VATLedger.Type::Purchase then begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 VATRegNoKPP := GetVATRegKPP(CompanyInformation."VAT Registration No.", CompanyInformation."KPP Code");
             end else begin
                 Cust.Get(CVNo);
@@ -471,7 +471,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             end
         else
             if VATLedgerType = VATLedger.Type::Sales then begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 VATRegNoKPP := GetVATRegKPP(CompanyInformation."VAT Registration No.", CompanyInformation."KPP Code");
             end else begin
                 Vend.Get(CVNo);
@@ -564,7 +564,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         CurrencyDescription := '';
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup."LCY Code";
         end;
 
@@ -624,7 +624,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                             else
                                                 OrigVATInvNo := VendLedgEntry."Document No.";
                                         end;
-                                        VendLedgEntry.Reset;
+                                        VendLedgEntry.Reset();
                                     end;
                             end;
                     VendLedgEntry."Document Type"::"Credit Memo":
@@ -660,7 +660,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                             else
                                                 OrigVATInvNo := VendLedgEntry."Document No.";
                                         end;
-                                        VendLedgEntry.Reset;
+                                        VendLedgEntry.Reset();
                                     end;
                             end;
                 end;
@@ -731,7 +731,7 @@ codeunit 12424 "VAT Invoice Journal Management"
 
             GetCorrVendVATInvNo(DocumentNo, CorrectionNo, "Payroll Ledger Entry No.", EntryType, PrintRevision);
 
-            VATLedgerLine.Init;
+            VATLedgerLine.Init();
             VATLedgerLine."Line No." := LineNo;
             VATLedgerLine."Document No." := DocumentNo;
             VATLedgerLine."Document Date" := DocumentDate;

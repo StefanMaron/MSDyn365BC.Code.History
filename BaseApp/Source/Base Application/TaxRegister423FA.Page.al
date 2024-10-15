@@ -148,7 +148,7 @@ page 17234 "Tax Register (4.23) FA"
     begin
         CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
         DateFilterText := '*';
     end;
 

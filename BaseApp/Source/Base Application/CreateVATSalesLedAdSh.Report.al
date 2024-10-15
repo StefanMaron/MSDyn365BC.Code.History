@@ -21,29 +21,29 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 begin
                     if Reversed then
                         if not ReversedByCorrection(VATEntryAdd) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     if Prepayment then begin
                         if ("Unrealized VAT Entry No." <> 0) and not Reversed then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
                         if "Unrealized VAT Entry No." = 0 then
                             if (Base = 0) and (Amount = 0) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                     if Prepayment and not ShowPrepayment then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not Prepayment then
                         if "Unrealized VAT Entry No." <> 0 then begin
                             if not ShowUnrealVAT then
                                 CurrReport.Skip
                         end else
                             if not ShowRealVAT then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                     if not Reversed then
                         if "Posting Date" in [VATLedgerName."Start Date" .. VATLedgerName."End Date"] then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     DocumentDate := 0D;
                     RealVATEntryDate := 0D;
@@ -79,7 +79,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                     VATLedgMgt.SetCustVendFilter(VATEntryAdd, CustFilter);
                     VATLedgMgt.SetVATGroupsFilter(VATEntryAdd, VATProdGroupFilter, VATBusGroupFilter);
 
-                    LedgerBuffer.Reset;
+                    LedgerBuffer.Reset();
                     LedgerBuffer.SetCurrentKey("Document No.");
 
                     VATLedgerLine.SetRange(Code, VATLedgerName.Code);
@@ -97,20 +97,20 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                     ReversedVATEntry: Record "VAT Entry";
                 begin
                     if "Unrealized VAT Entry No." = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not Reversed then
                         if "Posting Date" in [VATLedgerName."Start Date" .. VATLedgerName."End Date"] then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     if Reversed then begin
                         if not ReversedByCorrection(PrepmtVATEntryAdd) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         // Returned Prepayment
                         if ReversedVATEntry.Get("Reversed Entry No.") then
                             if ReversedVATEntry."Unrealized VAT Entry No." = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
 
                     DocumentDate := 0D;
@@ -133,7 +133,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                     Delimiter: Code[1];
                 begin
                     if not ShowVendPrepmt then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Corrected Document Date", VATLedgerName."Start Date", VATLedgerName."End Date");
                     VATLedgMgt.GetVendFilterByCustFilter(VendFilter, CustFilter);
@@ -149,10 +149,10 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 begin
                     if Number = 1 then begin
                         if not LedgerBuffer.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if LedgerBuffer.Next(1) = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     LedgerBuffer."Sales Tax Amount" := LedgerBuffer."Sales Tax Amount" + LedgerBuffer."Full Sales Tax Amount";
 
                     LedgerBuffer."Full VAT Amount" := 0;
@@ -168,7 +168,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                             0.01);
 
                     if LedgerBuffer."Amount Including VAT" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     LedgerBuffer.Base20 := Round(LedgerBuffer.Base20, 0.01);
                     LedgerBuffer.Amount20 := Round(LedgerBuffer.Amount20, 0.01);
@@ -191,9 +191,9 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 trigger OnPreDataItem()
                 begin
                     if Details then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    LedgerBuffer.Reset;
+                    LedgerBuffer.Reset();
 
                     case Sorting of
                         Sorting::"Document Date":
@@ -215,10 +215,10 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 begin
                     if Number = 1 then begin
                         if not LedgerBuffer.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if LedgerBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     LedgerBuffer."Amount Including VAT" :=
                       Round(LedgerBuffer.Base20 + LedgerBuffer.Amount20 +
@@ -232,9 +232,9 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 trigger OnPreDataItem()
                 begin
                     if not Details then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    LedgerBuffer.Reset;
+                    LedgerBuffer.Reset();
 
                     case Sorting of
                         Sorting::"Document Date":
@@ -371,7 +371,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if StartPageNo > 0 then
             StartPageNo := StartPageNo - 1
         else
@@ -592,7 +592,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
             end;
 
             if LedgerBuffer.IsEmpty then begin
-                LedgerBuffer.Init;
+                LedgerBuffer.Init();
                 LineNo := LineNo + 1;
                 LedgerBuffer.Type := VATLedgerName.Type;
                 LedgerBuffer.Code := VATLedgerName.Code;
@@ -634,7 +634,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                                     LedgerBuffer."C/V VAT Reg. No." := Vend."VAT Registration No.";
                                     LedgerBuffer."Reg. Reason Code" := Vend."KPP Code";
                                 end else
-                                    Vend.Init;
+                                    Vend.Init();
                         end;
                     Type::Sale:
                         begin
@@ -644,7 +644,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                                 LedgerBuffer."C/V VAT Reg. No." := Cust."VAT Registration No.";
                                 LedgerBuffer."Reg. Reason Code" := Cust."KPP Code";
                             end else
-                                Cust.Init;
+                                Cust.Init();
                         end;
                 end;
 
@@ -674,7 +674,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                     LedgerBuffer."Print Revision" := PrintRevision;
                 end;
 
-                LedgerBuffer.Insert;
+                LedgerBuffer.Insert();
                 InsertLedgerConnBuffer(LedgerBuffer, "Entry No.");
             end;
         end;
@@ -686,30 +686,30 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
     procedure CheckMethod()
     begin
         if LedgerBuffer."Amt. Diff. VAT" then begin
-            ShipmentBuffer.Init;
-            PaymentBuffer.Init;
-            PrepaymBuffer.Init;
+            ShipmentBuffer.Init();
+            PaymentBuffer.Init();
+            PrepaymBuffer.Init();
             AmtDiffBuffer := LedgerBuffer;
             LineLabel := LineLabel::"$ Amt.Diff";
         end else
             if LedgerBuffer.Prepayment then begin
-                ShipmentBuffer.Init;
-                PaymentBuffer.Init;
+                ShipmentBuffer.Init();
+                PaymentBuffer.Init();
                 PrepaymBuffer := LedgerBuffer;
-                AmtDiffBuffer.Init;
+                AmtDiffBuffer.Init();
                 LineLabel := LineLabel::"@ PrePay";
             end else
                 if LedgerBuffer.Method = LedgerBuffer.Method::Shipment then begin
                     ShipmentBuffer := LedgerBuffer;
-                    PaymentBuffer.Init;
-                    PrepaymBuffer.Init;
-                    AmtDiffBuffer.Init;
+                    PaymentBuffer.Init();
+                    PrepaymBuffer.Init();
+                    AmtDiffBuffer.Init();
                     LineLabel := LineLabel::" ";
                 end else begin
-                    ShipmentBuffer.Init;
+                    ShipmentBuffer.Init();
                     PaymentBuffer := LedgerBuffer;
-                    PrepaymBuffer.Init;
-                    AmtDiffBuffer.Init;
+                    PrepaymBuffer.Init();
+                    AmtDiffBuffer.Init();
                     LineLabel := LineLabel::"_By Pay";
                 end;
     end;
@@ -720,7 +720,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
         LedgerLine: Record "VAT Ledger Line";
         LedgerConnection: Record "VAT Ledger Connection";
     begin
-        LedgerBuffer.Reset;
+        LedgerBuffer.Reset();
         if LedgerBuffer.FindSet then
             repeat
                 LedgerBuffer."Amount Including VAT" :=
@@ -734,19 +734,19 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 if LedgerBuffer."Amount Including VAT" <> 0 then begin
                     LedgerLine := LedgerBuffer;
                     LedgerLine.Correction := LedgerLine.IsCorrection;
-                    LedgerLine.Insert;
+                    LedgerLine.Insert();
                 end else begin
                     LedgerConnBuffer.SetRange("Sales Ledger Code", LedgerBuffer.Code);
                     LedgerConnBuffer.SetRange("Sales Ledger Line No.", LedgerBuffer."Line No.");
-                    LedgerConnBuffer.DeleteAll;
+                    LedgerConnBuffer.DeleteAll();
                 end;
             until LedgerBuffer.Next = 0;
 
-        LedgerConnBuffer.Reset;
+        LedgerConnBuffer.Reset();
         if LedgerConnBuffer.FindSet then
             repeat
                 LedgerConnection := LedgerConnBuffer;
-                LedgerConnection.Insert;
+                LedgerConnection.Insert();
             until LedgerConnBuffer.Next = 0;
     end;
 
@@ -885,14 +885,14 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
 
     local procedure InsertLedgerConnBuffer(VATLedgerLine: Record "VAT Ledger Line"; VATEntryNo: Integer)
     begin
-        LedgerConnBuffer.Init;
+        LedgerConnBuffer.Init();
         LedgerConnBuffer."Connection Type" := LedgerConnBuffer."Connection Type"::Sales;
         LedgerConnBuffer."Sales Ledger Code" := VATLedgerLine.Code;
         LedgerConnBuffer."Sales Ledger Line No." := VATLedgerLine."Line No.";
         LedgerConnBuffer."Purch. Ledger Code" := '';
         LedgerConnBuffer."Purch. Ledger Line No." := 0;
         LedgerConnBuffer."VAT Entry No." := VATEntryNo;
-        LedgerConnBuffer.Insert;
+        LedgerConnBuffer.Insert();
     end;
 
     local procedure UpdateLedgerBufferAmounts()

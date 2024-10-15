@@ -205,11 +205,9 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -375,11 +373,9 @@ table 122 "Purch. Inv. Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(95; "Order Address Code"; Code[10])
         {
@@ -803,12 +799,12 @@ table 122 "Purch. Inv. Header"
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
-        LockTable;
+        LockTable();
         PostPurchDelete.DeletePurchInvLines(Rec);
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::"Posted Invoice");
         PurchCommentLine.SetRange("No.", "No.");
-        PurchCommentLine.DeleteAll;
+        PurchCommentLine.DeleteAll();
 
         DocSignMgt.DeletePostedDocSign(DATABASE::"Purch. Inv. Header", "No.");
 
@@ -852,12 +848,32 @@ table 122 "Purch. Inv. Header"
             end;
     end;
 
+    procedure PrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := PurchInvHeaderLocal.Count() = 1;
+        if PurchInvHeaderLocal.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(PurchInvHeaderLocal, ShowNotificationAction);
+            until PurchInvHeaderLocal.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        PurchInvHeaderLocal.SetRecFilter();
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"P.Invoice", PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
+    end;
+
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()
@@ -888,13 +904,13 @@ table 122 "Purch. Inv. Header"
         DocNoFilter := '';
         I := 0;
 
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
         PurchInvLine.SetFilter(Quantity, '>%1', 0);
         if PurchInvLine.Find('-') then
             repeat
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetCurrentKey("Item No.", "Posting Date", "Document No.");
                 ValueEntry.SetRange("Document No.", PurchInvHeader."No.");
                 ValueEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
@@ -917,7 +933,7 @@ table 122 "Purch. Inv. Header"
             until PurchInvLine.Next = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
-        PurchRcptHeader.Reset;
+        PurchRcptHeader.Reset();
         PurchRcptHeader.SetFilter("No.", DocNoFilter);
         PAGE.Run(PAGE::"Posted Purchase Receipts", PurchRcptHeader);
     end;
@@ -927,7 +943,7 @@ table 122 "Purch. Inv. Header"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Document No.", "Document Type");
         VendLedgEntry.SetRange("Document No.", PurchInvHeader."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
@@ -938,7 +954,7 @@ table 122 "Purch. Inv. Header"
                 VendLedgEntry."Vendor VAT Invoice Rcvd Date" := PurchInvHeader."Vendor VAT Invoice Rcvd Date";
                 VendLedgEntry."Vendor Receipts No." := PurchInvHeader."Vendor Receipts No.";
                 VendLedgEntry."Vendor Receipts Date" := PurchInvHeader."Vendor Receipts Date";
-                VendLedgEntry.Modify;
+                VendLedgEntry.Modify();
             until VendLedgEntry.Next = 0;
     end;
 

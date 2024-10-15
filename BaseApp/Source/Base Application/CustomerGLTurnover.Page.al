@@ -170,7 +170,7 @@ page 12406 "Customer G/L Turnover"
 
                     trigger OnAction()
                     begin
-                        Cust.Reset;
+                        Cust.Reset();
                         Cust.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"Customer G/L Turnover", true, false, Cust);
                     end;
@@ -185,7 +185,7 @@ page 12406 "Customer G/L Turnover"
 
                     trigger OnAction()
                     begin
-                        Cust.Reset;
+                        Cust.Reset();
                         Cust.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"Customer Accounting Card", true, false, Cust);
                     end;

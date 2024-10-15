@@ -451,7 +451,7 @@ page 14970 "Payroll Analysis by Dimensions"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         PayrollAnalysisMgt.AnalysisViewSelection(
           CurrPayrollAnalysisViewCode, PayrollAnalysisView, PayrollStatisticsBuffer,

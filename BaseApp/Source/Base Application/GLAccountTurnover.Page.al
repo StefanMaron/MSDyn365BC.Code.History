@@ -515,7 +515,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnAction()
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"G/L Account Turnover", true, false, GLAcc);
                     end;
@@ -531,7 +531,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnAction()
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"G/L Account Card", true, false, GLAcc);
                     end;
@@ -547,7 +547,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnAction()
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"G/L Account Entries Analysis", true, false, GLAcc);
                     end;
@@ -562,7 +562,7 @@ page 12405 "G/L Account Turnover"
 
                     trigger OnAction()
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.SetRange("No.", "No.");
                         REPORT.RunModal(REPORT::"G/L Corresp. General Ledger", true, false, GLAcc);
                     end;
@@ -605,7 +605,7 @@ page 12405 "G/L Account Turnover"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if PeriodType = PeriodType::"Accounting Period" then
             FindUserPeriod('')
         else
@@ -653,7 +653,7 @@ page 12405 "G/L Account Turnover"
     [Scope('OnPrem')]
     procedure DrillDownGLEntry(Show: Option Debit,Credit,ACYDebet,ACYCredit,BeginPeriod,ACYBeginPeriod)
     begin
-        GLEntry.Reset;
+        GLEntry.Reset();
         if (GetFilter("Business Unit Filter") <> '') or
            (GetFilter("Global Dimension 1 Filter") <> '') or
            (GetFilter("Global Dimension 2 Filter") <> '')

@@ -50,7 +50,7 @@ page 17358 "Payroll Document Statistics"
         PayrollAmount := CalcPayrollAmount;
         AmountToPay := PayrollDocCalc.RoundAmountToPay(PayrollAmount);
 
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
         PayrollDocPost.AggregateTaxes(PayrollDocLine);
         PayrollDocPost.GetPayrollDocBuffer(PayrollDocBuffer);
@@ -60,7 +60,7 @@ page 17358 "Payroll Document Statistics"
 
     trigger OnOpenPage()
     begin
-        HRSetup.Get;
+        HRSetup.Get();
     end;
 
     var

@@ -19,9 +19,6 @@ report 14928 "Unrealized VAT Analysis"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -210,7 +207,7 @@ report 14928 "Unrealized VAT Analysis"
                 PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
             begin
                 if not CheckVendorAgreement(VendorAgreementNo, "CV Ledg. Entry No.") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 VATAmount := 0;
                 VATBase := 0;

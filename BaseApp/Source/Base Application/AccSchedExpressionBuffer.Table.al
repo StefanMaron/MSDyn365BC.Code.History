@@ -24,12 +24,10 @@ table 26585 "Acc. Sched. Expression Buffer"
             Caption = 'Row No.';
             DataClassification = SystemMetadata;
         }
-        field(5; "Totaling Type"; Option)
+        field(5; "Totaling Type"; Enum "Acc. Schedule Line Totaling Type")
         {
             Caption = 'Totaling Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Posting Accounts,Total Accounts,Formula,Constant,Custom,Set Base For Percent,Cost Type,Cost Type Total,Cash Flow Entry Accounts,Cash Flow Total Accounts';
-            OptionMembers = "Posting Accounts","Total Accounts",Formula,Constant,Custom,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
         }
         field(6; Description; Text[250])
         {

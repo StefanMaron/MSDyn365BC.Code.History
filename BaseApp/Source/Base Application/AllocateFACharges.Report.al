@@ -36,7 +36,7 @@ report 14912 "Allocate FA Charges"
 
                     SourcePurchLine.FindSet;
                     repeat
-                        PurchLine.Init;
+                        PurchLine.Init();
                         PurchLine := SourcePurchLine;
                         PurchLine."Document Type" := "Document Type";
                         PurchLine."Document No." := "No.";
@@ -46,7 +46,7 @@ report 14912 "Allocate FA Charges"
                             Currency."Amount Rounding Precision"));
                         PurchLine.Validate(Quantity);
                         PurchLine.Validate("FA Charge No.", FAChargeNo);
-                        PurchLine.Insert;
+                        PurchLine.Insert();
 
                         LineNo += 10000;
                         TotalAmount += PurchLine."Direct Unit Cost";
@@ -56,7 +56,7 @@ report 14912 "Allocate FA Charges"
                         PurchLine.FindLast;
                         PurchLine.Validate("Direct Unit Cost",
                           PurchLine."Direct Unit Cost" + AmountToAllocate - TotalAmount);
-                        PurchLine.Modify;
+                        PurchLine.Modify();
                     end;
                 end;
             end;
@@ -139,7 +139,7 @@ report 14912 "Allocate FA Charges"
         if FAChargeNo = '' then
             Error(Text002);
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -261,7 +261,7 @@ report 14912 "Allocate FA Charges"
                     if PurchaseLine.Find('-') then
                         repeat
                             SourcePurchLine := PurchaseLine;
-                            SourcePurchLine.Insert;
+                            SourcePurchLine.Insert();
                         until PurchaseLine.Next = 0;
                 end;
             SourceDocType::"Posted Receipt":
@@ -272,7 +272,7 @@ report 14912 "Allocate FA Charges"
                         if Find('-') then
                             repeat
                                 SourcePurchLine.TransferFields(PurchRcptLine);
-                                SourcePurchLine.Insert;
+                                SourcePurchLine.Insert();
                             until Next = 0;
                     end
                 end;
@@ -284,7 +284,7 @@ report 14912 "Allocate FA Charges"
                         if Find('-') then
                             repeat
                                 SourcePurchLine.TransferFields(PurchInvLine);
-                                SourcePurchLine.Insert;
+                                SourcePurchLine.Insert();
                             until Next = 0;
                     end
                 end;
@@ -296,7 +296,7 @@ report 14912 "Allocate FA Charges"
                         if Find('-') then
                             repeat
                                 SourcePurchLine.TransferFields(ReturnShipmentLine);
-                                SourcePurchLine.Insert;
+                                SourcePurchLine.Insert();
                             until Next = 0;
                     end
                 end;
@@ -308,7 +308,7 @@ report 14912 "Allocate FA Charges"
                         if Find('-') then
                             repeat
                                 SourcePurchLine.TransferFields(PurchCrMemoLine);
-                                SourcePurchLine.Insert;
+                                SourcePurchLine.Insert();
                             until Next = 0;
                     end
                 end;

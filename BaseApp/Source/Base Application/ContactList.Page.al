@@ -269,15 +269,15 @@ page 5052 "Contact List"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 Sales';
-                Visible = CRMIntegrationEnabled;
+                Caption = 'Common Data Service';
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoContact)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = CoupledContactPerson;
-                    ToolTip = 'Open the coupled Dynamics 365 Sales contact.';
+                    ToolTip = 'Open the coupled Common Data Service contact.';
 
                     trigger OnAction()
                     var
@@ -293,7 +293,7 @@ page 5052 "Contact List"
                     Caption = 'Synchronize';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
 
                     trigger OnAction()
                     var
@@ -317,14 +317,14 @@ page 5052 "Contact List"
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales contact.';
+                        ToolTip = 'Create or modify the coupling to a Common Data Service contact.';
 
                         trigger OnAction()
                         var
@@ -340,7 +340,7 @@ page 5052 "Contact List"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales contact.';
+                        ToolTip = 'Delete the coupling to a Common Data Service contact.';
 
                         trigger OnAction()
                         var
@@ -357,10 +357,10 @@ page 5052 "Contact List"
                     action(CreateInCRM)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Create Contact in Dynamics 365 Sales';
+                        Caption = 'Create Contact in Common Data Service';
                         Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact in Dynamics 365 Sales that is linked to a contact in your company.';
+                        ToolTip = 'Create a contact in Common Data Service that is linked to a contact in your company.';
 
                         trigger OnAction()
                         var
@@ -376,7 +376,7 @@ page 5052 "Contact List"
                         ApplicationArea = Suite;
                         Caption = 'Create Contact in Business Central';
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact here in your company that is linked to the Dynamics 365 Sales contact.';
+                        ToolTip = 'Create a contact here in your company that is linked to the Common Data Service contact.';
 
                         trigger OnAction()
                         var
@@ -792,7 +792,7 @@ page 5052 "Contact List"
     trigger OnAfterGetCurrRecord()
     begin
         EnableFields;
-        if CRMIntegrationEnabled then
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
     end;
 
@@ -811,6 +811,7 @@ page 5052 "Contact List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
     end;
 
     var
@@ -821,6 +822,7 @@ page 5052 "Contact List"
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         ActionVisible: Boolean;
 

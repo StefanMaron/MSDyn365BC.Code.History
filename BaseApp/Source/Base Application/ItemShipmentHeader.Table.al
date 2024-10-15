@@ -126,12 +126,12 @@ table 12454 "Item Shipment Header"
         ItemShptLine.SetRange("Document No.", "No.");
         if ItemShptLine.Find('-') then
             repeat
-                ItemShptLine.Delete;
+                ItemShptLine.Delete();
             until ItemShptLine.Next = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Item Shipment");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Item Shipment Line", 0, "No.", '', 0, 0, true);
@@ -167,14 +167,14 @@ table 12454 "Item Shipment Header"
                 1:
                     REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, ItemShptHeader);
                 else begin
-                        RepSelectionTmp.Reset;
-                        RepSelectionTmp.DeleteAll;
+                        RepSelectionTmp.Reset();
+                        RepSelectionTmp.DeleteAll();
                         repeat
-                            RepSelectionTmp.Init;
+                            RepSelectionTmp.Init();
                             RepSelectionTmp := ReportSelection;
-                            RepSelectionTmp.Insert;
+                            RepSelectionTmp.Insert();
                         until ReportSelection.Next = 0;
-                        Commit;
+                        Commit();
                         RepSelectionTmp.Find('-');
                         if PAGE.RunModal(PAGE::"Report Selection - Print", RepSelectionTmp) = ACTION::LookupOK then begin
                             RepSelectionTmp.SetRange(Default, true);
@@ -182,7 +182,7 @@ table 12454 "Item Shipment Header"
                                 repeat
                                     REPORT.RunModal(RepSelectionTmp."Report ID", ShowRequestForm, false, ItemShptHeader);
                                 until RepSelectionTmp.Next = 0;
-                            RepSelectionTmp.DeleteAll;
+                            RepSelectionTmp.DeleteAll();
                         end;
                     end;
             end;

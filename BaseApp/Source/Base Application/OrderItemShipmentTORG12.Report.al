@@ -22,14 +22,14 @@ report 12407 "Order Item Shipment TORG-12"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1."Qty. to Invoice" = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             SerialNumbers += 1;
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1.Amount := SalesLine1."Amount (LCY)";
@@ -103,7 +103,7 @@ report 12407 "Order Item Shipment TORG-12"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Header."Shipping No." = '' then
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
@@ -112,17 +112,17 @@ report 12407 "Order Item Shipment TORG-12"
                                     Header."Posting No. Series", Header."Posting Date", not Preview);
                                 Header."Shipping No." := Header."Posting No.";
                                 if not Preview then
-                                    Header.Modify;
+                                    Header.Modify();
                             end else begin
                                 Header."Shipping No." := Header."Posting No.";
                                 if not Preview then
-                                    Header.Modify;
+                                    Header.Modify();
                             end else begin
                             Clear(NoSeriesManagement);
                             Header."Shipping No." := NoSeriesManagement.GetNextNo(
                                 Header."Shipping No. Series", Header."Posting Date", not Preview);
                             if not Preview then
-                                Header.Modify;
+                                Header.Modify();
                         end;
                     DocumentNo := Header."Shipping No.";
                     DocumentDate := Header."Posting Date";
@@ -134,7 +134,7 @@ report 12407 "Order Item Shipment TORG-12"
             trigger OnAfterGetRecord()
             begin
                 TestField(Status);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Cust.Get("Bill-to Customer No.");
 
@@ -142,7 +142,7 @@ report 12407 "Order Item Shipment TORG-12"
                 if "Currency Code" = '' then
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
 
@@ -214,7 +214,7 @@ report 12407 "Order Item Shipment TORG-12"
 
             trigger OnPreDataItem()
             begin
-                SalesSetup.Get;
+                SalesSetup.Get();
             end;
         }
     }

@@ -33,7 +33,7 @@ report 17207 "Create Norm Details"
             begin
                 NormTemplateLine.GenerateProfile;
                 NormTermName.GenerateProfile;
-                Commit;
+                Commit();
 
                 TaxRegTermMgt.CheckTaxRegTerm(true, Code,
                   DATABASE::"Tax Reg. Norm Term", DATABASE::"Tax Reg. Norm Term Formula");
@@ -182,7 +182,7 @@ report 17207 "Create Norm Details"
             repeat
                 NormDetail.SetRange("Norm Group Code", NormGroup.Code);
                 NormAccumulat.SetRange("Norm Group Code", NormGroup.Code);
-                NormAccumulat.DeleteAll;
+                NormAccumulat.DeleteAll();
                 if NormDetail.FindFirst then
                     if not DeleteWasConfirmed then begin
                         if not Confirm(Text1001, false) then
@@ -209,16 +209,16 @@ report 17207 "Create Norm Details"
                             GeneralTermMgt.AccumulateTaxRegTemplate(
                               NormTemplateRecordRef, EntryNoAmountBuffer, LinkAccumulateRecordRef);
 
-                            NormDetail.Init;
+                            NormDetail.Init();
                             NormDetail."Norm Jurisdiction Code" := NormGroup."Norm Jurisdiction Code";
                             NormDetail."Norm Group Code" := NormGroup.Code;
                             NormDetail."Norm Type" := NormDetail."Norm Type"::Amount;
                             NormDetail."Effective Date" := DateEnd;
 
                             if CreateAccumulate(NormTemplateLine, EntryNoAmountBuffer, NormDetail.Norm) then
-                                NormDetail.Insert;
+                                NormDetail.Insert();
 
-                            EntryNoAmountBuffer.DeleteAll;
+                            EntryNoAmountBuffer.DeleteAll();
                         end;
                     end;
                 until NormGroup.Next = 0;
@@ -262,11 +262,11 @@ report 17207 "Create Norm Details"
                 if not NormAccumulat0.FindLast then
                     NormAccumulat0."Entry No." := 0;
                 NormAccumulat."Entry No." := NormAccumulat0."Entry No." + 1;
-                NormAccumulat.Insert;
+                NormAccumulat.Insert();
 
                 if NormTemplateLine0.Period <> '' then begin
                     NormAccumulat1 := NormAccumulat;
-                    NormAccumulat1.Reset;
+                    NormAccumulat1.Reset();
                     NormAccumulat1.SetCurrentKey(
                       "Norm Jurisdiction Code", "Norm Group Code", "Template Line No.", "Starting Date", "Ending Date");
                     NormAccumulat1.SetRange("Norm Jurisdiction Code", NormAccumulat."Norm Jurisdiction Code");
@@ -276,7 +276,7 @@ report 17207 "Create Norm Details"
                     NormAccumulat1.SetFilter("Ending Date", NormAccumulat."Amount Date Filter");
                     NormAccumulat1.CalcSums("Amount Period");
                     NormAccumulat.Amount := NormAccumulat1."Amount Period";
-                    NormAccumulat.Modify;
+                    NormAccumulat.Modify();
                 end;
 
                 if NormTemplateLine0."Line Type" = NormTemplateLine0."Line Type"::"Norm Value" then

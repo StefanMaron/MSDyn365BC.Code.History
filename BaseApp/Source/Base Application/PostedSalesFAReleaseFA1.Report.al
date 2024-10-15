@@ -130,7 +130,7 @@ report 14983 "Posted Sales FA Release FA-1"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 CheckSignature(ReleasedBy, ReleasedBy."Employee Type"::ReleasedBy);
                 CheckSignature(Chairman, Chairman."Employee Type"::Chairman);
@@ -240,7 +240,7 @@ report 14983 "Posted Sales FA Release FA-1"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
     end;

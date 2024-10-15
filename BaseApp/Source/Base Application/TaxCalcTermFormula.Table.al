@@ -97,12 +97,12 @@ table 17312 "Tax Calc. Term Formula"
             begin
                 CalcFields("Expression Type");
                 if "Expression Type" = "Expression Type"::Compare then begin
-                    TaxCalcTermFormula.Reset;
+                    TaxCalcTermFormula.Reset();
                     TaxCalcTermFormula.SetRange("Section Code", "Section Code");
                     TaxCalcTermFormula.SetRange("Term Code", "Term Code");
                     TaxCalcTermFormula.SetFilter("Line No.", '<>%1', "Line No.");
                     TaxCalcTermFormula.ModifyAll("Account No.", "Account No.", false);
-                    TaxCalcTermFormula.Reset;
+                    TaxCalcTermFormula.Reset();
                 end;
                 if "Account No." <> xRec."Account No." then begin
                     TaxCalcSection.Get("Section Code");

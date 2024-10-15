@@ -107,7 +107,7 @@ report 99000765 "Prod. Order - Mat. Requisition"
                                         RemainingQtyReserved += ReservationEntry2."Quantity (Base)";
                             until Next = 0;
                             if "Prod. Order Component"."Remaining Qty. (Base)" = RemainingQtyReserved then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
                     end;
                 end;

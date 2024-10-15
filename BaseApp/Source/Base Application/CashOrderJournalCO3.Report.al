@@ -24,7 +24,7 @@ report 12463 "Cash Order Journal CO-3"
                 end;
                 TempAmt := "Bank Account Ledger Entry";
                 TempAmt."Entry No." := NextEntryNo;
-                TempAmt.Insert;
+                TempAmt.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -38,7 +38,7 @@ report 12463 "Cash Order Journal CO-3"
                 SetRange("Posting Date", StartingDate, EndingDate);
 
                 Clear(Idx);
-                TempAmt.DeleteAll;
+                TempAmt.DeleteAll();
 
                 FillTitle;
             end;
@@ -50,8 +50,8 @@ report 12463 "Cash Order Journal CO-3"
             trigger OnAfterGetRecord()
             begin
                 I := I + 1;
-                BankLedgEntry[1].Init;
-                BankLedgEntry[2].Init;
+                BankLedgEntry[1].Init();
+                BankLedgEntry[2].Init();
                 if I <= Idx[1] then begin
                     TempAmt.Get(I * 2 - 1);
                     BankLedgEntry[1] := TempAmt;
@@ -144,7 +144,7 @@ report 12463 "Cash Order Journal CO-3"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         InitReportTemplate;
     end;
 
@@ -176,7 +176,7 @@ report 12463 "Cash Order Journal CO-3"
         SheetName: Text;
     begin
         SheetName := 'Sheet1';
-        GeneralLedgSetup.Get;
+        GeneralLedgSetup.Get();
         GeneralLedgSetup.TestField("Cash Order KO3 Template Code");
         ExcelReportBuilderMgr.InitTemplate(GeneralLedgSetup."Cash Order KO3 Template Code");
         ExcelReportBuilderMgr.SetSheet(SheetName);

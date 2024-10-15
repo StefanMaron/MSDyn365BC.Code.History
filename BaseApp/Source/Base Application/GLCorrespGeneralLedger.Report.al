@@ -21,9 +21,6 @@ report 12431 "G/L Corresp. General Ledger"
             column(CurrentDate; CurrentDate)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -71,7 +68,7 @@ report 12431 "G/L Corresp. General Ledger"
                 begin
                     if InvProcessing = InvProcessing::Pass
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, PassLinesBeforeAccount);
                 end;
             }
@@ -104,7 +101,7 @@ report 12431 "G/L Corresp. General Ledger"
                 begin
                     if InvProcessing = InvProcessing::Pass
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Period Month"; "Integer")
@@ -167,9 +164,9 @@ report 12431 "G/L Corresp. General Ledger"
 
                         if GLAcc.Totaling <> '' then begin
                             if TimeGLAcc.Get("Double Entry"."Credit Account No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TimeGLAcc."No." := "Double Entry"."Credit Account No.";
-                            TimeGLAcc.Insert;
+                            TimeGLAcc.Insert();
                             "Double Entry"."Debit Totaling" := GLAcc.Totaling;
                         end;
 
@@ -182,7 +179,7 @@ report 12431 "G/L Corresp. General Ledger"
                     begin
                         if WithoutAccountCorresp
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DoubleEntriesSeparator := true;
 
                         if GLAcc.Totaling = '' then
@@ -190,7 +187,7 @@ report 12431 "G/L Corresp. General Ledger"
                         else
                             SetFilter("Debit Account No.", GLAcc.Totaling);
 
-                        TimeGLAcc.DeleteAll;
+                        TimeGLAcc.DeleteAll();
                     end;
                 }
 
@@ -247,7 +244,7 @@ report 12431 "G/L Corresp. General Ledger"
                 begin
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if (not ManualInputBeginingDate) and (not ManualInputEndingDate) then
                         SetRange(Number, 0,
                            Date2DMY(EndingPeriodDate, 2) - Date2DMY(DateStartedOfPeriod, 2) +
@@ -317,9 +314,9 @@ report 12431 "G/L Corresp. General Ledger"
 
                         if GLAcc.Totaling <> '' then begin
                             if TimeGLAcc.Get("Double Entry"."Credit Account No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TimeGLAcc."No." := "Double Entry"."Credit Account No.";
-                            TimeGLAcc.Insert;
+                            TimeGLAcc.Insert();
                             "Double Entry"."Debit Totaling" := GLAcc.Totaling;
                         end;
 
@@ -332,14 +329,14 @@ report 12431 "G/L Corresp. General Ledger"
                     begin
                         if WithoutAccountCorresp
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if GLAcc.Totaling = '' then
                             SetFilter("Debit Account No.", GLAcc."No.")
                         else
                             SetFilter("Debit Account No.", GLAcc.Totaling);
 
-                        TimeGLAcc.DeleteAll;
+                        TimeGLAcc.DeleteAll();
                     end;
                 }
 
@@ -356,7 +353,7 @@ report 12431 "G/L Corresp. General Ledger"
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                        or (Date2DMY(DateStartedOfPeriod, 2) = Date2DMY(EndingPeriodDate, 2))
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     DoubleEntriesSeparator := true;
                 end;
             }
@@ -371,7 +368,7 @@ report 12431 "G/L Corresp. General Ledger"
                 begin
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1);
                 end;
             }

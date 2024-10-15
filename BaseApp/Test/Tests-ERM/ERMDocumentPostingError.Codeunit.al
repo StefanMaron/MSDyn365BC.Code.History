@@ -498,7 +498,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Document Posting Error");
     end;
 
@@ -567,7 +567,7 @@ codeunit 134384 "ERM Document Posting Error"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldBillToSellToVATCalc := GeneralLedgerSetup."Bill-to/Sell-to VAT Calc.";
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);

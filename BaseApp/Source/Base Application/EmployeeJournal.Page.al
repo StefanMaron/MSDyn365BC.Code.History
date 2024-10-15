@@ -442,7 +442,7 @@ page 17391 "Employee Journal"
                         case PayrollElement.Type of
                             PayrollElement.Type::Bonus:
                                 begin
-                                    TmpEmployeeJournalLine.Reset;
+                                    TmpEmployeeJournalLine.Reset();
                                     TmpEmployeeJournalLine.SetRange("Journal Template Name", "Journal Template Name");
                                     TmpEmployeeJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
                                     TmpEmployeeJournalLine.SetRange("Document No.", "Document No.");

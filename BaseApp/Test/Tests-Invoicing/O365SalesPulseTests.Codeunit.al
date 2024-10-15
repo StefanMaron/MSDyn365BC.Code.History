@@ -176,7 +176,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
 
         CreateQuote(SalesHeader);
         SalesHeader."Quote Valid Until Date" := CalcDate('<2D>', Today);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Execute
         O365SalesWebService.SendEstimateExpiryEvent;
@@ -262,7 +262,7 @@ codeunit 138959 "O365 Sales Pulse Tests"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer."E-Mail" := 'test@microsoft.com';
-        Customer.Modify;
+        Customer.Modify();
 
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer."No.");
     end;
@@ -276,9 +276,9 @@ codeunit 138959 "O365 Sales Pulse Tests"
         ActivityLog: Record "Activity Log";
         SalesHeader: Record "Sales Header";
     begin
-        CalendarEvent.DeleteAll;
-        ActivityLog.DeleteAll;
-        O365SalesEvent.DeleteAll;
+        CalendarEvent.DeleteAll();
+        ActivityLog.DeleteAll();
+        O365SalesEvent.DeleteAll();
         SalesHeader.DeleteAll(true);
 
         if AllowEmailFailing then begin
@@ -306,10 +306,10 @@ codeunit 138959 "O365 Sales Pulse Tests"
         IsInitialized := true;
 
         if not O365SalesInitialSetup.Get then
-            O365SalesInitialSetup.Insert;
+            O365SalesInitialSetup.Insert();
 
         O365SalesInitialSetup."C2Graph Endpoint" := '127.0.0.1:8081/c2graph/status200/;{USER}=test;{PASSWORD}=test';
-        O365SalesInitialSetup.Modify;
+        O365SalesInitialSetup.Modify();
 
         SetupSMTP;
     end;
@@ -318,14 +318,14 @@ codeunit 138959 "O365 Sales Pulse Tests"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
-        SMTPMailSetup.DeleteAll;
-        SMTPMailSetup.Init;
+        SMTPMailSetup.DeleteAll();
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := '127.0.0.1';
         SMTPMailSetup."SMTP Server Port" := 8081;
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup."User ID" := 'TestUser';
         SMTPMailSetup.SetPassword('TestPassword');
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
     end;
 
     [ModalPageHandler]

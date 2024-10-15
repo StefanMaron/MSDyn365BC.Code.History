@@ -22,7 +22,7 @@ codeunit 14932 "Corr. Factura-Invoice Helper"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SheetName: Text;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Corr. Factura Template Code");
         SheetName := 'Sheet1';
         ExcelReportBuilderMgr.InitTemplate(SalesReceivablesSetup."Corr. Factura Template Code");

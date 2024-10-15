@@ -48,7 +48,7 @@ page 17337 "FA Tax Differences"
 
                     trigger OnDrillDown()
                     begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.FilterGroup(2);
                         FALedgerEntry.SetRange("FA No.", "No.");
                         FALedgerEntry.SetRange("Depreciation Book Code", FASetup."Release Depr. Book");
@@ -70,7 +70,7 @@ page 17337 "FA Tax Differences"
 
                     trigger OnDrillDown()
                     begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.FilterGroup(2);
                         FALedgerEntry.SetRange("FA No.", "No.");
                         FALedgerEntry.SetRange("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
@@ -97,7 +97,7 @@ page 17337 "FA Tax Differences"
 
                     trigger OnDrillDown()
                     begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date", Reversed, "Tax Difference Code");
                         FALedgerEntry.FilterGroup(2);
                         FALedgerEntry.SetRange("FA No.", "No.");
@@ -160,9 +160,9 @@ page 17337 "FA Tax Differences"
 
     trigger OnOpenPage()
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Release Depr. Book");
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Tax Depreciation Book");
         DeprBookFilter := GetDeprBookFilter;
         FindPeriod('');
@@ -228,7 +228,7 @@ page 17337 "FA Tax Differences"
 
         DifferenceAmount := AmountBase - AmountTax;
 
-        FALedgerEntry.Reset;
+        FALedgerEntry.Reset();
         FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date", Reversed, "Tax Difference Code");
         FALedgerEntry.SetRange("FA No.", "No.");
         CopyFilter("Date Filter", FALedgerEntry."FA Posting Date");

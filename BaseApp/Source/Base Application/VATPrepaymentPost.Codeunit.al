@@ -32,7 +32,7 @@ codeunit 12410 "VAT Prepayment-Post"
         VendAgr: Record "Vendor Agreement";
     begin
         with CVLedgEntryBuf do begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             if PostingDate = 0D then
                 GenJnlLine."Posting Date" := "Posting Date"
             else
@@ -87,7 +87,7 @@ codeunit 12410 "VAT Prepayment-Post"
         Amount: Decimal;
         AmountLCY: Decimal;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         if PostingDate = 0D then
             PostingDate := CVLedgEntryBuf."Posting Date";
         Amount := -CVLedgEntryBuf."Remaining Amount";
@@ -97,7 +97,7 @@ codeunit 12410 "VAT Prepayment-Post"
             CustPostingGr.TestField("Receivables Account");
             CustPostingGr.TestField("Prepayment Account");
             if PostingDocNo = '' then begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Posted Prepayment Nos.");
                 UseDocNo := NoSeriesManagement.GetNextNo(SalesSetup."Posted Prepayment Nos.", PostingDate, true);
             end;
@@ -160,7 +160,7 @@ codeunit 12410 "VAT Prepayment-Post"
            (GenJnlLine."Prepayment Status" = GenJnlLine."Prepayment Status"::" ")
         then begin
             TemplateDocumentNo := GenJnlLine."Prepayment Document No.";
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Posted Prepayment Nos.");
             UseDocNo := NoSeriesManagement.GetNextNo(SalesSetup."Posted Prepayment Nos.", GenJnlLine."Posting Date", true);
         end else
@@ -176,7 +176,7 @@ codeunit 12410 "VAT Prepayment-Post"
             SalesInvHeader.TransferFields(SalesHeader);
             SalesInvHeader."Currency Code" := '';
         end else begin
-            SalesInvHeader.Init;
+            SalesInvHeader.Init();
             FillSalesInvHeader(SalesInvHeader, GenJnlLine."Bill-to/Pay-to No.");
             SalesInvHeader."Tax Area Code" := GenJnlLine."Tax Area Code";
             SalesInvHeader."Tax Liable" := GenJnlLine."Tax Liable";
@@ -197,7 +197,7 @@ codeunit 12410 "VAT Prepayment-Post"
         end;
         SalesInvHeader."Prices Including VAT" := true;
         SalesInvHeader."Prepayment Invoice" := true;
-        SalesInvHeader.Insert;
+        SalesInvHeader.Insert();
 
         GenJnlLine."Document No." := UseDocNo;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
@@ -269,7 +269,7 @@ codeunit 12410 "VAT Prepayment-Post"
                     SalesInvLine."Line Amount" := SalesInvLine."Amount Including VAT";
                     SalesInvLine."VAT Base Amount" := SalesInvLine.Amount;
                 end;
-                SalesInvLine.Insert;
+                SalesInvLine.Insert();
             until SalesLine.Next = 0;
 
         // Final line update
@@ -283,7 +283,7 @@ codeunit 12410 "VAT Prepayment-Post"
             SalesInvLine."Line Amount" := SalesInvLine."Amount Including VAT";
             SalesInvLine."VAT Base Amount" := SalesInvLine.Amount;
         end;
-        SalesInvLine.Modify;
+        SalesInvLine.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -291,7 +291,7 @@ codeunit 12410 "VAT Prepayment-Post"
     var
         SalesInvLine: Record "Sales Invoice Line";
     begin
-        SalesInvLine.Init;
+        SalesInvLine.Init();
         SalesInvLine."Document No." := SalesInvHeader."No.";
         SalesInvLine."Line No." := 10000;
         SalesInvLine."Sell-to Customer No." := SalesInvHeader."Sell-to Customer No.";
@@ -317,7 +317,7 @@ codeunit 12410 "VAT Prepayment-Post"
         SalesInvLine."Amount Including VAT" := -GenJnlLine.Amount;
         SalesInvLine."VAT Base Amount" := -GenJnlLine."VAT Base Amount";
         SalesInvLine."Unit Price" := -GenJnlLine.Amount;
-        SalesInvLine.Insert;
+        SalesInvLine.Insert();
     end;
 
     local procedure FillSalesInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; CustNo: Code[20])
@@ -369,7 +369,7 @@ codeunit 12410 "VAT Prepayment-Post"
     begin
         CheckForPostedVAT(VendLedgEntry."Entry No.");
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         VendPostingGroup.Get(VendLedgEntry."Vendor Posting Group");
         VendPostingGroup.TestField("Prepayment Account");
         Vendor.Get(VendLedgEntry."Vendor No.");
@@ -380,7 +380,7 @@ codeunit 12410 "VAT Prepayment-Post"
         if VendLedgEntry."Vendor VAT Invoice Rcvd Date" > PostingDate then
             PostingDate := VendLedgEntry."Vendor VAT Invoice Rcvd Date";
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Posting Date" := PostingDate;
         GenJnlLine."Document Date" := VendLedgEntry."Vendor VAT Invoice Date";
         GenJnlLine."Vendor VAT Invoice No." := VendLedgEntry."Vendor VAT Invoice No.";
@@ -467,13 +467,13 @@ codeunit 12410 "VAT Prepayment-Post"
         PurchSetup: Record "Purchases & Payables Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Posted Invoice Nos.");
         GenJnlLine."Document No." :=
           NoSeriesManagement.GetNextNo(PurchSetup."Posted Invoice Nos.", GenJnlLine."Posting Date", true);
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         FillPurchInvHeader(PurchInvHeader, GenJnlLine."Bill-to/Pay-to No.");
         PurchInvHeader."Prepayment Invoice" := true;
         PurchInvHeader."Vendor Invoice No." := GenJnlLine."Vendor VAT Invoice No.";
@@ -486,7 +486,7 @@ codeunit 12410 "VAT Prepayment-Post"
         PurchInvHeader."Prices Including VAT" := true;
         PurchInvHeader."Currency Code" := '';
         PurchInvHeader."Dimension Set ID" := GenJnlLine."Dimension Set ID";
-        PurchInvHeader.Insert;
+        PurchInvHeader.Insert();
 
         InsertPurchLine(GenJnlLine, PurchInvHeader);
 
@@ -500,7 +500,7 @@ codeunit 12410 "VAT Prepayment-Post"
         PurchInvLine: Record "Purch. Inv. Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        PurchInvLine.Init;
+        PurchInvLine.Init();
         PurchInvLine."Document No." := PurchInvHeader."No.";
         PurchInvLine."Line No." := 10000;
         PurchInvLine."Buy-from Vendor No." := PurchInvHeader."Pay-to Vendor No.";
@@ -538,7 +538,7 @@ codeunit 12410 "VAT Prepayment-Post"
                   PurchInvLine."Amount Including VAT", PurchInvHeader."Currency Factor");
         end;
         PurchInvLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
-        PurchInvLine.Insert;
+        PurchInvLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -575,22 +575,22 @@ codeunit 12410 "VAT Prepayment-Post"
         else
             GenJnlLine.TestField("Initial Document No.");
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Posted VAT Agent Invoice Nos.");
 
         if GenJnlLine.Prepayment then begin
             if PurchHeader.Get(PurchHeader."Document Type"::Order, GenJnlLine."Prepayment Document No.") then begin
                 PurchHeader.TestField(Status, PurchHeader.Status::Released);
-                TempOrigPurchInvHeader.Init;
+                TempOrigPurchInvHeader.Init();
                 TempOrigPurchInvHeader.TransferFields(PurchHeader);
-                TempOrigPurchInvHeader.Insert;
+                TempOrigPurchInvHeader.Insert();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type"::Order);
             end else begin
                 PurchHeader.Get(PurchHeader."Document Type"::Invoice, GenJnlLine."Prepayment Document No.");
                 PurchHeader.TestField(Status, PurchHeader.Status::Released);
-                TempOrigPurchInvHeader.Init;
+                TempOrigPurchInvHeader.Init();
                 TempOrigPurchInvHeader.TransferFields(PurchHeader);
-                TempOrigPurchInvHeader.Insert;
+                TempOrigPurchInvHeader.Insert();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type"::Invoice);
             end;
             PurchHeader.CalcFields(Amount);
@@ -598,25 +598,25 @@ codeunit 12410 "VAT Prepayment-Post"
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             if PurchLine.FindSet then
                 repeat
-                    TempOrigPurchInvLine.Init;
+                    TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(PurchLine);
-                    TempOrigPurchInvLine.Insert;
+                    TempOrigPurchInvLine.Insert();
                 until PurchLine.Next = 0;
         end else begin
             OrigPurchInvHeader.Get(GenJnlLine."Initial Document No.");
-            TempOrigPurchInvHeader.Init;
+            TempOrigPurchInvHeader.Init();
             TempOrigPurchInvHeader.TransferFields(OrigPurchInvHeader);
-            TempOrigPurchInvHeader.Insert;
+            TempOrigPurchInvHeader.Insert();
             OrigPurchInvLine.SetRange("Document No.", GenJnlLine."Initial Document No.");
             if OrigPurchInvLine.FindSet then
                 repeat
-                    TempOrigPurchInvLine.Init;
+                    TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(OrigPurchInvLine);
-                    TempOrigPurchInvLine.Insert;
+                    TempOrigPurchInvLine.Insert();
                 until OrigPurchInvLine.Next = 0;
         end;
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.TransferFields(TempOrigPurchInvHeader);
         PurchInvHeader."Posting Date" := GenJnlLine."Posting Date";
         PurchInvHeader."Document Date" := GenJnlLine."Document Date";
@@ -626,7 +626,7 @@ codeunit 12410 "VAT Prepayment-Post"
           NoSeriesManagement.GetNextNo(
             PurchSetup."Posted VAT Agent Invoice Nos.", GenJnlLine."Posting Date", true);
         PurchInvHeader."Dimension Set ID" := GenJnlLine."Dimension Set ID";
-        PurchInvHeader.Insert;
+        PurchInvHeader.Insert();
 
         CopyVATAgentPurchInvLine(
           TempOrigPurchInvHeader, TempOrigPurchInvLine,
@@ -681,7 +681,7 @@ codeunit 12410 "VAT Prepayment-Post"
         VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
         if InitialPurchInvLine.FindSet then
             repeat
-                PurchInvLine.Init;
+                PurchInvLine.Init();
                 PurchInvLine.TransferFields(InitialPurchInvLine);
                 PurchInvLine."Document No." := PurchInvHeader."No.";
                 PurchInvLine."VAT %" := VATPostingSetup."VAT %";
@@ -713,7 +713,7 @@ codeunit 12410 "VAT Prepayment-Post"
                 PurchInvLine."Line Amount" := PurchInvLine."Amount Including VAT";
                 PurchInvLine."VAT Base Amount" := PurchInvLine.Amount;
                 PurchInvLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
-                PurchInvLine.Insert;
+                PurchInvLine.Insert();
             until InitialPurchInvLine.Next = 0;
 
         PurchInvLine."Amount Including VAT" += RemTotalAmountInclVAT;
@@ -722,7 +722,7 @@ codeunit 12410 "VAT Prepayment-Post"
         PurchInvLine."Amount (LCY)" += RemTotalAmountLCY;
         PurchInvLine."Line Amount" := PurchInvLine."Amount Including VAT";
         PurchInvLine."VAT Base Amount" := PurchInvLine.Amount;
-        PurchInvLine.Modify;
+        PurchInvLine.Modify();
     end;
 }
 

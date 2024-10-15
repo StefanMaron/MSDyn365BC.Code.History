@@ -321,7 +321,7 @@ table 26570 "XML Element Line"
         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
         if not XMLElementExpressionLine.IsEmpty then
-            XMLElementExpressionLine.DeleteAll;
+            XMLElementExpressionLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -443,13 +443,13 @@ table 26570 "XML Element Line"
                                     PageIndicBuffer."Entry No." := EntryNo;
                                     PageIndicBuffer."Page Indic. Requisite Value" := IndicElementValue;
                                     PageIndicBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
-                                    PageIndicBuffer.Insert;
+                                    PageIndicBuffer.Insert();
                                 end;
                             end;
                         until ScalableTableRow.Next = 0;
                 until StatReportExcelSheet.Next = 0;
 
-            PageIndicBuffer.Reset;
+            PageIndicBuffer.Reset();
             if PageIndicBuffer.FindSet then begin
                 AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
 
@@ -479,7 +479,7 @@ table 26570 "XML Element Line"
                         PageIndicBuffer."Entry No." := EntryNo;
                         PageIndicBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
                         PageIndicBuffer."Page Indic. Requisite Value" := StatReportExcelSheet."Page Indic. Requisite Value";
-                        PageIndicBuffer.Insert;
+                        PageIndicBuffer.Insert();
                     end else begin
                         PageIndicBuffer.SetRange("Page Indic. Requisite Value", StatReportExcelSheet."Page Indic. Requisite Value");
                         if PageIndicBuffer.IsEmpty then begin
@@ -487,12 +487,12 @@ table 26570 "XML Element Line"
                             PageIndicBuffer."Entry No." := EntryNo;
                             PageIndicBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
                             PageIndicBuffer."Page Indic. Requisite Value" := StatReportExcelSheet."Page Indic. Requisite Value";
-                            PageIndicBuffer.Insert;
+                            PageIndicBuffer.Insert();
                         end;
                     end;
                 until StatReportExcelSheet.Next = 0;
 
-            PageIndicBuffer.Reset;
+            PageIndicBuffer.Reset();
             if PageIndicBuffer.FindSet then
                 repeat
                     AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
@@ -839,7 +839,7 @@ table 26570 "XML Element Line"
         if XMLElementExpressionLine.FindSet then
             repeat
                 XMLElementExpressionLine.Value := XMLElementExpressionLine.GetReferenceValue('', '');
-                XMLElementExpressionLine.Modify;
+                XMLElementExpressionLine.Modify();
             until XMLElementExpressionLine.Next = 0;
 
         Clear(XMLElementExpressionLine);
@@ -890,7 +890,7 @@ table 26570 "XML Element Line"
                         if not TableIndividualRequisite.Get("Report Code", "Table Code", "Row Link No.") then begin
                             "Row Link No." := 0;
                             Modify;
-                            Commit;
+                            Commit();
                         end else
                             TableIndividualRequisites.SetRecord(TableIndividualRequisite);
                     if TableIndividualRequisites.RunModal = ACTION::LookupOK then begin
@@ -1256,7 +1256,7 @@ table 26570 "XML Element Line"
                 else
                     if ChildRequisiteLine."Table Code" = '' then begin
                         ChildRequisiteLine.Validate("Table Code", TableCode);
-                        ChildRequisiteLine.Modify;
+                        ChildRequisiteLine.Modify();
                     end;
             until ChildRequisiteLine.Next = 0;
     end;
@@ -1338,7 +1338,7 @@ table 26570 "XML Element Line"
                         StatRepBuffer."Scalable Table Row No." := 0;
                 end else
                     if "Excel Sheet Name" <> StatRepBuffer."Excel Sheet Name" then begin
-                        StatReportExcelSheet.Reset;
+                        StatReportExcelSheet.Reset();
                         StatReportExcelSheet.SetRange("Report Code", "Report Code");
                         StatReportExcelSheet.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
                         StatReportExcelSheet.SetRange("Table Code", "Table Code");
@@ -1362,7 +1362,7 @@ table 26570 "XML Element Line"
         if ElementValueBuffer.FindLast then;
         EntryNo := ElementValueBuffer."Entry No." + 1;
 
-        ElementValueBuffer.Init;
+        ElementValueBuffer.Init();
         ElementValueBuffer."Entry No." := EntryNo;
         if (StatRepBuffer."Excel Sheet Name" = '') and ("Excel Sheet Name" <> '') then
             ElementValueBuffer."Excel Sheet Name" := "Excel Sheet Name"
@@ -1393,7 +1393,7 @@ table 26570 "XML Element Line"
             end;
         end;
         ElementValueBuffer."Template Data" := "Template Data";
-        ElementValueBuffer.Insert;
+        ElementValueBuffer.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1459,14 +1459,14 @@ table 26570 "XML Element Line"
             repeat
                 XMLElementExpressionLine := XMLElementExpressionLineFrom;
                 XMLElementExpressionLine."Report Code" := "Report Code";
-                XMLElementExpressionLine.Insert;
+                XMLElementExpressionLine.Insert();
             until XMLElementExpressionLineFrom.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure CheckReportDataExistence(ErrorMessage: Text[250])
     begin
-        StatutoryReportSetup.Get;
+        StatutoryReportSetup.Get();
         if not StatutoryReportSetup."Setup Mode" then begin
             StatutoryReport.Get("Report Code");
             if IsReportDataExist then

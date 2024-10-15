@@ -1,4 +1,4 @@
-﻿page 25 "Customer Ledger Entries"
+page 25 "Customer Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Ledger Entries';
@@ -712,7 +712,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

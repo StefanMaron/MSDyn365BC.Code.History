@@ -83,7 +83,7 @@ table 17319 "Tax Calc. G/L Corr. Entry"
     begin
         TaxCalcDimCorrFilter.SetRange("Section Code", "Section Code");
         TaxCalcDimCorrFilter.SetRange("Corresp. Entry No.", "Entry No.");
-        TaxCalcDimCorrFilter.DeleteAll;
+        TaxCalcDimCorrFilter.DeleteAll();
     end;
 
     trigger OnInsert()

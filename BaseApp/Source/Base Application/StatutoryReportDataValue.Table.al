@@ -72,7 +72,7 @@ table 26564 "Statutory Report Data Value"
         StatReportDataChangeLog.SetRange("Excel Sheet Name", "Excel Sheet Name");
         StatReportDataChangeLog.SetRange("Row No.", "Row No.");
         StatReportDataChangeLog.SetRange("Column No.", "Column No.");
-        StatReportDataChangeLog.DeleteAll;
+        StatReportDataChangeLog.DeleteAll();
     end;
 
     var
@@ -93,7 +93,7 @@ table 26564 "Statutory Report Data Value"
         if StatReportDataChangeLog.FindLast then;
         VersionNo := StatReportDataChangeLog."Version No." + 1;
 
-        StatReportDataChangeLog.Init;
+        StatReportDataChangeLog.Init();
         StatReportDataChangeLog."Report Data No." := "Report Data No.";
         StatReportDataChangeLog."Report Code" := "Report Code";
         StatReportDataChangeLog."Table Code" := "Table Code";

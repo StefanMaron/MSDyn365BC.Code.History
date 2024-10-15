@@ -68,7 +68,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                     ValueEntryPostedToGL.CalcSums("Cost Posted to G/L");
                     if "Cost Amount (Actual)" <> ValueEntryPostedToGL."Cost Posted to G/L" then
                         Error(Text21000902);
-                    TaxCalcItemEntry.Init;
+                    TaxCalcItemEntry.Init();
                     TaxCalcItemEntry."Section Code" := TaxCalcSectionCode;
                     TaxCalcItemEntry."Starting Date" := StartDate;
                     TaxCalcItemEntry."Ending Date" := EndDate;
@@ -103,7 +103,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                 TaxCalcItemEntry."Credit Amount (Actual)" := "Cost Amount (Actual)";
                                 TaxCalcItemEntry."Appl. Entry No." := "Entry No.";
                                 TaxCalcItemEntry."Entry No." += 1;
-                                TaxCalcItemEntry.Insert;
+                                TaxCalcItemEntry.Insert();
                             end;
                         end else begin
                             ItemApplEntry.SetRange("Item Ledger Entry No.", "Entry No.");
@@ -111,13 +111,13 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                 repeat
                                     if ItemApplEntry.Quantity < 0 then begin
                                         if not ItemLedgEntry0.Get(ItemApplEntry."Inbound Item Entry No.") then
-                                            ItemLedgEntry0.Init;
+                                            ItemLedgEntry0.Init();
                                         if ItemLedgEntry0."Entry Type" = ItemLedgEntry0."Entry Type"::Transfer then
                                             repeat
                                                 ItemApplEntry0.SetRange("Item Ledger Entry No.", ItemLedgEntry0."Entry No.");
                                                 ItemApplEntry0.FindFirst;
                                                 if not ItemLedgEntry0.Get(ItemApplEntry0."Transferred-from Entry No.") then
-                                                    ItemLedgEntry0.Init;
+                                                    ItemLedgEntry0.Init();
                                             until ItemLedgEntry0."Entry Type" <> ItemLedgEntry0."Entry Type"::Transfer;
 
                                         if ItemLedgEntry0.Quantity <> 0 then
@@ -345,10 +345,10 @@ codeunit 17306 "Create Tax Calc. Item Entries"
             TaxCalcItemEntry0."Amount (Tax)" += TaxCalcItemEntry1."Amount (Tax)";
             TaxCalcItemEntry0."Debit Quantity" += TaxCalcItemEntry1."Debit Quantity";
             TaxCalcItemEntry0."Debit Amount (Tax)" += TaxCalcItemEntry1."Debit Amount (Tax)";
-            TaxCalcItemEntry0.Modify;
+            TaxCalcItemEntry0.Modify();
         end else begin
             TaxCalcItemEntry1."Entry No." += 1;
-            TaxCalcItemEntry1.Insert;
+            TaxCalcItemEntry1.Insert();
         end;
     end;
 
@@ -372,19 +372,19 @@ codeunit 17306 "Create Tax Calc. Item Entries"
             exit;
 
         GLCorrespondEntryTmp.SetCurrentKey("Debit Account No.", "Credit Account No.");
-        GLCorrespondEntryTmp.Insert;
+        GLCorrespondEntryTmp.Insert();
 
-        TaxCalcAccumul.Reset;
+        TaxCalcAccumul.Reset();
         if not TaxCalcAccumul.FindLast then
             TaxCalcAccumul."Entry No." := 0;
 
-        TaxCalcAccumul.Reset;
-        TaxCalcAccumul.Init;
+        TaxCalcAccumul.Reset();
+        TaxCalcAccumul.Init();
         TaxCalcAccumul."Section Code" := TaxCalcSectionCode;
         TaxCalcAccumul."Starting Date" := StartDate;
         TaxCalcAccumul."Ending Date" := EndDate;
 
-        TaxCalcSelectionSetup.Reset;
+        TaxCalcSelectionSetup.Reset();
         TaxCalcSelectionSetup.SetRange("Section Code", TaxCalcSectionCode);
 
         Clear(TaxDimMgt);
@@ -393,17 +393,17 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         repeat
             TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
             if TaxCalcSelectionSetup.FindFirst then begin
-                TaxCalcLineTmp.DeleteAll;
+                TaxCalcLineTmp.DeleteAll();
                 TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
                 TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
                 if TaxCalcLine.FindSet then
                     repeat
                         TaxCalcLineTmp := TaxCalcLine;
                         TaxCalcLineTmp.Value := 0;
-                        TaxCalcLineTmp.Insert;
+                        TaxCalcLineTmp.Insert();
                     until TaxCalcLine.Next = 0;
 
-                TaxCalcItemEntry.Reset;
+                TaxCalcItemEntry.Reset();
                 TaxCalcItemEntry.SetCurrentKey("Section Code", "Ending Date");
                 TaxCalcItemEntry.SetRange("Section Code", TaxCalcSectionCode);
                 TaxCalcItemEntry.SetRange("Ending Date", EndDate);
@@ -415,7 +415,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                           TaxCalcItemEntry."Dimension 3 Value Code", TaxCalcItemEntry."Dimension 4 Value Code");
                         GLCorrespondEntryTmp."Debit Account No." := TaxCalcItemEntry."Debit Account No.";
                         GLCorrespondEntryTmp."Credit Account No." := TaxCalcItemEntry."Credit Account No.";
-                        GLCorrespondEntryTmp.Modify;
+                        GLCorrespondEntryTmp.Modify();
                         TaxCalcSelectionSetup.FindSet;
                         repeat
                             if (TaxCalcSelectionSetup."Account No." <> '') or
@@ -454,7 +454,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                                 end;
                                                 if AddValue <> 0 then begin
                                                     TaxCalcLineTmp.Value += AddValue;
-                                                    TaxCalcLineTmp.Modify;
+                                                    TaxCalcLineTmp.Modify();
                                                 end;
                                             end;
                                         until TaxCalcLineTmp.Next = 0;
@@ -463,7 +463,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                         until TaxCalcSelectionSetup.Next = 0;
                     until TaxCalcItemEntry.Next = 0;
 
-                TaxCalcLineTmp.Reset;
+                TaxCalcLineTmp.Reset();
                 if TaxCalcLineTmp.FindSet then
                     repeat
                         TaxCalcAccumul."Template Line Code" := TaxCalcLineTmp."Line Code";
@@ -484,10 +484,10 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                             TaxCalcLineTmp.Period);
                         TaxCalcAccumul.Amount := TaxCalcAccumul."Amount Period";
                         TaxCalcAccumul."Entry No." += 1;
-                        TaxCalcAccumul.Insert;
+                        TaxCalcAccumul.Insert();
                         if TaxCalcLineTmp.Period <> '' then begin
                             TaxCalcAccumul0 := TaxCalcAccumul;
-                            TaxCalcAccumul0.Reset;
+                            TaxCalcAccumul0.Reset();
                             TaxCalcAccumul0.SetCurrentKey(
                               "Section Code", "Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxCalcAccumul0.SetRange("Section Code", TaxCalcAccumul."Section Code");
@@ -497,12 +497,12 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                             TaxCalcAccumul0.SetFilter("Ending Date", TaxCalcAccumul."Amount Date Filter");
                             TaxCalcAccumul0.CalcSums("Amount Period");
                             TaxCalcAccumul.Amount := TaxCalcAccumul0."Amount Period";
-                            TaxCalcAccumul.Modify;
+                            TaxCalcAccumul.Modify();
                         end;
                     until TaxCalcLineTmp.Next = 0;
             end;
         until TaxCalcHeader.Next = 0;
-        TaxCalcLineTmp.DeleteAll;
+        TaxCalcLineTmp.DeleteAll();
     end;
 
     [Scope('OnPrem')]

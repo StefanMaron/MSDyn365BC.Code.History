@@ -64,7 +64,7 @@ report 17305 "Create Tax Diff. for Disp. FE"
                 trigger OnPreDataItem()
                 begin
                     if DisposalDate = 0D then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -76,7 +76,7 @@ report 17305 "Create Tax Diff. for Disp. FE"
                 begin
                     xRecTaxDiffJnlLine := TaxDiffJnlLine;
                     TaxDiffJnlLine."Line No." += 10000;
-                    TaxDiffJnlLine.Init;
+                    TaxDiffJnlLine.Init();
                     TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
                     TaxDiffJnlLine."Posting Date" := PostingDate;
                     if TaxDiffJnlLine."Document No." = '' then
@@ -94,30 +94,30 @@ report 17305 "Create Tax Diff. for Disp. FE"
                         TaxDiffJnlLine.Validate("Disposal Mode", TaxDiffJnlLine."Disposal Mode"::"Write Down");
                         TaxDiffJnlLine.Validate("Partial Disposal", true);
                     end;
-                    TaxDiffJnlLine.Insert;
+                    TaxDiffJnlLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if DisposalDate = 0D then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if (BookValueOnDisposal = 0) and (AcquisitionCost = 0) and
                        (TaxBookValueOnDisposal = 0) and (TaxAcquisitionCost = 0)
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not TaxDiff.Get("Tax Difference Code") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not Choice[Choices::Fixed] and (TaxDiff.Type = TaxDiff.Type::Constant) or
                    not Choice[Choices::"Temporary"] and (TaxDiff.Type = TaxDiff.Type::"Temporary")
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 BookValueOnDisposal := 0;
                 AcquisitionCost := 0;
@@ -128,7 +128,7 @@ report 17305 "Create Tax Diff. for Disp. FE"
 
             trigger OnPreDataItem()
             begin
-                CalendarPeriod.Reset;
+                CalendarPeriod.Reset();
                 CalendarPeriod.SetRange("Period Type", CalendarPeriod."Period Type"::Month);
                 CalendarPeriod.SetRange("Period Start", NormalDate(DatePeriod."Period Start"), NormalDate(DatePeriod."Period End"));
             end;

@@ -48,7 +48,7 @@ table 12408 "CD No. Information"
 
             trigger OnValidate()
             begin
-                InvtSetup.Get;
+                InvtSetup.Get();
                 if InvtSetup."Check CD No. Format" then
                     "Temporary CD No." := not CDNoFormat.Check("CD No.", false);
             end;
@@ -225,7 +225,7 @@ table 12408 "CD No. Information"
     trigger OnDelete()
     begin
         if Type = Type::Item then begin
-            ItemLedgEntry.Reset;
+            ItemLedgEntry.Reset();
             ItemLedgEntry.SetCurrentKey(
               "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.", "CD No.");
             ItemLedgEntry.SetRange("Item No.", "No.");
@@ -239,7 +239,7 @@ table 12408 "CD No. Information"
         ItemTrackingComment.SetRange("Item No.", "No.");
         ItemTrackingComment.SetRange("Variant Code", "Variant Code");
         ItemTrackingComment.SetRange("Serial/Lot/CD No.", "CD No.");
-        ItemTrackingComment.DeleteAll;
+        ItemTrackingComment.DeleteAll();
     end;
 
     var

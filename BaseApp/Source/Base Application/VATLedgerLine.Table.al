@@ -39,11 +39,9 @@ table 12405 "VAT Ledger Line"
         {
             Caption = 'Document Date';
         }
-        field(8; "Document Type"; Option)
+        field(8; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(9; "Document No."; Code[30])
         {
@@ -361,18 +359,18 @@ table 12405 "VAT Ledger Line"
         if Type = Type::Purchase then begin
             VATLedgerConnection.SetRange("Purch. Ledger Code", Code);
             VATLedgerConnection.SetRange("Purch. Ledger Line No.", "Line No.");
-            VATLedgerConnection.DeleteAll;
+            VATLedgerConnection.DeleteAll();
         end else begin
             VATLedgerConnection.SetRange("Sales Ledger Code", Code);
             VATLedgerConnection.SetRange("Sales Ledger Line No.", "Line No.");
-            VATLedgerConnection.DeleteAll;
+            VATLedgerConnection.DeleteAll();
         end;
 
         VATLedgerLineCDNo.SetFilterVATLedgerLine(Rec);
-        VATLedgerLineCDNo.DeleteAll;
+        VATLedgerLineCDNo.DeleteAll();
 
         VATLedgerLineTariffNo.SetFilterVATLedgerLine(Rec);
-        VATLedgerLineTariffNo.DeleteAll;
+        VATLedgerLineTariffNo.DeleteAll();
     end;
 
     [Scope('OnPrem')]

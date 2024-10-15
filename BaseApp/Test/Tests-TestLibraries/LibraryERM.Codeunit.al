@@ -21,10 +21,8 @@ codeunit 131300 "Library - ERM"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryInventory: Codeunit "Library - Inventory";
         SearchPostingType: Option All,Sales,Purchase;
 
-    [Scope('OnPrem')]
     procedure ApplicationAmountRounding(ApplicationAmount: Decimal; CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;
@@ -140,7 +138,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        AnalysisColumn.Init;
+        AnalysisColumn.Init();
         AnalysisColumn.Validate("Analysis Area", AnalysisArea);
         AnalysisColumn.Validate("Analysis Column Template", AnalysisColumnTemplate);
         RecRef.GetTable(AnalysisColumn);
@@ -150,7 +148,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateAnalysisView(var AnalysisView: Record "Analysis View")
     begin
-        AnalysisView.Init;
+        AnalysisView.Init();
         AnalysisView.Validate(
           Code,
           CopyStr(
@@ -187,7 +185,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateAccScheduleName(var AccScheduleName: Record "Acc. Schedule Name")
     begin
-        AccScheduleName.Init;
+        AccScheduleName.Init();
         AccScheduleName.Validate(
           Name,
           CopyStr(LibraryUtility.GenerateRandomCode(AccScheduleName.FieldNo(Name), DATABASE::"Acc. Schedule Name"),
@@ -199,7 +197,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        AccScheduleLine.Init;
+        AccScheduleLine.Init();
         AccScheduleLine.Validate("Schedule Name", ScheduleName);
         RecRef.GetTable(AccScheduleLine);
         AccScheduleLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AccScheduleLine.FieldNo("Line No.")));
@@ -256,7 +254,7 @@ codeunit 131300 "Library - ERM"
         BankContUpdate: Codeunit "BankCont-Update";
     begin
         FindBankAccountPostingGroup(BankAccountPostingGroup);
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.Validate("No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
         BankAccount.Validate(Name, BankAccount."No.");  // Validating No. as Name because value is not important.
         BankAccount.Insert(true);
@@ -275,7 +273,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; StatementType: Option)
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation.Validate("Statement Type", StatementType);
         BankAccReconciliation.Validate("Bank Account No.", BankAccountNo);
         BankAccReconciliation.Insert(true);
@@ -286,7 +284,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         BankAccReconciliationLine.Validate("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.Validate("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.Validate("Statement Type", BankAccReconciliation."Statement Type");
@@ -299,7 +297,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateBankAccountPostingGroup(var BankAccountPostingGroup: Record "Bank Account Posting Group")
     begin
-        BankAccountPostingGroup.Init;
+        BankAccountPostingGroup.Init();
         BankAccountPostingGroup.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(BankAccountPostingGroup.FieldNo(Code), DATABASE::"Bank Account Posting Group"),
@@ -309,14 +307,14 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateBusinessUnit(var BusinessUnit: Record "Business Unit")
     begin
-        BusinessUnit.Init;
+        BusinessUnit.Init();
         BusinessUnit.Validate(Code, LibraryUtility.GenerateRandomCode(BusinessUnit.FieldNo(Code), DATABASE::"Business Unit"));
         BusinessUnit.Insert(true);
     end;
 
     procedure CreateChangeLogField(var ChangeLogSetupField: Record "Change Log Setup (Field)"; TableNo: Integer; FieldNo: Integer)
     begin
-        ChangeLogSetupField.Init;
+        ChangeLogSetupField.Init();
         ChangeLogSetupField.Validate("Table No.", TableNo);
         ChangeLogSetupField.Validate("Field No.", FieldNo);
         ChangeLogSetupField.Insert(true);
@@ -324,7 +322,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateChangeLogTable(var ChangeLogSetupTable: Record "Change Log Setup (Table)"; TableNo: Integer)
     begin
-        ChangeLogSetupTable.Init;
+        ChangeLogSetupTable.Init();
         ChangeLogSetupTable.Validate("Table No.", TableNo);
         ChangeLogSetupTable.Insert(true);
     end;
@@ -333,7 +331,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         ColumnLayout.Validate("Column Layout Name", ColumnLayoutName);
         RecRef.GetTable(ColumnLayout);
         ColumnLayout.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ColumnLayout.FieldNo("Line No.")));
@@ -342,7 +340,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateColumnLayoutName(var ColumnLayoutName: Record "Column Layout Name")
     begin
-        ColumnLayoutName.Init;
+        ColumnLayoutName.Init();
         ColumnLayoutName.Validate(
           Name,
           CopyStr(LibraryUtility.GenerateRandomCode(ColumnLayoutName.FieldNo(Name), DATABASE::"Column Layout Name"),
@@ -352,7 +350,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateCountryRegion(var CountryRegion: Record "Country/Region")
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region"),
@@ -362,7 +360,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTerritory(var Territory: Record Territory)
     begin
-        Territory.Init;
+        Territory.Init();
         Territory.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(Territory.FieldNo(Code), DATABASE::Territory),
@@ -372,7 +370,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateCurrency(var Currency: Record Currency)
     begin
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, LibraryUtility.GenerateRandomCode(Currency.FieldNo(Code), DATABASE::Currency));
         Currency.Insert(true);
     end;
@@ -425,11 +423,6 @@ codeunit 131300 "Library - ERM"
             Validate("Unrealized Losses Acc.", "Unrealized Gains Acc.");
             Validate("Conv. LCY Rndg. Debit Acc.", CreateGLAccountNo);
             Validate("Conv. LCY Rndg. Credit Acc.", CreateGLAccountNo);
-            Validate("Purch. PD Gains Acc. (TA)", CreateGLAccountNo);
-            Validate("Purch. PD Losses Acc. (TA)", CreateGLAccountNo);
-            Validate("Sales PD Gains Acc. (TA)", CreateGLAccountNo);
-            Validate("Sales PD Losses Acc. (TA)", CreateGLAccountNo);
-            Validate("PD Bal. Gain/Loss Acc. (TA)", CreateGLAccountNo);
             Modify(true);
             exit(Code);
         end;
@@ -439,7 +432,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        CurrencyForReminderLevel.Init;
+        CurrencyForReminderLevel.Init();
         CurrencyForReminderLevel.Validate("Reminder Terms Code", ReminderTermsCode);
         RecRef.GetTable(CurrencyForReminderLevel);
         CurrencyForReminderLevel.Validate("No.", LibraryUtility.GetNewLineNo(RecRef, CurrencyForReminderLevel.FieldNo("No.")));
@@ -449,7 +442,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateCustomerDiscountGroup(var CustomerDiscountGroup: Record "Customer Discount Group")
     begin
-        CustomerDiscountGroup.Init;
+        CustomerDiscountGroup.Init();
         CustomerDiscountGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(CustomerDiscountGroup.FieldNo(Code), DATABASE::"Customer Discount Group"));
         CustomerDiscountGroup.Validate(Description, CustomerDiscountGroup.Code);  // Validating Code as Description because value is not important.
@@ -458,13 +451,13 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
     begin
-        IntrastatSetup.Init;
-        IntrastatSetup.Insert;
+        IntrastatSetup.Init();
+        IntrastatSetup.Insert();
     end;
 
     procedure CreateItemDiscountGroup(var ItemDiscountGroup: Record "Item Discount Group")
     begin
-        ItemDiscountGroup.Init;
+        ItemDiscountGroup.Init();
         ItemDiscountGroup.Validate(
           Code, LibraryUtility.GenerateRandomCode(ItemDiscountGroup.FieldNo(Code), DATABASE::"Item Discount Group"));
         ItemDiscountGroup.Validate(Description, ItemDiscountGroup.Code);  // Validating Code as Description because value is not important.
@@ -473,7 +466,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateDeferralTemplate(var DeferralTemplate: Record "Deferral Template"; CalcMethod: Option; StartDate: Option; NumOfPeriods: Integer)
     begin
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
           LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
         DeferralTemplate."Deferral Account" := CreateGLAccountNo;
@@ -494,7 +487,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateFinanceChargeMemoHeader(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CustomerNo: Code[20])
     begin
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader.Insert(true);
         FinanceChargeMemoHeader.Validate("Customer No.", CustomerNo);
         FinanceChargeMemoHeader.Modify(true);
@@ -504,7 +497,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        FinanceChargeMemoLine.Init;
+        FinanceChargeMemoLine.Init();
         FinanceChargeMemoLine.Validate("Finance Charge Memo No.", FinanceChargeMemoHeaderNo);
         RecRef.GetTable(FinanceChargeMemoLine);
         FinanceChargeMemoLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FinanceChargeMemoLine.FieldNo("Line No.")));
@@ -515,7 +508,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateFinanceChargeTerms(var FinanceChargeTerms: Record "Finance Charge Terms")
     begin
-        FinanceChargeTerms.Init;
+        FinanceChargeTerms.Init();
         FinanceChargeTerms.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(FinanceChargeTerms.FieldNo(Code), DATABASE::"Finance Charge Terms"),
@@ -528,7 +521,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        FinanceChargeText.Init;
+        FinanceChargeText.Init();
         FinanceChargeText.Validate("Fin. Charge Terms Code", FinChargeTermsCode);
         FinanceChargeText.Validate(Position, Position);
         RecRef.GetTable(FinanceChargeText);
@@ -540,7 +533,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateExchRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
         CurrencyExchangeRate.Validate("Starting Date", StartingDate);
         CurrencyExchangeRate.Insert(true);
@@ -566,7 +559,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateGenBusPostingGroup(var GenBusinessPostingGroup: Record "Gen. Business Posting Group")
     begin
-        GenBusinessPostingGroup.Init;
+        GenBusinessPostingGroup.Init();
         GenBusinessPostingGroup.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(GenBusinessPostingGroup.FieldNo(Code), DATABASE::"Gen. Business Posting Group"),
@@ -579,7 +572,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
-        GeneralPostingSetup.Init;
+        GeneralPostingSetup.Init();
         GeneralPostingSetup.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
         GeneralPostingSetup.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         GeneralPostingSetup.Insert(true);
@@ -604,7 +597,7 @@ codeunit 131300 "Library - ERM"
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        GenProductPostingGroup.Init;
+        GenProductPostingGroup.Init();
         GenProductPostingGroup.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(GenProductPostingGroup.FieldNo(Code), DATABASE::"Gen. Product Posting Group"),
@@ -617,7 +610,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateInsurance(var Insurance: Record Insurance)
     begin
-        Insurance.Init;
+        Insurance.Init();
         Insurance.Insert(true);
         Insurance.Validate(Description, Insurance."No.");  // Validating No as Description because value is not important.
         Insurance.Modify(true);
@@ -627,7 +620,7 @@ codeunit 131300 "Library - ERM"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
         CurrencyExchangeRate.Validate("Starting Date", FindEarliestDateForExhRate);
         CurrencyExchangeRate.Insert(true);
@@ -685,7 +678,7 @@ codeunit 131300 "Library - ERM"
         FAJournalBatch.Get(JournalTemplateName, JournalBatchName);
 
         // Create a General Journal Entry.
-        FAJournalLine.Init;
+        FAJournalLine.Init();
         FAJournalLine.Validate("Journal Template Name", JournalTemplateName);
         FAJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(FAJournalLine);
@@ -706,7 +699,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         // Prefix a number to fix errors for local build.
         GLAccount.Validate(
           "No.",
@@ -730,7 +723,7 @@ codeunit 131300 "Library - ERM"
     begin
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Direct Posting", true);
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -766,13 +759,13 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateGLAccountCategory(var GLAccountCategory: Record "G/L Account Category")
     begin
-        GLAccountCategory.Init;
+        GLAccountCategory.Init();
         GLAccountCategory."Entry No." := 0;
         GLAccountCategory."System Generated" := false;
         GLAccountCategory.Validate("Account Category", LibraryRandom.RandIntInRange(1, 7));
         GLAccountCategory.Validate("Additional Report Definition", LibraryRandom.RandIntInRange(1, 7));
         GLAccountCategory.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(GLAccountCategory.Description)));
-        GLAccountCategory.Insert;
+        GLAccountCategory.Insert();
     end;
 
     procedure CreateGLBudgetEntry(var GLBudgetEntry2: Record "G/L Budget Entry"; BudgetDate: Date; GLAccountNo: Code[20]; BudgetName: Code[10])
@@ -780,7 +773,7 @@ codeunit 131300 "Library - ERM"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         if GLBudgetEntry.FindLast then;
-        GLBudgetEntry2.Init;
+        GLBudgetEntry2.Init();
         GLBudgetEntry2.Validate("Entry No.", GLBudgetEntry."Entry No." + 1);
         GLBudgetEntry2.Validate("Budget Name", BudgetName);
         GLBudgetEntry2.Validate("G/L Account No.", GLAccountNo);
@@ -790,7 +783,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateGLBudgetName(var GLBudgetName: Record "G/L Budget Name")
     begin
-        GLBudgetName.Init;
+        GLBudgetName.Init();
         GLBudgetName.Validate(Name, LibraryUtility.GenerateRandomCode(GLBudgetName.FieldNo(Name), DATABASE::"G/L Budget Name"));
         GLBudgetName.Validate(Description, GLBudgetName.Name);
         GLBudgetName.Insert(true);
@@ -800,7 +793,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        GenJnlAllocation.Init;
+        GenJnlAllocation.Init();
         GenJnlAllocation.Validate("Journal Template Name", JournalTemplateName);
         GenJnlAllocation.Validate("Journal Batch Name", JournalBatchName);
         GenJnlAllocation.Validate("Journal Line No.", LineNo);
@@ -814,7 +807,7 @@ codeunit 131300 "Library - ERM"
         // creates a new Gen. Journal Batch named with the next available number (if it does not yet exist), OR
         // returns the Gen. Journal batch named with the next available number
         // calling ConvertNumericToText to avoid auto-removal of the batch during posting by COD13
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         GenJournalBatch.Validate(
           Name,
@@ -824,13 +817,12 @@ codeunit 131300 "Library - ERM"
               1,
               LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Name)))));
         GenJournalBatch.Validate(Description, GenJournalBatch.Name);  // Validating Name as Description because value is not important.
-        GenJournalBatch."Copy VAT Setup to Jnl. Lines" := true;
         if GenJournalBatch.Insert(true) then;
     end;
 
     procedure CreateGenJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template")
     begin
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Validate(
           Name,
           CopyStr(
@@ -849,7 +841,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateICGLAccount(var ICGLAccount: Record "IC G/L Account")
     begin
-        ICGLAccount.Init;
+        ICGLAccount.Init();
         ICGLAccount.Validate(
           "No.",
           CopyStr(
@@ -861,7 +853,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateICPartner(var ICPartner: Record "IC Partner")
     begin
-        ICPartner.Init;
+        ICPartner.Init();
         ICPartner.Validate(
           Code,
           CopyStr(
@@ -883,7 +875,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; JournalTemplateName: Code[10])
     begin
-        IntrastatJnlBatch.Init;
+        IntrastatJnlBatch.Init();
         IntrastatJnlBatch.Validate("Journal Template Name", JournalTemplateName);
         IntrastatJnlBatch.Validate(
           Name, LibraryUtility.GenerateRandomCode(IntrastatJnlBatch.FieldNo(Name), DATABASE::"Intrastat Jnl. Batch"));
@@ -895,7 +887,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine.Validate("Journal Template Name", JournalTemplateName);
         IntrastatJnlLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(IntrastatJnlLine);
@@ -905,7 +897,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateIntrastatJnlTemplate(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template")
     begin
-        IntrastatJnlTemplate.Init;
+        IntrastatJnlTemplate.Init();
         IntrastatJnlTemplate.Validate(
           Name, LibraryUtility.GenerateRandomCode(IntrastatJnlTemplate.FieldNo(Name), DATABASE::"Intrastat Jnl. Template"));
         IntrastatJnlTemplate.Validate(Description, IntrastatJnlTemplate.Name);
@@ -926,7 +918,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateInvDiscForCustomer(var CustInvoiceDisc: Record "Cust. Invoice Disc."; "Code": Code[20]; CurrencyCode: Code[10]; MinimumAmount: Decimal)
     begin
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Validate(Code, Code);
         CustInvoiceDisc.Validate("Currency Code", CurrencyCode);
         CustInvoiceDisc.Validate("Minimum Amount", MinimumAmount);
@@ -935,7 +927,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateInvDiscForVendor(var VendorInvoiceDisc: Record "Vendor Invoice Disc."; "Code": Code[20]; CurrencyCode: Code[10]; MinimumAmount: Decimal)
     begin
-        VendorInvoiceDisc.Init;
+        VendorInvoiceDisc.Init();
         VendorInvoiceDisc.Validate(Code, Code);
         VendorInvoiceDisc.Validate("Currency Code", CurrencyCode);
         VendorInvoiceDisc.Validate("Minimum Amount", MinimumAmount);
@@ -944,7 +936,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateItemAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Option)
     begin
-        ItemAnalysisView.Init;
+        ItemAnalysisView.Init();
         ItemAnalysisView.Validate("Analysis Area", AnalysisArea);
         ItemAnalysisView.Validate(Code, LibraryUtility.GenerateRandomCode(ItemAnalysisView.FieldNo(Code), DATABASE::"Item Analysis View"));
         // Validating Name as Code because value is not important.
@@ -957,7 +949,7 @@ codeunit 131300 "Library - ERM"
     var
         Language: Record Language;
     begin
-        Language.Init;
+        Language.Init();
         Language.Code := LibraryUtility.GenerateRandomCode(Language.FieldNo(Code), DATABASE::Language);
         Language.Insert(true);
         exit(Language.Code);
@@ -965,7 +957,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Option; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
         SalesLineDiscount.Validate(Type, Type);
         SalesLineDiscount.Validate(Code, Code);
         SalesLineDiscount.Validate("Sales Type", SalesType);
@@ -982,7 +974,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateLineDiscForVendor(var PurchaseLineDiscount: Record "Purchase Line Discount"; ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
-        PurchaseLineDiscount.Init;
+        PurchaseLineDiscount.Init();
         PurchaseLineDiscount.Validate("Item No.", ItemNo);
         PurchaseLineDiscount.Validate("Vendor No.", VendorNo);
         PurchaseLineDiscount.Validate("Starting Date", StartingDate);
@@ -1006,7 +998,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
-        PaymentMethod.Init;
+        PaymentMethod.Init();
         PaymentMethod.Validate(
           Code,
           CopyStr(
@@ -1031,7 +1023,7 @@ codeunit 131300 "Library - ERM"
     var
         PaymentMethodTranslation: Record "Payment Method Translation";
     begin
-        PaymentMethodTranslation.Init;
+        PaymentMethodTranslation.Init();
         PaymentMethodTranslation.Validate("Payment Method Code", PaymentMethodCode);
         PaymentMethodTranslation.Validate("Language Code", CreateLanguage);
         PaymentMethodTranslation.Validate(Description, LibraryUtility.GenerateGUID);
@@ -1041,7 +1033,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         PaymentTerms.Validate(
           Code,
           CopyStr(
@@ -1069,7 +1061,7 @@ codeunit 131300 "Library - ERM"
     var
         CountryRegion: Record "Country/Region";
     begin
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Validate(
           Code,
           CopyStr(
@@ -1199,7 +1191,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateReasonCode(var ReasonCode: Record "Reason Code")
     begin
-        ReasonCode.Init;
+        ReasonCode.Init();
         ReasonCode.Validate(
           Code,
           CopyStr(
@@ -1211,13 +1203,13 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateReminderHeader(var ReminderHeader: Record "Reminder Header")
     begin
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader.Insert(true);
     end;
 
     procedure CreateReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
     begin
-        ReminderLevel.Init;
+        ReminderLevel.Init();
         ReminderLevel.Validate("Reminder Terms Code", ReminderTermsCode);
         ReminderLevel.NewRecord;
         ReminderLevel.Insert(true);
@@ -1227,7 +1219,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         RecRef.GetTable(ReminderLine);
         ReminderLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ReminderLine.FieldNo("Line No.")));
@@ -1238,7 +1230,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateReminderTerms(var ReminderTerms: Record "Reminder Terms")
     begin
-        ReminderTerms.Init;
+        ReminderTerms.Init();
         ReminderTerms.Validate(Code, LibraryUtility.GenerateRandomCode(ReminderTerms.FieldNo(Code), DATABASE::"Reminder Terms"));
         ReminderTerms.Validate(Description, ReminderTerms.Code);
         ReminderTerms.Insert(true);
@@ -1248,7 +1240,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        ReminderText.Init;
+        ReminderText.Init();
         ReminderText.Validate("Reminder Terms Code", ReminderTermsCode);
         ReminderText.Validate("Reminder Level", ReminderLevel);
         ReminderText.Validate(Position, Position);
@@ -1261,7 +1253,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateRecurringTemplateName(var GenJournalTemplate: Record "Gen. Journal Template")
     begin
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Validate(
           Name,
           CopyStr(LibraryUtility.GenerateRandomCode(GenJournalTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template"),
@@ -1278,7 +1270,7 @@ codeunit 131300 "Library - ERM"
     begin
         // Create New General Journal Batch with a random Name of String length less than 10.
         GenJournalTemplate.Get(JournalTemplateName);
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.Validate(
           Name,
@@ -1291,7 +1283,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateReturnReasonCode(var ReturnReason: Record "Return Reason")
     begin
-        ReturnReason.Init;
+        ReturnReason.Init();
         ReturnReason.Validate(
           Code,
           CopyStr(
@@ -1303,7 +1295,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateSourceCode(var SourceCode: Record "Source Code")
     begin
-        SourceCode.Init;
+        SourceCode.Init();
         SourceCode.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(SourceCode.FieldNo(Code), DATABASE::"Source Code"),
@@ -1321,13 +1313,13 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
         VATPostingSetup."Sales VAT Account" := CreateGLAccountNo;
         VATPostingSetup."Purchase VAT Account" := CreateGLAccountNo;
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     procedure CreateVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
     begin
-        VATBusinessPostingGroup.Init;
+        VATBusinessPostingGroup.Init();
         VATBusinessPostingGroup.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(VATBusinessPostingGroup.FieldNo(Code), DATABASE::"VAT Business Posting Group"),
@@ -1353,7 +1345,7 @@ codeunit 131300 "Library - ERM"
         if Handled then
             exit;
 
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         VATPostingSetup.Insert(true);
@@ -1366,7 +1358,7 @@ codeunit 131300 "Library - ERM"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
@@ -1390,7 +1382,7 @@ codeunit 131300 "Library - ERM"
         if Handled then
             exit;
 
-        VATProductPostingGroup.Init;
+        VATProductPostingGroup.Init();
         VATProductPostingGroup.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(VATProductPostingGroup.FieldNo(Code), DATABASE::"VAT Product Posting Group"),
@@ -1407,7 +1399,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        VATRegistrationNoFormat.Init;
+        VATRegistrationNoFormat.Init();
         VATRegistrationNoFormat.Validate("Country/Region Code", CountryRegionCode);
         RecRef.GetTable(VATRegistrationNoFormat);
         VATRegistrationNoFormat.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, VATRegistrationNoFormat.FieldNo("Line No.")));
@@ -1416,7 +1408,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateVATClause(var VATClause: Record "VAT Clause")
     begin
-        VATClause.Init;
+        VATClause.Init();
         VATClause.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomCode(VATClause.FieldNo(Code), DATABASE::"VAT Clause"),
             1, LibraryUtility.GetFieldLength(DATABASE::"VAT Clause", VATClause.FieldNo(Code))));
@@ -1461,7 +1453,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateStandardGeneralJournal(var StandardGeneralJournal: Record "Standard General Journal"; JournalTemplateName: Code[10])
     begin
-        StandardGeneralJournal.Init;
+        StandardGeneralJournal.Init();
         StandardGeneralJournal.Validate("Journal Template Name", JournalTemplateName);
         StandardGeneralJournal.Validate(
           Code,
@@ -1477,7 +1469,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateStandardItemJournal(var StandardItemJournal: Record "Standard Item Journal"; JournalTemplateName: Code[10])
     begin
-        StandardItemJournal.Init;
+        StandardItemJournal.Init();
         StandardItemJournal.Validate("Journal Template Name", JournalTemplateName);
         StandardItemJournal.Validate(
           Code,
@@ -1495,7 +1487,7 @@ codeunit 131300 "Library - ERM"
     var
         RecRef: RecordRef;
     begin
-        VATStatementLine.Init;
+        VATStatementLine.Init();
         VATStatementLine.Validate("Statement Template Name", StatementTemplateName);
         VATStatementLine.Validate("Statement Name", StatementName);
         RecRef.GetTable(VATStatementLine);
@@ -1505,7 +1497,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateVATStatementName(var VATStatementName: Record "VAT Statement Name"; StatementTemplateName: Code[10])
     begin
-        VATStatementName.Init;
+        VATStatementName.Init();
         VATStatementName.Validate("Statement Template Name", StatementTemplateName);
         VATStatementName.Validate(
           Name,
@@ -1518,7 +1510,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template")
     begin
-        VATStatementTemplate.Init;
+        VATStatementTemplate.Init();
         VATStatementTemplate.Validate(
           Name,
           CopyStr(
@@ -1538,7 +1530,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTaxArea(var TaxArea: Record "Tax Area")
     begin
-        TaxArea.Init;
+        TaxArea.Init();
         TaxArea.Validate(
           Code,
           CopyStr(
@@ -1551,7 +1543,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTaxAreaLine(var TaxAreaLine: Record "Tax Area Line"; TaxAreaCode: Code[20]; TaxJurisdictionCode: Code[10])
     begin
-        TaxAreaLine.Init;
+        TaxAreaLine.Init();
         TaxAreaLine.Validate("Tax Area", TaxAreaCode);
         TaxAreaLine.Validate("Tax Jurisdiction Code", TaxJurisdictionCode);
         TaxAreaLine.Insert(true);
@@ -1559,7 +1551,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTaxGroup(var TaxGroup: Record "Tax Group")
     begin
-        TaxGroup.Init;
+        TaxGroup.Init();
         TaxGroup.Validate(
           Code,
           CopyStr(
@@ -1572,7 +1564,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTaxJurisdiction(var TaxJurisdiction: Record "Tax Jurisdiction")
     begin
-        TaxJurisdiction.Init;
+        TaxJurisdiction.Init();
         TaxJurisdiction.Validate(
           Code,
           CopyStr(
@@ -1585,7 +1577,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxType: Option; EffectiveDate: Date)
     begin
-        TaxDetail.Init;
+        TaxDetail.Init();
         TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdictionCode);
         TaxDetail.Validate("Tax Group Code", TaxGroupCode);
         TaxDetail.Validate("Tax Type", TaxType);
@@ -1618,7 +1610,7 @@ codeunit 131300 "Library - ERM"
 
     procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; AnalysisArea: Option)
     begin
-        ItemBudgetName.Init;
+        ItemBudgetName.Init();
         ItemBudgetName.Validate("Analysis Area", AnalysisArea);
         ItemBudgetName.Validate(Name, LibraryUtility.GenerateGUID);
         ItemBudgetName.Insert(true);
@@ -1911,10 +1903,10 @@ codeunit 131300 "Library - ERM"
         FindVATPostingSetupInvt(VATPostingSetup);
         GenBusPostingGroup.Get(GeneralPostingSetup."Gen. Bus. Posting Group");
         GenBusPostingGroup.Validate("Def. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GenBusPostingGroup.Modify;
+        GenBusPostingGroup.Modify();
         GenProdPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
         GenProdPostingGroup.Validate("Def. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        GenProdPostingGroup.Modify;
+        GenProdPostingGroup.Modify();
     end;
 
     procedure FindIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
@@ -2045,6 +2037,16 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
+    procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        // Finds the matching Vendor Ledger Entry from a General Journal Line.
+        with EmployeeLedgerEntry do begin
+            SetRange("Document Type", DocumentType);
+            SetRange("Document No.", DocumentNo);
+            FindFirst;
+        end;
+    end;
+
     procedure FindDeferralLine(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         with DeferralLine do begin
@@ -2060,25 +2062,25 @@ codeunit 131300 "Library - ERM"
 
     procedure GetAddReportingCurrency(): Code[10]
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
 
     procedure GetAllowPostingFrom(): Date
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Allow Posting From");
     end;
 
     procedure GetAllowPostingTo(): Date
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Allow Posting To");
     end;
 
     procedure GetAmountRoundingPrecision(): Decimal
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Amount Rounding Precision");
     end;
 
@@ -2092,7 +2094,7 @@ codeunit 131300 "Library - ERM"
 
     procedure GetCurrencyCode("Code": Code[10]): Code[10]
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup.GetCurrencyCode(Code));
     end;
 
@@ -2107,7 +2109,7 @@ codeunit 131300 "Library - ERM"
 
     procedure GetGlobalDimensionCode(DimNo: Integer): Code[20]
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 exit(GeneralLedgerSetup."Global Dimension 1 Code");
@@ -2118,13 +2120,13 @@ codeunit 131300 "Library - ERM"
 
     procedure GetInvoiceRoundingPrecisionLCY(): Decimal
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
     end;
 
     procedure GetLCYCode(): Code[10]
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."LCY Code");
     end;
 
@@ -2135,7 +2137,7 @@ codeunit 131300 "Library - ERM"
 
     procedure GetShortcutDimensionCode(DimNo: Integer): Code[20]
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 exit(GeneralLedgerSetup."Shortcut Dimension 1 Code");
@@ -2158,7 +2160,7 @@ codeunit 131300 "Library - ERM"
 
     procedure GetUnitAmountRoundingPrecision(): Decimal
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Unit-Amount Rounding Precision");
     end;
 
@@ -2172,13 +2174,13 @@ codeunit 131300 "Library - ERM"
             TempPostedDeferralLine.SetRange("Document No.", DocNo);
             TempPostedDeferralLine.SetRange("Posting Date", PostedDeferralLine."Posting Date");
             if not TempPostedDeferralLine.FindFirst then begin
-                TempPostedDeferralLine.Init;
+                TempPostedDeferralLine.Init();
                 TempPostedDeferralLine."Document No." := DocNo;
                 TempPostedDeferralLine."Posting Date" := PostedDeferralLine."Posting Date";
-                TempPostedDeferralLine.Insert;
+                TempPostedDeferralLine.Insert();
             end;
             TempPostedDeferralLine.Amount += PostedDeferralLine.Amount;
-            TempPostedDeferralLine.Modify;
+            TempPostedDeferralLine.Modify();
         until PostedDeferralLine.Next = 0;
         TempPostedDeferralLine.SetRange("Document No.");
         TempPostedDeferralLine.SetRange("Posting Date");
@@ -2232,6 +2234,12 @@ codeunit 131300 "Library - ERM"
     begin
         // Post Application Entries.
         CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", VendorLedgerEntry);
+    end;
+
+    procedure PostEmplLedgerApplication(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        // Post Application Entries.
+        CODEUNIT.Run(CODEUNIT::"EmplEntry-Apply Posted Entries", EmployeeLedgerEntry);
     end;
 
     procedure PostBankAccReconciliation(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -2324,7 +2332,7 @@ codeunit 131300 "Library - ERM"
         if FAJournalBatch.FindFirst then
             exit;
         // Create New FA Journal Batch.
-        FAJournalBatch.Init;
+        FAJournalBatch.Init();
         FAJournalBatch.Validate("Journal Template Name", SelectFAJournalTemplate);
         FAJournalBatch.Validate(Name,
           CopyStr(LibraryUtility.GenerateRandomCode(FAJournalBatch.FieldNo(Name), DATABASE::"FA Journal Batch"),
@@ -2341,7 +2349,7 @@ codeunit 131300 "Library - ERM"
         // Select FA Journal Template Name for FA Journal Line.
         FAJournalTemplate.SetRange(Recurring, false);
         if not FAJournalTemplate.FindFirst then begin
-            FAJournalTemplate.Init;
+            FAJournalTemplate.Init();
             FAJournalTemplate.Validate(
               Name, CopyStr(LibraryUtility.GenerateRandomCode(FAJournalTemplate.FieldNo(Name), DATABASE::"FA Journal Template"),
                 1, LibraryUtility.GetFieldLength(DATABASE::"FA Journal Template", FAJournalTemplate.FieldNo(Name))));
@@ -2381,7 +2389,7 @@ codeunit 131300 "Library - ERM"
 
     procedure SetAddReportingCurrency(AdditionalReportingCurrency: Code[10])
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2402,7 +2410,7 @@ codeunit 131300 "Library - ERM"
 
     procedure SetAllowPostingFromTo(FromDate: Date; ToDate: Date)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting From" := FromDate;
         GeneralLedgerSetup."Allow Posting To" := ToDate;
         GeneralLedgerSetup.Modify(true);
@@ -2410,35 +2418,35 @@ codeunit 131300 "Library - ERM"
 
     procedure SetAllowPostingTo(ToDate: Date)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow Posting To" := ToDate;
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetAmountRoundingPrecision(AmountRoundingPrecision: Decimal)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Amount Rounding Precision" := AmountRoundingPrecision;
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetApplnRoundingPrecision(ApplnRoundingPrecision: Decimal)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetBillToSellToVATCalc(BillToSellToVATCalc: Option)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetGlobalDimensionCode(DimNo: Integer; DimCode: Code[20])
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 GeneralLedgerSetup.Validate("Global Dimension 1 Code", DimCode);
@@ -2453,16 +2461,16 @@ codeunit 131300 "Library - ERM"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        IntrastatSetup.Get;
+        IntrastatSetup.Get();
         IntrastatSetup."Default Trans. - Purchase" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type");
         IntrastatSetup."Default Trans. - Return" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type");
-        IntrastatSetup.Modify;
+        IntrastatSetup.Modify();
     end;
 
     procedure SetAppliestoIdCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         // Set Applies-to ID.
-        CustLedgerEntry.LockTable;
+        CustLedgerEntry.LockTable();
         CustLedgerEntry.FindFirst;
         repeat
             CustLedgerEntry.TestField(Open, true);
@@ -2478,7 +2486,7 @@ codeunit 131300 "Library - ERM"
     procedure SetAppliestoIdVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         // Set Applies-to ID.
-        VendorLedgerEntry.LockTable;
+        VendorLedgerEntry.LockTable();
         VendorLedgerEntry.FindFirst;
         repeat
             VendorLedgerEntry.TestField(Open, true);
@@ -2489,6 +2497,22 @@ codeunit 131300 "Library - ERM"
             end;
             VendorLedgerEntry.Modify(true);
         until VendorLedgerEntry.Next = 0;
+    end;
+
+    procedure SetAppliestoIdEmployee(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        // Set Applies-to ID.
+        EmployeeLedgerEntry.LockTable();
+        EmployeeLedgerEntry.FindFirst;
+        repeat
+            EmployeeLedgerEntry.TestField(Open, true);
+            EmployeeLedgerEntry.Validate("Applies-to ID", UserId);
+            if EmployeeLedgerEntry."Amount to Apply" = 0 then begin
+                EmployeeLedgerEntry.CalcFields("Remaining Amount");
+                EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
+            end;
+            EmployeeLedgerEntry.Modify(true);
+        until EmployeeLedgerEntry.Next = 0;
     end;
 
     procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
@@ -2505,7 +2529,7 @@ codeunit 131300 "Library - ERM"
             until CustLedgerEntry2.Next = 0;
 
         // Clear Applies-to IDs
-        CustLedgerEntry2.Reset;
+        CustLedgerEntry2.Reset();
         CustLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
         if CustLedgerEntry2.FindSet then
             repeat
@@ -2521,7 +2545,7 @@ codeunit 131300 "Library - ERM"
             Modify(true);
         end;
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
-        Commit;
+        Commit();
     end;
 
     procedure SetApplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AmountToApply: Decimal)
@@ -2538,7 +2562,7 @@ codeunit 131300 "Library - ERM"
             until VendorLedgerEntry2.Next = 0;
 
         // Clear Applies-to IDs.
-        VendorLedgerEntry2.Reset;
+        VendorLedgerEntry2.Reset();
         VendorLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
         if VendorLedgerEntry2.FindSet then
             repeat
@@ -2554,6 +2578,38 @@ codeunit 131300 "Library - ERM"
             Modify(true);
         end;
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
+    end;
+
+    procedure SetApplyEmployeeEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; AmountToApply: Decimal)
+    var
+        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
+    begin
+        // Clear any existing applying entries.
+        EmployeeLedgerEntry2.SetRange("Applying Entry", true);
+        EmployeeLedgerEntry2.SetFilter("Entry No.", '<>%1', EmployeeLedgerEntry."Entry No.");
+        if EmployeeLedgerEntry2.FindSet then
+            repeat
+                EmployeeLedgerEntry2.Validate("Applying Entry", false);
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next = 0;
+
+        // Clear Applies-to IDs.
+        EmployeeLedgerEntry2.Reset();
+        EmployeeLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
+        if EmployeeLedgerEntry2.FindSet then
+            repeat
+                EmployeeLedgerEntry2.Validate("Applies-to ID", '');
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next = 0;
+
+        // Apply Payment Entry on Posted Invoice.
+        with EmployeeLedgerEntry do begin
+            Validate("Applying Entry", true);
+            Validate("Applies-to ID", UserId);
+            Validate("Amount to Apply", AmountToApply);
+            Modify(true);
+        end;
+        CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
     end;
 
     procedure SetGLAccountDirectPostingFilter(var GLAccount: Record "G/L Account")
@@ -2682,7 +2738,7 @@ codeunit 131300 "Library - ERM"
 
     procedure SetInvRoundingPrecisionLCY(InvRoundingPrecisionLCY: Decimal)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvRoundingPrecisionLCY);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2706,14 +2762,14 @@ codeunit 131300 "Library - ERM"
 
     procedure SetMaxVATDifferenceAllowed(MaxVATDifferenceAllowed: Decimal)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Max. VAT Difference Allowed", MaxVATDifferenceAllowed);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetLCYCode(LCYCode: Code[10])
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("LCY Code", LCYCode);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2735,7 +2791,7 @@ codeunit 131300 "Library - ERM"
 
     procedure SetShortcutDimensionCode(DimNo: Integer; DimCode: Code[20])
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case DimNo of
             1:
                 GeneralLedgerSetup.Validate("Shortcut Dimension 1 Code", DimCode);
@@ -2759,30 +2815,21 @@ codeunit 131300 "Library - ERM"
 
     procedure SetUnrealizedVAT(UnrealizedVAT: Boolean)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetUseLegacyGLEntryLocking(UseLegacyGLEntryLocking: Boolean)
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Use Legacy G/L Entry Locking" := UseLegacyGLEntryLocking;
-        GeneralLedgerSetup.Modify(true);
-    end;
-
-    procedure SetCancelPrepmtAdjmtinTA(CancelPrepmtAdjmtinTA: Boolean)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup.Validate("Cancel Prepmt. Adjmt. in TA", CancelPrepmtAdjmtinTA);
         GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetVATRoundingType(Direction: Text[1])
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         case Direction of
             '<':
                 GeneralLedgerSetup."VAT Rounding Type" := GeneralLedgerSetup."VAT Rounding Type"::Down;
@@ -2823,7 +2870,7 @@ codeunit 131300 "Library - ERM"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        IntrastatSetup.Get;
+        IntrastatSetup.Get();
         IntrastatSetup.Validate("Intrastat Contact Type", ContactType);
         IntrastatSetup.Validate("Intrastat Contact No.", ContactNo);
         IntrastatSetup.Modify(true);
@@ -2834,12 +2881,11 @@ codeunit 131300 "Library - ERM"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.SetRange(Usage, ReportUsage);
-        ReportSelections.DeleteAll;
-        ReportSelections.Init;
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
         ReportSelections.Validate(Usage, ReportUsage);
         ReportSelections.Validate(Sequence, '1');
         ReportSelections.Validate("Report ID", ReportId);
-        ReportSelections.Validate(Default, true);
         ReportSelections.Insert(true);
     end;
 
@@ -2867,6 +2913,11 @@ codeunit 131300 "Library - ERM"
         LibraryERMUnapply.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
+    procedure UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        LibraryERMUnapply.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
+    end;
+
     procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View")
     begin
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView)
@@ -2876,7 +2927,7 @@ codeunit 131300 "Library - ERM"
     begin
         GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccountWithSalesSetup);
         GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccountWithPurchSetup);
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     procedure UpdateGLAccountWithPostingSetup(var GLAccount: Record "G/L Account"; GenPostingType: Option; GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
@@ -2953,232 +3004,6 @@ codeunit 131300 "Library - ERM"
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
-    end;
-
-    procedure CreateUnrealizedVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 18));
-        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", CreateGLAccountNo);
-        VATPostingSetup.Modify(true);
-    end;
-
-    procedure CreateManualVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-    begin
-        CreateGenJournalTemplate(GenJnlTemplate);
-        CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        CreateUnrealizedVATPostingSetup(VATPostingSetup);
-        VATPostingSetup.Validate("Manual VAT Settlement", true);
-        VATPostingSetup."VAT Settlement Template" := GenJnlTemplate.Name;
-        VATPostingSetup."VAT Settlement Batch" := GenJnlBatch.Name;
-        VATPostingSetup.Validate("Write-Off VAT Account", CreateGLAccountNo);
-        VATPostingSetup.Validate("VAT Charge No.", LibraryInventory.CreateItemChargeNo);
-        VATPostingSetup.Modify(true);
-    end;
-
-    procedure CreateReinstmtVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-    begin
-        CreateGenJournalTemplate(GenJnlTemplate);
-        CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        CreateManualVATPostingSetup(VATPostingSetup);
-        VATPostingSetup."VAT Reinstatement Template" := GenJnlTemplate.Name;
-        VATPostingSetup."VAT Reinstatement Batch" := GenJnlBatch.Name;
-        VATPostingSetup.Modify(true);
-    end;
-
-    procedure ApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
-    var
-        ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
-        AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
-    begin
-        FindCustomerLedgerEntry(ApplyingCustLedgEntry, ApplyingDocType, ApplyingDocNo);
-        ApplyingCustLedgEntry.CalcFields("Remaining Amount");
-        SetApplyCustomerEntry(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Remaining Amount");
-        FindCustomerLedgerEntry(AppliesToCustLedgEntry, AppliesToDocType, AppliesToDocNo);
-        SetAppliestoIdCustomer(AppliesToCustLedgEntry);
-        PostCustLedgerApplication(ApplyingCustLedgEntry);
-    end;
-
-    procedure ApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
-    var
-        ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
-        AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
-    begin
-        FindVendorLedgerEntry(ApplyingVendLedgEntry, ApplyingDocType, ApplyingDocNo);
-        ApplyingVendLedgEntry.CalcFields("Remaining Amount");
-        SetApplyVendorEntry(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Remaining Amount");
-        FindVendorLedgerEntry(AppliesToVendLedgEntry, AppliesToDocType, AppliesToDocNo);
-        AppliesToVendLedgEntry.SetRange(Open, true);
-        SetAppliestoIdVendor(AppliesToVendLedgEntry);
-        PostVendLedgerApplication(ApplyingVendLedgEntry);
-    end;
-
-    procedure PreviewApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
-    var
-        ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
-        AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
-        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
-    begin
-        FindCustomerLedgerEntry(ApplyingCustLedgEntry, ApplyingDocType, ApplyingDocNo);
-        ApplyingCustLedgEntry.CalcFields("Remaining Amount");
-        SetApplyCustomerEntry(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Remaining Amount");
-        FindCustomerLedgerEntry(AppliesToCustLedgEntry, AppliesToDocType, AppliesToDocNo);
-        AppliesToCustLedgEntry.SetRange(Open, true);
-        SetAppliestoIdCustomer(AppliesToCustLedgEntry);
-        Commit;
-        CustEntryApplyPostedEntries.PreviewApply(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Document No.", 0D);
-    end;
-
-    procedure PreviewApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
-    var
-        ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
-        AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
-        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
-    begin
-        FindVendorLedgerEntry(ApplyingVendLedgEntry, ApplyingDocType, ApplyingDocNo);
-        ApplyingVendLedgEntry.CalcFields("Remaining Amount");
-        SetApplyVendorEntry(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Remaining Amount");
-        FindVendorLedgerEntry(AppliesToVendLedgEntry, AppliesToDocType, AppliesToDocNo);
-        SetAppliestoIdVendor(AppliesToVendLedgEntry);
-        Commit;
-        VendEntryApplyPostedEntries.PreviewApply(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Document No.", 0D);
-    end;
-
-    procedure CreateCustomerPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal)
-    begin
-        CreatePrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Account Type"::Customer, CustomerNo, PostingDate, PrepmtDocNo, Amount, '');
-    end;
-
-    procedure CreateCustomerPrepmtGenJnlLineFCY(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
-    begin
-        CreatePrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Account Type"::Customer, CustomerNo, PostingDate, PrepmtDocNo, Amount, CurrencyCode);
-    end;
-
-    procedure CreateVendorPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal)
-    begin
-        CreatePrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendorNo, PostingDate, '', Amount, '');
-    end;
-
-    procedure CreateVendorPrepmtGenJnlLineFCY(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal; CurrencyCode: Code[10])
-    begin
-        CreatePrepmtGenJnlLine(
-          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendorNo, PostingDate, '', Amount, CurrencyCode);
-    end;
-
-    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
-    begin
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJnlLine, GenJnlLine."Document Type"::Payment, AccountType, AccountNo, Amount);
-
-        GenJnlLine.Validate("Posting Date", PostingDate);
-        GenJnlLine.Validate("Currency Code", CurrencyCode);
-        GenJnlLine.Validate(
-          "External Document No.",
-          LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("External Document No."), DATABASE::"Gen. Journal Line"));
-        GenJnlLine.Validate(Prepayment, true);
-        GenJnlLine.Validate("Prepayment Document No.", PrepmtDocNo);
-        GenJnlLine.Modify(true);
-    end;
-
-    procedure CreateVATSettlementJnlLine(UnrealizedVATEntryNo: Integer; PostingDate: Date; Amount: Decimal; Post: Boolean)
-    var
-        VATEntry: Record "VAT Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlPost: Codeunit "Gen. Jnl.-Post";
-        RecRef: RecordRef;
-    begin
-        VATEntry.Get(UnrealizedVATEntryNo);
-        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
-        GenJnlLine.Init;
-        GenJnlLine."Journal Template Name" := VATPostingSetup."VAT Settlement Template";
-        GenJnlLine."Journal Batch Name" := VATPostingSetup."VAT Settlement Batch";
-        RecRef.GetTable(GenJnlLine);
-        GenJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No.")));
-        GenJnlLine.Validate("Unrealized VAT Entry No.", UnrealizedVATEntryNo);
-        GenJnlLine.Validate("Posting Date", PostingDate);
-        GenJnlLine.Validate(Amount, Amount);
-        GenJnlLine.Insert;
-
-        if Post then begin
-            GenJnlLine.SetRecFilter;
-            GenJnlPost.SetJnlType(1); // 1 = VAT Settlement
-            GenJnlPost.Run(GenJnlLine);
-        end;
-    end;
-
-    procedure CreateVATReinstatementJnlLine(var GenJnlLine: Record "Gen. Journal Line"; ReinstatementVATEntryNo: Integer; PostingDate: Date; VATAmount: Decimal; Post: Boolean)
-    var
-        VATEntry: Record "VAT Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
-        GenJnlPost: Codeunit "Gen. Jnl.-Post";
-        RecRef: RecordRef;
-    begin
-        VATEntry.Get(ReinstatementVATEntryNo);
-        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
-        GenJnlLine.Init;
-        GenJnlLine."Journal Template Name" := VATPostingSetup."VAT Reinstatement Template";
-        GenJnlLine."Journal Batch Name" := VATPostingSetup."VAT Reinstatement Batch";
-        RecRef.GetTable(GenJnlLine);
-        GenJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No.")));
-        GenJnlLine.Validate("Reinstatement VAT Entry No.", ReinstatementVATEntryNo);
-        GenJnlLine.Validate("Posting Date", PostingDate);
-        GenJnlLine.Validate(Amount, VATAmount);
-        GenJnlLine.Insert;
-
-        if Post then begin
-            GenJnlLine.SetRecFilter;
-            GenJnlPost.SetJnlType(3); // 3 = VAT Reinstatement
-            GenJnlPost.Run(GenJnlLine);
-        end;
-    end;
-
-    procedure PostVATReinstatementJournal(var GenJnlLine: Record "Gen. Journal Line")
-    var
-        GenJnlPost: Codeunit "Gen. Jnl.-Post";
-    begin
-        GenJnlLine.FindFirst;
-        GenJnlPost.SetJnlType(3); // 3 = VAT Reinstatement
-        GenJnlPost.Run(GenJnlLine);
-    end;
-
-    procedure CreateVATAllocLine(VATEntryNo: Integer; LineNo: Integer; Type: Integer; AccountNo: Code[20]; Amount: Decimal)
-    var
-        VATAllocationLine: Record "VAT Allocation Line";
-    begin
-        VATAllocationLine.Init;
-        VATAllocationLine.Validate("VAT Entry No.", VATEntryNo);
-        VATAllocationLine.Validate("Line No.", LineNo);
-        VATAllocationLine.Validate(Type, Type);
-        if AccountNo <> '' then
-            VATAllocationLine.Validate("Account No.", AccountNo);
-        VATAllocationLine.Validate(Amount, Amount);
-        VATAllocationLine.Insert(true);
-    end;
-
-    procedure UpdateVATAllocLine(VATEntryNo: Integer; LineNo: Integer; Type: Integer; AccountNo: Code[20]; Amount: Decimal)
-    var
-        VATAllocationLine: Record "VAT Allocation Line";
-    begin
-        VATAllocationLine.Get(VATEntryNo, LineNo);
-        if Type <> 0 then
-            VATAllocationLine.Validate(Type, Type);
-        if AccountNo <> '' then
-            VATAllocationLine.Validate("Account No.", AccountNo);
-        if Amount <> 0 then
-            VATAllocationLine.Validate(Amount, Amount);
-        VATAllocationLine.Modify(true);
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")

@@ -27,7 +27,7 @@ report 17401 "Suggest Payroll Documents"
                             case PayrollElement."Include into Calculation by" of
                                 PayrollElement."Include into Calculation by"::"Action Period":
                                     begin
-                                        EmplLedgEntry.Reset;
+                                        EmplLedgEntry.Reset();
                                         EmplLedgEntry.SetRange("Employee No.", Employee."No.");
                                         EmplLedgEntry.SetRange("Element Code", PayrollElement.Code);
                                         EmplLedgEntry.SetRange("Action Starting Date",
@@ -48,7 +48,7 @@ report 17401 "Suggest Payroll Documents"
                                     end;
                                 PayrollElement."Include into Calculation by"::"Period Code":
                                     begin
-                                        EmplLedgEntry.Reset;
+                                        EmplLedgEntry.Reset();
                                         EmplLedgEntry.SetRange("Employee No.", Employee."No.");
                                         EmplLedgEntry.SetRange("Element Code", PayrollElement.Code);
                                         EmplLedgEntry.SetRange("Period Code", PayrollCalcPeriod.Code);
@@ -92,13 +92,13 @@ report 17401 "Suggest Payroll Documents"
                         Reset;
                         if FindSet then
                             repeat
-                                PayrollDocLine.Init;
+                                PayrollDocLine.Init();
                                 PayrollDocLine := TempPayrollDocLine;
                                 PayrollDocLine.CreateDim(DATABASE::"Payroll Element", "Element Code");
                                 CombineDimensions("Dimension Set ID");
-                                PayrollDocLine.Insert;
+                                PayrollDocLine.Insert();
                             until Next = 0;
-                        DeleteAll;
+                        DeleteAll();
                     end;
 
                     with PayrollDocLine do begin
@@ -115,11 +115,11 @@ report 17401 "Suggest Payroll Documents"
                         PayrollStatus.Get(PayrollCalcPeriod.Code, Employee."No.");
                         if PayrollStatus."Payroll Status" = PayrollStatus."Payroll Status"::" " then begin
                             PayrollStatus."Payroll Status" := PayrollStatus."Payroll Status"::Calculated;
-                            PayrollStatus.Modify;
+                            PayrollStatus.Modify();
                         end;
                     end;
 
-                    Commit;
+                    Commit();
                 end;
 
                 trigger OnPreDataItem()
@@ -134,16 +134,16 @@ report 17401 "Suggest Payroll Documents"
 
                 // check current period
                 if not PayrollStatus.Get(PayrollCalcPeriod.Code, "No.") then begin
-                    PayrollStatus.Init;
+                    PayrollStatus.Init();
                     PayrollStatus."Period Code" := PayrollCalcPeriod.Code;
                     PayrollStatus."Employee No." := "No.";
-                    PayrollStatus.Insert;
+                    PayrollStatus.Insert();
                 end else
                     if CreateNewDocs and (CalcGroupCode = '') then
                         if PayrollStatus."Payroll Status" >= PayrollStatus."Payroll Status"::Calculated then begin
                             if ShowMessages then
                                 Message(Text013, PayrollStatus."Payroll Status", "No.", PayrollStatus."Period Code");
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
 
                 if CalcGroupCode = '' then
@@ -156,7 +156,7 @@ report 17401 "Suggest Payroll Documents"
                         if TimesheetStatus.Status <> TimesheetStatus.Status::Released then begin
                             if ShowMessages then
                                 Message(Text014, TimesheetStatus.Status, "No.");
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
 
                     // check previous period
@@ -165,12 +165,12 @@ report 17401 "Suggest Payroll Documents"
                         if PayrollStatus."Payroll Status" < PayrollStatus."Payroll Status"::Posted then begin
                             if ShowMessages then
                                 Message(Text013, PayrollStatus."Payroll Status", "No.", PayrollStatus."Period Code");
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
                 end;
 
                 if Employee.Blocked then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 HeaderExist := CreateHeader;
                 if HeaderExist then
@@ -181,7 +181,7 @@ report 17401 "Suggest Payroll Documents"
                           PayrollDocument.TableCaption,
                           FieldCaption("No."), "No.",
                           PayrollCalcPeriod.FieldCaption(Code), PayrollCalcPeriod.Code);
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 Window.Update(1, "No.");
@@ -297,7 +297,7 @@ report 17401 "Suggest Payroll Documents"
     begin
         EmployeeNumber := 0;
 
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Payroll Document Nos.");
 
         ACYRate := 1;
@@ -461,7 +461,7 @@ report 17401 "Suggest Payroll Documents"
             if (PayrollCalcGr.Type = PayrollCalcGr.Type::Between) and
                ("Employee Ledger Entry No." <> 0)
             then begin
-                PstdPayrollDocLine.Reset;
+                PstdPayrollDocLine.Reset();
                 PstdPayrollDocLine.SetCurrentKey("Employee No.", "Period Code");
                 PstdPayrollDocLine.SetRange("Employee No.", "Employee No.");
                 PstdPayrollDocLine.SetRange("Period Code", "Period Code");
@@ -483,19 +483,19 @@ report 17401 "Suggest Payroll Documents"
     local procedure CreateHeader(): Boolean
     begin
         if not CreateNewDocs then begin
-            PayrollDocument.Reset;
+            PayrollDocument.Reset();
             PayrollDocument.SetCurrentKey("Employee No.");
             PayrollDocument.SetRange("Employee No.", Employee."No.");
             PayrollDocument.SetRange("Period Code", PayrollCalcPeriod.Code);
             if PayrollDocument.FindFirst then begin
-                PayrollDocLine.Reset;
+                PayrollDocLine.Reset();
                 PayrollDocLine.SetRange("Document No.", PayrollDocument."No.");
                 PayrollDocLine.DeleteAll(true);
                 exit(true);
             end;
         end;
 
-        PayrollDocument.Init;
+        PayrollDocument.Init();
         PayrollDocument."No." := '';
         PayrollDocument.Insert(true);
         PayrollDocument.Validate("Employee No.", Employee."No.");
@@ -510,7 +510,7 @@ report 17401 "Suggest Payroll Documents"
               Format(PayrollCalcPeriod."Ending Date", 0, '<Month Text> <Year4>')),
             1,
             MaxStrLen(PayrollDocument."Posting Description"));
-        PayrollDocument.Modify;
+        PayrollDocument.Modify();
 
         exit(true);
     end;
@@ -570,11 +570,11 @@ report 17401 "Suggest Payroll Documents"
             "Bonus Type" := PayrollElement."Bonus Type";
 
             // ÅàÉàìÄæ ÉÇæòÄäìÄâÄ æùàÆÇ
-            PayrollCalcTypeLine.Reset;
+            PayrollCalcTypeLine.Reset();
             PayrollCalcTypeLine.SetRange("Element Code", PayrollElement.Code);
             if PayrollCalcTypeLine.FindFirst then
                 if PayrollCalcTypeLine."Payroll Posting Group" <> '' then begin
-                    PayrollPostingGr.Reset;
+                    PayrollPostingGr.Reset();
                     PayrollPostingGr.SetRange(Code, PayrollCalcTypeLine."Payroll Posting Group");
                     if PayrollPostingGr.FindFirst then begin
                         if PayrollPostingGr."Account No." <> '' then

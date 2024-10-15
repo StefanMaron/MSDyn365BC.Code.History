@@ -152,7 +152,7 @@ table 26572 "XML Element Expression Line"
         RecordRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        CompInfo.Get;
+        CompInfo.Get();
         case Source of
             Source::"Company Information":
                 RecordRef.GetTable(CompInfo);
@@ -218,14 +218,14 @@ table 26572 "XML Element Expression Line"
     begin
         XMLElementLine.Get("Report Code", "Base XML Element Line No.");
         XMLElementLine.UpdateElementValue(Rec, DeleteRecord);
-        XMLElementLine.Modify;
+        XMLElementLine.Modify();
         exit(XMLElementLine.Value);
     end;
 
     [Scope('OnPrem')]
     procedure CheckReportDataExistence()
     begin
-        StatutoryReportSetup.Get;
+        StatutoryReportSetup.Get();
         if not StatutoryReportSetup."Setup Mode" then begin
             XMLElementLine.Get("Report Code", "Base XML Element Line No.");
             StatutoryReport.Get("Report Code");

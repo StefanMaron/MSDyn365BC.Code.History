@@ -22,10 +22,10 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntPurch.Reset;
+                ItemChargeAssgntPurch.Reset();
                 ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                 ItemChargeAssgntPurch.SetRange("Document No.", "No.");
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Quantity Invoiced", '<>0');
@@ -37,7 +37,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
                         if not PurchLine.Find('-') then begin
-                            PurchLine.LockTable;
+                            PurchLine.LockTable();
                             if not PurchLine.Find('-') then begin
                                 PurchLine.SetRange("Return Qty. Shipped Not Invd.");
                                 ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
@@ -50,12 +50,12 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                         then begin
                                             if PurchLine.Type = PurchLine.Type::"Charge (Item)" then begin
                                                 ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-                                                ItemChargeAssgntPurch.DeleteAll;
+                                                ItemChargeAssgntPurch.DeleteAll();
                                             end;
                                             if PurchLine.HasLinks then
                                                 PurchLine.DeleteLinks;
                                             OnBeforePurchLineDelete(PurchLine);
-                                            PurchLine.Delete;
+                                            PurchLine.Delete();
                                         end else
                                             AllLinesDeleted := false;
                                     until PurchLine.Next = 0;
@@ -68,7 +68,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
-                                    PurchCommentLine.DeleteAll;
+                                    PurchCommentLine.DeleteAll();
 
                                     WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -81,7 +81,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
                                     Delete;
                                 end;
-                                Commit;
+                                Commit();
                             end;
                         end;
                     end;

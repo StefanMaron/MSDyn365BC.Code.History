@@ -114,7 +114,7 @@ codeunit 14931 "Factura-Invoice Report Helper"
         ExcelReportBuilderMgr.AddDataToSection('AmountInclTaxTotal', AmountArrayTxt[3]);
 
         if IsProforma then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             ExcelReportBuilderMgr.AddDataToSection('BankName', CompanyInformation."Bank Name");
             ExcelReportBuilderMgr.AddDataToSection('BankCity', CompanyInformation."Bank City");
             ExcelReportBuilderMgr.AddDataToSection('CompanyINN', CompanyInformation."VAT Registration No.");
@@ -150,7 +150,7 @@ codeunit 14931 "Factura-Invoice Report Helper"
         CurrencyDigitalCode := '';
         CurrencyDescription := '';
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup."LCY Code";
         end;
 

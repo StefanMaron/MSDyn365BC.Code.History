@@ -15,7 +15,7 @@ report 5692 "Calculate Depreciation"
             trigger OnAfterGetRecord()
             begin
                 if Inactive or Blocked or "Undepreciable FA" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalculateDepr.DepreciationBonus(DeprBonus);
 
@@ -45,7 +45,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine."Employee No." := "Responsible Employee";
                         TempFAJnlLine."Depr. Period Starting Date" := Period;
                         TempFAJnlLine."Tax Difference Code" := "Tax Difference Code";
-                        TempFAJnlLine.Insert;
+                        TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::"Custom 1";
@@ -57,7 +57,7 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine."Employee No." := "Responsible Employee";
                         TempGenJnlLine."Depr. Period Starting Date" := Period;
                         TempGenJnlLine."Tax Difference Code" := "Tax Difference Code";
-                        TempGenJnlLine.Insert;
+                        TempGenJnlLine.Insert();
                     end;
 
                 if DeprAmount <> 0 then
@@ -73,7 +73,7 @@ report 5692 "Calculate Depreciation"
                         TempFAJnlLine."Employee No." := "Responsible Employee";
                         TempFAJnlLine."Depr. Bonus" := DeprBonus;
                         TempFAJnlLine."Tax Difference Code" := "Tax Difference Code";
-                        TempFAJnlLine.Insert;
+                        TempFAJnlLine.Insert();
                     end else begin
                         TempGenJnlLine."Account No." := "No.";
                         TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::Depreciation;
@@ -86,7 +86,7 @@ report 5692 "Calculate Depreciation"
                         TempGenJnlLine."Depr. Period Starting Date" := Period;
                         TempGenJnlLine."Depr. Bonus" := DeprBonus;
                         TempGenJnlLine."Tax Difference Code" := "Tax Difference Code";
-                        TempGenJnlLine.Insert;
+                        TempGenJnlLine.Insert();
                     end;
             end;
 
@@ -94,7 +94,7 @@ report 5692 "Calculate Depreciation"
             begin
                 with FAJnlLine do begin
                     if TempFAJnlLine.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                         if DocumentNo = '' then
@@ -137,7 +137,7 @@ report 5692 "Calculate Depreciation"
 
                 with GenJnlLine do begin
                     if TempGenJnlLine.Find('-') then begin
-                        LockTable;
+                        LockTable();
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                         if DocumentNo = '' then
@@ -188,7 +188,7 @@ report 5692 "Calculate Depreciation"
                 DeprBook.Get(DeprBookCode);
                 if not (DeprBook."No. of Days in Fiscal Year" in [0, 360]) then
                     if not Confirm(Text12412, false, DeprBookCode, DeprBook."No. of Days in Fiscal Year") then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
         }
     }
@@ -359,7 +359,7 @@ report 5692 "Calculate Depreciation"
             PostingDate := WorkDate;
             DeprUntilDate := WorkDate;
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := GetDeprBookCode;
             end;
 
@@ -549,7 +549,7 @@ report 5692 "Calculate Depreciation"
 
     local procedure GetDeprBookCode(): Code[10]
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" then
             exit(FASetup."Release Depr. Book");
         exit(FASetup."Default Depr. Book");

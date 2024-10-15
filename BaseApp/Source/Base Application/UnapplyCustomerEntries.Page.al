@@ -191,7 +191,7 @@ page 623 "Unapply Customer Entries"
                     CustEntryApplyPostedEntries.PostUnApplyCustomer(DtldCustLedgEntry2, DocNo, PostingDate);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll;
+                    DeleteAll();
                     Message(Text009);
 
                     CurrPage.Close;
@@ -257,7 +257,7 @@ page 623 "Unapply Customer Entries"
         end;
         DtldCustLedgEntry.SetRange("Customer No.", DtldCustLedgEntry2."Customer No.");
         OnInsertEntriesOnAfterSetFilters(DtldCustLedgEntry, DtldCustLedgEntry2);
-        DeleteAll;
+        DeleteAll();
         if DtldCustLedgEntry.FindSet then
             repeat
                 if (DtldCustLedgEntry."Entry Type" <> DtldCustLedgEntry."Entry Type"::"Initial Entry") and

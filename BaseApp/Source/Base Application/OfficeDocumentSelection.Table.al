@@ -10,12 +10,10 @@ table 1620 "Office Document Selection"
             OptionCaption = 'Sales,Purchase';
             OptionMembers = Sales,Purchase;
         }
-        field(2; "Document Type"; Option)
+        field(2; "Document Type"; Enum "Incoming Document Type")
         {
             Caption = 'Document Type';
             Description = 'Type of the referenced document.';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(3; "Document No."; Code[20])
         {

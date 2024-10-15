@@ -63,7 +63,7 @@ table 26556 "Table Individual Requisite"
         StatutoryReportTable.Get("Report Code", "Table Code");
         if StatutoryReportTable."Page Indic. Requisite Line No." = "Line No." then begin
             StatutoryReportTable."Page Indic. Requisite Line No." := 0;
-            StatutoryReportTable.Modify;
+            StatutoryReportTable.Modify();
         end;
 
         StatReportTableMapping.SetRange("Report Code", "Report Code");
@@ -71,7 +71,7 @@ table 26556 "Table Individual Requisite"
         StatReportTableMapping.SetRange("Table Row No.", "Line No.");
         StatReportTableMapping.SetRange("Table Column No.", 0);
         if not StatReportTableMapping.IsEmpty then
-            StatReportTableMapping.DeleteAll;
+            StatReportTableMapping.DeleteAll();
     end;
 
     var

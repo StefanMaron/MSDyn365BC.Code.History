@@ -64,7 +64,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         if GLCorrAnalysisView2.IsEmpty then
             exit;
 
-        GLCorrAnalysisView2.LockTable;
+        GLCorrAnalysisView2.LockTable();
         if GLCorrAnalysisView2.FindSet then
             repeat
                 UpdateOne(GLCorrAnalysisView2, not DirectlyFromPosting);
@@ -89,7 +89,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         if ShowProgressWindow then
             InitWindow;
 
-        GLCorrEntry.Reset;
+        GLCorrEntry.Reset();
         GLCorrEntry.SetRange("Entry No.", GLCorrAnalysisView."Last Entry No." + 1, MaxNumber);
         if GLCorrEntry.FindLast then begin
             LastEntryNo := GLCorrEntry."Entry No.";
@@ -101,7 +101,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         end;
 
         GLCorrAnalysisView."Last Date Updated" := Today;
-        GLCorrAnalysisView.Modify;
+        GLCorrAnalysisView.Modify();
 
         if ShowProgressWindow then
             Window.Close;
@@ -177,11 +177,11 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         if TempGLCorrAnalysisViewEntry.Find then begin
             TempGLCorrAnalysisViewEntry.Amount := TempGLCorrAnalysisViewEntry.Amount + GLCorrEntry.Amount;
             TempGLCorrAnalysisViewEntry."Amount (ACY)" := TempGLCorrAnalysisViewEntry."Amount (ACY)" + GLCorrEntry."Amount (ACY)";
-            TempGLCorrAnalysisViewEntry.Modify;
+            TempGLCorrAnalysisViewEntry.Modify();
         end else begin
             TempGLCorrAnalysisViewEntry.Amount := GLCorrEntry.Amount;
             TempGLCorrAnalysisViewEntry."Amount (ACY)" := GLCorrEntry."Amount (ACY)";
-            TempGLCorrAnalysisViewEntry.Insert;
+            TempGLCorrAnalysisViewEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -194,18 +194,18 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             Window.Update(6, Text011);
         if TempGLCorrAnalysisViewEntry.FindSet then
             repeat
-                GLCorrAnalysisViewEntry.Init;
+                GLCorrAnalysisViewEntry.Init();
                 GLCorrAnalysisViewEntry := TempGLCorrAnalysisViewEntry;
-                if not GLCorrAnalysisViewEntry.Insert then begin
+                if not GLCorrAnalysisViewEntry.Insert() then begin
                     GLCorrAnalysisViewEntry.Find;
                     GLCorrAnalysisViewEntry.Amount :=
                       GLCorrAnalysisViewEntry.Amount + TempGLCorrAnalysisViewEntry.Amount;
                     GLCorrAnalysisViewEntry."Amount (ACY)" :=
                       GLCorrAnalysisViewEntry."Amount (ACY)" + TempGLCorrAnalysisViewEntry."Amount (ACY)";
-                    GLCorrAnalysisViewEntry.Modify;
+                    GLCorrAnalysisViewEntry.Modify();
                 end;
             until TempGLCorrAnalysisViewEntry.Next = 0;
-        TempGLCorrAnalysisViewEntry.DeleteAll;
+        TempGLCorrAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -337,7 +337,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
     begin
         with TempDimBuf do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             Init;
             "Dimension Value Code" := DimValue;
             Insert;
@@ -352,7 +352,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         InFilters: Boolean;
     begin
         if not FilterIsInitialized then begin
-            TempDimEntryBuffer.DeleteAll;
+            TempDimEntryBuffer.DeleteAll();
             FilterIsInitialized := true;
             GLCorrAnalysisViewFilter.SetRange("G/L Corr. Analysis View Code", GLCorrAnalysisView.Code);
             FiltersExist := not GLCorrAnalysisViewFilter.IsEmpty;
@@ -378,7 +378,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             TempDimEntryBuffer."Dimension Entry No." := 1
         else
             TempDimEntryBuffer."Dimension Entry No." := 0;
-        TempDimEntryBuffer.Insert;
+        TempDimEntryBuffer.Insert();
         exit(InFilters);
     end;
 }

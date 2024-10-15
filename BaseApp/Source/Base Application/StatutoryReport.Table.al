@@ -279,12 +279,12 @@ table 26550 "Statutory Report"
 
         StatReportExcelSheet.SetRange("Report Code", Code);
         StatReportExcelSheet.SetRange("Report Data No.", '');
-        StatReportExcelSheet.DeleteAll;
+        StatReportExcelSheet.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        StatutoryReportSetup.Get;
+        StatutoryReportSetup.Get();
         if not Header then begin
             if "Company Address Code" = '' then
                 "Company Address Code" := StatutoryReportSetup."Default Comp. Addr. Code";
@@ -626,12 +626,12 @@ table 26550 "Statutory Report"
             exit;
 
         i := 0;
-        EndOfLoop := SheetNames.Count;
+        EndOfLoop := SheetNames.Count();
         while i <= EndOfLoop - 1 do begin
             SheetName := SheetNames.Item(i);
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName);
 
-            StatutoryReportTable.Reset;
+            StatutoryReportTable.Reset();
             StatutoryReportTable.SetRange("Report Code", Code);
             StatutoryReportTable.SetRange("Excel Sheet Name", XlWrkShtReader.Name);
             if StatutoryReportTable.FindSet then
@@ -735,7 +735,7 @@ table 26550 "Statutory Report"
             repeat
                 StatutoryReportTable := StatutoryReportTableFrom;
                 StatutoryReportTable."Report Code" := Code;
-                StatutoryReportTable.Insert;
+                StatutoryReportTable.Insert();
                 StatutoryReportTable.CopyTableStructure(CopyReportFromCode, StatutoryReportTableFrom.Code);
             until StatutoryReportTableFrom.Next = 0;
 
@@ -744,7 +744,7 @@ table 26550 "Statutory Report"
             repeat
                 XMLElementLine := XMLElementLineFrom;
                 XMLElementLine."Report Code" := Code;
-                XMLElementLine.Insert;
+                XMLElementLine.Insert();
                 XMLElementLine.CopyElement(CopyReportFromCode);
             until XMLElementLineFrom.Next = 0;
 
@@ -753,7 +753,7 @@ table 26550 "Statutory Report"
             repeat
                 StatReportTableMapping := StatReportTableMappingFrom;
                 StatReportTableMapping."Report Code" := Code;
-                StatReportTableMapping.Insert;
+                StatReportTableMapping.Insert();
             until StatReportTableMappingFrom.Next = 0;
     end;
 
@@ -780,12 +780,12 @@ table 26550 "Statutory Report"
                         EntryNo := EntryNo + 1;
                         SectionCellNameBuffer."Entry No." := EntryNo;
                         SectionCellNameBuffer."Section Excel Cell Name" := StatutoryReportTable."Page Indic. Excel Cell Name";
-                        SectionCellNameBuffer.Insert;
+                        SectionCellNameBuffer.Insert();
                     end;
                 end;
             until StatutoryReportTable.Next = 0;
 
-        SectionCellNameBuffer.Reset;
+        SectionCellNameBuffer.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -793,7 +793,7 @@ table 26550 "Statutory Report"
     var
         StatutoryReportTable: Record "Statutory Report Table";
     begin
-        SectionCellNameBuffer.Reset;
+        SectionCellNameBuffer.Reset();
         StatutoryReportTable.SetRange("Report Code", Code);
         if SectionCellNameBuffer.FindSet then
             repeat
@@ -829,7 +829,7 @@ table 26550 "Statutory Report"
         if not StatReportExcelSheet.IsEmpty then
             if not Confirm(Text028, false) then
                 Error('');
-        StatReportExcelSheet.DeleteAll;
+        StatReportExcelSheet.DeleteAll();
 
         FileMgt.IsAllowedPath(FileName, false);
         XlWrkBkReader := XlWrkBkReader.Open(FileName);
@@ -839,7 +839,7 @@ table 26550 "Statutory Report"
             exit;
 
         i := 0;
-        EndOfLoop := SheetNames.Count;
+        EndOfLoop := SheetNames.Count();
         while i <= EndOfLoop - 1 do begin
             SheetName := SheetNames.Item(i);
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName);
@@ -849,7 +849,7 @@ table 26550 "Statutory Report"
                 StatReportExcelSheet."Report Data No." := '';
                 StatReportExcelSheet."Sequence No." := i;
                 StatReportExcelSheet."Sheet Name" := XlWrkShtReader.Name;
-                StatReportExcelSheet.Insert;
+                StatReportExcelSheet.Insert();
             end;
 
             i := i + 1;
@@ -898,7 +898,7 @@ table 26550 "Statutory Report"
             exit;
 
         XMLElementLine.SetRange("Report Code", Code);
-        XMLElementLine.DeleteAll;
+        XMLElementLine.DeleteAll();
 
         FormatVersion.CalcFields("XML Schema");
         TempBlob.FromRecord(FormatVersion, FormatVersion.FieldNo("XML Schema"));
@@ -1074,7 +1074,7 @@ table 26550 "Statutory Report"
                         XMLElementLine."Data Type" := DataType;
                 end;
         XMLElementLine."Fraction Digits" := FractionDigits;
-        XMLElementLine.Insert;
+        XMLElementLine.Insert();
 
         SequenceNo := SequenceNo + 1;
 

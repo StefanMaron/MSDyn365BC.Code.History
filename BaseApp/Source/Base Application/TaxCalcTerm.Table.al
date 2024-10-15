@@ -24,10 +24,10 @@ table 17311 "Tax Calc. Term"
                             Error('');
                         TaxCalcSection.Get("Section Code");
                         TaxCalcSection.ValidateChange;
-                        TaxCalcTermFormula.Reset;
+                        TaxCalcTermFormula.Reset();
                         TaxCalcTermFormula.SetRange("Section Code", "Section Code");
                         TaxCalcTermFormula.SetRange("Term Code", "Term Code");
-                        TaxCalcTermFormula.DeleteAll;
+                        TaxCalcTermFormula.DeleteAll();
                         Validate(Expression, '');
                     end;
             end;
@@ -104,10 +104,10 @@ table 17311 "Tax Calc. Term"
         TaxCalcSection.Get("Section Code");
         TaxCalcSection.ValidateChange;
 
-        TaxCalcTermFormula.Reset;
+        TaxCalcTermFormula.Reset();
         TaxCalcTermFormula.SetRange("Section Code", "Section Code");
         TaxCalcTermFormula.SetRange("Term Code", "Term Code");
-        TaxCalcTermFormula.DeleteAll;
+        TaxCalcTermFormula.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -151,7 +151,7 @@ table 17311 "Tax Calc. Term"
             GenTermProfile."Process Sign (Line)" := TaxCalcTermFormula.FieldNo("Process Sign");
             GenTermProfile."Process Division by Zero(Line)" := TaxCalcTermFormula.FieldNo("Process Division by Zero");
 
-            GenTermProfile.Insert;
+            GenTermProfile.Insert();
         end;
     end;
 }

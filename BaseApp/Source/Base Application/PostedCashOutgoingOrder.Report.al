@@ -94,7 +94,7 @@ report 12457 "Posted Cash Outgoing Order"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CashOrderReportHelper.InitOutgoingReportTmpl;
     end;
 

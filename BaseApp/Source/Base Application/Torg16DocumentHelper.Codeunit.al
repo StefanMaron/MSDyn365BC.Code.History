@@ -16,7 +16,7 @@ codeunit 14939 "Torg-16 Document Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("TORG-16 Template Code");
         ExcelReportBuilderMgr.InitTemplate(InventorySetup."TORG-16 Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');
@@ -31,7 +31,7 @@ codeunit 14939 "Torg-16 Document Helper"
     begin
         ExcelReportBuilderMgr.AddSection('REPORTHEADER');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderMgr.AddDataToSection('CompanyName', StdRepMgt.GetCompanyName);
 
         if Location.Get(LocationCode) then

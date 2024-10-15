@@ -245,7 +245,7 @@ table 17307 "Tax Calc. Section"
             Error(Text1009, Status);
 
         SectionReset;
-        TaxCalcHeader.Reset;
+        TaxCalcHeader.Reset();
         TaxCalcHeader.SetRange("Section Code", Code);
         TaxCalcHeader.DeleteAll(true);
 

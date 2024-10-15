@@ -50,7 +50,7 @@ table 17202 "Tax Register Template"
                     "Expression Type"::Norm:
                         begin
                             TestField("Norm Jurisdiction Code");
-                            TaxRegNormGroup.Reset;
+                            TaxRegNormGroup.Reset();
                             TaxRegNormGroup.FilterGroup(2);
                             TaxRegNormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                             TaxRegNormGroup.FilterGroup(0);
@@ -64,7 +64,7 @@ table 17202 "Tax Register Template"
                         end;
                     "Expression Type"::Term:
                         begin
-                            TaxRegTerm.Reset;
+                            TaxRegTerm.Reset();
                             TaxRegTerm.FilterGroup(2);
                             TaxRegTerm.SetRange("Section Code", "Section Code");
                             TaxRegTerm.FilterGroup(0);
@@ -80,7 +80,7 @@ table 17202 "Tax Register Template"
                         begin
                             "Link Tax Register No." := Code;
                             TaxReg.Get("Section Code", "Link Tax Register No.");
-                            Field.Reset;
+                            Field.Reset();
                             Field.SetFilter("No.", MakeFieldFilter(TaxReg."Table ID"));
                             if Field.GetFilter("No.") <> '' then begin
                                 Field.SetRange(TableNo, TaxReg."Table ID");
@@ -98,9 +98,9 @@ table 17202 "Tax Register Template"
                                             TestField("Tax Difference Code Filter", '');
 
                                         if Field."No." = TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA") then begin
-                                            FASetup.Get;
+                                            FASetup.Get();
                                             FASetup.TestField("Release Depr. Book");
-                                            TaxRegSetup.Get;
+                                            TaxRegSetup.Get();
                                             TaxRegSetup.TestField("Tax Depreciation Book");
                                             if not ("Depr. Book Filter" in
                                                     [FASetup."Release Depr. Book", TaxRegSetup."Tax Depreciation Book"])
@@ -291,7 +291,7 @@ table 17202 "Tax Register Template"
                 then
                     exit;
 
-                TaxRegLineSetup.Reset;
+                TaxRegLineSetup.Reset();
                 TaxRegLineSetup.FilterGroup(2);
                 TaxRegLineSetup.SetRange("Section Code", "Section Code");
                 TaxRegLineSetup.FilterGroup(0);
@@ -314,7 +314,7 @@ table 17202 "Tax Register Template"
                     CheckSourcePay;
                     TaxRegSection.Get("Section Code");
                     TaxRegSection.ValidateChangeDeclaration;
-                    TaxRegLineSetup.Reset;
+                    TaxRegLineSetup.Reset();
                     TaxRegLineSetup.SetRange("Section Code", "Section Code");
                     TaxRegLineSetup.SetRange("Tax Register No.", "Link Tax Register No.");
                     TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
@@ -463,9 +463,9 @@ table 17202 "Tax Register Template"
             trigger OnValidate()
             begin
                 if "Depr. Book Filter" <> xRec."Depr. Book Filter" then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     FASetup.TestField("Release Depr. Book");
-                    TaxRegSetup.Get;
+                    TaxRegSetup.Get();
                     TaxRegSetup.TestField("Tax Depreciation Book");
                     TestField("Expression Type", "Expression Type"::SumField);
                     TaxRegSection.Get("Section Code");
@@ -558,7 +558,7 @@ table 17202 "Tax Register Template"
     [Scope('OnPrem')]
     procedure MakeFieldFilter(TaxRegTableNo: Integer) FilterText: Text[1024]
     begin
-        Field.Reset;
+        Field.Reset();
         Field.SetRange(TableNo, TaxRegTableNo);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         if Field.FindSet then begin
@@ -573,7 +573,7 @@ table 17202 "Tax Register Template"
     local procedure CheckElementType()
     begin
         if ("Term Line Code" <> '') and ("Element Type Totaling" <> '') then begin
-            TaxRegLineSetup.Reset;
+            TaxRegLineSetup.Reset();
             TaxRegLineSetup.SetRange("Section Code", "Section Code");
             TaxRegLineSetup.SetRange("Tax Register No.", Code);
             TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
@@ -590,7 +590,7 @@ table 17202 "Tax Register Template"
     local procedure CheckSourcePay()
     begin
         if ("Term Line Code" <> '') and ("Payroll Source Totaling" <> '') then begin
-            TaxRegLineSetup.Reset;
+            TaxRegLineSetup.Reset();
             TaxRegLineSetup.SetFilter("Section Code", "Section Code");
             TaxRegLineSetup.SetRange("Tax Register No.", Code);
             TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
@@ -666,7 +666,7 @@ table 17202 "Tax Register Template"
         if "Term Line Code" = '' then
             TaxRegLineSetup.Init
         else begin
-            TaxRegLineSetup.Reset;
+            TaxRegLineSetup.Reset();
             TaxRegLineSetup.SetFilter("Section Code", "Section Code");
             TaxRegLineSetup.SetRange("Tax Register No.", Code);
             TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
@@ -690,7 +690,7 @@ table 17202 "Tax Register Template"
         if "Term Line Code" = '' then
             TaxRegLineSetup.Init
         else begin
-            TaxRegLineSetup.Reset;
+            TaxRegLineSetup.Reset();
             TaxRegLineSetup.SetFilter("Section Code", "Section Code");
             TaxRegLineSetup.SetRange("Tax Register No.", Code);
             TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
@@ -753,7 +753,7 @@ table 17202 "Tax Register Template"
         GenTemplateProfile."Dimension Code (Dim)" := TaxRegDimFilter.FieldNo("Dimension Code");
         GenTemplateProfile."Dimension Value Filter (Dim)" := TaxRegDimFilter.FieldNo("Dimension Value Filter");
 
-        GenTemplateProfile.Insert;
+        GenTemplateProfile.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -773,7 +773,7 @@ table 17202 "Tax Register Template"
     begin
         TaxRegisterName.Get("Section Code", Code);
         if TaxRegisterName."Table ID" = DATABASE::"Tax Register FA Entry" then begin
-            TaxRegisterSetup.Get;
+            TaxRegisterSetup.Get();
             "Depr. Book Filter" := TaxRegisterSetup."Tax Depreciation Book";
         end;
     end;

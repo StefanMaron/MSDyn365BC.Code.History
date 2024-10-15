@@ -30,9 +30,9 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryCRMIntegration.CreateIntegrationTableData(0, 0);
         // [GIVEN] A mapping with direction ToIntegrationTable
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Executing scheduled synch.
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Job direction matches the Integration Table Mapping direction.
         IntegrationSynchJob.FindLast;
@@ -44,9 +44,9 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryCRMIntegration.CreateIntegrationTableData(0, 0);
         // [GIVEN] A mapping with direction FromIntegrationTable
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Executing scheduled synch.
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Job direction matches the Integration Table Mapping direction.
         IntegrationSynchJob.FindLast;
@@ -58,9 +58,9 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryCRMIntegration.CreateIntegrationTableData(0, 0);
         // [GIVEN] A mapping with direction Bidrectional
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Executing scheduled synch.
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] Two Jobs are created: the first with Direction "ToIntegrationTable" and the second with Direction "FromIntegrationTable"
         Assert.RecordCount(IntegrationSynchJob, 2);
@@ -96,7 +96,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         TableFilter.AddTable(UnitOfMeasure.TableCaption, DATABASE::"Unit of Measure");
         TableFilter.SetView(UnitOfMeasure.TableCaption, UnitOfMeasure.GetView);
 
-        UnitOfMeasure.Reset;
+        UnitOfMeasure.Reset();
         UnitOfMeasure.SetView(TableFilter.GetView(UnitOfMeasure.TableCaption, true));
         Assert.AreEqual(2, UnitOfMeasure.Count, 'Expected the filter to limit the rowcount');
 
@@ -104,7 +104,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.SetTableFilter(TableFilter.GetView(UnitOfMeasure.TableCaption, true));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] 2 records should be created in CRM
@@ -113,7 +113,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         // [GIVEN] The mapping filter is blank
         IntegrationTableMapping.SetTableFilter('');
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [GIVEN] The last record, not included in the filter, is coupled and modified.
         TestUid := CreateGuid;
@@ -124,23 +124,23 @@ codeunit 139169 "CRM Synch. Job Scenarios"
             Insert;
         end;
         // Create coupling
-        UnitOfMeasure.Reset;
+        UnitOfMeasure.Reset();
         UnitOfMeasure.FindLast;
         CRMIntegrationRecord.CoupleCRMIDToRecordID(
           TestIntegrationTable."Integration Uid", UnitOfMeasure.RecordId);
         IntegrationRecord.FindByRecordId(UnitOfMeasure.RecordId);
         // Ensure it looks new
         IntegrationRecord."Modified On" := CreateDateTime(CalcDate('<+1Y>', Today), Time);
-        IntegrationRecord.Modify;
+        IntegrationRecord.Modify();
 
         // [WHEN] Scheduled synch executes
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
 
         // [THEN] The coupled record outside the original filter is updated
-        UnitOfMeasure.Reset;
+        UnitOfMeasure.Reset();
         UnitOfMeasure.FindLast;
         // Refresh row data
-        TestIntegrationTable.Reset;
+        TestIntegrationTable.Reset();
         TestIntegrationTable.Get(TestUid);
         // Verify the code field was transfered
         Assert.AreEqual(UnitOfMeasure.Description, TestIntegrationTable."Integration Field Value", 'Expected the value be synchronized');
@@ -169,14 +169,14 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         TableFilter.AddTable(TestIntegrationTable.TableCaption, DATABASE::"Test Integration Table");
         TableFilter.SetView(TestIntegrationTable.TableCaption, TestIntegrationTable.GetView);
 
-        TestIntegrationTable.Reset;
+        TestIntegrationTable.Reset();
         TestIntegrationTable.SetView(TableFilter.GetView(TestIntegrationTable.TableCaption, true));
         Assert.AreEqual(1, TestIntegrationTable.Count, 'Expected the filter to limit the rowcount');
 
         IntegrationTableMapping.SetIntegrationTableFilter(TableFilter.GetView(TestIntegrationTable.TableCaption, true));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] 1 records should be created in NAV
@@ -207,14 +207,14 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CRMSystemuser.Get(CRMConnectionSetup.GetIntegrationUserID);
         TestIntegrationTable.FindSet;
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
-        TestIntegrationTable.Modify;
+        TestIntegrationTable.Modify();
         TestIntegrationTable.Next;
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
-        TestIntegrationTable.Modify;
+        TestIntegrationTable.Modify();
 
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] 1 records should be created in NAV
@@ -245,15 +245,15 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] The coupled record has different data on both sides
         // This is the default at the moment because both are randomly generated, but just in case:
         CRMAccount.Name := 'New Name';
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         // Make sure synchronization happens from CRM to NAV
         IntegrationTableMapping.Get('CUSTOMER');
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
-        NumCustomerRecordsBeforeSynch := Customer.Count;
+        NumCustomerRecordsBeforeSynch := Customer.Count();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
 
         // [THEN] The coupled record should be updated
@@ -283,7 +283,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.SetTableFilter('BADDATA');
         IntegrationTableMapping.SetIntegrationTableFilter('');
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Scheduled synch executes
         // [THEN] An error should occur
         asserterror CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
@@ -294,7 +294,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.SetTableFilter('');
         IntegrationTableMapping.SetIntegrationTableFilter('More BADDATA');
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Scheduled synch executes
         // [THEN] An error should occur
         asserterror CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
@@ -320,12 +320,12 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         ExpectedLatestDateTime := CreateDateTime(Today + 1, Time);
         TestIntegrationTable.FindLast;
         TestIntegrationTable."Integration Modified Field" := ExpectedLatestDateTime;
-        TestIntegrationTable.Modify;
+        TestIntegrationTable.Modify();
 
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := 0DT;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] The mapping Synch Integration Table modified On Filter should be updated with the latest modified on datetime of the two synched records
@@ -337,8 +337,8 @@ codeunit 139169 "CRM Synch. Job Scenarios"
           ExpectedLatestDateTime, IntegrationTableMapping."Synch. Modified On Filter",
           'Expected the latest modified on value to go into the mapping "Synch. Modified On Filter" value.');
 
-        UnitOfMeasure.Reset;
-        TestIntegrationTable.Reset;
+        UnitOfMeasure.Reset();
+        TestIntegrationTable.Reset();
 
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A NAV source of 2 records that can be copied to CRM
@@ -347,11 +347,11 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         UnitOfMeasure.FindLast;
         IntegrationRecord.FindByRecordId(UnitOfMeasure.RecordId);
         IntegrationRecord."Modified On" := ExpectedLatestDateTime;
-        IntegrationRecord.Modify;
+        IntegrationRecord.Modify();
 
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping."Synch. Modified On Filter" := 0DT;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] The mapping Synch Integration Table modified On Filter should be updated with the latest modified on datetime of the two synched records
@@ -415,7 +415,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreNotEqual(
           0DT, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.", 'Did not expect the synch. last modified on filter to be empty');
         IntegrationTableMapping."Synch. Modified On Filter" := 0DT;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Scheduled synch executes
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] The mapping should NOT be updated with the latest modified date.
@@ -446,11 +446,11 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LibraryCRMIntegration.CreateIntegrationTableData(2, 2);
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
         // [THEN] 4 records should exist in both system
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         Assert.AreEqual(4, TestIntegrationTable.Count, 'Expected the Integration Table row count to be 4');
         Assert.AreEqual(4, UnitOfMeasure.Count, 'Expected the Unit Of Measure row count to be 4');
@@ -472,10 +472,10 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] A mapping with direction = ToIntegrationTable
         // [GIVEN] A mapping with an invalid table filter and valid integration table filter
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         // [WHEN] Scheduled synch executes
         // [THEN] Two jobs should be created
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         Assert.AreEqual(2, IntegrationSynchJob.Count, 'Expected a bidirectional mapping synch. to create two jobs');
     end;
@@ -494,7 +494,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [THEN] Synch. Job entry is created with 1 inserted.
         Initialize;
 
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         SyncCRMAccountToCustomer(CRMAccount, 1, 0);
     end;
@@ -513,17 +513,17 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [THEN] Customer remains coupled to CRM Account
         // [THEN] Synch. Job entry is created with 1 modified.
         Initialize;
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         // Setup
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CRMAccount.ModifiedOn := CreateDateTime(CalcDate('<-1Y>', Today), Time);
-        CRMAccount.Modify;
+        CRMAccount.Modify();
         SyncCRMAccountToCustomer(CRMAccount, 1, 0);
 
         // Run
         CRMAccount.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CRMAccount.Name)), 1, MaxStrLen(CRMAccount.Name));
         CRMAccount.ModifiedOn := CreateDateTime(CalcDate('<+2D>', Today), Time);
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         SyncCRMAccountToCustomer(CRMAccount, 0, 1);
     end;
@@ -546,13 +546,13 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         IntegrationTableMapping.SetIntegrationTableFilter('');
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
 
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.FindFirst;
 
-        IntegrationSynchJob.DeleteAll;
+        IntegrationSynchJob.DeleteAll();
 
         // Run
         CODEUNIT.Run(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry);
@@ -597,7 +597,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         ResetDefaultCRMSetupConfiguration;
 
         // [GIVEN] CRM Connection is broken
-        CRMSystemuser.DeleteAll;
+        CRMSystemuser.DeleteAll();
 
         // [WHEN] Sync job for customer is being run
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
@@ -628,9 +628,13 @@ codeunit 139169 "CRM Synch. Job Scenarios"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 }

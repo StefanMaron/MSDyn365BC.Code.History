@@ -13,6 +13,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
         LibraryJournals: Codeunit "Library - Journals";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -266,6 +267,38 @@ codeunit 134930 "ERM Applies-To Doc. No."
     end;
 
     [Test]
+    [HandlerFunctions('ApplyEmployeeEntriesSelectDocModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure DocTypeNotChangedFromBlankForEmplAccTypeWhenLookUpApplToDocNoWithPaymentDocType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedDocType: Option;
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Payment] [Lookup]
+        // [SCENARIO 259808] "Document Type" is not changed from blank when Lookup "Applies-To Doc. No." = Posted Payment "No." for Employee Account Type on General Journal page.
+
+        // [GIVEN] Posted Payment "P".
+        // [GIVEN] Gen. Journal Line "J" with blank "Document Type" and "Account Type" = Employee.
+        PostedDocType := GenJournalLine."Applies-to Doc. Type"::Payment;
+        PrepareGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee,
+          PostedDocType, PostedDocNo, 1);
+
+        // [WHEN] Select line "J" and Lookup "Applies-To Doc. No." = "P" on General Journal page.
+        LibraryVariableStorage.Enqueue(PostedDocType);
+        LibraryVariableStorage.Enqueue(PostedDocNo);
+        GenJournalLine.LookUpAppliesToDocEmpl('');
+
+        // [THEN] "Document Type" is empty for line "J" on General Journal page.
+        // [THEN] "Applies-to Doc. Type" = "Document Type" of posted document "P" for line "J".
+        // [THEN] "Applies-to Doc. No." = "Document No." of posted document "P" for line "J".
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+        GenJournalLine.TestField("Applies-to Doc. Type", PostedDocType);
+        GenJournalLine.TestField("Applies-to Doc. No.", PostedDocNo);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure BalAccountTypeNotChangedWhenValidateApplyToDocNo()
     var
@@ -288,31 +321,6 @@ codeunit 134930 "ERM Applies-To Doc. No."
 
         // [THEN] Bal. Account Type = "Bank Account" in Payment Line
         GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostApplicationPageCanHandleLongExternalDocNo()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        PostApplicationPage: Page "Post Application";
-        ExternalDocNo: Code[35];
-        DocumentNo: Code[20];
-        PostingDate: Date;
-        MaxStrLength: Integer;
-    begin
-        // [SCENARIO 292999] Post Application Page can handle External Document No. of Max size
-
-        // [GIVEN] External Doc. No. of max length
-        MaxStrLength := MaxStrLen(CustLedgerEntry."External Document No.");
-        CustLedgerEntry."External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLength), 1, MaxStrLength);
-
-        // [WHEN] Calling SetValues on Post Application page with External Doc No of max size
-        PostApplicationPage.SetValues(LibraryUtility.GenerateGUID, WorkDate, CustLedgerEntry."External Document No.");
-
-        // [THEN] No error and the value is set correctly
-        PostApplicationPage.GetValues(DocumentNo, PostingDate, ExternalDocNo);
-        CustLedgerEntry.TestField("External Document No.", ExternalDocNo);
     end;
 
     local procedure PrepareGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; PostedDocType: Option; var PostedDocNo: Code[20]; Sign: Integer)
@@ -350,6 +358,8 @@ codeunit 134930 "ERM Applies-To Doc. No."
                 exit(LibrarySales.CreateCustomerNo);
             GenJournalLine."Account Type"::Vendor:
                 exit(LibraryPurchase.CreateVendorNo);
+            GenJournalLine."Account Type"::Employee:
+                exit(LibraryHumanResource.CreateEmployeeNoWithBankAccount);
         end;
     end;
 
@@ -357,11 +367,11 @@ codeunit 134930 "ERM Applies-To Doc. No."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document No." := DocNo;
         CustLedgerEntry.Open := true;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
     end;
 
     [ModalPageHandler]
@@ -388,6 +398,19 @@ codeunit 134930 "ERM Applies-To Doc. No."
         VendorLedgerEntry.FindFirst;
         ApplyVendorEntries.GotoRecord(VendorLedgerEntry);
         ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyEmployeeEntriesSelectDocModalPageHandler(var ApplyEmployeeEntries: TestPage "Apply Employee Entries")
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgerEntry.SetRange("Document Type", LibraryVariableStorage.DequeueInteger);
+        EmployeeLedgerEntry.SetRange("Document No.", LibraryVariableStorage.DequeueText);
+        EmployeeLedgerEntry.FindFirst;
+        ApplyEmployeeEntries.GotoRecord(EmployeeLedgerEntry);
+        ApplyEmployeeEntries.OK.Invoke;
     end;
 }
 

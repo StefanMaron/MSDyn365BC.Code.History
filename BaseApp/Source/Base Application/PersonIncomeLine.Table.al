@@ -223,10 +223,10 @@ table 17393 "Person Income Line"
         if xRec.Calculation then
             TestField(Calculation, false);
 
-        PersonIncomeEntry.Reset;
+        PersonIncomeEntry.Reset();
         PersonIncomeEntry.SetRange("Person Income No.", "Document No.");
         PersonIncomeEntry.SetRange("Person Income Line No.", "Line No.");
-        PersonIncomeEntry.DeleteAll;
+        PersonIncomeEntry.DeleteAll();
     end;
 
     trigger OnModify()
@@ -246,7 +246,7 @@ table 17393 "Person Income Line"
         PersonIncomeEntries: Page "Person Income Entries";
     begin
         Clear(PersonIncomeEntries);
-        PersonIncomeEntry.Reset;
+        PersonIncomeEntry.Reset();
         PersonIncomeEntry.SetRange("Person Income No.", "Document No.");
         PersonIncomeEntry.SetRange("Person Income Line No.", "Line No.");
         PersonIncomeEntry.SetRange("Period Code", "Period Code");

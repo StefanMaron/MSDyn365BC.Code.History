@@ -69,11 +69,11 @@ table 12410 "CD Tracking Setup"
     [Scope('OnPrem')]
     procedure TestDelete()
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Item Tracking Code", "Item Tracking Code");
         if Item.Find('-') then
             repeat
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.");
                 ItemLedgEntry.SetRange("Item No.", Item."No.");
                 ItemLedgEntry.SetRange("Location Code", "Location Code");

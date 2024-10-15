@@ -31,12 +31,12 @@ report 12430 "Create G/L Correspondence"
             trigger OnAfterGetRecord()
             begin
                 CorrespManagement.CreateCorrespEntries("G/L Entry");
-                CurrReport.Break;
+                CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                Commit;
+                Commit();
             end;
 
             trigger OnPreDataItem()
@@ -48,7 +48,7 @@ report 12430 "Create G/L Correspondence"
                         SetFilter("Transaction No.", '%1..', CorrespEntry."Transaction No." + 1);
                 end else begin
                     CorrespEntry.SetFilter("Transaction No.", TransactionFilter);
-                    CorrespEntry.DeleteAll;
+                    CorrespEntry.DeleteAll();
                 end;
             end;
         }

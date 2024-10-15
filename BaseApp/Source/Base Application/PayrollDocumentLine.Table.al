@@ -139,11 +139,11 @@ table 17415 "Payroll Document Line"
 
                 AvailabilityIndex := false;
 
-                PayrollCalcGroupLine.Reset;
+                PayrollCalcGroupLine.Reset();
                 PayrollCalcGroupLine.SetRange("Payroll Calc Group", Employee."Payroll Calc Group");
                 if PayrollCalcGroupLine.FindSet then
                     repeat
-                        PayrollCalcTypeLine.Reset;
+                        PayrollCalcTypeLine.Reset();
                         PayrollCalcTypeLine.SetRange("Calc Type Code", PayrollCalcGroupLine."Payroll Calc Type");
                         PayrollCalcTypeLine.SetRange("Element Code", "Element Code");
                         if PayrollCalcTypeLine.FindFirst then
@@ -521,30 +521,30 @@ table 17415 "Payroll Document Line"
 
     trigger OnDelete()
     begin
-        PayrollDocLineAE.Reset;
+        PayrollDocLineAE.Reset();
         PayrollDocLineAE.SetRange("Document No.", "Document No.");
         PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-        PayrollDocLineAE.DeleteAll;
+        PayrollDocLineAE.DeleteAll();
 
-        PayrollPeriodAE.Reset;
+        PayrollPeriodAE.Reset();
         PayrollPeriodAE.SetRange("Document No.", "Document No.");
         PayrollPeriodAE.SetRange("Line No.", "Line No.");
-        PayrollPeriodAE.DeleteAll;
+        PayrollPeriodAE.DeleteAll();
 
-        PayrollDocLineCalc.Reset;
+        PayrollDocLineCalc.Reset();
         PayrollDocLineCalc.SetRange("Document No.", "Document No.");
         PayrollDocLineCalc.SetRange("Document Line No.", "Line No.");
-        PayrollDocLineCalc.DeleteAll;
+        PayrollDocLineCalc.DeleteAll();
 
-        PayrollDocLineVar.Reset;
+        PayrollDocLineVar.Reset();
         PayrollDocLineVar.SetRange("Document No.", "Document No.");
         PayrollDocLineVar.SetRange("Document Line No.", "Line No.");
-        PayrollDocLineVar.DeleteAll;
+        PayrollDocLineVar.DeleteAll();
 
-        PayrollDocLineExpr.Reset;
+        PayrollDocLineExpr.Reset();
         PayrollDocLineExpr.SetRange("Document No.", "Document No.");
         PayrollDocLineExpr.SetRange("Document Line No.", "Line No.");
-        PayrollDocLineExpr.DeleteAll;
+        PayrollDocLineExpr.DeleteAll();
     end;
 
     var
@@ -588,7 +588,7 @@ table 17415 "Payroll Document Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';

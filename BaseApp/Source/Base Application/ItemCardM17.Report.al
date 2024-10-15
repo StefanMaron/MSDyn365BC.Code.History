@@ -131,7 +131,7 @@ report 12476 "Item Card M-17"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if GetFilter("Location Filter") <> '' then
                     Location.Get(GetFilter("Location Filter"));
             end;
@@ -166,7 +166,7 @@ report 12476 "Item Card M-17"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Card M-17 Template Code");
         ExcelReportBuilderMgr.InitTemplate(InventorySetup."Item Card M-17 Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');

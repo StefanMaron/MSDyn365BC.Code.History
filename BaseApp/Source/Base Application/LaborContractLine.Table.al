@@ -164,10 +164,10 @@ table 17361 "Labor Contract Line"
 
                             GetContract;
 
-                            TempPosition.DeleteAll;
-                            TempPosition.Reset;
+                            TempPosition.DeleteAll();
+                            TempPosition.Reset();
 
-                            Position.Reset;
+                            Position.Reset();
                             Position.SetRange(Status, Position.Status::Approved);
                             Position.SetRange("Budgeted Position", false);
                             case LaborContract."Contract Type" of
@@ -183,7 +183,7 @@ table 17361 "Labor Contract Line"
                                     Position.CalcFields("Filled Rate");
                                     if Position.Rate - Position."Filled Rate" >= "Position Rate" then begin
                                         TempPosition := Position;
-                                        TempPosition.Insert;
+                                        TempPosition.Insert();
                                     end;
                                 until Position.Next = 0;
 
@@ -194,7 +194,7 @@ table 17361 "Labor Contract Line"
                         end;
                     Status::Approved:
                         begin
-                            Position.Reset;
+                            Position.Reset();
                             Position.Get("Position No.");
                             PAGE.RunModal(0, Position);
                         end;
@@ -236,13 +236,13 @@ table 17361 "Labor Contract Line"
                         "Position Rate" := Position.Rate;
 
                     if "Position No." <> xRec."Position No." then begin
-                        LaborContractTerms.Reset;
+                        LaborContractTerms.Reset();
                         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
                         LaborContractTerms.SetRange("Operation Type", "Operation Type");
                         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
                         if not LaborContractTerms.IsEmpty then
                             if Confirm(Text14706, true, LaborContractTerms.TableCaption) then begin
-                                LaborContractTerms.DeleteAll;
+                                LaborContractTerms.DeleteAll();
                                 CheckFillRate;
                             end else
                                 "Position No." := xRec."Position No."
@@ -267,12 +267,12 @@ table 17361 "Labor Contract Line"
                     "Trial Period End Date" := 0D;
                     "Trial Period Description" := '';
 
-                    LaborContractTerms.Reset;
+                    LaborContractTerms.Reset();
                     LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
                     LaborContractTerms.SetRange("Operation Type", "Operation Type");
                     LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
                     if not LaborContractTerms.IsEmpty then
-                        LaborContractTerms.DeleteAll;
+                        LaborContractTerms.DeleteAll();
                 end;
             end;
         }
@@ -291,16 +291,16 @@ table 17361 "Labor Contract Line"
 
                 if "Dismissal Reason" <> xRec."Dismissal Reason" then begin
                     if TerminationGround.Get(xRec."Dismissal Reason") then begin
-                        LaborContractTerms.Reset;
+                        LaborContractTerms.Reset();
                         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
                         LaborContractTerms.SetRange("Operation Type", "Operation Type");
                         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
                         LaborContractTerms.SetRange("Element Code", TerminationGround."Element Code");
-                        LaborContractTerms.DeleteAll;
+                        LaborContractTerms.DeleteAll();
                     end;
                     if TerminationGround.Get("Dismissal Reason") then
                         if TerminationGround."Element Code" <> '' then begin
-                            LaborContractTerms.Reset;
+                            LaborContractTerms.Reset();
                             LaborContractTerms."Labor Contract No." := "Contract No.";
                             LaborContractTerms."Operation Type" := "Operation Type";
                             LaborContractTerms."Supplement No." := "Supplement No.";
@@ -312,7 +312,7 @@ table 17361 "Labor Contract Line"
                             Employee.Get(LaborContract."Employee No.");
                             Position.Get(Employee."Position No.");
                             LaborContractTerms.Validate("Posting Group", Position."Posting Group");
-                            LaborContractTerms.Insert;
+                            LaborContractTerms.Insert();
                         end;
                 end;
             end;
@@ -491,11 +491,11 @@ table 17361 "Labor Contract Line"
         TestField(Status, Status::Open);
         CheckContractStatus;
 
-        LaborContractTerms.Reset;
+        LaborContractTerms.Reset();
         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
         LaborContractTerms.SetRange("Operation Type", "Operation Type");
         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
-        LaborContractTerms.DeleteAll;
+        LaborContractTerms.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -510,7 +510,7 @@ table 17361 "Labor Contract Line"
 
         Validate("Operation Type");
 
-        LaborContractLine.Reset;
+        LaborContractLine.Reset();
         LaborContractLine.SetRange("Contract No.", "Contract No.");
         if LaborContractLine.IsEmpty then
             TestField("Operation Type", "Operation Type"::Hire);
@@ -617,14 +617,14 @@ table 17361 "Labor Contract Line"
               FieldCaption("Ending Date"), LaborContract.FieldCaption("Ending Date"), LaborContract.TableCaption);
 
         if "Operation Type" <> "Operation Type"::Hire then begin
-            LaborContractLine.Reset;
+            LaborContractLine.Reset();
             LaborContractLine.SetRange("Contract No.", "Contract No.");
             LaborContractLine.FindFirst;
             if LaborContractLine."Operation Type" <> LaborContractLine."Operation Type"::Hire then
                 Error(Text14707, "Operation Type"::Hire);
         end;
 
-        LaborContractTerms.Reset;
+        LaborContractTerms.Reset();
         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
         LaborContractTerms.SetRange("Operation Type", "Operation Type");
         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
@@ -648,7 +648,7 @@ table 17361 "Labor Contract Line"
     [Scope('OnPrem')]
     procedure CheckDateOrder()
     begin
-        LaborContractLine.Reset;
+        LaborContractLine.Reset();
         LaborContractLine.SetRange("Contract No.", "Contract No.");
         if LaborContractLine.FindLast then
             if LaborContractLine."Starting Date" > "Starting Date" then
@@ -662,7 +662,7 @@ table 17361 "Labor Contract Line"
         LaborContractTerms: Record "Labor Contract Terms";
         LaborContractTermsPage: Page "Labor Contract Terms";
     begin
-        LaborContractTerms.Reset;
+        LaborContractTerms.Reset();
         LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
         LaborContractTerms.SetRange("Operation Type", "Operation Type");
         LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
@@ -677,7 +677,7 @@ table 17361 "Labor Contract Line"
         HRComment: Record "Human Resource Comment Line";
         HRCommentList: Page "Human Resource Comment List";
     begin
-        HRComment.Reset;
+        HRComment.Reset();
         HRComment.SetRange("Table Name", HRComment."Table Name"::"Labor Contract");
         HRComment.SetRange("No.", "Contract No.");
         HRComment.SetRange("Alternative Address Code", "Supplement No.");
@@ -692,7 +692,7 @@ table 17361 "Labor Contract Line"
         LaborContractLine: Record "Labor Contract Line";
         HROrderPrint: Codeunit "HR Order - Print";
     begin
-        LaborContractLine.Reset;
+        LaborContractLine.Reset();
         LaborContractLine.SetRange("Contract No.", "Contract No.");
         LaborContractLine.SetRange("Operation Type", "Operation Type");
         LaborContractLine.SetRange("Supplement No.", "Supplement No.");
@@ -779,7 +779,7 @@ table 17361 "Labor Contract Line"
     [Scope('OnPrem')]
     procedure CheckTransferDate(SupplementNo: Code[10]; OrderNo: Code[20]; OrderDate: Date)
     begin
-        LaborContractLine.Reset;
+        LaborContractLine.Reset();
         LaborContractLine.SetRange("Contract No.", "Contract No.");
         LaborContractLine.SetRange(
           "Operation Type",

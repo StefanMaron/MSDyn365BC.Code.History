@@ -73,7 +73,7 @@ codeunit 136300 "Job Consumption Basic"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         IsInitialized := true;
         Commit();
@@ -557,7 +557,7 @@ codeunit 136300 "Job Consumption Basic"
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns FALSE when Type is "G/L Account".
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine."Line Type" := JobPlanningLine.Type::"G/L Account";
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
     end;
 
@@ -571,7 +571,7 @@ codeunit 136300 "Job Consumption Basic"
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns FALSE when "No." is blank.
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine."Line Type" := JobPlanningLine.Type::Item;
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
     end;
 
@@ -588,7 +588,7 @@ codeunit 136300 "Job Consumption Basic"
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
     end;
 
@@ -603,12 +603,12 @@ codeunit 136300 "Job Consumption Basic"
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns TRUE when Item.Type is Service.
         MockItem(Item);
         Item.Type := Item.Type::Service;
-        Item.Modify;
+        Item.Modify();
 
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem, IsServiceTypeItemErr);
     end;
 
@@ -623,12 +623,12 @@ codeunit 136300 "Job Consumption Basic"
         // [SCENARIO 260178] Function "Job Planning Line".IsNonInventoriableItem returns TRUE when Item.Type is Non-inventory.
         MockItem(Item);
         Item.Type := Item.Type::"Non-Inventory";
-        Item.Modify;
+        Item.Modify();
 
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem, IsNonInventoryTypeItemErr);
     end;
 
@@ -702,13 +702,13 @@ codeunit 136300 "Job Consumption Basic"
             JobPlanningLine.FieldNo("Job Task No."), DATABASE::"Job Planning Line");
         RecordRef.GetTable(JobPlanningLine);
         JobPlanningLine."Line No." := LibraryUtility.GetNewLineNo(RecordRef, JobPlanningLine.FieldNo("Line No."));
-        JobPlanningLine.Insert;
+        JobPlanningLine.Insert();
     end;
 
     local procedure MockItem(var Item: Record Item)
     begin
         Item."No." := LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item);
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure PostPurchaseDocument(PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header")
@@ -841,7 +841,7 @@ codeunit 136300 "Job Consumption Basic"
                 else
                     Assert.Fail(StrSubstNo('Job journal line account type %1 not supported.', Format(Type)))
             end;
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             Assert.AreNearlyEqual(UnitCost, "Unit Cost (LCY)",
               GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Cost (LCY)", %1', "No."));
             Assert.AreNearlyEqual(UnitPrice, "Unit Price (LCY)",

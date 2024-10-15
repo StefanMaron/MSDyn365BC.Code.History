@@ -83,7 +83,7 @@ codeunit 14949 "TORG-29 Helper"
                         UpdateFlag := true
                     else begin
                         UpdateFlag := false;
-                        TempValueEntryReceipts.Init;
+                        TempValueEntryReceipts.Init();
                         EntriesCount := EntriesCount + 1;
                         LastKeyString := CurrentKeyString;
                         CurrentSalesAmount := 0;
@@ -163,11 +163,11 @@ codeunit 14949 "TORG-29 Helper"
                     if UpdateFlag then
                         TempValueEntryReceipts.Modify
                     else
-                        TempValueEntryReceipts.Insert;
+                        TempValueEntryReceipts.Insert();
                 end;
             until ValueEntryReceipts.Next = 0;
-        ValueEntryReceipts.Reset;
-        TempValueEntryReceipts.Reset;
+        ValueEntryReceipts.Reset();
+        TempValueEntryReceipts.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -232,7 +232,7 @@ codeunit 14949 "TORG-29 Helper"
                         UpdateFlag := true
                     else begin
                         UpdateFlag := false;
-                        TempValueEntryShipment.Init;
+                        TempValueEntryShipment.Init();
                         EntriesCount := EntriesCount + 1;
                         LastKeyString := CurrentKeyString;
                         CurrentSalesAmount := 0;
@@ -313,10 +313,10 @@ codeunit 14949 "TORG-29 Helper"
                     if UpdateFlag then
                         TempValueEntryShipment.Modify
                     else
-                        TempValueEntryShipment.Insert;
+                        TempValueEntryShipment.Insert();
                 end;
             until ValueEntryShipment.Next = 0;
-        ValueEntryShipment.Reset;
+        ValueEntryShipment.Reset();
     end;
 
     local procedure CalcAmountFromSalesPrice(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesType: Option; SalesCode: Code[20]; UpdateFlag: Boolean): Decimal
@@ -328,7 +328,7 @@ codeunit 14949 "TORG-29 Helper"
             exit(Round(SalesPrice."Unit Price" * ValueEntry."Item Ledger Entry Quantity"));
         if not UpdateFlag then begin
             ErrorsCount := ErrorsCount + 1;
-            ErrorBuffer.Init;
+            ErrorBuffer.Init();
             ErrorBuffer."Item No." := ValueEntry."Item No.";
             ErrorBuffer."Posting Date" := ValueEntry."Posting Date";
             if SalesPrice.Count = 0 then
@@ -336,7 +336,7 @@ codeunit 14949 "TORG-29 Helper"
             else
                 ErrorBuffer.Description := SeveralPricesFoundErr;
             ErrorBuffer."Entry No." := ErrorsCount;
-            ErrorBuffer.Insert;
+            ErrorBuffer.Insert();
         end;
     end;
 
@@ -392,7 +392,7 @@ codeunit 14949 "TORG-29 Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         ExcelReportBuilderManager.InitTemplate(InventorySetup."TORG-29 Template Code");
     end;
 
@@ -413,7 +413,7 @@ codeunit 14949 "TORG-29 Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);

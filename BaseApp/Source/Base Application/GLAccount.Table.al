@@ -116,7 +116,7 @@ table 15 "G/L Account"
                 if ("Income/Balance" = "Income/Balance"::"Balance Sheet") and ("Cost Type No." <> '') then begin
                     if CostType.Get("No.") then begin
                         CostType."G/L Account Range" := '';
-                        CostType.Modify;
+                        CostType.Modify();
                     end;
                     "Cost Type No." := '';
                 end;
@@ -803,12 +803,12 @@ table 15 "G/L Account"
         MoveEntries.MoveGLEntries(Rec);
         MoveEntries.MoveCorrespondenceEntries(Rec);
 
-        GLCorrespondence.Reset;
+        GLCorrespondence.Reset();
         GLCorrespondence.SetCurrentKey("Debit Account No.");
         GLCorrespondence.SetRange("Debit Account No.", "No.");
         GLCorrespondence.DeleteAll(true);
 
-        GLCorrespondence.Reset;
+        GLCorrespondence.Reset();
         GLCorrespondence.SetCurrentKey("Credit Account No.");
         GLCorrespondence.SetRange("Credit Account No.", "No.");
         GLCorrespondence.DeleteAll(true);
@@ -819,20 +819,20 @@ table 15 "G/L Account"
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"G/L Account");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         ExtTextHeader.SetRange("Table Name", ExtTextHeader."Table Name"::"G/L Account");
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.DeleteAll(true);
 
         AnalysisViewEntry.SetRange("Account No.", "No.");
-        AnalysisViewEntry.DeleteAll;
+        AnalysisViewEntry.DeleteAll();
 
         AnalysisViewBudgetEntry.SetRange("G/L Account No.", "No.");
-        AnalysisViewBudgetEntry.DeleteAll;
+        AnalysisViewBudgetEntry.DeleteAll();
 
         MyAccount.SetRange("Account No.", "No.");
-        MyAccount.DeleteAll;
+        MyAccount.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::"G/L Account", "No.");
     end;
@@ -901,7 +901,7 @@ table 15 "G/L Account"
             OldGLAcc.Copy(Rec);
             OldGLAcc := OldGLAcc2;
             if not OldGLAcc.Find('<') then
-                OldGLAcc.Init;
+                OldGLAcc.Init();
         end;
         "Income/Balance" := OldGLAcc."Income/Balance";
     end;
@@ -983,7 +983,7 @@ table 15 "G/L Account"
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -1004,7 +1004,7 @@ table 15 "G/L Account"
 
     procedure TranslationMethodConflict(var GLAcc: Record "G/L Account"): Boolean
     begin
-        GLAcc.Reset;
+        GLAcc.Reset();
         GLAcc.SetFilter("No.", '<>%1', "No.");
         GLAcc.SetFilter("Consol. Translation Method", '<>%1', "Consol. Translation Method");
         if "Consol. Debit Acc." <> '' then begin
@@ -1036,7 +1036,7 @@ table 15 "G/L Account"
 
         if CopyStr(GetFilter("Date Filter"), 1, 2) <> '..' then
             if GetRangeMin("Date Filter") <> 0D then begin
-                GLAcc.Reset;
+                GLAcc.Reset();
                 GLAcc.Get("No.");
                 GLAcc.CopyFilters(Rec);
                 GLAcc.SetRange("Date Filter", 0D, ClosingDate(CalcDate('<-1D>', GetRangeMin("Date Filter"))));

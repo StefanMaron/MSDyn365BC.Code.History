@@ -138,7 +138,7 @@ page 17229 "Tax Register (2.8) CV"
         FilterGroup(0);
         CopyFilter("Date Filter", Calendar."Period End");
         TaxRegMgt.SetPeriodAmountType(Calendar, DateFilterText, PeriodType, AmountType);
-        Calendar.Reset;
+        Calendar.Reset();
         ShowNewData;
     end;
 

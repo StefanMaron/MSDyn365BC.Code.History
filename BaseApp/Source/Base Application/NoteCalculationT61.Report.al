@@ -93,9 +93,9 @@ report 17361 "Note-Calculation T-61"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-61 Template Code");
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."T-61 Template Code");
     end;

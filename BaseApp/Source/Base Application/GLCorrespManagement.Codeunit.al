@@ -38,7 +38,7 @@ codeunit 12404 "G/L Corresp. Management"
             WindowDialog.Open(Text001);
         TransNo := 0;
 
-        GLEntry.LockTable;
+        GLEntry.LockTable();
         if GLEntry.FindSet then begin
             repeat
                 if TransNo <> GLEntry."Transaction No." then begin
@@ -47,13 +47,13 @@ codeunit 12404 "G/L Corresp. Management"
                         WindowDialog.Update(1, GLEntry."Transaction No.");
                     if TransNo > 0 then
                         ProcessTransaction;
-                    TempGLEntry.Reset;
-                    TempGLEntry.DeleteAll;
+                    TempGLEntry.Reset();
+                    TempGLEntry.DeleteAll();
                     TransNo := GLEntry."Transaction No.";
                 end;
                 TempGLEntry.TransferFields(GLEntry);
                 TempGLEntry."Used in Correspondence" := false;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until GLEntry.Next = 0;
             ClearBuffer(TransNo);
             ProcessTransaction;
@@ -172,14 +172,14 @@ codeunit 12404 "G/L Corresp. Management"
             end;
 
         if not GLCorresp.Get(DebitEntry."G/L Account No.", CreditEntry."G/L Account No.") then begin
-            GLCorresp.Init;
+            GLCorresp.Init();
             GLCorresp."Debit Account No." := DebitEntry."G/L Account No.";
             GLAcc.Get(DebitEntry."G/L Account No.");
             GLCorresp."Debit Account Name" := GLAcc.Name;
             GLCorresp."Credit Account No." := CreditEntry."G/L Account No.";
             GLAcc.Get(CreditEntry."G/L Account No.");
             GLCorresp."Credit Account Name" := GLAcc.Name;
-            GLCorresp.Insert;
+            GLCorresp.Insert();
         end;
 
         with GLCorrespEntry do begin
@@ -307,9 +307,9 @@ codeunit 12404 "G/L Corresp. Management"
     var
         DoubleEntryBuffer: Record "G/L Corresp. Posting Buffer";
     begin
-        DoubleEntryBuffer.Reset;
+        DoubleEntryBuffer.Reset();
         DoubleEntryBuffer.SetRange("Transaction No.", TransactionNo);
-        DoubleEntryBuffer.DeleteAll;
+        DoubleEntryBuffer.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -318,7 +318,7 @@ codeunit 12404 "G/L Corresp. Management"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey(
           "Customer No.", "Posting Date", "Entry Type");
         DtldCustLedgEntry.SetRange("Customer No.", GLEntry."Source No.");
@@ -332,7 +332,7 @@ codeunit 12404 "G/L Corresp. Management"
         DtldCustLedgEntry.SetRange("Transaction No.", 0);
         DtldCustLedgEntry.ModifyAll("Transaction No.", GLEntry."Transaction No.");
 
-        DtldVendLedgEntry.Reset;
+        DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey(
           "Vendor No.", "Posting Date", "Entry Type");
         DtldVendLedgEntry.SetRange("Vendor No.", GLEntry."Source No.");

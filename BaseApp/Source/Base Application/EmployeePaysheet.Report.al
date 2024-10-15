@@ -61,14 +61,14 @@ report 17458 "Employee Paysheet"
                     ExcelReportBuilderMgr.AddSection('EmplDebtSection');
                     ExcelReportBuilderMgr.AddSection('Separator');
                     ExcelReportBuilderMgr.AddPagebreak;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not PayrollAmountExists then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FillInBuffers;
                 FillHeader;
@@ -225,7 +225,7 @@ report 17458 "Employee Paysheet"
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Employee Paysheet Templ. Code");
         exit(HumanResourcesSetup."Employee Paysheet Templ. Code");
     end;
@@ -260,10 +260,10 @@ report 17458 "Employee Paysheet"
     [Scope('OnPrem')]
     procedure FillInBuffers()
     begin
-        AddBuffer.DeleteAll;
-        DeductBuffer.DeleteAll;
-        OtherGainBuffer.DeleteAll;
-        IncomeTaxBuffer.DeleteAll;
+        AddBuffer.DeleteAll();
+        DeductBuffer.DeleteAll();
+        OtherGainBuffer.DeleteAll();
+        IncomeTaxBuffer.DeleteAll();
         TotalAdded := 0;
         TotalDeducted := 0;
         TotalDays := 0;
@@ -282,26 +282,26 @@ report 17458 "Employee Paysheet"
                                         begin
                                             AddBuffer.TransferFields(PostedPayrollDocLine);
                                             AddBuffer.Description := PayrollElement.Description;
-                                            AddBuffer.Insert;
+                                            AddBuffer.Insert();
                                         end;
                                     "Element Type"::Deduction,
                                     "Element Type"::"Tax Deduction":
                                         begin
                                             DeductBuffer.TransferFields(PostedPayrollDocLine);
                                             DeductBuffer.Description := PayrollElement.Description;
-                                            DeductBuffer.Insert;
+                                            DeductBuffer.Insert();
                                         end;
                                     "Element Type"::Other:
                                         begin
                                             OtherGainBuffer.TransferFields(PostedPayrollDocLine);
                                             OtherGainBuffer.Description := PayrollElement.Description;
-                                            OtherGainBuffer.Insert;
+                                            OtherGainBuffer.Insert();
                                         end;
                                     "Element Type"::"Income Tax":
                                         begin
                                             IncomeTaxBuffer.TransferFields(PostedPayrollDocLine);
                                             IncomeTaxBuffer.Description := PayrollElement.Description;
-                                            IncomeTaxBuffer.Insert;
+                                            IncomeTaxBuffer.Insert();
                                         end;
                                 end;
                         until Next = 0;
@@ -318,26 +318,26 @@ report 17458 "Employee Paysheet"
                                         begin
                                             AddBuffer.TransferFields(PayrollDocLine);
                                             AddBuffer.Description := PayrollElement.Description;
-                                            AddBuffer.Insert;
+                                            AddBuffer.Insert();
                                         end;
                                     "Element Type"::Deduction,
                                     "Element Type"::"Tax Deduction":
                                         begin
                                             DeductBuffer.TransferFields(PayrollDocLine);
                                             DeductBuffer.Description := PayrollElement.Description;
-                                            DeductBuffer.Insert;
+                                            DeductBuffer.Insert();
                                         end;
                                     "Element Type"::Other:
                                         begin
                                             OtherGainBuffer.TransferFields(PayrollDocLine);
                                             OtherGainBuffer.Description := PayrollElement.Description;
-                                            OtherGainBuffer.Insert;
+                                            OtherGainBuffer.Insert();
                                         end;
                                     "Element Type"::"Income Tax":
                                         begin
                                             IncomeTaxBuffer.TransferFields(PayrollDocLine);
                                             IncomeTaxBuffer.Description := PayrollElement.Description;
-                                            IncomeTaxBuffer.Insert;
+                                            IncomeTaxBuffer.Insert();
                                         end;
                                 end;
                         until Next = 0;

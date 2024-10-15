@@ -30,11 +30,13 @@ page 12446 "Outgoing Cash Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = DocumentTypeEditable;
-                    OptionCaption = ',Payment,,,,,Refund';
                     ToolTip = 'Specifies the type of the related document.';
 
                     trigger OnValidate()
                     begin
+                        if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]) then
+                            error(DocumentTypeErr);
+
                         DocumentTypeOnAfterValidate;
                     end;
                 }
@@ -51,7 +53,6 @@ page 12446 "Outgoing Cash Order"
                 field("Account Type"; "Account Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = 'G/L Account,Customer,Vendor,Bank Account';
                     ToolTip = 'Specifies the purpose of the account.';
 
                     trigger OnValidate()
@@ -217,7 +218,7 @@ page 12446 "Outgoing Cash Order"
                     begin
                         if "Line No." = 0 then
                             FieldError("Line No.");
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlLine.SetRange("Line No.", "Line No.");
@@ -243,7 +244,7 @@ page 12446 "Outgoing Cash Order"
                         CurrPage.Update(false);
                         "Bank Payment Type" := "Bank Payment Type"::"Manual Check";
                         Modify;
-                        Commit;
+                        Commit();
                     end;
                 }
             }
@@ -260,7 +261,7 @@ page 12446 "Outgoing Cash Order"
                 trigger OnAction()
                 begin
                     if (BankAccNo <> '') and (CorrAccNo <> '') then begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -338,11 +339,12 @@ page 12446 "Outgoing Cash Order"
         BankAccNo: Code[20];
         [InDataSet]
         DocumentTypeEditable: Boolean;
+        DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
 
     [Scope('OnPrem')]
     procedure CalcPayment()
     begin
-        CashAcc.Init;
+        CashAcc.Init();
         BankAccNo := '';
 
         CashAcc.Get("Bal. Account No.");

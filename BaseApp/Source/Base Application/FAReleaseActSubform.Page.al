@@ -140,7 +140,7 @@ page 12475 "FA Release Act Subform"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FALocationCodeVisible := FASetup."FA Location Mandatory";
         FAEmployeeNoVisible := FASetup."Employee No. Mandatory";
     end;

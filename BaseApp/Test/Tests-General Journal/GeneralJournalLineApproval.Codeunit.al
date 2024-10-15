@@ -30,8 +30,12 @@ codeunit 134322 "General Journal Line Approval"
         RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.';
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
+        JournalLineNotApprovedCheckErr: Label 'You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the line requires approval.';
+        JournalBatchNotApprovedCheckErr: Label 'You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the journal batch requires approval.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -64,7 +68,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -116,7 +120,7 @@ codeunit 134322 "General Journal Line Approval"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -167,7 +171,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine);
         ShowApprovalEntries(GenJournalLine."Journal Batch Name");
 
@@ -203,7 +207,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine);
         ShowApprovalEntries(GenJournalLine."Journal Batch Name");
 
@@ -242,7 +246,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -301,7 +305,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -361,7 +365,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -400,7 +404,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -439,7 +443,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -478,7 +482,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -519,7 +523,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -560,7 +564,7 @@ codeunit 134322 "General Journal Line Approval"
           RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -593,7 +597,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // Exercise.
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Verify.
@@ -622,12 +626,12 @@ codeunit 134322 "General Journal Line Approval"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         CreateDirectApprovalEnabledWorkflow(Workflow);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
         VerifyRestrictionRecordNotExisting(GenJournalLine.RecordId);
 
         // Exercise.
         TempGenJournalLine := GenJournalLine;
-        TempGenJournalLine.Insert;
+        TempGenJournalLine.Insert();
 
         // Verify.
         VerifyRestrictionRecordNotExisting(TempGenJournalLine.RecordId);
@@ -658,7 +662,7 @@ codeunit 134322 "General Journal Line Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
         // Exercise.
@@ -696,10 +700,10 @@ codeunit 134322 "General Journal Line Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        Commit;
+        Commit();
         SendApprovalRequest(GenJournalLine."Journal Batch Name");
 
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         RequestorUserSetup.Get(UserId);
@@ -748,7 +752,7 @@ codeunit 134322 "General Journal Line Approval"
         VerifyRestrictionRecordExists(GenJournalLine2.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify
@@ -821,65 +825,18 @@ codeunit 134322 "General Journal Line Approval"
         EnableWorkflow(Workflow);
 
         // Exercise
-        GenJournalLine2.Init;
+        GenJournalLine2.Init();
         GenJournalLine2."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine2."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine2."Line No." := 20000;
         GenJournalLine2."System-Created Entry" := true;
-        GenJournalLine2.Insert;
+        GenJournalLine2.Insert();
 
         // Verify: No error.
         GenJournalLine2.OnCheckGenJournalLinePrintCheckRestrictions;
     end;
-    /*
-        [Test]
-        [Scope('OnPrem')]
-        procedure RestrictGenJournalLineExportingAfterInsertWithBatchApprovalEnabled()
-        var
-            BatchWorkflow: Record Workflow;
-            GenJournalBatch: Record "Gen. Journal Batch";
-            GenJournalLine: Record "Gen. Journal Line";
-            GenJournalLine2: Record "Gen. Journal Line";
-            LineWorkflow: Record Workflow;
-        begin
-            // [SCENARIO] Restrict exporting of payment journal lines
-            // [GIVEN] Journal batch with one or more journal lines
-            // [GIVEN] Journal line approval workflow is enabled
-            // [GIVEN] Journal batch approval workflow is enabled
-            // [WHEN] New journal line is added
-            // [WHEN] Exporting the lines
-            // [THEN] New journal line is restricted
-            // [THEN] New journal line cannot be exported
 
-            Initialize;
 
-            // Setup
-            CreateDirectApprovalEnabledWorkflow(LineWorkflow);
-            CreateJournalBatchDirectApprovalEnabledWorkflow(BatchWorkflow);
-
-            CreateJournalBatchWithBankBalancingAccount(GenJournalBatch);
-            LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-              LibraryRandom.RandDec(100, 2));
-
-            // Exercise
-            LibraryERM.CreateGeneralJnlLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              GenJournalLine2."Document Type"::Invoice, GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-              LibraryRandom.RandDec(100, 2));
-
-            // Verify
-            VerifyRestrictionRecordExists(GenJournalLine.RecordId);
-            VerifyRestrictionRecordExists(GenJournalLine2.RecordId);
-
-            // Exercise
-            GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-            asserterror GenJournalLine.ExportPaymentFile;
-
-            // Verify
-            Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
-        end;
-    */
     [Test]
     [Scope('OnPrem')]
     procedure RestrictGenJournalLineExportingAfterInsertWithBatchApprovalDisabled()
@@ -961,7 +918,7 @@ codeunit 134322 "General Journal Line Approval"
           GenJournalLine2."Document Type"::Invoice, GenJournalLine2."Account Type"::Customer, LibrarySales.CreateCustomerNo,
           LibraryRandom.RandDec(100, 2));
         GenJournalLine2."System-Created Entry" := true;
-        GenJournalLine2.Modify;
+        GenJournalLine2.Modify();
 
         // Verify
         VerifyRestrictionRecordExists(GenJournalLine.RecordId);
@@ -993,13 +950,13 @@ codeunit 134322 "General Journal Line Approval"
 
         // Exercise
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Verify
         VerifyRestrictionRecordExists(GenJournalLine.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         asserterror PaymentJournal.PrintCheck.Invoke;
@@ -1009,7 +966,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('BankPaymentOrderRequestPageHandler')]
+    [HandlerFunctions('CheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictGenJournalLineCheckPrintingAfterInsertWithApprovalDisabled()
     var
@@ -1035,13 +992,13 @@ codeunit 134322 "General Journal Line Approval"
 
         // Exercise
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Verify
         VerifyRestrictionRecordNotExisting(GenJournalLine.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.PrintCheck.Invoke;
@@ -1052,7 +1009,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('BankPaymentOrderRequestPageHandler')]
+    [HandlerFunctions('CheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictGenJournalLineCheckPrintingAfterInsertWithSystemCreatedEntry()
     var
@@ -1083,13 +1040,13 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine."Line No." := 10000;
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine."System-Created Entry" := true;
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         // Verify
         VerifyRestrictionRecordNotExisting(GenJournalLine.RecordId);
 
         // Exercise
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.PrintCheck.Invoke;
@@ -1123,8 +1080,8 @@ codeunit 134322 "General Journal Line Approval"
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption);
 
         // Exercise
-        Commit;
-        CheckLedgerEntry.Init;
+        Commit();
+        CheckLedgerEntry.Init();
         asserterror CheckMgt.InsertCheck(CheckLedgerEntry, GenJournalLine.RecordId);
 
         // Verify
@@ -1153,14 +1110,14 @@ codeunit 134322 "General Journal Line Approval"
         // Setup
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckMgt.InsertCheck(CheckLedgerEntry, GenJournalLine.RecordId);
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, CheckLedgerEntry.TableCaption);
 
         // Exercise
-        Commit;
-        asserterror CheckLedgerEntry.Modify;
+        Commit();
+        asserterror CheckLedgerEntry.Modify();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
@@ -1189,7 +1146,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateDirectApprovalWorkflow(Workflow);
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         EnableWorkflow(Workflow);
 
         // Verify
@@ -1206,7 +1163,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,BankPaymentOrderRequestPageHandler')]
+    [HandlerFunctions('MessageHandler,PrintCheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure GenJournalLineNoRestrictionAfterCheckPrinted()
     var
@@ -1238,13 +1195,13 @@ codeunit 134322 "General Journal Line Approval"
         // Setup: Journal Line
         CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(GenJournalBatch, GenJournalLine);
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Verify
         VerifyRestrictionRecordExists(GenJournalLine.RecordId);
 
         // Setup: Approve the journal line.
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.SendApprovalRequestJournalLine.Invoke;
@@ -1255,7 +1212,7 @@ codeunit 134322 "General Journal Line Approval"
         Approve(ApprovalEntry);
 
         // Exercise: Print the check.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
         PaymentJournal.PrintCheck.Invoke;
 
@@ -1295,7 +1252,7 @@ codeunit 134322 "General Journal Line Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        Commit;
+        Commit();
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -1333,7 +1290,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // [GIVEN] Approval request sent
-        Commit;
+        Commit();
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.SendApprovalRequestJournalLine.Invoke;
@@ -1344,6 +1301,218 @@ codeunit 134322 "General Journal Line Approval"
         // [THEN] Line workflow status factbox becomes not visible.
         Assert.IsFalse(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible, 'Batch workflow Status factbox is not hidden');
         Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible, 'Line workflow Status factbox is not hidden');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure RestrictedRecordIsNotCreatedForCheckPrintedJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 235046] Payment Journal Line created as result of Check Print is not restricted record when General Journal Batch Approval Workflow is enabled.
+        Initialize;
+
+        // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
+        // [GIVEN] Approval User Setup with direct approvers.
+        SetupGenJnlBatchApprovalWorkflowWithUsers;
+
+        // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
+        CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
+          GenJournalBatch, GenJournalLine, GenJournalLine."Bank Payment Type"::"Computer Check");
+
+        // [GIVEN] "Batch" is send for approval and approved.
+        SendAndApprovePaymentJournalBatch(GenJournalLine, GenJournalBatch.RecordId);
+
+        Commit();
+
+        // [WHEN] A Check is printed for "PL" with "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(true);
+        PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account");
+
+        // [THEN] A new Payment Line "PL-check" is created for Check.
+        VerifyPaymentJournalLineCreatedforCheck(GenJournalLine, GenJournalBatch."Bal. Account No.");
+
+        // [THEN] No restricted record is created for "PL-check"
+        VerifyRestrictionRecordNotExisting(GenJournalLine.RecordId);
+
+        // [THEN] "Batch" is posted.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        VerifyVendorLedgerEntryExistsWithExternalDocNo(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure PmtJnlBatchPostedWithPrintCheck()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 235046] Payment Journal Batch Line created with Check Printed posted while no Approval Workflows enabled.
+        Initialize;
+
+        // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
+        CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
+          GenJournalBatch, GenJournalLine, GenJournalLine."Bank Payment Type"::"Computer Check");
+        Commit();
+
+        // [WHEN] A Check is printed for "PL" without "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(false);
+        PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account");
+
+        // [THEN] "Check Printed" is set for "PL".
+        GenJournalLine.Find;
+        GenJournalLine.TestField("Check Printed", true);
+
+        // [THEN] "Batch" is posted.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        VerifyVendorLedgerEntryExists(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure PmtJnlBatchPostedWithPrintCheckAndOneCheckPerVendorOption()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 235046] Payment Journal Batch Line created with Check Printed with "One Check Per Vendor" option posted while no Approval Workflows enabled.
+        Initialize;
+
+        // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
+        CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
+          GenJournalBatch, GenJournalLine, GenJournalLine."Bank Payment Type"::"Computer Check");
+
+        Commit();
+
+        // [WHEN] A Check is printed for "PL" with "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(true);
+        PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account");
+
+        // [THEN] A new Payment Line "PL-check" is created for Check.
+        VerifyPaymentJournalLineCreatedforCheck(GenJournalLine, GenJournalBatch."Bal. Account No.");
+
+        // [THEN] "Batch" is posted.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        VerifyVendorLedgerEntryExistsWithExternalDocNo(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtJnlBatchMustBeApprovedToPrintCheck()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RestrictedRecord: Record "Restricted Record";
+    begin
+        // [SCENARIO 235046] Payment Journal Batch must be approved before print the check.
+        Initialize;
+
+        // [GIVEN] General Journal Batch Approval Workflow is enabled for direct approvers.
+        // [GIVEN] Approval User Setup with direct approvers.
+        SetupGenJnlBatchApprovalWorkflowWithUsers;
+
+        // [GIVEN] Payment Journal Batch "Batch" with a Payment Line "PL" to Vendor.
+        // [GIVEN] "Batch" is not approved.
+        CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(
+          GenJournalBatch, GenJournalLine, GenJournalLine."Bank Payment Type"::"Computer Check");
+
+        Commit();
+
+        // [WHEN] Check Print is called for "Batch" with "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(true);
+        asserterror PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account");
+
+        // [THEN] Check cannot be printed with error invoked: "You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the journal batch requires approval."
+        Assert.ExpectedError(
+          StrSubstNo(
+            JournalBatchNotApprovedCheckErr,
+            GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name",
+            Format(GenJournalLine."Line No.")));
+
+        // [THEN] Restricted Record for "PL" exists.
+        RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
+        Assert.RecordIsNotEmpty(RestrictedRecord);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithOneCheckPerVendorOption()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 235046] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check with "One Check Per Vendor" option from Payment Journal.
+        Initialize;
+
+        // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
+        // [GIVEN] Approval User Setup with direct approvers.
+        SetupGenJnlLineApprovalWorkflowWithUsers;
+
+        // [GIVEN] Payment Journal Batch with two Payment Lines "PL1" and "PL2" to Vendor, both with Document No. = "DOC".
+        CreatePmtJnlBatchWithTwoPaymentLinesForAccTypeVendor(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] "PL1" is send for approval and approved.
+        SendAndApprovePaymentJournalLine(GenJournalLine[1], GenJournalLine[1].RecordId);
+        Commit();
+
+        // [WHEN] Print Check for "PL1" with "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(true);
+        asserterror PrintCheckForPaymentJournalLine(GenJournalLine[1], GenJournalLine[1]."Bal. Account Type"::"G/L Account");
+
+        // [THEN] Check cannot be printed with error invoked: "You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the line requires approval."
+        Assert.ExpectedError(
+          StrSubstNo(
+            JournalLineNotApprovedCheckErr,
+            GenJournalLine[2]."Journal Template Name",
+            GenJournalLine[2]."Journal Batch Name",
+            Format(GenJournalLine[2]."Line No.")));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,PrintCheckRequestWithOneCheckPerVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithoutOneCheckPerVendorOption()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 235046] With General Journal Line Approval Workflow enabled, all Payment Journal Lines must be approved to print Check without "One Check Per Vendor" option from Payment Journal.
+        Initialize;
+
+        // [GIVEN] General Journal Line Approval Workflow is enabled for direct approvers.
+        // [GIVEN] Approval User Setup with direct approvers.
+        SetupGenJnlLineApprovalWorkflowWithUsers;
+
+        // [GIVEN] Payment Journal Batch with two Payment Lines "PL1" and "PL2" to Vendor, both with Document No. = "DOC".
+        CreatePmtJnlBatchWithTwoPaymentLinesForAccTypeVendor(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] "PL1" is send for approval and approved.
+        SendAndApprovePaymentJournalLine(GenJournalLine[1], GenJournalLine[1].RecordId);
+        Commit();
+
+        // [WHEN] Print Check for "PL1" without "One Check per Vendor per Document No." option.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");
+        LibraryVariableStorage.Enqueue(false);
+        asserterror PrintCheckForPaymentJournalLine(GenJournalLine[1], GenJournalLine[1]."Bal. Account Type"::"G/L Account");
+
+        // [THEN] Check cannot be printed with error invoked: "You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the line requires approval."
+        Assert.ExpectedError(
+          StrSubstNo(
+            JournalLineNotApprovedCheckErr,
+            GenJournalLine[2]."Journal Template Name",
+            GenJournalLine[2]."Journal Batch Name",
+            Format(GenJournalLine[2]."Line No.")));
     end;
 
     local procedure Initialize()
@@ -1358,15 +1527,16 @@ codeunit 134322 "General Journal Line Approval"
         LibraryVariableStorage.Clear;
 
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
 
-        GenJournalTemplate.DeleteAll;
-        ApprovalEntry.DeleteAll;
+        GenJournalTemplate.DeleteAll();
+        ApprovalEntry.DeleteAll();
         if IsInitialized then
             exit;
 
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
     end;
 
     local procedure CreateDirectApprovalWorkflow(var Workflow: Record Workflow)
@@ -1436,13 +1606,41 @@ codeunit 134322 "General Journal Line Approval"
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
     end;
 
+    local procedure CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; BankPaymentType: Option)
+    begin
+        CreatePaymentJournalBatchWithOneJournalLine(
+          GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
+        GenJournalLine."Bank Payment Type" := BankPaymentType;
+        GenJournalLine.Modify();
+    end;
+
+    local procedure CreatePmtJnlBatchWithTwoPaymentLinesForAccTypeVendor(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: array[2] of Record "Gen. Journal Line")
+    begin
+        CreatePaymentJournalBatchWithOneJournalLine(
+          GenJournalBatch, GenJournalLine[1], GenJournalLine[1]."Document Type"::Payment,
+          GenJournalLine[1]."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
+
+        GenJournalLine[1]."Bank Payment Type" := GenJournalLine[1]."Bank Payment Type"::"Computer Check";
+        GenJournalLine[1].Modify();
+
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine[2], GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine[2]."Document Type"::Payment, GenJournalLine[2]."Account Type"::Vendor,
+          GenJournalLine[1]."Account No.", LibraryRandom.RandDec(100, 2));
+
+        GenJournalLine[2]."Document No." := GenJournalLine[1]."Document No.";
+        GenJournalLine[2]."Bank Payment Type" := GenJournalLine[2]."Bank Payment Type"::"Computer Check";
+        GenJournalLine[2].Modify();
+    end;
+
     local procedure CreatePaymentJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
     var
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Last Check No." := Format(1);
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate,
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.");
@@ -1477,15 +1675,25 @@ codeunit 134322 "General Journal Line Approval"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
-        ApprovalEntry."Document Type" := GenJournalLine."Document Type";
+        ApprovalEntry.Init();
+        ApprovalEntry."Document Type" := GenJournalLine."Document Type".AsInteger();
         ApprovalEntry."Document No." := GenJournalLine."Document No.";
         ApprovalEntry."Table ID" := DATABASE::"Gen. Journal Line";
         ApprovalEntry."Record ID to Approve" := GenJournalLine.RecordId;
         ApprovalEntry."Approver ID" := UserId;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Sequence No." := 1;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
+    end;
+
+    local procedure PrintCheckForPaymentJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option)
+    var
+        DocumentPrint: Codeunit "Document-Print";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        DocumentPrint.PrintCheck(GenJournalLine);
+        GenJournalLine.ModifyAll("Bal. Account Type", BalAccountType, false);
     end;
 
     local procedure SendApprovalRequest(GenJournalBatchName: Code[20])
@@ -1507,6 +1715,27 @@ codeunit 134322 "General Journal Line Approval"
         GeneralJournal.SendApprovalRequestJournalLine.Invoke;
     end;
 
+    local procedure SendAndApprovePaymentJournalBatch(GenJournalLine: Record "Gen. Journal Line"; RecID: RecordID)
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        ApprovalsMgmt.TrySendJournalBatchApprovalRequest(GenJournalLine);
+        UpdateApprovalEntryWithCurrUser(ApprovalEntry, RecID);
+        Approve(ApprovalEntry);
+    end;
+
+    local procedure SendAndApprovePaymentJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecID: RecordID)
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        GenJournalLine.SetRecFilter;
+        ApprovalsMgmt.TrySendJournalLineApprovalRequests(GenJournalLine);
+        UpdateApprovalEntryWithCurrUser(ApprovalEntry, RecID);
+        Approve(ApprovalEntry);
+    end;
+
     local procedure CancelApprovalRequest(GenJournalBatchName: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
@@ -1514,6 +1743,26 @@ codeunit 134322 "General Journal Line Approval"
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         GeneralJournal.CancelApprovalRequestJournalLine.Invoke;
+    end;
+
+    local procedure SetupGenJnlBatchApprovalWorkflowWithUsers()
+    var
+        UserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
+    end;
+
+    local procedure SetupGenJnlLineApprovalWorkflowWithUsers()
+    var
+        UserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
     end;
 
     local procedure ShowApprovalEntries(GenJournalBatchName: Code[20])
@@ -1528,7 +1777,7 @@ codeunit 134322 "General Journal Line Approval"
     local procedure AssignApprovalEntry(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
         ApprovalEntry."Approver ID" := UserSetup."User ID";
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
     end;
 
     local procedure Approve(var ApprovalEntry: Record "Approval Entry")
@@ -1637,6 +1886,15 @@ codeunit 134322 "General Journal Line Approval"
         VerifyApprovalEntryApproverID(ApprovalEntry, RequestorUserSetup."User ID");
     end;
 
+    local procedure VerifyPaymentJournalLineCreatedforCheck(GenJournalLine: Record "Gen. Journal Line"; BalAccountNo: Code[20])
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindLast;
+        GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"Bank Account");
+        GenJournalLine.TestField("Account No.", BalAccountNo);
+    end;
+
     local procedure VerifyRestrictionRecordExists(RecID: RecordID)
     var
         RestrictedRecord: Record "Restricted Record";
@@ -1661,6 +1919,27 @@ codeunit 134322 "General Journal Line Approval"
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange(Open, true);
         Assert.IsFalse(CustLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, CustLedgerEntry.TableCaption));
+    end;
+
+    local procedure VerifyVendorLedgerEntryExists(GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
+    end;
+
+    local procedure VerifyVendorLedgerEntryExistsWithExternalDocNo(GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        VendorLedgerEntry.SetRange("External Document No.", GenJournalLine."Document No.");
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        VendorLedgerEntry.SetRange(Open, true);
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
     end;
 
     [PageHandler]
@@ -1689,9 +1968,9 @@ codeunit 134322 "General Journal Line Approval"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure BankPaymentOrderRequestPageHandler(var BankPaymentOrder: TestRequestPage "Bank Payment Order")
+    procedure CheckRequestPageHandler(var Check: TestRequestPage Check)
     begin
-        BankPaymentOrder.Cancel.Invoke;
+        Check.Cancel.Invoke;
     end;
 
     [MessageHandler]
@@ -1704,13 +1983,13 @@ codeunit 134322 "General Journal Line Approval"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine.Comment := 'Test';
-        ApprovalCommentLine.Insert;
+        ApprovalCommentLine.Insert();
     end;
 
     local procedure ApprovalCommentExists(ApprovalEntry: Record "Approval Entry"): Boolean
@@ -1722,6 +2001,26 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalCommentLine.SetRange("Document No.", ApprovalEntry."Document No.");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         exit(ApprovalCommentLine.FindFirst);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PrintCheckRequestPageHandler(var Check: TestRequestPage Check)
+    var
+        BankAccNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccNo);
+        Check.BankAccount.SetValue(BankAccNo);
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PrintCheckRequestWithOneCheckPerVendorPageHandler(var Check: TestRequestPage Check)
+    begin
+        Check.BankAccount.SetValue(LibraryVariableStorage.DequeueText);
+        Check.OneCheckPerVendorPerDocumentNo.SetValue(LibraryVariableStorage.DequeueBoolean);
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

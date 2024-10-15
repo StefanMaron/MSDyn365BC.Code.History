@@ -44,7 +44,7 @@ codeunit 17383 "Employee Journal - Post Batch"
         with EmplJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             EmplJnlTemplate.Get("Journal Template Name");
             EmplJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -57,7 +57,7 @@ codeunit 17383 "Employee Journal - Post Batch"
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit;
+                Commit();
                 exit;
             end;
 
@@ -80,7 +80,7 @@ codeunit 17383 "Employee Journal - Post Batch"
             NoOfRecords := LineCount;
 
             // Find next register no.
-            PayrollReg.LockTable;
+            PayrollReg.LockTable();
             if PayrollReg.FindLast then
                 PayrollRegNo := PayrollReg."No." + 1
             else
@@ -117,7 +117,7 @@ codeunit 17383 "Employee Journal - Post Batch"
                                       ArrayLen(NoSeriesMgt2));
                                 NoSeries.Code := "Posting No. Series";
                                 NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert;
+                                NoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
                             Evaluate(PostingNoSeriesNo, NoSeries.Description);
@@ -142,28 +142,28 @@ codeunit 17383 "Employee Journal - Post Batch"
                 EmplJnlLine3.Copy(EmplJnlLine);
                 if EmplJnlLine3.FindSet(true, false) then
                     repeat
-                        EmplJnlLine3.Delete;
+                        EmplJnlLine3.Delete();
                     until EmplJnlLine3.Next = 0;
-                EmplJnlLine3.Reset;
+                EmplJnlLine3.Reset();
                 EmplJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                 EmplJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if not EmplJnlLine3.Find('+') then
                     if IncStr("Journal Batch Name") <> '' then begin
-                        EmplJnlBatch.Delete;
+                        EmplJnlBatch.Delete();
                         EmplJnlBatch.Name := IncStr("Journal Batch Name");
-                        if EmplJnlBatch.Insert then;
+                        if EmplJnlBatch.Insert() then;
                         "Journal Batch Name" := EmplJnlBatch.Name;
                     end;
 
                 EmplJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                 if (EmplJnlBatch."No. Series" = '') and not EmplJnlLine3.Find('+') then begin
-                    EmplJnlLine3.Init;
+                    EmplJnlLine3.Init();
                     EmplJnlLine3."Journal Template Name" := "Journal Template Name";
                     EmplJnlLine3."Journal Batch Name" := "Journal Batch Name";
                     EmplJnlLine3."Line No." := 10000;
-                    EmplJnlLine3.Insert;
+                    EmplJnlLine3.Insert();
                     EmplJnlLine3.SetUpNewLine(EmplJnlLine2);
-                    EmplJnlLine3.Modify;
+                    EmplJnlLine3.Modify();
                 end;
             end;
             if EmplJnlBatch."No. Series" <> '' then
@@ -174,10 +174,10 @@ codeunit 17383 "Employee Journal - Post Batch"
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
                 until NoSeries.Next = 0;
 
-            Commit;
+            Commit();
         end;
         UpdateAnalysisView.UpdateAll(0, true);
-        Commit;
+        Commit();
     end;
 }
 

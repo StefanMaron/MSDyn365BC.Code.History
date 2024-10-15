@@ -151,7 +151,7 @@ table 5619 "FA Journal Template"
                 "Maint. Posting Report ID" := 0;
                 "Source Code" := '';
                 "Page ID" := 0;
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::"Fixed Assets":
                         begin
@@ -191,7 +191,7 @@ table 5619 "FA Journal Template"
         FAJnlLine.SetRange("Journal Template Name", Name);
         FAJnlLine.DeleteAll(true);
         FAJnlBatch.SetRange("Journal Template Name", Name);
-        FAJnlBatch.DeleteAll;
+        FAJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

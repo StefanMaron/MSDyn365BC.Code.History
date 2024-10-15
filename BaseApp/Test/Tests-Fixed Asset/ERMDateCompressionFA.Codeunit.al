@@ -35,7 +35,7 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -60,12 +60,13 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Date Compress FA Ledger.
-        RunDateCompressFALedger(
-          FANo, LibraryFiscalYear.GetFirstPostingDate(false), LibraryFiscalYear.GetFirstPostingDate(false),
-          DateComprRegister."Period Length"::Day);
+        asserterror
+          RunDateCompressFALedger(
+            FANo, LibraryFiscalYear.GetFirstPostingDate(false), LibraryFiscalYear.GetFirstPostingDate(false),
+            DateComprRegister."Period Length"::Day);
 
         // 3.Verify: Verify the Error message.
-        asserterror LibraryFiscalYear.VerifyDateCompressFALedgerError;
+        LibraryFiscalYear.VerifyDateCompressFALedgerError;
     end;
 
     [Test]
@@ -413,7 +414,7 @@ codeunit 134049 "ERM Date Compression FA"
         FALedgerEntry: Record "FA Ledger Entry";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         FALedgerEntry.SetFilter("Entry No.", '>=%1', EntryNo);
         FALedgerEntry.SetRange("Source Code", SourceCodeSetup."Compress FA Ledger");
         FALedgerEntry.SetRange(Description, Description);

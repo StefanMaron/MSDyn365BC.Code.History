@@ -13,7 +13,7 @@ codeunit 14942 "Shipment Request M-11 Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Shpt.Request M-11 Templ. Code");
         InitReportTemplate(InventorySetup."Shpt.Request M-11 Templ. Code");
     end;

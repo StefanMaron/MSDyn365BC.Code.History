@@ -28,11 +28,11 @@ codeunit 17372 "HR Order - Print"
     var
         ExcelTemplate: Record "Excel Template";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Director No.");
         Director.Get(CompanyInfo."Director No.");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-1 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-1 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -80,9 +80,9 @@ codeunit 17372 "HR Order - Print"
         ExcelTemplate: Record "Excel Template";
         Employee: Record Employee;
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-1a Template Code");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-1a Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -172,11 +172,11 @@ codeunit 17372 "HR Order - Print"
         PrevContractLine: Record "Labor Contract Line";
         ExcelTemplate: Record "Excel Template";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Director No.");
         Director.Get(CompanyInfo."Director No.");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-5 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-5 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -229,8 +229,8 @@ codeunit 17372 "HR Order - Print"
         ExcelTemplate: Record "Excel Template";
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
-        HumanResSetup.Get;
+        CompanyInfo.Get();
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-5a Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-5a Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -339,12 +339,12 @@ codeunit 17372 "HR Order - Print"
     begin
         AbsenceHeader.TestField("HR Order Date");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-6 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-6 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with AbsenceHeader do begin
             ExcelMgt.FillCell('A7', LocalRepMgt.GetCompanyName);
@@ -360,7 +360,7 @@ codeunit 17372 "HR Order - Print"
             ExcelMgt.FillCell('A21', OrgUnit.Name);
             ExcelMgt.FillCell('A23', Employee.GetJobTitleName);
 
-            EmplAbsenceEntry.Reset;
+            EmplAbsenceEntry.Reset();
             EmplAbsenceEntry.SetCurrentKey("Employee No.");
             EmplAbsenceEntry.SetRange("Employee No.", "Employee No.");
             EmplAbsenceEntry.SetRange("Entry Type", EmplAbsenceEntry."Entry Type"::Usage);
@@ -434,8 +434,8 @@ codeunit 17372 "HR Order - Print"
         ExcelTemplate: Record "Excel Template";
         LaborContract: Record "Labor Contract";
     begin
-        HumanResSetup.Get;
-        CompanyInfo.Get;
+        HumanResSetup.Get();
+        CompanyInfo.Get();
         HumanResSetup.TestField("T-8 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-8 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -483,8 +483,8 @@ codeunit 17372 "HR Order - Print"
         ExcelTemplate: Record "Excel Template";
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
-        HumanResSetup.Get;
+        CompanyInfo.Get();
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-8a Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-8a Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -564,12 +564,12 @@ codeunit 17372 "HR Order - Print"
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-9 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-9 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         ExcelMgt.FillCell('H31', Format(CalendarDays));
         ExcelMgt.FillCell('B33', LocMgt.Date2Text(StartDate));
@@ -618,12 +618,12 @@ codeunit 17372 "HR Order - Print"
         Employee: Record Employee;
         OrgUnit: Record "Organizational Unit";
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-10 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-10 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with AbsenceHeader do begin
             ExcelMgt.FillCell('A7', LocalRepMgt.GetCompanyName);
@@ -684,12 +684,12 @@ codeunit 17372 "HR Order - Print"
         Employee: Record Employee;
         OrgUnit: Record "Organizational Unit";
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-10a Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-10a Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with AbsenseOrder do begin
             ExcelMgt.FillCell('A6', LocalRepMgt.GetCompanyName);
@@ -741,12 +741,12 @@ codeunit 17372 "HR Order - Print"
         OrgUnit: Record "Organizational Unit";
         ReasonCode: Record "Reason Code";
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-11 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-11 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with EmployeeJournalLine do begin
             ExcelMgt.FillCell('A6', LocalRepMgt.GetCompanyName);
@@ -784,11 +784,11 @@ codeunit 17372 "HR Order - Print"
     var
         ExcelTemplate: Record "Excel Template";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Director No.");
         Director.Get(CompanyInfo."Director No.");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-73 Template Code");
 
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-73 Template Code"));
@@ -836,8 +836,8 @@ codeunit 17372 "HR Order - Print"
         PostedStaffListOrderLine: Record "Posted Staff List Order Line";
         RowNo: Integer;
     begin
-        CompanyInfo.Get;
-        HumanResSetup.Get;
+        CompanyInfo.Get();
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-3a Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-3a Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -940,11 +940,11 @@ codeunit 17372 "HR Order - Print"
         TotalAmount: Decimal;
         AEInfoFound: Boolean;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Director No.");
         Director.Get(CompanyInfo."Director No.");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-61 Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."T-61 Template Code"));
         ExcelMgt.OpenSheet('Sheet1');
@@ -984,7 +984,7 @@ codeunit 17372 "HR Order - Print"
 
             // AE data
             AEInfoFound := false;
-            EmplLedgEntry.Reset;
+            EmplLedgEntry.Reset();
             EmplLedgEntry.SetCurrentKey("Employee No.");
             EmplLedgEntry.SetRange("Employee No.", Employee."No.");
             EmplLedgEntry.SetRange("Contract No.", "Contract No.");
@@ -993,7 +993,7 @@ codeunit 17372 "HR Order - Print"
             EmplLedgEntry.SetRange("Action Ending Date", "Ending Date");
             if EmplLedgEntry.FindSet then
                 repeat
-                    PostedPayrollDocLine.Reset;
+                    PostedPayrollDocLine.Reset();
                     PostedPayrollDocLine.SetCurrentKey("Document Type", "HR Order No.");
                     PostedPayrollDocLine.SetRange("HR Order No.", "Order No.");
                     PostedPayrollDocLine.SetRange("Employee No.", LaborContract."Employee No.");
@@ -1051,7 +1051,7 @@ codeunit 17372 "HR Order - Print"
         PayrollPeriod: Record "Payroll Period";
         TotalAmount: Decimal;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         // CompanyInfo.TESTFIELD("Director No.");
         // Director.GET(CompanyInfo."Director No.");
 
@@ -1062,7 +1062,7 @@ codeunit 17372 "HR Order - Print"
         InitialAbsenceLine.SetRange("Document No.", PostedPayrollDocumentLine."HR Order No.");
         if InitialAbsenceLine.FindFirst then;
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("Sick Leave Abs. Template Code");
         ExcelMgt.OpenBookForUpdate(ExcelTemplate.OpenTemplate(HumanResSetup."Sick Leave Abs. Template Code"));
         ExcelMgt.OpenSheet('Sheet1');

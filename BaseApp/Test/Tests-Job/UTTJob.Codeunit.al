@@ -46,10 +46,10 @@ codeunit 136350 "UT T Job"
 
         // Verify that Apply Usage Link and Allow Schedule/Contract Lines are not set by default, if not set in Jobs Setup.
         Initialize;
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.Validate("Apply Usage Link by Default", false);
         JobsSetup.Validate("Allow Sched/Contract Lines Def", false);
-        JobsSetup.Modify;
+        JobsSetup.Modify();
         LibraryJob.CreateJob(Job);
         Assert.IsFalse(Job."Apply Usage Link", 'Apply Usage link is not FALSE by default.');
         Assert.IsFalse(Job."Allow Schedule/Contract Lines", 'Allow Schedule/Contract Lines is not FALSE by default.');
@@ -58,20 +58,20 @@ codeunit 136350 "UT T Job"
 
         // Verify that Apply Usage Link and Allow Schedule/Contract Lines are set by default, if set in Jobs Setup.
         Initialize;
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.Validate("Apply Usage Link by Default", true);
         JobsSetup.Validate("Allow Sched/Contract Lines Def", true);
-        JobsSetup.Modify;
+        JobsSetup.Modify();
         LibraryJob.CreateJob(Job);
         Assert.IsTrue(Job."Apply Usage Link", 'Apply Usage link is not TRUE by default.');
         Assert.IsTrue(Job."Allow Schedule/Contract Lines", 'Allow Schedule/Contract Lines is not TRUE by default.');
 
         // Verify that the Default WIP Method is set by default, if set in Jobs Setup.
-        JobsSetup.Get;
+        JobsSetup.Get();
         LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Cost Value");
         JobsSetup.Validate("Default WIP Method", JobWIPMethod.Code);
         JobsSetup.Validate("Default WIP Posting Method", JobsSetup."Default WIP Posting Method"::"Per Job Ledger Entry");
-        JobsSetup.Modify;
+        JobsSetup.Modify();
         LibraryJob.CreateJob(Job);
         Assert.AreEqual(Job."WIP Method", JobWIPMethod.Code, 'The WIP Method is not set to the correct default value.');
 
@@ -107,10 +107,10 @@ codeunit 136350 "UT T Job"
 
         // Verify that Apply Usage Link cannot be checked, once Usage has been posted.
         Job.Validate("Apply Usage Link", false);
-        Job.Modify;
-        JobLedgerEntry.Init;
+        Job.Modify();
+        JobLedgerEntry.Init();
         JobLedgerEntry."Job No." := Job."No.";
-        JobLedgerEntry.Insert;
+        JobLedgerEntry.Insert();
 
         asserterror Job.Validate("Apply Usage Link", true);
 
@@ -130,9 +130,9 @@ codeunit 136350 "UT T Job"
         Assert.IsFalse(Job."WIP Warnings", 'WIP Warning is true, even if no warnings exist.');
 
         // Verify that WIP Warnings is true when warnings exist.
-        JobWIPWarning.Init;
+        JobWIPWarning.Init();
         JobWIPWarning."Job No." := Job."No.";
-        JobWIPWarning.Insert;
+        JobWIPWarning.Insert();
         Job.CalcFields("WIP Warnings");
         Assert.IsTrue(Job."WIP Warnings", 'WIP Warning is false, even if warnings exist.');
 
@@ -154,7 +154,7 @@ codeunit 136350 "UT T Job"
         JobTask.SetRange("Job No.", Job."No.");
         JobTask.FindFirst;
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
-        JobTask.Modify;
+        JobTask.Modify();
         Job.Validate("WIP Method", JobWIPMethod.Code);
         JobTask.FindFirst;
         Assert.AreEqual(JobWIPMethod.Code, JobTask."WIP Method", 'The WIP Method set on the Job is not propagated to the Job Task Line.');
@@ -188,22 +188,22 @@ codeunit 136350 "UT T Job"
         with Job do begin
             // Validate that WIP Posting Method can't be changed back to Per Job, once entries have been posted with Per Job Ledger Entry.
             Validate("WIP Posting Method", "WIP Posting Method"::"Per Job Ledger Entry");
-            JobLedgerEntry.Init;
+            JobLedgerEntry.Init();
             JobLedgerEntry."Job No." := "No.";
             JobLedgerEntry."Amt. Posted to G/L" := LibraryRandom.RandInt(1000);
-            JobLedgerEntry.Insert;
+            JobLedgerEntry.Insert();
             asserterror Validate("WIP Posting Method", "WIP Posting Method"::"Per Job");
 
             // Validate that WIP Posting Method can't be changed, if Job WIP Entries exist.
             Clear(JobWIPEntry);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             if JobWIPEntry.FindLast then
                 JobWIPEntry."Entry No." += 1
             else
                 JobWIPEntry."Entry No." := 1;
             JobWIPEntry."Job No." := "No.";
             JobWIPEntry."WIP Entry Amount" := LibraryRandom.RandInt(1000);
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
             asserterror Validate("WIP Posting Method", "WIP Posting Method"::"Per Job Ledger Entry");
 
             // Validate that the Job WIP Method has WIP Sales and WIP Costs enabled, when WIP Posting Method is set to Per Job Ledger Entry.
@@ -239,7 +239,7 @@ codeunit 136350 "UT T Job"
         // CalcRecognizedProfitGLAmount and CalcRecognProfitGLPercentage calculate the correct amount.
         with Job do begin
             Clear(JobWIPEntry);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             if JobWIPEntry.FindLast then
                 JobWIPEntry."Entry No." += 1
             else
@@ -248,10 +248,10 @@ codeunit 136350 "UT T Job"
             JobWIPEntry.Type := JobWIPEntry.Type::"Recognized Costs";
             JobWIPEntry.Reverse := false;
             JobWIPEntry."WIP Entry Amount" := LibraryRandom.RandInt(1000);
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
 
             Clear(JobWIPEntry);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             if JobWIPEntry.FindLast then
                 JobWIPEntry."Entry No." += 1
             else
@@ -260,22 +260,22 @@ codeunit 136350 "UT T Job"
             JobWIPEntry.Type := JobWIPEntry.Type::"Recognized Sales";
             JobWIPEntry.Reverse := false;
             JobWIPEntry."WIP Entry Amount" := LibraryRandom.RandInt(1000);
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
 
             Clear(JobWIPGLEntry);
             if JobWIPGLEntry.FindLast then
                 JobWIPGLEntry."Entry No." += 1
             else
                 JobWIPGLEntry."Entry No." := 1;
-            JobWIPGLEntry.Init;
+            JobWIPGLEntry.Init();
             JobWIPGLEntry."Job No." := "No.";
             JobWIPGLEntry.Type := JobWIPGLEntry.Type::"Recognized Costs";
             JobWIPGLEntry.Reverse := false;
             JobWIPGLEntry."WIP Entry Amount" := LibraryRandom.RandInt(1000);
-            JobWIPGLEntry.Insert;
+            JobWIPGLEntry.Insert();
 
             Clear(JobWIPGLEntry);
-            JobWIPGLEntry.Init;
+            JobWIPGLEntry.Init();
             if JobWIPGLEntry.FindLast then
                 JobWIPGLEntry."Entry No." += 1
             else
@@ -284,13 +284,13 @@ codeunit 136350 "UT T Job"
             JobWIPGLEntry.Type := JobWIPGLEntry.Type::"Recognized Sales";
             JobWIPGLEntry.Reverse := false;
             JobWIPGLEntry."WIP Entry Amount" := LibraryRandom.RandInt(1000);
-            JobWIPGLEntry.Insert;
+            JobWIPGLEntry.Insert();
 
             JobTask."Recognized Sales Amount" := LibraryRandom.RandInt(1000);
             JobTask."Recognized Costs Amount" := LibraryRandom.RandInt(1000);
             JobTask."Recognized Sales G/L Amount" := LibraryRandom.RandInt(1000);
             JobTask."Recognized Costs G/L Amount" := LibraryRandom.RandInt(1000);
-            JobTask.Modify;
+            JobTask.Modify();
 
             CalcFields("Calc. Recog. Sales Amount", "Calc. Recog. Costs Amount",
               "Calc. Recog. Sales G/L Amount", "Calc. Recog. Costs G/L Amount",
@@ -331,16 +331,16 @@ codeunit 136350 "UT T Job"
         SetUp(true);
 
         // Make sure you can change the currency code on a Job Planning Line through this function.
-        Currency.Init;
+        Currency.Init();
         Currency.Code := 'TEST';
-        Currency.Insert;
+        Currency.Insert();
 
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Starting Date" := WorkDate;
         CurrencyExchangeRate."Exchange Rate Amount" := 1;
         CurrencyExchangeRate."Relational Exch. Rate Amount" := 1;
-        CurrencyExchangeRate.Insert;
+        CurrencyExchangeRate.Insert();
 
         Job."Currency Code" := Currency.Code;
         Job.CurrencyUpdatePlanningLines;
@@ -722,7 +722,7 @@ codeunit 136350 "UT T Job"
         // [GIVEN] New dimension value code = "D"
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(UTTJob);
 
         // [WHEN] Validate "Global Dimension 1 Code" with "D"
@@ -862,7 +862,7 @@ codeunit 136350 "UT T Job"
         CustomerNo := CreateCustomerWithDefDim;
 
         // [GIVEN] Mock creating job from customer card
-        Job.Init;
+        Job.Init();
         Job.SetFilter("Bill-to Customer No.", CustomerNo);
 
         // [WHEN] Job is being inserted
@@ -887,7 +887,7 @@ codeunit 136350 "UT T Job"
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job");
     end;
 
@@ -900,7 +900,7 @@ codeunit 136350 "UT T Job"
         Job.Validate("Apply Usage Link", ApplyUsageLink);
         JobWIPMethod.FindFirst;
         Job.Validate("WIP Method", JobWIPMethod.Code);
-        Job.Modify;
+        Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -937,7 +937,7 @@ codeunit 136350 "UT T Job"
         Dimension: Record Dimension;
     begin
         CustNo := LibrarySales.CreateCustomerNo;
-        GLSetup.Get;
+        GLSetup.Get();
         case DimIndex of
             1:
                 begin
@@ -956,7 +956,7 @@ codeunit 136350 "UT T Job"
 
     local procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; WIPCost: Boolean; WIPSales: Boolean)
     begin
-        JobWIPMethod.Init;
+        JobWIPMethod.Init();
         JobWIPMethod.Code := 'UTTJOB';
         JobWIPMethod."WIP Cost" := WIPCost;
         JobWIPMethod."WIP Sales" := WIPSales;
@@ -965,7 +965,7 @@ codeunit 136350 "UT T Job"
 
     local procedure CreateJobPlanningLineInvoice(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; Qty: Decimal)
     begin
-        JobPlanningLineInvoice.Init;
+        JobPlanningLineInvoice.Init();
         JobPlanningLineInvoice."Job No." := JobPlanningLine."Job No.";
         JobPlanningLineInvoice."Job Task No." := JobPlanningLine."Job Task No.";
         JobPlanningLineInvoice."Job Planning Line No." := JobPlanningLine."Line No.";
@@ -974,7 +974,7 @@ codeunit 136350 "UT T Job"
         JobPlanningLineInvoice."Line No." := 10000;
         JobPlanningLineInvoice."Quantity Transferred" := Qty;
         JobPlanningLineInvoice."Transferred Date" := WorkDate;
-        JobPlanningLineInvoice.Insert;
+        JobPlanningLineInvoice.Insert();
     end;
 
     local procedure CreateReservEntry(var ReservEntry: Record "Reservation Entry"; TableID: Integer; SourceID: Code[20])
@@ -995,9 +995,9 @@ codeunit 136350 "UT T Job"
 
     local procedure CreateJob(var Job: Record Job)
     begin
-        Job.Init;
+        Job.Init();
         Job."No." := LibraryUtility.GenerateGUID;
-        Job.Insert;
+        Job.Insert();
     end;
 
     local procedure MockTimeSheetWithLine(var TimeSheetLine: Record "Time Sheet Line")
@@ -1049,7 +1049,7 @@ codeunit 136350 "UT T Job"
     local procedure UpdateTimeSheetLineStatus(var TimeSheetLine: Record "Time Sheet Line"; NewStatus: Option)
     begin
         TimeSheetLine.Status := NewStatus;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
     end;
 
     local procedure UpdateJobGlobalDimensionCode(var Job: Record Job; DimValue1Code: Code[20]; DimValue2Code: Code[20])
@@ -1153,7 +1153,7 @@ codeunit 136350 "UT T Job"
         NameValueBuffer.ID :=
           LibraryUtility.GetNewRecNo(NameValueBuffer, NameValueBuffer.FieldNo(ID));
         NameValueBuffer.Name := Rec."No.";
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 
     [ConfirmHandler]

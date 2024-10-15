@@ -27,7 +27,7 @@ page 12479 "FA Movement Act Subform"
                         FAList: Page "Fixed Asset List";
                     begin
                         FADocHeader.Get("Document Type", "Document No.");
-                        FA.Reset;
+                        FA.Reset();
                         if FADocHeader."FA Location Code" <> '' then begin
                             FA.SetCurrentKey("FA Location Code");
                             FA.FilterGroup := 2;
@@ -197,7 +197,7 @@ page 12479 "FA Movement Act Subform"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FAEmployeeNoVisible := FASetup."Employee No. Mandatory";
     end;
 

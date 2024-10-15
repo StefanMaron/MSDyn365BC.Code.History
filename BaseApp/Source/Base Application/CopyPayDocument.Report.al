@@ -143,7 +143,7 @@ report 12425 "Copy Pay Document"
     procedure SelectEntryNo()
     begin
         FromCheckLedgerEntry.FilterGroup(2);
-        FromCheckLedgerEntry.Reset;
+        FromCheckLedgerEntry.Reset();
         FromCheckLedgerEntry.CalcFields("Bank Account Type");
         case DocType of
             0:

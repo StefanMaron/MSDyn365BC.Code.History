@@ -16,9 +16,6 @@ report 12464 "Fixed Asset G/L Turnover"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -197,7 +194,7 @@ report 12464 "Fixed Asset G/L Turnover"
                   (LineAmount[1] = 0) and (LineAmount[2] = 0) and
                   (LineAmount[3] = 0) and (LineAmount[4] = 0) and
                   (LineAmount[5] = 0) and (LineAmount[6] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TextLineValues(SkipZeroValues);
             end;

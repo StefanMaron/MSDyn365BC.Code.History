@@ -91,7 +91,7 @@ table 17362 "Labor Contract Terms"
             begin
                 CheckLaborContractStatus;
                 if Percent <> 0 then begin
-                    LaborContractLine.Reset;
+                    LaborContractLine.Reset();
                     LaborContractLine.SetRange("Contract No.", "Labor Contract No.");
                     LaborContractLine.SetRange("Operation Type", "Operation Type");
                     LaborContractLine.SetRange("Supplement No.", "Supplement No.");

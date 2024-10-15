@@ -1,4 +1,4 @@
-﻿page 62 "Applied Vendor Entries"
+page 62 "Applied Vendor Entries"
 {
     Caption = 'Applied Vendor Entries';
     DataCaptionExpression = Heading;
@@ -316,7 +316,7 @@
                 if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
                 then begin
-                    DtldVendLedgEntry2.Init;
+                    DtldVendLedgEntry2.Init();
                     DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                     DtldVendLedgEntry2.SetRange(
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
@@ -346,7 +346,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         DimVisible1 := GLSetup."Global Dimension 1 Code" <> '';

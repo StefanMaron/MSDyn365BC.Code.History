@@ -179,7 +179,7 @@ table 12472 "Posted FA Doc. Line"
     begin
         Clear(Comment);
         Index := 0;
-        PostedFAComment.Reset;
+        PostedFAComment.Reset();
         PostedFAComment.SetCurrentKey("Document Type", "Document No.", "Document Line No.", Type);
         PostedFAComment.SetRange("Document Type", "Document Type");
         PostedFAComment.SetRange("Document No.", "Document No.");
@@ -227,7 +227,7 @@ table 12472 "Posted FA Doc. Line"
                 FALedgEntry.ModifyAll("Canceled from FA No.", PstdFADocLine."FA No.");
                 FALedgEntry.ModifyAll("FA No.", '');
                 PstdFADocLine.Canceled := true;
-                PstdFADocLine.Modify;
+                PstdFADocLine.Modify();
                 LedgEntriesCanceled := true;
             until PstdFADocLine.Next = 0;
         if LedgEntriesCanceled then begin

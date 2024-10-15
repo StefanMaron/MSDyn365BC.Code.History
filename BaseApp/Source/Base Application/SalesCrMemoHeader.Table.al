@@ -206,11 +206,9 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -367,11 +365,9 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -738,6 +734,9 @@ table 114 "Sales Cr.Memo Header"
         }
     }
 
+    var
+        DocTxt: Label 'Credit Memo';
+
     trigger OnDelete()
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
@@ -746,12 +745,12 @@ table 114 "Sales Cr.Memo Header"
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         PostSalesDelete.DeleteSalesCrMemoLines(Rec);
 
         SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::"Posted Credit Memo");
         SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll;
+        SalesCommentLine.DeleteAll();
 
         DocSignMgt.DeletePostedDocSign(DATABASE::"Sales Cr.Memo Header", "No.");
 
@@ -794,7 +793,7 @@ table 114 "Sales Cr.Memo Header"
             end else begin
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.")
+                      ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, "No.", DocTxt, ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithGUIYesNo(
                       ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
@@ -843,12 +842,32 @@ table 114 "Sales Cr.Memo Header"
         SendRecords(ShowRequestPage, true);
     end;
 
+    procedure PrintToDocumentAttachment(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := SalesCrMemoHeader.Count() = 1;
+        if SalesCrMemoHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(SalesCrMemoHeader, ShowNotificationAction);
+            until SalesCrMemoHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        SalesCrMemoHeader.SetRecFilter();
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader, SalesCrMemoHeader."No.", SalesCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
+    end;
+
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure LookupAdjmtValueEntries()
@@ -886,7 +905,7 @@ table 114 "Sales Cr.Memo Header"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         exit(SalesSetup.GetLegalStatement);
     end;
 
@@ -919,13 +938,13 @@ table 114 "Sales Cr.Memo Header"
         DocNoFilter := '';
         I := 0;
 
-        SalesCrMemoLine.Reset;
+        SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.SetFilter(Quantity, '>%1', 0);
         if SalesCrMemoLine.Find('-') then
             repeat
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetCurrentKey("Item No.", "Posting Date", "Document No.");
                 ValueEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
                 ValueEntry.SetRange("Posting Date", SalesCrMemoHeader."Posting Date");
@@ -948,7 +967,7 @@ table 114 "Sales Cr.Memo Header"
             until SalesCrMemoLine.Next = 0;
         if DocNoFilter = '' then
             DocNoFilter := '.';
-        ReturnReceiptHeader.Reset;
+        ReturnReceiptHeader.Reset();
         ReturnReceiptHeader.SetFilter("No.", DocNoFilter);
         PAGE.Run(PAGE::"Posted Return Receipts", ReturnReceiptHeader);
     end;

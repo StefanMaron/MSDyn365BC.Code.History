@@ -213,7 +213,7 @@ page 1210 "Data Exch Def Card"
             DataExchLineDef.Code := DefaultTxt;
             DataExchLineDef.Name := DefaultTxt;
             DataExchLineDef."Line Type" := 1;
-            DataExchLineDef.Insert;
+            DataExchLineDef.Insert();
         end;
     end;
 

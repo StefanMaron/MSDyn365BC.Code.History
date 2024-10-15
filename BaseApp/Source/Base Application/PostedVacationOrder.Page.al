@@ -141,7 +141,7 @@ page 17462 "Posted Vacation Order"
                     var
                         AbsenceHeader: Record "Absence Header";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         AbsenceHeader.TransferFields(Rec);

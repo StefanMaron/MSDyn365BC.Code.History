@@ -89,7 +89,7 @@ table 14925 "VAT Allocation Line"
                                 Validate("Account No.", VATEntry."Object No.");
                             VATEntry."Object Type"::"Fixed Asset":
                                 begin
-                                    FASetup.Get;
+                                    FASetup.Get();
                                     FA.Get(VATEntry."Object No.");
                                     if FA."Initial Release Date" <> 0D then begin // Released
                                         FASetup.TestField("Release Depr. Book");
@@ -323,7 +323,7 @@ table 14925 "VAT Allocation Line"
     var
         CommonBase: Option;
     begin
-        LockTable;
+        LockTable();
         TestField("VAT Entry No.");
         VATEntry.Get("VAT Entry No.");
         VATEntry.TestField("Unrealized Base");
@@ -376,7 +376,7 @@ table 14925 "VAT Allocation Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';

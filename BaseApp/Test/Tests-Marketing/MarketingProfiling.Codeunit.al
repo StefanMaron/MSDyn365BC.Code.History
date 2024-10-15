@@ -19,10 +19,10 @@ codeunit 136206 "Marketing Profiling"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        DateFormulaCurrentDayTok: Label '<CD>';
+        DateFormulaCurrentDayTok: Label '<CD>', Locked = true;
         IncorrectFieldValueErr: Label 'Field %1 contains incorrect value', Comment = '%1 - field name';
         ContactClassificationErr: Label 'Contact Classification was not updated';
-        DateFormulaStartDayTok: Label '<CY-1Y+1D>';
+        DateFormulaStartDayTok: Label '<CY-1Y+1D>', Locked = true;
         IncorrectQuestionnaireLineCountErr: Label 'Incorrect count questionnaire lines.';
 
     [Test]
@@ -373,7 +373,7 @@ codeunit 136206 "Marketing Profiling"
         CreateQuestionnairesLinesWithValues(ProfileQuestionnaireCode, FromValue, ToValue);
 
         // 2. Exercise: Set values via Profile Questionnaire Setup
-        Commit;
+        Commit();
         ProfileQuestionnaireLine.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
         PAGE.RunModal(PAGE::"Profile Questionnaire Setup", ProfileQuestionnaireLine);
 
@@ -422,7 +422,7 @@ codeunit 136206 "Marketing Profiling"
 
         // [THEN] Contact "C" is not included in "Answer 1"
         FindProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
-        ContactProfileAnswer.Init;
+        ContactProfileAnswer.Init();
         ContactProfileAnswer.SetRange("Contact No.", ContactNo);
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
         ContactProfileAnswer.SetRange("Line No.", ProfileQuestionnaireLine."Line No.");
@@ -523,7 +523,7 @@ codeunit 136206 "Marketing Profiling"
         // [THEN] Contact "C1" is only included in "Answer 1" => 100 / 600 => 0% .. 16.67% .. 20%
         // [THEN] Contact "C2" is only included in "Answer 2" => 200 / 600 => 21% .. 33.33% .. 40%
         // [THEN] Contact "C3" is only included in "Answer 3" => 300 / 600 => 41% .. 50% .. 100%
-        ContactProfileAnswer.Init;
+        ContactProfileAnswer.Init();
         ContactProfileAnswer.SetRange("Profile Questionnaire Code", ProfileQuestionnaireCode);
         FindProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
         for Index := 1 to ArrayLen(ContactNo) do begin
@@ -551,7 +551,7 @@ codeunit 136206 "Marketing Profiling"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Profiling");
     end;
 
@@ -728,7 +728,7 @@ codeunit 136206 "Marketing Profiling"
 
     local procedure FinishStepToDoWizard(var TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary)
     begin
-        TempProfileQuestionnaireLine.Modify;
+        TempProfileQuestionnaireLine.Modify();
         TempProfileQuestionnaireLine.CheckStatus;
         TempProfileQuestionnaireLine.FinishWizard;
     end;
@@ -752,7 +752,7 @@ codeunit 136206 "Marketing Profiling"
 
     local procedure NextStepToDoWizard(var TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary)
     begin
-        TempProfileQuestionnaireLine.Modify;
+        TempProfileQuestionnaireLine.Modify();
         TempProfileQuestionnaireLine.CheckStatus;
         TempProfileQuestionnaireLine.PerformNextWizardStatus;
     end;
@@ -902,9 +902,9 @@ codeunit 136206 "Marketing Profiling"
         WizardFromValue: Decimal;
         WizardToValue: Decimal;
     begin
-        TempProfileQuestionnaireLine.Init;
+        TempProfileQuestionnaireLine.Init();
         CreateRating.GetRecord(TempProfileQuestionnaireLine);
-        TempProfileQuestionnaireLine.Insert;  // Use of Insert in case of Temporary Table.
+        TempProfileQuestionnaireLine.Insert();  // Use of Insert in case of Temporary Table.
 
         TempProfileQuestionnaireLine.Validate(Description, TempProfileQuestionnaireLine."Profile Questionnaire Code");
         TempProfileQuestionnaireLine.Validate("Min. % Questions Answered", LibraryRandom.RandInt(10));  // Value is not important for the test Case.

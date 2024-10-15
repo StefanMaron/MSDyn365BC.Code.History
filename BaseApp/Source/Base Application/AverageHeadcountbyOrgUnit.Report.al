@@ -18,9 +18,6 @@ report 17375 "Average Headcount by Org. Unit"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -37,9 +34,6 @@ report 17375 "Average Headcount by Org. Unit"
             {
             }
             column(Quarter; Quarter)
-            {
-            }
-            column(CurrReport_PAGENO_Control34; CurrReport.PageNo)
             {
             }
             column(Month1_Control42; Month1)
@@ -99,9 +93,6 @@ report 17375 "Average Headcount by Org. Unit"
             column(Organizational_Unit_NameCaption; FieldCaption(Name))
             {
             }
-            column(CurrReport_PAGENO_Control34Caption; CurrReport_PAGENO_Control34CaptionLbl)
-            {
-            }
             column(Org__Unit_CodeCaption_Control78; Org__Unit_CodeCaption_Control78Lbl)
             {
             }
@@ -124,7 +115,7 @@ report 17375 "Average Headcount by Org. Unit"
                 EndDate := EndDateInital;
 
                 for J := 1 to 3 do begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetRange("Org. Unit Code", Code);
                     if EmplCategory <> '' then
                         Employee.SetRange("Statistics Group Code", EmplCategory);
@@ -275,7 +266,6 @@ report 17375 "Average Headcount by Org. Unit"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         forCaptionLbl: Label 'for';
         Org__Unit_CodeCaptionLbl: Label 'Org. Unit Code';
-        CurrReport_PAGENO_Control34CaptionLbl: Label 'Page';
         Org__Unit_CodeCaption_Control78Lbl: Label 'Org. Unit Code';
         NameCaptionLbl: Label 'Name';
         TotalCaptionLbl: Label 'Total';

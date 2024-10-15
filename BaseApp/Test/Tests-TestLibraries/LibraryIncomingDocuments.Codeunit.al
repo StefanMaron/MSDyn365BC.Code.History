@@ -17,25 +17,25 @@ codeunit 131100 "Library - Incoming Documents"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         if IncomingDocumentsSetup.Get then
-            IncomingDocumentsSetup.Delete;
+            IncomingDocumentsSetup.Delete();
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        IncomingDocumentsSetup.Init;
+        IncomingDocumentsSetup.Init();
         IncomingDocumentsSetup.Validate("General Journal Template Name", GenJournalTemplate.Name);
         IncomingDocumentsSetup.Validate("General Journal Batch Name", GenJournalBatch.Name);
         IncomingDocumentsSetup.Validate("Require Approval To Create", false);
-        IncomingDocumentsSetup.Insert;
+        IncomingDocumentsSetup.Insert();
 
-        IncomingDocumentApprover.Init;
+        IncomingDocumentApprover.Init();
         IncomingDocumentApprover."User ID" := UserSecurityId;
-        if IncomingDocumentApprover.Insert then;
+        if IncomingDocumentApprover.Insert() then;
     end;
 
     procedure CreateNewIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Entry No." := LibraryUtility.GetNewRecNo(IncomingDocument, IncomingDocument.FieldNo("Entry No."));
         IncomingDocument.Description := 'abcdefghijklmnopqrstuvxyz123';
         IncomingDocument.SetURL('http://www.microsoft.com/Dynamics');

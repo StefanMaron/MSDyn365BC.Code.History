@@ -19,7 +19,7 @@ table 12404 "VAT Ledger"
             begin
                 if Code <> xRec.Code then begin
                     CheckVATLedgerStatus;
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if Type = Type::Purchase then
                         NoSeriesMgt.TestManual(GLSetup."VAT Purch. Ledger No. Series")
                     else
@@ -320,18 +320,18 @@ table 12404 "VAT Ledger"
     begin
         VATLedgerLine.SetRange(Type, Type);
         VATLedgerLine.SetRange(Code, Code);
-        VATLedgerLine.DeleteAll;
+        VATLedgerLine.DeleteAll();
 
         case Type of
             Type::Purchase:
                 begin
                     VATLedgerConnection.SetRange("Purch. Ledger Code", Code);
-                    VATLedgerConnection.DeleteAll;
+                    VATLedgerConnection.DeleteAll();
                 end;
             Type::Sales:
                 begin
                     VATLedgerConnection.SetRange("Sales Ledger Code", Code);
-                    VATLedgerConnection.DeleteAll;
+                    VATLedgerConnection.DeleteAll();
                 end;
         end;
     end;
@@ -339,7 +339,7 @@ table 12404 "VAT Ledger"
     trigger OnInsert()
     begin
         if Code = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if Type = Type::Purchase then begin
                 GLSetup.TestField("VAT Purch. Ledger No. Series");
                 NoSeriesMgt.InitSeries(GLSetup."VAT Purch. Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series");
@@ -367,11 +367,11 @@ table 12404 "VAT Ledger"
     begin
         with VATLedger do begin
             VATLedger := Rec;
-            GLSetup.Get;
+            GLSetup.Get();
             if Type = Type::Purchase then begin
                 GLSetup.TestField("VAT Purch. Ledger No. Series");
                 if NoSeriesMgt.SelectSeries(GLSetup."VAT Purch. Ledger No. Series", OldVATLedger."No. Series", "No. Series") then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("VAT Purch. Ledger No. Series");
                     NoSeriesMgt.SetSeries(Code);
                     Rec := VATLedger;
@@ -380,7 +380,7 @@ table 12404 "VAT Ledger"
             end else begin
                 GLSetup.TestField("VAT Sales Ledger No. Series");
                 if NoSeriesMgt.SelectSeries(GLSetup."VAT Sales Ledger No. Series", OldVATLedger."No. Series", "No. Series") then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("VAT Purch. Ledger No. Series");
                     NoSeriesMgt.SetSeries(Code);
                     Rec := VATLedger;

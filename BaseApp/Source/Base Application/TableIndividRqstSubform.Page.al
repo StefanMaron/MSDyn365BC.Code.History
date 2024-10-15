@@ -41,9 +41,9 @@ page 26567 "Table Individ. Rqst. Subform"
                     begin
                         if StatutoryReportDataValue.Get(DataHeaderNo, ReportCode, TableCode, ExcelSheetName, "Line No.", 0) then begin
                             StatutoryReportDataValue.Validate(Value, IndRequisiteValue);
-                            StatutoryReportDataValue.Modify;
+                            StatutoryReportDataValue.Modify();
                         end else begin
-                            StatutoryReportDataValue.Init;
+                            StatutoryReportDataValue.Init();
                             StatutoryReportDataValue."Report Data No." := DataHeaderNo;
                             StatutoryReportDataValue."Report Code" := ReportCode;
                             StatutoryReportDataValue."Table Code" := TableCode;
@@ -51,7 +51,7 @@ page 26567 "Table Individ. Rqst. Subform"
                             StatutoryReportDataValue."Row No." := "Line No.";
                             StatutoryReportDataValue."Column No." := 0;
                             StatutoryReportDataValue.Validate(Value, IndRequisiteValue);
-                            StatutoryReportDataValue.Insert;
+                            StatutoryReportDataValue.Insert();
                         end;
                     end;
                 }

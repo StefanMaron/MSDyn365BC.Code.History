@@ -85,7 +85,7 @@ page 104 "Account Schedule"
                         case "Totaling Type" of
                             "Totaling Type"::Formula:
                                 begin
-                                    GLSetup.Get;
+                                    GLSetup.Get();
                                     if GLSetup."Shared Account Schedule" <> '' then begin
                                         AccScheduleLines.LookupMode := true;
                                         AccScheduleLine.FilterGroup(2);
@@ -306,7 +306,7 @@ page 104 "Account Schedule"
                     if AccScheduleLine.FindSet then
                         repeat
                             AccScheduleLine.Indent;
-                            AccScheduleLine.Modify;
+                            AccScheduleLine.Modify();
                         until AccScheduleLine.Next = 0;
                     CurrPage.Update(false);
                 end;
@@ -331,7 +331,7 @@ page 104 "Account Schedule"
                     if AccScheduleLine.FindSet then
                         repeat
                             AccScheduleLine.Outdent;
-                            AccScheduleLine.Modify;
+                            AccScheduleLine.Modify();
                         until AccScheduleLine.Next = 0;
                     CurrPage.Update(false);
                 end;

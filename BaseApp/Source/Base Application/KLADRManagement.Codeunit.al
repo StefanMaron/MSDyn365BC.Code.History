@@ -18,7 +18,7 @@ codeunit 14950 "KLADR Management"
 
         ParentCode := KLADRAddr.GetParentCode(AltAddr."KLADR Code", Level);
 
-        KLADRAddr.Reset;
+        KLADRAddr.Reset();
         KLADRAddr.SetCurrentKey(Level, Parent, Name);
         KLADRAddr.SetRange(Level, Level);
         if Level > 1 then

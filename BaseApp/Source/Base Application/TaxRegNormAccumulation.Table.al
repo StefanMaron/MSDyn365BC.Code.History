@@ -123,7 +123,7 @@ table 17242 "Tax Reg. Norm Accumulation"
         case TaxRegNormTemplateLine."Expression Type" of
             TaxRegNormTemplateLine."Expression Type"::Link:
                 begin
-                    TaxRegNormAccumulation.Reset;
+                    TaxRegNormAccumulation.Reset();
                     TaxRegNormAccumulation.FilterGroup(2);
                     TaxRegNormAccumulation.SetRange("Norm Jurisdiction Code", TaxRegNormTemplateLine."Norm Jurisdiction Code");
                     TaxRegNormAccumulation.FilterGroup(0);

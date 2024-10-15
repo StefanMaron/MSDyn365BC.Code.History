@@ -63,15 +63,15 @@ report 17454 "Spreadsheet Addition & Deduct"
 
             trigger OnPreDataItem()
             begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
 
                 FillInElementsBuffer;
-                AdditionBuffer.Reset;
-                DeductionBuffer.Reset;
+                AdditionBuffer.Reset();
+                DeductionBuffer.Reset();
                 AdditionBuffer.SetCurrentKey(Description);
                 DeductionBuffer.SetCurrentKey(Description);
-                AdditionBufferCount := AdditionBuffer.Count;
-                DeductionBufferCount := DeductionBuffer.Count;
+                AdditionBufferCount := AdditionBuffer.Count();
+                DeductionBufferCount := DeductionBuffer.Count();
 
                 if AdditionBufferCount >= DeductionBufferCount then
                     SetRange(Number, 1, AdditionBufferCount)
@@ -119,7 +119,7 @@ report 17454 "Spreadsheet Addition & Deduct"
 
             trigger OnPreDataItem()
             begin
-                OtherIncomeBuffer.Reset;
+                OtherIncomeBuffer.Reset();
                 OtherIncomeBuffer.SetCurrentKey(Description);
                 SetRange(Number, 1, OtherIncomeBuffer.Count);
 
@@ -224,7 +224,7 @@ report 17454 "Spreadsheet Addition & Deduct"
         case DataSource of
             DataSource::"Payroll Documents":
                 begin
-                    PayrollDocLine.Reset;
+                    PayrollDocLine.Reset();
                     PayrollDocLine.SetRange("Period Code", PeriodCode);
                     PayrollDocLine.SetFilter("Payroll Amount", '<>0');
                     if OrgUnitCode <> '' then
@@ -244,7 +244,7 @@ report 17454 "Spreadsheet Addition & Deduct"
                 end;
             DataSource::"Posted Entries":
                 begin
-                    PayrollLedgEntry.Reset;
+                    PayrollLedgEntry.Reset();
                     PayrollLedgEntry.SetRange("Period Code", PeriodCode);
                     if OrgUnitCode <> '' then
                         PayrollLedgEntry.SetRange("Org. Unit Code", OrgUnitCode);
@@ -268,19 +268,19 @@ report 17454 "Spreadsheet Addition & Deduct"
     var
         EntryNo: Integer;
     begin
-        Buffer.Reset;
+        Buffer.Reset();
         if Buffer.FindLast then;
         EntryNo := Buffer."Entry No." + 1;
         Buffer.SetRange("Element Code", PayrollElement.Code);
         if Buffer.FindFirst then begin
             Buffer."Amount 1" += Amount;
-            Buffer.Modify;
+            Buffer.Modify();
         end else begin
             Buffer."Entry No." := EntryNo;
             Buffer."Element Code" := PayrollElement.Code;
             Buffer.Description := PayrollElement.Description;
             Buffer."Amount 1" := Amount;
-            Buffer.Insert;
+            Buffer.Insert();
         end;
     end;
 
@@ -290,7 +290,7 @@ report 17454 "Spreadsheet Addition & Deduct"
         case DataSource of
             DataSource::"Payroll Documents":
                 begin
-                    PayrollDocLine.Reset;
+                    PayrollDocLine.Reset();
                     PayrollDocLine.SetRange("Element Code", ElementCode);
                     if OrgUnitCode <> '' then
                         PayrollDocLine.SetRange("Org. Unit Code", OrgUnitCode);
@@ -300,7 +300,7 @@ report 17454 "Spreadsheet Addition & Deduct"
                 end;
             DataSource::"Posted Entries":
                 begin
-                    PayrollLedgEntry.Reset;
+                    PayrollLedgEntry.Reset();
                     PayrollLedgEntry.SetCurrentKey(
                       "Org. Unit Code", "Element Type", "Element Code", "Posting Date", "Period Code");
                     PayrollLedgEntry.SetRange("Element Code", ElementCode);

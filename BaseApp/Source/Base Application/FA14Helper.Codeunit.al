@@ -39,9 +39,9 @@ codeunit 14951 "FA-14 Helper"
         FAComment: Record "FA Comment";
         FASetup: Record "FA Setup";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
-        FASetup.Get;
+        FASetup.Get();
 
         FAPostingGroup.Get(FirstPurchLine."Posting Group");
         FirstFA.Get(FirstPurchLine."No.");
@@ -68,9 +68,9 @@ codeunit 14951 "FA-14 Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         Vendor.Get(PurchaseInvHeader."Buy-from Vendor No.");
-        FASetup.Get;
+        FASetup.Get();
 
         FAPostingGroup.Get(FirstPurchInvLine."Posting Group");
         FirstFA.Get(FirstPurchInvLine."No.");
@@ -207,7 +207,7 @@ codeunit 14951 "FA-14 Helper"
     [Scope('OnPrem')]
     procedure InitReportTemplate()
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("FA-14 Template Code");
         ExcelReportBuilderMgr.InitTemplate(FASetup."FA-14 Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');

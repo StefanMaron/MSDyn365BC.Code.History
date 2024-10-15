@@ -109,7 +109,7 @@ page 17430 "Payroll Calendar Subform"
             repeat
                 if CalendarLine.Status = CalendarLine.Status::Open then begin
                     CalendarLine.Release;
-                    CalendarLine.Modify;
+                    CalendarLine.Modify();
                 end;
             until CalendarLine.Next = 0;
     end;
@@ -124,7 +124,7 @@ page 17430 "Payroll Calendar Subform"
             repeat
                 if CalendarLine.Status = CalendarLine.Status::Released then begin
                     CalendarLine.Reopen;
-                    CalendarLine.Modify;
+                    CalendarLine.Modify();
                 end;
             until CalendarLine.Next = 0;
     end;

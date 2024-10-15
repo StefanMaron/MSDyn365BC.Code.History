@@ -115,7 +115,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
                    (ActAmt = 0) and
                    (CompareAmt = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if NewPage then begin
                     PageGroupNo := PageGroupNo + 1;
@@ -128,7 +128,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if (StartDate = 0D) or (EndDate = 0D) or (FromCompareDate = 0D) or (ToCompareDate = 0D) then
                     Error(Text000);
 

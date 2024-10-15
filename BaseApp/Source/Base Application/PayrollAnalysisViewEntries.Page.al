@@ -113,8 +113,8 @@ page 14969 "Payroll Analysis View Entries"
     var
         PayrlAViewEntryToPayrlEntries: Codeunit PayrlAViewEntryToPayrlEntries;
     begin
-        TempPayrollLedgerEntry.Reset;
-        TempPayrollLedgerEntry.DeleteAll;
+        TempPayrollLedgerEntry.Reset();
+        TempPayrollLedgerEntry.DeleteAll();
         PayrlAViewEntryToPayrlEntries.GetPayrollEntries(PayrollAnalysisViewEntry, TempPayrollLedgerEntry);
     end;
 }

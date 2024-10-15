@@ -175,7 +175,7 @@ page 374 "Check Ledger Entries"
 
                 trigger OnAction()
                 begin
-                    CheckLedgEntry.Reset;
+                    CheckLedgEntry.Reset();
                     CheckLedgEntry.SetRange("Entry No.", "Entry No.");
                     CheckLedgEntry.SetRange("Document No.", "Document No.");
                     if CheckLedgEntry.Find('-') then begin

@@ -94,7 +94,7 @@ page 26568 "Stat. Report Excel Sheets"
             if UpperSheet.FindLast then begin
                 SequenceNo := UpperSheet."Sequence No.";
                 UpperSheet."Sequence No." := "Sequence No.";
-                UpperSheet.Modify;
+                UpperSheet.Modify();
 
                 "Sequence No." := SequenceNo;
                 Modify;
@@ -118,7 +118,7 @@ page 26568 "Stat. Report Excel Sheets"
             if LowerSheet.FindFirst then begin
                 SequenceNo := LowerSheet."Sequence No.";
                 LowerSheet."Sequence No." := "Sequence No.";
-                LowerSheet.Modify;
+                LowerSheet.Modify();
 
                 "Sequence No." := SequenceNo;
                 Modify;

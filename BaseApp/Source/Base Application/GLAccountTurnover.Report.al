@@ -17,9 +17,6 @@ report 12436 "G/L Account Turnover"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -240,7 +237,7 @@ report 12436 "G/L Account Turnover"
                   (LineAmount[5] = 0) and (LineAmount[6] = 0) then
                     CurrRecordSkip := true;
 
-                if CurrRecordSkip then CurrReport.Skip;
+                if CurrRecordSkip then CurrReport.Skip();
 
                 if "Account Type" = "Account Type"::Posting then begin
                     for I := 1 to 6 do

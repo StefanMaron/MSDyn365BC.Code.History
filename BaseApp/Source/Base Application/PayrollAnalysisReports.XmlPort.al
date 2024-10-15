@@ -269,31 +269,31 @@ xmlport 14960 "Payroll Analysis Reports"
         if TempPayrollAnalysisReportName.FindSet then
             repeat
                 "Payroll Analysis Report Name" := TempPayrollAnalysisReportName;
-                "Payroll Analysis Report Name".Insert;
+                "Payroll Analysis Report Name".Insert();
 
                 if not "Payroll Analysis Line Template".Get(TempPayrollAnalysisReportName."Analysis Line Template Name") then
                     if PayrollAnalysisLineTemplate.Get(TempPayrollAnalysisReportName."Analysis Line Template Name") then begin
                         "Payroll Analysis Line Template" := PayrollAnalysisLineTemplate;
-                        "Payroll Analysis Line Template".Insert;
+                        "Payroll Analysis Line Template".Insert();
 
                         PayrollAnalysisLine.SetRange("Analysis Line Template Name", PayrollAnalysisLineTemplate.Name);
                         if PayrollAnalysisLine.FindSet then
                             repeat
                                 "Payroll Analysis Line" := PayrollAnalysisLine;
-                                "Payroll Analysis Line".Insert;
+                                "Payroll Analysis Line".Insert();
                             until PayrollAnalysisLine.Next = 0;
 
                         if PayrollAnalysisLineTemplate."Payroll Analysis View Code" <> '' then
                             if not "Payroll Analysis View".Get(PayrollAnalysisLineTemplate."Payroll Analysis View Code") then
                                 if PayrollAnalysisView.Get(PayrollAnalysisLineTemplate."Payroll Analysis View Code") then begin
                                     "Payroll Analysis View" := PayrollAnalysisView;
-                                    "Payroll Analysis View".Insert;
+                                    "Payroll Analysis View".Insert();
 
                                     PayrollAnalysisViewFilter.SetRange("Analysis View Code", PayrollAnalysisView.Code);
                                     if PayrollAnalysisViewFilter.FindSet then
                                         repeat
                                             "Payroll Analysis View Filter" := PayrollAnalysisViewFilter;
-                                            "Payroll Analysis View Filter".Insert;
+                                            "Payroll Analysis View Filter".Insert();
                                         until PayrollAnalysisViewFilter.Next = 0;
                                 end;
                     end;
@@ -301,13 +301,13 @@ xmlport 14960 "Payroll Analysis Reports"
                 if not "Payroll Analysis Column Tmpl.".Get(TempPayrollAnalysisReportName."Analysis Column Template Name") then
                     if PayrollAnalysisColumnTmpl.Get(TempPayrollAnalysisReportName."Analysis Column Template Name") then begin
                         "Payroll Analysis Column Tmpl." := PayrollAnalysisColumnTmpl;
-                        "Payroll Analysis Column Tmpl.".Insert;
+                        "Payroll Analysis Column Tmpl.".Insert();
 
                         PayrollAnalysisColumn.SetRange("Analysis Column Template", PayrollAnalysisColumnTmpl.Name);
                         if PayrollAnalysisColumn.FindSet then
                             repeat
                                 "Payroll Analysis Column" := PayrollAnalysisColumn;
-                                "Payroll Analysis Column".Insert;
+                                "Payroll Analysis Column".Insert();
                             until PayrollAnalysisColumn.Next = 0;
                     end;
             until TempPayrollAnalysisReportName.Next = 0;
@@ -325,7 +325,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisReportName.Delete(true);
                         PayrollAnalysisReportName := "Payroll Analysis Report Name";
                     end;
-                    PayrollAnalysisReportName.Insert;
+                    PayrollAnalysisReportName.Insert();
                 until Next = 0;
         end;
 
@@ -338,7 +338,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisLineTemplate.Delete(true);
                         PayrollAnalysisLineTemplate := "Payroll Analysis Line Template";
                     end;
-                    PayrollAnalysisLineTemplate.Insert;
+                    PayrollAnalysisLineTemplate.Insert();
                 until Next = 0;
         end;
 
@@ -351,7 +351,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisLine.Delete(true);
                         PayrollAnalysisLine := "Payroll Analysis Line";
                     end;
-                    PayrollAnalysisLine.Insert;
+                    PayrollAnalysisLine.Insert();
                 until Next = 0;
         end;
 
@@ -364,7 +364,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisColumnTmpl.Delete(true);
                         PayrollAnalysisColumnTmpl := "Payroll Analysis Column Tmpl.";
                     end;
-                    PayrollAnalysisColumnTmpl.Insert;
+                    PayrollAnalysisColumnTmpl.Insert();
                 until Next = 0;
         end;
 
@@ -377,7 +377,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisColumn.Delete(true);
                         PayrollAnalysisColumn := "Payroll Analysis Column";
                     end;
-                    PayrollAnalysisColumn.Insert;
+                    PayrollAnalysisColumn.Insert();
                 until Next = 0;
         end;
 
@@ -390,7 +390,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisView.Delete(true);
                         PayrollAnalysisView := "Payroll Analysis View";
                     end;
-                    PayrollAnalysisView.Insert;
+                    PayrollAnalysisView.Insert();
                 until Next = 0;
         end;
 
@@ -403,7 +403,7 @@ xmlport 14960 "Payroll Analysis Reports"
                         PayrollAnalysisViewFilter.Delete(true);
                         PayrollAnalysisViewFilter := "Payroll Analysis View Filter";
                     end;
-                    PayrollAnalysisViewFilter.Insert;
+                    PayrollAnalysisViewFilter.Insert();
                 until Next = 0;
         end;
     end;

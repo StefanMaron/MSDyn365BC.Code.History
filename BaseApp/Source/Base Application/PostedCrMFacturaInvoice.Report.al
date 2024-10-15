@@ -48,7 +48,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                             LineValues: array[13] of Text;
                         begin
                             if Header."Prepayment Credit Memo" then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if Number = 1 then
                                 TrackingSpecBuffer2.FindSet
@@ -70,7 +70,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not MultipleCD then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TrackingSpecCount);
                         end;
@@ -82,19 +82,19 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then begin
                                 FacturaInvoiceHelper.FormatTotalAmounts(
                                   TotalAmountText, TotalAmount, Sign, Header."Prepayment Credit Memo", VATExemptTotal);
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         CopyArray(LastTotalAmount, TotalAmount, 1);
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1.Quantity = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1.Amount := SalesLine1."Amount (LCY)";
                                 SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
@@ -142,7 +142,6 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     Clear(TotalAmount);
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -154,7 +153,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                 trigger OnPreDataItem()
                 begin
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, CopiesNumber);
                 end;
@@ -169,13 +168,13 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
                 Sign := -1;
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
                 if SalesLine1.FindSet then
                     repeat
                         AttachedSalesLine := SalesLine1;
-                        AttachedSalesLine.Insert;
+                        AttachedSalesLine.Insert();
                     until SalesLine1.Next = 0;
 
                 SalesLine1.SetRange("Attached to Line No.", 0);
@@ -224,7 +223,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }
@@ -303,7 +302,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         if not CurrReport.UseRequestPage then
             CopiesNumber := 1;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Factura Template Code");
         FacturaInvoiceHelper.InitReportTemplate(SalesSetup."Factura Template Code");
     end;
@@ -458,31 +457,31 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         case SalesLine1.Type of
             SalesLine1.Type::Item:
                 begin
-                    TrackingSpecBuffer.Reset;
+                    TrackingSpecBuffer.Reset();
                     TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                       "Source Prod. Order Line", "Source Ref. No.");
                     TrackingSpecBuffer.SetRange("Source Type", DATABASE::"Sales Cr.Memo Line");
                     TrackingSpecBuffer.SetRange("Source Subtype", 0);
                     TrackingSpecBuffer.SetRange("Source ID", SalesLine1."Document No.");
                     TrackingSpecBuffer.SetRange("Source Ref. No.", SalesLine1."Line No.");
-                    TrackingSpecBuffer2.DeleteAll;
+                    TrackingSpecBuffer2.DeleteAll();
                     if TrackingSpecBuffer.FindSet then
                         repeat
                             TrackingSpecBuffer2.SetRange("CD No.", TrackingSpecBuffer."CD No.");
                             if TrackingSpecBuffer2.FindFirst then begin
                                 TrackingSpecBuffer2."Quantity (Base)" += TrackingSpecBuffer."Quantity (Base)";
-                                TrackingSpecBuffer2.Modify;
+                                TrackingSpecBuffer2.Modify();
                             end else begin
-                                TrackingSpecBuffer2.Init;
+                                TrackingSpecBuffer2.Init();
                                 TrackingSpecBuffer2 := TrackingSpecBuffer;
                                 TrackingSpecBuffer2.TestField("Quantity (Base)");
                                 TrackingSpecBuffer2."Lot No." := '';
                                 TrackingSpecBuffer2."Serial No." := '';
-                                TrackingSpecBuffer2.Insert;
+                                TrackingSpecBuffer2.Insert();
                             end;
                         until TrackingSpecBuffer.Next = 0;
-                    TrackingSpecBuffer2.Reset;
-                    TrackingSpecCount := TrackingSpecBuffer2.Count;
+                    TrackingSpecBuffer2.Reset();
+                    TrackingSpecCount := TrackingSpecBuffer2.Count();
                     case TrackingSpecCount of
                         1:
                             begin

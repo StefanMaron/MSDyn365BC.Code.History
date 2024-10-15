@@ -121,7 +121,7 @@ table 6700 "Exchange Sync"
         ActivityLog: Record "Activity Log";
     begin
         ActivityLog.SetRange("Record ID", RecordId);
-        ActivityLog.DeleteAll;
+        ActivityLog.DeleteAll();
     end;
 }
 

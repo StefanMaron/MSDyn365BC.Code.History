@@ -17,7 +17,7 @@ codeunit 17404 "Payroll Document - Calculate"
         TestField("Element Code");
         TestField("Period Code");
 
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
 
         // initialize journal line amount
         "Payroll Amount" := 0;
@@ -52,7 +52,7 @@ codeunit 17404 "Payroll Document - Calculate"
 
         InitPayrollPeriod("Period Code", "Wage Period From");
 
-        PayrollCalculation.Reset;
+        PayrollCalculation.Reset();
         PayrollCalculation.SetRange("Element Code", "Element Code");
         PayrollCalculation.SetRange("Period Code", FirstPayrollPeriod.Code, "Period Code");
         if PayrollCalculation.FindLast then begin
@@ -60,17 +60,17 @@ codeunit 17404 "Payroll Document - Calculate"
             PrepareCalculations(Rec, PayrollCalculation);
 
             // calculation start
-            PayrollDocLineCalc.Reset;
+            PayrollDocLineCalc.Reset();
             PayrollDocLineCalc.SetRange("Document No.", "Document No.");
             PayrollDocLineCalc.SetRange("Document Line No.", "Line No.");
 
             // check qty of IF and ENDIF
             PayrollDocLineCalc.SetRange(
               "Statement 1", PayrollDocLineCalc."Statement 1"::"IF");
-            IFQty := PayrollDocLineCalc.Count;
+            IFQty := PayrollDocLineCalc.Count();
             PayrollDocLineCalc.SetRange(
               "Statement 1", PayrollDocLineCalc."Statement 1"::ENDIF);
-            ENDIFQty := PayrollDocLineCalc.Count;
+            ENDIFQty := PayrollDocLineCalc.Count();
             if IFQty <> ENDIFQty then
                 Error(Text063);
 
@@ -92,9 +92,9 @@ codeunit 17404 "Payroll Document - Calculate"
                             PayrollDocLineVar.Value := PayrollDocLineCalc.Rounding(PayrollDocLineCalc."Result Value");
                             PayrollDocLineVar.Calculated := true;
                             PayrollDocLineVar.Error := false;
-                            PayrollDocLineVar.Modify;
+                            PayrollDocLineVar.Modify();
                         end else begin
-                            PayrollDocLineVar.Init;
+                            PayrollDocLineVar.Init();
                             PayrollDocLineVar."Document No." := "Document No.";
                             PayrollDocLineVar."Document Line No." := "Line No.";
                             PayrollDocLineVar."Line No." := PayrollDocLineCalc."Line No.";
@@ -102,7 +102,7 @@ codeunit 17404 "Payroll Document - Calculate"
                             PayrollDocLineVar.Value := PayrollDocLineCalc.Rounding(PayrollDocLineCalc."Result Value");
                             PayrollDocLineVar.Calculated := true;
                             PayrollDocLineVar.Error := false;
-                            PayrollDocLineVar.Insert;
+                            PayrollDocLineVar.Insert();
                         end;
                         ExprMgt.CheckStops(PayrollDocLineVar);
                     end;
@@ -115,13 +115,13 @@ codeunit 17404 "Payroll Document - Calculate"
                           PayrollDocLineCalc.Rounding(
                             PayrollDocLineCalc."Result Value"));
                         RecRef.SetTable(Rec);
-                        RecRef.Modify;
+                        RecRef.Modify();
                         RecRef.Close;
                         Find;
                     end;
 
                     PayrollDocLineCalc."No. of Runs" += 1;
-                    PayrollDocLineCalc.Modify;
+                    PayrollDocLineCalc.Modify();
                     if PayrollDocLineCalc.Next = 0 then
                         Calculated := true;
                 end else begin
@@ -269,7 +269,7 @@ codeunit 17404 "Payroll Document - Calculate"
                                     PayrollDocLineCalc."No. of Runs" += 1;
                                 end;
                         end;
-                        PayrollDocLineCalc.Modify;
+                        PayrollDocLineCalc.Modify();
 
                         // Save result of expression calculation
                         if PayrollDocLineCalc.Variable <> '' then begin
@@ -279,9 +279,9 @@ codeunit 17404 "Payroll Document - Calculate"
                                 PayrollDocLineVar.Value := PayrollDocLineCalc.Rounding(PayrollDocLineCalc."Result Value");
                                 PayrollDocLineVar.Calculated := true;
                                 PayrollDocLineVar.Error := false;
-                                PayrollDocLineVar.Modify;
+                                PayrollDocLineVar.Modify();
                             end else begin
-                                PayrollDocLineVar.Init;
+                                PayrollDocLineVar.Init();
                                 PayrollDocLineVar."Document No." := "Document No.";
                                 PayrollDocLineVar."Document Line No." := "Line No.";
                                 PayrollDocLineVar."Element Code" := "Element Code";
@@ -290,7 +290,7 @@ codeunit 17404 "Payroll Document - Calculate"
                                 PayrollDocLineVar.Value := PayrollDocLineCalc.Rounding(PayrollDocLineCalc."Result Value");
                                 PayrollDocLineVar.Calculated := true;
                                 PayrollDocLineVar.Error := false;
-                                PayrollDocLineVar.Insert;
+                                PayrollDocLineVar.Insert();
                             end;
                             ExprMgt.CheckStops(PayrollDocLineVar);
                         end;
@@ -303,7 +303,7 @@ codeunit 17404 "Payroll Document - Calculate"
                               PayrollDocLineCalc.Rounding(
                                 PayrollDocLineCalc."Result Value"));
                             RecRef.SetTable(Rec);
-                            RecRef.Modify;
+                            RecRef.Modify();
                             RecRef.Close;
                             Find;
                         end;
@@ -320,7 +320,7 @@ codeunit 17404 "Payroll Document - Calculate"
                 PayrollDocLineCalc."Result Value" :=
                   PayrollDocLineCalc.Rounding(GetEmplLedgEntryAmt(Rec, 0));
                 "Payroll Amount" := PayrollDocLineCalc."Result Value";
-                PayrollDocLineCalc.Modify;
+                PayrollDocLineCalc.Modify();
             end;
         end;
     end;
@@ -562,7 +562,7 @@ codeunit 17404 "Payroll Document - Calculate"
             Reset;
             SetRange("Document No.", PayrollDocLine."Document No.");
 
-            PayrollBaseAmount.Reset;
+            PayrollBaseAmount.Reset();
             PayrollBaseAmount.SetRange("Element Code", PayrollDocLine."Element Code");
             if PayrollBaseAmount.FindSet then
                 repeat
@@ -664,7 +664,7 @@ codeunit 17404 "Payroll Document - Calculate"
             SetCurrentKey("Employee No.");
             SetRange("Employee No.", PayrollDocLine."Employee No.");
 
-            PayrollBaseAmount.Reset;
+            PayrollBaseAmount.Reset();
             PayrollBaseAmount.SetRange("Element Code", PayrollDocLine."Element Code");
             if PayrollBaseAmount.FindSet then
                 repeat
@@ -818,7 +818,7 @@ codeunit 17404 "Payroll Document - Calculate"
             SetRange("Range Code", RangeHeader.Code);
             SetRange("Period Code", RangeHeader."Period Code");
 
-            Employee.Reset;
+            Employee.Reset();
             if Employee.Get(PayrollDocLine."Employee No.") then begin
                 Employee.TestField(Gender);
                 Employee.TestField("Birth Date");
@@ -924,7 +924,7 @@ codeunit 17404 "Payroll Document - Calculate"
         ElementFilter: Text[1024];
     begin
         // Base salary for period
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Element Code Salary Days");
         ElementFilter := HumanResourcesSetup."Element Code Salary Days";
         if HumanResourcesSetup."Element Code Salary Hours" <> '' then
@@ -935,7 +935,7 @@ codeunit 17404 "Payroll Document - Calculate"
         PeriodWorkDays := 0;
         PeriodSalary := 0;
 
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetRange("Employee No.", EmployeeNo);
         EmplLedgEntry.SetFilter("Element Code", ElementFilter);
         EmplLedgEntry.SetRange("Action Starting Date", 0D, PayrollPeriod."Ending Date");
@@ -994,7 +994,7 @@ codeunit 17404 "Payroll Document - Calculate"
         FirstElement: Boolean;
     begin
         // Base salary for period
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Element Code Salary Days");
         ElementFilter := HumanResourcesSetup."Element Code Salary Days";
         if HumanResourcesSetup."Element Code Salary Hours" <> '' then
@@ -1004,7 +1004,7 @@ codeunit 17404 "Payroll Document - Calculate"
 
         ElementFilter2 := '';
         FirstElement := true;
-        PayrollElement2.Reset;
+        PayrollElement2.Reset();
         PayrollElement2.SetFilter("Depends on Salary Element", ElementFilter);
         if PayrollElement2.FindSet then
             repeat
@@ -1018,7 +1018,7 @@ codeunit 17404 "Payroll Document - Calculate"
         PeriodWorkDays := 0;
         PeriodSalary := 0;
 
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetRange("Employee No.", EmployeeNo);
         EmplLedgEntry.SetFilter("Element Code", ElementFilter2);
         EmplLedgEntry.SetRange("Action Starting Date", 0D, PayrollPeriod."Ending Date");
@@ -1076,7 +1076,7 @@ codeunit 17404 "Payroll Document - Calculate"
         ElementFilter: Text[1024];
     begin
         // Base salary for period
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         case TimeType of
             TimeType::Day:
                 begin
@@ -1094,7 +1094,7 @@ codeunit 17404 "Payroll Document - Calculate"
 
         PeriodWorkTime := 0;
         PeriodSalary := 0;
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetRange("Employee No.", PayrollDocLine."Employee No.");
         EmplLedgEntry.SetFilter("Element Code", ElementFilter);
         EmplLedgEntry.SetRange("Action Starting Date", 0D, PayrollPeriod."Ending Date");
@@ -1213,7 +1213,7 @@ codeunit 17404 "Payroll Document - Calculate"
         // Calculate extrapay by hours depending on salary
         Salary := 0;
 
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Element Code Salary Days");
 
         PayrollElement.Get(PayrollDocLine."Element Code");
@@ -1225,7 +1225,7 @@ codeunit 17404 "Payroll Document - Calculate"
             PayrollDocLine."Employee No.", HumanResourcesSetup."Work Time Group Code",
             PayrollPeriod."Starting Date", PayrollPeriod."Ending Date", 1);
 
-        EmplLedgEntry.Reset;
+        EmplLedgEntry.Reset();
         EmplLedgEntry.SetRange("Employee No.", PayrollDocLine."Employee No.");
         EmplLedgEntry.SetRange("Element Code", HumanResourcesSetup."Element Code Salary Days");
         EmplLedgEntry.SetRange("Action Starting Date", 0D, PayrollPeriod."Ending Date");
@@ -1290,7 +1290,7 @@ codeunit 17404 "Payroll Document - Calculate"
     var
         PayrollLimit: Record "Payroll Limit";
     begin
-        PayrollLimit.Reset;
+        PayrollLimit.Reset();
         PayrollLimit.SetRange(Type, LimitType);
         PayrollLimit.SetFilter("Payroll Period", '..%1', PeriodCode);
         if PayrollLimit.FindLast then
@@ -1313,8 +1313,8 @@ codeunit 17404 "Payroll Document - Calculate"
         FundTax: Boolean;
         Sign: Integer;
     begin
-        HumanSetup.Get;
-        RangeHeader.Reset;
+        HumanSetup.Get();
+        RangeHeader.Reset();
         RangeHeader.SetRange("Element Code", PayrollDocLine."Element Code");
         RangeHeader.SetRange("Period Code", FirstPayrollPeriod.Code, PayrollDocLine."Period Code");
         if RangeHeader.FindLast then;
@@ -1444,7 +1444,7 @@ codeunit 17404 "Payroll Document - Calculate"
     procedure YTDEarnings(var PayrollDocLine: Record "Payroll Document Line"): Decimal
     begin
         // Find Year-To-Date Gross Earnings
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         with Employee2 do begin
             Reset;
             SetRange("Employee No. Filter", PayrollDocLine."Employee No.");
@@ -1488,7 +1488,7 @@ codeunit 17404 "Payroll Document - Calculate"
     [Scope('OnPrem')]
     procedure YTDTypeAmount(var PayrollDocLine: Record "Payroll Document Line"): Decimal
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         with Employee2 do begin
             Reset;
             SetRange("Employee No. Filter", PayrollDocLine."Employee No.");
@@ -1519,7 +1519,7 @@ codeunit 17404 "Payroll Document - Calculate"
     [Scope('OnPrem')]
     procedure YTDTypeTaxable(var PayrollDocLine: Record "Payroll Document Line"): Decimal
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         with Employee2 do begin
             Reset;
             SetRange("Employee No. Filter", PayrollDocLine."Employee No.");
@@ -1543,7 +1543,7 @@ codeunit 17404 "Payroll Document - Calculate"
         Employee2.Get(PayrollDocLine."Employee No.");
         Year := Date2DMY(PayrollPeriod."Ending Date", 3);
         AmtToReturn := 0;
-        PersonIncomeHeader.Reset;
+        PersonIncomeHeader.Reset();
         PersonIncomeHeader.SetCurrentKey("Person No.");
         PersonIncomeHeader.SetRange("Person No.", Employee2."Person No.");
         PersonIncomeHeader.SetRange(Year, Year);
@@ -1568,7 +1568,7 @@ codeunit 17404 "Payroll Document - Calculate"
                         end;
                     AmountType::"Tax Deduction":
                         begin
-                            PersonIncomeEntry.Reset;
+                            PersonIncomeEntry.Reset();
                             PersonIncomeEntry.SetRange("Person Income No.", PersonIncomeHeader."No.");
                             PersonIncomeEntry.SetRange("Person No.", PersonIncomeHeader."Person No.");
                             PersonIncomeEntry.SetRange("Period Code", FirstPayrollPeriod.Code, PayrollDocLine."Period Code");
@@ -1608,7 +1608,7 @@ codeunit 17404 "Payroll Document - Calculate"
     begin
         PrevPayrollPeriod.Get(PayrollPeriod.Code);
         if PrevPayrollPeriod.Next(-1) <> 0 then begin
-            Employee2.Reset;
+            Employee2.Reset();
             Employee2.SetRange("Employee No. Filter", PayrollDocLine."Employee No.");
             Employee2.SetRange("Payroll Period Filter", PrevPayrollPeriod.Code);
             Employee2.SetFilter("Element Code Filter", '%1|%2|%3',
@@ -1687,11 +1687,11 @@ codeunit 17404 "Payroll Document - Calculate"
         ReturnValue := 0;
         HoursWork := 0;
         CalendarCode := '';
-        TempEmplLedgEntry.Reset;
-        TempEmplLedgEntry.DeleteAll;
+        TempEmplLedgEntry.Reset();
+        TempEmplLedgEntry.DeleteAll();
 
         if PayrollElement.Get(PayrollDocLine."Element Code") then begin
-            EmplLedgEntry.Reset;
+            EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Employee No.", PayrollDocLine."Employee No.");
             EmplLedgEntry.SetRange("Element Code", PayrollElement.Code);
             EmplLedgEntry.SetRange("Action Starting Date", 0D, PayrollPeriod."Ending Date");
@@ -1704,13 +1704,13 @@ codeunit 17404 "Payroll Document - Calculate"
                 then
                     EmplLedgEntry.TestField("Action Ending Date", EmplLedgEntry."Action Ending Date");
                 TempEmplLedgEntry := EmplLedgEntry;
-                TempEmplLedgEntry.Insert;
+                TempEmplLedgEntry.Insert();
                 if TempEmplLedgEntry.Next(-1) <> 0 then begin
                     if (TempEmplLedgEntry."Action Ending Date" >= EmplLedgEntry."Action Starting Date") or
                        (TempEmplLedgEntry."Action Ending Date" = 0D)
                     then begin
                         TempEmplLedgEntry."Action Ending Date" := CalcDate('<-1D>', EmplLedgEntry."Action Starting Date");
-                        TempEmplLedgEntry.Modify;
+                        TempEmplLedgEntry.Modify();
                     end;
                     TempEmplLedgEntry.Next(+1);
                 end;
@@ -1847,7 +1847,7 @@ codeunit 17404 "Payroll Document - Calculate"
                         EndDate := DeductionEndDate;
                         if StartDate > EndDate then
                             exit(0);
-                        Employee2.Reset;
+                        Employee2.Reset();
                         Employee2.SetRange("Employee No. Filter", PayrollDocLine."Employee No.");
                         Employee2.SetFilter("Element Type Filter", '%1|%2',
                           Employee2."Element Type Filter"::Wage,
@@ -1906,7 +1906,7 @@ codeunit 17404 "Payroll Document - Calculate"
     var
         PayrollDocLineCalc2: Record "Payroll Document Line Calc.";
     begin
-        PayrollDocLineCalc2.Reset;
+        PayrollDocLineCalc2.Reset();
         PayrollDocLineCalc2.SetRange("Element Code", PayrollDocLineCalc."Element Code");
         PayrollDocLineCalc2.SetRange("Period Code", PayrollDocLineCalc."Period Code");
         PayrollDocLineCalc2.SetRange(Label, PayrollDocLineCalc.Expression);
@@ -1929,11 +1929,11 @@ codeunit 17404 "Payroll Document - Calculate"
     begin
         Base := 0;
 
-        StartPeriod.Reset;
+        StartPeriod.Reset();
         StartPeriod.SetRange("Starting Date", 0D, StartDate);
         StartPeriod.FindLast;
 
-        EndPeriod.Reset;
+        EndPeriod.Reset();
         EndPeriod.SetFilter("Ending Date", '%1..', EndDate);
         EndPeriod.FindFirst;
 
@@ -1943,7 +1943,7 @@ codeunit 17404 "Payroll Document - Calculate"
             SetRange("Employee No.", EmployeeNo);
             SetRange("Period Code", StartPeriod.Code, EndPeriod.Code);
 
-            PayrollBaseAmount.Reset;
+            PayrollBaseAmount.Reset();
             PayrollBaseAmount.SetRange("Element Code", ElementCode);
             if PayrollBaseAmount.FindSet then
                 repeat
@@ -2047,11 +2047,11 @@ codeunit 17404 "Payroll Document - Calculate"
     begin
         Base := 0;
 
-        StartPeriod.Reset;
+        StartPeriod.Reset();
         StartPeriod.SetRange("Starting Date", 0D, StartDate);
         StartPeriod.FindLast;
 
-        EndPeriod.Reset;
+        EndPeriod.Reset();
         EndPeriod.SetFilter("Ending Date", '%1..', EndDate);
         EndPeriod.FindFirst;
 
@@ -2060,7 +2060,7 @@ codeunit 17404 "Payroll Document - Calculate"
             SetRange("Employee No.", EmployeeNo);
             SetRange("Period Code", StartPeriod.Code, EndPeriod.Code);
 
-            PayrollBaseAmount.Reset;
+            PayrollBaseAmount.Reset();
             PayrollBaseAmount.SetRange("Element Code", ElementCode);
             if PayrollBaseAmount.FindSet then
                 repeat
@@ -2152,7 +2152,7 @@ codeunit 17404 "Payroll Document - Calculate"
     [Scope('OnPrem')]
     procedure InitPayrollPeriod(PeriodCode: Code[10]; WagePeriodCode: Code[10])
     begin
-        FirstPayrollPeriod.Reset;
+        FirstPayrollPeriod.Reset();
         FirstPayrollPeriod.FindFirst;
 
         PayrollPeriod.Get(PeriodCode);
@@ -2162,7 +2162,7 @@ codeunit 17404 "Payroll Document - Calculate"
         PrevPayrollPeriod.Get(PeriodCode);
         PrevPayrollPeriod.Next(-1);
 
-        FirstYearPayrollPeriod.Reset;
+        FirstYearPayrollPeriod.Reset();
         FirstYearPayrollPeriod.SetFilter("Starting Date", '%1..',
           CalcDate('<-CY>', PayrollPeriod."Starting Date"));
         FirstYearPayrollPeriod.FindFirst;
@@ -2183,7 +2183,7 @@ codeunit 17404 "Payroll Document - Calculate"
     [Scope('OnPrem')]
     procedure RoundAmountToPay(AmountToPay: Decimal): Decimal
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         if HumanResourcesSetup."Amt. to Pay Rounding Precision" <> 0 then
             AmountToPay :=
               Round(
@@ -2197,64 +2197,64 @@ codeunit 17404 "Payroll Document - Calculate"
     local procedure RemoveCalculations(PayrollDocumentLine: Record "Payroll Document Line")
     begin
         with PayrollDocumentLine do begin
-            PayrollDocLineCalc.Reset;
+            PayrollDocLineCalc.Reset();
             PayrollDocLineCalc.SetRange("Document No.", "Document No.");
             PayrollDocLineCalc.SetRange("Document Line No.", "Line No.");
             if not PayrollDocLineCalc.IsEmpty then
-                PayrollDocLineCalc.DeleteAll;
+                PayrollDocLineCalc.DeleteAll();
 
-            PayrollDocLineExpr.Reset;
+            PayrollDocLineExpr.Reset();
             PayrollDocLineExpr.SetRange("Document No.", "Document No.");
             PayrollDocLineExpr.SetRange("Document Line No.", "Line No.");
             if not PayrollDocLineExpr.IsEmpty then
-                PayrollDocLineExpr.DeleteAll;
+                PayrollDocLineExpr.DeleteAll();
 
-            PayrollDocLineVar.Reset;
+            PayrollDocLineVar.Reset();
             PayrollDocLineVar.SetRange("Document No.", "Document No.");
             PayrollDocLineVar.SetRange("Document Line No.", "Line No.");
             if not PayrollDocLineVar.IsEmpty then
-                PayrollDocLineVar.DeleteAll;
+                PayrollDocLineVar.DeleteAll();
         end;
     end;
 
     local procedure PrepareCalculations(PayrollDocLine: Record "Payroll Document Line"; PayrollCalculation: Record "Payroll Calculation")
     begin
-        PayrollCalcLine.Reset;
+        PayrollCalcLine.Reset();
         PayrollCalcLine.SetRange("Element Code", PayrollCalculation."Element Code");
         PayrollCalcLine.SetRange("Period Code", PayrollCalculation."Period Code");
         if PayrollCalcLine.FindSet then
             repeat
-                PayrollDocLineCalc.Init;
+                PayrollDocLineCalc.Init();
                 PayrollDocLineCalc.TransferFields(PayrollCalcLine);
                 PayrollDocLineCalc."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineCalc."Document Line No." := PayrollDocLine."Line No.";
                 PayrollDocLineCalc."Period Code" := PayrollDocLine."Period Code";
-                PayrollDocLineCalc.Insert;
+                PayrollDocLineCalc.Insert();
             until PayrollCalcLine.Next = 0;
 
-        PayrollElementVar.Reset;
+        PayrollElementVar.Reset();
         PayrollElementVar.SetRange("Element Code", PayrollCalculation."Element Code");
         PayrollElementVar.SetRange("Period Code", PayrollCalculation."Period Code");
         if PayrollElementVar.FindSet then
             repeat
-                PayrollDocLineVar.Init;
+                PayrollDocLineVar.Init();
                 PayrollDocLineVar."Element Code" := PayrollElementVar."Element Code";
                 PayrollDocLineVar.Variable := PayrollElementVar.Variable;
                 PayrollDocLineVar."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineVar."Document Line No." := PayrollDocLine."Line No.";
-                PayrollDocLineVar.Insert;
+                PayrollDocLineVar.Insert();
             until PayrollElementVar.Next = 0;
 
-        PayrollElementExpr.Reset;
+        PayrollElementExpr.Reset();
         PayrollElementExpr.SetRange("Element Code", PayrollCalculation."Element Code");
         PayrollElementExpr.SetRange("Period Code", PayrollCalculation."Period Code");
         if PayrollElementExpr.FindSet then
             repeat
-                PayrollDocLineExpr.Init;
+                PayrollDocLineExpr.Init();
                 PayrollDocLineExpr.TransferFields(PayrollElementExpr);
                 PayrollDocLineExpr."Document No." := PayrollDocLine."Document No.";
                 PayrollDocLineExpr."Document Line No." := PayrollDocLine."Line No.";
-                PayrollDocLineExpr.Insert;
+                PayrollDocLineExpr.Insert();
             until PayrollElementExpr.Next = 0;
     end;
 }

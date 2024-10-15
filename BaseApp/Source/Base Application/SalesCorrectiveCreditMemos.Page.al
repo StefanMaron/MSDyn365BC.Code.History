@@ -231,7 +231,7 @@ page 36848 "Sales Corrective Credit Memos"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

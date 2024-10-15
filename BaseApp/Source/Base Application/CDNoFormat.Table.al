@@ -43,7 +43,7 @@ table 14917 "CD No. Format"
             exit;
 
         Success := false;
-        CDNoFormat.Reset;
+        CDNoFormat.Reset();
         if CDNoFormat.FindSet then
             repeat
                 Success := Compare(CDNo, CDNoFormat.Format);
@@ -89,7 +89,7 @@ table 14917 "CD No. Format"
     procedure GetInvtSetup()
     begin
         if not InvtSetupRead then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             InvtSetupRead := true;
         end;
     end;

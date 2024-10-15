@@ -62,7 +62,7 @@ table 17304 "Tax Diff. Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
     end;
 
     trigger OnRename()
@@ -90,7 +90,7 @@ table 17304 "Tax Diff. Journal Batch"
     [Scope('OnPrem')]
     procedure ModifyLines(FieldNumber: Integer)
     begin
-        TaxDiffJnlLine.LockTable;
+        TaxDiffJnlLine.LockTable();
         TaxDiffJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         TaxDiffJnlLine.SetRange("Journal Batch Name", Name);
         if TaxDiffJnlLine.Find('-') then

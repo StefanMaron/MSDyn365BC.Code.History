@@ -208,7 +208,7 @@ page 17456 "Travel Order"
                         AbsenceHeader: Record "Absence Header";
                         HRDocPrint: Codeunit "HR Order - Print";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         if AbsenceHeader.FindFirst then begin
@@ -229,7 +229,7 @@ page 17456 "Travel Order"
                         AbsenceHeader: Record "Absence Header";
                         HRDocPrint: Codeunit "HR Order - Print";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         if AbsenceHeader.FindFirst then begin
@@ -250,7 +250,7 @@ page 17456 "Travel Order"
                         AbsenceHeader: Record "Absence Header";
                         HRDocPrint: Codeunit "HR Order - Print";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         if AbsenceHeader.FindFirst then begin

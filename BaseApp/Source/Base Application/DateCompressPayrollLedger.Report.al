@@ -26,7 +26,7 @@ report 17418 "Date Compress Payroll Ledger"
 
                     LastEntryNo := LastEntryNo + 1;
 
-                    NewPayrollLedgEntry.Init;
+                    NewPayrollLedgEntry.Init();
                     NewPayrollLedgEntry."Entry No." := LastEntryNo;
                     NewPayrollLedgEntry."Employee No." := "Employee No.";
                     NewPayrollLedgEntry."Element Code" := "Element Code";
@@ -53,7 +53,7 @@ report 17418 "Date Compress Payroll Ledger"
                     ComprPayrollEntry(PayrollLedgEntry2, NewPayrollLedgEntry, DateComprReg);
                     while Next <> 0 do
                         ComprPayrollEntry(PayrollLedgEntry2, NewPayrollLedgEntry, DateComprReg);
-                    NewPayrollLedgEntry.Insert;
+                    NewPayrollLedgEntry.Insert();
                 end;
 
                 Window.Update(1, NewPayrollLedgEntry."Employee No.");
@@ -76,7 +76,7 @@ report 17418 "Date Compress Payroll Ledger"
             trigger OnPreDataItem()
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprJnl."Ending Date" = 0D then
                     Error(EntrdDateComprJnl.FieldName("Ending Date") + Text003);
@@ -88,22 +88,22 @@ report 17418 "Date Compress Payroll Ledger"
                   Text007 +
                   Text008);
 
-                NewPayrollLedgEntry.LockTable;
-                PayrollReg.LockTable;
-                DateComprReg.LockTable;
+                NewPayrollLedgEntry.LockTable();
+                PayrollReg.LockTable();
+                DateComprReg.LockTable();
 
-                SourceCode.Get;
+                SourceCode.Get();
                 SourceCode.TestField("Compress Payroll Journal");
 
                 if PayrollReg.FindLast then;
-                PayrollReg.Init;
+                PayrollReg.Init();
                 PayrollReg."No." := PayrollReg."No." + 1;
                 PayrollReg."Creation Date" := Today;
                 PayrollReg."Source Code" := SourceCode."Compress Payroll Journal";
                 PayrollReg."User ID" := UserId;
 
                 if DateComprReg.FindLast then;
-                DateComprReg.Init;
+                DateComprReg.Init();
                 DateComprReg."No." := DateComprReg."No." + 1;
                 DateComprReg."Table ID" := DATABASE::"Payroll Ledger Entry";
                 DateComprReg."Creation Date" := Today;
@@ -122,8 +122,7 @@ report 17418 "Date Compress Payroll Ledger"
                 DateComprReg."Source Code" := SourceCode."Compress Payroll Journal";
                 DateComprReg."User ID" := UserId;
 
-                if PayrollLedgEntry2.Find('+') then;
-                LastEntryNo := PayrollLedgEntry2."Entry No.";
+                LastEntryNo := PayrollLedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprJnl."Starting Date", EntrdDateComprJnl."Ending Date");
             end;
@@ -263,17 +262,17 @@ report 17418 "Date Compress Payroll Ledger"
     procedure InsertRegisters(PayrollReg: Record "Payroll Register"; DateComprReg: Record "Date Compr. Register")
     begin
         if PayJournalxists then begin
-            PayrollReg.Modify;
-            DateComprReg.Modify;
+            PayrollReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            PayrollReg.Insert;
-            DateComprReg.Insert;
+            PayrollReg.Insert();
+            DateComprReg.Insert();
             PayJournalxists := true;
         end;
-        Commit;
-        NewPayrollLedgEntry.LockTable;
-        PayrollReg.LockTable;
-        DateComprReg.LockTable;
+        Commit();
+        NewPayrollLedgEntry.LockTable();
+        PayrollReg.LockTable();
+        DateComprReg.LockTable();
     end;
 
     [Scope('OnPrem')]

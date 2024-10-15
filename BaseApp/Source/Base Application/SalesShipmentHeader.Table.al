@@ -214,11 +214,9 @@ table 110 "Sales Shipment Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -357,11 +355,9 @@ table 110 "Sales Shipment Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -590,12 +586,12 @@ table 110 "Sales Shipment Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         PostSalesDelete.DeleteSalesShptLines(Rec);
 
         SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::Shipment);
         SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll;
+        SalesCommentLine.DeleteAll();
 
         DocSignMgt.DeletePostedDocSign(DATABASE::"Sales Shipment Header", "No.");
 
@@ -664,10 +660,11 @@ table 110 "Sales Shipment Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure StartTrackingSite()
@@ -744,20 +741,20 @@ table 110 "Sales Shipment Header"
     begin
         DocNoFilter := '';
         I := 0;
-        SalesShptLine.Reset;
+        SalesShptLine.Reset();
         SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
         SalesShptLine.SetRange(Type, SalesShptLine.Type::Item);
         SalesShptLine.SetFilter("Quantity Invoiced", '>%1', 0);
         if SalesShptLine.Find('-') then
             repeat
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Document No.");
                 ItemLedgEntry.SetRange("Document No.", SalesShptHeader."No.");
                 ItemLedgEntry.SetRange("Posting Date", SalesShptHeader."Posting Date");
                 ItemLedgEntry.SetRange("Item No.", SalesShptLine."No.");
                 if ItemLedgEntry.Find('-') then
                     repeat
-                        ValueEntry.Reset;
+                        ValueEntry.Reset();
                         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
                         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                         if ValueEntry.Find('-') then
@@ -775,7 +772,7 @@ table 110 "Sales Shipment Header"
                             until ValueEntry.Next = 0;
                     until ItemLedgEntry.Next = 0;
             until SalesShptLine.Next = 0;
-        SalesInvHeader.Reset;
+        SalesInvHeader.Reset();
         if DocNoFilter = '' then
             DocNoFilter := '.';
         SalesInvHeader.SetFilter("No.", DocNoFilter);

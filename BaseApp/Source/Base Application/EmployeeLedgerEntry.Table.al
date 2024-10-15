@@ -277,7 +277,7 @@ table 17413 "Employee Ledger Entry"
     procedure SetEndingDate(var EmployeeLedgEntry: Record "Employee Ledger Entry"; EndDate: Date)
     begin
         EmployeeLedgEntry."Action Ending Date" := EndDate;
-        EmployeeLedgEntry.Modify;
+        EmployeeLedgEntry.Modify();
     end;
 }
 

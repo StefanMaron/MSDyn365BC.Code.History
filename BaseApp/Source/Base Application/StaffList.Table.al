@@ -223,15 +223,15 @@ table 17372 "Staff List"
     [Scope('OnPrem')]
     procedure Create(var TempStaffList: Record "Staff List" temporary; StartDate: Date; EndDate: Date)
     begin
-        TempStaffList.DeleteAll;
+        TempStaffList.DeleteAll();
 
-        OrganizationalUnit.Reset;
+        OrganizationalUnit.Reset();
         OrganizationalUnit.SetFilter(Status, '<>%1', OrganizationalUnit.Status::Open);
         OrganizationalUnit.SetRange("Starting Date", 0D, EndDate);
         OrganizationalUnit.SetFilter("Ending Date", '%1|%2..', 0D, StartDate);
         if OrganizationalUnit.FindSet then
             repeat
-                Position.Reset;
+                Position.Reset();
                 Position.SetCurrentKey("Org. Unit Code");
                 Position.SetRange("Org. Unit Code", OrganizationalUnit.Code);
                 Position.SetRange("Starting Date", StartDate, EndDate);
@@ -240,13 +240,13 @@ table 17372 "Staff List"
                         InitRecord(
                           TempStaffList, OrganizationalUnit.Code, Position."Job Title Code", OrganizationalUnit.Level,
                           OrganizationalUnit."Parent Code", OrganizationalUnit.Type);
-                        if TempStaffList.Insert then;
+                        if TempStaffList.Insert() then;
                     until Position.Next = 0
                 else begin
                     InitRecord(
                       TempStaffList, OrganizationalUnit.Code, '', OrganizationalUnit.Level, OrganizationalUnit."Parent Code",
                       OrganizationalUnit.Type);
-                    TempStaffList.Insert;
+                    TempStaffList.Insert();
                 end;
             until OrganizationalUnit.Next = 0;
     end;
@@ -254,7 +254,7 @@ table 17372 "Staff List"
     [Scope('OnPrem')]
     procedure InitRecord(var TempStaffList: Record "Staff List" temporary; OrgUnitCode: Code[10]; JobTitleCode: Code[10]; Level: Integer; ParentCode: Code[10]; Type: Integer)
     begin
-        TempStaffList.Init;
+        TempStaffList.Init();
         TempStaffList.Validate("Org. Unit Code", OrgUnitCode);
         TempStaffList.Validate("Job Title Code", JobTitleCode);
         TempStaffList.Indentation := Level;
@@ -277,14 +277,14 @@ table 17372 "Staff List"
         then
             exit;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("HR Manager No.");
         CompanyInfo.TestField("Accountant No.");
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("HR Order Nos.");
 
-        StaffListArchive.Init;
+        StaffListArchive.Init();
         StaffListArchive."Document No." :=
           NoSeriesMgt.GetNextNo(HumanResSetup."HR Order Nos.", Today, true);
         StaffListArchive."Document Date" := Today;
@@ -293,12 +293,12 @@ table 17372 "Staff List"
         StaffListArchive."HR Manager No." := CompanyInfo."HR Manager No.";
         StaffListArchive."Chief Accountant No." := CompanyInfo."Accountant No.";
         StaffListArchive."Staff List Date" := GetRangeMax("Date Filter");
-        StaffListArchive.Insert;
+        StaffListArchive.Insert();
 
         TempStaffListBuffer.CopyFilter("Date Filter", "Date Filter");
         if TempStaffListBuffer.FindSet then
             repeat
-                StaffListLineArchive.Init;
+                StaffListLineArchive.Init();
                 StaffListLineArchive."Org. Unit Code" := TempStaffListBuffer."Org. Unit Code";
                 StaffListLineArchive."Org. Unit Name" := TempStaffListBuffer."Org. Unit Name";
                 StaffListLineArchive."Job Title Code" := TempStaffListBuffer."Job Title Code";
@@ -356,7 +356,7 @@ table 17372 "Staff List"
                 StaffListLineArchive."Vacant Out-of-Staff Positions" :=
                   StaffListLineArchive."Out-of-Staff Positions" - StaffListLineArchive."Occup. Out-of-Staff Positions";
                 TempStaffListBuffer.SetRange("Out-of-Staff Filter");
-                StaffListLineArchive.Insert;
+                StaffListLineArchive.Insert();
             until TempStaffListBuffer.Next = 0;
     end;
 }

@@ -79,15 +79,15 @@ table 14919 "Excel Template"
         List: DotNet IList;
         I: Integer;
     begin
-        List := ReportBuilder.GetReportSectionHeights(ServerFileName, SheetName);
-        for I := 0 to List.Count - 1 do begin
+        List := ReportBuilder.GetReportSectionHeights(TemporaryPath() + '..\' + ServerFileName, SheetName);
+        for I := 0 to List.Count() - 1 do begin
             SectionInfo := List.Item(I);
-            ExcelTemplateSection.Init;
+            ExcelTemplateSection.Init();
             ExcelTemplateSection."Template Code" := Code;
             ExcelTemplateSection."Sheet Name" := SheetName;
             ExcelTemplateSection.Name := SectionInfo.Name;
             ExcelTemplateSection.Height := SectionInfo.Height;
-            ExcelTemplateSection.Insert;
+            ExcelTemplateSection.Insert();
         end;
     end;
 
@@ -100,29 +100,58 @@ table 14919 "Excel Template"
         SheetInfo: DotNet HeightInfo;
         List: DotNet IList;
         I: Integer;
-        ServerFileName: Text;
     begin
         if LowerCase(FileMgt.GetExtension(FileName)) <> 'xlsx' then
             exit;
 
         ExcelTemplateSheet.SetRange("Template Code", Code);
-        ExcelTemplateSheet.DeleteAll;
+        ExcelTemplateSheet.DeleteAll();
         ExcelTemplateSection.SetRange("Template Code", Code);
-        ExcelTemplateSection.DeleteAll;
-        Commit;
+        ExcelTemplateSection.DeleteAll();
+        Commit();
 
-        ServerFileName := FileMgt.UploadFileToServer(FileName);
-        List := ReportBuilder.GetReportSheetsPrintZoneHeight(ServerFileName);
-        for I := 0 to List.Count - 1 do begin
+        List := ReportBuilder.GetReportSheetsPrintZoneHeight(TemporaryPath() + '..\' + FileName);
+        for I := 0 to List.Count() - 1 do begin
             SheetInfo := List.Item(I);
-            ExcelTemplateSheet.Init;
+            ExcelTemplateSheet.Init();
             ExcelTemplateSheet."Template Code" := Code;
             ExcelTemplateSheet.Name := SheetInfo.Name;
             ExcelTemplateSheet."Paper Height" := SheetInfo.Height;
-            ExcelTemplateSheet.Insert;
+            ExcelTemplateSheet.Insert();
 
-            LoadSheetSectionHeights(ServerFileName, SheetInfo.Name);
+            LoadSheetSectionHeights(FileName, SheetInfo.Name());
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure InsertTemplate("Code": Code[10]; Description: Text[50]; Filename: Text[250])
+    var
+        ExcelTemplate: Record "Excel Template";
+        ServerFile: File;
+        NVInStream: InStream;
+        NVOutStream: OutStream;
+    begin
+        ExcelTemplate.Init();
+        ExcelTemplate.Code := Code;
+        ExcelTemplate.Description := Description;
+        ExcelTemplate.Insert();
+
+        if Filename = '' then
+            exit;
+
+        ServerFile.Open(Filename);
+        ServerFile.CreateInStream(NVInStream);
+        ExcelTemplate.BLOB.CreateOutStream(NVOutStream);
+        CopyStream(NVOutStream, NVInStream);
+        ServerFile.Close();
+
+        ExcelTemplate."File Name" := Filename;
+        while StrPos(ExcelTemplate."File Name", '\') <> 0 do
+            ExcelTemplate."File Name" := CopyStr(ExcelTemplate."File Name",
+                StrPos(ExcelTemplate."File Name", '\') + 1, 250);
+        ExcelTemplate.Modify();
+
+        ExcelTemplate.UpdateTemplateHeight(Filename);
     end;
 }
 

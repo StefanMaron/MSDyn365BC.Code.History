@@ -126,12 +126,12 @@ table 12451 "Item Receipt Header"
         ItemRcptLine.SetRange("Document No.", "No.");
         if ItemRcptLine.Find('-') then
             repeat
-                ItemRcptLine.Delete;
+                ItemRcptLine.Delete();
             until ItemRcptLine.Next = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Item Receipt");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Item Receipt Line", 0, "No.", '', 0, 0, true);

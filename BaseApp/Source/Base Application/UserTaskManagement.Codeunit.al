@@ -77,7 +77,7 @@ codeunit 1174 "User Task Management"
     var
         UserTask: Record "User Task";
     begin
-        UserTask.Reset;
+        UserTask.Reset();
         SetFiltersToShowMyUserTasks(UserTask, DueDateFilterOption);
         exit(UserTask.Count);
     end;
@@ -88,7 +88,7 @@ codeunit 1174 "User Task Management"
     begin
         // Returns a text contaning all the groups that logged in user belong to which can be used for setting filter
         // Example - If user belongs to 'A' and 'C' user tasks groups this function will return 'A|C' as filter text.
-        UserTaskGroupMember.Reset;
+        UserTaskGroupMember.Reset();
         UserTaskGroupMember.SetRange("User Security ID", UserSecurityId);
         if UserTaskGroupMember.FindSet then begin
             repeat

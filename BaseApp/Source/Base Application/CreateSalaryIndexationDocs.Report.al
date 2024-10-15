@@ -33,7 +33,7 @@ report 17377 "Create Salary Indexation Docs."
                         Position.Get(NewPositionNo);
                         Position.Validate("Base Salary", Round(Position."Base Salary" * Coefficient));
                         Position.Validate("Budgeted Salary", Round(Position."Budgeted Salary" * Coefficient));
-                        Position.Modify;
+                        Position.Modify();
 
                         Position.Approve(true);
 
@@ -48,7 +48,7 @@ report 17377 "Create Salary Indexation Docs."
                         LaborContractLine.FindLast;
                         PositionRate := LaborContractLine."Position Rate";
 
-                        LaborContractLine.Init;
+                        LaborContractLine.Init();
                         LaborContractLine."Contract No." := "No.";
                         LaborContractLine."Operation Type" := LaborContractLine."Operation Type"::Transfer;
                         LaborContractLine."Supplement No." := SupplNo;
@@ -57,25 +57,25 @@ report 17377 "Create Salary Indexation Docs."
                         LaborContractLine.Validate("Starting Date", StartingDate);
                         LaborContractLine.Validate("Position No.", NewPositionNo);
                         LaborContractLine.Validate("Position Rate", PositionRate);
-                        LaborContractLine.Insert;
+                        LaborContractLine.Insert();
 
                         LaborContractMgt.CreateContractTerms(LaborContractLine, true);
 
                         LineNo := LineNo + 10000;
 
-                        TempGroupOrderLine.Init;
+                        TempGroupOrderLine.Init();
                         TempGroupOrderLine."Document Type" := TempGroupOrderLine."Document Type"::Transfer;
                         TempGroupOrderLine."Line No." := LineNo;
                         TempGroupOrderLine."Employee No." := Employee."No.";
                         TempGroupOrderLine.Validate("Contract No.", "No.");
                         TempGroupOrderLine.Validate("Supplement No.", SupplNo);
-                        TempGroupOrderLine.Insert;
+                        TempGroupOrderLine.Insert();
 
                         TempStaffListOrderLine."Line No." := LineNo;
                         TempStaffListOrderLine.Type := TempStaffListOrderLine.Type::Position;
                         TempStaffListOrderLine.Action := TempStaffListOrderLine.Action::Close;
                         TempStaffListOrderLine.Code := LastPositionNo;
-                        TempStaffListOrderLine.Insert;
+                        TempStaffListOrderLine.Insert();
                     end;
                 }
             }
@@ -92,7 +92,7 @@ report 17377 "Create Salary Indexation Docs."
                     repeat
                         GroupOrderLine.TransferFields(TempGroupOrderLine);
                         GroupOrderLine."Document No." := GroupOrderHeader."No.";
-                        GroupOrderLine.Insert;
+                        GroupOrderLine.Insert();
                     until TempGroupOrderLine.Next = 0;
 
                     StaffListOrderHeader."Document Date" := HROrderDate;
@@ -105,7 +105,7 @@ report 17377 "Create Salary Indexation Docs."
                     repeat
                         StaffListOrderLine.TransferFields(TempStaffListOrderLine);
                         StaffListOrderLine."Document No." := StaffListOrderHeader."No.";
-                        StaffListOrderLine.Insert;
+                        StaffListOrderLine.Insert();
                     until TempStaffListOrderLine.Next = 0;
 
                     Message(Text006, GroupOrderHeader."No.");

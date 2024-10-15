@@ -46,12 +46,12 @@ report 12452 "Advance Statement"
                         if VATAccountNo <> '' then
                             Separator := ',';
                         Buffer."Description 2" := CopyStr(AccountNo + Separator + VATAccountNo, 1, 30);
-                        Buffer.Insert;
+                        Buffer.Insert();
                     end else begin
                         Buffer."Amount Including VAT" += "Amount Including VAT";
                         if AccountNo <> Buffer."Description 2" then
                             Buffer."Description 2" := '';
-                        Buffer.Modify;
+                        Buffer.Modify();
                     end;
                 end;
             }
@@ -92,7 +92,7 @@ report 12452 "Advance Statement"
 
                 trigger OnPreDataItem()
                 begin
-                    Buffer.Reset;
+                    Buffer.Reset();
                     SetRange(Number, 1, Buffer.Count);
                     TotalCurrAmount := 0;
                     TotalCurrAmount2 := 0;
@@ -108,7 +108,7 @@ report 12452 "Advance Statement"
                 TestField(Status);
                 CalcFields("Amount Including VAT", "Outstanding Amount (LCY)");
 
-                VendLedgerEntry2.Reset;
+                VendLedgerEntry2.Reset();
                 VendLedgerEntry2.SetCurrentKey("Vendor No.", "Posting Date");
                 VendLedgerEntry2.SetRange("Vendor No.", "Buy-from Vendor No.");
                 VendLedgerEntry2.SetFilter("Posting Date", '<= %1', "Posting Date");
@@ -124,7 +124,7 @@ report 12452 "Advance Statement"
                     OverDraft[1] := Abs(Vend."Net Change (LCY)");
 
                 PaymentNo := 0;
-                VendLedgerEntry.Reset;
+                VendLedgerEntry.Reset();
                 VendLedgerEntry.SetCurrentKey("Vendor No.", Open, Positive);
                 VendLedgerEntry.SetRange("Vendor No.", Vend."No.");
                 VendLedgerEntry.SetRange(Open, true);
@@ -141,7 +141,7 @@ report 12452 "Advance Statement"
                     until VendLedgerEntry.Next = 0;
                 VendLedgerEntry.SetRange(Positive, true);
 
-                PurchaseLine.Reset;
+                PurchaseLine.Reset();
                 PurchaseLine.SetRange("Document Type", "Purchase Header"."Document Type");
                 PurchaseLine.SetRange("Document No.", "Purchase Header"."No.");
                 if PurchaseLine.Find('-') then
@@ -170,7 +170,7 @@ report 12452 "Advance Statement"
                     OverDraft[2] := Temp;
 
                 if "Remaining/Overdraft Doc. No." <> '' then begin
-                    VendLedgerEntry3.Reset;
+                    VendLedgerEntry3.Reset();
                     VendLedgerEntry3.SetCurrentKey("Document No.");
                     VendLedgerEntry3.SetRange("Document No.", "Remaining/Overdraft Doc. No.");
                     if VendLedgerEntry3.FindFirst then begin
@@ -256,7 +256,7 @@ report 12452 "Advance Statement"
 
     trigger OnPreReport()
     begin
-        CompInf.Get;
+        CompInf.Get();
     end;
 
     var
@@ -364,7 +364,7 @@ report 12452 "Advance Statement"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with PurchesLineLoc do begin
-            VATPostingSetup.Reset;
+            VATPostingSetup.Reset();
             VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
             VATPostingSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
             if VATPostingSetup.FindFirst then begin

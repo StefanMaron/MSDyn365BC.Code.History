@@ -1343,9 +1343,6 @@ End Function
         <Field Name="TIME">
           <DataField>TIME</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="FilterLine">
           <DataField>FilterLine</DataField>
         </Field>

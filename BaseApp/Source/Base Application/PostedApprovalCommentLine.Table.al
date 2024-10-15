@@ -59,18 +59,14 @@ table 457 "Posted Approval Comment Line"
     trigger OnInsert()
     begin
         if "Entry No." = 0 then
-            "Entry No." := GetNextEntryNo;
+            "Entry No." := GetLastEntryNo() + 1;
     end;
 
-    local procedure GetNextEntryNo(): Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        PostedApprovalCommentLine: Record "Posted Approval Comment Line";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        PostedApprovalCommentLine.SetCurrentKey("Entry No.");
-        if PostedApprovalCommentLine.FindLast then
-            exit(PostedApprovalCommentLine."Entry No." + 1);
-
-        exit(1);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 }
 

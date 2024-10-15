@@ -503,7 +503,7 @@ page 14971 "Sales Corrective Invoice"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

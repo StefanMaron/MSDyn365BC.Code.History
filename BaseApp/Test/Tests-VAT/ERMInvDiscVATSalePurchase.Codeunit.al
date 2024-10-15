@@ -940,8 +940,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := SalesLine."VAT %";
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Bus. Posting Group", SalesLine."VAT %"),
-          LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
         VATAmount2 := SalesLine."Line Amount" * SalesLine."VAT %" / 100;
 
         // Exercise: Calculate VAT Amount.
@@ -1011,8 +1010,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := SalesLine."VAT %";
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Bus. Posting Group", SalesLine."VAT %"),
-          LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := SalesLine."Line Amount" * SalesLine."VAT %" / 100 + SalesLine."Line Amount";
         VATPct2 := SalesLine."VAT %";
 
@@ -1059,7 +1057,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := PurchaseLine."VAT %";
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT %"),
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(10));
         VATAmount2 := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100;
 
@@ -1125,7 +1123,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := PurchaseLine."VAT %";
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT %"),
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100 + PurchaseLine."Line Amount";
         VATPct2 := PurchaseLine."VAT %";
@@ -1740,15 +1738,13 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purchase");
         LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purchase");
     end;
 
@@ -1799,8 +1795,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         FindVATPostingSetup(VATPostingSetup);
         CreateSalesOrderAndCalcInvDisc(SalesHeader, InvoiceDiscountAmount, DocumentType);
         InvoiceDiscountAmount2 :=
-          CreateSalesLineAndCalcInvDisc(
-            SalesHeader, SalesLine, FindItem(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT %"));
+          CreateSalesLineAndCalcInvDisc(SalesHeader, SalesLine, FindItem(VATPostingSetup."VAT Prod. Posting Group"));
         exit(FindVATIdentifier(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group"));
     end;
 
@@ -1811,8 +1806,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchOrderAndCalcInvDisc(PurchaseHeader, InvoiceDiscountAmount, DocumentType);
         InvoiceDiscountAmount2 :=
-          CreatePurchLineAndCalcInvDisc(
-            PurchaseHeader, PurchaseLine, FindItem(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT %"));
+          CreatePurchLineAndCalcInvDisc(PurchaseHeader, PurchaseLine, FindItem(VATPostingSetup."VAT Prod. Posting Group"));
         exit(FindVATIdentifier(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group"));
     end;
 
@@ -2033,17 +2027,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(CustInvoiceDisc."Discount %");
     end;
 
-    local procedure FindItem(VATBusPostingGroup: Code[20]; VATPct: Decimal): Code[20]
+    local procedure FindItem(VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Not using Library Item Finder method to make this funtion World ready.
-        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGroup);
-        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
-        VATPostingSetup.SetFilter("VAT %", '<>%1&<>%2', VATPct, 0);
+        FindVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
         VATPostingSetup.FindFirst;
         LibraryInventory.CreateItem(Item);
         Item.Validate(Blocked, false);
@@ -2131,7 +2122,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCalcInvDiscPerVATID := SalesReceivablesSetup."Calc. Inv. Disc. per VAT ID";
         SalesReceivablesSetup.Validate("Calc. Inv. Disc. per VAT ID", CalcInvDiscPerVATID);
         SalesReceivablesSetup.Modify(true);
@@ -2141,7 +2132,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldCalcInvDiscPerVATID := PurchasesPayablesSetup."Calc. Inv. Disc. per VAT ID";
         PurchasesPayablesSetup.Validate("Calc. Inv. Disc. per VAT ID", CalcInvDiscPerVATID);
         PurchasesPayablesSetup.Modify(true);
@@ -2193,7 +2184,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange(Amount, Amount);
@@ -2216,7 +2207,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATAmountLine: Record "VAT Amount Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           ExpectVATAmount, ActualVATAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), ExpectVATAmount, VATAmountLine.TableCaption));
@@ -2227,7 +2218,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           ExpectedInvDiscountAmount, ActualInvDiscountAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VATAmountLine.FieldCaption("Invoice Discount Amount"), ExpectedInvDiscountAmount,
@@ -2239,7 +2230,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -2252,7 +2243,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.FindFirst;
@@ -2267,7 +2258,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvHeader.SetRange("Order No.", OrderNo);
         PurchInvHeader.FindFirst;
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
@@ -2282,7 +2273,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
         PurchCrMemoLine.FindFirst;
@@ -2296,7 +2287,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesLine: Record "Sales Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           ExpectedAmount, ActualAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ErrorAmount, ExpectedAmount, SalesLine.TableCaption));
@@ -2307,7 +2298,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseLine: Record "Purchase Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           ExpectedAmount, ActualAmount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ErrorAmount, ExpectedAmount, PurchaseLine.TableCaption));
@@ -2318,7 +2309,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATAmountLine.SetRange("VAT Identifier", VATIdentifier);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -2332,7 +2323,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATAmountLine.SetRange("VAT %", VATPct);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -2345,7 +2336,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("VAT %", VATPct);
         SalesInvoiceLine.FindFirst;
@@ -2360,7 +2351,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetRange("VAT %", VATPct);
         SalesCrMemoLine.FindFirst;
@@ -2375,7 +2366,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("VAT %", VATPct);
         PurchInvLine.FindFirst;
@@ -2390,7 +2381,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.SetRange("VAT %", VATPct);
         PurchCrMemoLine.FindFirst;

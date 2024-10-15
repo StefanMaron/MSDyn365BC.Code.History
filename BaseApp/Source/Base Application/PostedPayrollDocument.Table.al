@@ -154,7 +154,7 @@ table 17416 "Posted Payroll Document"
     begin
         PostedPayrollDocLine.SetRange("Document No.", "No.");
         if not PostedPayrollDocLine.IsEmpty then
-            PostedPayrollDocLine.DeleteAll;
+            PostedPayrollDocLine.DeleteAll();
     end;
 
     var
@@ -179,7 +179,7 @@ table 17416 "Posted Payroll Document"
     [Scope('OnPrem')]
     procedure CalcPayrollAmount(): Decimal
     begin
-        PostedPayrollDocLine.Reset;
+        PostedPayrollDocLine.Reset();
         PostedPayrollDocLine.SetRange("Document No.", "No.");
         PostedPayrollDocLine.SetFilter("Element Type", '%1|%2|%3|%4|%5',
           PostedPayrollDocLine."Element Type"::Wage,

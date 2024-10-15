@@ -21,7 +21,7 @@ codeunit 17207 "Create Tax Register FE Entry"
         Total: Integer;
         Procesing: Integer;
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Future Exp. Depreciation Book");
 
         TaxRegMgt.ValidateAbsenceFEEntriesDate(StartDate, EndDate, SectionCode);
@@ -52,14 +52,14 @@ codeunit 17207 "Create Tax Register FE Entry"
                     FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
 
                     if FALedgEntry.FindFirst then begin
-                        TaxRegFEEntry.Init;
+                        TaxRegFEEntry.Init();
                         TaxRegFEEntry."Section Code" := SectionCode;
                         TaxRegFEEntry."Starting Date" := StartDate;
                         TaxRegFEEntry."Ending Date" := EndDate;
                         TaxRegFEEntry."FE No." := "FA No.";
                         TaxRegFEEntry."Depreciation Book Code" := "Depreciation Book Code";
                         TaxRegFEEntry."Entry No." += 1;
-                        TaxRegFEEntry.Insert;
+                        TaxRegFEEntry.Insert();
 
                         TaxRegFEEntry.CalcFields(
                           "Acquisition Cost", "Valuation Changes", "Depreciation Amount");
@@ -94,7 +94,7 @@ codeunit 17207 "Create Tax Register FE Entry"
                 repeat
                     TempTaxRegTemplate := TaxRegTemplate;
                     TempTaxRegTemplate.Value := 0;
-                    TempTaxRegTemplate.Insert;
+                    TempTaxRegTemplate.Insert();
                 until TaxRegTemplate.Next = 0;
         until TaxReg.Next = 0;
 
@@ -121,22 +121,22 @@ codeunit 17207 "Create Tax Register FE Entry"
                         end;
                         if AddValue <> 0 then begin
                             TempTaxRegTemplate.Value += AddValue;
-                            TempTaxRegTemplate.Modify;
+                            TempTaxRegTemplate.Modify();
                         end;
                     until TempTaxRegTemplate.Next = 0;
                 end;
             until TaxRegFEEntry.Next = 0;
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
 
-        TempTaxRegTemplate.Reset;
+        TempTaxRegTemplate.Reset();
         if TempTaxRegTemplate.FindSet then
             repeat
                 TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
@@ -154,10 +154,10 @@ codeunit 17207 "Create Tax Register FE Entry"
                     TempTaxRegTemplate.Period);
                 TaxRegAccumulation.Amount := TaxRegAccumulation."Amount Period";
                 TaxRegAccumulation."Entry No." += 1;
-                TaxRegAccumulation.Insert;
+                TaxRegAccumulation.Insert();
                 if TempTaxRegTemplate.Period <> '' then begin
                     TaxRegAccumulation2 := TaxRegAccumulation;
-                    TaxRegAccumulation2.Reset;
+                    TaxRegAccumulation2.Reset();
                     TaxRegAccumulation2.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
                     TaxRegAccumulation2.SetRange("Section Code", SectionCode);
                     TaxRegAccumulation2.SetRange("Tax Register No.", TaxRegAccumulation."Tax Register No.");
@@ -166,7 +166,7 @@ codeunit 17207 "Create Tax Register FE Entry"
                     TaxRegAccumulation2.SetFilter("Ending Date", TaxRegAccumulation."Amount Date Filter");
                     TaxRegAccumulation2.CalcSums("Amount Period");
                     TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
-                    TaxRegAccumulation.Modify;
+                    TaxRegAccumulation.Modify();
                 end;
             until TempTaxRegTemplate.Next = 0;
     end;

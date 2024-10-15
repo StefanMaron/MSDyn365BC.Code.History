@@ -23,11 +23,9 @@ table 111 "Sales Shipment Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -212,11 +210,9 @@ table 111 "Sales Shipment Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -308,12 +304,10 @@ table 111 "Sales Shipment Line"
             Caption = 'Unit Cost';
             Editable = false;
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';
             DataClassification = CustomerContent;
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross reference,Common Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross reference","Common Item No.";
         }
         field(108; "IC Partner Reference"; Code[20])
         {
@@ -949,14 +943,14 @@ table 111 "Sales Shipment Line"
         else
             Currency.Get(SalesShptHeader."Currency Code");
 
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
 
         with SalesShptLine do begin
             SetRange("Document No.", SalesShptHeader."No.");
             SetFilter(Type, '>0');
             SetFilter(Quantity, '<>0');
-            SalesSetup.Get;
-            LockTable;
+            SalesSetup.Get();
+            LockTable();
             if Find('-') then
                 repeat
                     LineDiscountAmount :=
@@ -971,8 +965,8 @@ table 111 "Sales Shipment Line"
                           Format("VAT %"), "VAT Calculation Type", "Tax Group Code", false, LineAmount >= 0)
                         then begin
                             TempVATAmountLineRemainder := VATAmountLine;
-                            TempVATAmountLineRemainder.Init;
-                            TempVATAmountLineRemainder.Insert;
+                            TempVATAmountLineRemainder.Init();
+                            TempVATAmountLineRemainder.Insert();
                         end;
 
                         if SalesShptHeader."Prices Including VAT" then begin
@@ -1049,7 +1043,7 @@ table 111 "Sales Shipment Line"
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
-                        TempVATAmountLineRemainder.Modify;
+                        TempVATAmountLineRemainder.Modify();
                     end;
                 until Next = 0;
             SetRange(Type);
@@ -1075,13 +1069,13 @@ table 111 "Sales Shipment Line"
         else
             Currency.Get(SalesShptHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with SalesShptLine do begin
             SetRange("Document No.", SalesShptHeader."No.");
             SetFilter(Type, '>0');
             SetFilter(Quantity, '<>0');
-            SalesSetup.Get;
+            SalesSetup.Get();
             if Find('-') then
                 repeat
                     if "VAT Calculation Type" in
@@ -1091,14 +1085,14 @@ table 111 "Sales Shipment Line"
                     if not VATAmountLine.Get(
                       Format("VAT %"), "VAT Calculation Type", "Tax Group Code", false, Quantity * "Unit Price" >= 0)
                     then begin
-                        VATAmountLine.Init;
+                        VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := Format("VAT %");
                         VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         VATAmountLine."Tax Group Code" := "Tax Group Code";
                         VATAmountLine."VAT %" := "VAT %";
                         VATAmountLine.Modified := true;
                         VATAmountLine.Positive := Quantity * "Unit Price" >= 0;
-                        VATAmountLine.Insert;
+                        VATAmountLine.Insert();
                     end;
                     VATAmountLine.Quantity := VATAmountLine.Quantity + Quantity;
                     LineDiscountAmount :=
@@ -1108,7 +1102,7 @@ table 111 "Sales Shipment Line"
                     VATAmountLine."Line Amount" :=
                       VATAmountLine."Line Amount" +
                       Round(Quantity * "Unit Price" - LineDiscountAmount, Currency."Amount Rounding Precision");
-                    VATAmountLine.Modify;
+                    VATAmountLine.Modify();
                 until Next = 0;
             SetRange(Type);
             SetRange(Quantity);
@@ -1122,7 +1116,7 @@ table 111 "Sales Shipment Line"
                        (PrevVatAmountLine."Tax Group Code" <> VATAmountLine."Tax Group Code") or
                        (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
                     then
-                        PrevVatAmountLine.Init;
+                        PrevVatAmountLine.Init();
                     if SalesShptHeader."Prices Including VAT" then begin
                         case "VAT Calculation Type" of
                             "VAT Calculation Type"::"Normal VAT",

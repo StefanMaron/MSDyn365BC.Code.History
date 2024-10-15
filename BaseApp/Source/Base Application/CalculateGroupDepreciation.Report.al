@@ -38,7 +38,7 @@ report 14933 "Calculate Group Depreciation"
                             end;
 
                             if not OK then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             DeprAmount :=
                               DepreciationCalc.CalcRounding(DeprBookCode,
@@ -59,7 +59,7 @@ report 14933 "Calculate Group Depreciation"
                                 FAJnlLineTmp."Depr. Period Starting Date" := Period;
                                 FAJnlLineTmp."Location Code" := "Fixed Asset"."FA Location Code";
                                 FAJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
-                                FAJnlLineTmp.Insert;
+                                FAJnlLineTmp.Insert();
                             end else begin
                                 GenJnlLineTmp."Account No." := "No.";
                                 GenJnlLineTmp."FA Posting Type" := GenJnlLineTmp."FA Posting Type"::Depreciation;
@@ -69,7 +69,7 @@ report 14933 "Calculate Group Depreciation"
                                 GenJnlLineTmp."FA Location Code" := "Fixed Asset"."FA Location Code";
                                 GenJnlLineTmp."Employee No." := "Fixed Asset"."Responsible Employee";
                                 GenJnlLineTmp."Depr. Period Starting Date" := Period;
-                                GenJnlLineTmp.Insert;
+                                GenJnlLineTmp.Insert();
                             end;
                         end;
                 end;
@@ -86,7 +86,7 @@ report 14933 "Calculate Group Depreciation"
 
                     with FAJnlLine do begin
                         if FAJnlLineTmp.FindSet then begin
-                            LockTable;
+                            LockTable();
                             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                             NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                             if DocumentNo = '' then
@@ -139,7 +139,7 @@ report 14933 "Calculate Group Depreciation"
 
                     with GenJnlLine do begin
                         if GenJnlLineTmp.FindSet then begin
-                            LockTable;
+                            LockTable();
                             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                             NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                             if DocumentNo = '' then
@@ -204,11 +204,11 @@ report 14933 "Calculate Group Depreciation"
 
                 trigger OnPreDataItem()
                 begin
-                    GenJnlLineTmp.Reset;
-                    GenJnlLineTmp.DeleteAll;
+                    GenJnlLineTmp.Reset();
+                    GenJnlLineTmp.DeleteAll();
 
-                    FAJnlLineTmp.Reset;
-                    FAJnlLineTmp.DeleteAll;
+                    FAJnlLineTmp.Reset();
+                    FAJnlLineTmp.DeleteAll();
                 end;
             }
 
@@ -230,7 +230,7 @@ report 14933 "Calculate Group Depreciation"
                 then begin
                     CheckGroupDepreciation(Code);
                     GroupDisposal(Code);
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 if not ChangeDetails then
@@ -362,7 +362,7 @@ report 14933 "Calculate Group Depreciation"
             PeriodReportManagement.PeriodSetup(DatePeriod, ProgressiveTotal);
 
             if DeprBookCode = '' then begin
-                TaxRegisterSetup.Get;
+                TaxRegisterSetup.Get();
                 TaxRegisterSetup.TestField("Tax Depreciation Book");
                 DeprBookCode := TaxRegisterSetup."Tax Depreciation Book";
             end;
@@ -382,7 +382,7 @@ report 14933 "Calculate Group Depreciation"
 
     trigger OnPreReport()
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         DeprBook.Get(DeprBookCode);
         DeprBook.TestField("Allow Depreciation", true);
 
@@ -500,7 +500,7 @@ report 14933 "Calculate Group Depreciation"
                     if CheckDeprBook then
                         if not DeprBook."G/L Integration - Depreciation" or FixedAsset."Budgeted Asset" then begin
                             with FAJnlLine do begin
-                                LockTable;
+                                LockTable();
                                 FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                                 NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                                 if DocumentNo = '' then
@@ -529,7 +529,7 @@ report 14933 "Calculate Group Depreciation"
                             end;
                         end else begin
                             with GenJnlLine do begin
-                                LockTable;
+                                LockTable();
                                 FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                                 NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                                 if DocumentNo = '' then

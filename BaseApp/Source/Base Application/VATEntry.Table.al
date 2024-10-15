@@ -33,12 +33,10 @@ table 254 "VAT Entry"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; Type; Option)
         {
@@ -65,12 +63,10 @@ table 254 "VAT Entry"
             Caption = 'Amount';
             Editable = false;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -471,12 +467,10 @@ table 254 "VAT Entry"
             Caption = 'Positive';
             Editable = false;
         }
-        field(12461; "For Document Type"; Option)
+        field(12461; "For Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'For Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(12462; "For Document No."; Code[20])
         {
@@ -508,11 +502,9 @@ table 254 "VAT Entry"
         {
             Caption = 'Include In Other VAT Ledger';
         }
-        field(12491; "Object Type"; Option)
+        field(12491; "Object Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Object Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(12492; "Object No."; Code[20])
         {
@@ -631,10 +623,17 @@ table 254 "VAT Entry"
         GLSetupRead: Boolean;
         Text12400: Label '%1 %2 is blocked. %3 must be less than %4 %5.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -847,7 +846,7 @@ table 254 "VAT Entry"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         TempDate: Date;
     begin
-        DtldVendLedgEntry.Reset;
+        DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Transaction No.", TransactionNo);
         DtldVendLedgEntry.SetRange("Vendor No.", "Bill-to/Pay-to No.");
@@ -874,7 +873,7 @@ table 254 "VAT Entry"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TempDate: Date;
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
         DtldCustLedgEntry.SetRange("Transaction No.", TransactionNo);
         DtldCustLedgEntry.SetRange("Customer No.", "Bill-to/Pay-to No.");

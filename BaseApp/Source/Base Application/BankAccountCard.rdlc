@@ -5226,9 +5226,6 @@ End Function</Code>
         <Field Name="ApplicationLocalization_Date2Text_DateStartedOfPeriod___________ApplicationLocalization_Date2Text_EndingPeriodDate_">
           <DataField>ApplicationLocalization_Date2Text_DateStartedOfPeriod___________ApplicationLocalization_Date2Text_EndingPeriodDate_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>

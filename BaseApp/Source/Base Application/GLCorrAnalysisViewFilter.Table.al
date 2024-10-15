@@ -53,7 +53,7 @@ table 14941 "G/L Corr. Analysis View Filter"
         GLCorrAnalysisView.TestField(Blocked, false);
         GLCorrAnalysisView.ValidateDelete(GLCorrAnalysisViewFilter.FieldCaption("Dimension Code"));
         GLCorrAnalysisView.AnalysisViewReset;
-        GLCorrAnalysisView.Modify;
+        GLCorrAnalysisView.Modify();
     end;
 
     trigger OnInsert()
@@ -87,7 +87,7 @@ table 14941 "G/L Corr. Analysis View Filter"
         then begin
             GLCorrAnalysisView.ValidateDelete(GLCorrAnalysisViewFilter.FieldCaption("Dimension Code"));
             GLCorrAnalysisView.AnalysisViewReset;
-            GLCorrAnalysisView.Modify;
+            GLCorrAnalysisView.Modify();
             "Dimension Value Filter" := '';
         end;
 
@@ -96,7 +96,7 @@ table 14941 "G/L Corr. Analysis View Filter"
         then begin
             GLCorrAnalysisView.ValidateDelete(GLCorrAnalysisViewFilter.FieldCaption("Dimension Value Filter"));
             GLCorrAnalysisView.AnalysisViewReset;
-            GLCorrAnalysisView.Modify;
+            GLCorrAnalysisView.Modify();
         end;
     end;
 }

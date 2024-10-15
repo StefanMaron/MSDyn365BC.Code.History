@@ -90,7 +90,7 @@ report 17413 "Create Payroll Year"
             if FirstPeriodStartDate <> 0D then
                 if (PayrollYearStartDate >= FirstPeriodStartDate) and (PayrollYearStartDate < LastPeriodStartDate) then
                     Error(Text004);
-            PayrollPeriod.Init;
+            PayrollPeriod.Init();
             PayrollPeriod.Code := Format(PayrollYearStartDate, 0, '<Year><Month,2>');
             PayrollPeriod."Starting Date" := PayrollYearStartDate;
             PayrollPeriod."Ending Date" := CalcDate('<CM>', PayrollYearStartDate);

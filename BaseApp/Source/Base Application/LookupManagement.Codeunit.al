@@ -16,25 +16,23 @@ codeunit 17209 "Lookup Management"
     [Scope('OnPrem')]
     procedure BuildLookupBuffer(var TempLookupBuffer: Record "Lookup Buffer" temporary; TableID: Integer; FieldID: Integer)
     var
-        "Field": Record "Field";
         xRecordRef: RecordRef;
         xFieldRef: FieldRef;
         xOptionString: Text[1024];
         xPosition: Integer;
     begin
-        TempLookupBuffer.Reset;
-        TempLookupBuffer.DeleteAll;
+        TempLookupBuffer.Reset();
+        TempLookupBuffer.DeleteAll();
 
         xRecordRef.Open(TableID, true);
         xFieldRef := xRecordRef.Field(FieldID);
-        Field.Type := Field.Type::Option;
-        if Format(xFieldRef.Type) = Format(Field.Type) then
+        if xFieldRef.Type = FieldType::Option then
             xOptionString := xFieldRef.OptionCaption;
         xRecordRef.Close;
 
         while xOptionString <> '' do begin
             xPosition := StrPos(xOptionString, ',');
-            TempLookupBuffer.Init;
+            TempLookupBuffer.Init();
             if xPosition = 0 then begin
                 TempLookupBuffer.Text := CopyStr(xOptionString, 1, MaxStrLen(TempLookupBuffer.Text));
                 xOptionString := '';
@@ -47,7 +45,7 @@ codeunit 17209 "Lookup Management"
                     xOptionString := CopyStr(xOptionString, xPosition + 1)
                 end;
             if TempLookupBuffer.Text <> '' then
-                TempLookupBuffer.Insert;
+                TempLookupBuffer.Insert();
             TempLookupBuffer.Integer += 1;
         end;
     end;
@@ -69,7 +67,7 @@ codeunit 17209 "Lookup Management"
 
         BuildLookupBuffer(TempLookupBuffer, TableID, FieldID);
 
-        TempLookupBuffer.Reset;
+        TempLookupBuffer.Reset();
         RestText := TotalingString;
         while StrLen(RestText) <> 0 do begin
             PointPosition := StrPos(RestText, '.');
@@ -176,7 +174,7 @@ codeunit 17209 "Lookup Management"
             exit(true);
 
         BuildLookupBuffer(TempLookupBuffer, TableID, FieldID);
-        TempLookupBuffer.Reset;
+        TempLookupBuffer.Reset();
         TempLookupBuffer.SetFilter(Integer, Totaling1);
         if TempLookupBuffer.Find('-') then begin
             repeat
@@ -240,8 +238,8 @@ codeunit 17209 "Lookup Management"
         xCountKey: Integer;
         xCountNo: Integer;
     begin
-        TmpKeyList.Reset;
-        TmpKeyList.DeleteAll;
+        TmpKeyList.Reset();
+        TmpKeyList.DeleteAll();
         Clear(TmpKeyList);
 
         xRecordRef.Open(TableID, true);
@@ -257,7 +255,7 @@ codeunit 17209 "Lookup Management"
                           CopyStr(StrSubstNo('%1,%2', TmpKeyList.Text, xFieldRef.Caption), 1, MaxStrLen(TmpKeyList.Text));
                 end;
                 TmpKeyList.Integer := xCountKey;
-                TmpKeyList.Insert;
+                TmpKeyList.Insert();
                 TmpKeyList.Text := '';
             end;
         end;

@@ -1626,7 +1626,7 @@ codeunit 136109 "Service Posting - Consumption"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Consumption");
     end;
 
@@ -1734,7 +1734,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Validate Document No. as combination of Journal Batch Name and Line No.
         ItemJournalLine.Validate("Document No.", ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."));
         ItemJournalLine.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithItemTrackingCode(ItemCategoryCode: Code[10]): Code[20]
@@ -1760,7 +1760,7 @@ codeunit 136109 "Service Posting - Consumption"
         ItemTrackingCode.Validate("SN Sales Outbound Tracking", SNSpecific);
         ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", false);
         ItemTrackingCode.Validate("Man. Warranty Date Entry Reqd.", false);
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1950,8 +1950,6 @@ codeunit 136109 "Service Posting - Consumption"
             if not FindFirst then begin
                 LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
-                Validate("VAT Identifier",
-                  LibraryUtility.GenerateRandomCode(FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
                 Validate("VAT Calculation Type", VATCalType);
                 Validate("VAT %", VATPct);
                 Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);
@@ -2017,7 +2015,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         repeat
             TempServiceLineBeforePosting := ServiceLine;
-            TempServiceLineBeforePosting.Insert;
+            TempServiceLineBeforePosting.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -2085,7 +2083,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -2214,10 +2212,10 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-            TempServiceLine.Delete;
+            TempServiceLine.Delete();
         until ServiceLine.Next = 0;
     end;
 
@@ -2644,7 +2642,7 @@ codeunit 136109 "Service Posting - Consumption"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         case TrackingAction of
             TrackingAction::AssignSerialNo:
                 ItemTrackingLines."Assign Serial No.".Invoke;

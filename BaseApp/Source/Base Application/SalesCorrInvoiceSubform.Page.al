@@ -228,7 +228,7 @@ page 14972 "Sales Corr. Invoice Subform"
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);

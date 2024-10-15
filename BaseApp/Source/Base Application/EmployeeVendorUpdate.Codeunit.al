@@ -51,7 +51,7 @@ codeunit 12415 "EmployeeVendor-Update"
             "Post Code" := Employee."Post Code";
             "E-Mail" := Employee."E-Mail";
             "Employee No." := Employee."No.";
-            PurchaseSetup.Get;
+            PurchaseSetup.Get();
             "Gen. Bus. Posting Group" := PurchaseSetup."Adv. Stmt. Gen.Bus. Posting Gr";
             "VAT Bus. Posting Group" := PurchaseSetup."Adv. Stmt. VAT Bus. Posting Gr";
             "Vendor Posting Group" := PurchaseSetup."Adv. Stmt. Vendor Posting Gr.";

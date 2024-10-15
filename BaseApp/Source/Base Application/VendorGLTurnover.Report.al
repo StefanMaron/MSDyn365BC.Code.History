@@ -16,9 +16,6 @@ report 12451 "Vendor G/L Turnover"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -268,7 +265,7 @@ report 12451 "Vendor G/L Turnover"
                       ("G/L Starting Balance" = 0) and ("G/L Balance to Date" = 0) and
                       ("G/L Debit Amount" = 0) and ("G/L Credit Amount" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -276,7 +273,7 @@ report 12451 "Vendor G/L Turnover"
             begin
                 if GLAccFilter = '' then begin
                     if not VendPostingGr.Get("Vendor Posting Group") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     SetFilter("G/L Account Filter", '%1|%2', VendPostingGr."Payables Account", VendPostingGr."Prepayment Account");
                 end;
 
@@ -320,7 +317,7 @@ report 12451 "Vendor G/L Turnover"
                   ("G/L Starting Balance" = 0) and ("G/L Balance to Date" = 0) and
                   ("G/L Debit Amount" = 0) and ("G/L Credit Amount" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

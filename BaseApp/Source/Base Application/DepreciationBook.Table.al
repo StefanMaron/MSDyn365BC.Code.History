@@ -255,14 +255,14 @@ table 5611 "Depreciation Book"
                     TestField("Use Custom 1 Depreciation", false);
                     TestField("Periodic Depr. Date Calc.", "Periodic Depr. Date Calc."::"Last Entry");
                 end;
-                FADeprBook.LockTable;
+                FADeprBook.LockTable();
                 Modify;
                 FADeprBook.SetCurrentKey("Depreciation Book Code", "FA No.");
                 FADeprBook.SetRange("Depreciation Book Code", Code);
                 if FADeprBook.FindSet(true) then
                     repeat
                         FADeprBook.CalcDeprPeriod;
-                        FADeprBook.Modify;
+                        FADeprBook.Modify();
                     until FADeprBook.Next = 0;
             end;
         }
@@ -290,12 +290,12 @@ table 5611 "Depreciation Book"
                 TaxRegisterSetup: Record "Tax Register Setup";
                 DepreciationBook: Record "Depreciation Book";
             begin
-                TaxRegisterSetup.Get;
+                TaxRegisterSetup.Get();
                 if "Control FA Acquis. Cost" then begin
                     TaxRegisterSetup.TestField("Use Group Depr. Method from", 0D);
                     TestField("Posting Book Type", "Posting Book Type"::Accounting);
                 end else begin
-                    FASetup.Get;
+                    FASetup.Get();
                     if FASetup."Default Depr. Book" = Code then
                         TaxRegisterSetup.TestField("Calculate TD for each FA", false);
                 end;
@@ -320,7 +320,7 @@ table 5611 "Depreciation Book"
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         FADeprBook: Record "FA Depreciation Book";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
         if not FADeprBook.IsEmpty then
@@ -332,10 +332,10 @@ table 5611 "Depreciation Book"
               FASetup.TableCaption, FASetup.FieldCaption("Insurance Depr. Book"), Code);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", Code);
-        FAPostingTypeSetup.DeleteAll;
+        FAPostingTypeSetup.DeleteAll();
 
         FAJnlSetup.SetRange("Depreciation Book Code", Code);
-        FAJnlSetup.DeleteAll;
+        FAJnlSetup.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -400,8 +400,8 @@ table 5611 "Depreciation Book"
     procedure TaxDeprBook(): Boolean
     begin
         if not TaxRegisterSetup.Get then begin
-            TaxRegisterSetup.Init;
-            TaxRegisterSetup.Insert;
+            TaxRegisterSetup.Init();
+            TaxRegisterSetup.Insert();
         end;
         if TaxRegisterSetup."Tax Depreciation Book" <> '' then
             if Code = TaxRegisterSetup."Tax Depreciation Book" then

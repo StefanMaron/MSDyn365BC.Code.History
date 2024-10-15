@@ -84,7 +84,7 @@ report 17304 "Create FE from Sold FA"
                         FEJnlLineTmp."Line No." := FEJnlLineTmp."Line No." + 1;
                         FEJnlLineTmp."Depreciation Book Code" := FEDeprBookAccounting."Depreciation Book Code";
                         FEJnlLineTmp.Description := FE.Description;
-                        FEJnlLineTmp.Insert;
+                        FEJnlLineTmp.Insert();
                     end else begin
                         FEJnlSetup.GenJnlName(DeprBookAccounting, GenJnlLine, JnlNextLineNo);
                         GenJnlLineTmp."Account No." := FE."No.";
@@ -94,7 +94,7 @@ report 17304 "Create FE from Sold FA"
                         GenJnlLineTmp.Amount := GainLoss;
                         GenJnlLineTmp."Line No." := GenJnlLineTmp."Line No." + 1;
                         GenJnlLineTmp."Depreciation Book Code" := FEDeprBookAccounting."Depreciation Book Code";
-                        GenJnlLineTmp.Insert;
+                        GenJnlLineTmp.Insert();
                     end;
 
                     if not DeprBookTaxAccounting."G/L Integration - Acq. Cost" then begin
@@ -106,7 +106,7 @@ report 17304 "Create FE from Sold FA"
                         FEJnlLineTmp."Line No." := FEJnlLineTmp."Line No." + 1;
                         FEJnlLineTmp."Depreciation Book Code" := FEDeprBookTaxAccounting."Depreciation Book Code";
                         FEJnlLineTmp.Description := FE.Description;
-                        FEJnlLineTmp.Insert;
+                        FEJnlLineTmp.Insert();
                     end else begin
                         FEJnlSetup.GenJnlName(DeprBookTaxAccounting, GenJnlLine, JnlNextLineNo);
                         GenJnlLineTmp."Account No." := FE."No.";
@@ -117,7 +117,7 @@ report 17304 "Create FE from Sold FA"
                         GenJnlLineTmp."Line No." := GenJnlLineTmp."Line No." + 1;
                         GenJnlLineTmp."Depreciation Book Code" := FEDeprBookTaxAccounting."Depreciation Book Code";
                         GenJnlLineTmp.Description := FE.Description;
-                        GenJnlLineTmp.Insert;
+                        GenJnlLineTmp.Insert();
                     end;
                 end;
             }
@@ -128,11 +128,11 @@ report 17304 "Create FE from Sold FA"
                 DisposalDate := 0D;
                 DepreciationEndingDate := 0D;
 
-                FE.Reset;
+                FE.Reset();
                 FE.SetCurrentKey("Created by FA No.");
                 FE.SetRange("Created by FA No.", "No.");
                 if FE.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FATaxDeprBook.SetRange("FA No.", "No.");
                 if FATaxDeprBook.FindSet then
@@ -201,9 +201,9 @@ report 17304 "Create FE from Sold FA"
     trigger OnPostReport()
     begin
         with FEJnlLine do begin
-            FEJnlLineTmp.Reset;
+            FEJnlLineTmp.Reset();
             if FEJnlLineTmp.Find('-') then begin
-                LockTable;
+                LockTable();
                 repeat
                     if (FEJnlLineTmp."Journal Template Name" <> "Journal Template Name") or
                        (FEJnlLineTmp."Journal Batch Name" <> "Journal Batch Name")
@@ -232,7 +232,7 @@ report 17304 "Create FE from Sold FA"
                     "Line No." := JnlNextLineNo;
                     "Depr. Period Starting Date" := FEJnlLineTmp."Depr. Period Starting Date";
                     Insert(true);
-                    FEJnlLineTmp.Delete;
+                    FEJnlLineTmp.Delete();
                 until FEJnlLineTmp.Next = 0;
             end;
         end;
@@ -248,7 +248,7 @@ report 17304 "Create FE from Sold FA"
             repeat
                 FEDeprBookAccounting := FEDeprBook;
                 if not DeprBookAccounting.Get("Depreciation Book Code") then
-                    DeprBookAccounting.Init;
+                    DeprBookAccounting.Init();
             until (Next(1) = 0) or
                   (DeprBookAccounting."Posting Book Type" = DeprBookAccounting."Posting Book Type"::Accounting);
         end;
@@ -272,7 +272,7 @@ report 17304 "Create FE from Sold FA"
             repeat
                 FEDeprBookTaxAccounting := FEDeprBook;
                 if not DeprBookTaxAccounting.Get("Depreciation Book Code") then
-                    DeprBookTaxAccounting.Init;
+                    DeprBookTaxAccounting.Init();
             until (Next(1) = 0) or
                   (DeprBookTaxAccounting."Posting Book Type" = DeprBookTaxAccounting."Posting Book Type"::"Tax Accounting");
         end;
@@ -325,13 +325,13 @@ report 17304 "Create FE from Sold FA"
     local procedure FETemplateNoOnAfterValidate()
     begin
         if not FETemplate.Get(FETemplateNo) then
-            FETemplate.Init;
+            FETemplate.Init();
     end;
 
     local procedure NoSeriesCodeOnAfterValidate()
     begin
         if not NoSeries.Get(NoSeriesCode) then
-            NoSeries.Init;
+            NoSeries.Init();
     end;
 }
 

@@ -26,9 +26,6 @@ report 12445 "Vendor Accounting Card"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Vendor_Accounting_CardCaption; Vendor_Accounting_CardCaptionLbl)
             {
             }
@@ -204,14 +201,14 @@ report 12445 "Vendor Accounting Card"
                             if "Entry Type" = "Entry Type"::Application then begin
                                 if "Prepmt. Diff." then begin
                                     if HasRelatedRealizedEntry("Transaction No.") or (not IsCurrencyAdjEntry) then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end else
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end;
                             case "Entry Type" of
                                 "Entry Type"::"Unrealized Loss":
                                     begin
-                                        DtldVendLedgEntry2.Reset;
+                                        DtldVendLedgEntry2.Reset();
                                         DtldVendLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.");
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Loss");
@@ -220,12 +217,12 @@ report 12445 "Vendor Accounting Card"
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldVendLedgEntry2."Credit Amount (LCY)"
                                             else
-                                                CurrReport.Skip;
+                                                CurrReport.Skip();
                                         end;
                                     end;
                                 "Entry Type"::"Realized Loss":
                                     begin
-                                        DtldVendLedgEntry2.Reset;
+                                        DtldVendLedgEntry2.Reset();
                                         DtldVendLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.");
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Loss");
@@ -234,7 +231,7 @@ report 12445 "Vendor Accounting Card"
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldVendLedgEntry2."Debit Amount (LCY)"
                                             else
-                                                CurrReport.Skip;
+                                                CurrReport.Skip();
                                         end;
                                     end;
                             end;
@@ -288,7 +285,7 @@ report 12445 "Vendor Accounting Card"
                 if ("Debit Amount (LCY)" = 0) and
                    ("Credit Amount (LCY)" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

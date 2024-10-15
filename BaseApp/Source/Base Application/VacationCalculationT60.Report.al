@@ -26,7 +26,7 @@ report 17364 "Vacation Calculation T-60"
 
                     TimeActivity.Get("Time Activity Code");
 
-                    EmplAbsenceEntry.Reset;
+                    EmplAbsenceEntry.Reset();
                     EmplAbsenceEntry.SetCurrentKey("Employee No.");
                     EmplAbsenceEntry.SetRange("Employee No.", "Employee No.");
                     EmplAbsenceEntry.SetRange("Time Activity Code", "Time Activity Code");
@@ -54,7 +54,7 @@ report 17364 "Vacation Calculation T-60"
                     ExcelMgt.FillCell('AQ43', LocMgt.Date2Text("End Date"));
 
                     FirstLine := true;
-                    PostedPayrollDocLine.Reset;
+                    PostedPayrollDocLine.Reset();
                     PostedPayrollDocLine.SetCurrentKey("Document Type", "HR Order No.");
                     PostedPayrollDocLine.SetRange("Document Type", "Document Type" + 1);
                     PostedPayrollDocLine.SetRange("HR Order No.", "Document No.");
@@ -203,9 +203,9 @@ report 17364 "Vacation Calculation T-60"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("T-60 Template Code");
         FileName := ExcelTemplate.OpenTemplate(HRSetup."T-60 Template Code");
 

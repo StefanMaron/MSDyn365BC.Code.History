@@ -165,7 +165,7 @@ page 26574 "Create Report Data"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         if CreationDate = 0D then
             CreationDate := Today;

@@ -44,7 +44,7 @@ table 17404 "Payroll Calc Type"
 
     trigger OnDelete()
     begin
-        PayrollCalcGroupLine.Reset;
+        PayrollCalcGroupLine.Reset();
         PayrollCalcGroupLine.SetCurrentKey("Payroll Calc Type");
         PayrollCalcGroupLine.SetRange("Payroll Calc Type", Code);
         if PayrollCalcGroupLine.FindFirst then
@@ -52,7 +52,7 @@ table 17404 "Payroll Calc Type"
               PayrollCalcGroupLine."Payroll Calc Group");
 
         PayrollCalcTypeLine.SetRange("Calc Type Code", Code);
-        PayrollCalcTypeLine.DeleteAll;
+        PayrollCalcTypeLine.DeleteAll();
     end;
 
     var

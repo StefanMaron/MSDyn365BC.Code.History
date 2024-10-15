@@ -32,7 +32,7 @@ codeunit 17385 "Release Absence Order"
                 end;
         end;
 
-        AbsenceLine.Reset;
+        AbsenceLine.Reset();
         AbsenceLine.SetRange("Document Type", "Document Type");
         AbsenceLine.SetRange("Document No.", "No.");
         if AbsenceLine.FindSet then

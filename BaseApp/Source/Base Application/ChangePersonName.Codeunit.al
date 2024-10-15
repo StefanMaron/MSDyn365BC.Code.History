@@ -40,12 +40,12 @@ codeunit 17353 "Change Person Name"
             PersonNameHistory."Order Date" := LaborContractLine."Order Date";
             PersonNameHistory."User ID" := UserId;
             PersonNameHistory."Creation Date" := Today;
-            PersonNameHistory.Insert;
+            PersonNameHistory.Insert();
         end else
             if StartDate <= PersonNameHistory."Start Date" then
                 Error(Text003, StartDate, PersonNameHistory."Start Date");
 
-        PersonNameHistory.Init;
+        PersonNameHistory.Init();
         PersonNameHistory."Person No." := PersonNo;
         PersonNameHistory."Start Date" := StartDate;
         PersonNameHistory."First Name" := NewFirstName;
@@ -56,7 +56,7 @@ codeunit 17353 "Change Person Name"
         PersonNameHistory.Description := Description;
         PersonNameHistory."User ID" := UserId;
         PersonNameHistory."Creation Date" := Today;
-        PersonNameHistory.Insert;
+        PersonNameHistory.Insert();
 
         UpdatePersonName(
           PersonNo,
@@ -81,7 +81,7 @@ codeunit 17353 "Change Person Name"
             Validate("Full Name", GetFullName);
             Modify;
 
-            Employee.Reset;
+            Employee.Reset();
             Employee.SetCurrentKey("Person No.");
             Employee.SetRange("Person No.", PersonNo);
             Employee.SetRange("Employment Date", 0D, StartDate);
@@ -91,7 +91,7 @@ codeunit 17353 "Change Person Name"
                     Employee.Validate("First Name", "First Name");
                     Employee.Validate("Middle Name", "Middle Name");
                     Employee.Validate("Last Name", "Last Name");
-                    Employee.Modify;
+                    Employee.Modify();
                 until Employee.Next = 0;
         end;
     end;
@@ -130,7 +130,7 @@ codeunit 17353 "Change Person Name"
 
         if PersonNameHistory.FindFirst then
             repeat
-                PersonNameHistory.Delete;
+                PersonNameHistory.Delete();
             until PersonNameHistory.Next = 0;
     end;
 }

@@ -34,7 +34,7 @@ codeunit 5641 "FA Reclass. Check Line"
 
     local procedure CheckNewDeprBookCode(FAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLSetup."Enable Russian Accounting" then
             exit;
 

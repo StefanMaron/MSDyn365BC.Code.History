@@ -106,7 +106,7 @@ codeunit 17202 "Tax Dimension Mgt."
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
         DimensionValue: Record "Dimension Value";
     begin
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
 
         TaxRegDimFilter.SetRange("Section Code", TaxRegTemplate."Section Code");
         TaxRegDimFilter.SetRange("Tax Register No.", TaxRegTemplate.Code);
@@ -135,31 +135,31 @@ codeunit 17202 "Tax Dimension Mgt."
     begin
         if TaxRegSection.Code <> TaxRegSectionCode then
             TaxRegSection.Get(TaxRegSectionCode);
-        TempDimBuf1.Reset;
-        TempDimBuf1.DeleteAll;
+        TempDimBuf1.Reset();
+        TempDimBuf1.DeleteAll();
 
         if (Dimension1ValueCode <> '') and (TaxRegSection."Dimension 1 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxRegSection."Dimension 1 Code";
             TempDimBuf1."Dimension Value Code" := Dimension1ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension2ValueCode <> '') and (TaxRegSection."Dimension 2 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxRegSection."Dimension 2 Code";
             TempDimBuf1."Dimension Value Code" := Dimension2ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension3ValueCode <> '') and (TaxRegSection."Dimension 3 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxRegSection."Dimension 3 Code";
             TempDimBuf1."Dimension Value Code" := Dimension3ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension4ValueCode <> '') and (TaxRegSection."Dimension 4 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxRegSection."Dimension 4 Code";
             TempDimBuf1."Dimension Value Code" := Dimension4ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
     end;
 
@@ -216,7 +216,7 @@ codeunit 17202 "Tax Dimension Mgt."
                               StrSubstNo('%1%2~', TaxRegIDTotaling, TaxReg."Register ID");
                     until TaxRegDimFilter.Next(1) = 0;
             until TaxRegDimCorrFilter.Next(1) = 0;
-        TempDimBuf2.Reset;
+        TempDimBuf2.Reset();
         if TempDimBuf2.FindSet then
             repeat
                 case TempDimBuf2."Dimension Code" of
@@ -237,7 +237,7 @@ codeunit 17202 "Tax Dimension Mgt."
     var
         DimensionValue: Record "Dimension Value";
     begin
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
         if TempDimBuf1.FindSet then
             repeat
                 TaxRegDimFilter.SetRange("Dimension Code", TempDimBuf1."Dimension Code");
@@ -309,15 +309,15 @@ codeunit 17202 "Tax Dimension Mgt."
     begin
         if TaxRegSection.Code <> TaxRegSectionCode then
             TaxRegSection.Get(TaxRegSectionCode);
-        TempDimBuf1.Reset;
-        TempDimBuf1.DeleteAll;
+        TempDimBuf1.Reset();
+        TempDimBuf1.DeleteAll();
 
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
         if TempDimSetEntry.FindSet then
             repeat
                 TempDimBuf1."Dimension Code" := TempDimSetEntry."Dimension Code";
                 TempDimBuf1."Dimension Value Code" := TempDimSetEntry."Dimension Value Code";
-                TempDimBuf1.Insert;
+                TempDimBuf1.Insert();
             until TempDimSetEntry.Next = 0;
     end;
 
@@ -378,7 +378,7 @@ codeunit 17202 "Tax Dimension Mgt."
               TaxRegDimComb.TableCaption,
               TaxRegDimComb.FieldCaption("Dimension 1 Code"), TaxRegDimComb."Dimension 1 Code");
 
-        TaxRegDimComb.Reset;
+        TaxRegDimComb.Reset();
         if TaxRegSectionCode <> '' then
             TaxRegDimComb.SetRange("Section Code", TaxRegSectionCode);
         TaxRegDimComb.SetRange("Dimension 2 Code", Dim.Code);
@@ -412,7 +412,7 @@ codeunit 17202 "Tax Dimension Mgt."
               TaxRegDimValueComb.FieldCaption("Dimension 1 Code"), TaxRegDimValueComb."Dimension 1 Code",
               TaxRegDimValueComb.FieldCaption("Dimension 1 Value Code"), TaxRegDimValueComb."Dimension 1 Value Code");
 
-        TaxRegDimValueComb.Reset;
+        TaxRegDimValueComb.Reset();
         if TaxRegSectionCode <> '' then
             TaxRegDimValueComb.SetRange("Section Code", TaxRegSectionCode);
         TaxRegDimValueComb.SetRange("Dimension 2 Code", DimValue."Dimension Code");
@@ -557,16 +557,16 @@ codeunit 17202 "Tax Dimension Mgt."
         CurrentDimValCode: Code[20];
         NextRecord: Boolean;
     begin
-        TempDimBuf2.DeleteAll;
+        TempDimBuf2.DeleteAll();
 
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
         if not TempDimBuf1.FindFirst then
             exit(true);
 
         if not TaxRegDimCorrFilter.FindFirst then begin
             repeat
                 TempDimBuf2 := TempDimBuf1;
-                TempDimBuf2.Insert;
+                TempDimBuf2.Insert();
             until TempDimBuf1.Next(1) = 0;
             exit(true);
         end;
@@ -579,7 +579,7 @@ codeunit 17202 "Tax Dimension Mgt."
             TaxRegDimComb.SetRange("Entry No.", TaxRegDimCorrFilter."Connection Entry No.");
             TaxRegDimComb.FindFirst;
             TempTaxRegDimComb := TaxRegDimComb;
-            TempTaxRegDimComb.Insert;
+            TempTaxRegDimComb.Insert();
             if LineNo <> -1 then
                 if LineNo <> TaxRegDimComb."Line No." then begin
                     LineNo := LineNo;
@@ -598,13 +598,13 @@ codeunit 17202 "Tax Dimension Mgt."
 
         repeat
             TempDimBuf0 := TempDimBuf1;
-            TempDimBuf0.Insert;
+            TempDimBuf0.Insert();
         until TempDimBuf1.Next(1) = 0;
 
         while TempDimBuf0.FindSet do begin
             CurrentDimCode := TempDimBuf0."Dimension Code";
             CurrentDimValCode := TempDimBuf0."Dimension Value Code";
-            TempDimBuf0.Delete;
+            TempDimBuf0.Delete();
             NextRecord := false;
             if TaxRegDimComb.Get(SectionCode, RegisterNo, LineNo, CurrentDimCode, '') then begin
                 if TaxRegDimComb."Combination Restriction" = TaxRegDimComb."Combination Restriction"::Blocked then
@@ -620,7 +620,7 @@ codeunit 17202 "Tax Dimension Mgt."
                         repeat
                             TempDimBuf2."Dimension Code" := TaxRegDimDefaultValue."Dimension Code";
                             TempDimBuf2."Dimension Value Code" := TaxRegDimDefaultValue."Dimension Value";
-                            TempDimBuf2.Insert;
+                            TempDimBuf2.Insert();
                         until TaxRegDimDefaultValue.Next(1) = 0;
                     NextRecord := true;
                 end;
@@ -644,7 +644,7 @@ codeunit 17202 "Tax Dimension Mgt."
                                         repeat
                                             TempDimBuf2."Dimension Code" := TaxRegDimDefaultValue."Dimension Code";
                                             TempDimBuf2."Dimension Value Code" := TaxRegDimDefaultValue."Dimension Value";
-                                            TempDimBuf2.Insert;
+                                            TempDimBuf2.Insert();
                                         until TaxRegDimDefaultValue.Next(1) = 0;
                                     NextRecord := true;
                                 end;
@@ -667,7 +667,7 @@ codeunit 17202 "Tax Dimension Mgt."
                                         repeat
                                             TempDimBuf2."Dimension Code" := TaxRegDimDefaultValue."Dimension Code";
                                             TempDimBuf2."Dimension Value Code" := TaxRegDimDefaultValue."Dimension Value";
-                                            TempDimBuf2.Insert;
+                                            TempDimBuf2.Insert();
                                         until TaxRegDimDefaultValue.Next(1) = 0;
                                     NextRecord := true;
                                 end;
@@ -676,7 +676,7 @@ codeunit 17202 "Tax Dimension Mgt."
             if not NextRecord then begin
                 TempDimBuf2."Dimension Code" := CurrentDimCode;
                 TempDimBuf2."Dimension Value Code" := CurrentDimValCode;
-                TempDimBuf2.Insert;
+                TempDimBuf2.Insert();
             end;
         end;
         exit(true);

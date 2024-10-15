@@ -317,11 +317,11 @@ page 12424 "Payment Order List"
                 begin
                     TestField("Bal. Account No.");
 
-                    BankAccount.Reset;
+                    BankAccount.Reset();
                     BankAccount.SetRange("No.", "Bal. Account No.");
                     if BankAccount.FindFirst then begin
                         if BankAccount."Account Type" <> BankAccount."Account Type"::"Bank Account" then begin
-                            GenJnlLine.Reset;
+                            GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
                             GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                             GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");

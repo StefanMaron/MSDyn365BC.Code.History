@@ -36,7 +36,7 @@ report 17204 "Create Tax Registers"
                         UseTemplates:
                             begin
                                 LinkAccumulateRecordRef.Open(DATABASE::"Tax Register Accumulation");
-                                TaxRegAccumulation.Reset;
+                                TaxRegAccumulation.Reset();
                                 TaxRegAccumulation.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.");
                                 TaxRegAccumulation.SetRange("Section Code", "Tax Register Section".Code);
                                 TaxRegAccumulation.SetRange("Ending Date", EndDate);
@@ -51,7 +51,7 @@ report 17204 "Create Tax Registers"
                                         repeat
                                             if TaxReg."Storing Method" = TaxReg."Storing Method"::Calculation then begin
                                                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                                                TaxRegAccumulation.DeleteAll;
+                                                TaxRegAccumulation.DeleteAll();
                                                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
                                                 if TaxRegTemplate.FindFirst then begin
                                                     TaxRegTemplate.SetRange("Section Code", "Tax Register Section".Code);
@@ -60,7 +60,7 @@ report 17204 "Create Tax Registers"
                                                     TemplateRecordRef.SetView(TaxRegTemplate.GetView(false));
                                                     TaxRegTermMgt.AccumulateTaxRegTemplate(
                                                       TemplateRecordRef, EntryNoAmountBuffer, LinkAccumulateRecordRef);
-                                                    EntryNoAmountBuffer.DeleteAll;
+                                                    EntryNoAmountBuffer.DeleteAll();
                                                 end;
                                             end;
                                         until TaxReg.Next = 0;

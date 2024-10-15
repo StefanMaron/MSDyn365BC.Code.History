@@ -2,7 +2,7 @@ page 12414 "VAT Purchase Ledger Subform"
 {
     Caption = 'VAT Purchase Ledger';
     InsertAllowed = false;
-    PageType = List;
+    PageType = ListPart;
     Permissions = TableData "VAT Ledger Line" = rm;
     SourceTable = "VAT Ledger Line";
 

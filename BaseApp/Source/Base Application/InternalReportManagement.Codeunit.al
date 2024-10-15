@@ -32,7 +32,7 @@ codeunit 12403 "Internal Report Management"
     begin
         with Rec do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             NumbColumns := 0;
             GLCorresp.SetCurrentKey("Credit Account No.", "Debit Account No.");
             GLCorresp.SetRange("Credit Account No.", GLAccount1."No.");
@@ -63,11 +63,11 @@ codeunit 12403 "Internal Report Management"
                         "G/L Account" := GLCorresp."Debit Account No.";
                         NumbColumns := NumbColumns + 1;
                         Insert;
-                        Commit;
+                        Commit();
                     end;
                 until GLCorresp.Next = 0;
             NumbLines := 0;
-            GLCorresp.Reset;
+            GLCorresp.Reset();
             GLCorresp.SetCurrentKey("Debit Account No.", "Credit Account No.");
             GLCorresp.SetRange("Debit Account No.", GLAccount1."No.");
             if not (BeginDate = 0D) then
@@ -97,7 +97,7 @@ codeunit 12403 "Internal Report Management"
                         "G/L Account" := GLCorresp."Credit Account No.";
                         NumbLines := NumbLines + 1;
                         Insert;
-                        Commit;
+                        Commit();
                     end;
                 until GLCorresp.Next = 0;
             exit((NumbLines > 0) and (NumbColumns > 0));

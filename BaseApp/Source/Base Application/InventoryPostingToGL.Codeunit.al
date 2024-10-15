@@ -91,8 +91,8 @@ codeunit 5802 "Inventory Posting To G/L"
         RunOnlyCheck := SetCheckOnly;
         CalledFromTestReport := SetCalledFromTestReport;
 
-        TempGLItemLedgRelation.Reset;
-        TempGLItemLedgRelation.DeleteAll;
+        TempGLItemLedgRelation.Reset();
+        TempGLItemLedgRelation.DeleteAll();
     end;
 
     procedure BufferInvtPosting(var ValueEntry: Record "Value Entry"): Boolean
@@ -582,7 +582,7 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Additional Reporting Currency" <> '' then
                 Currency.Get(GLSetup."Additional Reporting Currency");
         end;
@@ -592,7 +592,7 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure GetInvtSetup()
     begin
         if not InvtSetupRead then
-            InvtSetup.Get;
+            InvtSetup.Get();
         InvtSetupRead := true;
     end;
 
@@ -651,7 +651,7 @@ codeunit 5802 "Inventory Posting To G/L"
         end;
     end;
 
-    local procedure SetAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; AccType: Option; BalAccType: Option)
+    local procedure SetAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type")
     var
         InvtPostingSetup: Record "Inventory Posting Setup";
         GenPostingSetup: Record "General Posting Setup";
@@ -816,10 +816,10 @@ codeunit 5802 "Inventory Posting To G/L"
                 end;
 
                 if not (RunOnlyCheck or CalledFromTestReport) then begin
-                    TempGLItemLedgRelation.Init;
+                    TempGLItemLedgRelation.Init();
                     TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
                     TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
-                    TempGLItemLedgRelation.Insert;
+                    TempGLItemLedgRelation.Insert();
                 end;
             end;
             if ValueEntry2.Get(ValueEntryNo) then begin
@@ -884,7 +884,7 @@ codeunit 5802 "Inventory Posting To G/L"
             TempInvtPostToGLTestBuf.Amount := "Cost Amount (Actual)";
             TempInvtPostToGLTestBuf."Value Entry No." := "Entry No.";
             TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
-            TempInvtPostToGLTestBuf.Insert;
+            TempInvtPostToGLTestBuf.Insert();
         end;
     end;
 
@@ -937,7 +937,7 @@ codeunit 5802 "Inventory Posting To G/L"
             if not FindSet then
                 exit;
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."External Document No." := ExternalDocNo;
             GenJnlLine.Description := Desc;
@@ -980,14 +980,14 @@ codeunit 5802 "Inventory Posting To G/L"
             RunOnlyCheck := RunOnlyCheckSaved;
             OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting);
 
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
     local procedure GetSourceCodeSetup()
     begin
         if not SourceCodeSetupRead then
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
         SourceCodeSetupRead := true;
     end;
 
@@ -1032,7 +1032,7 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure InsertTempInvtPostToGLTestBuf(GenJnlLine: Record "Gen. Journal Line"; ValueEntry: Record "Value Entry")
     begin
         with GenJnlLine do begin
-            TempInvtPostToGLTestBuf.Init;
+            TempInvtPostToGLTestBuf.Init();
             TempInvtPostToGLTestBuf."Line No." := GetNextLineNo;
             TempInvtPostToGLTestBuf."Posting Date" := "Posting Date";
             TempInvtPostToGLTestBuf."Document No." := "Document No.";
@@ -1058,7 +1058,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := GlobalInvtPostBuf."Gen. Bus. Posting Group";
                 TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := GlobalInvtPostBuf."Gen. Prod. Posting Group";
             end;
-            TempInvtPostToGLTestBuf.Insert;
+            TempInvtPostToGLTestBuf.Insert();
         end;
     end;
 
@@ -1068,7 +1068,7 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
         GenJnlPostLine.GetGLReg(GLReg);
         if GlobalPostPerPostGroup then begin
-            TempGLItemLedgRelation.Reset;
+            TempGLItemLedgRelation.Reset();
             TempGLItemLedgRelation.SetRange("G/L Entry No.", GlobalInvtPostBuf."Entry No.");
             TempGLItemLedgRelation.FindSet;
             repeat
@@ -1086,7 +1086,7 @@ codeunit 5802 "Inventory Posting To G/L"
     var
         GLItemLedgRelation: Record "G/L - Item Ledger Relation";
     begin
-        GLItemLedgRelation.Init;
+        GLItemLedgRelation.Init();
         GLItemLedgRelation."G/L Entry No." := GLReg."To Entry No.";
         GLItemLedgRelation."Value Entry No." := TempGLItemLedgRelation."Value Entry No.";
         GLItemLedgRelation."G/L Register No." := GLReg."No.";
@@ -1094,7 +1094,7 @@ codeunit 5802 "Inventory Posting To G/L"
         GLItemLedgRelation.Insert();
         OnAfterGLItemLedgRelationInsert();
         TempGLItemLedgRelation."G/L Entry No." := GlobalInvtPostBuf."Entry No.";
-        TempGLItemLedgRelation.Delete;
+        TempGLItemLedgRelation.Delete();
     end;
 
     local procedure UpdateValueEntry(var ValueEntry: Record "Value Entry")
@@ -1115,13 +1115,13 @@ codeunit 5802 "Inventory Posting To G/L"
 
     procedure GetTempInvtPostToGLTestBuf(var InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer")
     begin
-        InvtPostToGLTestBuf.DeleteAll;
+        InvtPostToGLTestBuf.DeleteAll();
         if not TempInvtPostToGLTestBuf.FindSet then
             exit;
 
         repeat
             InvtPostToGLTestBuf := TempInvtPostToGLTestBuf;
-            InvtPostToGLTestBuf.Insert;
+            InvtPostToGLTestBuf.Insert();
         until TempInvtPostToGLTestBuf.Next = 0;
     end;
 
@@ -1151,13 +1151,13 @@ codeunit 5802 "Inventory Posting To G/L"
 
     procedure GetInvtPostBuf(var InvtPostBuf: Record "Invt. Posting Buffer")
     begin
-        InvtPostBuf.DeleteAll;
+        InvtPostBuf.DeleteAll();
 
-        GlobalInvtPostBuf.Reset;
+        GlobalInvtPostBuf.Reset();
         if GlobalInvtPostBuf.FindSet then
             repeat
                 InvtPostBuf := GlobalInvtPostBuf;
-                InvtPostBuf.Insert;
+                InvtPostBuf.Insert();
             until GlobalInvtPostBuf.Next = 0;
     end;
 
@@ -1215,10 +1215,10 @@ codeunit 5802 "Inventory Posting To G/L"
             else
                 ValueEntry0."Cost Posted to G/L" := 0;
 
-        GlobalInvtPostBuf.Reset;
-        GlobalInvtPostBuf.DeleteAll;
+        GlobalInvtPostBuf.Reset();
+        GlobalInvtPostBuf.DeleteAll();
         if BufferInvtPosting(ValueEntry0) then begin
-            GlobalInvtPostBuf.Reset;
+            GlobalInvtPostBuf.Reset();
             GlobalInvtPostBuf.Find('-');
             if GlobalInvtPostBuf.UseInvtPostSetup then begin
                 LocationCode := GlobalInvtPostBuf."Location Code";
@@ -1269,16 +1269,16 @@ codeunit 5802 "Inventory Posting To G/L"
                     FALedgerEntry."Credit Amount" := 0;
                     FALedgerEntry."Amount (LCY)" := FALedgerEntry.Amount;
                     FALedgerEntry."Need Cost Posted to G/L" := false;
-                    FALedgerEntry.Modify;
+                    FALedgerEntry.Modify();
 
-                    FALedgerEntry2.Reset;
+                    FALedgerEntry2.Reset();
                     FALedgerEntry2.SetCurrentKey("FA No.");
                     FALedgerEntry2.SetRange("FA No.", GlobalInvtPostBuf."FA No.");
                     FALedgerEntry2.SetRange("Need Cost Posted to G/L", true);
                     if not FALedgerEntry2.Find('-') then begin
                         FA.Get(FALedgerEntry."FA No.");
                         FA.Blocked := false;
-                        FA.Modify;
+                        FA.Modify();
                     end;
                 end;
             end;

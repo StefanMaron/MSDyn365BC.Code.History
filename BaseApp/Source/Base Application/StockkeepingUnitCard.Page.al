@@ -1,4 +1,4 @@
-﻿page 5700 "Stockkeeping Unit Card"
+page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
     PageType = Card;
@@ -809,8 +809,8 @@
 
     trigger OnAfterGetRecord()
     begin
-        InvtSetup.Get;
-        Item.Reset;
+        InvtSetup.Get();
+        Item.Reset();
         if Item.Get("Item No.") then begin
             if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::"Item & Location & Variant" then begin
                 Item.SetRange("Location Filter", "Location Code");

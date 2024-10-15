@@ -22,6 +22,8 @@ codeunit 137281 "O365 Location Transfers"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         WrongInventoryErr: Label 'The amount of inventory transfered is incorrect.';
+        TestFieldErr: Label '%1 must be equal to ''No''  in Location';
+        DirectTransferMustBeEditableErr: Label 'Direct Transfer must be editable.';
 
     [Test]
     [Scope('OnPrem')]
@@ -229,6 +231,403 @@ codeunit 137281 "O365 Location Transfers"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenTransferFromLocationRequiresShipment()
+    var
+        TransferHeader: Record "Transfer Header";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Location with "Require Shipment" enabled should not be accepted in the "Transfer-from Code" of a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Location "L1" with "Require Shipment"
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, false, false, true);
+        // [GIVEN] Location "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(ToLocation);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+
+        // [GIVEN] Create transfer order from location "L1" to location "L2"
+        // [WHEN] Enable "Direct Transfer" on the transfer order
+        asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [THEN] Error: "Require Shipment" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenTransferToLocationRequiresReceive()
+    var
+        TransferHeader: Record "Transfer Header";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Location with "Require Receive" enabled should not be accepted in the "Transfer-to Code" of a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Location "L1" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        // [GIVEN] Location "L2" with "Require Receive"
+        LibraryWarehouse.CreateLocationWMS(ToLocation, false, false, false, true, false);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+
+        // [GIVEN] Create transfer order from location "L1" to location "L2"
+        // [WHEN] Enable "Direct Transfer" on the transfer order
+        asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [THEN] Error: "Require Receive" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Receive")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenTransferFromLocationRequiresPick()
+    var
+        TransferHeader: Record "Transfer Header";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Location with "Require Pick" enabled should not be accepted in the "Transfer-from Code" of a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Location "L1" with "Require Pick"
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, true, false, false);
+        // [GIVEN] Location "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(ToLocation);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+
+        // [GIVEN] Create transfer order from location "L1" to location "L2"
+        // [WHEN] Enable "Direct Transfer" on the transfer order
+        asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [THEN] Error: "Require Pick" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Pick")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenTransferToLocationRequiresPutAway()
+    var
+        TransferHeader: Record "Transfer Header";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Location with "Require Put-away" enabled should not be accepted in the "Transfer-to Code" of a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Location "L1" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        // [GIVEN] Location "L2" with "Require Put-away"
+        LibraryWarehouse.CreateLocationWMS(ToLocation, false, true, false, false, false);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+
+        // [GIVEN] Create transfer order from location "L1" to location "L2"
+        // [WHEN] Enable "Direct Transfer" on the transfer order
+        asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [THEN] Error: "Require Put-away" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Put-away")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenChangeTransferFromSimpleLocationToWhse()
+    var
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to change transfer-from location to a location that requires outbound warehouse handling in a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(Location[1]);
+        LibraryWarehouse.CreateLocation(Location[2]);
+        // [GIVEN] Location "L3" with "Require Shipment" enabled
+        LibraryWarehouse.CreateLocationWMS(Location[3], false, false, false, false, true);
+
+        // [GIVEN] Create direct transfer from location "L1" to location "L2"
+        LibraryLowerPermissions.SetO365INVCreate;
+        CreateDirectTransferHeader(TransferHeader, Location[1].Code, Location[2].Code);
+
+        // [WHEN] Change "Transfer-to Code" from "L1" to "L3"
+        asserterror TransferHeader.Validate("Transfer-from Code", Location[3].Code);
+
+        // [THEN] Error: "Require Shipment" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, Location[3].FieldCaption("Require Shipment")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectTransferErrorWhenChangeTransferToSimpleLocationToWhse()
+    var
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to change transfer-to location to a location that requires inbound warehouse handling in a direct transfer order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(Location[1]);
+        LibraryWarehouse.CreateLocation(Location[2]);
+        // [GIVEN] Location "L3" with "Require Receive" enabled
+        LibraryWarehouse.CreateLocationWMS(Location[3], false, false, false, true, false);
+
+        // [GIVEN] Create direct transfer from location "L1" to location "L2"
+        LibraryLowerPermissions.SetO365INVCreate;
+        CreateDirectTransferHeader(TransferHeader, Location[1].Code, Location[2].Code);
+
+        // [WHEN] Change "Transfer-to Code" from "L1" to "L3"
+        asserterror TransferHeader.Validate("Transfer-to Code", Location[3].Code);
+
+        // [THEN] Error: "Require Receive" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, Location[3].FieldCaption("Require Receive")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseDirectTransferErrorTransferFromLocationRequiresShipment()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to post a direct transfer order if outbound warehouse handling was enabled on location after creating the order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVSetup;
+        LibraryLowerPermissions.AddO365INVPost;
+        // [GIVEN] Create direct transfer from location "L1" to location "L2"
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [GIVEN] Enable "Require Shipment" in location "L1"
+        FromLocation.Validate("Require Shipment", true);
+        FromLocation.Modify(true);
+
+        // [WHEN] Post the transfer order
+        asserterror LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [THEN] Error: "Require Shipment" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseDirectTransferErrorTransferToLocationRequiresReceive()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to release a direct transfer order if inbound warehouse handling was enabled on location after creating the order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.AddO365INVSetup;
+        // [GIVEN] Create direct transfer from location "L1" to location "L2"
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+
+        // [GIVEN] Enable "Require Receive" in location "L2"
+        ToLocation.Validate("Require Receive", true);
+        ToLocation.Modify(true);
+
+        // [WHEN] Release the transfer order
+        asserterror LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [THEN] Error: "Require Receive" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, ToLocation.FieldCaption("Require Receive")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferErrorTransferFromLocationChangedAfterRelease()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to post a direct transfer order if outbound warehouse handling was enabled on location after releasing the order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryInventory.CreateItem(Item);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVSetup;
+        LibraryLowerPermissions.AddO365INVPost;
+        // [GIVEN] Create and release direct transfer from location "L1" to location "L2"
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(100));
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Enable "Require Shipment" in location "L1"
+        FromLocation.Validate("Require Shipment", true);
+        FromLocation.Modify(true);
+
+        // [WHEN] Post the transfer order
+        asserterror LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Error: "Require Shipment" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferErrorTransferToLocationChangedAfterRelease()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] It should not be allowed to post a direct transfer order if inbound warehouse handling was enabled on location after releasing the order
+
+        Initialize;
+
+        // [GIVEN] Two locations "L1" and "L2" without warehouse handling
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryInventory.CreateItem(Item);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.AddO365INVSetup;
+        // [GIVEN] Create and release direct transfer from location "L1" to location "L2"
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(100));
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Enable "Require Receive" in location "L2"
+        ToLocation.Validate("Require Receive", true);
+        ToLocation.Modify(true);
+
+        // [WHEN] Post the transfer order
+        asserterror LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Error: "Require Receive" must equal to 'No' in location
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, ToLocation.FieldCaption("Require Receive")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferSuccessTransferFromLocationRequiresInbHandling()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        TransferQty: Decimal;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Direct transfer order should be posted if the transfer-from location requires inbound warehouse handling, but not outbound
+
+        Initialize;
+
+        // [GIVEN] Location "L1" with "Require Receive" and "Require Put-away" enabled
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, true, false, true, false);
+        // [GIVEN] Location "L2" withount warehouse handling
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+
+        TransferQty := LibraryRandom.RandDec(100, 2);
+        CreateAndPostItem(Item, FromLocation.Code, TransferQty);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.AddJobs;
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+        // [GIVEN] Create direct transfer order from location "L1" to location "L2"
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQty);
+
+        // [WHEN] Post the transfer order
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Item is transferred to location "L2"
+        Item.SetRange("Location Filter", ToLocation.Code);
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, TransferQty);
+    end;
+
+    [Test]
+    [TestPermissions(TestPermissions::Disabled)]
+    [Scope('OnPrem')]
+    procedure PostDirectTransferSuccessTransferToLocationRequiresOutbHandling()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        TransferQty: Decimal;
+    begin
+        // [FEATURE] [Direct Transfer]
+        // [SCENARIO 253751] Direct transfer order should be posted if the transfer-to location requires outbound warehouse handling, but not inbound
+
+        Initialize;
+
+        // [GIVEN] Location "L1" withount warehouse handling
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        // [GIVEN] Location "L2" with "Require Shipment" and "Require Put-Pick" enabled
+        LibraryWarehouse.CreateLocationWMS(ToLocation, false, false, true, false, true);
+
+        TransferQty := LibraryRandom.RandDec(100, 2);
+        CreateAndPostItem(Item, FromLocation.Code, TransferQty);
+
+        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.AddJobs;
+        CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
+        // [GIVEN] Create direct transfer order from location "L1" to location "L2"
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQty);
+
+        // [WHEN] Post the transfer order
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Item is transferred to location "L2"
+        Item.SetRange("Location Filter", ToLocation.Code);
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, TransferQty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostDirectTransferReceiptErrorShipmentRollBack()
     var
         Item: Record Item;
@@ -274,7 +673,7 @@ codeunit 137281 "O365 Location Transfers"
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         Item: Record Item;
-        DirectTransferHeader: Record "Direct Transfer Header";
+        TransferReceiptHeader: Record "Transfer Receipt Header";
     begin
         // [FEATURE] [Direct Transfer]
         // [SCENARIO 278532] Direct transfer order can be posted with "Location Mandatory" enabled
@@ -299,8 +698,8 @@ codeunit 137281 "O365 Location Transfers"
         LibraryInventory.PostDirectTransferOrder(TransferHeader);
 
         // [THEN] Order is successfully posted
-        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
-        Assert.RecordIsNotEmpty(DirectTransferHeader);
+        TransferReceiptHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        Assert.RecordIsNotEmpty(TransferReceiptHeader);
     end;
 
     [Test]
@@ -397,9 +796,18 @@ codeunit 137281 "O365 Location Transfers"
         TransferOrder.OpenEdit;
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
 
-        // [THEN] "Direct Transfer" is not editable
-        // RU specific. Transfer Order page has SourceTableView=WHERE(Direct Transfer=CONST(No))
-        Assert.IsFalse(TransferOrder."Direct Transfer".Editable, 'Direct Transfer must not be editable');
+        // [THEN] "Direct Transfer" is editable
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+        // [WHEN] "Direct Transfer" is being changed to No
+        TransferOrder."Direct Transfer".SetValue(false);
+
+        // [THEN] "Direct Transfer" is still editable
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+
+        // [THEN] Transfer order line has "Direct Transfer" = No
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.FindFirst;
+        TransferLine.TestField("Direct Transfer", false);
     end;
 
     [Test]
@@ -430,7 +838,7 @@ codeunit 137281 "O365 Location Transfers"
 
         // [GIVEN] Set Qty to Ship = 1 for partial shipment
         TransferLine.Validate("Qty. to Ship", 1);
-        TransferLine.Modify;
+        TransferLine.Modify();
 
         // [GIVEN] Post shipment
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
@@ -459,13 +867,11 @@ codeunit 137281 "O365 Location Transfers"
 
         LibraryUtility.GenerateGUID;
 
-        UpdatePostedDirectTransfersNoSeries;
-
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -489,7 +895,7 @@ codeunit 137281 "O365 Location Transfers"
 
     local procedure CreateLocationCodeAndName(var Location: Record Location): Code[10]
     begin
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location));
         Location.Validate(Name, Location.Code);
         Location.Insert(true);
@@ -529,7 +935,7 @@ codeunit 137281 "O365 Location Transfers"
     procedure CreateDirectTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10])
     begin
         Clear(TransferHeader);
-        TransferHeader.Init;
+        TransferHeader.Init();
         TransferHeader.Insert(true);
         TransferHeader.Validate("Transfer-from Code", FromLocation);
         TransferHeader.Validate("Transfer-to Code", ToLocation);
@@ -541,7 +947,7 @@ codeunit 137281 "O365 Location Transfers"
     procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
-        TransferRoute.Init;
+        TransferRoute.Init();
         TransferRoute.Validate("Transfer-from Code", TransferFrom);
         TransferRoute.Validate("Transfer-to Code", TransferTo);
         TransferRoute.Insert(true);
@@ -562,20 +968,6 @@ codeunit 137281 "O365 Location Transfers"
         LocationFrom := CreateLocationWithInventoryPostingSetup(false);
         LocationTo := CreateLocationWithInventoryPostingSetup(false);
         LocationInTransit := CreateLocationWithInventoryPostingSetup(true);
-    end;
-
-    local procedure UpdatePostedDirectTransfersNoSeries()
-    var
-        InventorySetup: Record "Inventory Setup";
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-    begin
-        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-
-        InventorySetup.Get;
-        InventorySetup.Validate("Posted Direct Transfer Nos.", NoSeries.Code);
-        InventorySetup.Modify(true);
     end;
 
     local procedure ValidateInventoryForLocation(Item: Record Item; LocationCode: Code[10]; ExpectedInventory: Decimal)

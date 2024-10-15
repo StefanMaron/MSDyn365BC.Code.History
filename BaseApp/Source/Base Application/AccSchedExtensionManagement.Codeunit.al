@@ -26,7 +26,7 @@ codeunit 26581 AccSchedExtensionManagement
         StartDate := NewStartDate;
         EndDate := NewEndDate;
         Value := 0;
-        GLSetup.Get;
+        GLSetup.Get();
         AccSchedManagement.SetDateParameters(StartDate, EndDate);
         with AccSchedExtension do
             if Get(NewAccSchedLine.Totaling) then
@@ -297,7 +297,7 @@ codeunit 26581 AccSchedExtensionManagement
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetCurrentKey(
           Type,
           "Posting Date",
@@ -360,7 +360,7 @@ codeunit 26581 AccSchedExtensionManagement
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Posting Date", "Location Code", "Entry Type", "Inventory Posting Group", "Item Charge No.", Positive);
         SetValueLedgEntryFilters(ValueEntry);
         ValueEntry.CalcSums(
@@ -443,7 +443,7 @@ codeunit 26581 AccSchedExtensionManagement
         AccSchedExtension.Get(ExtensionCode);
         StartDate := NewStartDate;
         EndDate := NewEndDate;
-        GLSetup.Get;
+        GLSetup.Get();
         AccSchedManagement.SetDateParameters(StartDate, EndDate);
         case AccSchedExtension."Source Table" of
             AccSchedExtension."Source Table"::"VAT Entry":
@@ -512,7 +512,7 @@ codeunit 26581 AccSchedExtensionManagement
     [Scope('OnPrem')]
     procedure CheckDateFilter(DueDateFilter: Code[20])
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         StartDate := Today;
         EndDate := Today;
         GetDateFilter(DueDateFilter);

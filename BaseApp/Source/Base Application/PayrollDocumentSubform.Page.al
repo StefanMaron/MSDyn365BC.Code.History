@@ -267,15 +267,15 @@ page 17415 "Payroll Document Subform"
         PayrollDocLineAE: Record "Payroll Document Line AE";
         PayrollPeriodAE: Record "Payroll Period AE";
     begin
-        PayrollDocLineAE.Reset;
+        PayrollDocLineAE.Reset();
         PayrollDocLineAE.SetRange("Document No.", "Document No.");
         PayrollDocLineAE.SetRange("Document Line No.", "Line No.");
-        PayrollDocLineAE.DeleteAll;
+        PayrollDocLineAE.DeleteAll();
 
-        PayrollPeriodAE.Reset;
+        PayrollPeriodAE.Reset();
         PayrollPeriodAE.SetRange("Document No.", "Document No.");
         PayrollPeriodAE.SetRange("Line No.", "Line No.");
-        PayrollPeriodAE.DeleteAll;
+        PayrollPeriodAE.DeleteAll();
 
         CODEUNIT.Run(CODEUNIT::"Payroll Document - Calculate", Rec);
         Modify;

@@ -1700,14 +1700,8 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="GETFILTERS">
           <DataField>GETFILTERS</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1210048">
-          <DataField>CurrReport_PAGENO_Control1210048</DataField>
         </Field>
         <Field Name="NotShowZero">
           <DataField>NotShowZero</DataField>
@@ -1816,9 +1810,6 @@ End Function
         </Field>
         <Field Name="FA_Depreciation_Book__Book_Value_Caption_Control1210045">
           <DataField>FA_Depreciation_Book__Book_Value_Caption_Control1210045</DataField>
-        </Field>
-        <Field Name="PageCaption_Control1210047">
-          <DataField>PageCaption_Control1210047</DataField>
         </Field>
         <Field Name="FA_Sheet__Continuation_Caption">
           <DataField>FA_Sheet__Continuation_Caption</DataField>

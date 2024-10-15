@@ -149,16 +149,16 @@ table 12471 "Posted FA Doc. Header"
     trigger OnDelete()
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
 
         CommentLine.SetRange("Table Name", "Document Type");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         PostedFADocLine.SetRange("Document Type", "Document Type");
         PostedFADocLine.SetRange("Document No.", "No.");
         if PostedFADocLine.FindFirst then
-            PostedFADocLine.DeleteAll;
+            PostedFADocLine.DeleteAll();
     end;
 
     var
@@ -183,7 +183,7 @@ table 12471 "Posted FA Doc. Header"
     begin
         Clear(Comment);
         Index := 0;
-        PostedFAComment.Reset;
+        PostedFAComment.Reset();
         PostedFAComment.SetCurrentKey("Document Type", "Document No.", "Document Line No.", Type);
         PostedFAComment.SetRange("Document Type", "Document Type");
         PostedFAComment.SetRange("Document No.", "No.");

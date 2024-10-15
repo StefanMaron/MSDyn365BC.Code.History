@@ -12,20 +12,20 @@ report 17406 "Copy Payroll Range"
 
             trigger OnAfterGetRecord()
             begin
-                RangeLine.Reset;
+                RangeLine.Reset();
                 RangeLine.SetRange("Element Code", RangeHeader."Element Code");
                 RangeLine.SetRange("Range Code", RangeHeader.Code);
                 RangeLine.SetRange("Period Code", RangeHeader."Period Code");
                 if RangeLine.FindSet then
                     repeat
-                        RangeLine2.Init;
+                        RangeLine2.Init();
                         RangeLine2.TransferFields(RangeLine);
                         RangeLine2."Period Code" := NewPeriodCode;
-                        RangeLine2.Insert;
+                        RangeLine2.Insert();
                     until RangeLine.Next = 0;
 
                 RangeHeader."Period Code" := NewPeriodCode;
-                RangeHeader.Insert;
+                RangeHeader.Insert();
             end;
         }
     }

@@ -62,7 +62,7 @@ report 12490 "FA Release Act FA-1"
                     begin
                         FA1Helper.FillCharPageHeader;
                         if IsHideOutput then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Integer"; "Integer")
@@ -74,7 +74,7 @@ report 12490 "FA Release Act FA-1"
                     begin
                         FA1Helper.FillCharPageFooter(Characteristics);
                         if IsHideOutput then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         FA1Helper.SetFooterSectionSheet;
                         FA1Helper.FillReportFooter(
@@ -148,7 +148,7 @@ report 12490 "FA Release Act FA-1"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 FA1Helper.CheckSignature(
                   StoredBy, DATABASE::"FA Document Header", "Document Type", "No.", StoredBy."Employee Type"::StoredBy);
@@ -248,10 +248,10 @@ report 12490 "FA Release Act FA-1"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     trigger OnPostReport()

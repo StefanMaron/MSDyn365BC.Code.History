@@ -98,7 +98,7 @@ table 26567 "Export Log Entry"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            SRSetup.Get;
+            SRSetup.Get();
             SRSetup.TestField("Report Export Log Nos");
             "No." :=
               NoSeriesManagement.GetNextNo(SRSetup."Report Export Log Nos", Today, true);

@@ -21,7 +21,7 @@ report 12495 "FA Inventory Card FA-6"
                     begin
                         TempFALedgerEntry := InitialAcquisition;
                         TempFALedgerEntry.Description := Format("FA Posting Type");
-                        TempFALedgerEntry.Insert;
+                        TempFALedgerEntry.Insert();
                     end;
 
                     trigger OnPreDataItem()
@@ -39,7 +39,7 @@ report 12495 "FA Inventory Card FA-6"
                     begin
                         TempFALedgerEntry := Transfer;
                         TempFALedgerEntry.Description := TransferOperationTypeTxt;
-                        TempFALedgerEntry.Insert;
+                        TempFALedgerEntry.Insert();
                     end;
 
                     trigger OnPreDataItem()
@@ -56,7 +56,7 @@ report 12495 "FA Inventory Card FA-6"
                     begin
                         TempFALedgerEntry := WriteOff;
                         TempFALedgerEntry.Description := Format("FA Posting Category");
-                        TempFALedgerEntry.Insert;
+                        TempFALedgerEntry.Insert();
                     end;
 
                     trigger OnPreDataItem()
@@ -87,12 +87,12 @@ report 12495 "FA Inventory Card FA-6"
 
                     trigger OnPostDataItem()
                     begin
-                        TempFALedgerEntry.DeleteAll;
+                        TempFALedgerEntry.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        TempFALedgerEntry.Reset;
+                        TempFALedgerEntry.Reset();
                         SetRange(Number, 1, TempFALedgerEntry.Count);
                     end;
                 }
@@ -133,14 +133,14 @@ report 12495 "FA Inventory Card FA-6"
 
                     trigger OnAfterGetRecord()
                     begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.SetRange("FA No.", "FA No.");
                         FALedgerEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
                         FALedgerEntry.SetRange("Initial Acquisition", false);
                         FALedgerEntry.SetFilter(Quantity, '<%1', 0);
                         if FALedgerEntry.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         ExcelReportBuilderMgr.AddSection('LASTPAGEBODY');
                         ExcelReportBuilderMgr.AddDataToSection('a1_1', Format("FA Posting Type"));
@@ -209,7 +209,7 @@ report 12495 "FA Inventory Card FA-6"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
                 if FASetup."FA Location Mandatory" then
                     TestField("FA Location Code");
                 if FASetup."Employee No. Mandatory" then
@@ -217,7 +217,7 @@ report 12495 "FA Inventory Card FA-6"
 
                 FactYears := LocMgt.GetPeriodDate("Initial Release Date", CreateDate, 2);
 
-                PostedFADocLine.Reset;
+                PostedFADocLine.Reset();
                 PostedFADocLine.SetRange("Document Type", PostedFADocLine."Document Type"::Release);
                 PostedFADocLine.SetRange("FA No.", "Fixed Asset"."No.");
                 if PostedFADocLine.FindFirst then;
@@ -282,7 +282,7 @@ report 12495 "FA Inventory Card FA-6"
 
     trigger OnPreReport()
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("FA-6 Template Code");
         ExcelReportBuilderMgr.InitTemplate(FASetup."FA-6 Template Code");
         ExcelReportBuilderMgr.SetSheet('Sheet1');

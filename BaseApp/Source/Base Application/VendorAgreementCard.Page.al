@@ -197,12 +197,6 @@ page 14902 "Vendor Agreement Card"
                 ApplicationArea = RecordLinks;
                 Visible = false;
             }
-            part(Control1901430907; "Default Dimensions")
-            {
-                SubPageLink = "Table ID" = CONST(14901),
-                              "No." = FIELD("No.");
-                Visible = false;
-            }
         }
     }
 

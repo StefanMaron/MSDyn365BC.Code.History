@@ -68,7 +68,7 @@ report 12482 "Phys. Inventory Form INV-19"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 FindFirst;
                 FillSheet1;
@@ -156,7 +156,7 @@ report 12482 "Phys. Inventory Form INV-19"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Phys.Inv. INV-19 Template Code");
         ExcelReportBuilderMgr.InitTemplate(InventorySetup."Phys.Inv. INV-19 Template Code");
     end;

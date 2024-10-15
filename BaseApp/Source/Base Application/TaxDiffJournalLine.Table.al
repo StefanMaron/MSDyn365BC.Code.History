@@ -429,7 +429,7 @@ table 17305 "Tax Diff. Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -619,7 +619,7 @@ table 17305 "Tax Diff. Journal Line"
             if "Tax Diff. Code" <> '' then begin
                 TaxDiff.Get("Tax Diff. Code");
                 TestField("Posting Date");
-                TaxDiffLedgEntry.Reset;
+                TaxDiffLedgEntry.Reset();
                 TaxDiffLedgEntry.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.", "Posting Date");
                 TaxDiffLedgEntry.SetRange("Tax Diff. Code", "Tax Diff. Code");
                 TaxDiffLedgEntry.SetRange("Source Type", "Source Type");
@@ -669,7 +669,7 @@ table 17305 "Tax Diff. Journal Line"
         "Tax Factor" := 0;
         if "Posting Date" <> 0D then
             if TaxRegNormGroup.Get("Jurisdiction Code", "Norm Code") then begin
-                TaxRegNormDetail.Reset;
+                TaxRegNormDetail.Reset();
                 TaxRegNormDetail.SetRange("Norm Jurisdiction Code", "Jurisdiction Code");
                 TaxRegNormDetail.SetRange("Norm Group Code", "Norm Code");
                 if TaxRegNormGroup."Search Detail" = TaxRegNormGroup."Search Detail"::"To Date" then

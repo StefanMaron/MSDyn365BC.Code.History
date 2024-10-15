@@ -49,7 +49,7 @@ codeunit 6113 "Item Data Migration Facade"
             exit(false);
         end;
 
-        Item.Init;
+        Item.Init();
 
         Item.Validate("No.", ItemNoToSet);
         Item.Validate(Description, ItemDescriptionToSet);
@@ -69,7 +69,7 @@ codeunit 6113 "Item Data Migration Facade"
         if Location.Get(LocationCode) then
             exit(false);
 
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LocationCode);
         Location.Validate(Name, LocationName);
         Location.Insert(true);
@@ -98,7 +98,7 @@ codeunit 6113 "Item Data Migration Facade"
         GlobalItem.Modify(RunTrigger);
     end;
 
-    procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[10]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[10]; LineDiscountPercentToSet: Decimal): Boolean
+    procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[10]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
     var
         SalesLineDiscount: Record "Sales Line Discount";
     begin
@@ -111,7 +111,7 @@ codeunit 6113 "Item Data Migration Facade"
         if SalesLineDiscount.FindFirst then
             exit(false);
 
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
         SalesLineDiscount.Validate("Sales Type", SalesTypeToSet);
         SalesLineDiscount.Validate("Sales Code", SalesCodeToSet);
         SalesLineDiscount.Validate(Type, TypeToSet);
@@ -128,7 +128,7 @@ codeunit 6113 "Item Data Migration Facade"
         if CustomerDiscountGroup.Get(CustDiscGroupCodeToSet) then
             exit(false);
 
-        CustomerDiscountGroup.Init;
+        CustomerDiscountGroup.Init();
         CustomerDiscountGroup.Validate(Code, CustDiscGroupCodeToSet);
         CustomerDiscountGroup.Validate(Description, DescriptionToSet);
         CustomerDiscountGroup.Insert(true);
@@ -142,13 +142,14 @@ codeunit 6113 "Item Data Migration Facade"
         if ItemDiscountGroup.Get(DiscGroupCodeToSet) then
             exit(false);
 
-        ItemDiscountGroup.Init;
+        ItemDiscountGroup.Init();
         ItemDiscountGroup.Validate(Code, DiscGroupCodeToSet);
         ItemDiscountGroup.Validate(Description, DescriptionToSet);
         ItemDiscountGroup.Insert(true);
         exit(true);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     procedure CreateSalesPriceIfNeeded(SalesTypeToSet: Option Customer,"Customer Price Group","All Customers",Campaign; SalesCodeToSet: Code[20]; ItemNoToSet: Code[20]; UnitPriceToSet: Decimal; CurrencyCodeToSet: Code[10]; StartingDateToSet: Date; UnitOfMeasureToSet: Code[10]; MinimumQuantityToSet: Decimal; VariantCodeToSet: Code[10]): Boolean
     var
         SalesPrice: Record "Sales Price";
@@ -157,7 +158,7 @@ codeunit 6113 "Item Data Migration Facade"
              VariantCodeToSet, UnitOfMeasureToSet, MinimumQuantityToSet)
         then
             exit(false);
-        SalesPrice.Init;
+        SalesPrice.Init();
 
         SalesPrice.Validate("Sales Type", SalesTypeToSet);
         SalesPrice.Validate("Sales Code", SalesCodeToSet);
@@ -180,7 +181,7 @@ codeunit 6113 "Item Data Migration Facade"
         if TariffNumber.Get(NoToSet) then
             exit(false);
 
-        TariffNumber.Init;
+        TariffNumber.Init();
         TariffNumber.Validate("No.", NoToSet);
         TariffNumber.Validate(Description, DescriptionToSet);
         TariffNumber.Validate("Supplementary Units", SupplementaryUnitToSet);
@@ -195,7 +196,7 @@ codeunit 6113 "Item Data Migration Facade"
         if UnitOfMeasure.Get(CodeToSet) then
             exit(false);
 
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Validate(Code, CodeToSet);
         UnitOfMeasure.Validate(Description, DescriptionToSet);
         UnitOfMeasure.Insert(true);
@@ -209,7 +210,7 @@ codeunit 6113 "Item Data Migration Facade"
         if ItemTrackingCode.Get(CodeToSet) then
             exit(false);
 
-        ItemTrackingCode.Init;
+        ItemTrackingCode.Init();
         ItemTrackingCode.Validate(Code, CodeToSet);
         ItemTrackingCode.Validate(Description, DescriptionToSet);
         ItemTrackingCode.Validate("Lot Specific Tracking", LotSpecificTrackingToSet);
@@ -224,7 +225,7 @@ codeunit 6113 "Item Data Migration Facade"
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
         if not InventoryPostingGroup.Get(InventoryPostingGroupCode) then begin
-            InventoryPostingGroup.Init;
+            InventoryPostingGroup.Init();
             InventoryPostingGroup.Validate(Code, InventoryPostingGroupCode);
             InventoryPostingGroup.Validate(Description, InventoryPostingGroupDescription);
             InventoryPostingGroup.Insert(true);
@@ -232,7 +233,7 @@ codeunit 6113 "Item Data Migration Facade"
         end;
 
         if not InventoryPostingSetup.Get(LocationCode, InventoryPostingGroupCode) then begin
-            InventoryPostingSetup.Init;
+            InventoryPostingSetup.Init();
             InventoryPostingSetup.Validate("Location Code", LocationCode);
             InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroup.Code);
             InventoryPostingSetup.Insert(true);
@@ -246,7 +247,7 @@ codeunit 6113 "Item Data Migration Facade"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         if not GenProductPostingGroup.Get(GeneralProdPostingGroupCode) then begin
-            GenProductPostingGroup.Init;
+            GenProductPostingGroup.Init();
             GenProductPostingGroup.Validate(Code, GeneralProdPostingGroupCode);
             GenProductPostingGroup.Validate(Description, GeneralProdPostingGroupDescription);
             GenProductPostingGroup.Insert(true);
@@ -254,7 +255,7 @@ codeunit 6113 "Item Data Migration Facade"
         end;
 
         if not GeneralPostingSetup.Get(GeneralBusPostingGroupCode, GeneralProdPostingGroupCode) then begin
-            GeneralPostingSetup.Init;
+            GeneralPostingSetup.Init();
             GeneralPostingSetup.Validate("Gen. Bus. Posting Group", GeneralBusPostingGroupCode);
             GeneralPostingSetup.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
             GeneralPostingSetup.Insert(true);
@@ -273,7 +274,7 @@ codeunit 6113 "Item Data Migration Facade"
         ItemJournalBatch.SetRange("No. Series", NoSeriesCode);
         ItemJournalBatch.SetRange("Posting No. Series", PostingNoSeriesCode);
         if not ItemJournalBatch.FindFirst then begin
-            ItemJournalBatch.Init;
+            ItemJournalBatch.Init();
             ItemJournalBatch.Validate("Journal Template Name", TemplateName);
             ItemJournalBatch.SetupNewBatch;
             ItemJournalBatch.Validate(Name, ItemJournalBatchCode);
@@ -291,7 +292,7 @@ codeunit 6113 "Item Data Migration Facade"
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
         if not ItemJournalTemplate.FindFirst then begin
-            ItemJournalTemplate.Init;
+            ItemJournalTemplate.Init();
             ItemJournalTemplate.Validate(Name, ItemJournalBatchCode);
             ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Item);
             ItemJournalTemplate.Validate(Recurring, false);
@@ -316,7 +317,7 @@ codeunit 6113 "Item Data Migration Facade"
         else
             LineNum := 10000;
 
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
 
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
@@ -415,7 +416,7 @@ codeunit 6113 "Item Data Migration Facade"
         else
             LineNo := 1000;
 
-        BOMComponent.Init;
+        BOMComponent.Init();
         BOMComponent.Validate("Parent Item No.", GlobalItem."No.");
         BOMComponent.Validate("Line No.", LineNo);
         BOMComponent.Validate(Type, BOMType);
@@ -449,11 +450,11 @@ codeunit 6113 "Item Data Migration Facade"
             Error(InternalItemNotSetErr);
 
         if not ItemUnitOfMeasure.Get(GlobalItem."No.", PurchUnitOfMeasureToSet) then begin
-            ItemUnitOfMeasure.Init;
+            ItemUnitOfMeasure.Init();
             ItemUnitOfMeasure.Validate("Item No.", GlobalItem."No.");
             ItemUnitOfMeasure.Validate(Code, PurchUnitOfMeasureToSet);
             ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", 1);
-            ItemUnitOfMeasure.Insert;
+            ItemUnitOfMeasure.Insert();
         end;
 
         GlobalItem.Validate("Purch. Unit of Measure", PurchUnitOfMeasureToSet);

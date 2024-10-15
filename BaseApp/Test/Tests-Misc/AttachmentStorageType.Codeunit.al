@@ -1059,7 +1059,7 @@ codeunit 136450 "Attachment Storage Type"
         MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
 
         InteractionLogEntry."Contact No." := '';
-        InteractionLogEntry.Modify;
+        InteractionLogEntry.Modify();
 
         asserterror AttachmentManagement.Send(TempDeliverySorter);
         Assert.ExpectedErrorCode('DB:RecordNotFound');
@@ -1127,11 +1127,11 @@ codeunit 136450 "Attachment Storage Type"
         LibraryMarketing.CreateAttachment(Attachment);
         // [GIVEN] Email Message ID = 'ABC'
         Attachment.SetMessageID('ABC');
-        Attachment.Modify;
+        Attachment.Modify();
         // [WHEN] Assign 'AB' to Email Message ID using SetMessageID
         NewMessageId := 'AB';
         Attachment.SetMessageID(NewMessageId);
-        Attachment.Modify;
+        Attachment.Modify();
         // [THEN] The value of Email Message ID = 'AB'
         Assert.AreEqual(NewMessageId, Attachment.GetMessageID, AttachmentErr);
     end;
@@ -1151,11 +1151,11 @@ codeunit 136450 "Attachment Storage Type"
         LibraryMarketing.CreateAttachment(Attachment);
         // [GIVEN] Email Entry ID = 'ABC'
         Attachment.SetEntryID('ABC');
-        Attachment.Modify;
+        Attachment.Modify();
         // [WHEN] Assign 'AB' to Email Entry ID using SetMessageID
         NewEntryId := 'AB';
         Attachment.SetEntryID(NewEntryId);
-        Attachment.Modify;
+        Attachment.Modify();
         // [THEN] The value of Email Entry ID = 'AB'
         Attachment.CalcFields("Email Entry ID");
         Attachment."Email Entry ID".CreateInStream(Stream);
@@ -1181,7 +1181,7 @@ codeunit 136450 "Attachment Storage Type"
 
         LibraryMarketing.CreateAttachment(Attachment);
         Attachment.Validate("File Extension", WordExtensionTxt);
-        Attachment.Modify;
+        Attachment.Modify();
 
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Fax, Attachment."No.");
         MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
@@ -1215,8 +1215,8 @@ codeunit 136450 "Attachment Storage Type"
 
         LibraryMarketing.CreateAttachment(Attachment);
         Attachment.Validate("File Extension", WordExtensionTxt);
-        Attachment.Modify;
-        Commit;
+        Attachment.Modify();
+        Commit();
 
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Fax, Attachment."No.");
         MockDeliverySorter(TempDeliverySorter, InteractionLogEntry);
@@ -1240,7 +1240,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         BindActiveDirectoryMockEvents;
         LibraryVariableStorage.Clear;
-        DataTypeBuffer.DeleteAll;
+        DataTypeBuffer.DeleteAll();
         if IsInitialized then
             exit;
 
@@ -1248,19 +1248,19 @@ codeunit 136450 "Attachment Storage Type"
 
         IsInitialized := true;
 
-        Commit;
+        Commit();
     end;
 
     local procedure RelocateAttachments(StorageType: Option; Path: Text)
     var
         MarketingSetupPage: Page "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Attachment Storage Type", StorageType);
         MarketingSetup.Validate("Attachment Storage Location", CopyStr(Path, 1, 250));
         MarketingSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetupPage.SetRecord(MarketingSetup);
         MarketingSetupPage.SetAttachmentStorageType;
     end;
@@ -1281,9 +1281,9 @@ codeunit 136450 "Attachment Storage Type"
         Attachment: Record Attachment;
     begin
         // Make sure Attachment storage type is Embeded
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Attachment Storage Type", MarketingSetup."Attachment Storage Type"::Embedded);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         EmbedAttachments;
         CreateAttachment(Attachment);
@@ -1305,7 +1305,7 @@ codeunit 136450 "Attachment Storage Type"
                     Attachment."Attachment File".Import(CreateServerTxtFile(FileExtensionTxt));
                     Attachment."File Extension" := FileExtensionTxt;
                 end;
-                Attachment.Modify;
+                Attachment.Modify();
             until Attachment.Next = 0;
     end;
 
@@ -1315,7 +1315,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment."Attachment File".Import(CreateServerTxtFile(FileExtensionTxt));
         Attachment."File Extension" := FileExtensionTxt;
         Attachment."Read Only" := true;
-        Attachment.Modify;
+        Attachment.Modify();
     end;
 
     local procedure CreateOrClearTempDirectory(var NewDirName: Text): Text
@@ -1346,7 +1346,7 @@ codeunit 136450 "Attachment Storage Type"
 
     local procedure CreateInterLangCodeWithEmailMergeAttachment(var InteractionTmplLanguage: Record "Interaction Tmpl. Language"; InteractionTemplateCode: Code[10]): Integer
     begin
-        InteractionTmplLanguage.Init;
+        InteractionTmplLanguage.Init();
         InteractionTmplLanguage."Interaction Template Code" := InteractionTemplateCode;
         InteractionTmplLanguage."Custom Layout Code" := LibraryMarketing.FindEmailMergeCustomLayoutNo;
         InteractionTmplLanguage.CreateAttachment;
@@ -1358,7 +1358,7 @@ codeunit 136450 "Attachment Storage Type"
         CreateEmptyHTMLAttachment(Attachment);
         HTMLContent := GetSimpleHTMLContent;
         Attachment.Write(HTMLContent);
-        Attachment.Modify;
+        Attachment.Modify();
     end;
 
     local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry"; CorrespondenceType: Option; AttachmentNo: Integer): Integer
@@ -1501,7 +1501,7 @@ codeunit 136450 "Attachment Storage Type"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
         OfficeManagement.InitializeHost(OfficeHost, HostType);
@@ -1513,8 +1513,8 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -1522,9 +1522,9 @@ codeunit 136450 "Attachment Storage Type"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure ExtractComponent(var String: Text; var Component: Text)
@@ -1594,8 +1594,8 @@ codeunit 136450 "Attachment Storage Type"
         else
             DataTypeBuffer.ID := 1;
         DataTypeBuffer.Boolean := IsFound;
-        DataTypeBuffer.Insert;
-        Commit;
+        DataTypeBuffer.Insert();
+        Commit();
         IsFound := IsFound;
     end;
 }

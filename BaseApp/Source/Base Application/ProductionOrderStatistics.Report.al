@@ -152,7 +152,7 @@ report 99000791 "Production Order Statistics"
                 Clear(ActCost);
                 Clear(CostCalcMgt);
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 ProdOrderLine.SetRange(Status, Status);
                 ProdOrderLine.SetRange("Prod. Order No.", "No.");

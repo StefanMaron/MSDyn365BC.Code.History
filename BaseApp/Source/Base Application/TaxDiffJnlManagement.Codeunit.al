@@ -28,7 +28,7 @@ codeunit 17300 TaxDiffJnlManagement
     begin
         JnlSelected := true;
 
-        TaxDiffJnlTemplate.Reset;
+        TaxDiffJnlTemplate.Reset();
         if not OpenFromBatch then
             TaxDiffJnlTemplate.SetRange("Page ID", PageID);
         TaxDiffJnlTemplate.SetRange(Type, PageTemplate);
@@ -36,13 +36,13 @@ codeunit 17300 TaxDiffJnlManagement
         case TaxDiffJnlTemplate.Count of
             0:
                 begin
-                    TaxDiffJnlTemplate.Init;
+                    TaxDiffJnlTemplate.Init();
                     TaxDiffJnlTemplate.Type := PageTemplate;
                     TaxDiffJnlTemplate.Name := Format(TaxDiffJnlTemplate.Type, MaxStrLen(TaxDiffJnlTemplate.Name));
                     TaxDiffJnlTemplate.Description := StrSubstNo(Text1000, TaxDiffJnlTemplate.Type);
                     TaxDiffJnlTemplate.Validate(Type);
-                    TaxDiffJnlTemplate.Insert;
-                    Commit;
+                    TaxDiffJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 TaxDiffJnlTemplate.FindFirst;
@@ -87,13 +87,13 @@ codeunit 17300 TaxDiffJnlManagement
         TaxDiffJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not TaxDiffJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not TaxDiffJnlBatch.FindFirst then begin
-                TaxDiffJnlBatch.Init;
+                TaxDiffJnlBatch.Init();
                 TaxDiffJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 TaxDiffJnlBatch.SetupNewBatch;
                 TaxDiffJnlBatch.Name := Text1001;
                 TaxDiffJnlBatch.Description := Text1002;
                 TaxDiffJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := TaxDiffJnlBatch.Name;
         end;
@@ -121,7 +121,7 @@ codeunit 17300 TaxDiffJnlManagement
     var
         TaxDiffJnlBatch: Record "Tax Diff. Journal Batch";
     begin
-        Commit;
+        Commit();
         TaxDiffJnlBatch."Journal Template Name" := TaxDiffJnlLine.GetRangeMax("Journal Template Name");
         TaxDiffJnlBatch.Name := TaxDiffJnlLine.GetRangeMax("Journal Batch Name");
         TaxDiffJnlBatch.FilterGroup := 2;
@@ -204,7 +204,7 @@ codeunit 17300 TaxDiffJnlManagement
         end;
 
         Rec.Copy(TaxDiffJnlBatch);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -235,7 +235,7 @@ codeunit 17300 TaxDiffJnlManagement
             end;
         end;
         Rec.Copy(TaxDiffJnlLine);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -247,14 +247,14 @@ codeunit 17300 TaxDiffJnlManagement
             case "Source Type" of
                 "Source Type"::"Future Expense":
                     begin
-                        TaxDiffEntry.Reset;
+                        TaxDiffEntry.Reset();
                         TaxDiffEntry.SetRange("Tax Diff. Code", "Tax Diff. Code");
                         TaxDiffEntry.SetRange("Source Type", "Source Type");
                         TaxDiffEntry.SetRange("Source No.", "Source No.");
                         PAGE.Run(0, TaxDiffEntry);
                     end;
                 else begin
-                        TaxDiffEntry.Reset;
+                        TaxDiffEntry.Reset();
                         TaxDiffEntry.SetRange("Tax Diff. Code", "Tax Diff. Code");
                         PAGE.Run(0, TaxDiffEntry);
                     end;

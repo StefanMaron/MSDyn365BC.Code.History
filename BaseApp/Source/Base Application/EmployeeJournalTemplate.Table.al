@@ -48,7 +48,7 @@ table 17380 "Employee Journal Template"
             trigger OnValidate()
             begin
                 "Test Report ID" := REPORT::"Employee Journal - Test";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::Salary:
                         begin
@@ -142,7 +142,7 @@ table 17380 "Employee Journal Template"
         EmployeeJnlLine.SetRange("Journal Template Name", Name);
         EmployeeJnlLine.DeleteAll(true);
         EmployeeJnlBatch.SetRange("Journal Template Name", Name);
-        EmployeeJnlBatch.DeleteAll;
+        EmployeeJnlBatch.DeleteAll();
     end;
 
     var

@@ -70,9 +70,9 @@ table 17375 "Staff List Archive"
     var
         StaffListLineArchive: Record "Staff List Line Archive";
     begin
-        StaffListLineArchive.Reset;
+        StaffListLineArchive.Reset();
         StaffListLineArchive.SetRange("Document No.", "Document No.");
-        StaffListLineArchive.DeleteAll;
+        StaffListLineArchive.DeleteAll();
     end;
 }
 

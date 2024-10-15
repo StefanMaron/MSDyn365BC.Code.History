@@ -27,11 +27,11 @@ report 14934 "Write-off for Tax Ledger"
                     FADeprBook.SetFilter("FA Posting Date Filter", '..%1', PostingDate);
                     FADeprBook.CalcFields("Book Value");
                     if FADeprBook."Book Value" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not DeprBook."G/L Integration - Disposal" or FixedAsset."Budgeted Asset" then begin
                         with FAJnlLine do begin
-                            LockTable;
+                            LockTable();
                             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                             Init;
                             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
@@ -57,7 +57,7 @@ report 14934 "Write-off for Tax Ledger"
                         end;
                     end else begin
                         with GenJnlLine do begin
-                            LockTable;
+                            LockTable();
                             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
 
                             Init;
@@ -143,7 +143,7 @@ report 14934 "Write-off for Tax Ledger"
 
     trigger OnPreReport()
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Tax Depreciation Book");
         DeprBookCode := TaxRegisterSetup."Tax Depreciation Book";
         DeprBook.Get(DeprBookCode);

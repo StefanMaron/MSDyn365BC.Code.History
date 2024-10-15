@@ -33,7 +33,7 @@ table 17303 "Tax Diff. Journal Template"
 
             trigger OnValidate()
             begin
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::General:
                         begin
@@ -92,7 +92,7 @@ table 17303 "Tax Diff. Journal Template"
         TaxDiffJnlLine.SetRange("Journal Template Name", Name);
         TaxDiffJnlLine.DeleteAll(true);
         TaxDiffJnlBatch.SetRange("Journal Template Name", Name);
-        TaxDiffJnlBatch.DeleteAll;
+        TaxDiffJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

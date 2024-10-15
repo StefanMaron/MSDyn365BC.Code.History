@@ -13,7 +13,7 @@ codeunit 14936 "Cash Order Report Helper"
     var
         GeneralLedgSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgSetup.Get;
+        GeneralLedgSetup.Get();
         GeneralLedgSetup.TestField("Cash Outgoin Order Tmpl. Code");
         InitReportTemplate(GeneralLedgSetup."Cash Outgoin Order Tmpl. Code");
     end;
@@ -23,7 +23,7 @@ codeunit 14936 "Cash Order Report Helper"
     var
         GeneralLedgSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgSetup.Get;
+        GeneralLedgSetup.Get();
         GeneralLedgSetup.TestField("Cash Ingoing Order Tmpl. Code");
         InitReportTemplate(GeneralLedgSetup."Cash Ingoing Order Tmpl. Code");
     end;

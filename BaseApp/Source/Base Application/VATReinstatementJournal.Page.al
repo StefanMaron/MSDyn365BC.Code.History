@@ -296,7 +296,7 @@ page 14946 "VAT Reinstatement Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GenJnlTemplate.Get("Journal Template Name");
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         "Source Code" := GenJnlTemplate."Source Code";

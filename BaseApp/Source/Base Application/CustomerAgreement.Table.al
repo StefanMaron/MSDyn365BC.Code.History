@@ -126,7 +126,7 @@ table 14902 "Customer Agreement"
             trigger OnValidate()
             begin
                 if "Customer Posting Group" <> xRec."Customer Posting Group" then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     if not SalesSetup."Allow Alter Posting Groups" then
                         Error(Text12401, FieldCaption("Customer Posting Group"),
                           SalesSetup.FieldCaption("Allow Alter Posting Groups"), SalesSetup.TableCaption);
@@ -489,15 +489,15 @@ table 14902 "Customer Agreement"
 
     trigger OnDelete()
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetRange("Customer No.", "Customer No.");
         CustLedgEntry.SetRange("Agreement No.", "No.");
         if CustLedgEntry.FindFirst then
             Error(Text001);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if DimValue.Get(SalesSetup."Customer Agreement Dim. Code", "No.") then
-            DimValue.Delete;
+            DimValue.Delete();
     end;
 
     trigger OnInsert()
@@ -510,7 +510,7 @@ table 14902 "Customer Agreement"
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
-        CustAgrmt.Reset;
+        CustAgrmt.Reset();
         CustAgrmt.SetCurrentKey("No.");
         CustAgrmt.SetRange("No.", "No.");
         if CustAgrmt.FindSet then
@@ -522,36 +522,36 @@ table 14902 "Customer Agreement"
         CustTransferFields;
         CustTransferDimensions;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Synch. Agreement Dimension" then begin
             SalesSetup.TestField("Customer Agreement Dim. Code");
 
-            DimValue.Init;
+            DimValue.Init();
             DimValue."Dimension Code" := SalesSetup."Customer Agreement Dim. Code";
             DimValue.Code := "No.";
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
-            if DimValue.Insert then;
+            if DimValue.Insert() then;
 
-            DefaultDim2.Init;
+            DefaultDim2.Init();
             DefaultDim2."Table ID" := DATABASE::"Customer Agreement";
             DefaultDim2."No." := "No.";
             DefaultDim2."Dimension Code" := SalesSetup."Customer Agreement Dim. Code";
             DefaultDim2."Dimension Value Code" := "No.";
             DefaultDim2."Value Posting" := DefaultDim2."Value Posting"::"Same Code";
-            if DefaultDim2.Insert then;
+            if DefaultDim2.Insert() then;
         end;
     end;
 
     trigger OnModify()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if DimValue.Get(SalesSetup."Customer Agreement Dim. Code", "No.") then begin
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
             if Blocked > 0 then
                 DimValue.Blocked := true
             else
                 DimValue.Blocked := false;
-            DimValue.Modify;
+            DimValue.Modify();
         end;
     end;
 
@@ -704,18 +704,18 @@ table 14902 "Customer Agreement"
     [Scope('OnPrem')]
     procedure CustTransferDimensions()
     begin
-        DefaultDim.Reset;
+        DefaultDim.Reset();
         DefaultDim.SetRange("Table ID", DATABASE::Customer);
         DefaultDim.SetRange("No.", "Customer No.");
         if DefaultDim.FindSet then
             repeat
-                DefaultDim2.Init;
+                DefaultDim2.Init();
                 DefaultDim2."Table ID" := DATABASE::"Customer Agreement";
                 DefaultDim2."No." := "No.";
                 DefaultDim2."Dimension Code" := DefaultDim."Dimension Code";
                 DefaultDim2."Dimension Value Code" := DefaultDim."Dimension Value Code";
                 DefaultDim2."Value Posting" := DefaultDim."Value Posting";
-                DefaultDim2.Insert;
+                DefaultDim2.Insert();
             until DefaultDim.Next = 0;
     end;
 

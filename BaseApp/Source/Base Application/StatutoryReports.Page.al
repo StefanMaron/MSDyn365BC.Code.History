@@ -333,7 +333,7 @@ page 26550 "Statutory Reports"
             if StatutoryReport.Find('+') then
                 repeat
                     StatutoryReport."Sequence No." := StatutoryReport."Sequence No." + 1;
-                    StatutoryReport.Modify;
+                    StatutoryReport.Modify();
                 until StatutoryReport.Next(-1) = 0;
             "Sequence No." := SequenceNo;
         end;
@@ -361,7 +361,7 @@ page 26550 "Statutory Reports"
         if UpperStatutoryReport.FindLast then begin
             SequenceNo := UpperStatutoryReport."Sequence No.";
             UpperStatutoryReport."Sequence No." := "Sequence No.";
-            UpperStatutoryReport.Modify;
+            UpperStatutoryReport.Modify();
 
             "Sequence No." := SequenceNo;
             Modify;
@@ -379,7 +379,7 @@ page 26550 "Statutory Reports"
         if LowerStatutoryReport.FindFirst then begin
             SequenceNo := LowerStatutoryReport."Sequence No.";
             LowerStatutoryReport."Sequence No." := "Sequence No.";
-            LowerStatutoryReport.Modify;
+            LowerStatutoryReport.Modify();
 
             "Sequence No." := SequenceNo;
             Modify;

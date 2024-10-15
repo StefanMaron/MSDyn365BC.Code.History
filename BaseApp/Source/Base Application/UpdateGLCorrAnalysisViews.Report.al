@@ -30,7 +30,7 @@ report 14941 "Update G/L Corr.Analysis Views"
 
             trigger OnPreDataItem()
             begin
-                LockTable;
+                LockTable();
             end;
         }
     }

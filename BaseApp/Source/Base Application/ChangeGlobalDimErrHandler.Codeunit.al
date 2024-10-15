@@ -4,7 +4,7 @@ codeunit 485 "Change Global Dim Err. Handler"
 
     trigger OnRun()
     begin
-        LockTable;
+        LockTable();
         if not Get("Table ID") then
             exit;
         Status := Status::Incomplete;
@@ -19,7 +19,7 @@ codeunit 485 "Change Global Dim Err. Handler"
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := ChangeGlobalDimLogEntry."Task ID";
         JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;

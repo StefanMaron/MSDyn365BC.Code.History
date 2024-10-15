@@ -132,7 +132,7 @@ table 17388 "Posted Absence Line"
 
             trigger OnLookup()
             begin
-                EmployeeRelative.Reset;
+                EmployeeRelative.Reset();
                 EmployeeRelative.SetRange("Person No.", "Person No.");
                 PAGE.Run(0, EmployeeRelative);
             end;
@@ -221,7 +221,7 @@ table 17388 "Posted Absence Line"
         TestField("Document No.");
         TestField("Line No.");
 
-        PostedPayrollDocLine2.Reset;
+        PostedPayrollDocLine2.Reset();
         PostedPayrollDocLine2.SetCurrentKey("Document Type", "HR Order No.");
         PostedPayrollDocLine2.SetRange("Document Type", "Document Type" + 1);
         PostedPayrollDocLine2.SetRange("HR Order No.", "Document No.");
@@ -245,7 +245,7 @@ table 17388 "Posted Absence Line"
         TestField("Document No.");
         TestField("Line No.");
 
-        PostedPayrollDocLine.Reset;
+        PostedPayrollDocLine.Reset();
         PostedPayrollDocLine.SetCurrentKey("Document Type", "HR Order No.");
         PostedPayrollDocLine.SetRange("Document Type", "Document Type" + 1);
         PostedPayrollDocLine.SetRange("HR Order No.", "Document No.");

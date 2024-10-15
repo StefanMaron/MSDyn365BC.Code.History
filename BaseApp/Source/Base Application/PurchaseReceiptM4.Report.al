@@ -68,11 +68,11 @@ report 12475 "Purchase Receipt M-4"
 
             trigger OnAfterGetRecord()
             begin
-                InvPostBuffer.DeleteAll;
+                InvPostBuffer.DeleteAll();
                 AccNo := '';
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document No.", "Purchase Header"."No.");
                 if PurchLine.FindSet then
                     repeat

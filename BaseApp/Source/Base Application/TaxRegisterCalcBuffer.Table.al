@@ -168,7 +168,7 @@ table 17206 "Tax Register Calc. Buffer"
                         case TaxRegTermFormula."Account Type" of
                             TaxRegTermFormula."Account Type"::"G/L Account":
                                 begin
-                                    GLEntry.Reset;
+                                    GLEntry.Reset();
                                     if TempGLEntryGlobalDimFilter.GetFilters = '' then begin
                                         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                                         GLEntry.SetFilter("G/L Account No.", TaxRegTermFormula."Account No.");
@@ -192,7 +192,7 @@ table 17206 "Tax Register Calc. Buffer"
                                 end;
                             TaxRegTermFormula."Account Type"::"Net Change":
                                 begin
-                                    GLCorrespondenceEntry.Reset;
+                                    GLCorrespondenceEntry.Reset();
                                     if TempGLEntryGlobalDimFilter.GetFilters = '' then begin
                                         GLCorrespondenceEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
                                         GLCorrespondenceEntry.SetFilter("Debit Account No.", TaxRegTermFormula."Account No.");

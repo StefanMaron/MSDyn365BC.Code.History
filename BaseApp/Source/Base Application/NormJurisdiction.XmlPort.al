@@ -101,20 +101,20 @@ xmlport 17202 "Norm Jurisdiction"
         if NormJurisdiction.FindSet then
             repeat
                 "Tax Register Norm Jurisdiction" := NormJurisdiction;
-                "Tax Register Norm Jurisdiction".Insert;
+                "Tax Register Norm Jurisdiction".Insert();
 
                 NormGroup.SetRange("Norm Jurisdiction Code", NormJurisdiction.Code);
                 if NormGroup.FindSet then
                     repeat
                         "Tax Register Norm Group" := NormGroup;
-                        "Tax Register Norm Group".Insert;
+                        "Tax Register Norm Group".Insert();
 
                         NormDetail.SetRange("Norm Jurisdiction Code", NormJurisdiction.Code);
                         NormDetail.SetRange("Norm Group Code", NormGroup.Code);
                         if NormDetail.FindSet then
                             repeat
                                 "Tax Register Norm Detail" := NormDetail;
-                                "Tax Register Norm Detail".Insert;
+                                "Tax Register Norm Detail".Insert();
                             until NormDetail.Next = 0;
                     until NormGroup.Next = 0;
             until NormJurisdiction.Next = 0;
@@ -134,7 +134,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormJurisdiction.Delete(true);
                         NormJurisdiction := "Tax Register Norm Jurisdiction";
                     end;
-                    NormJurisdiction.Insert;
+                    NormJurisdiction.Insert();
                 until Next = 0;
         end;
 
@@ -147,7 +147,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormGroup.Delete(true);
                         NormGroup := "Tax Register Norm Group";
                     end;
-                    NormGroup.Insert;
+                    NormGroup.Insert();
                 until Next = 0;
         end;
 
@@ -160,7 +160,7 @@ xmlport 17202 "Norm Jurisdiction"
                         NormDetail.Delete(true);
                         NormDetail := "Tax Register Norm Detail";
                     end;
-                    NormDetail.Insert;
+                    NormDetail.Insert();
                 until Next = 0;
         end;
     end;

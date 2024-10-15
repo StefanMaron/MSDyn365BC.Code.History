@@ -179,12 +179,6 @@ page 12426 "Cash Account Card"
                 ApplicationArea = RecordLinks;
                 Visible = false;
             }
-            part(Control1901430907; "Default Dimensions")
-            {
-                SubPageLink = "Table ID" = CONST(270),
-                              "No." = FIELD("No.");
-                Visible = false;
-            }
         }
     }
 
@@ -220,13 +214,17 @@ page 12426 "Cash Account Card"
                 }
                 action(Dimensions)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(270),
                                   "No." = FIELD("No.");
-                    ShortCutKey = 'Shift+Ctrl+D';
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit dimensions, such as area, project, or department.';
                 }
                 action(Balance)
                 {

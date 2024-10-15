@@ -23,7 +23,7 @@ page 14945 "G/L Corr. by Dimension"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit account number associated with this correspondence.';
                 }
-                field(CalculateAmount; CalculateAmount)
+                field(CalculateAmount; CalcAmount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';
@@ -62,7 +62,7 @@ page 14945 "G/L Corr. by Dimension"
     end;
 
     [Scope('OnPrem')]
-    procedure CalculateAmount(): Decimal
+    procedure CalcAmount(): Decimal
     begin
         GLCorrAnalysisViewEntry.SetRange("Debit Account No.", "Debit Account No.");
         GLCorrAnalysisViewEntry.SetRange("Credit Account No.", "Credit Account No.");

@@ -448,7 +448,7 @@ page 12403 "G/L Corresp. General Ledger"
                     var
                         GLAcc: Record "G/L Account";
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.SetRange("No.", "Debit Source No.");
                         REPORT.RunModal(REPORT::"G/L Corresp. General Ledger", true, false, GLAcc);
                     end;
@@ -476,7 +476,7 @@ page 12403 "G/L Corresp. General Ledger"
                     var
                         GLAcc: Record "G/L Account";
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         GLAcc.SetRange("No.", "Debit Source No.");
                         REPORT.RunModal(REPORT::"G/L Account Card", true, false, GLAcc);
                     end;
@@ -506,7 +506,7 @@ page 12403 "G/L Corresp. General Ledger"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if PeriodType = PeriodType::"Accounting Period" then
             FindUserPeriod('')
         else
@@ -554,7 +554,7 @@ page 12403 "G/L Corresp. General Ledger"
             EntryNo += 1;
             InsertRec('', '', GLAcc."No.", EntryNo, 0, false);
 
-            GLCorr.Reset;
+            GLCorr.Reset();
             if GLAcc.Totaling = '' then
                 GLCorr.SetRange("Debit Account No.", GLAcc."No.")
             else
@@ -565,7 +565,7 @@ page 12403 "G/L Corresp. General Ledger"
                     InsertRec(GLCorr."Debit Account No.", GLCorr."Credit Account No.", GLAcc."No.", EntryNo, 1, true);
                 until GLCorr.Next = 0;
 
-            GLCorr.Reset;
+            GLCorr.Reset();
             if GLAcc.Totaling = '' then
                 GLCorr.SetRange("Credit Account No.", GLAcc."No.")
             else
@@ -751,7 +751,7 @@ page 12403 "G/L Corresp. General Ledger"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.Reset;
+        GLEntry.Reset();
         if (BusinessUnitFilter <> '') or
            (GlobalDimension1Filter <> '') or
            (GlobalDimension2Filter <> '')
@@ -877,7 +877,7 @@ page 12403 "G/L Corresp. General Ledger"
     local procedure ForceRecalculate()
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         CreateView;
         ModifyView;
     end;

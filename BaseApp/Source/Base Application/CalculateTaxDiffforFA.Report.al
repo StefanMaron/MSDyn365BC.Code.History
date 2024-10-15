@@ -26,8 +26,8 @@ report 17306 "Calculate Tax Diff. for FA"
                 DiffAccDeprBonusAmountToPost: Decimal;
                 TaxDiffPeriodDeprAmount: Decimal;
             begin
-                TaxDiffFAPostingBuffer.Reset;
-                TaxDiffFAPostingBuffer.DeleteAll;
+                TaxDiffFAPostingBuffer.Reset();
+                TaxDiffFAPostingBuffer.DeleteAll();
 
                 SourceType := GetTDESourceType;
 
@@ -68,7 +68,7 @@ report 17306 "Calculate Tax Diff. for FA"
 
                 if AccAcquisitionCost < TaxAcquisitionCost then begin
                     Message(Text003, "Fixed Asset".TableCaption, "No.");
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 if (AccAcquisitionCost <> TaxAcquisitionCost) or
@@ -80,7 +80,7 @@ report 17306 "Calculate Tax Diff. for FA"
                     if DepreciationBook.FindSet then
                         repeat
                             if FADepreciationBook.Get("No.", DepreciationBook.Code) then begin
-                                FALedgerEntry.Reset;
+                                FALedgerEntry.Reset();
                                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date", Reversed, "Tax Difference Code");
                                 FALedgerEntry.SetRange("FA No.", "No.");
                                 FALedgerEntry.SetRange("FA Posting Date", 0D, EndDate);
@@ -130,7 +130,7 @@ report 17306 "Calculate Tax Diff. for FA"
                         until FALedgerEntry.Next = 0;
                 end;
 
-                TaxDiffFAPostingBuffer.Reset;
+                TaxDiffFAPostingBuffer.Reset();
                 if TaxDiffFAPostingBuffer.FindSet then begin
                     repeat
                         TaxDiff.Get(TaxDiffFAPostingBuffer."Tax Diff. Code");
@@ -326,11 +326,11 @@ report 17306 "Calculate Tax Diff. for FA"
 
     trigger OnInitReport()
     begin
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Use Group Depr. Method from", 0D);
         TaxRegisterSetup.TestField("Tax Depreciation Book");
         TaxRegisterSetup.TestField("Calculate TD for each FA", true);
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     trigger OnPreReport()
@@ -379,7 +379,7 @@ report 17306 "Calculate Tax Diff. for FA"
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; AmountBase: Decimal; AmountTax: Decimal; SourceType: Option; SourceNo: Code[20])
     begin
         xRecTaxDiffJnlLine := TaxDiffJnlLine;
-        TaxDiffJnlLine.Init;
+        TaxDiffJnlLine.Init();
         TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
         TaxDiffJnlLine."Journal Template Name" := TemplateName;
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
@@ -396,7 +396,7 @@ report 17306 "Calculate Tax Diff. for FA"
         TaxDiffJnlLine.Validate("Amount (Base)", AmountBase);
         TaxDiffJnlLine.Validate("Amount (Tax)", AmountTax);
         TaxDiffJnlLine."Source Entry Type" := TaxDiffJnlLine."Source Entry Type"::FA;
-        TaxDiffJnlLine.Insert;
+        TaxDiffJnlLine.Insert();
         LineNo += 10000;
     end;
 
@@ -420,11 +420,11 @@ report 17306 "Calculate Tax Diff. for FA"
             TaxDiffFAPostingBuffer.Type := Type;
             TaxDiffFAPostingBuffer."Tax Diff. Code" := TaxDiffCode;
             TaxDiffFAPostingBuffer."Initial Amount" := InitialAmount;
-            TaxDiffFAPostingBuffer.Insert;
+            TaxDiffFAPostingBuffer.Insert();
             LineNo += 10000;
         end else begin
             TaxDiffFAPostingBuffer."Initial Amount" += InitialAmount;
-            TaxDiffFAPostingBuffer.Modify;
+            TaxDiffFAPostingBuffer.Modify();
         end;
     end;
 

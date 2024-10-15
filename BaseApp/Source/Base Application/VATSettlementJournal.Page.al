@@ -145,7 +145,7 @@ page 12437 "VAT Settlement Journal"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         LookupVATAllocation;
                         CurrPage.Update(true);
                     end;
@@ -468,7 +468,7 @@ page 12437 "VAT Settlement Journal"
         VATAllocation: Record "VAT Allocation Line";
         VATAllocForm: Page "VAT Allocation";
     begin
-        VATAllocation.Reset;
+        VATAllocation.Reset();
         VATAllocation.SetRange("VAT Entry No.", "Unrealized VAT Entry No.");
         VATAllocForm.SetTableView(VATAllocation);
         VATAllocForm.SetCurrGenJnlLine(Rec);

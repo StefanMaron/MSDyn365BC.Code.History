@@ -163,7 +163,7 @@ page 17381 "Position List"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(Position2);
-                        SelectedPositions := Position2.Count;
+                        SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14700, true, SelectedPositions) then begin
                                 Position2.FindSet;
@@ -183,7 +183,7 @@ page 17381 "Position List"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(Position2);
-                        SelectedPositions := Position2.Count;
+                        SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14701, true, SelectedPositions) then begin
                                 Position2.FindSet;
@@ -202,7 +202,7 @@ page 17381 "Position List"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(Position2);
-                        SelectedPositions := Position2.Count;
+                        SelectedPositions := Position2.Count();
                         if SelectedPositions > 0 then
                             if Confirm(Text14702, true, SelectedPositions) then begin
                                 Position2.FindSet;

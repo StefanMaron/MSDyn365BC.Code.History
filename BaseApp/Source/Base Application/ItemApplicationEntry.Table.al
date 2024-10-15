@@ -180,7 +180,6 @@ table 339 "Item Application Entry"
         exit(FindSet);
     end;
 
-    [Scope('Internal')]
     procedure GetInboundEntriesTheOutbndEntryAppliedTo(OutbndItemLedgEntryNo: Integer): Boolean
     begin
         Reset();
@@ -254,7 +253,7 @@ table 339 "Item Application Entry"
         ItemApplnEntryHistory."Deleted Date" := CurrentDateTime;
         ItemApplnEntryHistory."Deleted By User" := UserId;
         ItemApplnEntryHistory."Primary Entry No." := EntryNo + 1;
-        ItemApplnEntryHistory.Insert;
+        ItemApplnEntryHistory.Insert();
         exit(ItemApplnEntryHistory."Primary Entry No.");
     end;
 
@@ -267,8 +266,8 @@ table 339 "Item Application Entry"
     begin
         if CheckItemLedgEntry."Entry No." = FromItemLedgEntry."Entry No." then
             exit(true);
-        TempVisitedItemApplnEntry.DeleteAll;
-        ItemLedgEntryInChainNo.DeleteAll;
+        TempVisitedItemApplnEntry.DeleteAll();
+        ItemLedgEntryInChainNo.DeleteAll();
 
         if FromItemLedgEntry.Positive then begin
             if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, FromItemLedgEntry."Entry No.") then
@@ -314,7 +313,7 @@ table 339 "Item Application Entry"
                 if TrackChain then
                     if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
                         ItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                        ItemLedgEntryInChainNo.Insert;
+                        ItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
@@ -352,7 +351,7 @@ table 339 "Item Application Entry"
                 if TrackChain then
                     if not ItemLedgEntryInChainNo.Get(ItemLedgEntry."Entry No.") then begin
                         ItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                        ItemLedgEntryInChainNo.Insert;
+                        ItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
@@ -427,7 +426,7 @@ table 339 "Item Application Entry"
                 if TrackChain then
                     if not ItemLedgEntryInChainNo.Get(ToEntryNo) then begin
                         ItemLedgEntryInChainNo.Number := ToEntryNo;
-                        ItemLedgEntryInChainNo.Insert;
+                        ItemLedgEntryInChainNo.Insert();
                     end;
 
                 if ToEntryNo = CheckItemLedgEntry."Entry No." then
@@ -464,6 +463,13 @@ table 339 "Item Application Entry"
         end;
     end;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure GetVisitedEntries(FromItemLedgEntry: Record "Item Ledger Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry"; WithinValuationDate: Boolean)
     var
         ToItemLedgEntry: Record "Item Ledger Entry";
@@ -487,16 +493,16 @@ table 339 "Item Application Entry"
         end;
 
         TrackChain := true;
-        ItemLedgEntryInChain.Reset;
-        ItemLedgEntryInChain.DeleteAll;
-        DummyItemLedgEntry.Init;
+        ItemLedgEntryInChain.Reset();
+        ItemLedgEntryInChain.DeleteAll();
+        DummyItemLedgEntry.Init();
         DummyItemLedgEntry."Entry No." := -1;
         CheckIsCyclicalLoop(DummyItemLedgEntry, FromItemLedgEntry);
         if ItemLedgEntryInChainNo.FindSet then
             repeat
                 ToItemLedgEntry.Get(ItemLedgEntryInChainNo.Number);
                 ItemLedgEntryInChain := ToItemLedgEntry;
-                ItemLedgEntryInChain.Insert;
+                ItemLedgEntryInChain.Insert();
             until ItemLedgEntryInChainNo.Next = 0;
     end;
 
@@ -608,7 +614,7 @@ table 339 "Item Application Entry"
             if ItemApplnEntry.Count = 1 then begin
                 ItemApplnEntry.FindFirst;
                 ItemApplnEntry."Outbound Entry is Updated" := true;
-                ItemApplnEntry.Modify;
+                ItemApplnEntry.Modify();
             end;
     end;
 

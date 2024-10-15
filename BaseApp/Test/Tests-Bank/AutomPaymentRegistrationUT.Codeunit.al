@@ -25,7 +25,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
 
         BankAccNo := CreateBankAcc;
 
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation.Validate("Bank Account No.", BankAccNo);
         BankAccReconciliation.Insert(true);
 
@@ -46,9 +46,9 @@ codeunit 134712 "Autom. Payment Registration.UT"
 
         BankAccount.Get(BankAccNo);
         BankAccount."Last Statement No." := '0';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation.Validate("Bank Account No.", BankAccNo);
         BankAccReconciliation.Insert(true);
 
@@ -67,7 +67,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
 
         BankAccNo := CreateBankAcc;
 
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
         BankAccReconciliation.Validate("Bank Account No.", BankAccNo);
         BankAccReconciliation.Insert(true);
@@ -171,27 +171,27 @@ codeunit 134712 "Autom. Payment Registration.UT"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
         BankAccReconciliation."Bank Account No." := CreateBankAcc;
         BankAccReconciliation."Statement No." := StatementNo;
-        BankAccReconciliation.Insert;
+        BankAccReconciliation.Insert();
 
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         BankAccReconciliationLine."Statement Type" := StatementType;
         BankAccReconciliationLine."Bank Account No." := BankAccReconciliation."Bank Account No.";
         BankAccReconciliationLine."Statement No." := StatementNo;
         BankAccReconciliationLine."Statement Amount" := 1;
-        BankAccReconciliationLine.Insert;
+        BankAccReconciliationLine.Insert();
     end;
 
     local procedure CreateBankAcc(): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(CreateGuid, 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
         exit(BankAccount."No.");
     end;

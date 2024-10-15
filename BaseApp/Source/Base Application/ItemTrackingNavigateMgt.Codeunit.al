@@ -339,7 +339,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(SalesInvHeader);
                 InsertBufferRecFromItemLedgEntry;
                 TempSalesInvHeader := SalesInvHeader;
-                if TempSalesInvHeader.Insert then;
+                if TempSalesInvHeader.Insert() then;
             end;
     end;
 
@@ -352,7 +352,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(SalesCrMemoHeader);
                 InsertBufferRecFromItemLedgEntry;
                 TempSalesCrMemoHeader := SalesCrMemoHeader;
-                if TempSalesCrMemoHeader.Insert then;
+                if TempSalesCrMemoHeader.Insert() then;
             end;
     end;
 
@@ -367,7 +367,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(SalesShptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempSalesShptHeader := SalesShptHeader;
-            if TempSalesShptHeader.Insert then;
+            if TempSalesShptHeader.Insert() then;
             FindPostedWhseShptLine;
             // Find Invoice if it exists
             SearchValueEntries;
@@ -386,7 +386,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(SalesLine);
                 InsertBufferRecFromReservEntry;
                 TempSalesLine := SalesLine;
-                if TempSalesLine.Insert then;
+                if TempSalesLine.Insert() then;
             end;
     end;
 
@@ -402,7 +402,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(ServLine);
                 InsertBufferRecFromReservEntry;
                 TempServLine := ServLine;
-                if TempServLine.Insert then;
+                if TempServLine.Insert() then;
             end;
     end;
 
@@ -418,7 +418,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(PurchLine);
                 InsertBufferRecFromReservEntry;
                 TempPurchLine := PurchLine;
-                if TempPurchLine.Insert then;
+                if TempPurchLine.Insert() then;
             end;
     end;
 
@@ -434,7 +434,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(ReqLine);
                 InsertBufferRecFromReservEntry;
                 TempReqLine := ReqLine;
-                if TempReqLine.Insert then;
+                if TempReqLine.Insert() then;
             end;
     end;
 
@@ -450,7 +450,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(PlanningComponent);
                 InsertBufferRecFromReservEntry;
                 TempPlanningComponent := PlanningComponent;
-                if TempPlanningComponent.Insert then;
+                if TempPlanningComponent.Insert() then;
             end;
     end;
 
@@ -466,7 +466,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(ItemJnlLine);
                 InsertBufferRecFromReservEntry;
                 TempItemJnlLine := ItemJnlLine;
-                if TempItemJnlLine.Insert then;
+                if TempItemJnlLine.Insert() then;
             end;
     end;
 
@@ -482,7 +482,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(AssemblyHeader);
                 InsertBufferRecFromReservEntry;
                 TempAssemblyHeader := AssemblyHeader;
-                if TempAssemblyHeader.Insert then;
+                if TempAssemblyHeader.Insert() then;
             end;
     end;
 
@@ -498,7 +498,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(AssemblyLine);
                 InsertBufferRecFromReservEntry;
                 TempAssemblyLine := AssemblyLine;
-                if TempAssemblyLine.Insert then;
+                if TempAssemblyLine.Insert() then;
             end;
     end;
 
@@ -514,7 +514,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(ProdOrderLine);
                 InsertBufferRecFromReservEntry;
                 TempProdOrderLine := ProdOrderLine;
-                if TempProdOrderLine.Insert then;
+                if TempProdOrderLine.Insert() then;
             end;
     end;
 
@@ -530,7 +530,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(ProdOrderComp);
                 InsertBufferRecFromReservEntry;
                 TempProdOrderComp := ProdOrderComp;
-                if TempProdOrderComp.Insert then;
+                if TempProdOrderComp.Insert() then;
             end;
     end;
 
@@ -546,7 +546,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(TransLine);
                 InsertBufferRecFromReservEntry;
                 TempTransLine := TransLine;
-                if TempTransLine.Insert then;
+                if TempTransLine.Insert() then;
             end;
     end;
 
@@ -561,7 +561,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ServInvHeader);
             InsertBufferRecFromItemLedgEntry;
             TempServInvHeader := ServInvHeader;
-            if TempServInvHeader.Insert then;
+            if TempServInvHeader.Insert() then;
         end;
     end;
 
@@ -576,7 +576,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ServCrMemoHeader);
             InsertBufferRecFromItemLedgEntry;
             TempServCrMemoHeader := ServCrMemoHeader;
-            if TempServCrMemoHeader.Insert then;
+            if TempServCrMemoHeader.Insert() then;
         end;
     end;
 
@@ -591,7 +591,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ServShptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempServShptHeader := ServShptHeader;
-            if TempServShptHeader.Insert then;
+            if TempServShptHeader.Insert() then;
             // Find Invoice if it exists
             SearchValueEntries;
         end;
@@ -608,7 +608,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(PurchInvHeader);
             InsertBufferRecFromItemLedgEntry;
             TempPurchInvHeader := PurchInvHeader;
-            if TempPurchInvHeader.Insert then;
+            if TempPurchInvHeader.Insert() then;
         end;
     end;
 
@@ -623,7 +623,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(PurchCrMemoHeader);
             InsertBufferRecFromItemLedgEntry;
             TempPurchCrMemoHeader := PurchCrMemoHeader;
-            if TempPurchCrMemoHeader.Insert then;
+            if TempPurchCrMemoHeader.Insert() then;
         end;
     end;
 
@@ -638,7 +638,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(PurchRcptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempPurchRcptHeader := PurchRcptHeader;
-            if TempPurchRcptHeader.Insert then;
+            if TempPurchRcptHeader.Insert() then;
             FindPostedWhseRcptLine;
             // Find Invoice if it exists
             SearchValueEntries;
@@ -656,7 +656,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(PostedAssemblyHeader);
             InsertBufferRecFromItemLedgEntry;
             TempPostedAssemblyHeader := PostedAssemblyHeader;
-            if TempPostedAssemblyHeader.Insert then;
+            if TempPostedAssemblyHeader.Insert() then;
         end;
     end;
 
@@ -679,7 +679,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(PostedWhseShptLine);
                 InsertBufferRecFromItemLedgEntry;
                 TempPostedWhseShptLine := PostedWhseShptLine;
-                if TempPostedWhseShptLine.Insert then;
+                if TempPostedWhseShptLine.Insert() then;
             end;
         end;
     end;
@@ -703,7 +703,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 RecRef.GetTable(PostedWhseRcptLine);
                 InsertBufferRecFromItemLedgEntry;
                 TempPostedWhseRcptLine := PostedWhseRcptLine;
-                if TempPostedWhseRcptLine.Insert then;
+                if TempPostedWhseRcptLine.Insert() then;
             end;
         end;
     end;
@@ -773,7 +773,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ProdOrder);
             InsertBufferRecFromItemLedgEntry;
             TempProdOrder := ProdOrder;
-            if TempProdOrder.Insert then;
+            if TempProdOrder.Insert() then;
         end;
     end;
 
@@ -879,7 +879,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ReturnRcptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempReturnRcptHeader := ReturnRcptHeader;
-            if TempReturnRcptHeader.Insert then;
+            if TempReturnRcptHeader.Insert() then;
             FindPostedWhseRcptLine;
             // Find CreditMemo if it exists
             SearchValueEntries;
@@ -897,7 +897,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(ReturnShptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempReturnShipHeader := ReturnShptHeader;
-            if TempReturnShipHeader.Insert then;
+            if TempReturnShipHeader.Insert() then;
             FindPostedWhseShptLine;
             // Find CreditMemo if it exists
             SearchValueEntries;
@@ -915,7 +915,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(TransShptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempTransShipHeader := TransShptHeader;
-            if TempTransShipHeader.Insert then;
+            if TempTransShipHeader.Insert() then;
             FindPostedWhseShptLine;
         end;
     end;
@@ -931,7 +931,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             RecRef.GetTable(TransRcptHeader);
             InsertBufferRecFromItemLedgEntry;
             TempTransRcptHeader := TransRcptHeader;
-            if TempTransRcptHeader.Insert then;
+            if TempTransRcptHeader.Insert() then;
             FindPostedWhseRcptLine;
         end;
     end;
@@ -958,7 +958,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                     RecRef.GetTable(JobLedgEntry);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", '', '', "Variant Code");
                     TempJobLedgEntry := JobLedgEntry;
-                    if TempJobLedgEntry.Insert then;
+                    if TempJobLedgEntry.Insert() then;
                 until Next = 0;
         end;
     end;
@@ -1202,7 +1202,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         TempRecordBuffer.SetRange("Item No.", ItemNo);
         TempRecordBuffer.SetRange("Variant Code", Variant);
         if not TempRecordBuffer.Find('-') then begin
-            TempRecordBuffer.Init;
+            TempRecordBuffer.Init();
             TempRecordBuffer."Entry No." := LastEntryNo + 10;
             LastEntryNo := TempRecordBuffer."Entry No.";
 
@@ -1252,20 +1252,20 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             TempRecordBuffer."Item No." := ItemNo;
             TempRecordBuffer."Variant Code" := Variant;
 
-            TempRecordBuffer.Insert;
+            TempRecordBuffer.Insert();
         end;
     end;
 
     procedure Collect(var RecordBuffer: Record "Record Buffer" temporary)
     begin
-        RecordBuffer.Reset;
-        RecordBuffer.DeleteAll;
+        RecordBuffer.Reset();
+        RecordBuffer.DeleteAll();
 
-        TempRecordBuffer.Reset;
+        TempRecordBuffer.Reset();
         if TempRecordBuffer.Find('-') then
             repeat
                 RecordBuffer := TempRecordBuffer;
-                RecordBuffer.Insert;
+                RecordBuffer.Insert();
             until TempRecordBuffer.Next = 0;
     end;
 
@@ -1273,7 +1273,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
-        AllObjWithCaption.Reset;
+        AllObjWithCaption.Reset();
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::TableData);
         AllObjWithCaption.SetRange("Object ID", TableNumber);
         if AllObjWithCaption.FindFirst then
@@ -1312,7 +1312,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         if not TempField.Get(TableNumber, FieldNumber) then begin
             Field.Get(TableNumber, FieldNumber);
             TempField := Field;
-            TempField.Insert;
+            TempField.Insert();
         end;
         Field2 := TempField;
     end;

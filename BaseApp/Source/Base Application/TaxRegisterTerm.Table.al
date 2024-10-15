@@ -24,10 +24,10 @@ table 17204 "Tax Register Term"
                             Error('');
                         TaxRegSection.Get("Section Code");
                         TaxRegSection.ValidateChangeDeclaration;
-                        TaxRegisterTermFormula.Reset;
+                        TaxRegisterTermFormula.Reset();
                         TaxRegisterTermFormula.SetRange("Section Code", "Section Code");
                         TaxRegisterTermFormula.SetRange("Term Code", "Term Code");
-                        TaxRegisterTermFormula.DeleteAll;
+                        TaxRegisterTermFormula.DeleteAll();
                         Validate(Expression, '');
                     end;
             end;
@@ -41,30 +41,30 @@ table 17204 "Tax Register Term"
                 if "Term Code" = '' then
                     exit;
 
-                TaxRegisterTermFormula.Reset;
+                TaxRegisterTermFormula.Reset();
                 TaxRegisterTermFormula.FilterGroup(2);
                 TaxRegisterTermFormula.SetRange("Section Code", "Section Code");
                 TaxRegisterTermFormula.FilterGroup(0);
                 TaxRegisterTermFormula.SetRange("Term Code", "Term Code");
                 if ("Expression Type" = "Expression Type"::Compare) and not (TaxRegisterTermFormula.Count = 3) then begin
                     if not (TaxRegisterTermFormula.Count = 0) then
-                        TaxRegisterTermFormula.DeleteAll;
-                    TaxRegisterTermFormula.Init;
+                        TaxRegisterTermFormula.DeleteAll();
+                    TaxRegisterTermFormula.Init();
                     TaxRegisterTermFormula."Section Code" := "Section Code";
                     TaxRegisterTermFormula."Term Code" := "Term Code";
                     TaxRegisterTermFormula."Account Type" := TaxRegisterTermFormula."Account Type"::Term;
                     TaxRegisterTermFormula.Operation := TaxRegisterTermFormula.Operation::Negative;
                     TaxRegisterTermFormula."Line No." := 10000;
-                    TaxRegisterTermFormula.Insert;
+                    TaxRegisterTermFormula.Insert();
                     TaxRegisterTermFormula.Operation := TaxRegisterTermFormula.Operation::Zero;
                     TaxRegisterTermFormula."Line No." := 20000;
-                    TaxRegisterTermFormula.Insert;
+                    TaxRegisterTermFormula.Insert();
                     TaxRegisterTermFormula.Operation := TaxRegisterTermFormula.Operation::Positive;
                     TaxRegisterTermFormula."Line No." := 30000;
-                    TaxRegisterTermFormula.Insert;
+                    TaxRegisterTermFormula.Insert();
                     TaxRegisterTermFormula."Line No." := 10000;
                     TaxRegisterTermFormula.Find;
-                    Commit;
+                    Commit();
                 end;
                 PAGE.RunModal(0, TaxRegisterTermFormula);
                 Expression :=
@@ -140,10 +140,10 @@ table 17204 "Tax Register Term"
         TaxRegSection.Get("Section Code");
         TaxRegSection.ValidateChangeDeclaration;
 
-        TaxRegisterTermFormula.Reset;
+        TaxRegisterTermFormula.Reset();
         TaxRegisterTermFormula.SetRange("Section Code", "Section Code");
         TaxRegisterTermFormula.SetRange("Term Code", "Term Code");
-        TaxRegisterTermFormula.DeleteAll;
+        TaxRegisterTermFormula.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -187,7 +187,7 @@ table 17204 "Tax Register Term"
             GenTermProfile."Norm Jurisd. Code (Line)" := TaxRegisterTermFormula.FieldNo("Norm Jurisdiction Code");
             GenTermProfile."Process Sign (Line)" := TaxRegisterTermFormula.FieldNo("Process Sign");
             GenTermProfile."Process Division by Zero(Line)" := TaxRegisterTermFormula.FieldNo("Process Division by Zero");
-            GenTermProfile.Insert;
+            GenTermProfile.Insert();
         end;
     end;
 }

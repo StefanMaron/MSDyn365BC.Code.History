@@ -258,7 +258,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
@@ -306,12 +306,6 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines;
-    end;
-
-    [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
         ShowItemChargeAssgnt;
@@ -321,12 +315,6 @@ page 14974 "Sales Corr. Cr. Memo Subform"
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowLineComments()
-    begin
-        ShowLineComments;
     end;
 
     local procedure NoOnAfterValidate()

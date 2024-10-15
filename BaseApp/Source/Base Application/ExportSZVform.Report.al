@@ -14,18 +14,18 @@ report 17462 "Export SZV form"
             trigger OnAfterGetRecord()
             begin
                 if not PersonifiedAccountingMgt.CheckEmployeeLaborContract(Employee, StartDate, EndDate) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 case PersonifiedAccountingMgt.GetSZVType(Employee, StartDate, EndDate) of
                     SZVType::SZV_6_1:
                         begin
                             TempEmployee_SZV6_1 := Employee;
-                            TempEmployee_SZV6_1.Insert;
+                            TempEmployee_SZV6_1.Insert();
                         end;
                     SZVType::SZV_6_2:
                         begin
                             TempEmployee_SZV6_2 := Employee;
-                            TempEmployee_SZV6_2.Insert;
+                            TempEmployee_SZV6_2.Insert();
                         end;
                 end;
             end;

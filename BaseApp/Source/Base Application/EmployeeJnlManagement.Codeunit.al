@@ -21,18 +21,18 @@ codeunit 17380 EmployeeJnlManagement
     begin
         JnlSelected := true;
 
-        EmplJnlTemplate.Reset;
+        EmplJnlTemplate.Reset();
 
         case EmplJnlTemplate.Count of
             0:
                 begin
-                    EmplJnlTemplate.Init;
+                    EmplJnlTemplate.Init();
                     EmplJnlTemplate.Type := FormTemplate;
                     EmplJnlTemplate.Name := DelChr(Format(EmplJnlTemplate.Type, MaxStrLen(EmplJnlTemplate.Name)));
                     EmplJnlTemplate.Description := StrSubstNo(Text001, EmplJnlTemplate.Type);
                     EmplJnlTemplate.Validate(Type);
-                    EmplJnlTemplate.Insert;
-                    Commit;
+                    EmplJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 EmplJnlTemplate.FindFirst;
@@ -120,13 +120,13 @@ codeunit 17380 EmployeeJnlManagement
         EmplJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not EmplJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not EmplJnlBatch.FindFirst then begin
-                EmplJnlBatch.Init;
+                EmplJnlBatch.Init();
                 EmplJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 EmplJnlBatch.SetupNewBatch;
                 EmplJnlBatch.Name := Text003;
                 EmplJnlBatch.Description := Text004;
                 EmplJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := EmplJnlBatch.Name
         end;
@@ -154,7 +154,7 @@ codeunit 17380 EmployeeJnlManagement
     var
         EmplJnlBatch: Record "Employee Journal Batch";
     begin
-        Commit;
+        Commit();
         EmplJnlBatch."Journal Template Name" := EmplJnlLine.GetRangeMax("Journal Template Name");
         EmplJnlBatch.Name := EmplJnlLine.GetRangeMax("Journal Batch Name");
         EmplJnlBatch.FilterGroup(2);

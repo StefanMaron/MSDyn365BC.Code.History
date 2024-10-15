@@ -68,7 +68,7 @@ report 14951 "Bill of Lading"
         if ReportSource = ReportSource::UnpostedSales then
             SalesHeader.TestField(Status, SalesHeader.Status::Released);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Bill of Lading Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(SalesReceivablesSetup."Bill of Lading Template Code");

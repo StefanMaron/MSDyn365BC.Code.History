@@ -2984,9 +2984,6 @@ End Function
         <Field Name="CurrentDate">
           <DataField>CurrentDate</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>

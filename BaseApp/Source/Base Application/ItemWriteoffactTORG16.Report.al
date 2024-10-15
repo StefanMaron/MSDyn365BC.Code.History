@@ -155,7 +155,7 @@ report 14930 "Item Write-off act TORG-16"
         Employee: Record Employee;
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if DocSignature.Get(12450, 1, ItemDocNo, DocSignature."Employee Type"::Chairman) then begin
             Member[1, 1] := DocSignature."Employee Job Title";
             Member[1, 2] := DocSignature."Employee Name";

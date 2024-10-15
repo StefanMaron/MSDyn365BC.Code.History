@@ -4,11 +4,9 @@ table 280 "Extended Text Line"
 
     fields
     {
-        field(1; "Table Name"; Option)
+        field(1; "Table Name"; Enum "Extended Text Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Standard Text,G/L Account,Item,Resource';
-            OptionMembers = "Standard Text","G/L Account",Item,Resource;
         }
         field(2; "No."; Code[20])
         {

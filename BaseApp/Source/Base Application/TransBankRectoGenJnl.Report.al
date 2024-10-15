@@ -19,12 +19,12 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     NoSeriesMgt: Codeunit NoSeriesManagement;
                 begin
                     if (Difference = 0) or (Type > Type::"Bank Account Ledger Entry") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
                     GenJnlLine.Validate("Posting Date", "Transaction Date");
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     GenJnlLine."Source Code" := SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.";
                     if "Document No." <> '' then
                         GenJnlLine."Document No." := "Document No."
@@ -50,7 +50,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     GenJnlLine.Description := Description;
                     UpdateGenJnlLine(GenJnlLine, "Bank Acc. Reconciliation Line");
                     OnBeforeGenJnlLineInsert(GenJnlLine, "Bank Acc. Reconciliation Line");
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -63,7 +63,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     else
                         GenJnlLine.SetRange("Journal Batch Name", '');
 
-                    GenJnlLine.LockTable;
+                    GenJnlLine.LockTable();
                     if GenJnlLine.FindLast then;
                 end;
             }

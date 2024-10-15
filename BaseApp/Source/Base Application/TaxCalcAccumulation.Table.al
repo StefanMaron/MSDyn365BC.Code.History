@@ -129,7 +129,7 @@ table 17314 "Tax Calc. Accumulation"
                 begin
                     if TaxCalcLine.Expression = '' then
                         exit;
-                    TaxCalcAccumulation.Reset;
+                    TaxCalcAccumulation.Reset();
                     TaxCalcAccumulation.FilterGroup(2);
                     TaxCalcAccumulation.SetRange("Section Code", TaxCalcLine."Section Code");
                     TaxCalcAccumulation.FilterGroup(0);

@@ -15,7 +15,7 @@ codeunit 14953 "FA-4 Report Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         case ReportID of
             REPORT::"FA Write-off Act FA-4", REPORT::"FA Posted Writeoff Act FA-4":
                 begin
@@ -53,7 +53,7 @@ codeunit 14953 "FA-4 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);
@@ -80,7 +80,7 @@ codeunit 14953 "FA-4 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);
@@ -330,7 +330,7 @@ codeunit 14953 "FA-4 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTFOOTER');
         ExcelReportBuilderManager.AddDataToSection('Result', Result1);
         ExcelReportBuilderManager.AddDataToSection('ChiefAccountantName', CompanyInfo."Accountant Name");

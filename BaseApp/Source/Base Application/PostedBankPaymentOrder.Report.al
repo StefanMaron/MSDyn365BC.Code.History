@@ -33,7 +33,7 @@ report 12459 "Posted Bank Payment Order"
                             OCUD := '0401061';
                         end;
                     else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 if KBK <> '' then
@@ -60,7 +60,7 @@ report 12459 "Posted Bank Payment Order"
 
                             PayerBankCity := PayerText[5];
                             PayerBranch := PayerText[6];
-                            CompanyInf.Get;
+                            CompanyInf.Get();
                             PayerKPP := '';
                             PayerKPP := CompanyInf."KPP Code";
                             if Vendor.Get("Bal. Account No.") then begin
@@ -141,7 +141,7 @@ report 12459 "Posted Bank Payment Order"
                         BankPaymentOrderHelper.FillRequestTitle(
                           OCUD, StrSubstNo(TitleDoc, "Document No."), '', "Check Date", Format("Payment Method"), CompStat);
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 TransferLineValues(LineValue, "Check Ledger Entry");

@@ -43,7 +43,7 @@ codeunit 134850 "Test General Document Lookup"
         // [FEATURE] [Sales] [Fixed Asset]
         // [SCENARIO] Create a Sales Invoice, add a Line of type Fixed Asset and verify that Line has correct description.
         // [GIVEN] Fixed Asset, where "No." = 'X'
-        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         // [GIVEN] Invoice Line, where "Type" = "Fixed Asset"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -68,7 +68,7 @@ codeunit 134850 "Test General Document Lookup"
         // [FEATURE] [Purchase] [Fixed Asset]
         // [SCENARIO] Create a Purchase Invoice, add a Line of type Fixed Asset and verify that Line has correct description.
         // [GIVEN] Fixed Asset, where "No." = 'X'
-        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         // [GIVEN] Invoice Line, where "Type" = "Fixed Asset"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");

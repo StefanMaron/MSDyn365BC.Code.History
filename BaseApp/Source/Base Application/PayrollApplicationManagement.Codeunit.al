@@ -27,7 +27,7 @@ codeunit 17416 "Payroll Application Management"
 
         ApplyRequired := false;
         RemainingBalance := 0;
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         VendLedgEntry.SetRange(Open, true);
@@ -55,7 +55,7 @@ codeunit 17416 "Payroll Application Management"
         ApplyingVendLedgEntry."Applies-to ID" := ApplyingVendLedgEntry."Document No.";
         ApplyingVendLedgEntry."Amount to Apply" := ApplyingVendLedgEntry."Remaining Amount";
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", ApplyingVendLedgEntry);
-        Commit;
+        Commit();
 
         VendLedgEntry.SetRange(Positive, true);
         VendEntrySetApplID.SetApplId(
@@ -86,11 +86,11 @@ codeunit 17416 "Payroll Application Management"
         ApplyingVendLedgEntry."Applies-to ID" := Format(ApplyingVendLedgEntry."Entry No.");
         ApplyingVendLedgEntry."Amount to Apply" := ApplyingVendLedgEntry."Remaining Amount";
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", ApplyingVendLedgEntry);
-        Commit;
+        Commit();
 
         LastPayment := false;
 
-        VendLedgEntry2.Reset;
+        VendLedgEntry2.Reset();
         VendLedgEntry2.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry2.SetRange("Vendor No.", PaymentVendLedgEntry."Vendor No.");
         VendLedgEntry2.SetRange(Open, true);
@@ -107,11 +107,11 @@ codeunit 17416 "Payroll Application Management"
                     VendLedgEntry3.CalcFields("Remaining Amount");
                     VendLedgEntry3."Applies-to ID" := ApplyingVendLedgEntry."Applies-to ID";
                     VendLedgEntry3."Amount to Apply" := VendLedgEntry3."Remaining Amount";
-                    VendLedgEntry3.Modify;
+                    VendLedgEntry3.Modify();
                 end else begin
                     NDFLAmount := 0;
                     PayrollLedgEntry.Get(VendLedgEntry2."Payroll Ledger Entry No.");
-                    PstdPayrollDocLine.Reset;
+                    PstdPayrollDocLine.Reset();
                     PstdPayrollDocLine.SetCurrentKey("Employee No.", "Period Code");
                     PstdPayrollDocLine.SetRange("Employee No.", PayrollLedgEntry."Employee No.");
                     PstdPayrollDocLine.SetRange("Period Code", PayrollPeriod.Code);
@@ -134,12 +134,12 @@ codeunit 17416 "Payroll Application Management"
                         VendLedgEntry3."Amount to Apply" := VendLedgEntry3."Remaining Amount"
                     else
                         VendLedgEntry3."Amount to Apply" := NDFLAmount;
-                    VendLedgEntry3.Modify;
+                    VendLedgEntry3.Modify();
                 end;
             until VendLedgEntry2.Next = 0;
 
         PostApply(ApplyingVendLedgEntry);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

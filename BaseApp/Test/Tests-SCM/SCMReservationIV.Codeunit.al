@@ -37,7 +37,7 @@ codeunit 137271 "SCM Reservation IV"
         TransferOrderDeletedMsg: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Document No.';
         OrderTrackingPolicyMsg: Label 'The change will not affect existing entries.';
         AvailabilityWarningMsg: Label 'There are availability warnings on one or more lines.';
-        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 CD No.  for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
+        ItemTrackingLotNoErr: Label 'Item Tracking Serial No.  Lot No. %1 for Item No. %2 Variant  cannot be fully applied.', Comment = '%1 = Lot No., %2 = Item No.';
         ReservationErr: Label 'There is nothing available to reserve.';
         ValidationErr: Label '%1 must be %2.', Comment = '%1:Field1,%2:Value1';
         ReservationDisruptedWarningMsg: Label 'One or more reservation entries exist for the item';
@@ -512,7 +512,6 @@ codeunit 137271 "SCM Reservation IV"
         Assert.RecordIsEmpty(SalesLine);
 
         // [THEN] The item tracking is removed.
-        ReservEntry.Init;
         ReservEntry.SetRange("Item No.", Item."No.");
         Assert.RecordIsEmpty(ReservEntry);
     end;
@@ -664,7 +663,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Create Production Component with Item Tracking and Reservation.
         CreateProdOrderComponentWithITAndReserv(ProductionOrder, Item."No.", Location.Code, TrackingOption::SetLotNo);
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMsg, PickNo));  // Enqueue for Message Handler.
 
@@ -1200,7 +1199,7 @@ codeunit 137271 "SCM Reservation IV"
         Initialize;
         CreateTransferOrder(
           TransferLine, LibraryWarehouse.CreateLocation(Location), LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
-        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(Random(5)) + 'D>', WorkDate));
+        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
         TransferLine.Modify(true);
 
         // [GIVEN] Create Sales Order.
@@ -1724,7 +1723,7 @@ codeunit 137271 "SCM Reservation IV"
         CreatePurchaseReturnOrderWithReservedLine(PurchaseHeader[2], PurchaseLine[2], Item."No.", Qty + 1);
 
         // [WHEN] Post "RO2" with Ship option.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(ReservationDisruptedWarningMsg);
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, false);
 
@@ -1892,7 +1891,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the purchase.
         ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -1941,7 +1940,7 @@ codeunit 137271 "SCM Reservation IV"
         // [THEN] "Q" pcs of lot "L1" are reserved from the sales return.
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservEntry.SetRange("Source ID", ReturnSalesHeader."No.");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2010,7 +2009,7 @@ codeunit 137271 "SCM Reservation IV"
         ReservEntry.SetRange("Source Type", DATABASE::"Transfer Line");
         ReservEntry.SetRange("Source Subtype", TransferDirection::Inbound);
         ReservEntry.SetRange("Source ID", TransferHeader."No.");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2063,7 +2062,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the production order line.
         ReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2109,7 +2108,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the assembly order.
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Header");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
     end;
@@ -2164,7 +2163,7 @@ codeunit 137271 "SCM Reservation IV"
         // [THEN] "Q" pcs of lot "L2" are reserved to the outbound transfer.
         ReservEntry.SetRange("Source Type", DATABASE::"Transfer Line");
         ReservEntry.SetRange("Source Subtype", TransferDirection::Outbound);
-        ReservEntry.SetTrackingFilter('', LotNo[2], '');
+        ReservEntry.SetTrackingFilter('', LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2216,7 +2215,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the production order component.
         ReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Component");
-        ReservEntry.SetTrackingFilter('', LotNo[2], '');
+        ReservEntry.SetTrackingFilter('', LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2266,7 +2265,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the assembly line.
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Line");
-        ReservEntry.SetTrackingFilter('', LotNo[2], '');
+        ReservEntry.SetTrackingFilter('', LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2317,7 +2316,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L2" are reserved to the service line.
         ReservEntry.SetRange("Source Type", DATABASE::"Service Line");
-        ReservEntry.SetTrackingFilter('', LotNo[2], '');
+        ReservEntry.SetTrackingFilter('', LotNo[2]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, -Qty);
     end;
@@ -2377,7 +2376,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] "Q" pcs of lot "L1" are reserved from the purchase order.
         ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
-        ReservEntry.SetTrackingFilter('', LotNo[1], '');
+        ReservEntry.SetTrackingFilter('', LotNo[1]);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty * NoOfLots);
     end;
@@ -2486,14 +2485,12 @@ codeunit 137271 "SCM Reservation IV"
 
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        DisableAutomaticCostPosting;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation IV");
     end;
 
@@ -3052,15 +3049,6 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseShipmentHeader.Delete(true);
     end;
 
-    local procedure DisableAutomaticCostPosting()
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        InventorySetup.Get;
-        InventorySetup.Validate("Automatic Cost Posting", false);
-        InventorySetup.Modify(true);
-    end;
-
     local procedure EnqueueValuesForReservationPageHandler(QtyToReserve: Decimal; TotalReservedQuantity: Decimal; TotalQuantity: Decimal)
     begin
         LibraryVariableStorage.Enqueue(QtyToReserve);
@@ -3341,7 +3329,7 @@ codeunit 137271 "SCM Reservation IV"
           WarehouseActivityLine."Action Type"::Place);
 
         WarehouseActivityLine.SetRange("Action Type");
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet(true);
         repeat
             WarehouseActivityLine.Validate("Lot No.", TrackingSpecification."Lot No.");
             WarehouseActivityLine.Modify(true);
@@ -3492,7 +3480,7 @@ codeunit 137271 "SCM Reservation IV"
         TrackingSpecification.SetRange("Item No.", ItemNo);
         TrackingSpecification.FindFirst;
 
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservationEntry.SetRange("Lot No.", '');

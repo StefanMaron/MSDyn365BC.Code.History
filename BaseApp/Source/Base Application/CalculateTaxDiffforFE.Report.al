@@ -17,12 +17,12 @@ report 17300 "Calculate Tax Diff. for FE"
                 Wnd.Update(1, "No.");
                 Wnd.Update(2, Round((Processing / Total) * 10000, 1));
                 if not TaxDiff.Get("Tax Difference Code") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not Choice[Choices::Fixed] and (TaxDiff.Type = TaxDiff.Type::Constant) or
                    not Choice[Choices::"Temporary"] and (TaxDiff.Type = TaxDiff.Type::"Temporary")
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 AccAcquisCost := 0;
                 TaxAcquisCost := 0;
@@ -48,7 +48,7 @@ report 17300 "Calculate Tax Diff. for FE"
                     then begin
                         xRecTaxDiffJnlLine := TaxDiffJnlLine;
                         TaxDiffJnlLine."Line No." += 10000;
-                        TaxDiffJnlLine.Init;
+                        TaxDiffJnlLine.Init();
                         TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
                         TaxDiffJnlLine."Posting Date" := PostingDate;
                         if TaxDiffJnlLine."Document No." = '' then
@@ -62,7 +62,7 @@ report 17300 "Calculate Tax Diff. for FE"
                             TaxDiffJnlLine."Disposal Mode" := TaxDiffJnlLine."Disposal Mode"::Transform;
                             TaxDiffJnlLine."Disposal Date" := DisposalDate;
                         end;
-                        TaxDiffJnlLine.Insert;
+                        TaxDiffJnlLine.Insert();
                     end;
                 end else
                     if ((AccountDepreciation = 0) and (TaxAccountDepreciation = 0)) and
@@ -70,7 +70,7 @@ report 17300 "Calculate Tax Diff. for FE"
                     then begin
                         xRecTaxDiffJnlLine := TaxDiffJnlLine;
                         TaxDiffJnlLine."Line No." += 10000;
-                        TaxDiffJnlLine.Init;
+                        TaxDiffJnlLine.Init();
                         TaxDiffJnlLine.SetUpNewLine(xRecTaxDiffJnlLine);
                         TaxDiffJnlLine."Posting Date" := PostingDate;
                         if TaxDiffJnlLine."Document No." = '' then
@@ -81,7 +81,7 @@ report 17300 "Calculate Tax Diff. for FE"
                         TaxDiffJnlLine.Validate("Tax Diff. Code", "Tax Difference Code");
                         TaxDiffJnlLine."Amount (Base)" := Abs(TaxAcquisCost);
                         TaxDiffJnlLine.Validate("Amount (Tax)", Abs(AccAcquisCost));
-                        TaxDiffJnlLine.Insert;
+                        TaxDiffJnlLine.Insert();
                     end;
             end;
 
@@ -254,9 +254,9 @@ report 17300 "Calculate Tax Diff. for FE"
             if not Confirm(Text1002, true, TaxDiffJnlLine.FieldCaption("Posting Date")) then
                 DisposalDate := 0D;
 
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Future Depr. Book");
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         TaxRegisterSetup.TestField("Future Exp. Depreciation Book");
     end;
 

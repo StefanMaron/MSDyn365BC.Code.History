@@ -47,7 +47,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                     SalesLine: Record "Sales Line";
                 begin
                     if not "Warehouse Shipment Line"."Assemble to Order" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SalesLine.Get("Warehouse Shipment Line"."Source Subtype",
                       "Warehouse Shipment Line"."Source No.",
@@ -66,7 +66,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                 if Location."Directed Put-away and Pick" then
                     CheckBin(0, 0);
 
-                WhseWkshLine.Reset;
+                WhseWkshLine.Reset();
                 WhseWkshLine.SetCurrentKey(
                   "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
                 WhseWkshLine.SetRange(

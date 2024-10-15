@@ -40,11 +40,9 @@ table 12403 "Gen. Journal Line Archive"
             Caption = 'Posting Date';
             ClosingDates = true;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; "Document No."; Code[20])
         {
@@ -188,11 +186,9 @@ table 12403 "Gen. Journal Line Archive"
         {
             Caption = 'On Hold';
         }
-        field(35; "Applies-to Doc. Type"; Option)
+        field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applies-to Doc. No."; Code[20])
         {
@@ -292,12 +288,10 @@ table 12403 "Gen. Journal Line Archive"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(60; "VAT Calculation Type"; Option)
+        field(60; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(61; "EU 3-Party Trade"; Boolean)
         {
@@ -331,12 +325,10 @@ table 12403 "Gen. Journal Line Archive"
             Caption = 'Bal. Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(67; "Bal. VAT Calculation Type"; Option)
+        field(67; "Bal. VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Bal. VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(68; "Bal. VAT %"; Decimal)
         {
@@ -951,11 +943,9 @@ table 12403 "Gen. Journal Line Archive"
                                                                                                                                                                      "Unrealized VAT Entry No." = FILTER(<> 0),
                                                                                                                                                                      "Prepmt. Diff." = CONST(false));
         }
-        field(12423; "Object Type"; Option)
+        field(12423; "Object Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Object Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,Employee';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset",Employee;
         }
         field(12424; "Object No."; Code[20])
         {

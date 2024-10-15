@@ -21,9 +21,6 @@ report 12446 "Vendor Entries Analysis"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(ReportCurrency; ReportCurrency)
             {
                 OptionCaption = 'LCY,Entry Currency';
@@ -120,14 +117,14 @@ report 12446 "Vendor Entries Analysis"
                         if Value > 0 then
                             SignBalanceBegining := Text003
                         else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     BalanceBegining := Abs(Value);
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if ReportCurrency = ReportCurrency::LCY then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Date Filter", 0D, CalcDate('<-1D>', DateStartedOfPeriod));
                 end;
@@ -265,7 +262,7 @@ report 12446 "Vendor Entries Analysis"
                         trigger OnAfterGetRecord()
                         begin
                             if "Vendor Ledger Entry No." = "Vendor Entry"."Entry No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             ApplVendLedgerEntry.Get("Vendor Ledger Entry No.");
                             ApplVendLedgerEntry.CalcFields("Amount (LCY)", Amount);
@@ -375,14 +372,14 @@ report 12446 "Vendor Entries Analysis"
                         if Value > 0 then
                             SignBalanceEnding := Text003
                         else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     BalanceEnding := Abs(Value);
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if ReportCurrency = ReportCurrency::LCY then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Date Filter", 0D, EndingPeriodDate);
                 end;
@@ -419,7 +416,7 @@ report 12446 "Vendor Entries Analysis"
                    ("Debit Amount (LCY)" = 0) and
                    ("Credit Amount (LCY)" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not FirstPage then
                     if NewPageForCustomer then
                         PageCounter += 1;

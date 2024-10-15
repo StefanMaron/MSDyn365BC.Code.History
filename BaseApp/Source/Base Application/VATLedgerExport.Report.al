@@ -29,7 +29,7 @@ report 12460 "VAT Ledger Export"
                 trigger OnPreDataItem()
                 begin
                     if AddSheet or (VATLedgerType = VATLedger.Type::Purchase) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     LineNo := 0;
 
@@ -61,7 +61,7 @@ report 12460 "VAT Ledger Export"
                 trigger OnPostDataItem()
                 begin
                     if AddSheet or (VATLedgerType = VATLedger.Type::Sales) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     ExportPurchVATLedgerLineTotals;
                 end;
@@ -69,7 +69,7 @@ report 12460 "VAT Ledger Export"
                 trigger OnPreDataItem()
                 begin
                     if AddSheet or (VATLedgerType = VATLedger.Type::Sales) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     LineNo := 0;
                 end;
@@ -143,7 +143,7 @@ report 12460 "VAT Ledger Export"
             begin
                 Clear(Totals);
                 if SkipPeriod("Period Start", "Period End") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 AddSheetCounter += 1;
                 StartNewAddSheetSection;
@@ -158,10 +158,10 @@ report 12460 "VAT Ledger Export"
                 AddSheetCounter := 0;
 
                 if not AddSheet or (VATLedgerType = VATLedger.Type::Purchase) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if not SetPeriodFilter(SalesAddSheetPeriod) then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(PurchAddSheetPeriod; Date)
@@ -200,7 +200,7 @@ report 12460 "VAT Ledger Export"
             begin
                 Clear(Totals);
                 if not FillGroupBuffer("Period Start", "Period End") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 AddSheetCounter += 1;
                 StartNewAddSheetSection;
@@ -211,10 +211,10 @@ report 12460 "VAT Ledger Export"
             begin
                 AddSheetCounter := 0;
                 if not AddSheet or (VATLedgerType = VATLedger.Type::Sales) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if not SetPeriodFilter(PurchAddSheetPeriod) then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -264,8 +264,8 @@ report 12460 "VAT Ledger Export"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        TaxRegSetup.Get;
+        CompanyInfo.Get();
+        TaxRegSetup.Get();
 
         case VATLedgerType of
             VATLedger.Type::Purchase:
@@ -523,7 +523,7 @@ report 12460 "VAT Ledger Export"
     begin
         CurrencyDescription := '';
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencyCode := GLSetup."LCY Code";
         end;
 
@@ -607,7 +607,7 @@ report 12460 "VAT Ledger Export"
             VATLedgerLine.SetRange("Corr. VAT Entry Posting Date", PeriodStartDate, PeriodEndDate);
             if VATLedgerLine.FindSet then
                 repeat
-                    VATLedgerConnection.Reset;
+                    VATLedgerConnection.Reset();
                     VATLedgerConnection.SetRange("Connection Type", VATLedgerConnection."Connection Type"::Purchase);
                     VATLedgerConnection.SetRange("Purch. Ledger Code", VATLedger.Code);
                     VATLedgerConnection.SetRange("Purch. Ledger Line No.", VATLedgerLine."Line No.");
@@ -636,7 +636,7 @@ report 12460 "VAT Ledger Export"
                                         Base20 += AdjustingVATLedgerLine.Base20;
                                         Amount20 += AdjustingVATLedgerLine.Amount20;
                                         AdjustingVATEntryBuffer.TransferFields(AdjustingVATEntry);
-                                        AdjustingVATEntryBuffer.Insert;
+                                        AdjustingVATEntryBuffer.Insert();
                                     end;
                                 end;
                             end;
@@ -651,7 +651,7 @@ report 12460 "VAT Ledger Export"
 
         with GroupBuffer do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
 
             if VATLedgerLineBuffer.FindSet then
                 repeat
@@ -678,7 +678,7 @@ report 12460 "VAT Ledger Export"
                 until VATLedgerLineBuffer.Next = 0;
         end;
 
-        GroupBuffer.Reset;
+        GroupBuffer.Reset();
         exit(not GroupBuffer.IsEmpty);
     end;
 

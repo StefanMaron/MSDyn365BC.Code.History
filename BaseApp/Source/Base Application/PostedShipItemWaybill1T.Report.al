@@ -22,14 +22,14 @@ report 12419 "Posted Ship. Item Waybill 1-T"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1.Quantity = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             SalesLine1."Amount Including VAT" := SalesLine1."Amount Including VAT (LCY)";
                             SalesLine1."Unit Price" :=
                               Round(SalesLine1."Amount Including VAT" / SalesLine1.Quantity,
@@ -89,7 +89,7 @@ report 12419 "Posted Ship. Item Waybill 1-T"
                     trigger OnPreDataItem()
                     begin
                         if not BackSideNecessary then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -97,7 +97,6 @@ report 12419 "Posted Ship. Item Waybill 1-T"
                 begin
                     TotalAmount := 0;
                     AmountLineNo := 0;
-                    CurrReport.PageNo := 1;
                     QtyNotItem := 0;
                 end;
 
@@ -111,27 +110,27 @@ report 12419 "Posted Ship. Item Waybill 1-T"
                 begin
                     SalesLine1.SetFilter(Quantity, '<>0');
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, CopiesNumber);
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 DocumentDate := "Posting Date";
                 DocNo := "No.";
 
                 if not ShipmentMethod.Get("Shipment Method Code") then
-                    ShipmentMethod.Init;
+                    ShipmentMethod.Init();
 
                 if not PaymentTerms.Get("Payment Terms Code") then
-                    PaymentTerms.Init;
+                    PaymentTerms.Init();
 
                 Cust.Get("Bill-to Customer No.");
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document No.", "No.");
 
                 if LogInteraction then

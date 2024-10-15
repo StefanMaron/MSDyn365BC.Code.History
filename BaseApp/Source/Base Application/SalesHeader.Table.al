@@ -6,11 +6,9 @@ table 36 "Sales Header"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Sell-to Customer No."; Code[20])
         {
@@ -60,7 +58,7 @@ table 36 "Sales Header"
                         CheckPrepmtInfo(SalesLine);
                         CheckReturnInfo(SalesLine, false);
 
-                        SalesLine.Reset;
+                        SalesLine.Reset();
                     end else begin
                         Rec := xRec;
                         exit;
@@ -82,7 +80,7 @@ table 36 "Sales Header"
                         Error(
                           Text006,
                           FieldCaption("Sell-to Customer No."));
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                 end;
 
                 GetCust("Sell-to Customer No.");
@@ -123,9 +121,6 @@ table 36 "Sales Header"
 
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
-
-                if "No." <> '' then
-                    StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
                 if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> "Sell-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId);
@@ -172,7 +167,7 @@ table 36 "Sales Header"
                             CheckPrepmtInfo(SalesLine);
                             CheckReturnInfo(SalesLine, true);
 
-                            SalesLine.Reset;
+                            SalesLine.Reset();
                         end else
                             "Bill-to Customer No." := xRec."Bill-to Customer No.";
                     end;
@@ -189,7 +184,7 @@ table 36 "Sales Header"
                 CheckCreditLimit;
                 OnAfterCheckBillToCust(Rec, xRec, Cust);
 
-                CopyBillToCustomerAddressFieldsFromCustomer(Cust);
+                SetBillToCustomerAddressFieldsFromCustomer(Cust);
 
                 if not BilltoCustomerNoChanged then
                     if ShippedSalesLinesExist then begin
@@ -240,7 +235,6 @@ table 36 "Sales Header"
                     Customer.Get("Bill-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
-                    xRec := Rec;
                     "Bill-to Name" := Customer.Name;
                     Validate("Bill-to Customer No.", Customer."No.");
                 end;
@@ -341,7 +335,7 @@ table 36 "Sales Header"
                         Error(
                           Text006,
                           FieldCaption("Ship-to Code"));
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                 end;
 
                 if not IsCreditDocType then
@@ -353,7 +347,7 @@ table 36 "Sales Header"
                             "Tax Area Code" := Cust."Tax Area Code";
                         end;
                         ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
-                        CopyShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr);
+                        SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr);
                     end else
                         if "Sell-to Customer No." <> '' then begin
                             GetCust("Sell-to Customer No.");
@@ -556,7 +550,7 @@ table 36 "Sales Header"
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen;
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Payment Discount %" < GLSetup."VAT Tolerance %" then
                     "VAT Base Discount %" := "Payment Discount %"
                 else
@@ -636,7 +630,7 @@ table 36 "Sales Header"
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen;
-                GLSetup.Get;
+                GLSetup.Get();
                 if (CurrFieldNo <> FieldNo("Currency Code")) and (("Currency Code" = xRec."Currency Code") or
                    GLSetup."Enable Russian Accounting")
                 then
@@ -703,7 +697,7 @@ table 36 "Sales Header"
                         SalesLine.TestField("Job Contract Entry No.", 0);
                     end;
 
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                     SalesLine.SetRange("Document Type", "Document Type");
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter("Unit Price", '<>%1', 0);
@@ -725,8 +719,8 @@ table 36 "Sales Header"
                             Currency.InitRoundingPrecision
                         else
                             Currency.Get("Currency Code");
-                        SalesLine.LockTable;
-                        LockTable;
+                        SalesLine.LockTable();
+                        LockTable();
                         SalesLine.FindSet;
                         repeat
                             SalesLine.TestField("Quantity Invoiced", 0);
@@ -755,7 +749,7 @@ table 36 "Sales Header"
                                     SalesLine."Line Amount" := SalesLine.Amount + SalesLine."Inv. Discount Amount";
                             end;
                             OnValidatePricesIncludingVATOnBeforeSalesLineModify(Rec, SalesLine, Currency, RecalculatePrice);
-                            SalesLine.Modify;
+                            SalesLine.Modify();
                         until SalesLine.Next = 0;
                     end;
                     OnAfterChangePricesIncludingVAT(Rec);
@@ -802,11 +796,12 @@ table 36 "Sales Header"
             trigger OnValidate()
             var
                 ApprovalEntry: Record "Approval Entry";
+                EnumAssignmentMgt: Codeunit "Enum Assignment Management";
             begin
                 ValidateSalesPersonOnSalesHeader(Rec, false, false);
 
                 ApprovalEntry.SetRange("Table ID", DATABASE::"Sales Header");
-                ApprovalEntry.SetRange("Document Type", "Document Type");
+                ApprovalEntry.SetRange("Document Type", EnumAssignmentMgt.GetSalesApprovalDocumentType("Document Type"));
                 ApprovalEntry.SetRange("Document No.", "No.");
                 ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
                 if not ApprovalEntry.IsEmpty then
@@ -842,11 +837,9 @@ table 36 "Sales Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -1130,7 +1123,6 @@ table 36 "Sales Header"
                     Customer.Get("Sell-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
-                    xRec := Rec;
                     "Sell-to Customer Name" := Customer.Name;
                     Validate("Sell-to Customer No.", Customer."No.");
                 end;
@@ -1347,11 +1339,9 @@ table 36 "Sales Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -1425,7 +1415,7 @@ table 36 "Sales Header"
             var
                 SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
-                PaymentMethod.Init;
+                PaymentMethod.Init();
                 if "Payment Method Code" <> '' then
                     PaymentMethod.Get("Payment Method Code");
                 if PaymentMethod."Direct Debit" then begin
@@ -1568,13 +1558,11 @@ table 36 "Sales Header"
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
             end;
         }
-        field(117; Reserve; Option)
+        field(117; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Reserve';
             InitValue = Optional;
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(118; "Applies-to ID"; Code[50])
         {
@@ -1594,7 +1582,7 @@ table 36 "Sales Header"
                     CustLedgEntry.SetRange("Applies-to ID", xRec."Applies-to ID");
                     if CustLedgEntry.FindFirst then
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                 end;
             end;
         }
@@ -1609,7 +1597,7 @@ table 36 "Sales Header"
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen;
-                GLSetup.Get;
+                GLSetup.Get();
                 if "VAT Base Discount %" > GLSetup."VAT Tolerance %" then
                     Error(
                       Text007,
@@ -1623,12 +1611,10 @@ table 36 "Sales Header"
                 UpdateSalesLineAmounts;
             end;
         }
-        field(120; Status; Option)
+        field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Released,Pending Approval,Pending Prepayment';
-            OptionMembers = Open,Released,"Pending Approval","Pending Prepayment";
         }
         field(121; "Invoice Discount Calculation"; Option)
         {
@@ -1818,7 +1804,7 @@ table 36 "Sales Header"
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen;
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Payment Discount %" < GLSetup."VAT Tolerance %" then
                     "VAT Base Discount %" := "Payment Discount %"
                 else
@@ -2151,7 +2137,7 @@ table 36 "Sales Header"
                             if Opportunity."Contact No." <> "Sell-to Contact No." then begin
                                 Modify;
                                 Opportunity.Validate("Contact No.", "Sell-to Contact No.");
-                                Opportunity.Modify;
+                                Opportunity.Modify();
                             end
                         end;
                     end else begin
@@ -2349,12 +2335,10 @@ table 36 "Sales Header"
                 end;
             end;
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
 
             trigger OnValidate()
             begin
@@ -2366,6 +2350,7 @@ table 36 "Sales Header"
                 WhseSourceHeader.SalesHeaderVerifyChange(Rec, xRec);
             end;
         }
+
         field(5751; "Shipped Not Invoiced"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
@@ -2545,6 +2530,10 @@ table 36 "Sales Header"
             Editable = false;
             TableRelation = "Return Receipt Header";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
@@ -2645,7 +2634,7 @@ table 36 "Sales Header"
 
                 if "Corrected Doc. Type" <> xRec."Corrected Doc. Type" then begin
                     if "Corrective Doc. Type" <> "Corrective Doc. Type"::Revision then begin
-                        SalesLine.Reset;
+                        SalesLine.Reset();
                         SalesLine.SetRange("Document Type", "Document Type");
                         SalesLine.SetRange("Document No.", "No.");
                         if not SalesLine.IsEmpty then
@@ -2670,7 +2659,7 @@ table 36 "Sales Header"
             begin
                 if ("Corrected Doc. No." <> xRec."Corrected Doc. No.") then begin
                     if "Corrective Doc. Type" <> "Corrective Doc. Type"::Revision then begin
-                        SalesLine.Reset;
+                        SalesLine.Reset();
                         SalesLine.SetRange("Document Type", "Document Type");
                         SalesLine.SetRange("Document No.", "No.");
                         if not SalesLine.IsEmpty then
@@ -2843,7 +2832,7 @@ table 36 "Sales Header"
                                     SalesLine.TestField("Return Qty. Received", 0)
                                 else
                                     SalesLine.TestField("Return Receipt No.", '');
-                            SalesLine.Reset;
+                            SalesLine.Reset();
 
                             CustomerAgreement.Get("Bill-to Customer No.", "Agreement No.");
                             CustomerAgreement.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
@@ -3040,8 +3029,8 @@ table 36 "Sales Header"
         DocSignMgt.DeleteDocSign(DATABASE::"Sales Header", "Document Type", "No.");
 
         ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
-        SalesLine.Reset;
-        SalesLine.LockTable;
+        SalesLine.Reset();
+        SalesLine.LockTable();
 
         WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
         WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -3059,7 +3048,7 @@ table 36 "Sales Header"
 
         SalesCommentLine.SetRange("Document Type", "Document Type");
         SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll;
+        SalesCommentLine.DeleteAll();
 
         if (SalesShptHeader."No." <> '') or
            (SalesInvHeader."No." <> '') or
@@ -3071,7 +3060,7 @@ table 36 "Sales Header"
             Message(PostedDocsToPrintCreatedMsg);
 
         if EnvInfoProxy.IsInvoicing and CustInvoiceDisc.Get(SalesHeader."Invoice Disc. Code") then
-            CustInvoiceDisc.Delete; // Cleanup of autogenerated cust. invoice discounts
+            CustInvoiceDisc.Delete(); // Cleanup of autogenerated cust. invoice discounts
     end;
 
     trigger OnInsert()
@@ -3092,7 +3081,7 @@ table 36 "Sales Header"
         if "Salesperson Code" = '' then
             SetDefaultSalesperson;
 
-        if "Sell-to Customer No." <> '' then
+        if ("Sell-to Customer No." <> '') and (GetFilterCustNo <> '') then
             StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
         DocSignMgt.SetDefaults(DATABASE::"Sales Header", "Document Type", "No.");
@@ -3320,7 +3309,7 @@ table 36 "Sales Header"
         UpdateLocationCode(Cust."Location Code");
 
         if IsCreditDocType then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Correction := GLSetup."Mark Cr. Memos as Corrections";
         end;
 
@@ -3360,7 +3349,6 @@ table 36 "Sales Header"
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldSalesHeader: Record "Sales Header"): Boolean
     var
         SalesHeader2: Record "Sales Header";
@@ -3505,7 +3493,7 @@ table 36 "Sales Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Deleted Document");
         SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -3550,13 +3538,13 @@ table 36 "Sales Header"
 
     local procedure GetSalesSetup()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         OnAfterGetSalesSetup(Rec, SalesSetup, CurrFieldNo);
     end;
 
     procedure SalesLinesExist(): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         exit(not SalesLine.IsEmpty);
@@ -3597,17 +3585,17 @@ table 36 "Sales Header"
             end;
 
         if Confirmed then begin
-            SalesLine.LockTable;
-            ItemChargeAssgntSales.LockTable;
-            ReservEntry.LockTable;
+            SalesLine.LockTable();
+            ItemChargeAssgntSales.LockTable();
+            ReservEntry.LockTable();
             Modify;
             OnBeforeRecreateSalesLines(Rec);
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             OnRecreateSalesLinesOnAfterSetSalesLineFilters(SalesLine);
             if SalesLine.FindSet then begin
-                TempReservEntry.DeleteAll;
+                TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
                 IsHandled := false;
@@ -3630,9 +3618,9 @@ table 36 "Sales Header"
                             RecreateSalesLinesFillItemChargeAssignment(SalesLine, TempSalesLine, TempItemChargeAssgntSales);
 
                         if SalesLine.Type = SalesLine.Type::"Charge (Item)" then begin
-                            TempInteger.Init;
+                            TempInteger.Init();
                             TempInteger.Number := SalesLine."Line No.";
-                            TempInteger.Insert;
+                            TempInteger.Insert();
                         end;
                     end else
                         if not ExtendedTextAdded then begin
@@ -3650,19 +3638,19 @@ table 36 "Sales Header"
                     if TempATOLink.AsmExistsForSalesLine(TempSalesLine) then begin
                         ATOLink := TempATOLink;
                         ATOLink."Document Line No." := SalesLine."Line No.";
-                        ATOLink.Insert;
+                        ATOLink.Insert();
                         ATOLink.UpdateAsmFromSalesLineATOExist(SalesLine);
-                        TempATOLink.Delete;
+                        TempATOLink.Delete();
                     end;
                 until TempSalesLine.Next = 0;
 
                 CreateItemChargeAssgntSales(TempItemChargeAssgntSales, TempSalesLine, TempInteger);
 
                 TempSalesLine.SetRange(Type);
-                TempSalesLine.DeleteAll;
+                TempSalesLine.DeleteAll();
                 OnAfterDeleteAllTempSalesLines(Rec);
                 ClearItemAssgntSalesFilter(TempItemChargeAssgntSales);
-                TempItemChargeAssgntSales.DeleteAll;
+                TempItemChargeAssgntSales.DeleteAll();
             end;
         end else
             Rec := xRec;
@@ -3681,7 +3669,7 @@ table 36 "Sales Header"
                 if not TempItemChargeAssgntSales.Mark then begin
                     TempItemChargeAssgntSales."Applies-to Doc. Line No." := SalesLine."Line No.";
                     TempItemChargeAssgntSales.Description := SalesLine.Description;
-                    TempItemChargeAssgntSales.Modify;
+                    TempItemChargeAssgntSales.Modify();
                     TempItemChargeAssgntSales.Mark(true);
                 end;
             until TempItemChargeAssgntSales.Next = 0;
@@ -3739,7 +3727,7 @@ table 36 "Sales Header"
                 if ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(MissingExchangeRatesQst, "Currency Code", CurrencyDate), true)
                 then begin
-                    Commit;
+                    Commit();
                     UpdateCurrencyExchangeRates.OpenExchangeRatesPage("Currency Code");
                     UpdateCurrencyFactor;
                 end else
@@ -3815,23 +3803,23 @@ table 36 "Sales Header"
         if IsHandled then
             exit;
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SalesLine.SetFilter(Quantity, '<>0');
-        SalesLine.LockTable;
-        LockTable;
+        SalesLine.LockTable();
+        LockTable();
         if SalesLine.FindSet then begin
             Modify;
             repeat
                 if (SalesLine."Quantity Invoiced" <> SalesLine.Quantity) or
-                   ("Shipping Advice" <> "Shipping Advice"::Partial) or
+                   ("Shipping Advice" = "Shipping Advice"::Complete) or
                    (SalesLine.Type <> SalesLine.Type::"Charge (Item)") or
                    (CurrFieldNo <> 0)
                 then begin
                     SalesLine.UpdateAmounts;
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                 end;
             until SalesLine.Next = 0;
         end;
@@ -3884,10 +3872,10 @@ table 36 "Sales Header"
                     ConfirmResvDateConflict;
         end;
 
-        SalesLine.LockTable;
+        SalesLine.LockTable();
         Modify;
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if SalesLine.FindSet then
@@ -3966,7 +3954,7 @@ table 36 "Sales Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -4016,7 +4004,7 @@ table 36 "Sales Header"
 
     procedure ShippedSalesLinesExist(): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Quantity Shipped", '<>0');
@@ -4025,7 +4013,7 @@ table 36 "Sales Header"
 
     procedure ReturnReceiptExist(): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Return Qty. Received", '<>0');
@@ -4072,7 +4060,7 @@ table 36 "Sales Header"
             TestField("Sell-to Customer Template Code");
             GetContact(Cont, "Sell-to Contact No.");
             Cont.CreateCustomer("Sell-to Customer Template Code");
-            Commit;
+            Commit();
             Get("Document Type"::Quote, "No.");
         end;
 
@@ -4081,7 +4069,7 @@ table 36 "Sales Header"
             TestField("Bill-to Customer Template Code");
             GetContact(Cont, "Bill-to Contact No.");
             Cont.CreateCustomer("Bill-to Customer Template Code");
-            Commit;
+            Commit();
             Get("Document Type"::Quote, "No.");
         end;
 
@@ -4167,9 +4155,9 @@ table 36 "Sales Header"
             if ReqLine.FindSet then
                 repeat
                     TempReqLine := ReqLine;
-                    TempReqLine.Insert;
+                    TempReqLine.Insert();
                 until ReqLine.Next = 0;
-            ReqLine.DeleteAll;
+            ReqLine.DeleteAll();
         end else begin
             Clear(TempReqLine);
             TempReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
@@ -4179,9 +4167,9 @@ table 36 "Sales Header"
                 repeat
                     ReqLine := TempReqLine;
                     ReqLine."Order Promising Line ID" := NewSourceRefNo;
-                    ReqLine.Insert;
+                    ReqLine.Insert();
                 until TempReqLine.Next = 0;
-            TempReqLine.DeleteAll;
+            TempReqLine.DeleteAll();
         end;
     end;
 
@@ -4201,7 +4189,7 @@ table 36 "Sales Header"
                 if Cust."Primary Contact No." <> '' then
                     "Sell-to Contact No." := Cust."Primary Contact No."
                 else begin
-                    ContBusRel.Reset;
+                    ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
                     ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                     ContBusRel.SetRange("No.", "Sell-to Customer No.");
@@ -4229,7 +4217,7 @@ table 36 "Sales Header"
             if Cust."Primary Contact No." <> '' then
                 "Bill-to Contact No." := Cust."Primary Contact No."
             else begin
-                ContBusRel.Reset;
+                ContBusRel.Reset();
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                 ContBusRel.SetRange("No.", "Bill-to Customer No.");
@@ -4523,7 +4511,7 @@ table 36 "Sales Header"
                 exit;
         TestField(Status, Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         case "Document Type" of
             "Document Type"::Order:
@@ -4563,7 +4551,7 @@ table 36 "Sales Header"
                   Location."Post Code", Location.County, Location."Country/Region Code");
                 "Ship-to Contact" := Location.Contact;
             end else begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 "Ship-to Code" := '';
                 SetShipToAddress(
                   CompanyInfo."Ship-to Name", CompanyInfo."Ship-to Name 2", CompanyInfo."Ship-to Address", CompanyInfo."Ship-to Address 2",
@@ -4609,10 +4597,10 @@ table 36 "Sales Header"
             if not Confirm(Text064) then
                 exit;
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        SalesLine.LockTable;
+        SalesLine.LockTable();
         if SalesLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(SalesLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -4626,7 +4614,7 @@ table 36 "Sales Header"
                       SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
 
                     OnUpdateAllLineDimOnBeforeSalesLineModify(SalesLine);
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                     ATOLink.UpdateAsmDimFromSalesLine(SalesLine);
                 end;
             until SalesLine.Next = 0;
@@ -4649,8 +4637,8 @@ table 36 "Sales Header"
     begin
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        TempValueEntry.Reset;
-        TempValueEntry.DeleteAll;
+        TempValueEntry.Reset();
+        TempValueEntry.DeleteAll();
 
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice:
@@ -4746,7 +4734,7 @@ table 36 "Sales Header"
                 repeat
                     if Adjustment then begin
                         TempValueEntry := ValueEntry;
-                        if TempValueEntry.Insert then;
+                        if TempValueEntry.Insert() then;
                     end;
                 until Next = 0;
         end;
@@ -4897,7 +4885,7 @@ table 36 "Sales Header"
 
     procedure QtyToShipIsZero(): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Qty. to Ship", '<>0');
@@ -4953,7 +4941,7 @@ table 36 "Sales Header"
         if not IsApprovedForPosting then
             exit;
 
-        Commit;
+        Commit();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
         IsSuccess := CODEUNIT.Run(PostingCodeunitID, Rec);
@@ -4968,7 +4956,7 @@ table 36 "Sales Header"
         SalesPostViaJobQueue.CancelQueueEntry(Rec);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -5034,7 +5022,7 @@ table 36 "Sales Header"
                         then begin
                             if SalesHeader.Get("Document Type"::Quote, Opportunity."Sales Document No.") then begin
                                 SalesHeader."Opportunity No." := '';
-                                SalesHeader.Modify;
+                                SalesHeader.Modify();
                             end;
                             UpdateOpportunityLink(Opportunity, Opportunity."Sales Document Type"::Quote, "No.");
                         end else
@@ -5051,7 +5039,7 @@ table 36 "Sales Header"
     begin
         Opportunity."Sales Document Type" := SalesDocumentType;
         Opportunity."Sales Document No." := SalesHeaderNo;
-        Opportunity.Modify;
+        Opportunity.Modify();
     end;
 
     procedure SynchronizeAsmHeader()
@@ -5070,7 +5058,7 @@ table 36 "Sales Header"
                     if "Posting Date" <> AsmHeader."Posting Date" then begin
                         Window.Open(StrSubstNo(SynchronizingMsg, "No.", AsmHeader."No."));
                         AsmHeader.Validate("Posting Date", "Posting Date");
-                        AsmHeader.Modify;
+                        AsmHeader.Modify();
                         Window.Close;
                     end;
             until ATOLink.Next = 0;
@@ -5097,7 +5085,7 @@ table 36 "Sales Header"
                         Part := 0;
                     SalesLine.Validate("Unit Price", Round(Part * TargetAmount));
                     SalesLine.Validate("Amount Including VAT", SalesLine."Unit Price");
-                    SalesLine.Modify;
+                    SalesLine.Modify();
 
                     SalesLine1 := SalesLine;
                     CalcAmount := CalcAmount + SalesLine."Unit Price";
@@ -5105,7 +5093,7 @@ table 36 "Sales Header"
             until SalesLine.Next = 0;
             if (CalcAmount <> TargetAmount) and (CalcAmount <> 0) then begin
                 SalesLine1.Validate("Unit Price", SalesLine1."Unit Price" + TargetAmount - CalcAmount);
-                SalesLine1.Modify;
+                SalesLine1.Modify();
             end;
         end;
     end;
@@ -5271,7 +5259,7 @@ table 36 "Sales Header"
             repeat
                 CollectParamsInBufferForCreateDimSet(TempSalesLine, SalesLine);
             until SalesLine.Next = 0;
-        TempSalesLine.Reset;
+        TempSalesLine.Reset();
         TempSalesLine.MarkedOnly(false);
         if TempSalesLine.FindSet then
             repeat
@@ -5306,7 +5294,7 @@ table 36 "Sales Header"
 
     local procedure InsertTempSalesLineInBuffer(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line"; AccountNo: Code[20]; DefaultDimensionsNotExist: Boolean)
     begin
-        TempSalesLine.Init;
+        TempSalesLine.Init();
         TempSalesLine."Line No." := SalesLine."Line No.";
         TempSalesLine."No." := AccountNo;
         TempSalesLine."Job No." := SalesLine."Job No.";
@@ -5315,14 +5303,14 @@ table 36 "Sales Header"
         TempSalesLine."Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
         TempSalesLine.Mark := DefaultDimensionsNotExist;
         OnInsertTempSalesLineInBufferOnBeforeTempSalesLineInsert(TempSalesLine, SalesLine);
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     procedure OpenSalesOrderStatistics()
     begin
         CalcInvDiscForHeader;
         CreateDimSetForPrepmtAccDefaultDim;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", Rec);
     end;
 
@@ -5400,16 +5388,16 @@ table 36 "Sales Header"
             TempSalesLine := SalesLine;
             if SalesLine.Nonstock then begin
                 SalesLine.Nonstock := false;
-                SalesLine.Modify;
+                SalesLine.Modify();
             end;
 
             if ATOLink.AsmExistsForSalesLine(TempSalesLine) then begin
                 TempATOLink := ATOLink;
-                TempATOLink.Insert;
-                ATOLink.Delete;
+                TempATOLink.Insert();
+                ATOLink.Delete();
             end;
 
-            TempSalesLine.Insert;
+            TempSalesLine.Insert();
             OnAfterInsertTempSalesLine(SalesLine, TempSalesLine);
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
             RecreateReqLine(SalesLine, 0, true);
@@ -5422,11 +5410,11 @@ table 36 "Sales Header"
         ItemChargeAssgntSales.SetRange("Document No.", "No.");
         if ItemChargeAssgntSales.FindSet then begin
             repeat
-                TempItemChargeAssgntSales.Init;
+                TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssgntSales;
-                TempItemChargeAssgntSales.Insert;
+                TempItemChargeAssgntSales.Insert();
             until ItemChargeAssgntSales.Next = 0;
-            ItemChargeAssgntSales.DeleteAll;
+            ItemChargeAssgntSales.DeleteAll();
         end;
     end;
 
@@ -5438,8 +5426,9 @@ table 36 "Sales Header"
         if IsHandled then
             exit;
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Line No." := SalesLine."Line No." + 10000;
+        SalesLine."Price Calculation Method" := "Price Calculation Method";
         SalesLine.Validate(Type, TempSalesLine.Type);
         OnCreateSalesLineOnAfterAssignType(SalesLine, TempSalesLine);
         if TempSalesLine."No." = '' then begin
@@ -5462,7 +5451,7 @@ table 36 "Sales Header"
         end;
         SalesLine.UpdateCorrLine(TempSalesLine);
         OnBeforeSalesLineInsert(SalesLine, TempSalesLine, Rec);
-        SalesLine.Insert;
+        SalesLine.Insert();
         OnAfterCreateSalesLine(SalesLine, TempSalesLine);
     end;
 
@@ -5478,18 +5467,18 @@ table 36 "Sales Header"
                 if TempItemChargeAssgntSales.FindSet then begin
                     repeat
                         TempInteger.FindFirst;
-                        ItemChargeAssgntSales.Init;
+                        ItemChargeAssgntSales.Init();
                         ItemChargeAssgntSales := TempItemChargeAssgntSales;
                         ItemChargeAssgntSales."Document Line No." := TempInteger.Number;
                         ItemChargeAssgntSales.Validate("Unit Cost", 0);
-                        ItemChargeAssgntSales.Insert;
+                        ItemChargeAssgntSales.Insert();
                     until TempItemChargeAssgntSales.Next = 0;
-                    TempInteger.Delete;
+                    TempInteger.Delete();
                 end;
             until TempSalesLine.Next = 0;
 
         ClearItemAssgntSalesFilter(TempItemChargeAssgntSales);
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     local procedure UpdateOutboundWhseHandlingTime()
@@ -5605,7 +5594,7 @@ table 36 "Sales Header"
             BatchConfirm::Update:
                 UpdateSalesLinesByFieldNo(SalesLine.FieldNo("Deferral Code"), false);
         end;
-        Commit;
+        Commit();
     end;
 
     procedure GetSelectedPaymentServicesText(): Text
@@ -5791,7 +5780,7 @@ table 36 "Sales Header"
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
 
-    local procedure CopyShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
+    procedure SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
     var
         IsHandled: Boolean;
     begin
@@ -5823,7 +5812,7 @@ table 36 "Sales Header"
         OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr);
     end;
 
-    local procedure CopyBillToCustomerAddressFieldsFromCustomer(var BillToCustomer: Record Customer)
+    procedure SetBillToCustomerAddressFieldsFromCustomer(var BillToCustomer: Record Customer)
     begin
         "Bill-to Customer Template Code" := '';
         "Bill-to Name" := BillToCustomer.Name;
@@ -5849,7 +5838,7 @@ table 36 "Sales Header"
         end else
             "Payment Method Code" := BillToCustomer."Payment Method Code";
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
             "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
             "VAT Country/Region Code" := BillToCustomer."Country/Region Code";
@@ -5860,6 +5849,7 @@ table 36 "Sales Header"
         "Currency Code" := BillToCustomer."Currency Code";
         "Customer Price Group" := BillToCustomer."Customer Price Group";
         "Prices Including VAT" := BillToCustomer."Prices Including VAT";
+        "Price Calculation Method" := Cust.GetPriceCalculationMethod();
         "Allow Line Disc." := BillToCustomer."Allow Line Disc.";
         "Invoice Disc. Code" := BillToCustomer."Invoice Disc. Code";
         "Customer Disc. Group" := BillToCustomer."Customer Disc. Group";
@@ -6041,11 +6031,11 @@ table 36 "Sales Header"
             OpportunityEntry.SetRange("Opportunity No.", "Opportunity No.");
             OpportunityEntry.ModifyAll(Active, false);
 
-            OpportunityEntry.Init;
+            OpportunityEntry.Init();
             OpportunityEntry.Validate("Opportunity No.", Opp."No.");
 
-            OpportunityEntry.LockTable;
-            OpportunityEntry."Entry No." := GetOpportunityEntryNo;
+            OpportunityEntry.LockTable();
+            OpportunityEntry."Entry No." := OpportunityEntry.GetLastEntryNo() + 1;
             OpportunityEntry."Sales Cycle Code" := Opp."Sales Cycle Code";
             OpportunityEntry."Contact No." := Opp."Contact No.";
             OpportunityEntry."Contact Company No." := Opp."Contact Company No.";
@@ -6061,17 +6051,8 @@ table 36 "Sales Header"
         Opp.Find;
         Opp."Sales Document Type" := Opp."Sales Document Type"::" ";
         Opp."Sales Document No." := '';
-        Opp.Modify;
+        Opp.Modify();
         "Opportunity No." := '';
-    end;
-
-    local procedure GetOpportunityEntryNo(): Integer
-    var
-        OpportunityEntry: Record "Opportunity Entry";
-    begin
-        if OpportunityEntry.FindLast then
-            exit(OpportunityEntry."Entry No." + 1);
-        exit(1);
     end;
 
     local procedure GetOpportunityEntryEstimatedValue(): Decimal
@@ -6102,7 +6083,7 @@ table 36 "Sales Header"
 
     local procedure InitFromContact(ContactNo: Code[20]; CustomerNo: Code[20]; ContactCaption: Text): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if (ContactNo = '') and (CustomerNo = '') then begin
@@ -6120,7 +6101,7 @@ table 36 "Sales Header"
 
     local procedure InitFromTemplate(TemplateCode: Code[20]; TemplateCaption: Text): Boolean
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         if TemplateCode = '' then begin
@@ -6154,7 +6135,7 @@ table 36 "Sales Header"
             if Cust.Get("Sell-to Customer No.") then
                 if Cust."Tax Area Code" = '' then begin
                     Cust."Tax Area Code" := "Tax Area Code";
-                    Cust.Modify;
+                    Cust.Modify();
                 end;
         end else
             TaxArea.Get("Tax Area Code");
@@ -6233,7 +6214,7 @@ table 36 "Sales Header"
             Contact.Get(Contact."Company No.");
         if not Contact.ContactToCustBusinessRelationExist then
             if ConfirmManagement.GetResponse(SelectCustomerTemplateQst, false) then begin
-                Commit;
+                Commit();
                 exit(Contact.LookupCustomerTemplate);
             end;
     end;
@@ -6485,6 +6466,27 @@ table 36 "Sales Header"
     begin
         SalesLine.TestField("Quantity Shipped", 0);
         OnAfterTestQuantityShippedField(SalesLine);
+    end;
+
+    procedure TestStatusIsNotPendingApproval() NotPending: Boolean;
+    begin
+        NotPending := Status in [Status::Open, Status::"Pending Prepayment", Status::Released];
+
+        OnTestStatusIsNotPendingApproval(Rec, NotPending);
+    end;
+
+    procedure TestStatusIsNotPendingPrepayment() NotPending: Boolean;
+    begin
+        NotPending := Status in [Status::Open, Status::"Pending Approval", Status::Released];
+
+        OnTestStatusIsNotPendingPrepayment(Rec, NotPending);
+    end;
+
+    procedure TestStatusIsNotReleased() NotReleased: Boolean;
+    begin
+        NotReleased := Status in [Status::Open, Status::"Pending Approval", Status::"Pending Prepayment"];
+
+        OnTestStatusIsNotReleased(Rec, NotReleased);
     end;
 
     procedure TestStatusOpen()

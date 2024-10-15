@@ -147,7 +147,7 @@ codeunit 5605 "Calculate Disposal"
                     DisposalType := DisposalType::SecondDisposal;
                 end else begin
                     if SalesDisposal and (DisposalAmount = 0) then begin
-                        GLSetup.Get;
+                        GLSetup.Get();
                         if GLSetup."Enable Russian Accounting" then begin
                             MaxDisposalNo := 1;
                             SalesEntryNo := ErrorNo;

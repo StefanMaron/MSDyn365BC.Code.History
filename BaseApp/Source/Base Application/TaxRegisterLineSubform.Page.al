@@ -40,7 +40,7 @@ page 17204 "Tax Register Line Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Account No.");
                             if GLAcc.FindFirst then;
@@ -63,7 +63,7 @@ page 17204 "Tax Register Line Subform"
                         TaxRegisterName.Get("Section Code", "Tax Register No.");
                         if TaxRegisterName."Table ID" = DATABASE::"Tax Register Item Entry" then
                             TaxRegisterName.FieldError("Table ID");
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Bal. Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Bal. Account No.");
                             if GLAcc.FindFirst then;
@@ -144,7 +144,7 @@ page 17204 "Tax Register Line Subform"
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxRegisterName.Get("Section Code", "Tax Register No.");
         if (TaxRegisterName."Table ID" <> DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
             TaxRegDimFilter.FilterGroup(2);
@@ -165,7 +165,7 @@ page 17204 "Tax Register Line Subform"
         TaxRegGLCorrDimFilter: Record "Tax Reg. G/L Corr. Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxRegisterName.Get("Section Code", "Tax Register No.");
         if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
             TaxRegGLCorrDimFilter.FilterGroup(2);

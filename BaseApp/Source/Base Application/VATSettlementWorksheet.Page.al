@@ -496,14 +496,14 @@ page 14925 "VAT Settlement Worksheet"
                 CalcVATAmount;
                 if "Allocated VAT Amount" <> 0 then begin
                     EntryToPost := Rec;
-                    EntryToPost.Insert;
+                    EntryToPost.Insert();
                 end;
             until Next = 0;
         Rec := CurrRec;
         Reset;
         CopyFilters(Filters);
 
-        EntryToPost.Reset;
+        EntryToPost.Reset();
         EntryToPost.SetFilter("Type Filter", GetFilter("Type Filter"));
         EntryToPost.SetFilter("Date Filter", GetFilter("Date Filter"));
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
@@ -511,8 +511,8 @@ page 14925 "VAT Settlement Worksheet"
         if EntryToPost.IsEmpty then
             Error(Text001);
         VATSettlementMgt.CopyToJnl(EntryToPost, VATEntry);
-        EntryToPost.Reset;
-        EntryToPost.DeleteAll;
+        EntryToPost.Reset();
+        EntryToPost.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -522,7 +522,7 @@ page 14925 "VAT Settlement Worksheet"
         VATAllocation: Page "VAT Allocation";
     begin
         Clear(VATAllocation);
-        VATAllocationLine.Reset;
+        VATAllocationLine.Reset();
         VATAllocationLine.SetCurrentKey("CV Ledger Entry No.");
         VATAllocationLine.SetRange("CV Ledger Entry No.", "Entry No.");
         VATAllocationLine.SetFilter("VAT Settlement Type", GetFilter("Type Filter"));
@@ -556,7 +556,7 @@ page 14925 "VAT Settlement Worksheet"
         if FindFirst then
             repeat
                 EntryNo.Number := "Entry No.";
-                EntryNo.Insert;
+                EntryNo.Insert();
             until Next = 0;
         if EntryNo.IsEmpty then
             Error(Text002);
@@ -575,7 +575,7 @@ page 14925 "VAT Settlement Worksheet"
                 "Allocated VAT Amount" := "VAT Amount To Allocate";
             until Next = 0;
         end;
-        EntryNo.DeleteAll;
+        EntryNo.DeleteAll();
 
         Rec := CurrRec;
         Reset;
@@ -589,7 +589,7 @@ page 14925 "VAT Settlement Worksheet"
         if Type <> xType then begin
             xType := Type;
             Reset;
-            DeleteAll;
+            DeleteAll();
             case Type of
                 Type::Purchase, Type::Sale:
                     SetRange("Type Filter", "Type Filter"::" ");

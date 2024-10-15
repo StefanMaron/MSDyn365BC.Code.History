@@ -1,4 +1,4 @@
-﻿page 17395 "Employee Ledger Entries"
+page 17395 "Employee Ledger Entries"
 {
     Caption = 'Employee Ledger Entries';
     DataCaptionFields = "Employee No.";

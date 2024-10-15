@@ -46,11 +46,11 @@ report 17303 "Calculate FE Depr. with Norm"
                                             if FAJnlLine."Depr. Amount w/o Normalization" <> 0 then begin
                                                 FAJnlLine.Amount := "Depr. Amount w/o Normalization";
                                                 FAJnlLine."Depr. Amount w/o Normalization" := 0;
-                                                FAJnlLine.Modify;
+                                                FAJnlLine.Modify();
                                             end;
 
                                             TempFAJnlLine := FAJnlLine;
-                                            TempFAJnlLine.Insert;
+                                            TempFAJnlLine.Insert();
 
                                             CurrentAmountDeprPlaning -= FAJnlLine.Amount;
                                             PrevAmountDeprActual -= AmountForAddingToAmntActual;
@@ -60,7 +60,7 @@ report 17303 "Calculate FE Depr. with Norm"
                                         end else
                                             if FAJnlLine."Depr. Amount w/o Normalization" <> FAJnlLine.Amount then begin
                                                 FAJnlLine."Depr. Amount w/o Normalization" := FAJnlLine.Amount;
-                                                FAJnlLine.Modify;
+                                                FAJnlLine.Modify();
                                             end;
                                     end;
 
@@ -102,9 +102,6 @@ report 17303 "Calculate FE Depr. with Norm"
                 {
                 }
                 column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
-                {
-                }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
                 {
                 }
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -223,17 +220,17 @@ report 17303 "Calculate FE Depr. with Norm"
                 begin
                     if Number = 1 then begin
                         if not TempFAJnlLine.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TempFAJnlLine.Next(1) = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     FAJnlLine := TempFAJnlLine;
                     FAJnlLine."Depr. Amount w/o Normalization" := TempFAJnlLine.Amount;
                     RoundingAmount := (TempFAJnlLine.Amount * RatingFactor) + RoundingAmount;
                     FAJnlLine.Amount := Round(RoundingAmount);
                     RoundingAmount := RoundingAmount - FAJnlLine.Amount;
-                    FAJnlLine.Modify;
+                    FAJnlLine.Modify();
                 end;
 
                 trigger OnPreDataItem()
@@ -264,8 +261,8 @@ report 17303 "Calculate FE Depr. with Norm"
                 CurrentAmountDeprPlaning := 0;
                 PrevAmountDeprActual := 0;
                 PrevAmountDeprPlaning := 0;
-                TempFAJnlLine.Reset;
-                TempFAJnlLine.DeleteAll;
+                TempFAJnlLine.Reset();
+                TempFAJnlLine.DeleteAll();
             end;
 
             trigger OnPreDataItem()

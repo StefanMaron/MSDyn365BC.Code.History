@@ -21,7 +21,7 @@ codeunit 135504 "Payment Terms Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -39,7 +39,7 @@ codeunit 135504 "Payment Terms Entity E2E Test"
         PaymentTermCode := CreatePaymentTerm;
 
         // [WHEN] we retrieve the payment term from the database
-        PaymentTerms.Reset;
+        PaymentTerms.Reset();
         PaymentTerms.Get(PaymentTermCode);
         PaymentTermsId := PaymentTerms.Id;
 
@@ -64,7 +64,7 @@ codeunit 135504 "Payment Terms Entity E2E Test"
         Initialize;
         for Count := 1 to 2 do
             PaymentTermCode[Count] := CreatePaymentTerm;
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Payment Terms API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Payment Terms Entity", ServiceNameTxt);

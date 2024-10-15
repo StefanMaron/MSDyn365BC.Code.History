@@ -19,7 +19,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
             Status := Status::Released;
         end;
         TransHeader := Rec;
@@ -41,7 +41,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
 
             CheckDim;
 
-            TransLine.Reset;
+            TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
             TransLine.SetRange("Derived From Line No.", 0);
             TransLine.SetFilter(Quantity, '<>%1', 0);
@@ -67,21 +67,21 @@ codeunit 12469 "TransferOrder-Post Transfer"
 
             Window.Update(1, StrSubstNo(Text004, "No."));
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get;
+            InvtSetup.Get();
             InvtSetup.TestField("Posted Direct Transfer Nos.");
 
-            NoSeriesLine.LockTable;
+            NoSeriesLine.LockTable();
             if NoSeriesLine.FindLast then;
             if InvtSetup."Automatic Cost Posting" then begin
-                GLEntry.LockTable;
+                GLEntry.LockTable();
                 if GLEntry.FindLast then;
             end;
 
             // Insert shipment header
-            DirectTransHeader.LockTable;
-            DirectTransHeader.Init;
+            DirectTransHeader.LockTable();
+            DirectTransHeader.Init();
             DirectTransHeader."Transfer-from Code" := "Transfer-from Code";
             DirectTransHeader."Transfer-from Name" := "Transfer-from Name";
             DirectTransHeader."Transfer-from Name 2" := "Transfer-from Name 2";
@@ -113,7 +113,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
             DirectTransHeader."No." :=
               NoSeriesMgt.GetNextNo(
                 InvtSetup."Posted Direct Transfer Nos.", "Posting Date", true);
-            DirectTransHeader.Insert;
+            DirectTransHeader.Insert();
 
             DocSignMgt.MoveDocSignToPostedDocSign(
               DocSign, DATABASE::"Transfer Header", 0, "No.",
@@ -125,7 +125,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
 
             // Insert shipment lines
             LineCount := 0;
-            DirectTransLine.LockTable;
+            DirectTransLine.LockTable();
             TransLine.SetRange(Quantity);
             if TransLine.FindSet then begin
                 repeat
@@ -141,7 +141,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
                             TransLine.TestField("Unit Volume");
                     end;
 
-                    DirectTransLine.Init;
+                    DirectTransLine.Init();
                     DirectTransLine."Document No." := DirectTransHeader."No.";
                     DirectTransLine."Line No." := TransLine."Line No.";
                     DirectTransLine."Item No." := TransLine."Item No.";
@@ -179,11 +179,11 @@ codeunit 12469 "TransferOrder-Post Transfer"
                             PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 1);
                     end;
 
-                    DirectTransLine.Insert;
+                    DirectTransLine.Insert();
                 until TransLine.Next = 0;
             end;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -191,7 +191,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
                 InvtAdjmt.MakeMultiLevelAdjmt;
             end;
 
-            LockTable;
+            LockTable();
             "Last Shipment No." := DirectTransHeader."No.";
             "Last Receipt No." := DirectTransHeader."No.";
             Modify;
@@ -240,7 +240,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Transfer Header"; DirectTransLine2: Record "Direct Transfer Line")
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Posting Date" := DirectTransHeader2."Posting Date";
         ItemJnlLine."Document Date" := DirectTransHeader2."Posting Date";
         ItemJnlLine."Document No." := DirectTransHeader2."No.";
@@ -293,7 +293,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
                 InvtCommentLine2 := InvtCommentLine;
                 InvtCommentLine2."Document Type" := InvtCommentLine2."Document Type"::"Posted Direct Transfer";
                 InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert;
+                InvtCommentLine2.Insert();
             until InvtCommentLine.Next = 0;
     end;
 
@@ -347,20 +347,20 @@ codeunit 12469 "TransferOrder-Post Transfer"
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
     begin
-        TempHandlingSpecification2.Reset;
+        TempHandlingSpecification2.Reset();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
             TempHandlingSpecification2.SetRange("Buffer Status", 0);
             if TempHandlingSpecification2.Find('-') then begin
                 repeat
-                    ItemEntryRelation.Init;
+                    ItemEntryRelation.Init();
                     ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
                     ItemEntryRelation.TransferFieldsDirectTransLine(DirectTransLine);
-                    ItemEntryRelation.Insert;
+                    ItemEntryRelation.Insert();
                     TempHandlingSpecification := TempHandlingSpecification2;
                     TempHandlingSpecification.SetSource(
                       DATABASE::"Transfer Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.", '', DirectTransLine."Line No.");
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
-                    TempHandlingSpecification.Insert;
+                    TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next = 0;
                 exit(0);
             end;
@@ -373,7 +373,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
     var
         DummySpecification: Record "Tracking Specification";
     begin
-        TempHandlingSpecification.Reset;
+        TempHandlingSpecification.Reset();
         TempHandlingSpecification.SetRange("Source Prod. Order Line", ToTransLine."Derived From Line No.");
         if TempHandlingSpecification.Find('-') then begin
             repeat
@@ -381,7 +381,7 @@ codeunit 12469 "TransferOrder-Post Transfer"
                   FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", 1, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next = 0;
-            TempHandlingSpecification.DeleteAll;
+            TempHandlingSpecification.DeleteAll();
         end;
 
         if TransferQty > 0 then

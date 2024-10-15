@@ -2,7 +2,7 @@ table 1703 "Deferral Post. Buffer"
 {
     Caption = 'Deferral Post. Buffer';
     ObsoleteReason = 'Replace with tab 1703 Deferral Posting Buffer';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ReplicateData = false;
     ObsoleteTag = '15.0';
 

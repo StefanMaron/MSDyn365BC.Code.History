@@ -149,7 +149,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     local procedure InitEntrySummaryFEFO()
     begin
         with TempGlobalEntrySummary do begin
-            DeleteAll;
+            DeleteAll();
             Reset;
             SetCurrentKey("Lot No.", "Serial No.", "CD No.");
         end;
@@ -238,7 +238,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     begin
         OnBeforeSetSource(SourceType2, SourceSubType2, SourceNo2, SourceLineNo2, SourceSubLineNo2);
 
-        SourceReservationEntry.Reset;
+        SourceReservationEntry.Reset();
         CreatePick.SetFiltersOnReservEntry(
           SourceReservationEntry, SourceType2, SourceSubType2, SourceNo2, SourceLineNo2, SourceSubLineNo2);
         SourceSet := true;

@@ -33,7 +33,7 @@ table 17389 "Employee Absence Entry"
             trigger OnValidate()
             begin
                 if "Entry Type" = "Entry Type"::Accrual then begin
-                    EmployeeAbsenceEntry.Reset;
+                    EmployeeAbsenceEntry.Reset();
                     EmployeeAbsenceEntry.SetCurrentKey("Employee No.");
                     EmployeeAbsenceEntry.SetRange("Employee No.", "Employee No.");
                     EmployeeAbsenceEntry.SetRange("Time Activity Code", "Time Activity Code");
@@ -183,7 +183,7 @@ table 17389 "Employee Absence Entry"
         TestField("Entry Type", "Entry Type"::Accrual);
 
         if "Entry No." = 0 then begin
-            EmployeeAbsenceEntry.Reset;
+            EmployeeAbsenceEntry.Reset();
             if EmployeeAbsenceEntry.FindLast then
                 "Entry No." := EmployeeAbsenceEntry."Entry No." + 1
             else
@@ -204,5 +204,12 @@ table 17389 "Employee Absence Entry"
     var
         EmployeeAbsenceEntry: Record "Employee Absence Entry";
         Text004: Label 'Accrual for %1 with %2 for period from %3 to %4 already exist.';
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 }
 

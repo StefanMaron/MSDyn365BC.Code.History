@@ -67,7 +67,7 @@ report 17359 "Form 1-NDFL"
                 else
                     ExcelMgt.FillCell('CC22', '1');
 
-                AltAddr.Reset;
+                AltAddr.Reset();
                 AltAddr.SetRange("Person No.", Employee."Person No.");
                 AltAddr.SetRange("Address Type", AltAddr."Address Type"::Registration);
                 if AltAddr.FindLast then begin
@@ -141,7 +141,7 @@ report 17359 "Form 1-NDFL"
                     SetRange("Person Income No.", "Person Income Header"."No.");
                     SetRange("Entry Type", "Entry Type"::"Accrued Income Tax");
 
-                    PersonIncomeEntry.Reset;
+                    PersonIncomeEntry.Reset();
                     PersonIncomeEntry.SetRange("Person Income No.", "Person Income Header"."No.");
                     PersonIncomeEntry.SetRange("Entry Type", "Entry Type"::"Accrued Income Tax");
                     PersonIncomeEntry.SetFilter("Tax %", '%1|%2', "Tax %"::"13", "Tax %"::"30");
@@ -164,7 +164,7 @@ report 17359 "Form 1-NDFL"
                             J := ConvertPeriodCode2ColNo("Period Code");
                             Ch4Amounts[6] [J] += Amount;
                         until Next = 0;
-                    DeleteAll;
+                    DeleteAll();
                 end;
 
                 InitColumns(3);
@@ -179,7 +179,7 @@ report 17359 "Form 1-NDFL"
                                 ExcelMgt.FillCell(Columns[J] + Format(7 + I), Format(Ch4IncomeAmount[I, J], 0, 1));
                     end;
 
-                PersonIncomeEntry.Reset;
+                PersonIncomeEntry.Reset();
                 PersonIncomeEntry.SetRange("Person Income No.", "No.");
                 PersonIncomeEntry.SetFilter("Tax Deduction Code", '<>%1', '');
                 if PersonIncomeEntry.FindSet then
@@ -249,7 +249,7 @@ report 17359 "Form 1-NDFL"
                     SetRange("Person Income No.", "Person Income Header"."No.");
                     SetRange("Entry Type", "Entry Type"::"Accrued Income Tax");
 
-                    PersonIncomeEntry.Reset;
+                    PersonIncomeEntry.Reset();
                     PersonIncomeEntry.SetRange("Person Income No.", "Person Income Header"."No.");
                     PersonIncomeEntry.SetRange("Entry Type", "Entry Type"::"Accrued Income Tax");
                     if PersonIncomeEntry.FindSet then
@@ -268,16 +268,16 @@ report 17359 "Form 1-NDFL"
                     Reset;
                     if FindSet then
                         repeat
-                            TempPersonIncomeEntryByDate.Init;
+                            TempPersonIncomeEntryByDate.Init();
                             TempPersonIncomeEntryByDate := TempPersonIncomeEntry;
-                            TempPersonIncomeEntryByDate.Insert;
+                            TempPersonIncomeEntryByDate.Insert();
                             if not TempPersonIncomeEntryByDate.Interim then
                                 TotalAccruals += TempPersonIncomeEntryByDate.Amount;
                         until Next = 0;
-                    DeleteAll;
+                    DeleteAll();
                 end;
 
-                TempPersonIncomeEntry.DeleteAll;
+                TempPersonIncomeEntry.DeleteAll();
                 with PersonIncomeEntry do begin
                     TotalPayments := 0;
                     Reset;
@@ -285,20 +285,20 @@ report 17359 "Form 1-NDFL"
                     SetRange("Entry Type", "Entry Type"::"Paid Income Tax");
                     if FindSet then
                         repeat
-                            TempPersonIncomeEntryByDate.Init;
+                            TempPersonIncomeEntryByDate.Init();
                             TempPersonIncomeEntryByDate := PersonIncomeEntry;
-                            TempPersonIncomeEntryByDate.Insert;
+                            TempPersonIncomeEntryByDate.Insert();
                             TempPersonIncomeEntry.SetRange("Posting Date", TempPersonIncomeEntryByDate."Posting Date");
                             if not TempPersonIncomeEntry.FindFirst then begin
                                 TempPersonIncomeEntry := TempPersonIncomeEntryByDate;
-                                TempPersonIncomeEntry.Insert;
+                                TempPersonIncomeEntry.Insert();
                                 TotalPayments += TempPersonIncomeEntryByDate.Amount;
                             end;
                         until Next = 0;
                 end;
 
                 with TempPersonIncomeEntryByDate do begin
-                    TempPersonIncomeEntry.Reset;
+                    TempPersonIncomeEntry.Reset();
                     TempPersonIncomeEntry.SetCurrentKey("Posting Date");
                     Reset;
                     SetCurrentKey("Posting Date");
@@ -329,13 +329,13 @@ report 17359 "Form 1-NDFL"
                                                 if VendLedgEntry.Get("Vendor Ledger Entry No.") then begin
                                                     VendLedgEntry.CalcFields(Amount);
                                                     ExcelMgt.FillCell('BQ' + Format(Ch5RowNo), VendLedgEntry."Document No.");
-                                                    BankAccLedgEntry.Reset;
+                                                    BankAccLedgEntry.Reset();
                                                     BankAccLedgEntry.SetCurrentKey("Document No.", "Posting Date");
                                                     BankAccLedgEntry.SetRange("Document No.", VendLedgEntry."Document No.");
                                                     BankAccLedgEntry.SetRange("Posting Date", VendLedgEntry."Posting Date");
                                                     BankAccLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type");
                                                     if BankAccLedgEntry.FindFirst then begin
-                                                        CheckLedgEntry.Reset;
+                                                        CheckLedgEntry.Reset();
                                                         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
                                                         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                                         if CheckLedgEntry.FindFirst then begin
@@ -418,8 +418,8 @@ report 17359 "Form 1-NDFL"
         if DocumentDate = 0D then
             Error(Text000);
 
-        HumanResSetup.Get;
-        CompanyInfo.Get;
+        HumanResSetup.Get();
+        CompanyInfo.Get();
 
         HumanResSetup.TestField("NDFL-1 Template Code");
         FileName := ExcelTemplate.OpenTemplate(HumanResSetup."NDFL-1 Template Code");
@@ -544,7 +544,7 @@ report 17359 "Form 1-NDFL"
             SetRange("Person Income No.", "Person Income Header"."No.");
             SetRange("Entry Type", "Entry Type"::"Taxable Income");
 
-            PersonIncomeEntry.Reset;
+            PersonIncomeEntry.Reset();
             PersonIncomeEntry.SetRange("Person Income No.", "Person Income Header"."No.");
             PersonIncomeEntry.SetRange("Entry Type", "Entry Type"::"Taxable Income");
             PersonIncomeEntry.SetFilter("Tax Code", '<>%1', '');
@@ -576,7 +576,7 @@ report 17359 "Form 1-NDFL"
                     ExcelMgt.FillCell('CA' + Format(RowNo), Format(Base));
                     RowNo += 1;
                 until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 

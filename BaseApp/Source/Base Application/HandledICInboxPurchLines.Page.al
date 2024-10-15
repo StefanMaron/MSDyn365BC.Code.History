@@ -1,4 +1,4 @@
-﻿page 651 "Handled IC Inbox Purch. Lines"
+page 651 "Handled IC Inbox Purch. Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

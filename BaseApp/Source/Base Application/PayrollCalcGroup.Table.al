@@ -41,9 +41,9 @@ table 17402 "Payroll Calc Group"
 
     trigger OnDelete()
     begin
-        PayrollCalcGroupLine.Reset;
+        PayrollCalcGroupLine.Reset();
         PayrollCalcGroupLine.SetRange("Payroll Calc Group", Code);
-        PayrollCalcGroupLine.DeleteAll;
+        PayrollCalcGroupLine.DeleteAll();
     end;
 
     var

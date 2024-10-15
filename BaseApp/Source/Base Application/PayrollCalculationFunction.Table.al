@@ -51,7 +51,7 @@ table 17408 "Payroll Calculation Function"
 
     trigger OnDelete()
     begin
-        PayrollCalculationLine.Reset;
+        PayrollCalculationLine.Reset();
         PayrollCalculationLine.SetRange("Function Code", Code);
         if PayrollCalculationLine.FindFirst then
             Error(Text000, PayrollCalculationLine."Element Code");

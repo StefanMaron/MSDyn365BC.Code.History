@@ -45,11 +45,11 @@ page 17215 "Tax Register Field Select"
     [Scope('OnPrem')]
     procedure GetSelectionField(var TempSelectionField: Record "Field" temporary)
     begin
-        TempSelectionField.DeleteAll;
+        TempSelectionField.DeleteAll();
         if SelectionField.Find('-') then
             repeat
                 TempSelectionField := SelectionField;
-                TempSelectionField.Insert;
+                TempSelectionField.Insert();
             until SelectionField.Next(1) = 0;
     end;
 

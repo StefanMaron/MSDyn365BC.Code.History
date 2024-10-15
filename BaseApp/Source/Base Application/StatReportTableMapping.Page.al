@@ -684,7 +684,7 @@ page 26592 "Stat. Report Table Mapping"
                 MatrixRecords[i] := StatReportTableColumn;
                 MATRIX_CaptionSet[i] := StatReportTableColumn."Column Header";
             until StatReportTableColumn.Next = 0;
-        MATRIX_CurrentNoOfMatrixColumn := StatReportTableColumn.Count;
+        MATRIX_CurrentNoOfMatrixColumn := StatReportTableColumn.Count();
 
         Field1Visible := MATRIX_CaptionSet[1] <> '';
         Field2Visible := MATRIX_CaptionSet[2] <> '';
@@ -753,7 +753,7 @@ page 26592 "Stat. Report Table Mapping"
              "Line No.",
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then
-            StatReportTableMapping.Delete;
+            StatReportTableMapping.Delete();
     end;
 }
 

@@ -23,7 +23,7 @@ report 12461 "VAT Ledger Export XML"
                 trigger OnPreDataItem()
                 begin
                     if AddSheet or (VATLedgerType = VATLedger.Type::Purchase) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Type, VATLedgerType);
                     SetRange(Code, VATLedgerCode);
                     SetRange("Additional Sheet", AddSheet);
@@ -44,7 +44,7 @@ report 12461 "VAT Ledger Export XML"
                 trigger OnPreDataItem()
                 begin
                     if AddSheet or (VATLedgerType = VATLedger.Type::Sales) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Type, VATLedgerType);
                     SetRange(Code, VATLedgerCode);
                     SetRange("Additional Sheet", AddSheet);
@@ -78,7 +78,7 @@ report 12461 "VAT Ledger Export XML"
                 trigger OnPreDataItem()
                 begin
                     if (not AddSheet) or (VATLedgerType = VATLedger.Type::Purchase) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Type, VATLedgerType);
                     SetRange(Code, VATLedgerCode);
                     SetRange("Additional Sheet", AddSheet);
@@ -99,7 +99,7 @@ report 12461 "VAT Ledger Export XML"
                 trigger OnPreDataItem()
                 begin
                     if (not AddSheet) or (VATLedgerType = VATLedger.Type::Sales) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Type, VATLedgerType);
                     SetRange(Code, VATLedgerCode);
@@ -113,7 +113,7 @@ report 12461 "VAT Ledger Export XML"
                 CreateFileElement(FileId);
                 CreateDocumentElement(VATLedgerType, CorrectionNo);
                 if ActCriteria then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if VATLedgerType = Type::Sales then
                     CreateSalesLedgerElement(VATLedger)
                 else
@@ -206,7 +206,7 @@ report 12461 "VAT Ledger Export XML"
     trigger OnPreReport()
     begin
         TempErrorMessage.ClearLog;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
     end;
 
@@ -314,7 +314,7 @@ report 12461 "VAT Ledger Export XML"
                 if StrLen(Customer."VAT Registration No.") = 10 then
                     TempErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("KPP Code"), TempErrorMessage."Message Type"::Error);
                 if TempErrorMessage.HasErrors(false) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 CVVATRegistrationNo := Customer."VAT Registration No.";
                 CVKPPCode := Customer."KPP Code";
             end else
@@ -327,7 +327,7 @@ report 12461 "VAT Ledger Export XML"
                     if StrLen(Vendor."VAT Registration No.") = 10 then
                         TempErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo("KPP Code"), TempErrorMessage."Message Type"::Error);
                     if TempErrorMessage.HasErrors(false) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
                 CVVATRegistrationNo := Vendor."VAT Registration No.";
                 CVKPPCode := Vendor."KPP Code";
@@ -344,7 +344,7 @@ report 12461 "VAT Ledger Export XML"
             TempErrorMessage.LogIfEmpty(
               CompanyInfo, CompanyInfo.FieldNo("KPP Code"), TempErrorMessage."Message Type"::Error);
         if TempErrorMessage.HasErrors(false) then
-            CurrReport.Skip;
+            CurrReport.Skip();
         CVVATRegistrationNo := CompanyInfo."VAT Registration No.";
         CVKPPCode := CompanyInfo."KPP Code";
     end;
@@ -546,7 +546,7 @@ report 12461 "VAT Ledger Export XML"
         else
             XMLAddComplexElement(KnigaProdTxt);
 
-        Commit;
+        Commit();
         with VATLedgerLine do begin
             SetRange(Type, VATLedger.Type);
             SetRange(Code, VATLedger.Code);
@@ -725,7 +725,7 @@ report 12461 "VAT Ledger Export XML"
         if CurrencyCode = '' then
             exit('');
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."LCY Code" = CurrencyCode then
             exit('');
 

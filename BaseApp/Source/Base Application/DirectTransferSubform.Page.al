@@ -301,7 +301,7 @@ page 14984 "Direct Transfer Subform"
     var
         ReserveTransferLine: Codeunit "Transfer Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveTransferLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveTransferLine.DeleteLine(Rec);

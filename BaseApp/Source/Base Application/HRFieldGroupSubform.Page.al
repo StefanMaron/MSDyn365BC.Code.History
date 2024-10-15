@@ -61,7 +61,7 @@ page 17364 "HR Field Group Subform"
             if HRFieldGroupLine.Find('+') then
                 repeat
                     HRFieldGroupLine."Field Print Order No." += 1;
-                    HRFieldGroupLine.Modify;
+                    HRFieldGroupLine.Modify();
                 until HRFieldGroupLine.Next(-1) = 0;
             "Field Print Order No." := OrderNo;
         end;

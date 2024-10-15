@@ -1,4 +1,4 @@
-﻿page 99000852 "Planning Worksheet"
+page 99000852 "Planning Worksheet"
 {
     AdditionalSearchTerms = 'supply planning,mrp,mps';
     ApplicationArea = Planning;

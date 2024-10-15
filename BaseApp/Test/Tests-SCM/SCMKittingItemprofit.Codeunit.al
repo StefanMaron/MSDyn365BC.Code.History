@@ -54,7 +54,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         LibraryCosting.AdjustCostItemEntries('', '');
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Item profit");
     end;
 
@@ -64,14 +64,14 @@ codeunit 137312 "SCM Kitting - Item profit"
         AssemblySetup: Record "Assembly Setup";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Validate("Stockout Warning", false);
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -157,7 +157,7 @@ codeunit 137312 "SCM Kitting - Item profit"
             TempATOSalesBuffer."Profit %" := CalculateProfit(TempATOSalesBuffer."Sales Amount", TempATOSalesBuffer."Sales Cost");
             TempATOSalesBuffer.Modify(true);
         end else begin
-            TempATOSalesBuffer.Reset;
+            TempATOSalesBuffer.Reset();
             TempATOSalesBuffer.Type := TempATOSalesBuffer.Type::"Total Sale";
             TempATOSalesBuffer."Order No." := '';
             TempATOSalesBuffer."Item No." := ItemLedgerEntry."Item No.";
@@ -187,7 +187,7 @@ codeunit 137312 "SCM Kitting - Item profit"
             TempATOSalesBuffer."Profit %" := CalculateProfit(TempATOSalesBuffer."Sales Amount", TempATOSalesBuffer."Sales Cost");
             TempATOSalesBuffer.Modify(true);
         end else begin
-            TempATOSalesBuffer.Reset;
+            TempATOSalesBuffer.Reset();
             TempATOSalesBuffer.Type := EntryType;
             if EntryType <> TempATOSalesBuffer.Type::"Total Assembly" then begin
                 TempATOSalesBuffer."Order No." := '';
@@ -240,7 +240,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         NoOfRows := 0;
 
         ATOSalesBuffer.Copy(TempATOSalesBuffer);
-        TempATOSalesBuffer.Reset;
+        TempATOSalesBuffer.Reset();
         TempATOSalesBuffer.SetRange("Item No.", ItemNo);
         TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Assembly);
         TempATOSalesBuffer.SetFilter(Quantity, '<>%1', 0);
@@ -258,7 +258,7 @@ codeunit 137312 "SCM Kitting - Item profit"
                 begin
                     TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Assembly);
                     if ShowAsmInfo and (not TempATOSalesBuffer.IsEmpty) then
-                        NoOfRows := TempATOSalesBuffer.Count;
+                        NoOfRows := TempATOSalesBuffer.Count();
                     TempATOSalesBuffer.Copy(ATOSalesBuffer);
                 end;
         end;
@@ -289,7 +289,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         ShowGraphAs: Option Quantity,Sales,ProfitPct;
     begin
         LibraryCosting.AdjustCostItemEntries(Item.GetFilter("No."), '');
-        Commit;
+        Commit();
         RunReportAndOpenFile(Item, ShowGraphAs::Quantity, ShowAsmInfo);
         ProcessILEsToTemp(TempATOSalesBuffer, Item);
     end;
@@ -480,7 +480,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         NoOfRows: Integer;
     begin
         LibraryReportDataset.LoadDataSetFile;
-        TempATOSalesBuffer.Reset;
+        TempATOSalesBuffer.Reset();
         TempATOSalesBuffer.SetFilter("Item No.", Item.GetFilter("No."));
         TempATOSalesBuffer.SetFilter(Quantity, '<>%1', 0);
 
@@ -548,7 +548,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
     local procedure ValidateNoFileCreated(var TempATOSalesBuffer: Record "ATO Sales Buffer" temporary; var Item: Record Item)
     begin
-        Commit;
+        Commit();
         RunReportAndProcessEntries(TempATOSalesBuffer, Item, true);
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Report should be empty.');

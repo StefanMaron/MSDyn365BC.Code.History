@@ -1,4 +1,4 @@
-﻿codeunit 134773 "New Document from Vendor List"
+codeunit 134773 "New Document from Vendor List"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -59,6 +59,49 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure NewPurchaseOrderFromVendor()
+    var
+        Vendor: Record Vendor;
+        DummyPurchaseHeader: Record "Purchase Header";
+        VendorList: TestPage "Vendor List";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // Setup
+        Initialize();
+        LibraryPurchase.CreateVendorWithAddress(Vendor);
+
+        // Execute
+        VendorList.OpenEdit;
+        VendorList.GotoRecord(Vendor);
+
+        PurchaseOrder.Trap;
+        VendorList.NewPurchaseOrder.Invoke;
+
+        // Verification
+        VerifyBillToAddressOnPurchaseOrderIsVendorAddress(PurchaseOrder, Vendor);
+
+        PurchaseOrder."Vendor Invoice No.".SetValue(
+          LibraryUtility.GenerateRandomText(MaxStrLen(DummyPurchaseHeader."Vendor Invoice No.")));
+        PurchaseOrder.Close;
+
+        // Execute
+        PurchaseOrder.Trap;
+        VendorList.NewPurchaseOrder.Invoke;
+
+        // Verification
+        VerifyBillToAddressOnPurchaseOrderIsVendorAddress(PurchaseOrder, Vendor);
+    end;
+
+    local procedure VerifyBillToAddressOnPurchaseOrderIsVendorAddress(PurchaseOrder: TestPage "Purchase Order"; Vendor: Record Vendor)
+    begin
+        PurchaseOrder."Buy-from Vendor Name".AssertEquals(Vendor.Name);
+        PurchaseOrder."Buy-from Address".AssertEquals(Vendor.Address);
+        PurchaseOrder."Buy-from Post Code".AssertEquals(Vendor."Post Code");
+        PurchaseOrder."Buy-from Contact".AssertEquals(Vendor.Contact);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure NewPurchaseCreditMemoFromVendor()
     var
         Vendor: Record Vendor;
@@ -93,8 +136,6 @@
     end;
 
     local procedure Initialize()
-    var
-        NoSeries: Record "No. Series";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor List");
 
@@ -102,13 +143,6 @@
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Document from Vendor List");
-
-        NoSeries.Get('PUR-13');
-        NoSeries."Manual Nos." := false;
-        NoSeries.Modify;
-        NoSeries.Get('PUR-16');
-        NoSeries."Manual Nos." := false;
-        NoSeries.Modify();
 
         Commit();
         isInitialized := true;

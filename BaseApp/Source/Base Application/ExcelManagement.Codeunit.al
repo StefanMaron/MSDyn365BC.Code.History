@@ -44,7 +44,7 @@ codeunit 12416 "Excel Management"
     [Scope('OnPrem')]
     procedure SetActiveWriterSheet(SheetName: Text)
     begin
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
         TempExcelBuffer.SetActiveWriterSheet(SheetName);
         ActiveSheetName := SheetName;
     end;
@@ -98,7 +98,7 @@ codeunit 12416 "Excel Management"
         EndOfLoop: Integer;
         Found: Boolean;
     begin
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
         TempExcelBuffer.SetActiveWriterSheet(SheetName);
         ActiveSheetName := SheetName;
     end;
@@ -108,7 +108,7 @@ codeunit 12416 "Excel Management"
     var
         SheetsQty: Integer;
     begin
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
         TempExcelBuffer.GetWriterSheetNameByNumber(SheetNo);
     end;
 
@@ -123,7 +123,7 @@ codeunit 12416 "Excel Management"
     begin
         TempExcelBuffer.EnterCellByCellName(CellName, CellValueAsText);
         TempExcelBuffer."Cell Type" := TempExcelBuffer."Cell Type"::Text;
-        TempExcelBuffer.Modify;
+        TempExcelBuffer.Modify();
     end;
 
     [Scope('OnPrem')]

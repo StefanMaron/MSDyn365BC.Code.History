@@ -511,7 +511,7 @@ page 17449 "Payroll Payment Journal"
                     var
                         BankAcc: Record "Bank Account";
                     begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -552,7 +552,7 @@ page 17449 "Payroll Payment Journal"
                     trigger OnAction()
                     begin
                         if Confirm(Text001, false) then begin
-                            GenJnlLine.Reset;
+                            GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
                             GenJnlLine.SetRange("Bank Payment Type", "Bank Payment Type"::"Computer Check");
                             GenJnlLine.SetRange("Check Printed", true);

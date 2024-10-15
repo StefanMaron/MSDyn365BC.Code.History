@@ -64,7 +64,7 @@ table 17215 "Tax Register Dim. Comb."
         TaxRegSection.Get("Section Code");
         TaxRegSection.ValidateChangeDeclaration;
 
-        TaxRegDimValueComb.Reset;
+        TaxRegDimValueComb.Reset();
         TaxRegDimValueComb.SetRange("Section Code", "Section Code");
         TaxRegDimValueComb.SetRange("Tax Register No.", "Tax Register No.");
         TaxRegDimValueComb.SetRange("Line No.", "Line No.");
@@ -86,7 +86,7 @@ table 17215 "Tax Register Dim. Comb."
         TaxRegSection.Get("Section Code");
         TaxRegSection.ValidateChangeDeclaration;
 
-        TaxRegDimComb.Reset;
+        TaxRegDimComb.Reset();
         TaxRegDimComb.SetCurrentKey("Section Code", "Entry No.");
         if TaxRegDimComb.FindLast then
             "Entry No." := TaxRegDimComb."Entry No." + 1

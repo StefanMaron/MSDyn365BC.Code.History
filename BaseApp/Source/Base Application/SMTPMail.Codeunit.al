@@ -25,12 +25,14 @@ codeunit 400 "SMTP Mail"
         SendAsTroubleshootingUrlTxt: Label 'https://aka.ms/EmailSetupHelp', Locked = true;
         InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Locked = true;
         BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Locked = true;
-        SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, send as: %2, %3, smtp server: %4, server port: %5, error code: %6', Comment = '%1=the from address, %2=is send as enabled, %3=the send as email, %4=the smtp server, %5=the server port, %6=error code';
+        SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Smtp server: %1, server port: %2, error code: %3', Comment = '%1=the smtp server, %2=the server port, %3=error code';
         SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, smtp server: %2, server port: %3, error code: %4', Comment = '%1=the from address, %2=the smtp server, %3=the server port, %4=error code';
-        SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Send from: %1. Send to: %2, send as: %3, %4, subject: %5, error code: %6', Comment = '%1=the from address, %2=the to address, %3=is send as enabled, %4=the send as email, %5=the subject of the email, %6=error code';
+        SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Login: %1, send from: %2, send to: %3, send cc: %4, send bcc: %5. send as: %6, %7, error code: %8', Comment = '%1=the login address, %2=the from address, %3=the to address, %4=the cc address, %5=the bcc address, %6=is send as enabled, %7=the send as email, %8=error code';
         SmtpConnectedTelemetryMsg: Label 'Connected to SMTP server. Smtp server: %1, server port: %2', Comment = '%1=the smtp server, %2=the server port';
         SmtpAuthenticateTelemetryMsg: Label 'Authenticated to SMTP server.  Authentication email from: %1, smtp server: %2, server port: %3', Comment = '%1=the from address, %2=the smtp server, %3=the server port';
-        SmtpSendTelemetryMsg: Label 'Email sent. Send from: %1, send to: %2, send as: %3, %4, subject: %5', Comment = '%1=the from address, %2=the to address, %3=is send as enabled, %4=the send as email, %5=the subject of the email';
+        SmtpSendTelemetryMsg: Label 'Email sent.';
+        FromEmailParseFailureErr: Label 'The From address %1 could not be parsed correctly.', Comment = '%1=The email address';
+        EmailParseFailureErr: Label 'The address %1 could not be parsed correctly.', Comment = '%1=The email address';
         DetailsActionLbl: Label 'Details';
         ReadMoreActionLbl: Label 'Read more';
         SmtpCategoryLbl: Label 'SMTP', Locked = true;
@@ -56,12 +58,17 @@ codeunit 400 "SMTP Mail"
     /// <remarks>
     /// See https://aka.ms/EmailSetupHelp to learn about the Send As functionality.
     /// </remarks>
+    [TryFunction]
     procedure AddFrom(FromName: Text; FromAddress: Text)
     var
-        MailboxAddress: DotNet MimeMailboxAddress;
+        MailManagement: Codeunit "Mail Management";
+        InternetAddress: DotNet InternetAddress;
     begin
-        MailboxAddress := MailboxAddress.MailboxAddress(FromName, FromAddress);
-        Email.From.Add(MailboxAddress);
+        if MailManagement.CheckValidEmailAddress(FromAddress) and InternetAddress.TryParse(FromAddress, InternetAddress) then begin
+            InternetAddress.Name(FromName);
+            Email.From().Add(InternetAddress);
+        end else
+            Error(FromEmailParseFailureErr, FromAddress);
     end;
 
     /// <summary>
@@ -73,31 +80,16 @@ codeunit 400 "SMTP Mail"
     [TryFunction]
     local procedure TryParseInternetAddressList(InternetAddressList: DotNet InternetAddressList; Addresses: List of [Text])
     var
+        MailManagement: Codeunit "Mail Management";
         InternetAddress: DotNet InternetAddress;
         Address: Text;
-        ErrorMessage: Text;
     begin
         foreach Address in Addresses do begin
-            if InternetAddress.TryParse(Address, InternetAddress) then
+            if MailManagement.CheckValidEmailAddress(Address) and InternetAddress.TryParse(Address, InternetAddress) then
                 InternetAddressList.Add(InternetAddress)
             else
-                ErrorMessage := GetLastErrorText();
+                Error(EmailParseFailureErr, Address);
         end;
-
-        if ErrorMessage <> '' then
-            Error(ErrorMessage);
-    end;
-
-    /// <summary>
-    /// Tries to add the given mailbox to "To"/"Cc"/"Bcc" list.
-    /// </summary>
-    /// <param name="InternetAddressList">The list of addresses output</param>
-    /// <param name="InternetAddress">The address to add to the list</param>
-    /// <returns>True if no errors occurred during parsing.</returns>
-    [TryFunction]
-    local procedure TryAddAddress(InternetAddressList: DotNet InternetAddressList; Mailbox: DotNet InternetAddress)
-    begin
-        InternetAddressList.Add(Mailbox);
     end;
 
     /// <summary>
@@ -128,17 +120,11 @@ codeunit 400 "SMTP Mail"
     end;
 
     local procedure AddToInternetAddressList(InternetAddressList: DotNet InternetAddressList; Recipients: List of [Text])
-    var
-        ErrorMessage: Text;
     begin
-        CheckValidEmailAddresses(FormatListToString(Recipients, ';'));
-
         if not TryParseInternetAddressList(InternetAddressList, Recipients) then begin
-            ErrorMessage := GetLastErrorText();
+            SendTraceTag('0000B5M', SmtpCategoryLbl, Verbosity::Error, StrSubstNo(RecipientErr, FormatListToString(Recipients, ';', true)), DataClassification::EndUserPseudonymousIdentifiers);
+            Error(RecipientErr, FormatListToString(Recipients, ';', false));
         end;
-
-        if ErrorMessage <> '' then
-            ShowErrorNotification(StrSubstNo(RecipientErr, FormatListToString(Recipients, ';')), ErrorMessage);
     end;
 
     /// <summary>
@@ -311,6 +297,7 @@ codeunit 400 "SMTP Mail"
 
     /// <summary>
     /// Creates the email with the name and address it is being sent from, the recipients, subject, and body.
+    /// This overload always uses HTML formatting for the body text.
     /// </summary>
     /// <param name="FromName">The name of the email sender</param>
     /// <param name="FromAddress">The address of the default sender or, when using the Send As or Send on Behalf functionality, the address of the substitute sender</param>
@@ -335,6 +322,7 @@ codeunit 400 "SMTP Mail"
     [TryFunction]
     procedure CreateMessage(FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text; HtmlFormatted: Boolean)
     var
+        SMTPMailInternals: Codeunit "SMTP Mail Internals";
         MailboxAddress: DotNet MimeMailboxAddress;
     begin
         Initialize();
@@ -342,9 +330,6 @@ codeunit 400 "SMTP Mail"
 
         SendResult := '';
 
-        if Recipients.Count() <> 0 then
-            CheckValidEmailAddresses(FormatListToString(Recipients, ';'));
-        CheckValidEmailAddresses(FromAddress);
         SmtpMailSetup.GetSetup;
         SmtpMailSetup.TestField("SMTP Server");
 
@@ -358,6 +343,7 @@ codeunit 400 "SMTP Mail"
             AddTextBody(Body);
 
         HtmlFormattedBody := HtmlFormatted;
+        SMTPMailInternals.OnAfterCreateMessage(Email, BodyBuilder);
     end;
 
     /// <summary>
@@ -371,53 +357,93 @@ codeunit 400 "SMTP Mail"
     var
         Result: Boolean;
         SMTPErrorCode: Text;
+        AddressesList: List of [Text];
+        FromAddresses: Text;
+        ToAddresses: Text;
+        CcAddresses: Text;
+        BccAddresses: Text;
     begin
         SendResult := '';
         OnBeforeSend(SmtpMailSetup);
+        ClearLastError();
         Result := TryConnect();
         if not Result then begin
             SendResult := GetLastErrorText();
             SMTPErrorCode := GetSmtpErrorCodeFromResponse(SendResult);
             SendTraceTag('00009UM', SmtpCategoryLbl, Verbosity::Error,
-                StrSubstNo(SmtpConnectTelemetryErrorMsg, SmtpMailSetup."User ID", SmtpMailSetup."Allow Sender Substitution", SmtpMailSetup."Send As", SmtpMailSetup."SMTP Server", SmtpMailSetup."SMTP Server Port", SMTPErrorCode),
-                DataClassification::EndUserIdentifiableInformation);
+                StrSubstNo(SmtpConnectTelemetryErrorMsg,
+                    SmtpMailSetup."SMTP Server",
+                    SmtpMailSetup."SMTP Server Port",
+                    SMTPErrorCode),
+                DataClassification::OrganizationIdentifiableInformation);
         end
         else begin
             SendTraceTag('00009UN', SmtpCategoryLbl, Verbosity::Normal,
-                StrSubstNo(SmtpConnectedTelemetryMsg, SmtpMailSetup."SMTP Server", SmtpMailSetup."SMTP Server Port"),
-                DataClassification::EndUserIdentifiableInformation);
+                StrSubstNo(SmtpConnectedTelemetryMsg,
+                    SmtpMailSetup."SMTP Server",
+                    SmtpMailSetup."SMTP Server Port"),
+                DataClassification::OrganizationIdentifiableInformation);
 
             if SmtpMailSetup.Authentication <> SmtpMailSetup.Authentication::Anonymous then begin
+                ClearLastError();
                 Result := TryAuthenticate();
 
                 if not Result then begin
                     SendResult := GetLastErrorText();
                     SMTPErrorCode := GetSmtpErrorCodeFromResponse(SendResult);
                     SendTraceTag('00009XS', SmtpCategoryLbl, Verbosity::Error,
-                        StrSubstNo(SmtpAuthenticateTelemetryErrorMsg, SmtpMailSetup."User ID", SmtpMailSetup."SMTP Server", SmtpMailSetup."SMTP Server Port", SMTPErrorCode),
-                        DataClassification::EndUserIdentifiableInformation);
+                        StrSubstNo(SmtpAuthenticateTelemetryErrorMsg,
+                            ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
+                            SmtpMailSetup."SMTP Server",
+                            SmtpMailSetup."SMTP Server Port",
+                            SMTPErrorCode),
+                        DataClassification::EndUserPseudonymousIdentifiers);
                 end
                 else begin
                     SendTraceTag('00009XT', SmtpCategoryLbl, Verbosity::Normal,
-                        StrSubstNo(SmtpAuthenticateTelemetryMsg, SmtpMailSetup."User ID", SmtpMailSetup."SMTP Server", SmtpMailSetup."SMTP Server Port"), DataClassification::EndUserIdentifiableInformation);
+                        StrSubstNo(SmtpAuthenticateTelemetryMsg,
+                            ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
+                            SmtpMailSetup."SMTP Server",
+                            SmtpMailSetup."SMTP Server Port"),
+                        DataClassification::EndUserPseudonymousIdentifiers);
                 end;
             end;
 
             if Result then begin
                 Email.Body := BodyBuilder.ToMessageBody();
-
+                ClearLastError();
                 Result := TrySend();
                 if not Result then begin
                     SendResult := GetLastErrorText();
                     SMTPErrorCode := GetSmtpErrorCodeFromResponse(SendResult);
+
+                    InternetAddressListToList(Email.From(), AddressesList);
+                    FromAddresses := FormatListToString(AddressesList, ';', true);
+                    AddressesList.RemoveRange(1, AddressesList.Count());
+                    InternetAddressListToList(Email."To"(), AddressesList);
+                    ToAddresses := FormatListToString(AddressesList, ';', true);
+                    AddressesList.RemoveRange(1, AddressesList.Count());
+                    InternetAddressListToList(Email."Cc"(), AddressesList);
+                    CcAddresses := FormatListToString(AddressesList, ';', true);
+                    AddressesList.RemoveRange(1, AddressesList.Count());
+                    InternetAddressListToList(Email."Bcc"(), AddressesList);
+                    BccAddresses := FormatListToString(AddressesList, ';', true);
+
                     SendTraceTag('00009UO', SmtpCategoryLbl, Verbosity::Error,
-                    StrSubstNo(SmtpSendTelemetryErrorMsg, SmtpMailSetup."User ID", Email."To".ToString(), SmtpMailSetup."Allow Sender Substitution", SmtpMailSetup."Send As", GetSubject(), SMTPErrorCode),
-                    DataClassification::EndUserIdentifiableInformation);
+                    StrSubstNo(SmtpSendTelemetryErrorMsg,
+                        ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
+                        FromAddresses,
+                        ToAddresses,
+                        CcAddresses,
+                        BccAddresses,
+                        SmtpMailSetup."Allow Sender Substitution",
+                        SmtpMailSetup."Send As",
+                        SMTPErrorCode),
+                    DataClassification::EndUserPseudonymousIdentifiers);
                 end
                 else
-                    SendTraceTag('00009UP', SmtpCategoryLbl, Verbosity::Normal,
-                    StrSubstNo(SmtpSendTelemetryMsg, SmtpMailSetup."User ID", Email."To".ToString(), SmtpMailSetup."Allow Sender Substitution", SmtpMailSetup."Send As", GetSubject()),
-                    DataClassification::EndUserIdentifiableInformation);
+                    SendTraceTag('00009UP', SmtpCategoryLbl, Verbosity::Normal, SmtpSendTelemetryMsg,
+                    DataClassification::SystemMetadata);
             end;
             SmtpClient.Disconnect(true, CancellationToken);
         end;
@@ -462,7 +488,6 @@ codeunit 400 "SMTP Mail"
     /// Tries to connect to the SMTP server.
     /// </summary>
     /// <returns>True if there are no exceptions.</returns>
-    [NonDebuggable]
     [TryFunction]
     local procedure TryAuthenticate()
     var
@@ -523,6 +548,7 @@ codeunit 400 "SMTP Mail"
             FileName := FileManagement.GetFileName(AttachmentPath);
         end;
 
+        ClearLastError();
         Result := TryAddAttachment(FileName, AttachmentStream);
 
         if not Result then begin
@@ -580,6 +606,7 @@ codeunit 400 "SMTP Mail"
     /// <remarks>
     /// If there are multiple addresses, they should be in the following format: 'address1; address2; address3'.
     /// </remarks>
+    [Obsolete('Please call CheckValidEmailAddresses from the Mail Management codeunit directly.', '16.0')]
     procedure CheckValidEmailAddresses(Recipients: Text)
     var
         MailManagement: Codeunit "Mail Management";
@@ -591,15 +618,24 @@ codeunit 400 "SMTP Mail"
     /// Formats a list into a semicolon separated string.
     /// </summary>
     /// <returns>Semicolon separated string of list of texts.</returns>
-    local procedure FormatListToString(List: List of [Text]; Delimiter: Text) String: Text
+    local procedure FormatListToString(List: List of [Text]; Delimiter: Text; Obfuscate: Boolean) String: Text
     var
         Value: Text;
+        Address: Text;
         Counter: Integer;
     begin
-        String += List.Get(1);
+        if List.Count() > 0 then begin
+            if Obfuscate then
+                String += ObsfuscateEmailAddress(List.Get(1))
+            else
+                String += List.Get(1);
 
-        for Counter := 2 to List.Count() do begin
-            String += StrSubstNo('%1 %2', Delimiter, List.Get(Counter));
+            for Counter := 2 to List.Count() do begin
+                Address := List.Get(Counter);
+                if Obfuscate then
+                    Address := ObsfuscateEmailAddress(Address);
+                String += StrSubstNo('%1 %2', Delimiter, Address);
+            end;
         end;
     end;
 
@@ -696,7 +732,10 @@ codeunit 400 "SMTP Mail"
     /// </summary>
     /// <returns>True if there is no error./returns>
     [TryFunction]
-    local procedure TryAddLinkedResources(Filename: Text; Base64Img: Text; ContentType: DotNet MimeContentType; var MimeEntity: DotNet MimeEntity)
+    local procedure TryAddLinkedResources(Filename: Text; Base64Img: Text; ContentType: DotNet MimeContentType;
+
+    var
+        MimeEntity: DotNet MimeEntity)
     var
         Convert: DotNet Convert;
     begin
@@ -710,6 +749,38 @@ codeunit 400 "SMTP Mail"
     procedure GetLastSendMailErrorText(): Text
     begin
         exit(SendResult);
+    end;
+
+    local procedure InternetAddressListToList(IAList: DotNet InternetAddressList;
+    var
+        Addresses: List of [Text])
+    var
+        Mailbox: DotNet MimeMailboxAddress;
+    begin
+        foreach Mailbox in IAList do begin
+            Addresses.Add(Mailbox.Address);
+        end;
+    end;
+
+    local procedure ObsfuscateEmailAddress(Email: Text) ObfuscatedEmail: Text
+    var
+        Username: Text;
+        Domain: Text;
+        Position: Integer;
+    begin
+        Position := StrPos(Email, '@');
+        if Position > 0 then begin
+            Username := DelStr(Email, Position, StrLen(Email) - Position);
+            Domain := DelStr(Email, 1, Position);
+
+            ObfuscatedEmail := StrSubstNo('%1*%2@%3', Username.Substring(1, 1), Username.Substring(Position - 1, 1), Domain);
+        end
+        else begin
+            if StrLen(Email) > 0 then
+                ObfuscatedEmail := Email.Substring(1, 1);
+
+            ObfuscatedEmail += '* (Not a valid email)';
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -1009,4 +1080,6 @@ codeunit 400 "SMTP Mail"
     local procedure OnBeforeCreateMessage(var FromName: Text; var FromAddress: Text; var Recipients: List of [Text]; var Subject: Text; var Body: Text)
     begin
     end;
+
+
 }

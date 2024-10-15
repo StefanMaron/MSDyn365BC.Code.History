@@ -110,8 +110,8 @@ report 17441 "Timesheet T-13"
                         WorkingDaysFirstHalfMonth := 0;
                         WorkingDaysSecondHalfMonth := 0;
 
-                        AbsenceBuffer.Reset;
-                        AbsenceBuffer.DeleteAll;
+                        AbsenceBuffer.Reset();
+                        AbsenceBuffer.DeleteAll();
 
                         IsFirstEntry := true;
                         DayNo := 0;
@@ -131,7 +131,7 @@ report 17441 "Timesheet T-13"
                     if not (("Starting Date" <= LastDay) and
                             (("Ending Date" >= FirstDay) or ("Ending Date" = 0D)))
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     ExcelMgt.FillCell('A' + Format(RowNo), Format(EmployeeReportNumber));
 
@@ -302,13 +302,13 @@ report 17441 "Timesheet T-13"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-13 Template Code");
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."T-13 Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -347,7 +347,7 @@ report 17441 "Timesheet T-13"
     var
         AbsenceRowNo: Integer;
     begin
-        AbsenceBuffer.Reset;
+        AbsenceBuffer.Reset();
         if not AbsenceBuffer.FindSet then
             exit;
 
@@ -374,18 +374,18 @@ report 17441 "Timesheet T-13"
 
         TimeActivity.Get(TimesheetDetail."Time Activity Code");
 
-        AbsenceBuffer.Reset;
+        AbsenceBuffer.Reset();
         IsAbsenceActivity := true;
 
         if TimeActivity."Time Activity Type" > 0 then
             if AbsenceBuffer.Get(ActivityCode) then begin
                 AbsenceBuffer."Column 1 Amt." += Days;
-                AbsenceBuffer.Modify;
+                AbsenceBuffer.Modify();
             end else begin
-                AbsenceBuffer.Init;
+                AbsenceBuffer.Init();
                 AbsenceBuffer."Currency Code" := ActivityCode;
                 AbsenceBuffer."Column 1 Amt." := Days;
-                AbsenceBuffer.Insert;
+                AbsenceBuffer.Insert();
             end
         else
             IsAbsenceActivity := false;
@@ -415,7 +415,7 @@ report 17441 "Timesheet T-13"
         HumResSetup: Record "Human Resources Setup";
         TimeActivityGroup: Record "Time Activity Group";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         if TimeActivityGroup.Get(HumResSetup."T-13 Weekend Work Group code") then
             exit(not TimeActivityGroup.TimeActivityInGroup(ActivityCode, ActivityDate));

@@ -22,7 +22,7 @@ codeunit 14962 PayrlAViewEntryToPayrlEntries
     begin
         PayrollAnalysisView.Get(PayrollAnalysisViewEntry."Analysis View Code");
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         StartDate := PayrollAnalysisViewEntry."Posting Date";
         EndDate := StartDate;
@@ -79,7 +79,7 @@ codeunit 14962 PayrlAViewEntryToPayrlEntries
                        UpdatePayrollAnalysisView.DimSetIDInFilter("Dimension Set ID", PayrollAnalysisView)
                     then begin
                         TempPayrollLedgerEntry := PayrollLedgerEntry;
-                        if TempPayrollLedgerEntry.Insert then;
+                        if TempPayrollLedgerEntry.Insert() then;
                     end;
                 until Next = 0;
         end;

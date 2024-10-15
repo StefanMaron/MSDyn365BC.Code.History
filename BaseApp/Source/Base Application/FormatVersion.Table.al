@@ -137,7 +137,7 @@ table 26573 "Format Version"
 
     trigger OnInsert()
     begin
-        StatutoryReportSetup.Get;
+        StatutoryReportSetup.Get();
         if StatutoryReportSetup."Dflt. XML File Name Elem. Name" <> '' then
             "XML File Name Element Name" := StatutoryReportSetup."Dflt. XML File Name Elem. Name";
     end;
@@ -149,47 +149,58 @@ table 26573 "Format Version"
         StatutoryReportSetup: Record "Statutory Report Setup";
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
-        ExcelMngt: Codeunit "Excel Management";
 
     [Scope('OnPrem')]
     procedure ImportExcelTemplate(FileName: Text[250])
     var
-        RecordRef: RecordRef;
+        ServerFile: File;
+        NVInStream: InStream;
+        NVOutStream: OutStream;
     begin
         CheckLinkedReports;
 
         Clear(TempBlob);
-        if FileName = '' then
-            FileName := FileMgt.BLOBImport(TempBlob, '*.xls')
-        else
-            ExcelMngt.BLOBImportSilent(TempBlob, FileName);
+        if FileName = '' then begin
+            FileName := FileMgt.BLOBImport(TempBlob, '*.xls');
+            TempBlob.CreateInStream(NVInStream);
+        end else begin
+            ServerFile.Open(Filename);
+            ServerFile.CreateInStream(NVInStream);
+        end;
+
+        Rec."Report Template".CreateOutStream(NVOutStream);
+        CopyStream(NVOutStream, NVInStream);
 
         if FileName <> '' then begin
             "Excel File Name" := ParseFileName(FileName);
-            RecordRef.GetTable(Rec);
-            TempBlob.ToRecordRef(RecordRef, FieldNo("Report Template"));
-            RecordRef.SetTable(Rec);
+            ServerFile.Close();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure ImportXMLSchema(FileName: Text[250])
     var
-        RecordRef: RecordRef;
+        ServerFile: File;
+        NVInStream: InStream;
+        NVOutStream: OutStream;
     begin
         CheckLinkedReports;
 
         Clear(TempBlob);
-        if FileName = '' then
-            FileName := FileMgt.BLOBImport(TempBlob, '*.xsd')
-        else
-            ExcelMngt.BLOBImportSilent(TempBlob, FileName);
+        if FileName = '' then begin
+            FileName := FileMgt.BLOBImport(TempBlob, '*.xsd');
+            TempBlob.CreateInStream(NVInStream);
+        end else begin
+            ServerFile.Open(Filename);
+            ServerFile.CreateInStream(NVInStream);
+        end;
+
+        Rec."XML Schema".CreateOutStream(NVOutStream);
+        CopyStream(NVOutStream, NVInStream);
 
         if FileName <> '' then begin
             "XML Schema File Name" := ParseFileName(FileName);
-            RecordRef.GetTable(Rec);
-            TempBlob.ToRecordRef(RecordRef, FieldNo("XML Schema"));
-            RecordRef.SetTable(Rec);
+            ServerFile.Close();
         end;
     end;
 

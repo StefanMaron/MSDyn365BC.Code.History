@@ -18,7 +18,7 @@ table 17385 "Absence Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -109,7 +109,7 @@ table 17385 "Absence Header"
             begin
                 TestField(Status, Status::Open);
 
-                AbsenceLine.Reset;
+                AbsenceLine.Reset();
                 AbsenceLine.SetRange("Document Type", "Document Type");
                 AbsenceLine.SetRange("Document No.", "No.");
                 if not AbsenceLine.IsEmpty then
@@ -291,15 +291,15 @@ table 17385 "Absence Header"
     begin
         TestField(Status, Status::Open);
 
-        AbsenceLine.Reset;
+        AbsenceLine.Reset();
         AbsenceLine.SetRange("Document Type", "Document Type");
         AbsenceLine.SetRange("Document No.", "No.");
-        AbsenceLine.DeleteAll;
+        AbsenceLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
 
         if "No." = '' then begin
             TestNoSeries;
@@ -339,7 +339,7 @@ table 17385 "Absence Header"
     begin
         with AbsenceHeader do begin
             Copy(Rec);
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldAbsenceHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -387,7 +387,7 @@ table 17385 "Absence Header"
     [Scope('OnPrem')]
     procedure AbsenceLinesExist(): Boolean
     begin
-        AbsenceLine.Reset;
+        AbsenceLine.Reset();
         AbsenceLine.SetRange("Document Type", "Document Type");
         AbsenceLine.SetRange("Document No.", "No.");
         exit(AbsenceLine.FindFirst);
@@ -410,7 +410,7 @@ table 17385 "Absence Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -478,10 +478,10 @@ table 17385 "Absence Header"
         if not Confirm(Text064) then
             exit;
 
-        AbsenceLine.Reset;
+        AbsenceLine.Reset();
         AbsenceLine.SetRange("Document Type", "Document Type");
         AbsenceLine.SetRange("Document No.", "No.");
-        AbsenceLine.LockTable;
+        AbsenceLine.LockTable();
         if AbsenceLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(AbsenceLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -489,7 +489,7 @@ table 17385 "Absence Header"
                     AbsenceLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       AbsenceLine."Dimension Set ID", AbsenceLine."Shortcut Dimension 1 Code", AbsenceLine."Shortcut Dimension 2 Code");
-                    AbsenceLine.Modify;
+                    AbsenceLine.Modify();
                 end;
             until AbsenceLine.Next = 0;
     end;

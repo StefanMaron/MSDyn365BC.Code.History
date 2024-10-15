@@ -192,7 +192,7 @@ page 17450 "Vacation Order"
 
                     trigger OnAction()
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         if AbsenceHeader.FindFirst then

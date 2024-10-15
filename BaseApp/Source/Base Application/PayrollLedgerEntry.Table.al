@@ -423,6 +423,13 @@ table 17418 "Payroll Ledger Entry"
         }
     }
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure ShowDimensions()
     var

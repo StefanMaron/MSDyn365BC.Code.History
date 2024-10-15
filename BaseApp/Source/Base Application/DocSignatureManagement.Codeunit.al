@@ -22,7 +22,7 @@ codeunit 12420 "Doc. Signature Management"
             SetRange("Document No.", FromDocNo);
             if FindSet then
                 repeat
-                    ToPostedDocSign.Init;
+                    ToPostedDocSign.Init();
                     ToPostedDocSign."Table ID" := ToTableID;
                     if FromTableID = DATABASE::"FA Document Header" then
                         ToPostedDocSign."Document Type" := FromDocType
@@ -37,7 +37,7 @@ codeunit 12420 "Doc. Signature Management"
                     ToPostedDocSign."Warrant Description" := "Warrant Description";
                     ToPostedDocSign."Warrant No." := "Warrant No.";
                     ToPostedDocSign."Warrant Date" := "Warrant Date";
-                    ToPostedDocSign.Insert;
+                    ToPostedDocSign.Insert();
                 until Next = 0;
         end;
     end;
@@ -57,7 +57,7 @@ codeunit 12420 "Doc. Signature Management"
             SetRange("Document Type", DocType);
             if FindSet then
                 repeat
-                    DocSign.Init;
+                    DocSign.Init();
                     DocSign."Table ID" := "Table ID";
                     DocSign."Document Type" := "Document Type";
                     DocSign."Document No." := DocNo;
@@ -67,7 +67,7 @@ codeunit 12420 "Doc. Signature Management"
                     DocSign."Warrant Description" := "Warrant Description";
                     DocSign."Warrant No." := "Warrant No.";
                     DocSign."Warrant Date" := "Warrant Date";
-                    DocSign.Insert;
+                    DocSign.Insert();
                 until Next = 0;
         end;
     end;
@@ -77,7 +77,7 @@ codeunit 12420 "Doc. Signature Management"
     var
         SignExists: Boolean;
     begin
-        DocSign.Init;
+        DocSign.Init();
         SignExists := DocSign.Get(TableID, DocType, DocNo, EmpType);
         if Check then
             if SignExists and (DocSign."Employee Name" = '') or (not SignExists) then begin
@@ -92,7 +92,7 @@ codeunit 12420 "Doc. Signature Management"
     var
         SignExists: Boolean;
     begin
-        PostedDocSign.Init;
+        PostedDocSign.Init();
         SignExists := PostedDocSign.Get(TableID, DocType, DocNo, EmpType);
         if Check and (PostedDocSign."Employee Name" = '') or (not SignExists) then begin
             PostedDocSign."Employee Type" := EmpType;
@@ -104,7 +104,7 @@ codeunit 12420 "Doc. Signature Management"
     [Scope('OnPrem')]
     procedure InsertDefault(TableID: Integer; DocType: Integer; EmpType: Option Director,Accountant,Cashier,ApprovedBy,ReleasedBy,ReceivedBy,PassedBy,RequestedBy,Chairman,Comm1,Comm2,Comm3,StoredBy; EmpNo: Code[20]; WarrantDesc: Text[30]; WarrantNo: Text[20]; WarrantDate: Date; Mandatory2: Boolean)
     begin
-        DefaultSignSetup.Init;
+        DefaultSignSetup.Init();
         DefaultSignSetup."Table ID" := TableID;
         DefaultSignSetup."Document Type" := DocType;
         DefaultSignSetup."Employee Type" := EmpType;
@@ -114,7 +114,7 @@ codeunit 12420 "Doc. Signature Management"
         DefaultSignSetup."Warrant No." := WarrantNo;
         DefaultSignSetup."Warrant Date" := WarrantDate;
         DefaultSignSetup.Mandatory := Mandatory2;
-        DefaultSignSetup.Insert;
+        DefaultSignSetup.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -132,7 +132,7 @@ codeunit 12420 "Doc. Signature Management"
         DocSign.SetRange("Table ID", TableID);
         DocSign.SetRange("Document Type", DocType);
         DocSign.SetRange("Document No.", DocNo);
-        DocSign.DeleteAll;
+        DocSign.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -140,7 +140,7 @@ codeunit 12420 "Doc. Signature Management"
     var
         DocumentSignature: Record "Document Signature";
     begin
-        DefaultSignSetup.Reset;
+        DefaultSignSetup.Reset();
         DefaultSignSetup.SetRange("Table ID", TableID);
         DefaultSignSetup.SetRange("Document Type", DocumentType);
         DefaultSignSetup.SetRange(Mandatory, true);
@@ -163,10 +163,10 @@ codeunit 12420 "Doc. Signature Management"
     var
         PostedDocSign: Record "Posted Document Signature";
     begin
-        PostedDocSign.Reset;
+        PostedDocSign.Reset();
         PostedDocSign.SetRange("Table ID", TableID);
         PostedDocSign.SetRange("Document No.", DocNo);
-        PostedDocSign.DeleteAll;
+        PostedDocSign.DeleteAll();
     end;
 }
 

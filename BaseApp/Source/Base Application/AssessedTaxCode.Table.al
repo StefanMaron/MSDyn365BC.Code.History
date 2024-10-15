@@ -114,7 +114,7 @@ table 14921 "Assessed Tax Code"
 
     trigger OnDelete()
     begin
-        FixedAsset.Reset;
+        FixedAsset.Reset();
         FixedAsset.SetRange("Assessed Tax Code", Code);
         if FixedAsset.FindFirst then
             Error(Text002, Code, FixedAsset."No.");
@@ -128,7 +128,7 @@ table 14921 "Assessed Tax Code"
     [Scope('OnPrem')]
     procedure CheckExistenceInFA()
     begin
-        FixedAsset.Reset;
+        FixedAsset.Reset();
         FixedAsset.SetRange("Assessed Tax Code", Code);
         if FixedAsset.FindFirst then
             Error(Text001, Code, FixedAsset."No.");

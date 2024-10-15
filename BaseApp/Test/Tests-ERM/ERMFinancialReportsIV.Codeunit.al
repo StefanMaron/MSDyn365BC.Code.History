@@ -350,7 +350,7 @@ codeunit 134992 "ERM Financial Reports IV"
         CreatePurchaseOrder(PurchaseHeader, VATPostingSetup);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchRcptHeader.SetRange("No.", DocumentNo);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // Exercise: Run Purchase - Receipt report.
         REPORT.Run(REPORT::"Purchase - Receipt", true, false, PurchRcptHeader);
@@ -472,7 +472,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
     end;
 
@@ -523,19 +523,15 @@ codeunit 134992 "ERM Financial Reports IV"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
+        VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           AccountType, AccountNo, SignFactor * LibraryRandom.RandDec(100, 2));
-        case GenPostingType of
-            GenJournalLine."Gen. Posting Type"::Sale:
-                GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
-            GenJournalLine."Gen. Posting Type"::Purchase:
-                GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithPurchSetup);
-        end;
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT(VATPostingSetup, GenPostingType));
         GenJournalLine.Modify(true);
-        VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -550,6 +546,22 @@ codeunit 134992 "ERM Financial Reports IV"
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegion.Code);
         Customer.Modify(true);
+    end;
+
+    local procedure CreateGLAccountWithVAT(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Posting Type", GenPostingType);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateVATStatementTemplateAndLine(var VATStatementLine: Record "VAT Statement Line"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option)
@@ -677,7 +689,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, DocumentNo, GLAccount."No.", false, Post);
-        Commit;
+        Commit();
         CalcAndPostVATSettlement.Run;
     end;
 
@@ -691,7 +703,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementName.SetRange(Name, Name);
         VATStatement.SetTableView(VATStatementName);
         VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false);
-        Commit;
+        Commit();
         VATStatement.Run;
     end;
 

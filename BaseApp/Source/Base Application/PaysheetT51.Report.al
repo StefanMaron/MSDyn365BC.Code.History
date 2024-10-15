@@ -95,7 +95,7 @@ report 17456 "Paysheet T-51"
                             PayrollDoc.SetRange("Posting Date", PayrollPeriod."Starting Date", PayrollPeriod."Ending Date");
                             if PayrollDoc.FindSet then
                                 repeat
-                                    PayrollDocLine.Reset;
+                                    PayrollDocLine.Reset();
                                     PayrollDocLine.SetCurrentKey("Element Type", "Employee No.", "Period Code", "Posting Type");
                                     PayrollDocLine.SetRange("Document No.", PayrollDoc."No.");
                                     PayrollDocLine.SetRange(
@@ -269,9 +269,9 @@ report 17456 "Paysheet T-51"
             if Department.Get(PayrollDocLine.GetFilter("Org. Unit Code")) then
                 DepartmentName := Department.Name;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         HumanResSetup.TestField("T-51 Template Code");
         HumanResSetup.TestField("Work Time Group Code");
         HumanResSetup.TestField("Holiday Work Group");
@@ -284,7 +284,7 @@ report 17456 "Paysheet T-51"
                         repeat
                             if not EmployeeBuffer.Get(PostedPayrollDoc."Employee No.") then begin
                                 EmployeeBuffer."No." := PostedPayrollDoc."Employee No.";
-                                EmployeeBuffer.Insert;
+                                EmployeeBuffer.Insert();
                             end;
                         until PostedPayrollDoc.Next = 0;
                 end;
@@ -295,7 +295,7 @@ report 17456 "Paysheet T-51"
                         repeat
                             if not EmployeeBuffer.Get(PayrollDoc."Employee No.") then begin
                                 EmployeeBuffer."No." := PayrollDoc."Employee No.";
-                                EmployeeBuffer.Insert;
+                                EmployeeBuffer.Insert();
                             end;
                         until PayrollDoc.Next = 0;
                 end;
@@ -308,7 +308,7 @@ report 17456 "Paysheet T-51"
                 EmployeeList."No." := EmployeeBuffer."No.";
                 EmployeeList."Last Name & Initials" := Employee."Last Name" + ' ' + Employee.Initials;
                 EmployeeList."Appointment Name" := Employee."Job Title";
-                EmployeeList.Insert;
+                EmployeeList.Insert();
             until EmployeeBuffer.Next = 0;
 
         if PreviewMode then
@@ -420,7 +420,7 @@ report 17456 "Paysheet T-51"
     var
         PayrollPeriod: Record "Payroll Period";
     begin
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         PayrollPeriod.SetFilter("Ending Date", '%1..', Date);
         if PayrollPeriod.FindFirst then
             if PayrollPeriod."Starting Date" <= Date then

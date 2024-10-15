@@ -37,7 +37,7 @@ codeunit 17382 "Employee Journal - Post Line"
             EmplJnlCheckLine.Run(EmplJnlLine);
 
             if NextEntryNo = 0 then begin
-                EmplLedgEntry.LockTable;
+                EmplLedgEntry.LockTable();
                 if EmplLedgEntry.FindLast then
                     NextEntryNo := EmplLedgEntry."Entry No." + 1
                 else
@@ -50,19 +50,19 @@ codeunit 17382 "Employee Journal - Post Line"
                 "HR Order Date" := "Document Date";
 
             if PayrollReg."No." = 0 then begin
-                PayrollReg.LockTable;
+                PayrollReg.LockTable();
                 if PayrollReg.FindLast then
                     PayrollReg."No." := PayrollReg."No." + 1
                 else
                     PayrollReg."No." := 1;
-                PayrollReg.Init;
+                PayrollReg.Init();
                 PayrollReg."From Entry No." := NextEntryNo;
                 PayrollReg."To Entry No." := NextEntryNo;
                 PayrollReg."Creation Date" := Today;
                 PayrollReg."Source Code" := "Source Code";
                 PayrollReg."Journal Batch Name" := "Journal Batch Name";
                 PayrollReg."User ID" := UserId;
-                PayrollReg.Insert;
+                PayrollReg.Insert();
             end;
 
             Employee.Get("Employee No.");
@@ -74,7 +74,7 @@ codeunit 17382 "Employee Journal - Post Line"
                         // close wage elements if any
                         PayrollElement.Get("Element Code");
                         if PayrollElement.Type = PayrollElement.Type::Wage then begin
-                            EmplLedgEntry.Reset;
+                            EmplLedgEntry.Reset();
                             EmplLedgEntry.SetCurrentKey("Element Code");
                             EmplLedgEntry.SetRange("Element Code", "Element Code");
                             EmplLedgEntry.SetRange("Employee No.", "Employee No.");
@@ -84,12 +84,12 @@ codeunit 17382 "Employee Journal - Post Line"
                             if EmplLedgEntry.FindSet then
                                 repeat
                                     EmplLedgEntry."Action Ending Date" := CalcDate('<-1D>', "Starting Date");
-                                    EmplLedgEntry.Modify;
+                                    EmplLedgEntry.Modify();
                                 until EmplLedgEntry.Next = 0;
                         end;
 
                         // insert new entry
-                        EmplLedgEntry.Init;
+                        EmplLedgEntry.Init();
                         EmplLedgEntry."Entry No." := NextEntryNo;
                         NextEntryNo := NextEntryNo + 1;
                         EmplLedgEntry."Employee No." := "Employee No.";
@@ -133,10 +133,10 @@ codeunit 17382 "Employee Journal - Post Line"
                         EmplLedgEntry."External Document Date" := "External Document Date";
                         EmplLedgEntry."External Document Issued By" := "External Document Issued By";
                         EmplLedgEntry."Dimension Set ID" := "Dimension Set ID";
-                        EmplLedgEntry.Insert;
+                        EmplLedgEntry.Insert();
 
                         PayrollReg."To Entry No." := NextEntryNo - 1;
-                        PayrollReg.Modify;
+                        PayrollReg.Modify();
 
                         if ("Time Activity Code" <> '') and (not Terminated) then
                             TimesheetMgt.CreateFromLine(
@@ -150,14 +150,14 @@ codeunit 17382 "Employee Journal - Post Line"
                         EmplLedgEntry.Amount := Amount;
                         EmplLedgEntry.Quantity := Quantity;
                         EmplLedgEntry."Payment Days" := "Payment Days";
-                        EmplLedgEntry.Modify;
+                        EmplLedgEntry.Modify();
                     end;
                 "Post Action"::Close:
                     begin
                         EmplLedgEntry.Get("Applies-to Entry");
                         if "Ending Date" >= EmplLedgEntry."Action Starting Date" then begin
                             EmplLedgEntry."Action Ending Date" := "Ending Date";
-                            EmplLedgEntry.Modify;
+                            EmplLedgEntry.Modify();
                         end;
                     end;
             end;
@@ -176,13 +176,13 @@ codeunit 17382 "Employee Journal - Post Line"
         if EmplLedgEntry.FindSet then begin
             repeat
                 PayrollStatus.CheckPayrollStatus(EmplLedgEntry."Period Code", EmplLedgEntry."Employee No.");
-                EmplLedgEntry.Delete;
+                EmplLedgEntry.Delete();
             until EmplLedgEntry.Next = 0;
         end;
 
         PayrollReg."From Entry No." := 0;
         PayrollReg."To Entry No." := 0;
-        PayrollReg.Modify;
+        PayrollReg.Modify();
     end;
 }
 

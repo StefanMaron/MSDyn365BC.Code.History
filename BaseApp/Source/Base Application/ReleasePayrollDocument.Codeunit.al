@@ -12,10 +12,10 @@ codeunit 17407 "Release Payroll Document"
 
         if "Posting Type" = "Posting Type"::Calculation then
             if not PayrollStatus.Get("Period Code", "Employee No.") then begin
-                PayrollStatus.Init;
+                PayrollStatus.Init();
                 PayrollStatus."Period Code" := PayrollDocLine."Period Code";
                 PayrollStatus."Employee No." := PayrollDocLine."Employee No.";
-                PayrollStatus.Insert;
+                PayrollStatus.Insert();
             end else
                 if Correction then begin
                     if not (("Calc Group Code" <> '') and

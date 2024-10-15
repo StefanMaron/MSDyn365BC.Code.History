@@ -16,7 +16,7 @@ codeunit 411 "Dimension Buffer Management"
         NewEntryNo: Integer;
     begin
         if DimBuf.Find('-') then begin
-            TempDimBuf.Reset;
+            TempDimBuf.Reset();
             if TempDimBuf.Find('+') then
                 NewEntryNo := TempDimBuf."Entry No." + 1
             else
@@ -31,14 +31,14 @@ codeunit 411 "Dimension Buffer Management"
     var
         DimCount: Integer;
     begin
-        DimCount := DimBuf.Count;
+        DimCount := DimBuf.Count();
         if DimBuf.Find('-') then
             repeat
-                TempDimBuf.Init;
+                TempDimBuf.Init();
                 TempDimBuf := DimBuf;
                 TempDimBuf."Entry No." := EntryNo;
                 TempDimBuf."No. Of Dimensions" := DimCount;
-                TempDimBuf.Insert;
+                TempDimBuf.Insert();
             until DimBuf.Next = 0;
     end;
 
@@ -57,18 +57,18 @@ codeunit 411 "Dimension Buffer Management"
         if not DimBuf.Find('-') then
             exit(0);
 
-        TempDimBuf.Reset;
+        TempDimBuf.Reset();
         TempDimBuf.SetCurrentKey("No. Of Dimensions");
         TempDimBuf.SetRange("No. Of Dimensions", DimBufCount);
         TempDimBuf.SetRange("Table ID", DimBuf."Table ID");
         TempDimBuf.SetRange("Dimension Code", DimBuf."Dimension Code");
         TempDimBuf.SetRange("Dimension Value Code", DimBuf."Dimension Value Code");
         if not TempDimBuf.Find('-') then begin
-            TempDimBuf.Reset;
+            TempDimBuf.Reset();
             exit(0);
         end;
         if TempDimBuf."No. Of Dimensions" = 1 then begin
-            TempDimBuf.Reset;
+            TempDimBuf.Reset();
             exit(TempDimBuf."Entry No.");
         end;
 
@@ -89,7 +89,7 @@ codeunit 411 "Dimension Buffer Management"
             else
                 DimBuf.Find('-');
         end;
-        TempDimBuf.Reset;
+        TempDimBuf.Reset();
         if Found then
             exit(TempDimBuf."Entry No.");
 
@@ -103,17 +103,17 @@ codeunit 411 "Dimension Buffer Management"
             exit(false);
 
         repeat
-            DimBuf.Init;
+            DimBuf.Init();
             DimBuf := TempDimBuf;
-            DimBuf.Insert;
+            DimBuf.Insert();
         until TempDimBuf.Next = 0;
         exit(true);
     end;
 
     procedure DeleteAllDimensions()
     begin
-        TempDimBuf.Reset;
-        TempDimBuf.DeleteAll;
+        TempDimBuf.Reset();
+        TempDimBuf.DeleteAll();
     end;
 
     procedure CollectDimEntryNo(var SelectedDim: Record "Selected Dimension"; DimSetID: Integer; EntryNo: Integer; ForgetDimEntryNo: Integer; DoCollect: Boolean; var DimEntryNo: Integer)
@@ -126,7 +126,7 @@ codeunit 411 "Dimension Buffer Management"
                 if DimSetEntry.Get(DimSetID, SelectedDim."Dimension Code") then begin
                     TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                     TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                    TempDimBuf.Insert;
+                    TempDimBuf.Insert();
                 end;
             until SelectedDim.Next = 0;
             DimEntryNo := FindDimensions(TempDimBuf);
@@ -138,7 +138,7 @@ codeunit 411 "Dimension Buffer Management"
         if (DimEntryNo <> ForgetDimEntryNo) and DoCollect then begin
             TempDimEntryBuf."No." := EntryNo;
             TempDimEntryBuf."Dimension Entry No." := DimEntryNo;
-            TempDimEntryBuf.Insert;
+            TempDimEntryBuf.Insert();
         end;
     end;
 
@@ -165,7 +165,7 @@ codeunit 411 "Dimension Buffer Management"
 
     procedure DeleteAllDimEntryNo()
     begin
-        TempDimEntryBuf.DeleteAll;
+        TempDimEntryBuf.DeleteAll();
     end;
 
     procedure GetDimensionId(var Dimbuf: Record "Dimension Buffer"): Integer
@@ -195,8 +195,8 @@ codeunit 411 "Dimension Buffer Management"
 
     procedure RetrieveDimensions(DimId: Integer; var DimBuf: Record "Dimension Buffer")
     begin
-        DimBuf.Reset;
-        DimBuf.DeleteAll;
+        DimBuf.Reset();
+        DimBuf.DeleteAll();
 
         if DimId = 0 then
             exit;
@@ -205,11 +205,11 @@ codeunit 411 "Dimension Buffer Management"
         DimensionIDBuffer.SetRange(ID, DimId);
         repeat
             DimensionIDBuffer.FindFirst;
-            DimBuf.Init;
+            DimBuf.Init();
             DimBuf."Entry No." := DimId;
             DimBuf."Dimension Code" := DimensionIDBuffer."Dimension Code";
             DimBuf."Dimension Value Code" := DimensionIDBuffer."Dimension Value";
-            DimBuf.Insert;
+            DimBuf.Insert();
             DimensionIDBuffer.SetRange(ID, DimensionIDBuffer."Parent ID");
         until DimensionIDBuffer."Parent ID" = 0;
     end;
@@ -221,7 +221,7 @@ codeunit 411 "Dimension Buffer Management"
         DimensionIDBuffer."Dimension Value" := DimBuf."Dimension Value Code";
         DimensionIDBuffer.ID := NextDimBufNo;
         NextDimBufNo += 1;
-        DimensionIDBuffer.Insert;
+        DimensionIDBuffer.Insert();
     end;
 }
 

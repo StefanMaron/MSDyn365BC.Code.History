@@ -185,7 +185,7 @@ table 17460 "Posted Payroll Doc. Line Calc."
         TestField("Document No.");
         TestField("Line No.");
 
-        PostedPayrollDocLineExpr.Reset;
+        PostedPayrollDocLineExpr.Reset();
         PostedPayrollDocLineExpr.FilterGroup(2);
         PostedPayrollDocLineExpr.SetRange("Document No.", "Document No.");
         PostedPayrollDocLineExpr.SetRange("Document Line No.", "Document Line No.");

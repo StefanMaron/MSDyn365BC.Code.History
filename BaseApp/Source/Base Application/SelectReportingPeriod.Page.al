@@ -38,7 +38,7 @@ page 12445 "Select Reporting Period"
     end;
 
     var
-        Text000: Label '<Month Text>';
-        Text001: Label '<Year4>';
+        Text000: Label '<Month Text>', Locked = true;
+        Text001: Label '<Year4>', Locked = true;
 }
 

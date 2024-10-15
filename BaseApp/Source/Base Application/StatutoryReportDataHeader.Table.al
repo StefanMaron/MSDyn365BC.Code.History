@@ -213,19 +213,19 @@ table 26563 "Statutory Report Data Header"
 
         StatutoryReportDataValue.SetRange("Report Data No.", "No.");
         if StatutoryReportDataValue.FindFirst then
-            StatutoryReportDataValue.DeleteAll;
+            StatutoryReportDataValue.DeleteAll();
 
         StatReportDataChangeLog.SetRange("Report Data No.", "No.");
         if StatReportDataChangeLog.FindFirst then
-            StatReportDataChangeLog.DeleteAll;
+            StatReportDataChangeLog.DeleteAll();
 
         StatReportExcelSheet.SetRange("Report Code", "Report Code");
         StatReportExcelSheet.SetRange("Report Data No.", "No.");
-        StatReportExcelSheet.DeleteAll;
+        StatReportExcelSheet.DeleteAll();
 
         ScalableTableRow.SetRange("Report Code", "Report Code");
         ScalableTableRow.SetRange("Report Data No.", "No.");
-        ScalableTableRow.DeleteAll;
+        ScalableTableRow.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -234,7 +234,7 @@ table 26563 "Statutory Report Data Header"
         NoInYear: Integer;
     begin
         if "No." = '' then begin
-            SRSetup.Get;
+            SRSetup.Get();
             SRSetup.TestField("Report Data Nos");
             "No." :=
               NoSeriesManagement.GetNextNo(SRSetup."Report Data Nos", WorkDate, true);
@@ -378,10 +378,10 @@ table 26563 "Statutory Report Data Header"
         Window.Open(Text008);
         TempExcelBuffer.OpenBookForUpdate(FileName);
 
-        ReportSheetBuffer.Reset;
+        ReportSheetBuffer.Reset();
         if ReportSheetBuffer.FindSet then
             repeat
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 TempExcelBuffer.SetActiveWriterSheet(ReportSheetBuffer."Excel Sheet Name");
 
                 Window.Update(1, ReportSheetBuffer."Excel Sheet Name");
@@ -405,9 +405,9 @@ table 26563 "Statutory Report Data Header"
                     PageNumberElement.ExportToExcel(TempExcelBuffer, PageNumberValue, ErrorMessage, PageNumberElement."Excel Cell Name");
                 end;
 
-                XMLElementValueBuffer.Reset;
+                XMLElementValueBuffer.Reset();
                 XMLElementValueBuffer.SetRange("Excel Sheet Name", ReportSheetBuffer."Excel Sheet Name");
-                TotalElementsQty := XMLElementValueBuffer.Count;
+                TotalElementsQty := XMLElementValueBuffer.Count();
                 Counter := 0;
                 if XMLElementValueBuffer.FindSet then
                     repeat
@@ -450,7 +450,7 @@ table 26563 "Statutory Report Data Header"
         FileName: Text[250];
     begin
         TestField(Status, Status::Released);
-        CompInfo.Get;
+        CompInfo.Get();
         StatutoryReport.Get("Report Code");
         FormatVersion.Get(StatutoryReport."Format Version Code");
         FormatVersion.TestField("XML File Name Element Name");
@@ -488,7 +488,7 @@ table 26563 "Statutory Report Data Header"
         while StrPos(FileName, '\') <> 0 do
             FileName := CopyStr(FileName, StrPos(FileName, '\') + 1);
         ExportLogEntry."File Name" := FileName;
-        ExportLogEntry.Modify;
+        ExportLogEntry.Modify();
         Status := Status::Sent;
         Modify;
     end;
@@ -513,15 +513,15 @@ table 26563 "Statutory Report Data Header"
         if IsNull(SheetNames) then
             exit;
 
-        WorkbookSheetBuffer.Reset;
-        WorkbookSheetBuffer.DeleteAll;
+        WorkbookSheetBuffer.Reset();
+        WorkbookSheetBuffer.DeleteAll();
         i := 1;
-        EndOfLoop := SheetNames.Count;
+        EndOfLoop := SheetNames.Count();
         while i <= EndOfLoop do begin
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetNames.Item(i - 1));
             WorkbookSheetBuffer."Entry No." := i;
             WorkbookSheetBuffer."Excel Sheet Name" := XlWrkShtReader.Name;
-            WorkbookSheetBuffer.Insert;
+            WorkbookSheetBuffer.Insert();
             i := i + 1;
         end;
 
@@ -539,7 +539,7 @@ table 26563 "Statutory Report Data Header"
     [Scope('OnPrem')]
     procedure FillReportSheetBuffer(var ReportSheetBuffer: Record "Statutory Report Buffer"; var XMLElementValueBuffer: Record "Statutory Report Buffer")
     begin
-        XMLElementValueBuffer.Reset;
+        XMLElementValueBuffer.Reset();
         XMLElementValueBuffer.SetFilter("Excel Sheet Name", '<>''''');
         XMLElementValueBuffer.SetFilter("Excel Cell Name", '<>''''');
         if XMLElementValueBuffer.FindSet then
@@ -557,7 +557,7 @@ table 26563 "Statutory Report Data Header"
         StatReportExcelSheet: Record "Stat. Report Excel Sheet";
         EntryNo: Integer;
     begin
-        ReportSheetBuffer.Reset;
+        ReportSheetBuffer.Reset();
         if ReportSheetBuffer.FindLast then;
         EntryNo := ReportSheetBuffer."Entry No." + 1;
 
@@ -570,14 +570,14 @@ table 26563 "Statutory Report Data Header"
               StatReportExcelSheet.GetParentExcelSheetName("Report Code", "No.", TableCode, ExcelSheetName);
             if ReportSheetBuffer."Parent Excel Sheet Name" = '' then
                 ReportSheetBuffer."Parent Excel Sheet Name" := ReportSheetBuffer."Excel Sheet Name";
-            ReportSheetBuffer.Insert;
+            ReportSheetBuffer.Insert();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure ProcessReportExcelSheets(var ReportSheetBuffer: Record "Statutory Report Buffer"; FileName: Text)
     begin
-        ReportSheetBuffer.Reset;
+        ReportSheetBuffer.Reset();
         ReportSheetBuffer.SetFilter("Parent Excel Sheet Name", '<>''''');
         if ReportSheetBuffer.Find('+') then begin
             XlWrkBkWriter := XlWrkBkWriter.Open(FileName);
@@ -613,8 +613,8 @@ table 26563 "Statutory Report Data Header"
         StatRepBuffer: Record "Statutory Report Buffer";
         XmlDoc: DotNet XmlDocument;
     begin
-        CompInfo.Get;
-        SRSetup.Get;
+        CompInfo.Get();
+        SRSetup.Get();
         StatRepBuffer."Calculation Values Mode" := true;
         CreateXML(XmlDoc, ElementValueBuffer, StatRepBuffer);
     end;
@@ -627,7 +627,7 @@ table 26563 "Statutory Report Data Header"
         TempNameValueBufferValidation: Record "Name/Value Buffer" temporary;
         XmlDoc: DotNet XmlDocument;
     begin
-        StatutoryReportBuffer.Init;
+        StatutoryReportBuffer.Init();
         CreateXML(XmlDoc, TempStatutoryReportBufferElementValue, StatutoryReportBuffer);
 
         if not ValidateXMLFile(XmlDoc, TempNameValueBufferValidation) then begin
@@ -667,7 +667,7 @@ table 26563 "Statutory Report Data Header"
         FileName: Text;
         SchemaFileName: Text;
     begin
-        TempNameValueBufferValidation.DeleteAll;
+        TempNameValueBufferValidation.DeleteAll();
 
         StatutoryReport.Get("Report Code");
         StatutoryReport.TestField("Format Version Code");
@@ -688,7 +688,7 @@ table 26563 "Statutory Report Data Header"
         XmlReaderSettings.ValidationFlags := XmlSchemaValidationFlags.ReportValidationWarnings;
         XmlReaderSettings.ValidationType := ValidationType.Schema;
 
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
 
         // The XmlDocument validates the XML document contained
         // in the XmlReader as it is loaded into the DOM.
@@ -696,7 +696,7 @@ table 26563 "Statutory Report Data Header"
         if TempNameValueBuffer.FindSet then
             repeat
                 TempNameValueBufferValidation := TempNameValueBuffer;
-                TempNameValueBufferValidation.Insert;
+                TempNameValueBufferValidation.Insert();
             until TempNameValueBuffer.Next = 0;
 
         FileMgt.DeleteServerFile(FileName);
@@ -743,11 +743,11 @@ table 26563 "Statutory Report Data Header"
 
     trigger XmlReaderSettings::ValidationEventHandler(sender: Variant; e: DotNet ValidationEventArgs)
     begin
-        TempNameValueBuffer.Init;
+        TempNameValueBuffer.Init();
         TempNameValueBuffer.ID := TempNameValueBuffer.Count + 1;
         TempNameValueBuffer.Name := e.Severity.ToString;
         TempNameValueBuffer.Value := e.Message;
-        TempNameValueBuffer.Insert;
+        TempNameValueBuffer.Insert();
     end;
 }
 

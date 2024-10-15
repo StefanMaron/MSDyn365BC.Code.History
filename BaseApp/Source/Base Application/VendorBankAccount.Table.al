@@ -231,7 +231,7 @@ table 288 "Vendor Bank Account"
             trigger OnValidate()
             begin
                 if "Bank Corresp. Account No." <> '' then begin
-                    BankDir.Reset;
+                    BankDir.Reset();
                     BankDir.SetCurrentKey("Corr. Account No.");
                     BankDir.SetRange("Corr. Account No.", "Bank Corresp. Account No.");
                     if BankDir.Find('-') then
@@ -283,7 +283,7 @@ table 288 "Vendor Bank Account"
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 

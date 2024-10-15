@@ -77,7 +77,7 @@ report 12402 "Cash Outgoing Order"
                             if "External Document No." = '' then
                                 "External Document No." := "Document No.";
 
-                            CheckLedgEntry.Init;
+                            CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := "Bal. Account No.";
                             CheckLedgEntry."Posting Date" := "Posting Date";
                             CheckLedgEntry."Check Date" := "Posting Date";
@@ -178,7 +178,7 @@ report 12402 "Cash Outgoing Order"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         EmployeeDirector.Get(CompanyInfo."Director No.");
 
         CashOrderReportHelper.InitOutgoingReportTmpl;

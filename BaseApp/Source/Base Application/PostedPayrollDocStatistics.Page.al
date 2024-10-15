@@ -51,12 +51,12 @@ page 17399 "Posted Payroll Doc. Statistics"
         PayrollAmount := CalcPayrollAmount;
         AmountToPay := PayrollDocCalc.RoundAmountToPay(PayrollAmount);
 
-        PostedPayrollDocLine.Reset;
+        PostedPayrollDocLine.Reset();
         PostedPayrollDocLine.SetRange("Document No.", "No.");
         if PostedPayrollDocLine.FindSet then
             repeat
                 TempPayrollDocLine.TransferFields(PostedPayrollDocLine);
-                TempPayrollDocLine.Insert;
+                TempPayrollDocLine.Insert();
             until PostedPayrollDocLine.Next = 0;
 
         PayrollDocPost.AggregateTaxes(TempPayrollDocLine);
@@ -67,7 +67,7 @@ page 17399 "Posted Payroll Doc. Statistics"
 
     trigger OnOpenPage()
     begin
-        HRSetup.Get;
+        HRSetup.Get();
     end;
 
     var

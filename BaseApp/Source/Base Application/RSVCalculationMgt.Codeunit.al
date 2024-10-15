@@ -43,8 +43,8 @@ codeunit 17470 "RSV Calculation Mgt."
         i: Integer;
     begin
         CheckHRSetup;
-        DetailPayrollReportingBuffer.DeleteAll;
-        TotalPaidPayrollReportingBuffer.DeleteAll;
+        DetailPayrollReportingBuffer.DeleteAll();
+        TotalPaidPayrollReportingBuffer.DeleteAll();
         PreparePeriodDates(PeriodStartDate, PeriodEndDate, RepEndDate);
         PreparePeriodCodes(PeriodCodes);
 
@@ -85,8 +85,8 @@ codeunit 17470 "RSV Calculation Mgt."
                 then
                     GetNextPackNo(PackNo, PersonCount);
             until Person.Next = 0;
-        DetailPayrollReportingBuffer.Reset;
-        TotalPaidPayrollReportingBuffer.Reset;
+        DetailPayrollReportingBuffer.Reset();
+        TotalPaidPayrollReportingBuffer.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -178,8 +178,8 @@ codeunit 17470 "RSV Calculation Mgt."
     var
         i: Integer;
     begin
-        TotalChargeAmtPayrollReportingBuffer.DeleteAll;
-        DetailPayrollReportingBuffer.Reset;
+        TotalChargeAmtPayrollReportingBuffer.DeleteAll();
+        DetailPayrollReportingBuffer.Reset();
 
         for i := 0 to 3 do begin
             DetailPayrollReportingBuffer.SetRange("Code 2", Format(i));
@@ -187,7 +187,7 @@ codeunit 17470 "RSV Calculation Mgt."
             TotalChargeAmtPayrollReportingBuffer := DetailPayrollReportingBuffer;
             TotalChargeAmtPayrollReportingBuffer."Entry No." := i + 1;
             TotalChargeAmtPayrollReportingBuffer."Code 2" := Format(i);
-            TotalChargeAmtPayrollReportingBuffer.Insert;
+            TotalChargeAmtPayrollReportingBuffer.Insert();
         end;
 
         PrepareTotalAmounts(TotalChargeAmtPayrollReportingBuffer);
@@ -205,7 +205,7 @@ codeunit 17470 "RSV Calculation Mgt."
 
         TempChargeBeginBalancePayrollReportingBuffer := TotalPaidAmtPayrollReportingBuffer;
 
-        TotalPaidAmtPayrollReportingBuffer.Reset;
+        TotalPaidAmtPayrollReportingBuffer.Reset();
         TotalPaidAmtPayrollReportingBuffer.SetRange("Code 1", 'TOTAL_PAID');
         TotalPaidAmtPayrollReportingBuffer.SetRange("Code 2", '4');
         if not TotalPaidAmtPayrollReportingBuffer.FindFirst then
@@ -220,7 +220,7 @@ codeunit 17470 "RSV Calculation Mgt."
     [Scope('OnPrem')]
     procedure CalcTotalsSums(var ResultPayrollReportingBuffer: Record "Payroll Reporting Buffer"; var FirstPayrollReportingBuffer: Record "Payroll Reporting Buffer"; var SecondPayrollReportingBuffer: Record "Payroll Reporting Buffer"; SignFactor: Integer)
     begin
-        SecondPayrollReportingBuffer.Reset;
+        SecondPayrollReportingBuffer.Reset();
         SecondPayrollReportingBuffer.SetRange("Code 2", '0');
         if not SecondPayrollReportingBuffer.FindFirst then
             exit;
@@ -323,7 +323,7 @@ codeunit 17470 "RSV Calculation Mgt."
         // Supported only one type of disability
         // If Person with disability for specified period then "Disability Group" = "1", else = " "
         with DisabilityPersonMedicalInfo do begin
-            DeleteAll;
+            DeleteAll();
             FilterPersonMedicalDisabilityInfo(PersonMedicalInfo, PersonNo, StartDate, EndDate);
             if PersonMedicalInfo.FindSet then begin
                 repeat
@@ -364,7 +364,7 @@ codeunit 17470 "RSV Calculation Mgt."
     begin
         // Use the same method as in GetDisabilityPeriods()
         with SpecialConditionPersonMedicalInfo do begin
-            DeleteAll;
+            DeleteAll();
             FilterLaborContractSpecialCondInfo(LaborContractLine, PersonNo, StartDate, EndDate);
             if LaborContractLine.FindSet then begin
                 repeat
@@ -453,18 +453,18 @@ codeunit 17470 "RSV Calculation Mgt."
     [Scope('OnPrem')]
     procedure GetReportingPersonList(var ReportingPersonPayrollReportingBuffer: Record "Payroll Reporting Buffer"; var PersonifiedPayrollReportingBuffer: Record "Payroll Reporting Buffer")
     begin
-        ReportingPersonPayrollReportingBuffer.DeleteAll;
+        ReportingPersonPayrollReportingBuffer.DeleteAll();
 
         if PersonifiedPayrollReportingBuffer.FindSet then
             repeat
                 FilterReportingBuffer(ReportingPersonPayrollReportingBuffer, PersonifiedPayrollReportingBuffer);
                 if ReportingPersonPayrollReportingBuffer.IsEmpty then begin
                     ReportingPersonPayrollReportingBuffer := PersonifiedPayrollReportingBuffer;
-                    ReportingPersonPayrollReportingBuffer.Insert;
+                    ReportingPersonPayrollReportingBuffer.Insert();
                 end;
             until PersonifiedPayrollReportingBuffer.Next = 0;
 
-        ReportingPersonPayrollReportingBuffer.Reset;
+        ReportingPersonPayrollReportingBuffer.Reset();
     end;
 
     [Scope('OnPrem')]

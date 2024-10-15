@@ -114,7 +114,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         // [THEN] Verify Physical Inventory Order Line of same Physical Inventory Order Header is not copied again.
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader2."No.");
         PhysInvtOrderLine.FindSet;
-        PhysInvtOrderLineCount := PhysInvtOrderLine.Count;
+        PhysInvtOrderLineCount := PhysInvtOrderLine.Count();
         Assert.AreEqual(PhysInvtOrderLineCount, 1, 'Order Line Count must not be greater than 1.');
     end;
 
@@ -128,7 +128,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         Item: Record Item;
     begin
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Insert;
+        Item.Insert();
         exit(Item."No.");
     end;
 
@@ -137,14 +137,14 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         Location: Record Location;
     begin
         Location.Code := LibraryUTUtility.GetNewCode10;
-        Location.Insert;
+        Location.Insert();
         exit(Location.Code);
     end;
 
     local procedure CreatePhysicalInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
     end;
 
     local procedure CreatePhysicalInventoryOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DocumentNo: Code[20])
@@ -152,21 +152,21 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         PhysInvtOrderLine."Document No." := DocumentNo;
         PhysInvtOrderLine."Line No." := 1;
         PhysInvtOrderLine."Item No." := CreateItem;
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePhysicalInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
         CreatePhysicalInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Location Code" := CreateLocation;
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
         CreatePhysicalInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.");
     end;
 
     local procedure CreatePostedPhysInventoryOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
         PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderHdr.Insert;
+        PstdPhysInvtOrderHdr.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryOrderLine(var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; DocumentNo: Code[20])
@@ -175,14 +175,14 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
         PstdPhysInvtOrderLine."Line No." := 1;
         PstdPhysInvtOrderLine."Item No." := CreateItem;
         PstdPhysInvtOrderLine."Location Code" := CreateLocation;
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CopyPhysicalInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     var
         CopyPhysInvtOrder: Report "Copy Phys. Invt. Order";
     begin
-        Commit;  // COMMIT required in OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
+        Commit();  // COMMIT required in OnPreReport Trigger of Report 5005362 - Copy Phys. Invt. Order.
         CopyPhysInvtOrder.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
         CopyPhysInvtOrder.Run;  // Invokes CopyPhysInvtOrderRequestPageHandler or CopyPostedPhysInvtOrderRequestPageHandler as required.
     end;

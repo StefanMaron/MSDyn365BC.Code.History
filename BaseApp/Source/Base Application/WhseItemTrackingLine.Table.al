@@ -76,8 +76,8 @@ table 6550 "Whse. Item Tracking Line"
                     TestField("Quantity Handled (Base)", 0);
                     if IsReclass("Source Type", "Source Batch Name") then
                         "New Serial No." := "Serial No.";
-                    CheckSerialNoQty;
-                    InitExpirationDate;
+                    CheckSerialNoQty();
+                    InitExpirationDate();
                 end;
             end;
         }
@@ -279,6 +279,13 @@ table 6550 "Whse. Item Tracking Line"
         Text004: Label 'must not be negative';
         UOMMgt: Codeunit "Unit of Measure Management";
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure CheckSerialNoQty()
     begin
         if "Serial No." <> '' then
@@ -314,7 +321,7 @@ table 6550 "Whse. Item Tracking Line"
         "Expiration Date" := 0D;
         "Buffer Status2" := 0;
 
-        Location.Init;
+        Location.Init();
         if "Location Code" <> '' then
             Location.Get("Location Code");
 
@@ -340,7 +347,7 @@ table 6550 "Whse. Item Tracking Line"
         exit(false);
     end;
 
-    procedure LookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Option SerialNo,LotNo,CDNo; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean)
+    procedure LookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Enum "Item Tracking Type"; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean)
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         WhseJnlLine: Record "Warehouse Journal Line";
@@ -382,7 +389,7 @@ table 6550 "Whse. Item Tracking Line"
                     exit;
             end;
 
-            TempTrackingSpecification.Init;
+            TempTrackingSpecification.Init();
             TempTrackingSpecification.SetItemData(
               "Item No.", Description, "Location Code", "Variant Code", BinCode, "Qty. per Unit of Measure");
             TempTrackingSpecification.SetSource(
@@ -395,13 +402,13 @@ table 6550 "Whse. Item Tracking Line"
               TempTrackingSpecification, SearchForSupply, SignFactor, TrackingType, MaxQuantity);
             Validate("Quantity (Base)", TempTrackingSpecification."Quantity (Base)");
             case TrackingType of
-                TrackingType::SerialNo:
+                TrackingType::"Serial No.":
                     if TempTrackingSpecification."Serial No." <> '' then
                         Validate("Serial No.", TempTrackingSpecification."Serial No.");
-                TrackingType::LotNo:
+                TrackingType::"Lot No.":
                     if TempTrackingSpecification."Lot No." <> '' then
                         Validate("Lot No.", TempTrackingSpecification."Lot No.");
-                TrackingType::CDNo:
+                TrackingType::"CD No.":
                     if TempTrackingSpecification."CD No." <> '' then
                         Validate("CD No.", TempTrackingSpecification."CD No.");
             end;
@@ -410,11 +417,34 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterLookUpTrackingSummary(WhseItemTrackingLine, TrackingType, TempTrackingSpecification);
     end;
 
+    procedure CheckTrackingIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            TestField("Serial No.");
+        if WhseItemTrackingSetup."Lot No. Required" then
+            TestField("Lot No.");
+        if WhseItemTrackingSetup."CD No. Required" then
+            TestField("CD No.");
+
+        OnAfterCheckTrackingIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
         SetRange("CD No.");
+
+        OnAfterClearTrackingFilter(Rec);
+    end;
+
+    procedure CopyTrackingFromEntrySummary(EntrySummary: Record "Entry Summary")
+    begin
+        "Serial No." := EntrySummary."Serial No.";
+        "Lot No." := EntrySummary."Lot No.";
+        "CD No." := EntrySummary."CD No.";
+
+        OnAfterCopyTrackingFromEntrySummary(Rec, EntrySummary);
     end;
 
     procedure CopyTrackingFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
@@ -428,6 +458,15 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
     end;
 
+    procedure CopyTrackingFromPostedWhseReceiptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+        "Serial No." := PostedWhseRcptLine."Serial No.";
+        "Lot No." := PostedWhseRcptLine."Lot No.";
+        "CD No." := PostedWhseRcptLine."CD No.";
+
+        OnAfterCopyTrackingFromPostedWhseReceiptine(Rec, PostedWhseRcptLine);
+    end;
+
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
     begin
         "Serial No." := ReservEntry."Serial No.";
@@ -438,6 +477,34 @@ table 6550 "Whse. Item Tracking Line"
 
         OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
     end;
+
+    procedure CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+        "Serial No." := PostedWhseRcptLine."Serial No.";
+        "Lot No." := PostedWhseRcptLine."Lot No.";
+        "CD No." := PostedWhseRcptLine."CD No.";
+
+        OnAfterCopyTrackingFromPostedWhseRcptLine(Rec, PostedWhseRcptLine);
+    end;
+
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+        "CD No." := WhseActivityLine."CD No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure CopyTrackingFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    begin
+        "Serial No." := WhseItemEntryRelation."Serial No.";
+        "Lot No." := WhseItemEntryRelation."Lot No.";
+        "CD No." := WhseItemEntryRelation."CD No.";
+
+        OnAfterCopyTrackingFromRelation(Rec, WhseItemEntryRelation);
+    end;
+
 
     procedure SetSource(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
     begin
@@ -470,6 +537,7 @@ table 6550 "Whse. Item Tracking Line"
             SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
+    [Obsolete('Replaced by CopyTrackingFrom procedures.','16.0')]
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
     begin
         "Serial No." := SerialNo;
@@ -479,6 +547,7 @@ table 6550 "Whse. Item Tracking Line"
         "Expiration Date" := ExpirationDate;
     end;
 
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.','16.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
         SetRange("Serial No.", SerialNo);
@@ -486,11 +555,22 @@ table 6550 "Whse. Item Tracking Line"
         SetRange("CD No.", CDNo);
     end;
 
+    procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
+    begin
+        SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
+        SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
+        SetFilter("CD No.", BinContent.GetFilter("CD No. Filter"));
+
+        OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
+    end;
+
     procedure SetTrackingFilterFromRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin
         SetRange("Serial No.", WhseItemEntryRelation."Serial No.");
         SetRange("Lot No.", WhseItemEntryRelation."Lot No.");
         SetRange("CD No.", WhseItemEntryRelation."CD No.");
+
+        OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
     procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
@@ -498,6 +578,8 @@ table 6550 "Whse. Item Tracking Line"
         SetRange("Serial No.", ReservEntry."Serial No.");
         SetRange("Lot No.", ReservEntry."Lot No.");
         SetRange("CD No.", ReservEntry."CD No.");
+
+        OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
     end;
 
     procedure SetTrackingFilterFromSpec(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -505,15 +587,84 @@ table 6550 "Whse. Item Tracking Line"
         SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
         SetRange("CD No.", WhseItemTrackingLine."CD No.");
+
+        OnAfterSetTrackingFilterFromSpec(Rec, WhseItemTrackingLine);
+    end;
+
+    procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        SetRange("Serial No.", WhseActivityLine."Serial No.");
+        SetRange("Lot No.", WhseActivityLine."Lot No.");
+        SetRange("CD No.", WhseActivityLine."CD No.");
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+        SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
+        SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+        SetRange("CD No.", WhseItemTrackingLine."CD No.");
+
+        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
+    procedure HasSameNewTracking(): Boolean
+    var
+        IsSameTracking: Boolean;
+    begin
+        IsSameTracking := ("New Lot No." = "Lot No.") and ("New Serial No." = "Serial No.");
+        IsSameTracking := IsSameTracking and ("New CD No." = "CD No.");
+        OnAfterHasSameNewTracking(Rec, IsSameTracking);
+        exit(IsSameTracking);
+    end;
+
+    procedure HasSameTrackingWithItemEntryRelation(WhseItemEntryRelation: Record "Whse. Item Entry Relation"): Boolean
+    var
+        IsSameTracking: Boolean;
+    begin
+        IsSameTracking := (WhseItemEntryRelation."Lot No." = "Lot No.") and (WhseItemEntryRelation."Serial No." = "Serial No.");
+        IsSameTracking := IsSameTracking and (WhseItemEntryRelation."CD No." = "CD No.");
+        OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
+        exit(IsSameTracking);
     end;
 
     procedure TrackingExists(): Boolean
+    var
+        IsTrackingExist: Boolean;
     begin
-        exit(("Lot No." <> '') or ("Serial No." <> '') or ("CD No." <> ''));
+        IsTrackingExist := ("Lot No." <> '') or ("Serial No." <> '') or ("CD No." <> '');
+        OnAfterTrackingExists(Rec, IsTrackingExist);
+        exit(IsTrackingExist);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfRequired(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTrackingFilter(var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromEntrySummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; EntrySummary: Record "Entry Summary")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromPostedWhseReceiptine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromRelation(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin
     end;
 
@@ -523,17 +674,67 @@ table 6550 "Whse. Item Tracking Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromPostedWhseRcptLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseActivityLine: Record "warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; FromWhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameNewTracking(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameTrackingWithItemEntryRelation(WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToHandle(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; xWhseItemTrackingLine: Record "Whse. Item Tracking Line"; CallingFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Option SerialNo,LotNo; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnAfterLookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Enum "Item Tracking Type"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Option SerialNo,LotNo; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean; var IsHandled: Boolean)
+    local procedure OnAfterSetTrackingFilterFromBinContent(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromRelation(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromReservEntry(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromSpec(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; FromWhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Enum "Item Tracking Type"; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

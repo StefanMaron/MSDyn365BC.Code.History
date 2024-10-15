@@ -41,7 +41,7 @@ report 17453 "Spreadsheet Account"
             begin
                 FillInBuffer;
 
-                Buffer.Reset;
+                Buffer.Reset();
                 Buffer.SetCurrentKey(Description);
                 SetRange(Number, 1, Buffer.Count);
 
@@ -114,7 +114,7 @@ report 17453 "Spreadsheet Account"
                             AgregateBuffer."Amount 1" += Buffer."Amount 1";
                             AgregateBuffer."Amount 2" += Buffer."Amount 2";
                             AgregateBuffer."Number 1" += 1;
-                            AgregateBuffer.Modify;
+                            AgregateBuffer.Modify();
                         end else begin
                             EntryNo += 1;
                             AgregateBuffer."Entry No." := EntryNo;
@@ -123,11 +123,11 @@ report 17453 "Spreadsheet Account"
                             AgregateBuffer."Amount 1" := Buffer."Amount 1";
                             AgregateBuffer."Amount 2" := Buffer."Amount 2";
                             AgregateBuffer."Number 1" := 1;
-                            AgregateBuffer.Insert;
+                            AgregateBuffer.Insert();
                         end;
                     until Buffer.Next = 0;
 
-                AgregateBuffer.Reset;
+                AgregateBuffer.Reset();
 
                 SetRange(Number, 1, AgregateBuffer.Count);
 
@@ -281,7 +281,7 @@ report 17453 "Spreadsheet Account"
                 end;
         end;
 
-        Buffer.Reset;
+        Buffer.Reset();
         if Buffer.FindLast then;
         EntryNo := Buffer."Entry No." + 1;
         Buffer.SetRange("Element Code", ElementCode);
@@ -290,7 +290,7 @@ report 17453 "Spreadsheet Account"
         if Buffer.FindFirst then begin
             Buffer."Amount 1" += TaxableAmount;
             Buffer."Amount 2" += PayrollAmount;
-            Buffer.Modify;
+            Buffer.Modify();
         end else begin
             Buffer."Entry No." := EntryNo;
             Buffer."Element Code" := ElementCode;
@@ -299,7 +299,7 @@ report 17453 "Spreadsheet Account"
             Buffer."Amount 1" := TaxableAmount;
             Buffer."Amount 2" := PayrollAmount;
             Buffer.Description := PayrollElement.Description;
-            Buffer.Insert;
+            Buffer.Insert();
         end;
     end;
 

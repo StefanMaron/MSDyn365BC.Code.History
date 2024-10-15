@@ -143,14 +143,14 @@ page 17441 "Employee Timesheet"
                                     TimesheetDetail.DeleteAll(true);
                                     if TimesheetDetailFrom.FindSet then
                                         repeat
-                                            TimesheetDetail.Init;
+                                            TimesheetDetail.Init();
                                             TimesheetDetail := TimesheetDetailFrom;
                                             TimesheetDetail.Date := TimesheetLine.Date;
                                             TimesheetDetail."Document Type" := 0;
                                             TimesheetDetail."Document No." := '';
                                             TimesheetDetail."Document Date" := 0D;
                                             TimesheetDetail."User ID" := UserId;
-                                            TimesheetDetail.Insert;
+                                            TimesheetDetail.Insert();
                                         until TimesheetDetailFrom.Next = 0;
                                 until TimesheetLine.Next = 0;
                         end;
@@ -165,7 +165,7 @@ page 17441 "Employee Timesheet"
         PlannedHours := StrSubstNo('%1 / %2  ', "Time Activity Code", "Planned Hours");
 
         ActualHours := '';
-        TimesheetDetail.Reset;
+        TimesheetDetail.Reset();
         TimesheetDetail.SetRange("Employee No.", "Employee No.");
         TimesheetDetail.SetRange(Date, Date);
         if TimeActivityGroupFilter <> '' then begin
@@ -213,7 +213,7 @@ page 17441 "Employee Timesheet"
         EmployeeNo := NewEmployeeNo;
 
         if NewDate = 0D then begin
-            TimesheetStatus.Reset;
+            TimesheetStatus.Reset();
             TimesheetStatus.SetRange("Employee No.", NewEmployeeNo);
             TimesheetStatus.SetRange(Status, TimesheetStatus.Status::Open);
             if TimesheetStatus.FindFirst then

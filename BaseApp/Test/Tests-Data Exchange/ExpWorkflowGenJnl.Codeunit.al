@@ -23,6 +23,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
 
     [Test]
@@ -53,7 +54,61 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
+
+        // Pre-Exercise
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+
+        // Exercise
+        CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJnlLine);
+
+        // Pre-Verify
+        CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
+        CreditTransferRegister.FindLast;
+
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.FindFirst;
+        BankExportImportSetup.Get(BankAcc."Payment Export Format");
+
+        // Verify
+        CreditTransferRegister.TestField(Identifier, BankExportImportSetup."Data Exch. Def. Code");
+        CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::"File Created");
+        GenJnlLine.TestField("Exported to Payment File", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SavePaymentDetailsToFileUsingFulllSetupClientForEmployee()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        Employee: Record Employee;
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        PaymentType: Code[20];
+        PaymentMethodCode: Code[10];
+    begin
+        // [SCENARIO 1] Export Gen. Journal Lines to a payment file with all building blocks to a client file.
+        // [GIVEN] One or more Gen. Journal Lines, applied to Employee Ledger Entries.
+        // [WHEN] Click the Export to File action on the Payment Journal.
+        // [THEN] The payment file is created and saved to disk.
+
+        // Pre-Setup
+        PaymentType := LibraryUtility.GenerateGUID;
+        CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
+        CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType));
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        // Setup
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
+        GenJnlLine."Payment Method Code" := PaymentMethodCode;
+        GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -105,7 +160,61 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
+
+        // Pre-Exercise
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+
+        // Exercise
+        CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJnlLine);
+
+        // Pre-Verify
+        CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
+        CreditTransferRegister.FindLast;
+
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.FindFirst;
+        BankExportImportSetup.Get(BankAcc."Payment Export Format");
+
+        // Verify
+        CreditTransferRegister.TestField(Identifier, BankExportImportSetup."Data Exch. Def. Code");
+        CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::"File Created");
+        GenJnlLine.TestField("Exported to Payment File", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SavePaymentDetailsToFileUsingFulllSetupServerForEmployee()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        Employee: Record Employee;
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        PaymentType: Code[20];
+        PaymentMethodCode: Code[10];
+    begin
+        // [SCENARIO 2] Export Gen. Journal Lines to a payment file with all building blocks to a server file.
+        // [GIVEN] One or more Gen. Journal Lines, applied to Employee Ledger Entries.
+        // [WHEN] Click the Export to File action on the Payment Journal.
+        // [THEN] The payment file is created and saved to disk.
+
+        // Pre-Setup
+        PaymentType := LibraryUtility.GenerateGUID;
+        CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
+        CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupServer(PaymentType));
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        // Setup
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
+        GenJnlLine."Payment Method Code" := PaymentMethodCode;
+        GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -181,6 +290,59 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
     [Test]
     [Scope('OnPrem')]
+    procedure SavePaymentDetailsToFileUsingMinSetupForEmployee()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        Employee: Record Employee;
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        PaymentType: Code[20];
+        PaymentMethodCode: Code[10];
+    begin
+        // [SCENARIO 3] Export Gen. Journal Lines to a payment file with minimum building blocks to a client file.
+        // [GIVEN] One or more Gen. Journal Lines, applied to Employee Ledger Entries.
+        // [WHEN] Click the Export to File action on the Payment Journal.
+        // [THEN] The payment file is created and saved to disk.
+
+        // Pre-Setup
+        PaymentType := LibraryUtility.GenerateGUID;
+        CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
+        CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithMinSetup(PaymentType));
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        // Setup
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
+        GenJnlLine."Payment Method Code" := PaymentMethodCode;
+        GenJnlLine.Modify();
+
+        // Pre-Exercise
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+
+        // Exercise
+        CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJnlLine);
+
+        // Pre-Verify
+        CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
+        CreditTransferRegister.FindLast;
+
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.FindFirst;
+        BankExportImportSetup.Get(BankAcc."Payment Export Format");
+
+        // Verify
+        CreditTransferRegister.TestField(Identifier, BankExportImportSetup."Data Exch. Def. Code");
+        CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::Canceled);
+        GenJnlLine.TestField("Exported to Payment File", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExportGenJnlLineWhenPaymentExportFormatIsEmpty()
     var
         Vendor: Record Vendor;
@@ -230,7 +392,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID));
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup."Data Exch. Def. Code" := '';
-        BankExportImportSetup.Modify;
+        BankExportImportSetup.Modify();
         CreateExportGenJournalBatch(GenJournalBatch, BankAccount."No.");
 
         LibraryERM.CreateGeneralJnlLine(
@@ -266,7 +428,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         DataExchDef.Get(BankExportImportSetup."Data Exch. Def. Code");
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         // [WHEN] Run function GetDataExchDefPaymentExport from "Bank Account" table.
         asserterror BankAccount.GetDataExchDefPaymentExport(DataExchDef);
@@ -295,6 +457,20 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         Vendor.Validate("Preferred Bank Account Code", VendorBankAcc.Code);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
         Vendor.Modify(true);
+    end;
+
+    [Normal]
+    local procedure CreateEmployeeWithBankAccount(var Employee: Record Employee; PaymentType: Code[20]; var PaymentMethodCode: Code[20])
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
+
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Pmt. Export Line Definition", PaymentType);
+        PaymentMethod.Modify(true);
+
+        PaymentMethodCode := PaymentMethod.Code;
     end;
 
     local procedure CreateBankAccountWithExportFormat(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20])

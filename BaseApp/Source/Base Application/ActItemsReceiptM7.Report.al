@@ -154,7 +154,7 @@ report 14917 "Act Items Receipt M-7"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Item Document Header"; "Item Document Header")
@@ -210,7 +210,7 @@ report 14917 "Act Items Receipt M-7"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Item Receipt Header"; "Item Receipt Header")
@@ -266,7 +266,7 @@ report 14917 "Act Items Receipt M-7"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(HeaderLoop; "Integer")
@@ -409,8 +409,8 @@ report 14917 "Act Items Receipt M-7"
 
     trigger OnInitReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -462,7 +462,7 @@ report 14917 "Act Items Receipt M-7"
             LocationBuffer."Dimension 1 Code" := LocationCode;
             LocationBuffer."Dimension 1 Value Code" := InventoryPostingSetup."Inventory Account";
             LocationBuffer."Dimension 2 Code" := DimValueCode;
-            LocationBuffer.Insert;
+            LocationBuffer.Insert();
         end;
     end;
 
@@ -489,7 +489,7 @@ report 14917 "Act Items Receipt M-7"
         HeaderBuffer."Document Date" := DocumentDate;
         HeaderBuffer."Posting Date" := PostingDate;
         HeaderBuffer."Location Code" := LocationCode;
-        HeaderBuffer.Insert;
+        HeaderBuffer.Insert();
     end;
 
     local procedure FillLineBuffer(LineNo: Integer; ItemNo: Code[20]; ItemName: Text[250]; UnitOfMeasureCode: Code[10]; Qty: Decimal; Price: Decimal; Amount: Decimal; FactQty: Decimal; FactPrice: Decimal; FactAmount: Decimal; ItemEntryNo: Integer; DeficitQty: Decimal; DeficitAmount: Decimal; SurplusQty: Decimal; SurplusAmount: Decimal)
@@ -511,7 +511,7 @@ report 14917 "Act Items Receipt M-7"
         LineBuffer."VAT Base Amount" := DeficitAmount;
         LineBuffer."Return Qty. to Ship" := SurplusQty;
         LineBuffer."Prepayment Amount" := SurplusAmount;
-        LineBuffer.Insert;
+        LineBuffer.Insert();
     end;
 
     local procedure FillDocumentLine(ItemNo: Code[20]; ItemName: Text[250]; UnitOfMeasureCode: Code[10]; UnitOfMeasureName: Text[50]; Qty: Decimal; Price: Decimal; Amount: Decimal; FactQty: Decimal; FactPrice: Decimal; FactAmount: Decimal; ItemEntryNo: Integer; DeficitQty: Decimal; DeficitAmount: Decimal; SurplusQty: Decimal; SurplusAmount: Decimal)
@@ -643,7 +643,7 @@ report 14917 "Act Items Receipt M-7"
                             TempPurchLine.Quantity := 0
                     else
                         TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
-                    TempPurchLine.Insert;
+                    TempPurchLine.Insert();
                 until PurchLine.Next = 0;
 
             PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
@@ -663,7 +663,7 @@ report 14917 "Act Items Receipt M-7"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("M-7 Template Code");
         ExcelReportBuilderMgr.InitTemplate(PurchSetup."M-7 Template Code");
     end;

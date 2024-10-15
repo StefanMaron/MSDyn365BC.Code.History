@@ -107,7 +107,7 @@ table 50 "Accounting Period"
     end;
 
     var
-        Text000: Label '<Month Text>';
+        Text000: Label '<Month Text,10>', Locked = true;
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
 

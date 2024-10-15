@@ -205,7 +205,7 @@ table 17461 "Posted Payroll Doc. Line Expr."
         case Type of
             Type::Expression:
                 begin
-                    PostedPayrollDocLineExpr.Reset;
+                    PostedPayrollDocLineExpr.Reset();
                     PostedPayrollDocLineExpr.SetRange("Document No.", "Document No.");
                     PostedPayrollDocLineExpr.SetRange("Document Line No.", "Document Line No.");
                     PostedPayrollDocLineExpr.SetRange("Calculation Line No.", "Calculation Line No.");

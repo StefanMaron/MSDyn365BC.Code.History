@@ -102,12 +102,12 @@ table 17241 "Tax Reg. Norm Term Formula"
             begin
                 CalcFields("Expression Type");
                 if "Expression Type" = "Expression Type"::Compare then begin
-                    TaxRegNormTermFormula.Reset;
+                    TaxRegNormTermFormula.Reset();
                     TaxRegNormTermFormula.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                     TaxRegNormTermFormula.SetRange("Term Code", "Term Code");
                     TaxRegNormTermFormula.SetFilter("Line No.", '<>%1', "Line No.");
                     TaxRegNormTermFormula.ModifyAll("Account No.", "Account No.", false);
-                    TaxRegNormTermFormula.Reset;
+                    TaxRegNormTermFormula.Reset();
                 end;
                 if "Account Type" = "Account Type"::Norm then
                     TestField("Jurisdiction Code");

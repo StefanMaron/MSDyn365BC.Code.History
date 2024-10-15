@@ -30,7 +30,7 @@ report 17373 "Staffing List T-3"
                         Value3: Decimal;
                     begin
                         if not IsStaffArrangement then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         ExcelMgt.CopyRow(RowNo);
 
@@ -240,12 +240,12 @@ report 17373 "Staffing List T-3"
 
     trigger OnPreReport()
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-3 Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."T-3 Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

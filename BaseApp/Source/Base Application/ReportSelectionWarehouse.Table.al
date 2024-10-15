@@ -19,7 +19,6 @@ table 7355 "Report Selection Warehouse"
         {
             Caption = 'Report ID';
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
-
             trigger OnValidate()
             begin
                 CalcFields("Report Caption");

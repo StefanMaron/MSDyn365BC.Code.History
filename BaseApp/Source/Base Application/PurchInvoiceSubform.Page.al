@@ -1,4 +1,4 @@
-﻿page 55 "Purch. Invoice Subform"
+page 55 "Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -1018,8 +1018,9 @@
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
-                    Visible = IsSaasExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1054,7 +1055,7 @@
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReservePurchLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReservePurchLine.DeleteLine(Rec);
@@ -1070,7 +1071,7 @@
 
     trigger OnInit()
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
@@ -1099,7 +1100,8 @@
     var
         ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
         SetDimensionsVisibility;
     end;
@@ -1122,11 +1124,9 @@
         AmountWithDiscountAllowed: Decimal;
         IsFoundation: Boolean;
         InvDiscAmountEditable: Boolean;
-        IsCommentLine: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         CurrPageIsEditable: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
-        IsBlankNumber: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         DimVisible1: Boolean;
@@ -1137,6 +1137,11 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        SuppressTotals: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1148,6 +1153,9 @@
     var
         PurchaseHeader: Record "Purchase Header";
     begin
+        if SuppressTotals then
+            exit;
+
         PurchaseHeader.Get("Document Type", "Document No.");
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         DocumentTotals.PurchaseDocTotalsNotUpToDate;
@@ -1160,7 +1168,7 @@
         DocumentTotals.PurchaseDocTotalsNotUpToDate;
     end;
 
-    local procedure GetReceipt()
+    procedure GetReceipt()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Get Receipt", Rec);
         DocumentTotals.PurchaseDocTotalsNotUpToDate;
@@ -1208,6 +1216,9 @@
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
+        if SuppressTotals then
+            exit;
+
         CurrPage.SaveRecord;
 
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalPurchaseLine);
@@ -1221,6 +1232,9 @@
 
     local procedure CalculateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculatePurchaseSubPageTotals(
           TotalPurchaseHeader, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
@@ -1229,6 +1243,9 @@
 
     procedure DeltaUpdateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
@@ -1244,7 +1261,7 @@
         TypeAsText := TempOptionLookupBuffer.FormatOption(RecRef.Field(FieldNo(Type)));
     end;
 
-    local procedure SetItemChargeFieldsStyle()
+    procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
         if AssignedItemCharge then

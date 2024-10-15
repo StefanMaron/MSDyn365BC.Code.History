@@ -35,11 +35,13 @@ page 12422 "Bank Payment Order"
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = DocumentTypeEditable;
-                        OptionCaption = ' ,Payment,,,,,Refund';
                         ToolTip = 'Specifies the type of the related document.';
 
                         trigger OnValidate()
                         begin
+                            if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]) then
+                                error(DocumentTypeErr);
+
                             DocumentTypeOnAfterValidate;
                         end;
                     }
@@ -63,7 +65,6 @@ page 12422 "Bank Payment Order"
                     field("Account Type"; "Account Type")
                     {
                         ApplicationArea = Basic, Suite;
-                        OptionCaption = 'G/L Account,Customer,Vendor,Bank Account';
                         ToolTip = 'Specifies the purpose of the account.';
 
                         trigger OnValidate()
@@ -426,7 +427,7 @@ page 12422 "Bank Payment Order"
 
                     trigger OnAction()
                     begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlLine.SetRange("Line No.", "Line No.");
@@ -459,7 +460,7 @@ page 12422 "Bank Payment Order"
                 trigger OnAction()
                 begin
                     if (BankAccNo <> '') and (CorrAccNo <> '') then begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -515,13 +516,14 @@ page 12422 "Bank Payment Order"
         CheckPrintedText: Text[1024];
         [InDataSet]
         DocumentTypeEditable: Boolean;
+        DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
 
     local procedure CalcPayment()
     var
         BankAccountDetail: Record "Bank Account Details";
     begin
-        CompanyInformation.Get;
-        BankAccount.Init;
+        CompanyInformation.Get();
+        BankAccount.Init();
         BankAccNo := '';
         CorrAccNo := '';
         Clear(PayerCode);

@@ -202,7 +202,7 @@ codeunit 134626 "Person and Company Contacts"
 
         // [GIVEN] Customer and Contact with No. "X"
         CustomerNo := LibrarySales.CreateCustomerNo;
-        Contact.Init;
+        Contact.Init();
         Contact."No." := CustomerNo;
         Contact.Insert(true);
 
@@ -288,7 +288,7 @@ codeunit 134626 "Person and Company Contacts"
         // [GIVEN] Newly inserted Contact, Customer and BusinessRelation between them
         CustomerNo := LibrarySales.CreateCustomerNo;
 
-        Contact.Init;
+        Contact.Init();
         Contact.Validate(Name, CustomerNo);
         Contact.Insert(true);
 
@@ -338,7 +338,7 @@ codeunit 134626 "Person and Company Contacts"
         LibraryMarketing.CreateCompanyContact(CompanyContact);
         LibraryMarketing.CreatePersonContact(PersonContact);
         PersonContact.Validate("Company No.", CompanyContact."No.");
-        PersonContact.Modify;
+        PersonContact.Modify();
         ContactCard.OpenEdit;
         ContactCard.FILTER.SetFilter("No.", PersonContact."No.");
 
@@ -367,10 +367,10 @@ codeunit 134626 "Person and Company Contacts"
         CustomerTemplate.FindFirst;
         CustomerTemplate."Payment Terms Code" := PaymentTerms.Code;
         CustomerTemplate."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        CustomerTemplate.Modify;
-        MarketingSetup.Get;
+        CustomerTemplate.Modify();
+        MarketingSetup.Get();
         MarketingSetup."Cust. Template Person Code" := CustomerTemplate.Code;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CreateConfigTemplate(var ConfigTemplateHeader: Record "Config. Template Header")
@@ -438,7 +438,7 @@ codeunit 134626 "Person and Company Contacts"
         MarketingSetup: Record "Marketing Setup";
     begin
         LibraryMarketing.CreatePersonContact(Contact);
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         Contact.CreateCustomer(MarketingSetup."Cust. Template Person Code");
         GetCustomerFromContact(Contact, Customer);
     end;
@@ -448,7 +448,7 @@ codeunit 134626 "Person and Company Contacts"
         ContactBusinessRelation: Record "Contact Business Relation";
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         ContactBusinessRelation.Get(Contact."No.", MarketingSetup."Bus. Rel. Code for Customers");
         Customer.Get(ContactBusinessRelation."No.");
     end;

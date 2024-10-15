@@ -3564,9 +3564,6 @@ End Function
         <Field Name="HeaderPeriodTitle">
           <DataField>HeaderPeriodTitle</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="CurrentDate">
           <DataField>CurrentDate</DataField>
         </Field>

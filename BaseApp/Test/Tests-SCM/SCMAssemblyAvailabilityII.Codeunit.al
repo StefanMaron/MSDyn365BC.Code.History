@@ -68,7 +68,7 @@ codeunit 137912 "SCM Assembly Availability II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Availability II");
     end;
 
@@ -426,7 +426,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Change manufacturing Default Safety Lead Time = 2D
         OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
         Evaluate(DTFormula, '2D');
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.Validate("Default Safety Lead Time", DTFormula);
         MfgSetup.Modify(true);
         // Create asm order for KIT with due date = WorkDate, Location=Blank.
@@ -510,7 +510,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockPurchOrder(ChildItem."No.", 10, '', CalcDate('<+1M>', WorkDate));
         // Create assembly order. Qty = 1
         Step := 1;
-        MfgSetup.Get;
+        MfgSetup.Get();
         MockAsmOrder(AsmHeader, ParentItem, 1, CalcDate(MfgSetup."Default Safety Lead Time", WorkDate), ''); // to avoid the message about due date being before work date
         Step := 2;
         // Set due date on the line to 1W before the expected rcpt date of the purchase
@@ -594,7 +594,7 @@ codeunit 137912 "SCM Assembly Availability II"
         SavedStartDate := AsmHeader."Starting Date";
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         SavedLineDueDate := AsmLine."Due Date";
-        Commit; // save the state as the rest of the test method uses this data.
+        Commit(); // save the state as the rest of the test method uses this data.
 
         // EXERCISE
         // Push starting date 2 days in the future.
@@ -793,7 +793,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := TestVSTF266309;
         Step := 0;
         // Set Assembly setup to show no warning
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Stockout Warning", false);
         AssemblySetup.Modify(true);
         // Create assembled item with one comp (qty per = 1).
@@ -841,13 +841,13 @@ codeunit 137912 "SCM Assembly Availability II"
         Location."Bin Mandatory" := true;
         LibraryWarehouse.CreateBin(Bin, Location.Code, FirstNumber, '', '');
         Location."To-Assembly Bin Code" := Bin.Code;
-        Location.Modify;
+        Location.Modify();
         // Add 2 PCS of component to inventory
         AddItemToInventory(ChildItem, Location.Code, Bin.Code, 2);
         // Change manufacturing Default Safety Lead Time = 2D
         OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
         Evaluate(DTFormula, DateFormula1D);
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.Validate("Default Safety Lead Time", DTFormula);
         MfgSetup.Modify(true);
         // Create asm order
@@ -1033,7 +1033,7 @@ codeunit 137912 "SCM Assembly Availability II"
                     2:
                         begin
                             // get assembly line for this header and modify it
-                            AsmHeader.Init;
+                            AsmHeader.Init();
                             AssemblyAvailability.GetRecord(AsmHeader);
                             AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first asm line
                             AsmLine.Validate(Type, AsmLine.Type::Item);
@@ -1170,7 +1170,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ParentItem.Modify(true);
 
         // Set dates
-        MfgSetup.Get;
+        MfgSetup.Get();
         OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
         Evaluate(LeadTime, '2D');
         MfgSetup.Validate("Default Safety Lead Time", LeadTime);
@@ -1240,7 +1240,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Change manufacturing Default Safety Lead Time = 2D
         OldDefSafetyLeadTime := MfgSetup."Default Safety Lead Time";
         Evaluate(DTFormula, DateFormula1D);
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.Validate("Default Safety Lead Time", DTFormula);
         MfgSetup.Modify(true);
 
@@ -1499,7 +1499,7 @@ codeunit 137912 "SCM Assembly Availability II"
         Assert.AreEqual(0, ActualGrossReq, 'Incorrect Gross Req in Header. ' + StepInfo); // always zero in these test methods
         Evaluate(ActualSchRcpt, AsmAvailability.ScheduledReceipts.Value);
         Assert.AreEqual(ExpectedHeaderSchRcpt, ActualSchRcpt, 'Incorrect Scheduled Receipt in Header. ' + StepInfo);
-        MfgSetup.Get;
+        MfgSetup.Get();
         if StockkeepingUnit.Get(AsmAvailability."Location Code".Value, AsmAvailability."Item No.".Value,
              AsmAvailability."Variant Code".Value)
         then
@@ -1574,7 +1574,7 @@ codeunit 137912 "SCM Assembly Availability II"
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
         ItemJournalLine.Validate("Location Code", LocationCode);

@@ -19,11 +19,9 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -116,11 +114,9 @@ table 271 "Bank Account Ledger Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(51; "Bal. Account Type"; Option)
+        field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",,Employee;
         }
         field(52; "Bal. Account No."; Code[20])
         {
@@ -133,9 +129,7 @@ table 271 "Bank Account Ledger Entry"
             ELSE
             IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
             ELSE
-            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset"
-            ELSE
-            IF ("Bal. Account Type" = CONST(Employee)) Employee;
+            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset";
         }
         field(53; "Transaction No."; Integer)
         {

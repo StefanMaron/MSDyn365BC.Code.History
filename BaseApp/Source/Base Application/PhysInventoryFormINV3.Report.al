@@ -11,7 +11,7 @@ report 12481 "Phys. Inventory Form INV-3"
 
             trigger OnAfterGetRecord()
             begin
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetCurrentKey(
                   "Item No.", "Location Code", "Expected Cost", Inventoriable, "Posting Date");
                 ValueEntry.SetRange("Item No.", "Item No.");
@@ -70,7 +70,7 @@ report 12481 "Phys. Inventory Form INV-3"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 CheckLocation;
 
@@ -196,7 +196,7 @@ report 12481 "Phys. Inventory Form INV-3"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Phys.Inv. INV-3 Template Code");
         ExcelReportBuilderMgr.InitTemplate(InventorySetup."Phys.Inv. INV-3 Template Code");
     end;

@@ -153,7 +153,7 @@ table 17390 "Sick Leave Setup"
             else
                 ServiceYears := ServiceRecord[3];
 
-            SickLeaveSetup.Reset;
+            SickLeaveSetup.Reset();
             SickLeaveSetup.SetCurrentKey(Type, "Starting Date");
             SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Payment Percent");
             SickLeaveSetup.SetRange("Payment Benefit Liable", Person."Sick Leave Payment Benefit");
@@ -199,7 +199,7 @@ table 17390 "Sick Leave Setup"
         Person.GetEntireAge(Person."Birth Date", AbsenceLine."Start Date");
         // check previous sick leave if any
 
-        SickLeaveSetup.Reset;
+        SickLeaveSetup.Reset();
         SickLeaveSetup.SetCurrentKey(Type, "Starting Date");
         SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Sick Leave Care");
         SickLeaveSetup.SetRange("Element Code", AbsenceLine."Element Code");
@@ -220,12 +220,12 @@ table 17390 "Sick Leave Setup"
         AbsenceHeader: Record "Absence Header";
     begin
         Exist := false;
-        AbsenceHeader.Reset;
+        AbsenceHeader.Reset();
         AbsenceHeader.SetRange("Document Type", AbsenceLine."Document Type");
         AbsenceHeader.SetRange("No.", AbsenceLine."Document No.");
         if AbsenceHeader.FindFirst then
             if AbsenceLine."Previous Document No." <> '' then begin
-                FirstAbsenceLine.Reset;
+                FirstAbsenceLine.Reset();
                 FirstAbsenceLine.SetRange("Document Type", AbsenceHeader."Document Type");
                 FirstAbsenceLine.SetRange("Document No.", AbsenceLine."Previous Document No.");
                 if FirstAbsenceLine.FindFirst then
@@ -239,7 +239,7 @@ table 17390 "Sick Leave Setup"
         FirstPostedAbsenceLine: Record "Posted Absence Line";
         Days: Decimal;
     begin
-        SickLeaveSetup.Reset;
+        SickLeaveSetup.Reset();
         SickLeaveSetup.SetCurrentKey(Type, "Starting Date", "Sick Leave Type", "Element Code");
         SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Payment Source");
         SickLeaveSetup.SetRange("Starting Date", 0D, AbsenceLine."Start Date");
@@ -277,7 +277,7 @@ table 17390 "Sick Leave Setup"
             AbsenceLine.TestField("Relative Person No.");
             Person.Get(AbsenceLine."Relative Person No.");
             Person.GetEntireAge(Person."Birth Date", AbsenceLine."Start Date");
-            SickLeaveSetup.Reset;
+            SickLeaveSetup.Reset();
             SickLeaveSetup.SetCurrentKey(Type, "Starting Date", "Sick Leave Type", "Element Code");
             SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Sick Leave Care");
             SickLeaveSetup.SetRange("Starting Date", 0D, AbsenceLine."Start Date");
@@ -358,7 +358,7 @@ table 17390 "Sick Leave Setup"
     begin
         EmployeeLedgEntry.Get(PayrollDocLine."Employee Ledger Entry No.");
 
-        SickLeaveSetup.Reset;
+        SickLeaveSetup.Reset();
         SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Salary Limits");
         SickLeaveSetup.SetRange("Sick Leave Type", EmployeeLedgEntry."Sick Leave Type");
         SickLeaveSetup.SetRange("Starting Date", 0D, EmployeeLedgEntry."Action Starting Date");
@@ -379,7 +379,7 @@ table 17390 "Sick Leave Setup"
     begin
         EmployeeLedgEntry.Get(PayrollDocLine."Employee Ledger Entry No.");
 
-        SickLeaveSetup.Reset;
+        SickLeaveSetup.Reset();
         SickLeaveSetup.SetRange(Type, SickLeaveSetup.Type::"Salary Limits");
         SickLeaveSetup.SetRange("Sick Leave Type", EmployeeLedgEntry."Sick Leave Type");
         SickLeaveSetup.SetRange("Starting Date", 0D, EmployeeLedgEntry."Action Starting Date");

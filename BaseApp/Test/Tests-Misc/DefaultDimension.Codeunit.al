@@ -14,9 +14,8 @@ codeunit 134487 "Default Dimension"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryRapidStart: Codeunit "Library - Rapid Start";
         NoValidateErr: Label 'The field No. of table Default Dimension contains a value (%1) that cannot be found in the related table (%2)';
-        RenameErr: Label 'You cannot rename %1.';
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
 
     [Test]
     [HandlerFunctions('DefaultDimensionsMPH')]
@@ -31,7 +30,7 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are Global Dimension fields.
         TableWithDefaultDim."No." := LibraryUtility.GenerateGUID;
-        TableWithDefaultDim.Insert;
+        TableWithDefaultDim.Insert();
         // [GIVEN] Run 'Dimension - Single' action on the card page
         MockMasterWithDimsCard.OpenView;
         MockMasterWithDimsCard.Dimensions.Invoke;
@@ -59,7 +58,7 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are no Global Dimension fields.
         MockMasterTable."No." := LibraryUtility.GenerateGUID;
-        MockMasterTable.Insert;
+        MockMasterTable.Insert();
         // [GIVEN] Subscribed to COD408.OnAfterSetupObjectNoList to add table to the allowed table ID list
         BindSubscription(DefaultDimensionCodeunit);
         // [GIVEN] Run 'Dimension - Single' action on the card page
@@ -86,7 +85,6 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UT]
         // [SCENARIO] All tables returned by COD408.DefaultDimObjectNoList() have captions, are not obsolete, and Primary Key of one field.
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-        TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
         with TempAllObjWithCaption do
             if FindSet then
                 repeat
@@ -106,57 +104,12 @@ codeunit 134487 "Default Dimension"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] All tables returned by COD408.DefaultDimObjectNoList support Rename and Delete.
-        // [SCENARIO] (Except RU local tables "Vendor Agreement" and "Customer Agreement")
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-        TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
+        TempAllObjWithCaption.SetFilter("Object ID", '<>%1', DATABASE::"Table With Default Dim");
         if TempAllObjWithCaption.FindSet then
             repeat
                 ValidateNotExistingNo(TempAllObjWithCaption."Object ID", RenameMasterRecord(TempAllObjWithCaption."Object ID"));
             until TempAllObjWithCaption.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TRU001_DefaultDimListIncludesCustVendAgreements()
-    var
-        TempAllObjWithCaption: Record AllObjWithCaption temporary;
-        DimensionManagement: Codeunit DimensionManagement;
-    begin
-        // [FEATURE] [Country:RU] [Agreement]
-        // [SCENARIO] COD408.DefaultDimObjectNoList includes Customer/Vendor Agreement tables, though they have 2 fields in PKey.
-        DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-        TempAllObjWithCaption.SetRange("Object ID", DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
-        Assert.RecordCount(TempAllObjWithCaption, 2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TRU002_VendorAgreementCannotBeRenamed()
-    var
-        VendorAgreement: Record "Vendor Agreement";
-    begin
-        // [FEATURE] [Country:RU] [Agreement]
-        // [SCENARIO] "Vendor Agreement" cannot be renamed (no need to rename Default Dimensions)
-        VendorAgreement.Init;
-        VendorAgreement."No." := LibraryUtility.GenerateGUID;
-        VendorAgreement.Insert;
-        asserterror VendorAgreement.Rename('', LibraryUtility.GenerateGUID);
-        Assert.ExpectedError(StrSubstNo(RenameErr, VendorAgreement.TableCaption));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TRU003_CustomerAgreementCannotBeRenamed()
-    var
-        CustomerAgreement: Record "Customer Agreement";
-    begin
-        // [FEATURE] [Country:RU] [Agreement]
-        // [SCENARIO] "Customer Agreement" cannot be renamed (no need to rename Default Dimensions)
-        CustomerAgreement.Init;
-        CustomerAgreement."No." := LibraryUtility.GenerateGUID;
-        CustomerAgreement.Insert;
-        asserterror CustomerAgreement.Rename('', LibraryUtility.GenerateGUID);
-        Assert.ExpectedError(StrSubstNo(RenameErr, CustomerAgreement.TableCaption));
     end;
 
     [Test]
@@ -183,7 +136,7 @@ codeunit 134487 "Default Dimension"
             ConfigTemplateHeader.Modify(true);
 
             // [GIVEN] Dimension value for Global Dimension 1 Code was extracted.
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
             DimensionValue.FindFirst;
 
@@ -311,7 +264,7 @@ codeunit 134487 "Default Dimension"
     var
         "Field": Record "Field";
     begin
-        Field.Reset;
+        Field.Reset();
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, 'Global Dimension 1 Code');
         Field.FindFirst;

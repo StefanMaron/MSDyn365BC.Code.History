@@ -16,9 +16,6 @@ report 12469 "Item Turnover (Qty.)"
             column(PeriodText; PeriodText)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -278,7 +275,7 @@ report 12469 "Item Turnover (Qty.)"
 
                 trigger OnPreDataItem()
                 begin
-                    if not ShowDetails then CurrReport.Break;
+                    if not ShowDetails then CurrReport.Break();
                     DetailedEntries.SetFilter("Posting Date", '%1..%2', StartDate, EndDate);
                     DetailedEntries.SetFilter("Item No.", Item."No.");
                 end;
@@ -325,18 +322,18 @@ report 12469 "Item Turnover (Qty.)"
                 DecreaseCost := CreditCost;
 
                 if SkipZeroBalances and (EndingQty = 0) and (EndingCost = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if SkipZeroNetChanges and (IncreaseQty = 0) and (DecreaseQty = 0) and
                   (IncreaseCost = 0) and (DecreaseCost = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if SkipZeroLines and
                   (StartingQty = 0) and (EndingQty = 0) and
                   (IncreaseQty = 0) and (DecreaseQty = 0) and
                   (StartingCost = 0) and (EndingCost = 0) and
                   (IncreaseCost = 0) and (EndingCost = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TextValueLine(SkipZeroValues);
             end;
@@ -355,7 +352,7 @@ report 12469 "Item Turnover (Qty.)"
                 if not PrintGroupTotals then
                     Item.SetCurrentKey("No.");
 
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetCurrentKey("Item No.", "Location Code",
                   "Global Dimension 1 Code", "Global Dimension 2 Code", "Expected Cost", Positive, "Posting Date");
                 ValueEntry.SetFilter("Location Code", GetFilter("Location Filter"));
@@ -614,7 +611,7 @@ report 12469 "Item Turnover (Qty.)"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[1024]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -622,7 +619,7 @@ report 12469 "Item Turnover (Qty.)"
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Italic := Italic;
         TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     [Scope('OnPrem')]

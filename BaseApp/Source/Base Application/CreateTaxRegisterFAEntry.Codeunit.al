@@ -24,16 +24,16 @@ codeunit 17205 "Create Tax Register FA Entry"
         TaxRegMgt: Codeunit "Tax Register Mgt.";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
     begin
-        TaxRegSetup.Get;
+        TaxRegSetup.Get();
         TaxRegSetup.TestField("Tax Depreciation Book");
 
         TaxRegMgt.ValidateAbsenceFAEntriesDate(StartDate, EndDate, SectionCode);
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
@@ -108,7 +108,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                                             TempTaxRegTemplate.Value := -FALedgEntry.Amount;
                                         end;
                                     TaxRegFAEntry.FieldNo("Sold FA Qty"):
-                                        TempTaxRegTemplate.Value := FALedgEntry.Count;
+                                        TempTaxRegTemplate.Value := FALedgEntry.Count();
                                     TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA"):
                                         begin
                                             FALedgEntry.CalcSums(Amount);
@@ -117,10 +117,10 @@ codeunit 17205 "Create Tax Register FA Entry"
                                 end;
                             end;
 
-                        TempTaxRegTemplate.Insert;
+                        TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next = 0;
 
-                TempTaxRegTemplate.Reset;
+                TempTaxRegTemplate.Reset();
                 if TempTaxRegTemplate.FindSet then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
@@ -138,10 +138,10 @@ codeunit 17205 "Create Tax Register FA Entry"
                             TempTaxRegTemplate.Period);
                         TaxRegAccumulation.Amount := TaxRegAccumulation."Amount Period";
                         TaxRegAccumulation."Entry No." += 1;
-                        TaxRegAccumulation.Insert;
+                        TaxRegAccumulation.Insert();
                         if TempTaxRegTemplate.Period <> '' then begin
                             TaxRegAccumulation2 := TaxRegAccumulation;
-                            TaxRegAccumulation2.Reset;
+                            TaxRegAccumulation2.Reset();
                             TaxRegAccumulation2.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxRegAccumulation2.SetRange("Section Code", SectionCode);
                             TaxRegAccumulation2.SetRange("Tax Register No.", TaxRegAccumulation."Tax Register No.");
@@ -150,18 +150,18 @@ codeunit 17205 "Create Tax Register FA Entry"
                             TaxRegAccumulation2.SetFilter("Ending Date", TaxRegAccumulation."Amount Date Filter");
                             TaxRegAccumulation2.CalcSums("Amount Period");
                             TaxRegAccumulation.Amount := TaxRegAccumulation2."Amount Period";
-                            TaxRegAccumulation.Modify;
+                            TaxRegAccumulation.Modify();
                         end;
                     until TempTaxRegTemplate.Next = 0;
 
-                TempTaxRegTemplate.DeleteAll;
+                TempTaxRegTemplate.DeleteAll();
             until TaxReg.Next = 0;
 
             FillInTaxRegFALedgerEntry(
               StartDate,
               EndDate,
               SectionCode);
-            TempTaxRegTemplate.Insert;
+            TempTaxRegTemplate.Insert();
         end;
     end;
 
@@ -172,7 +172,7 @@ codeunit 17205 "Create Tax Register FA Entry"
     begin
         with TaxRegTemplate do
             if Expression <> '' then begin
-                FALedgEntry.Reset;
+                FALedgEntry.Reset();
                 FALedgEntry.SetCurrentKey(
                   "Depreciation Book Code", "FA Posting Date", "FA Posting Category", "FA Posting Type",
                   "Belonging to Manufacturing", "FA Type", "Depreciation Group", "Depr. Bonus");
@@ -287,7 +287,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                 FALedgerEntry.SetRange("FA Posting Date", StartDate, EndDate);
                 if FALedgerEntry.FindFirst then begin
                     FixedAsset.Get(FALedgerEntry."FA No.");
-                    TaxRegFAEntry.Init;
+                    TaxRegFAEntry.Init();
                     TaxRegFAEntry."Section Code" := SectionCode;
                     TaxRegFAEntry."Starting Date" := StartDate;
                     TaxRegFAEntry."Ending Date" := EndDate;
@@ -297,7 +297,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                     TaxRegFAEntry."FA Type" := FixedAsset."FA Type";
                     TaxRegFAEntry."Depreciation Group" := FixedAsset."Depreciation Group";
                     TaxRegFAEntry."Entry No." := EntryNo;
-                    TaxRegFAEntry.Insert;
+                    TaxRegFAEntry.Insert();
                     EntryNo += 1;
                 end;
             until FADepreciationBook.Next = 0;

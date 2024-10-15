@@ -206,7 +206,7 @@ page 17238 "Tax Reg. Payroll Template Subf"
         DimCodeFilter: Text[1024];
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         if ("Line No." <> 0) and ("Expression Type" = "Expression Type"::SumField) then begin
             TaxRegSection.Get("Section Code");
             if (TaxRegSection."Dimension 1 Code" <> '') or

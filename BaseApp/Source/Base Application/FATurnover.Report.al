@@ -26,13 +26,7 @@ report 12466 "FA Turnover"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(GETFILTERS; GetFilters)
-            {
-            }
-            column(CurrReport_PAGENO_Control1210048; CurrReport.PageNo)
             {
             }
             column(NotShowZero; NotShowZero)
@@ -129,9 +123,6 @@ report 12466 "FA Turnover"
             {
             }
             column(FA_Depreciation_Book__Book_Value_Caption_Control1210045; "FA Depreciation Book".FieldCaption("Book Value"))
-            {
-            }
-            column(PageCaption_Control1210047; PageCaption_Control1210047Lbl)
             {
             }
             column(FA_Sheet__Continuation_Caption; FA_Sheet__Continuation_CaptionLbl)
@@ -260,7 +251,7 @@ report 12466 "FA Turnover"
 
                 SetRange("No.");
 
-                FALedgerEntry.Reset;
+                FALedgerEntry.Reset();
                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
                 FALedgerEntry.SetRange("FA No.", "No.");
                 FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
@@ -404,10 +395,7 @@ report 12466 "FA Turnover"
 
         trigger OnOpenPage()
         begin
-            FASetup.Get;
-            //BeginingDate := CALCDATE('<-CM>',WORKDATE);
-            //EndingDate :=  CALCDATE('<CM>',WORKDATE);
-
+            FASetup.Get();
             if DepreciationBook = '' then
                 DepreciationBook := FASetup."Release Depr. Book";
         end;
@@ -470,7 +458,6 @@ report 12466 "FA Turnover"
         NameCaption_Control1210026Lbl: Label 'Name';
         Control1210029CaptionLbl: Label 'Label1210029';
         Control1210030CaptionLbl: Label 'Label1210030';
-        PageCaption_Control1210047Lbl: Label 'Page';
         FA_Sheet__Continuation_CaptionLbl: Label 'FA Sheet. Continuation.';
         Depreciation_PeriodCaption_Control1210035Lbl: Label 'Depreciation Period';
         FA_StatusCaption_Control1210060Lbl: Label 'FA Status';

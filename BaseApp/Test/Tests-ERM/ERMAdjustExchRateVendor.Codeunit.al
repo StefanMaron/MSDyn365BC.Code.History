@@ -156,7 +156,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -188,7 +188,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency);
-        Vendor.Modify;
+        Vendor.Modify();
         exit(Vendor."No.");
     end;
 

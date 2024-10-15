@@ -95,7 +95,7 @@ table 12470 "FA Document Header"
             begin
                 with FADocHeader do begin
                     FADocHeader := Rec;
-                    FASetup.Get;
+                    FASetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -106,7 +106,7 @@ table 12470 "FA Document Header"
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -200,14 +200,14 @@ table 12470 "FA Document Header"
     var
         FAComment: Record "FA Comment";
     begin
-        FAComment.Reset;
+        FAComment.Reset();
         FAComment.SetRange("Document Type", "Document Type");
         FAComment.SetRange("Document No.", "No.");
-        FAComment.DeleteAll;
+        FAComment.DeleteAll();
 
         DocSignMgt.DeleteDocSign(DATABASE::"FA Document Header", "Document Type", "No.");
 
-        FADocLine.Reset;
+        FADocLine.Reset();
         FADocLine.SetRange("Document Type", "Document Type");
         FADocLine.SetRange("Document No.", "No.");
         FADocLine.DeleteAll(true);
@@ -215,7 +215,7 @@ table 12470 "FA Document Header"
 
     trigger OnInsert()
     begin
-        FASetup.Get;
+        FASetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "FA Posting Date", "No.", "No. Series");
@@ -288,10 +288,10 @@ table 12470 "FA Document Header"
     [Scope('OnPrem')]
     procedure AssistEdit(OldFADocHeader: Record "FA Document Header"): Boolean
     begin
-        FASetup.Get;
+        FASetup.Get();
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldFADocHeader."No. Series", "No. Series") then begin
-            FASetup.Get;
+            FASetup.Get();
             TestNoSeries;
             NoSeriesMgt.SetSeries("No.");
             exit(true);
@@ -346,7 +346,7 @@ table 12470 "FA Document Header"
     [Scope('OnPrem')]
     procedure DocLinesExist(): Boolean
     begin
-        FADocLine.Reset;
+        FADocLine.Reset();
         FADocLine.SetRange("Document Type", "Document Type");
         FADocLine.SetRange("Document No.", "No.");
         exit(not FADocLine.IsEmpty);
@@ -359,7 +359,7 @@ table 12470 "FA Document Header"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -397,7 +397,7 @@ table 12470 "FA Document Header"
     begin
         FADocLine.SetRange("Document Type", "Document Type");
         FADocLine.SetRange("Document No.", "No.");
-        FADocLine.LockTable;
+        FADocLine.LockTable();
         if FADocLine.Find('-') then
             repeat
                 case CalledByFieldNo of
@@ -420,7 +420,7 @@ table 12470 "FA Document Header"
     begin
         Clear(Comment);
         Index := 0;
-        FAComment.Reset;
+        FAComment.Reset();
         FAComment.SetCurrentKey("Document Type", "Document No.", "Document Line No.", Type);
         FAComment.SetRange("Document Type", "Document Type");
         FAComment.SetRange("Document No.", "No.");
@@ -474,10 +474,10 @@ table 12470 "FA Document Header"
         if not Confirm(Text064) then
             exit;
 
-        FADocLine.Reset;
+        FADocLine.Reset();
         FADocLine.SetRange("Document Type", "Document Type");
         FADocLine.SetRange("Document No.", "No.");
-        FADocLine.LockTable;
+        FADocLine.LockTable();
         if FADocLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(FADocLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -485,7 +485,7 @@ table 12470 "FA Document Header"
                     FADocLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       FADocLine."Dimension Set ID", FADocLine."Shortcut Dimension 1 Code", FADocLine."Shortcut Dimension 2 Code");
-                    FADocLine.Modify;
+                    FADocLine.Modify();
                 end;
             until FADocLine.Next = 0;
     end;

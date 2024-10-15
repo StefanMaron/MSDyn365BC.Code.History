@@ -26,7 +26,7 @@ report 14913 "Create Invent. Act Lines"
 
             trigger OnAfterGetRecord()
             begin
-                CustPostGroupBuffer.DeleteAll;
+                CustPostGroupBuffer.DeleteAll();
 
                 CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
                 CustLedgerEntry.SetRange("Customer No.", "No.");
@@ -36,7 +36,7 @@ report 14913 "Create Invent. Act Lines"
                         if not CustPostGroupBuffer.Get(CustLedgerEntry."Customer Posting Group") then begin
                             CustPostGroup.Get(CustLedgerEntry."Customer Posting Group");
                             CustPostGroupBuffer := CustPostGroup;
-                            CustPostGroupBuffer.Insert;
+                            CustPostGroupBuffer.Insert();
                         end;
                     until CustLedgerEntry.Next = 0;
 
@@ -69,7 +69,7 @@ report 14913 "Create Invent. Act Lines"
 
             trigger OnAfterGetRecord()
             begin
-                VendPostGroupBuffer.DeleteAll;
+                VendPostGroupBuffer.DeleteAll();
 
                 VendLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
                 VendLedgerEntry.SetRange("Vendor No.", "No.");
@@ -79,7 +79,7 @@ report 14913 "Create Invent. Act Lines"
                         if not VendPostGroupBuffer.Get(VendLedgerEntry."Vendor Posting Group") then begin
                             VendPostGroup.Get(VendLedgerEntry."Vendor Posting Group");
                             VendPostGroupBuffer := VendPostGroup;
-                            VendPostGroupBuffer.Insert;
+                            VendPostGroupBuffer.Insert();
                         end;
                     until VendLedgerEntry.Next = 0;
 
@@ -140,7 +140,7 @@ report 14913 "Create Invent. Act Lines"
     [Scope('OnPrem')]
     procedure AddLine(ContractorType: Option Customer,Vendor; ContractorNo: Code[20]; Category: Option Debts,Liabilities; PostingGroup: Code[20]; GLAccount: Code[20]; Amount: Decimal)
     begin
-        InventActLine.Init;
+        InventActLine.Init();
         InventActLine."Act No." := "Invent. Act Header"."No.";
         InventActLine."Contractor Type" := ContractorType;
         InventActLine."Contractor No." := ContractorNo;
@@ -153,9 +153,9 @@ report 14913 "Create Invent. Act Lines"
         InventActLine."G/L Account No." := GLAccount;
         InventActLine."Total Amount" := Amount;
         InventActLine."Confirmed Amount" := Amount;
-        if not InventActLine.Insert then
+        if not InventActLine.Insert() then
             if Confirm(Text002, false, InventActLine.GetRecDescription) then
-                InventActLine.Modify;
+                InventActLine.Modify();
     end;
 }
 

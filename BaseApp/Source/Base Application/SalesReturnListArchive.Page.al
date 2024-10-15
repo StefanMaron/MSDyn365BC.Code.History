@@ -1,4 +1,4 @@
-﻿page 6629 "Sales Return List Archive"
+page 6629 "Sales Return List Archive"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales Return Orders Archive';

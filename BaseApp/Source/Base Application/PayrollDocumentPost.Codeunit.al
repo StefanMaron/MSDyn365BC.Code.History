@@ -35,7 +35,7 @@ codeunit 17405 "Payroll Document - Post"
                 CODEUNIT.Run(CODEUNIT::"Release Payroll Document", PayrollDoc);
                 Status := Status::Open;
                 Modify;
-                Commit;
+                Commit();
                 Status := Status::Released;
             end;
 
@@ -52,34 +52,34 @@ codeunit 17405 "Payroll Document - Post"
 
             CheckDim;
 
-            HRSetup.Get;
-            SourceCodeSetup.Get;
+            HRSetup.Get();
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Payroll Calculation");
 
             // Lock tables
-            GLEntry.LockTable;
+            GLEntry.LockTable();
             if GLEntry.FindLast then;
-            PayrollLedgEntry.LockTable;
+            PayrollLedgEntry.LockTable();
             if PayrollLedgEntry.FindLast then;
-            DtldPayrollLedgEntry.LockTable;
+            DtldPayrollLedgEntry.LockTable();
             if DtldPayrollLedgEntry.FindLast then;
 
-            SepareteEntryBuffer.DeleteAll;
-            PayrollDocBuffer.DeleteAll;
+            SepareteEntryBuffer.DeleteAll();
+            PayrollDocBuffer.DeleteAll();
 
             // Insert posted document header
-            PostedPayrollDoc.Init;
+            PostedPayrollDoc.Init();
             PostedPayrollDoc.TransferFields(PayrollDoc);
             PostedPayrollDoc."No." :=
               NoSeriesMgt.GetNextNo(
                 HRSetup."Posted Payroll Document Nos.", "Posting Date", true);
             PostedPayrollDoc.Reversed := Correction;
-            PostedPayrollDoc.Insert;
+            PostedPayrollDoc.Insert();
 
             if Correction then begin
                 ReversingPayrollDoc.Get("Reversing Document No.");
                 ReversingPayrollDoc.Reversed := true;
-                ReversingPayrollDoc.Modify;
+                ReversingPayrollDoc.Modify();
 
                 PayrollLedgEntry.SetCurrentKey("Document No.", "Posting Date");
                 PayrollLedgEntry.SetRange("Document No.", ReversingPayrollDoc."No.");
@@ -90,67 +90,67 @@ codeunit 17405 "Payroll Document - Post"
             PostToGL := "Posting Type" = "Posting Type"::Calculation;
 
             // Insert posted document lines
-            PayrollDocLine.Reset;
+            PayrollDocLine.Reset();
             PayrollDocLine.SetRange("Document No.", "No.");
             if PayrollDocLine.FindSet then
                 repeat
                     if Correction then
                         ReverseAmount;
 
-                    PostedPayrollDocLine.Init;
+                    PostedPayrollDocLine.Init();
                     PostedPayrollDocLine.TransferFields(PayrollDocLine);
                     PostedPayrollDocLine."Document No." := PostedPayrollDoc."No.";
-                    PostedPayrollDocLine.Insert;
+                    PostedPayrollDocLine.Insert();
 
                     if PayrollCalcGroup.Type <> PayrollCalcGroup.Type::Between then
                         PostPayrollDocumentLine;
 
                     PostedPayrollDocLine."Payroll Ledger Entry No." := PayrollDocLine."Payroll Ledger Entry No.";
-                    PostedPayrollDocLine.Modify;
+                    PostedPayrollDocLine.Modify();
 
                     // copy calculation
                     PayrollDocLineCalc.SetRange("Document No.", PayrollDocLine."Document No.");
                     PayrollDocLineCalc.SetRange("Document Line No.", PayrollDocLine."Line No.");
                     if PayrollDocLineCalc.FindSet then
                         repeat
-                            PostedPayrollDocLineCalc.Init;
+                            PostedPayrollDocLineCalc.Init();
                             PostedPayrollDocLineCalc.TransferFields(PayrollDocLineCalc);
                             PostedPayrollDocLineCalc."Document No." := PostedPayrollDoc."No.";
-                            PostedPayrollDocLineCalc.Insert;
+                            PostedPayrollDocLineCalc.Insert();
 
                             PayrollDocLineExpr.SetRange("Document No.", PayrollDocLineCalc."Document No.");
                             PayrollDocLineExpr.SetRange("Document Line No.", PayrollDocLineCalc."Document Line No.");
                             PayrollDocLineExpr.SetRange("Calculation Line No.", PayrollDocLineCalc."Line No.");
                             if PayrollDocLineExpr.FindSet then
                                 repeat
-                                    PostedPayrollDocLineExpr.Init;
+                                    PostedPayrollDocLineExpr.Init();
                                     PostedPayrollDocLineExpr.TransferFields(PayrollDocLineExpr);
                                     PostedPayrollDocLineExpr."Document No." := PostedPayrollDoc."No.";
-                                    PostedPayrollDocLineExpr.Insert;
+                                    PostedPayrollDocLineExpr.Insert();
                                 until PayrollDocLineExpr.Next = 0;
                         until PayrollDocLineCalc.Next = 0;
 
                     // Insert AE entries
-                    PayrollDocLineAE.Reset;
+                    PayrollDocLineAE.Reset();
                     PayrollDocLineAE.SetRange("Document No.", PayrollDocLine."Document No.");
                     PayrollDocLineAE.SetRange("Document Line No.", PayrollDocLine."Line No.");
                     if PayrollDocLineAE.FindSet then
                         repeat
-                            PostedPayrollDocLineAE.Init;
+                            PostedPayrollDocLineAE.Init();
                             PostedPayrollDocLineAE.TransferFields(PayrollDocLineAE);
                             PostedPayrollDocLineAE."Document No." := PostedPayrollDoc."No.";
-                            PostedPayrollDocLineAE.Insert;
+                            PostedPayrollDocLineAE.Insert();
                         until PayrollDocLineAE.Next = 0;
 
-                    PayrollPeriodAE.Reset;
+                    PayrollPeriodAE.Reset();
                     PayrollPeriodAE.SetRange("Document No.", PayrollDocLine."Document No.");
                     PayrollPeriodAE.SetRange("Line No.", PayrollDocLine."Line No.");
                     if PayrollPeriodAE.FindSet then
                         repeat
-                            PostedPayrollPeriodAE.Init;
+                            PostedPayrollPeriodAE.Init();
                             PostedPayrollPeriodAE.TransferFields(PayrollPeriodAE);
                             PostedPayrollPeriodAE."Document No." := PostedPayrollDoc."No.";
-                            PostedPayrollPeriodAE.Insert;
+                            PostedPayrollPeriodAE.Insert();
                         until PayrollPeriodAE.Next = 0;
                     if PayrollCalcGroup.Type <> PayrollCalcGroup.Type::Between then
                         PersonIncomeMgt.CreateSocialTaxLine(PostedPayrollDocLine);
@@ -165,7 +165,7 @@ codeunit 17405 "Payroll Document - Post"
             if (PayrollCalcGroup.Type <> PayrollCalcGroup.Type::Between) and PostToGL then begin
                 // Post vendor's liability
                 if DocumentBalance <> 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine.Validate("Posting Date", "Posting Date");
                     GenJnlLine."Document No." := PostedPayrollDoc."No.";
                     GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Vendor);
@@ -186,13 +186,13 @@ codeunit 17405 "Payroll Document - Post"
 
                 // Post fund entries
                 AggregateTaxes(PayrollDocLine);
-                PayrollDocBuffer.Reset;
+                PayrollDocBuffer.Reset();
                 if PayrollDocBuffer.FindSet then
                     repeat
-                        GenJnlLine.Init;
+                        GenJnlLine.Init();
                         GenJnlLine."Payment Purpose" := "Employee No.";
                         GenJnlLine.Validate("Posting Date", "Posting Date");
-                        PostedPayrollDocLine.Reset;
+                        PostedPayrollDocLine.Reset();
                         PostedPayrollDocLine.SetRange("Document No.", PostedPayrollDoc."No.");
                         PostedPayrollDocLine.SetRange("Element Code", PayrollDocBuffer."Element Code");
                         PostedPayrollDocLine.FindFirst;
@@ -224,10 +224,10 @@ codeunit 17405 "Payroll Document - Post"
                     until PayrollDocBuffer.Next = 0;
 
                 // post income tax and deductions entries
-                SepareteEntryBuffer.Reset;
+                SepareteEntryBuffer.Reset();
                 if SepareteEntryBuffer.FindSet then
                     repeat
-                        GenJnlLine.Init;
+                        GenJnlLine.Init();
                         GenJnlLine."Payment Purpose" := "Employee No.";
                         GenJnlLine.Validate("Posting Date", "Posting Date");
                         GenJnlLine."Document No." := PostedPayrollDoc."No.";
@@ -248,7 +248,7 @@ codeunit 17405 "Payroll Document - Post"
                         GenJnlLine."Payroll Ledger Entry No." := SepareteEntryBuffer."Payroll Ledger Entry No.";
                         GenJnlPostLine.RunWithoutCheck(GenJnlLine);
 
-                        GenJnlLine.Init;
+                        GenJnlLine.Init();
                         GenJnlLine."Payment Purpose" := "Employee No.";
                         GenJnlLine.Validate("Posting Date", "Posting Date");
                         GenJnlLine."Document No." := PostedPayrollDoc."No.";
@@ -275,7 +275,7 @@ codeunit 17405 "Payroll Document - Post"
             // Delete document and lines
             Delete;
 
-            PayrollDocLine.Reset;
+            PayrollDocLine.Reset();
             PayrollDocLine.SetRange("Document No.", "No.");
             PayrollDocLine.DeleteAll(true);
 
@@ -286,10 +286,10 @@ codeunit 17405 "Payroll Document - Post"
                     PayrollStatus."Payroll Status" := PayrollStatus."Payroll Status"::Posted;
                 PayrollStatus.UpdateCalculated(PayrollStatus);
                 PayrollStatus.UpdatePosted(PayrollStatus);
-                PayrollStatus.Modify;
+                PayrollStatus.Modify();
             end;
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -401,13 +401,9 @@ codeunit 17405 "Payroll Document - Post"
 
             CheckDocumentLine;
 
-            PayrollLedgEntry.Reset;
-            if NextEntryNo = 0 then begin
-                if PayrollLedgEntry.FindLast then
-                    NextEntryNo := PayrollLedgEntry."Entry No." + 1
-                else
-                    NextEntryNo := 1;
-            end;
+            PayrollLedgEntry.Reset();
+            if NextEntryNo = 0 then
+                NextEntryNo := PayrollLedgEntry.GetLastEntryNo() + 1;
 
             "Payroll Ledger Entry No." := NextEntryNo;
             Modify;
@@ -423,7 +419,7 @@ codeunit 17405 "Payroll Document - Post"
                     PayrollElement.Type::"Netto Salary",
                     PayrollElement.Type::Bonus:
                         begin
-                            GenJnlLine.Init;
+                            GenJnlLine.Init();
                             GenJnlLine."Payment Purpose" := PayrollDoc."Employee No.";
                             GenJnlLine.Validate("Posting Date", PayrollDoc."Posting Date");
                             PostedPayrDocLineToGenJnlLine(PostedPayrollDocLine, GenJnlLine);
@@ -447,7 +443,7 @@ codeunit 17405 "Payroll Document - Post"
                     PayrollElement.Type::"Income Tax":
                         begin
                             SepareteEntryBuffer := PayrollDocLine;
-                            SepareteEntryBuffer.Insert;
+                            SepareteEntryBuffer.Insert();
                         end;
                 end;
             InsertPayrollLedgerEntry;
@@ -550,16 +546,16 @@ codeunit 17405 "Payroll Document - Post"
         NextDtldEntryNo: Integer;
     begin
         // analyze periods
-        TempWagePeriod.DeleteAll;
-        TempWagePeriod.Reset;
+        TempWagePeriod.DeleteAll();
+        TempWagePeriod.Reset();
 
         WagePeriodNumber := 0;
-        WagePeriod.Reset;
+        WagePeriod.Reset();
         WagePeriod.SetRange(Code, PayrollDocLine."Wage Period From", PayrollDocLine."Wage Period To");
         if WagePeriod.FindSet then
             repeat
                 TempWagePeriod := WagePeriod;
-                TempWagePeriod.Insert;
+                TempWagePeriod.Insert();
                 WagePeriodNumber := WagePeriodNumber + 1;
             until WagePeriod.Next = 0
         else
@@ -577,7 +573,7 @@ codeunit 17405 "Payroll Document - Post"
 
         TempWagePeriod.Find('-');
         repeat
-            DtldPayrollLedgEntry.Init;
+            DtldPayrollLedgEntry.Init();
             DtldPayrollLedgEntry."Entry No." := NextDtldEntryNo;
             NextDtldEntryNo := NextDtldEntryNo + 1;
             DtldPayrollLedgEntry."Payroll Ledger Entry No." := PayrollLedgEntry."Entry No.";
@@ -607,7 +603,7 @@ codeunit 17405 "Payroll Document - Post"
             DtldPayrollLedgEntry."Taxable Amount" :=
               Round(PayrollLedgEntry."Taxable Amount" / WagePeriodNumber);
             TotalTaxableAmount := TotalTaxableAmount + DtldPayrollLedgEntry."Taxable Amount";
-            DtldPayrollLedgEntry.Insert;
+            DtldPayrollLedgEntry.Insert();
         until TempWagePeriod.Next = 0;
 
         if (TotalAmount <> 0) or (TotalTaxableAmount <> 0) or (TotalTaxableAmount <> 0) then begin
@@ -615,7 +611,7 @@ codeunit 17405 "Payroll Document - Post"
               DtldPayrollLedgEntry."Payroll Amount" + (PayrollLedgEntry."Payroll Amount" - TotalAmount);
             DtldPayrollLedgEntry."Taxable Amount" :=
               DtldPayrollLedgEntry."Taxable Amount" + (PayrollLedgEntry."Taxable Amount" - TotalTaxableAmount);
-            DtldPayrollLedgEntry.Modify;
+            DtldPayrollLedgEntry.Modify();
         end;
     end;
 
@@ -623,7 +619,7 @@ codeunit 17405 "Payroll Document - Post"
     procedure InsertBaseAmountEntry(PayrollLedgEntry: Record "Payroll Ledger Entry"; BaseType: Integer; DetailedBaseType: Integer)
     begin
         with PayrollLedgEntry do begin
-            PayrollLedgBaseAmt.Init;
+            PayrollLedgBaseAmt.Init();
             PayrollLedgBaseAmt."Entry No." := "Entry No.";
             PayrollLedgBaseAmt."Base Type" := BaseType;
             PayrollLedgBaseAmt."Detailed Base Type" := DetailedBaseType;
@@ -634,7 +630,7 @@ codeunit 17405 "Payroll Document - Post"
             PayrollLedgBaseAmt."Posting Date" := "Posting Date";
             PayrollLedgBaseAmt."Payroll Directory Code" := "Directory Code";
             PayrollLedgBaseAmt.Amount := "Payroll Amount";
-            PayrollLedgBaseAmt.Insert;
+            PayrollLedgBaseAmt.Insert();
         end;
     end;
 
@@ -767,8 +763,8 @@ codeunit 17405 "Payroll Document - Post"
         PeriodCode: Code[10];
         Sign: Integer;
     begin
-        PayrollDocBuffer.Reset;
-        PayrollDocBuffer.DeleteAll;
+        PayrollDocBuffer.Reset();
+        PayrollDocBuffer.DeleteAll();
         NextDocBufferEntryNo := 0;
 
         // copy fund lines
@@ -777,7 +773,7 @@ codeunit 17405 "Payroll Document - Post"
         if TempPayrollDocLine.FindSet then
             repeat
                 PayrollDocLineFund := TempPayrollDocLine;
-                PayrollDocLineFund.Insert;
+                PayrollDocLineFund.Insert();
             until TempPayrollDocLine.Next = 0;
 
         // filter accruals lines
@@ -823,7 +819,7 @@ codeunit 17405 "Payroll Document - Post"
                     PayrollDocCalculate.CalculateFunction(PayrollDocLineFund, 2005, YTDPostedTaxAmount, ResultFlag);
 
                     // look through buffer lines for current fund
-                    PayrollDocBuffer.Reset;
+                    PayrollDocBuffer.Reset();
                     PayrollDocBuffer.SetRange("Element Code", PayrollDocLineFund."Element Code");
                     if PayrollDocBuffer.FindSet then
                         repeat
@@ -840,7 +836,7 @@ codeunit 17405 "Payroll Document - Post"
                             YTDTaxAmount := PayrollDocCalculate.Withholding(TempPayrollDocLine2, YTDTaxableAmount);
                             CurrPeriodTaxAmount := Sign * YTDTaxAmount + Sign * YTDPostedTaxAmount; // FIX - to +
                             PayrollDocBuffer."Tax Amount" := CurrPeriodTaxAmount;
-                            PayrollDocBuffer.Modify;
+                            PayrollDocBuffer.Modify();
 
                             // ñ«íáó¿Ôý ¡á®ñÑ¡¡Ò¯ ßÒ¼¼Ò ¡á½«úá ¬ ßÒ¼¼Ñ ÒªÑ ÒþÔÑ¡¡«ú« ¡á½«úá
                             YTDPostedTaxAmount := YTDPostedTaxAmount - Sign * CurrPeriodTaxAmount;  // FIX + to -
@@ -858,7 +854,7 @@ codeunit 17405 "Payroll Document - Post"
             if PayrollDocLineFund."Dimension Set ID" = TempPayrollDocLine."Dimension Set ID" then begin
                 PayrollDocBuffer."Base Amount" :=
                   PayrollDocBuffer."Base Amount" + TempPayrollDocLine."Payroll Amount";
-                PayrollDocBuffer.Modify;
+                PayrollDocBuffer.Modify();
             end else
                 InsertNewDocBufferLine(TempPayrollDocLine, PayrollDocLineFund);
         end else
@@ -871,7 +867,7 @@ codeunit 17405 "Payroll Document - Post"
         DummyGlobalDim: array[2] of Code[10];
     begin
         NextDocBufferEntryNo := NextDocBufferEntryNo + 1;
-        PayrollDocBuffer.Init;
+        PayrollDocBuffer.Init();
         PayrollDocBuffer."Entry No." := NextDocBufferEntryNo;
         PayrollDocBuffer."Element Code" := PayrollDocLineFund."Element Code";
         PayrollDocBuffer."Payroll Posting Group" := TempPayrollDocLine."Posting Group";
@@ -882,17 +878,17 @@ codeunit 17405 "Payroll Document - Post"
         PayrollDocBuffer."Dimension Set ID" :=
           DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, DummyGlobalDim[1], DummyGlobalDim[2]);
         PayrollDocBuffer."Payroll Ledger Entry No." := PayrollDocLineFund."Payroll Ledger Entry No.";
-        PayrollDocBuffer.Insert;
+        PayrollDocBuffer.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure GetPayrollDocBuffer(var NewPayrollDocBuffer: Record "Payroll Document Buffer")
     begin
-        PayrollDocBuffer.Reset;
+        PayrollDocBuffer.Reset();
         if PayrollDocBuffer.FindSet then
             repeat
                 NewPayrollDocBuffer := PayrollDocBuffer;
-                NewPayrollDocBuffer.Insert;
+                NewPayrollDocBuffer.Insert();
             until PayrollDocBuffer.Next = 0;
     end;
 
@@ -905,7 +901,7 @@ codeunit 17405 "Payroll Document - Post"
     begin
         AccrualPayrollElement.Get(AccrualElementCode);
         TempPayrollElement := AccrualPayrollElement;
-        TempPayrollElement.Insert;
+        TempPayrollElement.Insert();
         with PayrollBaseAmount do begin
             SetRange("Element Code", TaxElementCode);
             if FindSet then
@@ -969,7 +965,7 @@ codeunit 17405 "Payroll Document - Post"
               Amount, PayrollDocBufRemainder."Tax Amount" + PayrollDocBuf."Tax Amount");
             PayrollDocBufRemainder."Tax Amount" :=
               PayrollDocBuf."Tax Amount" - Amount;
-            PayrollDocBufRemainder.Modify;
+            PayrollDocBufRemainder.Modify();
         end;
     end;
 
@@ -981,9 +977,7 @@ codeunit 17405 "Payroll Document - Post"
             SetRange("Element Code", ElementCode);
             if not FindFirst then begin
                 SetRange("Element Code");
-                if FindLast then
-                    NextEntryNo := "Entry No.";
-                NextEntryNo += 1;
+                NextEntryNo := GetLastEntryNo() + 1;
                 Init;
                 "Entry No." := NextEntryNo;
                 "Element Code" := ElementCode;

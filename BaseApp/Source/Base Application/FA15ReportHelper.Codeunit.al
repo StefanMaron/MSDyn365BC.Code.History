@@ -14,7 +14,7 @@ codeunit 14954 "FA-15 Report Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("FA-15 Template Code");
         ExcelReportBuilderManager.InitTemplate(FASetup."FA-15 Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');
@@ -25,7 +25,7 @@ codeunit 14954 "FA-15 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('FIRSTPAGETITLE');
 
         ExcelReportBuilderManager.AddDataToSection('CompanyName', StdRepMgt.GetCompanyName);
@@ -91,7 +91,7 @@ codeunit 14954 "FA-15 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('LASTPAGEFOOTER');
         ExcelReportBuilderManager.AddDataToSection('ReleasedByTitle', ReleasedBy);
         ExcelReportBuilderManager.AddDataToSection('ReleasedByName', ReleasedByName);

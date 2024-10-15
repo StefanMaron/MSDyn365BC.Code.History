@@ -7,7 +7,7 @@ codeunit 14964 "Payroll Analysis Management"
 
     var
         Text000: Label 'Period';
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>';
+        Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
         Text003: Label '%1 is not a valid line definition.';
         Text004: Label '%1 is not a valid column definition.';
         Text005: Label '1,6,,Dimension 1 Filter';
@@ -260,7 +260,7 @@ codeunit 14964 "Payroll Analysis Management"
     begin
         if not PayrollAnalysisView.Get(CurrentPayrollAnalysisViewCode) then begin
             if not PayrollAnalysisView.Find('-') then begin
-                PayrollAnalysisView.Init;
+                PayrollAnalysisView.Init();
                 PayrollAnalysisView.Code := Text009;
                 PayrollAnalysisView.Name := Text010;
                 PayrollAnalysisView.Insert(true);

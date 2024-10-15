@@ -119,9 +119,9 @@ page 35613 "G/L Corresp. Gen. Ledger Lines"
         GLCorrDebit.MarkedOnly := false;
         GLCorrCredit.MarkedOnly := false;
 
-        GLCorr.Reset;
-        GLCorrDebit.Reset;
-        GLCorrCredit.Reset;
+        GLCorr.Reset();
+        GLCorrDebit.Reset();
+        GLCorrCredit.Reset();
 
         GLCorr.CopyFilters(Rec);
         GLCorrDebit.CopyFilters(Rec);
@@ -208,7 +208,7 @@ page 35613 "G/L Corresp. Gen. Ledger Lines"
     [Scope('OnPrem')]
     procedure DrillDown()
     begin
-        GLCorrEntry.Reset;
+        GLCorrEntry.Reset();
         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
         GLCorrEntry.SetRange("Debit Account No.", "Debit Account No.");
         GLCorrEntry.SetRange("Credit Account No.", "Credit Account No.");

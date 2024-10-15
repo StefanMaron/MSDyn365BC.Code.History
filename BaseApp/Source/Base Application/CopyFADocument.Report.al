@@ -114,7 +114,7 @@ report 12488 "Copy FA Document"
             FromFADocHeader.Init
         else
             if FromFADocHeader."No." = '' then begin
-                FromFADocHeader.Init;
+                FromFADocHeader.Init();
                 case DocType of
                     DocType::Writeoff,
                   DocType::Release,

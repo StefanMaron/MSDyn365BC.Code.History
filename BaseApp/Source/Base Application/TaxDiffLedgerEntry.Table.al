@@ -254,6 +254,13 @@ table 17306 "Tax Diff. Ledger Entry"
     var
         DimMgt: Codeunit DimensionManagement;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure ReverseDeprBonusRecover()
     var
@@ -261,7 +268,7 @@ table 17306 "Tax Diff. Ledger Entry"
         TaxRegisterSetup: Record "Tax Register Setup";
     begin
         if "Depr. Bonus Recovery" then begin
-            TaxRegisterSetup.Get;
+            TaxRegisterSetup.Get();
             TaxRegisterSetup.TestField("Tax Depreciation Book");
             FALedgerEntry.SetCurrentKey(
               "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date");

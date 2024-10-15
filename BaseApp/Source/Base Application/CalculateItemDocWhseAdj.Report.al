@@ -94,24 +94,24 @@ report 14975 "Calculate Item Doc. Whse. Adj."
                                 SetRange("Variant Code");
                             until Next = 0;
                         Reset;
-                        DeleteAll;
+                        DeleteAll();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     Clear(Location);
-                    WhseEntry.Reset;
+                    WhseEntry.Reset();
                     WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code");
                     WhseEntry.Ascending(false);
                     WhseEntry.SetRange("Item No.", Item."No.");
                     Item.CopyFilter("Variant Filter", WhseEntry."Variant Code");
 
                     if WhseEntry.IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    QuantityOnHandBuffer.Reset;
-                    QuantityOnHandBuffer.DeleteAll;
+                    QuantityOnHandBuffer.Reset();
+                    QuantityOnHandBuffer.DeleteAll();
 
                     WhseQty := 0;
                 end;
@@ -198,13 +198,13 @@ report 14975 "Calculate Item Doc. Whse. Adj."
     begin
         with ItemDocLine do begin
             if NextLineNo = 0 then begin
-                LockTable;
+                LockTable();
                 SetRange("Document Type", "Document Type");
                 SetRange("Document No.", "Document No.");
                 if FindLast then
                     NextLineNo := "Line No.";
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
             end;
             NextLineNo := NextLineNo + 10000;
 

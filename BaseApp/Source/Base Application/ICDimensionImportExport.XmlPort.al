@@ -58,8 +58,8 @@ xmlport 11 "IC Dimension Import/Export"
                             ICDimVal."Map-to Dimension Code" := TempICDimVal."Map-to Dimension Code";
                             ICDimVal."Map-to Dimension Value Code" := TempICDimVal."Map-to Dimension Value Code";
                             OrgICDimVal.Get(ICDimVal."Dimension Code", ICDimVal.Code);
-                            OrgICDimVal.Delete;
-                            TempICDimVal.Delete;
+                            OrgICDimVal.Delete();
+                            TempICDimVal.Delete();
                         end else
                             Inserted[2] := Inserted[2] + 1;
                     end;
@@ -76,8 +76,8 @@ xmlport 11 "IC Dimension Import/Export"
                             Modified[1] := Modified[1] + 1;
                         ICDim."Map-to Dimension Code" := TempICDim."Map-to Dimension Code";
                         OrgICDim.Get(ICDim.Code);
-                        OrgICDim.Delete;
-                        TempICDim.Delete;
+                        OrgICDim.Delete();
+                        TempICDim.Delete();
                     end else
                         Inserted[1] := Inserted[1] + 1;
                 end;
@@ -108,13 +108,13 @@ xmlport 11 "IC Dimension Import/Export"
                 repeat
                     Deleted[2] := Deleted[2] + 1;
                     OrgICDimVal.Get(TempICDimVal."Dimension Code", TempICDimVal.Code);
-                    OrgICDimVal.Delete;
+                    OrgICDimVal.Delete();
                 until TempICDimVal.Next = 0;
             if TempICDim.Find('-') then
                 repeat
                     Deleted[1] := Deleted[1] + 1;
                     OrgICDim.Get(TempICDim.Code);
-                    OrgICDim.Delete;
+                    OrgICDim.Delete();
                 until TempICDim.Next = 0;
 
             Inserted[1] := Inserted[1] + Inserted[2];
@@ -157,19 +157,19 @@ xmlport 11 "IC Dimension Import/Export"
         ICDim2: Record "IC Dimension";
         ICDimVal2: Record "IC Dimension Value";
     begin
-        TempICDim.DeleteAll;
-        TempICDimVal.DeleteAll;
+        TempICDim.DeleteAll();
+        TempICDimVal.DeleteAll();
 
         if ICDim2.Find('-') then
             repeat
                 TempICDim := ICDim2;
-                TempICDim.Insert;
+                TempICDim.Insert();
             until ICDim2.Next = 0;
 
         if ICDimVal2.Find('-') then
             repeat
                 TempICDimVal := ICDimVal2;
-                TempICDimVal.Insert;
+                TempICDimVal.Insert();
             until ICDimVal2.Next = 0;
     end;
 

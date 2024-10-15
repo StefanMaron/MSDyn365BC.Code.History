@@ -24,10 +24,10 @@ report 17360 "Form 2-NDFL"
                         TempPersonIncomeEntry.SetRange("Tax Code", "Tax Code");
                         if TempPersonIncomeEntry.FindFirst then begin
                             TempPersonIncomeEntry.Base += Base;
-                            TempPersonIncomeEntry.Modify;
+                            TempPersonIncomeEntry.Modify();
                         end else begin
                             TempPersonIncomeEntry := PersonIncomeEntry1;
-                            TempPersonIncomeEntry.Insert;
+                            TempPersonIncomeEntry.Insert();
                         end;
                     end;
 
@@ -41,7 +41,7 @@ report 17360 "Form 2-NDFL"
                         LineNo := 0;
                         RowNo := GetCurrentBlockStartPosition + EarningsOffset;
 
-                        TempPersonIncomeEntry.Reset;
+                        TempPersonIncomeEntry.Reset();
                         TempPersonIncomeEntry.SetRange("Person Income No.", PersonIncomeHeader."No.");
                         TempPersonIncomeEntry.SetRange("Person No.", PersonIncomeHeader."Person No.");
 
@@ -85,7 +85,7 @@ report 17360 "Form 2-NDFL"
                                             ExpandingOffset += 1;
                                     end;
                                 until Next = 0;
-                            DeleteAll;
+                            DeleteAll();
                         end;
                     end;
 
@@ -104,7 +104,7 @@ report 17360 "Form 2-NDFL"
                                 SetRange("Tax %", "Tax %"::"35");
                         end;
 
-                        TempPersonIncomeEntry.Reset;
+                        TempPersonIncomeEntry.Reset();
                         TempPersonIncomeEntry.SetRange("Person Income No.", PersonIncomeHeader."No.");
                         TempPersonIncomeEntry.SetRange("Person No.", PersonIncomeHeader."Person No.");
                     end;
@@ -115,7 +115,7 @@ report 17360 "Form 2-NDFL"
 
                     trigger OnAfterGetRecord()
                     begin
-                        PayrollDirectory.Reset;
+                        PayrollDirectory.Reset();
                         PayrollDirectory.SetRange(Type, PayrollDirectory.Type::Income);
                         PayrollDirectory.SetRange("Tax Deduction Code", "Tax Deduction Code");
                         PayrollDirectory.SetFilter("Starting Date", '..%1', DirectoryStartDate);
@@ -131,7 +131,7 @@ report 17360 "Form 2-NDFL"
                         NonLinkedDeductDirectoryFilter := '';
 
                         if PersentTax <> PersentTax::"13" then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange("Person Income No.", PersonIncomeHeader."No.");
                         SetRange("Person No.", PersonIncomeHeader."Person No.");
@@ -158,7 +158,7 @@ report 17360 "Form 2-NDFL"
 
                                 LineNo := LineNo + 1;
 
-                                PersonTaxDeduction.Reset;
+                                PersonTaxDeduction.Reset();
                                 PersonTaxDeduction.SetRange("Person No.", "Person No.");
                                 PersonTaxDeduction.SetRange(Year, PersonIncomeHeader.Year);
                                 PersonTaxDeduction.SetRange("Deduction Code", PayrollDirectory2.Code);
@@ -186,7 +186,7 @@ report 17360 "Form 2-NDFL"
                         I: Integer;
                     begin
                         if NonLinkedDeductDirectoryFilter = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("Starting Date", '..%1', DirectoryStartDate);
                         SetFilter(Code, NonLinkedDeductDirectoryFilter);
@@ -216,7 +216,7 @@ report 17360 "Form 2-NDFL"
                             if TaxDeductAmount > 0 then begin
                                 RowNo := GetCurrentBlockStartPosition + DeductsOffset;
 
-                                PersonTaxDeduction.Reset;
+                                PersonTaxDeduction.Reset();
                                 PersonTaxDeduction.SetRange("Document No.", PersonIncomeHeader."No.");
                                 PersonTaxDeduction.SetRange("Person No.", PersonIncomeHeader."Person No.");
                                 PersonTaxDeduction.SetRange("Deduction Code", PayrollDirectory3.Code);
@@ -226,12 +226,12 @@ report 17360 "Form 2-NDFL"
                                 end;
 
                                 if TaxDeductAmount <> 0 then begin
-                                    PayrollElement.Reset;
+                                    PayrollElement.Reset();
                                     PayrollElement.SetCurrentKey("Directory Code");
                                     PayrollElement.SetRange("Directory Code", PayrollDirectory3.Code);
                                     if PayrollElement.FindSet then
                                         repeat
-                                            EmplLedgEntry.Reset;
+                                            EmplLedgEntry.Reset();
                                             EmplLedgEntry.SetRange("Employee No.", Employee."No.");
                                             EmplLedgEntry.SetRange("Element Code", PayrollElement.Code);
                                             EmplLedgEntry.SetRange("Action Starting Date", DirectoryStartDate, DirectoryEndDate);
@@ -262,7 +262,7 @@ report 17360 "Form 2-NDFL"
                     trigger OnPreDataItem()
                     begin
                         if NonLinkedDeductDirectoryFilter = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("Starting Date", '..%1', DirectoryStartDate);
                     end;
@@ -277,7 +277,7 @@ report 17360 "Form 2-NDFL"
                     TransferredAmount: Decimal;
                 begin
                     if Number > 4 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     PersentTax := Number - 1;
 
@@ -289,10 +289,10 @@ report 17360 "Form 2-NDFL"
 
                     if (BaseAmount = 0) and (TaxAmount = 0) and (AccruedAmount = 0) and (PaidToPersonAmount = 0) and (TransferredAmount = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if not Person."Non-Resident" and (PersentTax = PersentTax::"30") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     BlockNo += 1;
 
@@ -489,7 +489,7 @@ report 17360 "Form 2-NDFL"
                         Person.FieldCaption("Birth Date"), Person.TableCaption,
                         Person.FieldCaption("No."), Person."No."));
 
-                AltAddr.Reset;
+                AltAddr.Reset();
                 AltAddr.SetRange("Person No.", Employee."Person No.");
                 AltAddr.SetRange("Address Type", AltAddr."Address Type"::Registration);
                 if AltAddr.FindLast then begin
@@ -604,8 +604,8 @@ report 17360 "Form 2-NDFL"
         if DocumentDate = 0D then
             Error(Text000);
 
-        HumanResSetup.Get;
-        CompanyInfo.Get;
+        HumanResSetup.Get();
+        CompanyInfo.Get();
 
         if not PreviewMode then
             HumanResSetup.TestField("Personal Information Nos.");
@@ -909,7 +909,7 @@ report 17360 "Form 2-NDFL"
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
 
         if not ExportEmpIncRegToExcel.BufferIsEmpty then begin
             ExportEmpIncRegToExcel.SetParameters(

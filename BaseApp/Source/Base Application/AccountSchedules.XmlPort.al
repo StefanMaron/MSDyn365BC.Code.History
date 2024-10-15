@@ -371,18 +371,18 @@ xmlport 26552 "Account Schedules"
     [Scope('OnPrem')]
     procedure SetData(var TempAccScheduleName: Record "Acc. Schedule Name")
     begin
-        "Acc. Schedule Name".Reset;
-        "Acc. Schedule Name".DeleteAll;
+        "Acc. Schedule Name".Reset();
+        "Acc. Schedule Name".DeleteAll();
         if TempAccScheduleName.FindSet then
             repeat
                 "Acc. Schedule Name" := TempAccScheduleName;
-                "Acc. Schedule Name".Insert;
+                "Acc. Schedule Name".Insert();
 
                 AccScheduleLine.SetRange("Schedule Name", TempAccScheduleName.Name);
                 if AccScheduleLine.FindSet then
                     repeat
                         "Acc. Schedule Line" := AccScheduleLine;
-                        "Acc. Schedule Line".Insert;
+                        "Acc. Schedule Line".Insert();
 
                         if (AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Custom) and
                            (AccScheduleLine.Totaling <> '')
@@ -390,20 +390,20 @@ xmlport 26552 "Account Schedules"
                             if not "Acc. Schedule Extension".Get(AccScheduleLine.Totaling) then begin
                                 AccScheduleExtension.Get(AccScheduleLine.Totaling);
                                 "Acc. Schedule Extension" := AccScheduleExtension;
-                                "Acc. Schedule Extension".Insert;
+                                "Acc. Schedule Extension".Insert();
                             end;
                     until AccScheduleLine.Next = 0;
 
                 if not "Column Layout Name".Get(TempAccScheduleName."Default Column Layout") then
                     if ColumnLayoutName.Get(TempAccScheduleName."Default Column Layout") then begin
                         "Column Layout Name" := ColumnLayoutName;
-                        "Column Layout Name".Insert;
+                        "Column Layout Name".Insert();
 
                         ColumnLayout.SetRange("Column Layout Name", TempAccScheduleName."Default Column Layout");
                         if ColumnLayout.FindSet then
                             repeat
                                 "Column Layout" := ColumnLayout;
-                                "Column Layout".Insert;
+                                "Column Layout".Insert();
                             until ColumnLayout.Next = 0;
                     end;
 
@@ -415,49 +415,49 @@ xmlport 26552 "Account Schedules"
     var
         UpdateValue: Boolean;
     begin
-        "Acc. Schedule Name".Reset;
+        "Acc. Schedule Name".Reset();
         if "Acc. Schedule Name".FindSet then
             repeat
                 if AccScheduleName.Get("Acc. Schedule Name".Name) then
                     AccScheduleName.Delete(true);
                 AccScheduleName := "Acc. Schedule Name";
-                AccScheduleName.Insert;
+                AccScheduleName.Insert();
             until "Acc. Schedule Name".Next = 0;
 
-        "Acc. Schedule Line".Reset;
+        "Acc. Schedule Line".Reset();
         if "Acc. Schedule Line".FindSet then
             repeat
                 if AccScheduleLine.Get("Acc. Schedule Line"."Schedule Name", "Acc. Schedule Line"."Line No.") then
                     AccScheduleLine.Delete(true);
                 AccScheduleLine := "Acc. Schedule Line";
-                AccScheduleLine.Insert;
+                AccScheduleLine.Insert();
             until "Acc. Schedule Line".Next = 0;
 
-        "Column Layout Name".Reset;
+        "Column Layout Name".Reset();
         if "Column Layout Name".FindSet then
             repeat
                 if ColumnLayoutName.Get("Column Layout Name".Name) then
-                    ColumnLayoutName.Delete;
+                    ColumnLayoutName.Delete();
                 ColumnLayoutName := "Column Layout Name";
-                ColumnLayoutName.Insert;
+                ColumnLayoutName.Insert();
             until "Column Layout Name".Next = 0;
 
-        "Column Layout".Reset;
+        "Column Layout".Reset();
         if "Column Layout".FindSet then
             repeat
                 if ColumnLayout.Get("Column Layout"."Column Layout Name", "Column Layout"."Line No.") then
                     ColumnLayout.Delete(true);
                 ColumnLayout := "Column Layout";
-                ColumnLayout.Insert;
+                ColumnLayout.Insert();
             until "Column Layout".Next = 0;
 
-        "Acc. Schedule Extension".Reset;
+        "Acc. Schedule Extension".Reset();
         if "Acc. Schedule Extension".FindSet then
             repeat
                 if AccScheduleExtension.Get("Acc. Schedule Extension".Code) then
                     AccScheduleExtension.Delete(true);
                 AccScheduleExtension := "Acc. Schedule Extension";
-                AccScheduleExtension.Insert;
+                AccScheduleExtension.Insert();
             until "Acc. Schedule Extension".Next = 0;
     end;
 }

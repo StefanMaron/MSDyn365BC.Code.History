@@ -43,10 +43,10 @@ codeunit 12417 "VAT Allocation-Post"
         AmountRemainder: Decimal;
         NextLineNo: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         NextLineNo := 0;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         VATPostingSetup.Get(VATAllocLine."VAT Bus. Posting Group", VATAllocLine."VAT Prod. Posting Group");
 
@@ -469,15 +469,15 @@ codeunit 12417 "VAT Allocation-Post"
         FALedgEntry: Record "FA Ledger Entry";
         FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Default Depr. Book");
         FASetup.TestField("Release Depr. Book");
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         GenJnlLine.TestField("Object Type", GenJnlLine."Object Type"::"Fixed Asset");
 
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", GenJnlLine."Document No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Fixed Asset");
         PurchInvLine.SetRange("No.", GenJnlLine."Object No.");
@@ -498,7 +498,7 @@ codeunit 12417 "VAT Allocation-Post"
                     Error(Text001, FA."No.");
             end;
 
-            FAJnlLine.Init;
+            FAJnlLine.Init();
             FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
             FAJnlLine.Validate("FA Posting Type", FAJnlLine."FA Posting Type"::"Acquisition Cost");
             FAJnlLine.Validate("FA No.", FA."No.");
@@ -521,7 +521,7 @@ codeunit 12417 "VAT Allocation-Post"
             FAJnlLine."Reason Code" := GenJnlLine."Reason Code";
             FAJnlPostLine.FAJnlPostLine(FAJnlLine, false);
 
-            FALedgEntry.Reset;
+            FALedgEntry.Reset();
             FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             FALedgEntry.SetRange("FA No.", FA."No.");
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
@@ -554,15 +554,15 @@ codeunit 12417 "VAT Allocation-Post"
         if not DimMgt.CheckDimValuePosting(TableID, AccNo, ValueEntry3."Dimension Set ID") then
             Error(DimMgt.GetDimValuePostingErr);
         if NextReverseEntryNo = 0 then begin
-            ValueEntry.LockTable;
+            ValueEntry.LockTable();
             if ValueEntry.FindLast then
                 NextReverseEntryNo := ValueEntry."Entry No.";
-            SourceCodeSetup.Get;
-            InvtSetup.Get;
+            SourceCodeSetup.Get();
+            InvtSetup.Get();
         end;
         NextReverseEntryNo := NextReverseEntryNo + 1;
         TempValueEntry := ValueEntry3;
-        TempValueEntry.Insert;
+        TempValueEntry.Insert();
         SetItemReversalMark(ReversalEntry, ValueEntry3, NextReverseEntryNo);
         ValueEntry3."Entry No." := NextReverseEntryNo;
         ValueEntry3."Cost Amount (Actual)" := -ValueEntry3."Cost Amount (Actual)";
@@ -575,7 +575,7 @@ codeunit 12417 "VAT Allocation-Post"
         ValueEntry3."Journal Batch Name" := '';
         ValueEntry3."Red Storno" := InvtSetup."Enable Red Storno";
         ValueEntry3."Dimension Set ID" := TempValueEntry."Dimension Set ID";
-        ValueEntry3.Insert;
+        ValueEntry3.Insert();
         InsertItemReg(NextReverseEntryNo, ValueEntry3."Source Code");
         exit(NextReverseEntryNo);
     end;
@@ -592,13 +592,13 @@ codeunit 12417 "VAT Allocation-Post"
             CloseReversal := true;
             ValueEntry2."Reversed by Entry No." := 0;
             ValueEntry2.Reversed := false;
-            ValueEntry2.Modify;
+            ValueEntry2.Modify();
         end;
         ValueEntry."Reversed by Entry No." := NextEntryNo;
         if CloseReversal then
             ValueEntry."Reversed Entry No." := NextEntryNo;
         ValueEntry.Reversed := true;
-        ValueEntry.Modify;
+        ValueEntry.Modify();
         ValueEntry."Reversed by Entry No." := 0;
         ValueEntry."Reversed Entry No." := ValueEntry."Entry No.";
         if CloseReversal then
@@ -615,18 +615,18 @@ codeunit 12417 "VAT Allocation-Post"
     local procedure InsertItemReg(ValueEntryNo: Integer; SourceCode: Code[10])
     begin
         if ItemReg."No." = 0 then begin
-            ItemReg.LockTable;
+            ItemReg.LockTable();
             if ItemReg.FindLast then
                 ItemReg."No." := ItemReg."No." + 1
             else
                 ItemReg."No." := 1;
-            ItemReg.Init;
+            ItemReg.Init();
             ItemReg."From Value Entry No." := ValueEntryNo;
             ItemReg."To Value Entry No." := ValueEntryNo;
             ItemReg."Creation Date" := Today;
             ItemReg."Source Code" := SourceCode;
             ItemReg."User ID" := UserId;
-            ItemReg.Insert;
+            ItemReg.Insert();
         end else begin
             if ((ValueEntryNo < ItemReg."From Value Entry No.") and (ValueEntryNo <> 0)) or
                ((ItemReg."From Value Entry No." = 0) and (ValueEntryNo > 0))
@@ -635,7 +635,7 @@ codeunit 12417 "VAT Allocation-Post"
             if ValueEntryNo > ItemReg."To Value Entry No." then
                 ItemReg."To Value Entry No." := ValueEntryNo;
 
-            ItemReg.Modify;
+            ItemReg.Modify();
         end;
     end;
 
@@ -741,10 +741,10 @@ codeunit 12417 "VAT Allocation-Post"
     [Scope('OnPrem')]
     procedure InitiItemChargeAssgntBuffer(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
     begin
-        TempItemChargeAssgntPurch.Reset;
-        TempItemChargeAssgntPurch.DeleteAll;
-        TempItemChargeAssgntSales.Reset;
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntPurch.Reset();
+        TempItemChargeAssgntPurch.DeleteAll();
+        TempItemChargeAssgntSales.Reset();
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -795,7 +795,7 @@ codeunit 12417 "VAT Allocation-Post"
     var
         TempItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)" temporary;
     begin
-        TempItemChargeAssgntPurch.Reset;
+        TempItemChargeAssgntPurch.Reset();
         if TempItemChargeAssgntPurch.FindSet then
             repeat
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
@@ -815,7 +815,7 @@ codeunit 12417 "VAT Allocation-Post"
                   TempItemChargeAssgntPurch."Qty. to Assign" - TempItemChargeAssgntPurch2."Qty. to Assign";
                 TempItemChargeAssgntPurch."Amount to Assign" :=
                   Round(TempItemChargeAssgntPurch."Amount to Assign", RoundingPrecision);
-                TempItemChargeAssgntPurch.Modify;
+                TempItemChargeAssgntPurch.Modify();
             until TempItemChargeAssgntPurch.Next = 0;
     end;
 
@@ -826,7 +826,7 @@ codeunit 12417 "VAT Allocation-Post"
             GenJnlLine."Document Type"::Invoice:
                 begin
                     PurchInvHeader.Get(GenJnlLine."Document No.");
-                    TempItemChargeAssgntPurch.Reset;
+                    TempItemChargeAssgntPurch.Reset();
                     if TempItemChargeAssgntPurch.FindSet then
                         repeat
                             PurchInvLine.Get(
@@ -837,7 +837,7 @@ codeunit 12417 "VAT Allocation-Post"
             GenJnlLine."Document Type"::"Credit Memo":
                 begin
                     PurchCrMemoHeader.Get(GenJnlLine."Document No.");
-                    TempItemChargeAssgntPurch.Reset;
+                    TempItemChargeAssgntPurch.Reset();
                     if TempItemChargeAssgntPurch.FindSet then
                         repeat
                             PurchCrMemoLine.Get(
@@ -891,7 +891,7 @@ codeunit 12417 "VAT Allocation-Post"
     var
         TempItemChargeAssgntSales2: Record "Item Charge Assignment (Sales)" temporary;
     begin
-        TempItemChargeAssgntSales.Reset;
+        TempItemChargeAssgntSales.Reset();
         if TempItemChargeAssgntSales.FindSet then
             repeat
                 if TempItemChargeAssgntSales."Applies-to Doc. Line Amount" <> 0 then
@@ -911,7 +911,7 @@ codeunit 12417 "VAT Allocation-Post"
                   TempItemChargeAssgntSales."Qty. to Assign" - TempItemChargeAssgntSales2."Qty. to Assign";
                 TempItemChargeAssgntSales."Amount to Assign" :=
                   Round(TempItemChargeAssgntSales."Amount to Assign", RoundingPrecision);
-                TempItemChargeAssgntSales.Modify;
+                TempItemChargeAssgntSales.Modify();
             until TempItemChargeAssgntSales.Next = 0;
     end;
 
@@ -922,7 +922,7 @@ codeunit 12417 "VAT Allocation-Post"
             GenJnlLine."Document Type"::Invoice:
                 begin
                     SalesInvHeader.Get(GenJnlLine."Document No.");
-                    TempItemChargeAssgntSales.Reset;
+                    TempItemChargeAssgntSales.Reset();
                     if TempItemChargeAssgntSales.FindSet then
                         repeat
                             SalesInvLine.Get(
@@ -933,7 +933,7 @@ codeunit 12417 "VAT Allocation-Post"
             GenJnlLine."Document Type"::"Credit Memo":
                 begin
                     SalesCrMemoHeader.Get(GenJnlLine."Document No.");
-                    TempItemChargeAssgntPurch.Reset;
+                    TempItemChargeAssgntPurch.Reset();
                     if TempItemChargeAssgntSales.FindSet then
                         repeat
                             SalesCrMemoLine.Get(

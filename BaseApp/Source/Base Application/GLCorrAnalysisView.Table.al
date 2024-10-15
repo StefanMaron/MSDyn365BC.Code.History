@@ -63,19 +63,19 @@ table 14940 "G/L Corr. Analysis View"
                     if BusUnit.FindSet then
                         repeat
                             TempBusUnit := BusUnit;
-                            TempBusUnit.Insert;
+                            TempBusUnit.Insert();
                         until BusUnit.Next = 0;
-                    TempBusUnit.Init;
+                    TempBusUnit.Init();
                     TempBusUnit.Code := '';
-                    TempBusUnit.Insert;
+                    TempBusUnit.Insert();
                     TempBusUnit.SetFilter(Code, "Business Unit Filter");
-                    TempBusUnit.DeleteAll;
+                    TempBusUnit.DeleteAll();
                     TempBusUnit.SetRange(Code);
                     if TempBusUnit.FindSet then
                         repeat
                             GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
                             GLCorrAnalysisViewEntry.SetRange("Business Unit Code", TempBusUnit.Code);
-                            GLCorrAnalysisViewEntry.DeleteAll;
+                            GLCorrAnalysisViewEntry.DeleteAll();
                         until TempBusUnit.Next = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Business Unit Filter" <> '') and
@@ -128,7 +128,7 @@ table 14940 "G/L Corr. Analysis View"
                             if not GLAcc.Mark then begin
                                 GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
                                 GLCorrAnalysisViewEntry.SetRange("Debit Account No.", GLAcc."No.");
-                                GLCorrAnalysisViewEntry.DeleteAll;
+                                GLCorrAnalysisViewEntry.DeleteAll();
                             end;
                         until GLAcc.Next = 0;
                 end;
@@ -169,7 +169,7 @@ table 14940 "G/L Corr. Analysis View"
                             if not GLAcc.Mark then begin
                                 GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
                                 GLCorrAnalysisViewEntry.SetRange("Credit Account No.", GLAcc."No.");
-                                GLCorrAnalysisViewEntry.DeleteAll;
+                                GLCorrAnalysisViewEntry.DeleteAll();
                             end;
                         until GLAcc.Next = 0;
                 end;
@@ -301,7 +301,7 @@ table 14940 "G/L Corr. Analysis View"
     begin
         AnalysisViewReset;
         GLCorrAnalysisViewFilter.SetRange("G/L Corr. Analysis View Code", Code);
-        GLCorrAnalysisViewFilter.DeleteAll;
+        GLCorrAnalysisViewFilter.DeleteAll();
     end;
 
     var
@@ -339,7 +339,7 @@ table 14940 "G/L Corr. Analysis View"
                 GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
                 if GLCorrAnalysisViewEntry.FindSet then
                     repeat
-                        GLCorrAnalysisViewEntry.Delete;
+                        GLCorrAnalysisViewEntry.Delete();
                         NewGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
                         case DimFieldName of
                             FieldCaption("Debit Dimension 1 Code"):
@@ -364,12 +364,12 @@ table 14940 "G/L Corr. Analysis View"
     [Scope('OnPrem')]
     procedure InsertAnalysisViewEntry()
     begin
-        if not NewGLCorrAnalysisViewEntry.Insert then begin
+        if not NewGLCorrAnalysisViewEntry.Insert() then begin
             NewGLCorrAnalysisViewEntry.Find;
             NewGLCorrAnalysisViewEntry.Amount := NewGLCorrAnalysisViewEntry.Amount + GLCorrAnalysisViewEntry.Amount;
             NewGLCorrAnalysisViewEntry."Amount (ACY)" :=
               NewGLCorrAnalysisViewEntry."Amount (ACY)" + GLCorrAnalysisViewEntry."Amount (ACY)";
-            NewGLCorrAnalysisViewEntry.Modify;
+            NewGLCorrAnalysisViewEntry.Modify();
         end;
     end;
 
@@ -379,7 +379,7 @@ table 14940 "G/L Corr. Analysis View"
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
     begin
         GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", Code);
-        GLCorrAnalysisViewEntry.DeleteAll;
+        GLCorrAnalysisViewEntry.DeleteAll();
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
     end;

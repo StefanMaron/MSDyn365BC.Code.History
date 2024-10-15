@@ -136,7 +136,7 @@ page 17247 "Tax Register Norm Groups"
         NormGroup: Record "Tax Register Norm Group";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         NormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
         NormGroup.SetRange("Storing Method", "Storing Method"::Calculation);
         if not NormGroup.FindFirst then

@@ -1,4 +1,4 @@
-﻿page 5743 "Posted Transfer Shipment"
+page 5743 "Posted Transfer Shipment"
 {
     Caption = 'Posted Transfer Shipment';
     InsertAllowed = false;

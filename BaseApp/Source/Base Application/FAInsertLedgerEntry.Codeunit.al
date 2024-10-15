@@ -56,11 +56,10 @@ codeunit 5600 "FA Insert Ledger Entry"
         VATAmount: Decimal;
         TaxRegisterSetup: Record "Tax Register Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if NextEntryNo = 0 then begin
-            FALedgEntry.LockTable;
-            if FALedgEntry.FindLast then
-                NextEntryNo := FALedgEntry."Entry No.";
+            FALedgEntry.LockTable();
+            NextEntryNo := FALedgEntry.GetLastEntryNo();
             InitRegister(
               0, FALedgEntry3."G/L Entry No.", FALedgEntry3."Source Code",
               FALedgEntry3."Journal Batch Name");
@@ -131,14 +130,14 @@ codeunit 5600 "FA Insert Ledger Entry"
                             if FALedgEntry.Quantity < 0 then begin
                                 FADeprBook."Initial Acquisition" := false;
                                 FALedgEntry."Initial Acquisition" := true;
-                                FADeprBook.Modify;
+                                FADeprBook.Modify();
                             end else
                                 FALedgEntry.Quantity := 0
                         else
                             if FALedgEntry.Quantity > 0 then begin
                                 FADeprBook."Initial Acquisition" := true;
                                 FALedgEntry."Initial Acquisition" := true;
-                                FADeprBook.Modify;
+                                FADeprBook.Modify();
                             end;
                     end;
             if FALedgEntry."FA Charge No." <> '' then begin
@@ -160,7 +159,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                     end;
             end;
 
-            TaxRegisterSetup.Get;
+            TaxRegisterSetup.Get();
             FADeprBook.Get(FALedgEntry."FA No.", FALedgEntry."Depreciation Book Code");
             DeprBonus := false;
             DeprBonus := FALedgEntry."Depr. Bonus";
@@ -201,8 +200,8 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FALedgEntry2."Transaction No." := 0;
                 FALedgEntry."Transaction No." := 0;
             end;
-            FALedgEntry2.Modify;
-            FALedgEntry.Modify;
+            FALedgEntry2.Modify();
+            FALedgEntry.Modify();
             FALedgEntry."FA No." := FALedgEntry3."FA No.";
         end;
 
@@ -217,7 +216,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             FA.Validate("FA Location Code", FALedgEntry."FA Location Code");
             FA."Responsible Employee" := FALedgEntry."Employee No.";
             AdjustFAStatus(FA, FALedgEntry2, ErrorEntryNo);
-            FA.Modify;
+            FA.Modify();
         end;
 
         if DeprBook."Posting Book Type" = DeprBook."Posting Book Type"::Accounting then begin
@@ -230,9 +229,8 @@ codeunit 5600 "FA Insert Ledger Entry"
     procedure InsertMaintenance(var MaintenanceLedgEntry2: Record "Maintenance Ledger Entry")
     begin
         if NextMaintenanceEntryNo = 0 then begin
-            MaintenanceLedgEntry.LockTable;
-            if MaintenanceLedgEntry.FindLast then
-                NextMaintenanceEntryNo := MaintenanceLedgEntry."Entry No.";
+            MaintenanceLedgEntry.LockTable();
+            NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
             InitRegister(
               1, MaintenanceLedgEntry2."G/L Entry No.", MaintenanceLedgEntry2."Source Code",
               MaintenanceLedgEntry2."Journal Batch Name");
@@ -275,7 +273,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FADeprBook."Last Maintenance Date" := "FA Posting Date"
             else
                 FADeprBook."Last Maintenance Date" := 0D;
-            FADeprBook.Modify;
+            FADeprBook.Modify();
         end;
     end;
 
@@ -414,13 +412,11 @@ codeunit 5600 "FA Insert Ledger Entry"
         if (CalledFrom = CalledFrom::Maintenance) and (NextEntryNo <> 0) then
             exit;
         with FAReg do begin
-            LockTable;
-            if FindLast then begin
-                if (GLRegisterNo <> 0) and (GLRegisterNo = "G/L Register No.") then
-                    exit;
-                "No." += 1;
-            end else
-                "No." := 1;
+            LockTable();
+            if FindLast() and (GLRegisterNo <> 0) and (GLRegisterNo = GetLastGLRegisterNo()) then
+                exit;
+            "No." := GetLastEntryNo() + 1;
+
             Init;
             if GLEntryNo = 0 then
                 "Journal Type" := "Journal Type"::"Fixed Asset";
@@ -518,17 +514,16 @@ codeunit 5600 "FA Insert Ledger Entry"
                 if not DimMgt.CheckDimValuePosting(TableID, AccNo, FALedgEntry3."Dimension Set ID") then
                     Error(DimMgt.GetDimValuePostingErr);
                 if NextEntryNo = 0 then begin
-                    FALedgEntry.LockTable;
-                    if FALedgEntry.FindLast then
-                        NextEntryNo := FALedgEntry."Entry No.";
-                    SourceCodeSetup.Get;
+                    FALedgEntry.LockTable();
+                    NextEntryNo := FALedgEntry.GetLastEntryNo();
+                    SourceCodeSetup.Get();
                     InitRegister(0, 1, SourceCodeSetup.Reversal, '');
                     RegisterInserted := true;
                 end;
                 NextEntryNo := NextEntryNo + 1;
                 NewFAEntryNo := NextEntryNo;
                 TmpFALedgEntry := FALedgEntry3;
-                TmpFALedgEntry.Insert;
+                TmpFALedgEntry.Insert();
                 SetFAReversalMark(FALedgEntry3, NextEntryNo);
                 FALedgEntry3."Entry No." := NextEntryNo;
                 FALedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -549,7 +544,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 if FADeprBook.Get(FALedgEntry3."FA No.", FALedgEntry3."Depreciation Book Code") then
                     if FADeprBook."Initial Acquisition" and (FALedgEntry3.Quantity < 0) then begin
                         FADeprBook."Initial Acquisition" := false;
-                        FADeprBook.Modify;
+                        FADeprBook.Modify();
                     end;
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry3);
                 OnInsertReverseEntryOnBeforeInsertRegister(FALedgEntry3);
@@ -558,10 +553,9 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
         if FAEntryType = FAEntryType::Maintenance then begin
             if NextMaintenanceEntryNo = 0 then begin
-                MaintenanceLedgEntry.LockTable;
-                if MaintenanceLedgEntry.FindLast then
-                    NextMaintenanceEntryNo := MaintenanceLedgEntry."Entry No.";
-                SourceCodeSetup.Get;
+                MaintenanceLedgEntry.LockTable();
+                NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
+                SourceCodeSetup.Get();
                 InitRegister(1, 1, SourceCodeSetup.Reversal, '');
                 RegisterInserted := true;
             end;
@@ -579,7 +573,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 Error(DimMgt.GetDimValuePostingErr);
 
             TmpMaintenanceLedgEntry := MaintenanceLedgEntry3;
-            TmpMaintenanceLedgEntry.Insert;
+            TmpMaintenanceLedgEntry.Insert();
             SetMaintReversalMark(MaintenanceLedgEntry3, NextMaintenanceEntryNo);
             MaintenanceLedgEntry3."Entry No." := NextMaintenanceEntryNo;
             MaintenanceLedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -596,7 +590,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             MaintenanceLedgEntry3."No. Series" := '';
             MaintenanceLedgEntry3."Journal Batch Name" := '';
             MaintenanceLedgEntry3."FA No./Budgeted FA No." := '';
-            MaintenanceLedgEntry3.Insert;
+            MaintenanceLedgEntry3.Insert();
             InsertRegister(1, NextMaintenanceEntryNo);
         end;
     end;
@@ -631,7 +625,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             Error(Text004, MaintenanceLedgEntry.TableCaption, GLEntry.TableCaption);
         if RegisterInserted then begin
             FAReg."G/L Register No." := GLReg."No.";
-            FAReg.Modify;
+            FAReg.Modify();
         end;
     end;
 
@@ -648,13 +642,13 @@ codeunit 5600 "FA Insert Ledger Entry"
             CloseReversal := true;
             FALedgEntry2."Reversed by Entry No." := 0;
             FALedgEntry2.Reversed := false;
-            FALedgEntry2.Modify;
+            FALedgEntry2.Modify();
         end;
         FALedgEntry."Reversed by Entry No." := NextEntryNo;
         if CloseReversal then
             FALedgEntry."Reversed Entry No." := NextEntryNo;
         FALedgEntry.Reversed := true;
-        FALedgEntry.Modify;
+        FALedgEntry.Modify();
         FALedgEntry."Reversed by Entry No." := 0;
         FALedgEntry."Reversed Entry No." := FALedgEntry."Entry No.";
         if CloseReversal then
@@ -676,13 +670,13 @@ codeunit 5600 "FA Insert Ledger Entry"
             CloseReversal := true;
             MaintenanceLedgEntry2."Reversed by Entry No." := 0;
             MaintenanceLedgEntry2.Reversed := false;
-            MaintenanceLedgEntry2.Modify;
+            MaintenanceLedgEntry2.Modify();
         end;
         MaintenanceLedgEntry."Reversed by Entry No." := NextEntryNo;
         if CloseReversal then
             MaintenanceLedgEntry."Reversed Entry No." := NextEntryNo;
         MaintenanceLedgEntry.Reversed := true;
-        MaintenanceLedgEntry.Modify;
+        MaintenanceLedgEntry.Modify();
         MaintenanceLedgEntry."Reversed by Entry No." := 0;
         MaintenanceLedgEntry."Reversed Entry No." := MaintenanceLedgEntry."Entry No.";
         if CloseReversal then
@@ -702,8 +696,7 @@ codeunit 5600 "FA Insert Ledger Entry"
     begin
         LastEntryNo := 0;
         if FindLastEntry then
-            if FALedgEntry.FindLast then
-                LastEntryNo := FALedgEntry."Entry No.";
+            LastEntryNo := FALedgEntry.GetLastEntryNo();
     end;
 
     [Scope('OnPrem')]
@@ -712,9 +705,8 @@ codeunit 5600 "FA Insert Ledger Entry"
         FATransfer: Record "FA Ledger Entry";
     begin
         if NextEntryNo = 0 then begin
-            FALedgEntry.LockTable;
-            if FALedgEntry.Find('+') then
-                NextEntryNo := FALedgEntry."Entry No.";
+            FALedgEntry.LockTable();
+            NextEntryNo := FALedgEntry.GetLastEntryNo();
             InitRegister(
               0, FALedgEntry3."G/L Entry No.", FALedgEntry3."Source Code",
               FALedgEntry3."Journal Batch Name");
@@ -738,7 +730,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             FA.Get(FALedgEntry."FA No.");
             FA.Validate("FA Location Code", FALedgEntry."FA Location Code");
             FA."Responsible Employee" := FALedgEntry."Employee No.";
-            FA.Modify;
+            FA.Modify();
         end;
 
         InsertEntryToTaxDeprBook(FALedgEntry);
@@ -767,7 +759,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             exit;
         // PS24223.end
 
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         if TaxRegisterSetup."Tax Depreciation Book" <> '' then begin
             // PS17353.begin
             //IF NOT FADeprBook.GET(FA."No.",TaxRegisterSetup."Tax Depreciation Book") THEN
@@ -856,7 +848,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             end;
             // RU0001.end
             // PS15438.end
-            FALedgerEntryLocal.Insert;
+            FALedgerEntryLocal.Insert();
 
             if FADepreciationBookLocal.Get(FALedgerEntryLocal."FA No.", FALedgerEntryLocal."Depreciation Book Code") then begin
                 FACheckConsistency.SetFAPostingDate(FALedgerEntryLocal, false);
@@ -933,16 +925,16 @@ codeunit 5600 "FA Insert Ledger Entry"
                     FALedgerEntry."Credit Amount" := 0;
                     FALedgerEntry."Amount (LCY)" := FALedgerEntry.Amount;
                     FALedgerEntry."Need Cost Posted to G/L" := false;
-                    FALedgerEntry.Modify;
+                    FALedgerEntry.Modify();
 
-                    FALedgerEntry2.Reset;
+                    FALedgerEntry2.Reset();
                     FALedgerEntry2.SetCurrentKey("FA No.");
                     FALedgerEntry2.SetRange("FA No.", InvtPostBuf."FA No.");
                     FALedgerEntry2.SetRange("Need Cost Posted to G/L", true);
                     if not FALedgerEntry2.Find('-') then begin
                         FA.Get(FALedgerEntry."FA No.");
                         FA.Blocked := false;
-                        FA.Modify;
+                        FA.Modify();
                     end;
                 end;
             end;
@@ -1015,7 +1007,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         if FALedgEntry."Canceled from FA No." <> '' then
             exit;
 
-        TaxRegisterSetup.Get;
+        TaxRegisterSetup.Get();
         if not TaxRegisterSetup."Create Acquis. FE Tax Ledger" then
             exit;
 
@@ -1039,7 +1031,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             FALedgerEntryLocal.TransferFields(FALedgEntry);
             FALedgerEntryLocal."Entry No." := NextEntryNo;
             FALedgerEntryLocal."Depreciation Book Code" := TaxRegisterSetup."Future Exp. Depreciation Book";
-            FALedgerEntryLocal.Insert;
+            FALedgerEntryLocal.Insert();
 
             if FADepreciationBookLocal.Get(FALedgerEntryLocal."FA No.", FALedgerEntryLocal."Depreciation Book Code") then begin
                 FACheckConsistency.SetFAPostingDate(FALedgerEntryLocal, false);

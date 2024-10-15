@@ -52,11 +52,9 @@ table 179 "Reversal Entry"
         {
             Caption = 'Transaction No.';
         }
-        field(8; "Source Type"; Option)
+        field(8; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,,,,,,Future Expense';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",,,,,,"Future Expense";
         }
         field(9; "Source No."; Code[20])
         {
@@ -120,11 +118,9 @@ table 179 "Reversal Entry"
         {
             Caption = 'Posting Date';
         }
-        field(20; "Document Type"; Option)
+        field(20; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(21; "Document No."; Code[20])
         {
@@ -138,11 +134,9 @@ table 179 "Reversal Entry"
         {
             Caption = 'Account Name';
         }
-        field(25; "Bal. Account Type"; Option)
+        field(25; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
         }
         field(26; "Bal. Account No."; Code[20])
         {
@@ -164,12 +158,10 @@ table 179 "Reversal Entry"
             OptionCaption = ' ,Disposal,Bal. Disposal';
             OptionMembers = " ",Disposal,"Bal. Disposal";
         }
-        field(28; "FA Posting Type"; Option)
+        field(28; "FA Posting Type"; Enum "Reversal Entry FA Posting Type")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Proceeds on Disposal,Salvage Value,Gain/Loss,Book Value on Disposal';
-            OptionMembers = " ","Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2","Proceeds on Disposal","Salvage Value","Gain/Loss","Book Value on Disposal";
         }
         field(30; "Reversal Type"; Option)
         {
@@ -278,7 +270,7 @@ table 179 "Reversal Entry"
         VATEntry.SetRange("VAT Allocation Type", VATEntry."VAT Allocation Type"::Charge);
         if not VATEntry.IsEmpty then
             Error('');
-        VATEntry.Reset;
+        VATEntry.Reset();
 
         InsertReversalEntry(Number, RevType);
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
@@ -289,7 +281,7 @@ table 179 "Reversal Entry"
             ReversalPost.SetHideDialog(HideWarningDialogs);
             ReversalPost.Run(TempReversalEntry);
         end;
-        TempReversalEntry.DeleteAll;
+        TempReversalEntry.DeleteAll();
     end;
 
     local procedure InsertReversalEntry(Number: Integer; RevType: Option Transaction,Register)
@@ -300,15 +292,15 @@ table 179 "Reversal Entry"
         Completed: Boolean;
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        GLSetup.Get;
-        TempReversalEntry.DeleteAll;
+        GLSetup.Get();
+        TempReversalEntry.DeleteAll();
         NextLineNo := 1;
         TempRevertTransactionNo.Number := Number;
-        TempRevertTransactionNo.Insert;
+        TempRevertTransactionNo.Insert();
         if VATAllocOnCost then begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             Completed := false;
-            TempGLReg.DeleteAll;
+            TempGLReg.DeleteAll();
             GLReg.Get(Number);
             GLReg2.Get(Number);
             repeat
@@ -318,7 +310,7 @@ table 179 "Reversal Entry"
                        (GLReg2."User ID" = GLReg."User ID")
                     then begin
                         TempGLReg := GLReg2;
-                        TempGLReg.Insert;
+                        TempGLReg.Insert();
                     end else
                         Completed := true;
             until Completed;
@@ -350,19 +342,19 @@ table 179 "Reversal Entry"
         BalanceCheckAddCurrAmount: Decimal;
         SkipCheck: Boolean;
     begin
-        DtldCustLedgEntry.LockTable;
-        DtldVendLedgEntry.LockTable;
-        GLEntry.LockTable;
-        CustLedgEntry.LockTable;
-        VendLedgEntry.LockTable;
-        BankAccLedgEntry.LockTable;
-        FALedgEntry.LockTable;
-        MaintenanceLedgEntry.LockTable;
-        ValueEntry.LockTable;
-        VATEntry.LockTable;
-        GLReg.LockTable;
-        FAReg.LockTable;
-        GLSetup.Get;
+        DtldCustLedgEntry.LockTable();
+        DtldVendLedgEntry.LockTable();
+        GLEntry.LockTable();
+        CustLedgEntry.LockTable();
+        VendLedgEntry.LockTable();
+        BankAccLedgEntry.LockTable();
+        FALedgEntry.LockTable();
+        MaintenanceLedgEntry.LockTable();
+        ValueEntry.LockTable();
+        VATEntry.LockTable();
+        GLReg.LockTable();
+        FAReg.LockTable();
+        GLSetup.Get();
         MaxPostingDate := 0D;
 
         SkipCheck := false;
@@ -608,7 +600,7 @@ table 179 "Reversal Entry"
         if not DtldCustLedgEntry.IsEmpty then
             Error(ReversalErrorForChangedEntry(CustLedgEntry.TableCaption, CustLedgEntry."Entry No."));
 
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
         DtldCustLedgEntry.SetRange("Transaction No.", CustLedgEntry."Transaction No.");
         DtldCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
@@ -631,7 +623,7 @@ table 179 "Reversal Entry"
         if not DtldVendLedgEntry.IsEmpty then
             Error(ReversalErrorForChangedEntry(VendLedgEntry.TableCaption, VendLedgEntry."Entry No."));
 
-        DtldVendLedgEntry.Reset;
+        DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Transaction No.", VendLedgEntry."Transaction No.");
         DtldVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
@@ -669,8 +661,8 @@ table 179 "Reversal Entry"
             Error(Text010, GLReg.TableCaption, GLReg."No.");
         VATEntry.SetRange("Entry No.", GLReg."From VAT Entry No.", GLReg."To VAT Entry No.");
         VATEntry.SetRange("VAT Allocation Type", VATEntry."VAT Allocation Type"::Charge);
-        VATAllocOnCost := not VATEntry.IsEmpty;
-        VATEntry.Reset;
+        VATAllocOnCost := not VATEntry.IsEmpty();
+        VATEntry.Reset();
         if (GLReg."Journal Batch Name" = '') and not VATAllocOnCost then
             TempReversalEntry.TestFieldError;
     end;
@@ -881,7 +873,7 @@ table 179 "Reversal Entry"
                     AllowPostingto := UserSetup."Allow FA Posting To";
                 end;
             if (AllowPostingFrom = 0D) and (AllowPostingto = 0D) then begin
-                FASetup.Get;
+                FASetup.Get();
                 AllowPostingFrom := FASetup."Allow FA Posting From";
                 AllowPostingto := FASetup."Allow FA Posting To";
             end;
@@ -1025,7 +1017,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
                 OnInsertFromCustLedgEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, CustLedgEntry);
-                TempReversalEntry.Insert;
+                TempReversalEntry.Insert();
 
                 DtldCustLedgEntry.SetRange(Unapplied, true);
                 if DtldCustLedgEntry.FindSet then
@@ -1065,7 +1057,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
                 OnInsertFromVendLedgEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, VendLedgEntry);
-                TempReversalEntry.Insert;
+                TempReversalEntry.Insert();
 
                 DtldVendLedgEntry.SetRange(Unapplied, true);
                 if DtldVendLedgEntry.FindSet then
@@ -1095,7 +1087,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry.CopyFromBankAccLedgEntry(BankAccLedgEntry);
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
-                TempReversalEntry.Insert;
+                TempReversalEntry.Insert();
             until BankAccLedgEntry.Next = 0;
 
         OnAfterInsertFromBankAccLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, BankAccLedgEntry);
@@ -1119,7 +1111,7 @@ table 179 "Reversal Entry"
                 if FALedgEntry."FA Posting Type" <> FALedgEntry."FA Posting Type"::"Salvage Value" then begin
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
-                    TempReversalEntry.Insert;
+                    TempReversalEntry.Insert();
                 end;
             until FALedgEntry.Next = 0;
 
@@ -1143,7 +1135,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry.CopyFromMaintenanceEntry(MaintenanceLedgEntry);
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
-                TempReversalEntry.Insert;
+                TempReversalEntry.Insert();
             until MaintenanceLedgEntry.Next = 0;
 
         OnAfterInsertFromMaintenanceLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, MaintenanceLedgEntry);
@@ -1165,7 +1157,7 @@ table 179 "Reversal Entry"
                     TempReversalEntry.CopyFromVATEntry(VATEntry);
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
-                    TempReversalEntry.Insert;
+                    TempReversalEntry.Insert();
                 until VATEntry.Next = 0;
         until TempRevertTransactionNo.Next = 0;
 
@@ -1195,7 +1187,7 @@ table 179 "Reversal Entry"
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
                     OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, GLEntry);
-                    TempReversalEntry.Insert;
+                    TempReversalEntry.Insert();
                 until GLEntry.Next = 0;
         until TempRevertTransactionNo.Next = 0;
 
@@ -1224,7 +1216,7 @@ table 179 "Reversal Entry"
                     TempReversalEntry.CopyFromTaxDiffEntry(TaxDiffLedgEntry);
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
-                    TempReversalEntry.Insert;
+                    TempReversalEntry.Insert();
                 until TaxDiffLedgEntry.Next(1) = 0;
         until TempRevertTransactionNo.Next = 0;
     end;
@@ -1256,10 +1248,10 @@ table 179 "Reversal Entry"
                         TempReversalEntry."Line No." := NextLineNo;
                         TempReversalEntry."VAT Allocation" := VATAllocOnCost;
                         NextLineNo := NextLineNo + 1;
-                        TempReversalEntry.Insert;
+                        TempReversalEntry.Insert();
 
                         if GLEntry.Amount > 0 then begin
-                            GLItemLedgRelation.Reset;
+                            GLItemLedgRelation.Reset();
                             GLItemLedgRelation.SetRange("G/L Entry No.", GLEntry."Entry No.");
                             if GLItemLedgRelation.FindFirst then begin
                                 Clear(TempReversalEntry);
@@ -1277,7 +1269,7 @@ table 179 "Reversal Entry"
                                 TempReversalEntry.CopyFromValueEntry(ValueEntry);
                                 TempReversalEntry."Line No." := NextLineNo;
                                 NextLineNo := NextLineNo + 1;
-                                TempReversalEntry.Insert;
+                                TempReversalEntry.Insert();
                             end;
                         end;
                     until GLEntry.Next = 0;

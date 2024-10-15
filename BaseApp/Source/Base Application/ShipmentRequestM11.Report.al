@@ -28,7 +28,7 @@ report 12471 "Shipment Request M-11"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Item Journal Line"; "Item Journal Line")
@@ -57,7 +57,7 @@ report 12471 "Shipment Request M-11"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Transfer Receipt Header"; "Transfer Receipt Header")
@@ -83,7 +83,7 @@ report 12471 "Shipment Request M-11"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
@@ -109,7 +109,7 @@ report 12471 "Shipment Request M-11"
             trigger OnPreDataItem()
             begin
                 if GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(HeaderLoop; "Integer")
@@ -144,9 +144,9 @@ report 12471 "Shipment Request M-11"
 
             trigger OnPreDataItem()
             begin
-                HeaderBuffer.Reset;
+                HeaderBuffer.Reset();
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 SetRange(Number, 1, HeaderBuffer.Count);
             end;
         }
@@ -172,7 +172,7 @@ report 12471 "Shipment Request M-11"
 
             trigger OnPreDataItem()
             begin
-                LineBuffer.Reset;
+                LineBuffer.Reset();
                 SetRange(Number, 1, LineCount);
             end;
         }
@@ -334,11 +334,11 @@ report 12471 "Shipment Request M-11"
     [Scope('OnPrem')]
     procedure HeaderBufferInsert(DimensionCodeValue: Code[20]; UnitOfMeasureCode: Code[10]; InventoryAccount: Code[20])
     begin
-        HeaderBuffer.Init;
+        HeaderBuffer.Init();
         HeaderBuffer."Item No." := InventoryAccount;
         HeaderBuffer."Variant Code" := DimensionCodeValue;
         HeaderBuffer."Location Code" := UnitOfMeasureCode;
-        if HeaderBuffer.Insert then;
+        if HeaderBuffer.Insert() then;
     end;
 
     [Scope('OnPrem')]
@@ -350,11 +350,11 @@ report 12471 "Shipment Request M-11"
         with TransferHeader do begin
             TransferLine.SetRange("Document No.", "No.");
             TransferLine.SetRange("Derived From Line No.", 0);
-            LineCount := TransferLine.Count;
+            LineCount := TransferLine.Count();
 
             if TransferLine.FindSet then
                 repeat
-                    LineBuffer.Init;
+                    LineBuffer.Init();
                     LineBuffer."Line No." := TransferLine."Line No.";
                     LineBuffer."Document No." := "No.";
                     LineBuffer."Posting Date" := "Posting Date";
@@ -384,7 +384,7 @@ report 12471 "Shipment Request M-11"
                       TransferLine."Unit of Measure Code",
                       InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert;
+                    LineBuffer.Insert();
                 until TransferLine.Next = 0;
         end;
     end;
@@ -399,7 +399,7 @@ report 12471 "Shipment Request M-11"
 
             if FindSet then
                 repeat
-                    LineBuffer.Init;
+                    LineBuffer.Init();
                     LineBuffer."Journal Template Name" := "Journal Template Name";
                     LineBuffer."Journal Batch Name" := "Journal Batch Name";
                     LineBuffer."Line No." := "Line No.";
@@ -427,7 +427,7 @@ report 12471 "Shipment Request M-11"
                       "Unit of Measure Code",
                       InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert;
+                    LineBuffer.Insert();
                 until Next = 0;
         end;
     end;
@@ -440,11 +440,11 @@ report 12471 "Shipment Request M-11"
     begin
         with TransferReceiptHeader do begin
             TransferReceiptLine.SetRange("Document No.", "No.");
-            LineCount := TransferReceiptLine.Count;
+            LineCount := TransferReceiptLine.Count();
 
             if TransferReceiptLine.FindSet then
                 repeat
-                    LineBuffer.Init;
+                    LineBuffer.Init();
                     LineBuffer."Line No." := TransferReceiptLine."Line No.";
                     LineBuffer."Document No." := "No.";
                     LineBuffer."Posting Date" := "Posting Date";
@@ -473,7 +473,7 @@ report 12471 "Shipment Request M-11"
                       TransferReceiptLine."Unit of Measure Code",
                       InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert;
+                    LineBuffer.Insert();
                 until TransferReceiptLine.Next = 0;
         end;
     end;
@@ -486,11 +486,11 @@ report 12471 "Shipment Request M-11"
     begin
         with TransferShipmentHeader do begin
             TransferShipmentLine.SetRange("Document No.", "No.");
-            LineCount := TransferShipmentLine.Count;
+            LineCount := TransferShipmentLine.Count();
 
             if TransferShipmentLine.FindSet then
                 repeat
-                    LineBuffer.Init;
+                    LineBuffer.Init();
                     LineBuffer."Line No." := TransferShipmentLine."Line No.";
                     LineBuffer."Document No." := "No.";
                     LineBuffer."Posting Date" := "Posting Date";
@@ -516,7 +516,7 @@ report 12471 "Shipment Request M-11"
                       TransferShipmentLine."Unit of Measure Code",
                       InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert;
+                    LineBuffer.Insert();
                 until TransferShipmentLine.Next = 0;
         end;
     end;

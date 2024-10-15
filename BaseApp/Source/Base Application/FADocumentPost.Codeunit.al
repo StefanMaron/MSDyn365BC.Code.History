@@ -9,14 +9,14 @@ codeunit 12471 "FA Document-Post"
     begin
         FADocHeader.Copy(Rec);
 
-        FASetup.Get;
-        GLSetup.Get;
-        TaxRegisterSetup.Get;
+        FASetup.Get();
+        GLSetup.Get();
+        TaxRegisterSetup.Get();
 
         CheckDim;
 
         // Header
-        PostedFADocHeader.Init;
+        PostedFADocHeader.Init();
         PostedFADocHeader.TransferFields(FADocHeader);
 
         if FADocHeader."Posting No." <> '' then
@@ -40,10 +40,10 @@ codeunit 12471 "FA Document-Post"
 
         PostedFADocHeader."User ID" := UserId;
         PostedFADocHeader."Creation Date" := WorkDate;
-        PostedFADocHeader.Insert;
+        PostedFADocHeader.Insert();
 
         // Lines
-        FADocLine.Reset;
+        FADocLine.Reset();
         FADocLine.SetRange("Document Type", FADocHeader."Document Type");
         FADocLine.SetRange("Document No.", FADocHeader."No.");
         if FADocLine.FindSet then
@@ -134,7 +134,7 @@ codeunit 12471 "FA Document-Post"
             repeat
                 PostedFAComment.TransferFields(FAComment);
                 PostedFAComment."Document No." := ToDocNo;
-                PostedFAComment.Insert;
+                PostedFAComment.Insert();
             until FAComment.Next = 0;
     end;
 
@@ -221,7 +221,7 @@ codeunit 12471 "FA Document-Post"
             if "Posting Date" = 0D then
                 "Posting Date" := "FA Posting Date";
 
-            FA.LockTable;
+            FA.LockTable();
             DepreciationBook.Get("Depreciation Book Code");
             FA.Get("FA No.");
             FA.TestField(Blocked, false);
@@ -322,7 +322,7 @@ codeunit 12471 "FA Document-Post"
         GLIntegration: Boolean;
     begin
         FAGetJnl.JnlName(
-          GenJnlLine2."Depreciation Book Code", BudgetedAsset, GenJnlLine2."FA Posting Type",
+          GenJnlLine2."Depreciation Book Code", BudgetedAsset, GenJnlLine2."FA Posting Type" - 1,
           GLIntegration, TemplateName, BatchName);
 
         GenJnlLine2."Journal Template Name" := TemplateName;
@@ -363,7 +363,7 @@ codeunit 12471 "FA Document-Post"
 
     local procedure PostFAWriteOff()
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
         GenJnlLine."Account No." := FADocLine."FA No.";
         GenJnlLine."Posting Date" := FADocLine."Posting Date";
@@ -388,7 +388,7 @@ codeunit 12471 "FA Document-Post"
         FA."Status Date" := PostedFADocHeader."FA Posting Date";
         FA."Status Document No." := PostedFADocHeader."No.";
         FA."Vehicle Writeoff Date" := PostedFADocHeader."FA Posting Date";
-        FA.Modify;
+        FA.Modify();
 
         if FADocLine."Item Receipt No." <> '' then begin
             ItemDocHeader.Get(ItemDocHeader."Document Type"::Receipt, FADocLine."Item Receipt No.");
@@ -416,9 +416,9 @@ codeunit 12471 "FA Document-Post"
                 else
                     FADeprBook2.Validate("No. of Depreciation Years");
             end;
-            FADeprBook2.Modify;
+            FADeprBook2.Modify();
 
-            FAReclassJnlLine.Init;
+            FAReclassJnlLine.Init();
             FAReclassJnlLine.Validate("FA No.", FADocLine."FA No.");
             if FADocLine."New FA No." <> '' then
                 FAReclassJnlLine.Validate("New FA No.", FADocLine."New FA No.")
@@ -496,7 +496,7 @@ codeunit 12471 "FA Document-Post"
             FA."Status Date" := PostedFADocHeader."FA Posting Date";
         end;
         FA."Status Document No." := PostedFADocHeader."No.";
-        FA.Modify;
+        FA.Modify();
     end;
 }
 

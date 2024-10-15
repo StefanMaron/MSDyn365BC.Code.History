@@ -214,7 +214,7 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an empty field
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         RecordRef.GetTable(DataTypeBuffer);
         for FieldNo := 1 to RecordRef.FieldCount do begin
             // [GIVEN] Field is of type [Option, Boolean,Text,Code,Date,Decimal,Integer,BigInteger,Time,DateTime,Duration,GUID,DateFormula].
@@ -276,9 +276,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a text field with 6 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := '123456';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Text),
@@ -305,9 +305,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a code field with 6 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Code := '123456';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Code),
@@ -334,9 +334,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a integer field with 6 numbers
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 123456;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -363,9 +363,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a decimal field with 6 numbers(including comma)
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Decimal := 123.56;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Decimal),
@@ -391,9 +391,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a text field with 5 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := '12345';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Text),
@@ -417,9 +417,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a code field with 5 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Code := '12345';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Code),
@@ -443,9 +443,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer field with 5 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 12345;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -469,9 +469,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a decimal field with 5 characters
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Decimal := 12.45;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLengthExceeded is called with relation to the empty field and MaxLength = 5
         ID := TempErrorMessage.LogIfLengthExceeded(DataTypeBuffer, DataTypeBuffer.FieldNo(Decimal),
@@ -496,9 +496,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a text field containing Copenhagen1
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := 'Copenhagen1';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [GIVEN] Only characters are valid
         // [WHEN] LogIfInvalidCharacters is called with relation to the specified field and valid characters.
@@ -525,9 +525,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with a text field containing Copenhagen
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := 'Copenhagen';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [GIVEN] Only characters are valid
         // [WHEN] LogIfInvalidCharacters is called with relation to the specified field and valid characters.
@@ -553,9 +553,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfOutsideRange is called with relation to the specified field and range 1-4.
         ID := TempErrorMessage.LogIfOutsideRange(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -581,9 +581,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 4
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 4;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfOutsideRange is called with relation to the specified field and range 4-4.
         ID := TempErrorMessage.LogIfOutsideRange(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -608,9 +608,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfGreaterThan is called with relation to the specified field and max value = 4.
         ID := TempErrorMessage.LogIfGreaterThan(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -636,9 +636,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfGreaterThan is called with relation to the specified field and max value = 5.
         ID := TempErrorMessage.LogIfGreaterThan(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -663,9 +663,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLessThan is called with relation to the specified field and min value = 6.
         ID := TempErrorMessage.LogIfLessThan(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -691,9 +691,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfLessThan is called with relation to the specified field and min value = 5.
         ID := TempErrorMessage.LogIfLessThan(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -718,9 +718,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfEqualTo is called with relation to the specified field and must be equal to 5.
         ID := TempErrorMessage.LogIfEqualTo(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -747,9 +747,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.Text := '(5)|@2';
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfEqualTo is called with relation to the specified field and must be equal to 5.
         ID := TempErrorMessage.LogIfEqualTo(DataTypeBuffer, DataTypeBuffer.FieldNo(Text),
@@ -775,9 +775,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfEqualTo is called with relation to the specified field and must be equal to 1.
         ID := TempErrorMessage.LogIfEqualTo(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -802,9 +802,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfNotEqualTo is called with relation to the specified field and must not be equal to 4.
         ID := TempErrorMessage.LogIfNotEqualTo(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -830,9 +830,9 @@ codeunit 135000 "Error Message Tests"
         Initialize;
 
         // [GIVEN] A record with an integer value = 5
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID := 5;
-        DataTypeBuffer.Insert;
+        DataTypeBuffer.Insert();
 
         // [WHEN] LogIfNotEqualTo is called with relation to the specified field and must not be equal to 5.
         ID := TempErrorMessage.LogIfNotEqualTo(DataTypeBuffer, DataTypeBuffer.FieldNo(ID),
@@ -1285,8 +1285,8 @@ codeunit 135000 "Error Message Tests"
         DataTypeBuffer: Record "Data Type Buffer";
         ErrorMessage: Record "Error Message";
     begin
-        DataTypeBuffer.DeleteAll;
-        ErrorMessage.DeleteAll;
+        DataTypeBuffer.DeleteAll();
+        ErrorMessage.DeleteAll();
 
         GLBCustomerContext.FindFirst;
         GLBVendorContext.FindFirst;

@@ -289,7 +289,7 @@ page 14962 "Payroll Analysis Lines"
     begin
         PayrollAnalysisReportMgt.OpenAnalysisLines(CurrentAnalysisLineTempl, Rec);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if PayrollAnalysisLineTemplate.Get(CurrentAnalysisLineTempl) then
             if PayrollAnalysisLineTemplate."Payroll Analysis View Code" <> '' then

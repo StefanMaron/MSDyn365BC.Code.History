@@ -29,12 +29,12 @@ codeunit 14945 "Advance Statement Helper"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Adv. Statement Template Code");
         ExcelReportBuilderManager.InitTemplate(PurchasesPayablesSetup."Adv. Statement Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');
 
-        CompInfo.Get;
+        CompInfo.Get();
     end;
 
     [Scope('OnPrem')]

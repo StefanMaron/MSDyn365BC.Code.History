@@ -44,7 +44,7 @@ codeunit 12422 "Corrective Document Mgt."
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
     begin
         with SalesLine do begin
-            ItemChargeAssgntSales.Reset;
+            ItemChargeAssgntSales.Reset();
             ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
             ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
@@ -60,7 +60,7 @@ codeunit 12422 "Corrective Document Mgt."
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
         with SalesLine do begin
-            ItemChargeAssgntSales.Init;
+            ItemChargeAssgntSales.Init();
             ItemChargeAssgntSales."Document Type" := "Document Type";
             ItemChargeAssgntSales."Document No." := "Document No.";
             ItemChargeAssgntSales."Document Line No." := "Line No.";
@@ -79,7 +79,7 @@ codeunit 12422 "Corrective Document Mgt."
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
         with SalesLine do begin
-            ItemChargeAssgntSales.Init;
+            ItemChargeAssgntSales.Init();
             ItemChargeAssgntSales."Document Type" := "Document Type";
             ItemChargeAssgntSales."Document No." := "Document No.";
             ItemChargeAssgntSales."Document Line No." := "Line No.";
@@ -187,7 +187,7 @@ codeunit 12422 "Corrective Document Mgt."
                     if ValueEntry.ItemValueEntryExists then
                         if SalesShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
                             TempSalesShptLine := SalesShptLine;
-                            if TempSalesShptLine.Insert then;
+                            if TempSalesShptLine.Insert() then;
                         end;
                 end;
             until ValueEntry.Next = 0;
@@ -213,7 +213,7 @@ codeunit 12422 "Corrective Document Mgt."
                     if ValueEntry.ItemValueEntryExists then
                         if ReturnRcptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
                             TempReturnReceiptLine := ReturnRcptLine;
-                            if TempReturnReceiptLine.Insert then;
+                            if TempReturnReceiptLine.Insert() then;
                         end;
                 end;
             until ValueEntry.Next = 0;
@@ -229,7 +229,7 @@ codeunit 12422 "Corrective Document Mgt."
         LineNo: Integer;
         ItemLine: Boolean;
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         SalesInvLine.Copy(SourceSalesInvLine);
         LineNo := GetSalesLineNo(SalesHeader."Document Type", SalesHeader."No.");
 
@@ -261,7 +261,7 @@ codeunit 12422 "Corrective Document Mgt."
                    (SalesLine."Document Type" in [SalesLine."Document Type"::"Credit Memo", SalesLine."Document Type"::"Return Order"])
                 then
                     FindAndSetApplFromItemEntryNo(SalesLine, SalesInvLine);
-                SalesLine.Modify;
+                SalesLine.Modify();
                 if ItemLine then
                     CreateItemChargeAssignment(SalesLine);
                 if SalesLine.Type = SalesLine.Type::Item then
@@ -305,7 +305,7 @@ codeunit 12422 "Corrective Document Mgt."
                     SalesLine.Description := SalesCrMemoLine.Description;
                 end;
                 SalesLine."Dimension Set ID" := SalesCrMemoLine."Dimension Set ID";
-                SalesLine.Modify;
+                SalesLine.Modify();
                 if ItemLine then
                     CreateItemChargeAssignment(SalesLine);
                 if SalesLine.Type = SalesLine.Type::Item then
@@ -318,7 +318,7 @@ codeunit 12422 "Corrective Document Mgt."
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
         if SalesLine.FindLast then;
@@ -327,11 +327,11 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure InsertSalesLine(var SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; LineNo: Integer)
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := DocType;
         SalesLine."Document No." := DocNo;
         SalesLine."Line No." := LineNo;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -452,7 +452,7 @@ codeunit 12422 "Corrective Document Mgt."
         CorrSalesHeader: Record "Sales Header";
         CorrSalesLine: Record "Sales Line";
     begin
-        CorrSalesHeader.Reset;
+        CorrSalesHeader.Reset();
         CorrSalesHeader.SetCurrentKey("Corrective Document", "Corrected Doc. Type", "Corrected Doc. No.");
         CorrSalesHeader.SetRange("Corrective Document", true);
         CorrSalesHeader.SetRange("Corrected Doc. Type", SalesHeader."Corrected Doc. Type");
@@ -460,7 +460,7 @@ codeunit 12422 "Corrective Document Mgt."
         CorrSalesHeader.SetFilter("No.", '<>%1', SalesHeader."No.");
         if CorrSalesHeader.FindSet then
             repeat
-                CorrSalesLine.Reset;
+                CorrSalesLine.Reset();
                 CorrSalesLine.SetRange("Document Type", CorrSalesHeader."Document Type");
                 CorrSalesLine.SetRange("Document No.", CorrSalesHeader."No.");
                 CorrSalesLine.SetRange("Corrected Doc. Line No.", CorrLineNo);
@@ -493,13 +493,13 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure SetSalesInvCrMemoLineFilters(var SalesInvLine: Record "Sales Invoice Line"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; OriginalDocType: Option; OriginalDocNo: Code[20]; OriginalDocLineNo: Integer)
     begin
-        SalesInvLine.Reset;
+        SalesInvLine.Reset();
         SalesInvLine.SetCurrentKey("Original Doc. Type", "Original Doc. No.", "Original Doc. Line No.");
         SalesInvLine.SetRange("Original Doc. Type", OriginalDocType);
         SalesInvLine.SetRange("Original Doc. No.", OriginalDocNo);
         SalesInvLine.SetRange("Original Doc. Line No.", OriginalDocLineNo);
 
-        SalesCrMemoLine.Reset;
+        SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetCurrentKey("Original Doc. Type", "Original Doc. No.", "Original Doc. Line No.");
         SalesCrMemoLine.SetRange("Original Doc. Type", OriginalDocType);
         SalesCrMemoLine.SetRange("Original Doc. No.", OriginalDocNo);
@@ -542,8 +542,8 @@ codeunit 12422 "Corrective Document Mgt."
         MissingExCostRevLink := false;
         FillExactCostRevLink := false;
         ExactCostRevMandatory := false;
-        TempTrkgItemLedgEntry.Reset;
-        TempTrkgItemLedgEntry.DeleteAll;
+        TempTrkgItemLedgEntry.Reset();
+        TempTrkgItemLedgEntry.DeleteAll();
 
         case SalesHeader."Corrected Doc. Type" of
             SalesHeader."Corrected Doc. Type"::Invoice:
@@ -565,7 +565,7 @@ codeunit 12422 "Corrective Document Mgt."
            (SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice));
 
         if IsCopyItemTrkg(ItemLedgEntryBuf) then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             ExactCostRevMandatory := SalesSetup."Exact Cost Reversing Mandatory";
             MissingExCostRevLink := (SalesLine."Quantity (Base)" <> 0) and FillExactCostRevLink;
             ItemTrackingDocMgt.CopyItemLedgerEntriesToTemp(TempTrkgItemLedgEntry, ItemLedgEntryBuf);

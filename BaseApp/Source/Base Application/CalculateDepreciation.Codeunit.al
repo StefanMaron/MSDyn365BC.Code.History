@@ -24,7 +24,7 @@ codeunit 5610 "Calculate Depreciation"
         if not DeprBook.Get(DeprBookCode) then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" then
             DeprBook.TestField("Allow Depreciation", true);
 

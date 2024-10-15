@@ -75,7 +75,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
         DimensionValue: Record "Dimension Value";
     begin
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
 
         TaxCalcDimFilter.SetRange("Section Code", TaxCalcLine."Section Code");
         TaxCalcDimFilter.SetRange("Register No.", TaxCalcLine.Code);
@@ -104,31 +104,31 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
     begin
         if TaxCalcSection.Code <> TaxCalcSectionCode then
             TaxCalcSection.Get(TaxCalcSectionCode);
-        TempDimBuf1.Reset;
-        TempDimBuf1.DeleteAll;
+        TempDimBuf1.Reset();
+        TempDimBuf1.DeleteAll();
 
         if (Dimension1ValueCode <> '') and (TaxCalcSection."Dimension 1 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxCalcSection."Dimension 1 Code";
             TempDimBuf1."Dimension Value Code" := Dimension1ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension2ValueCode <> '') and (TaxCalcSection."Dimension 2 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxCalcSection."Dimension 2 Code";
             TempDimBuf1."Dimension Value Code" := Dimension2ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension3ValueCode <> '') and (TaxCalcSection."Dimension 3 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxCalcSection."Dimension 3 Code";
             TempDimBuf1."Dimension Value Code" := Dimension3ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
 
         if (Dimension4ValueCode <> '') and (TaxCalcSection."Dimension 4 Code" <> '') then begin
             TempDimBuf1."Dimension Code" := TaxCalcSection."Dimension 4 Code";
             TempDimBuf1."Dimension Value Code" := Dimension4ValueCode;
-            TempDimBuf1.Insert;
+            TempDimBuf1.Insert();
         end;
     end;
 
@@ -180,7 +180,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
                                   StrSubstNo('%1%2~', TaxCalcIDTotaling, TaxCalcHeader."Register ID");
                         until TaxCalcDimFilter.Next(1) = 0;
             until TaxCalcDimCorFilter.Next(1) = 0;
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
         if TempDimBuf1.FindSet then
             repeat
                 case TempDimBuf1."Dimension Code" of
@@ -201,7 +201,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
     var
         DimensionValue: Record "Dimension Value";
     begin
-        TempDimBuf1.Reset;
+        TempDimBuf1.Reset();
         if TempDimBuf1.FindSet then
             repeat
                 TaxCalcDimFilter.SetRange("Dimension Code", TempDimBuf1."Dimension Code");
@@ -273,15 +273,15 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
     begin
         if TaxCalcSection.Code <> TaxCalcSectionCode then
             TaxCalcSection.Get(TaxCalcSectionCode);
-        TempDimBuf1.Reset;
-        TempDimBuf1.DeleteAll;
+        TempDimBuf1.Reset();
+        TempDimBuf1.DeleteAll();
 
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
         if TempDimSetEntry.FindSet then
             repeat
                 TempDimBuf1."Dimension Code" := TempDimSetEntry."Dimension Code";
                 TempDimBuf1."Dimension Value Code" := TempDimSetEntry."Dimension Value Code";
-                TempDimBuf1.Insert;
+                TempDimBuf1.Insert();
             until TempDimSetEntry.Next = 0;
     end;
 

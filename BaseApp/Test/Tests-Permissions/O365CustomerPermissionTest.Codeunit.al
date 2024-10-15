@@ -5,7 +5,7 @@ codeunit 139453 "O365 Customer Permission Test"
 
     trigger OnRun()
     begin
-        // [FEATURE] [O365] [Permission]
+        // [FEATURE] [O365] [Permissions]
     end;
 
     var
@@ -147,48 +147,6 @@ codeunit 139453 "O365 Customer Permission Test"
         // [THEN] "Posted Return Receipt - Update" opens.
     end;
 
-    [Test]
-    [HandlerFunctions('PostedSalesCrMemoUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedSalesCrMemoUpdateFromCard()
-    var
-        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
-    begin
-        // [FEATURE] [Sales Credit Memo]
-        // [SCENARIO 308913] Open "Posted Sales Cr. Memo - Update" from "Posted Sales Credit Memo" card with "D365 Sales Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
-        LibraryLowerPermissions.SetSalesDocsCreate;
-
-        // [WHEN] Open "Posted Sales Cr. Memo - Update" page from "Posted Sales Credit Memo" card.
-        PostedSalesCreditMemo.OpenView;
-        PostedSalesCreditMemo."Update Document".Invoke;
-
-        // [THEN] "Posted Sales Cr. Memo - Update" opens.
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedSalesCrMemoUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedSalesCrMemoUpdateFromList()
-    var
-        PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos";
-    begin
-        // [FEATURE] [Sales Credit Memo]
-        // [SCENARIO 308913] Open "Posted Sales Cr. Memo - Update" from "Posted Sales Credit Memos" list with "D365 Sales Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
-        LibraryLowerPermissions.SetSalesDocsCreate;
-
-        // [WHEN] Open "Posted Sales Cr. Memo - Update" page from "Posted Sales Credit Memos" list.
-        PostedSalesCreditMemos.OpenView;
-        PostedSalesCreditMemos."Update Document".Invoke;
-
-        // [THEN] "Posted Sales Cr. Memo - Update" opens.
-    end;
-
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -200,11 +158,11 @@ codeunit 139453 "O365 Customer Permission Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         // mandatory fields for Customer creation
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Customer Nos." := NoSeries.Code;
         SalesReceivablesSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Contact Nos." := NoSeries.Code;
         MarketingSetup.Modify(true);
     end;
@@ -235,13 +193,6 @@ codeunit 139453 "O365 Customer Permission Test"
     procedure PostedReturnReceiptUpdateOKModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
     begin
         PostedReturnReceiptUpdate.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostedSalesCrMemoUpdateOKModalPageHandler(var PostedSalesCrMemoUpdate: TestPage "Posted Sales Cr. Memo - Update")
-    begin
-        PostedSalesCrMemoUpdate.OK.Invoke;
     end;
 }
 

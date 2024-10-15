@@ -827,7 +827,7 @@ codeunit 134976 "ERM Sales Report"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("No.", SalesHeader."No.");
         OrderConfirmation.SetTableView(SalesHeader);
-        Commit;
+        Commit();
         OrderConfirmation.Run;
 
         // Verify: Verify that Saved files have some data.
@@ -928,7 +928,7 @@ codeunit 134976 "ERM Sales Report"
         // Verify: Verify that Totoal (LCY) shows the correct value in local currency and check that Currency Code is showing in the report.
         LibraryReportDataset.LoadDataSetFile;
         VerifyTotalLCYOnCustomerOrderSummary(SalesLine."Line Amount" / SalesHeader."Currency Factor");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('CurrencyCode_SalesLine', SalesHeader."Currency Code");
     end;
 
@@ -1319,7 +1319,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(CustSummAging_TotalBalanceLbl, AmountFCY);
 
         // [THEN] Report doesn't show a line for LCY zero balance
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.MoveToRow(1 + LibraryReportDataset.FindRow(CustSummAging_CurrencyLbl, ''));
         LibraryReportDataset.AssertCurrentRowValueEquals(CustSummAging_PrintLineLbl, false);
         LibraryReportDataset.AssertCurrentRowValueEquals(CustSummAging_TotalBalanceLbl, 0);
@@ -1342,7 +1342,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
           LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, 1, '', 0D,
           LibraryERM.CreateCurrencyWithRandomExchRates);
-        Commit;
+        Commit();
 
         // [WHEN] Run "Customer - Order Summary" report with "Print in LCY" option
         RunCustOrderSummaryReport(SalesHeader."Sell-to Customer No.", true);
@@ -1366,7 +1366,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Posted sales credit memo with "Your Reference" = "Ref"
         CreatePostSalesCrMemoWithYourRef(PostedCrMemoNo, YourReference);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit;
+        Commit();
 
         // [WHEN] Print report 207 - "Sales - Credit Memo"
         RunSalesCreditMemoReport(PostedCrMemoNo);
@@ -1409,7 +1409,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post Sales Invoice
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit;
+        Commit();
 
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(PostedDocNo, false, true, false, 0);
@@ -1454,7 +1454,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post Sales Invoice
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit;
+        Commit();
 
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(PostedDocNo, false, true, false, 0);
@@ -1500,7 +1500,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post Sales Invoice
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit;
+        Commit();
 
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(PostedDocNo, false, true, false, 0);
@@ -1747,7 +1747,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Posted Sales Invoice without "External Document No."
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
 
         // [WHEN] Export report "Standard Sales - Invoice" to XML file
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
@@ -1850,7 +1850,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Sales - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Sales - Quote");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1878,7 +1878,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Order Confirmation" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Order Confirmation");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1906,7 +1906,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Blanket Sales Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Blanket Sales Order");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1934,7 +1934,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Standard Sales - Draft Invoice" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1962,7 +1962,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Standard Sales - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Standard Sales - Quote");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1990,7 +1990,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize;
 
         // [GIVEN] Report "Standard Sales - Order Conf." was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Standard Sales - Order Conf.");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -2019,7 +2019,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Sales Invoice with "External Doc No.".
         CreateSalesInvoiceWithExternalDocNo(SalesHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
         SalesHeader.SetRecFilter;
@@ -2047,7 +2047,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Sales Invoice with "External Doc No.".
         CreateSalesInvoiceWithExternalDocNo(SalesHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Print report "Standard Sales - Draft Invoice" as Excel.
         SalesHeader.SetRecFilter;
@@ -2077,7 +2077,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post Invoice from Order
         SalesInvoiceHeader.SetRange("No.", LibrarySales.PostSalesDocument(SalesHeader, false, true));
         SalesInvoiceHeader.FindFirst;
-        Commit;
+        Commit();
 
         // [WHEN] Run "Save as Xml" for "Standard Sales - Invoice" with option "Show Shipments"
         SalesInvoiceHeader.SetRecFilter;
@@ -2110,7 +2110,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post Cr. Memo from Return Order
         SalesCrMemoHeader.SetRange("No.", LibrarySales.PostSalesDocument(SalesHeader, false, true));
         SalesCrMemoHeader.FindFirst;
-        Commit;
+        Commit();
 
         // [WHEN] Run "Save as Xml" for "Standard Sales - Credit Memo" with option "Show Shipments"
         SalesCrMemoHeader.SetRecFilter;
@@ -2174,7 +2174,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesQuoteWithLine(SalesHeader, SalesLine, CreateCustomer);
 
         // [WHEN] Run report "Standard Sales - Quote".
-        Commit;
+        Commit();
         SalesHeader.SetRecFilter;
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
@@ -2200,7 +2200,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer);
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
-        Commit;
+        Commit();
         SalesHeader.SetRecFilter;
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
@@ -2228,7 +2228,7 @@ codeunit 134976 "ERM Sales Report"
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Run report "Standard Sales - Invoice".
-        Commit;
+        Commit();
         SalesInvoiceHeader.SetRecFilter;
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
@@ -2259,7 +2259,7 @@ codeunit 134976 "ERM Sales Report"
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Run report "Standard Sales - Quote".
-        Commit;
+        Commit();
         SalesCrMemoHeader.SetRecFilter;
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
@@ -2335,7 +2335,7 @@ codeunit 134976 "ERM Sales Report"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceHeader.Get(DocumentNo);
         SalesInvoiceHeader."Prepayment Invoice" := true;
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
 
         // [WHEN] Print Sales Invoice
@@ -2370,7 +2370,7 @@ codeunit 134976 "ERM Sales Report"
         BindSubscription(ReportCaptionSubscriber);
 
         // [WHEN] Run report "Standard Sales - Invoice".
-        Commit;
+        Commit();
         SalesInvoiceHeader.SetRecFilter;
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
@@ -2405,7 +2405,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesHeader."Document Type"::Invoice, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice"
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
@@ -2440,7 +2440,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesHeader."Document Type"::Quote, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Quote"
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
@@ -2475,7 +2475,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesHeader."Document Type"::Order, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Order Conf."
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
@@ -2651,7 +2651,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Sales Invoice with 3 lines where Line1 has VATPostingSetup[1], Line2 has VATPostingSetup[2], Line3 has VATPostingSetup[3]
         CreateSalesInvoiceWithThreeLinesWithVATBusPostingSetup(SalesHeader, VATPostingSetup);
         SalesHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
@@ -2751,7 +2751,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.SetRecFilter;
 
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Standard Sales - Order Conf." for Sales Order
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
@@ -2778,7 +2778,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Sales Order with "Your Reference" = "XXX"
         MockSalesOrderWithExternalDocumentNo(SalesHeader);
         SalesHeader."Your Reference" := LibraryUtility.GenerateGUID;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Export report "Standard Sales - Order Conf." to XML file
         RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
@@ -2883,7 +2883,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Sales Order with Sales Line with "Dimesnion Value" in "Shortcut Dimension 1 Code"
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         SalesLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
         SalesLine.Modify(true);
@@ -2891,7 +2891,7 @@ codeunit 134976 "ERM Sales Report"
         // [WHEN] Customer - Order Summary is run.
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Customer - Order Summary", true, false, Customer);
 
         // [THEN] Sales Order Amount equal to Sales Line's "Quantity" * "Unit Price".
@@ -2986,7 +2986,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySales.SetInvoiceRounding(false);
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -3239,14 +3239,14 @@ codeunit 134976 "ERM Sales Report"
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."External Document No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesInvoiceHeaderWithExternalDocumentNo(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20])
@@ -3375,12 +3375,12 @@ codeunit 134976 "ERM Sales Report"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine.Insert;
+        SalesLine.Insert();
         LibraryUtility.FillFieldMaxText(SalesLine, SalesLine.FieldNo(Description));
     end;
 
@@ -3449,7 +3449,7 @@ codeunit 134976 "ERM Sales Report"
         for i := 1 to ArrayLen(VATClause) do begin
             LibraryERM.CreateVATClause(VATClause[i]);
             LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[i]);
-            VATPostingSetup[i].Init;
+            VATPostingSetup[i].Init();
             VATPostingSetup[i] := VATPostingSetup[3];
             VATPostingSetup[i].Validate("VAT Identifier", LibraryUtility.GenerateGUID);
             VATPostingSetup[i].Validate("VAT Prod. Posting Group", VATProductPostingGroup[i].Code);
@@ -3489,7 +3489,7 @@ codeunit 134976 "ERM Sales Report"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionValue: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         GlobalDim1Value := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
@@ -3619,7 +3619,7 @@ codeunit 134976 "ERM Sales Report"
         Language: Record Language;
         RandomNum: Integer;
     begin
-        Language.Init;
+        Language.Init();
         RandomNum := LibraryRandom.RandIntInRange(1, Language.Count);
         Language.Next(RandomNum);
         exit(Language.Code);
@@ -3690,7 +3690,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         GenJournalLine.Validate("Shortcut Dimension 1 Code", Dimension1Value);
         GenJournalLine.Validate("Shortcut Dimension 2 Code", Dimension2Value);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure UpdateGlobalDims()
@@ -3825,7 +3825,7 @@ codeunit 134976 "ERM Sales Report"
         Customer.SetRange("No.", CustomerNo);
         CustomerSummaryAging.SetTableView(Customer);
         CustomerSummaryAging.InitializeRequest(WorkDate, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
-        Commit;
+        Commit();
         CustomerSummaryAging.RunModal;
     end;
 
@@ -3851,14 +3851,14 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.Enqueue(ShowAmountInLCY);
         LibraryVariableStorage.Enqueue(false);
         Customer.SetRange("No.", SellToCustomerNo);
-        Commit;  // Due to limitation in page testability, commit is needed in this test case.
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
         REPORT.Run(REPORT::"Customer - Order Detail", true, false, Customer);
     end;
 
     local procedure RunCustomerOrderSummaryReport(var Customer: Record Customer)
     begin
         Customer.SetRange("No.", Customer."No.");
-        Commit; // Due to limitation in page testability, commit is needed in this test case.
+        Commit(); // Due to limitation in page testability, commit is needed in this test case.
         REPORT.Run(REPORT::"Customer - Order Summary", true, false, Customer);
     end;
 
@@ -3869,7 +3869,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(ShowAmountLCY);
         Customer.SetRange("No.", SellToCustomerNo);
-        Commit;  // Due to limitation in page testability, commit is needed in this test case.
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
         REPORT.Run(REPORT::"Customer - Order Summary", true, false, Customer);
     end;
 
@@ -3888,7 +3888,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.Enqueue(Print);
 
         SalesQuote.InitializeRequest(0, InternalInfo, Archived, LogInteraction, Print);
-        Commit;
+        Commit();
         SalesQuote.Run;
     end;
 
@@ -3901,7 +3901,7 @@ codeunit 134976 "ERM Sales Report"
         SalesShipmentHeader.SetRange("No.", No);
         SalesShipment.SetTableView(SalesShipmentHeader);
         SalesShipment.InitializeRequest(0, ShowInternalInformation, LogInteraction, ShowCorrectionLines, false, ShowAssemblyComponents); // NewShowLotSN is False
-        Commit; // Due to limitation in Report Commit is required for this Test case.
+        Commit(); // Due to limitation in Report Commit is required for this Test case.
         SalesShipment.Run;
     end;
 
@@ -3914,7 +3914,7 @@ codeunit 134976 "ERM Sales Report"
         SalesInvoiceHeader.SetRange("No.", No);
         SalesInvoice.SetTableView(SalesInvoiceHeader);
         SalesInvoice.InitializeRequest(NoOfCopies, InternalInfo, LogInteraction, ShowAssemblyComponents);
-        Commit;
+        Commit();
         SalesInvoice.Run;
     end;
 
@@ -3944,7 +3944,7 @@ codeunit 134976 "ERM Sales Report"
 
     local procedure RunCustomerListReport(var Customer: Record Customer)
     begin
-        Commit;
+        Commit();
         Customer.SetRange("No.", Customer."No.");
         REPORT.Run(REPORT::"Customer - List", true, false, Customer);
     end;
@@ -3953,7 +3953,7 @@ codeunit 134976 "ERM Sales Report"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Commit;
+        Commit();
         SalesHeader.SetRange("No.", SalesHeaderNo);
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
     end;
@@ -3962,7 +3962,7 @@ codeunit 134976 "ERM Sales Report"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Commit;
+        Commit();
         SalesHeader.SetRange("No.", SalesHeaderNo);
         REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
     end;
@@ -3971,7 +3971,7 @@ codeunit 134976 "ERM Sales Report"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        Commit;
+        Commit();
         SalesInvoiceHeader.SetRange("No.", PostedSalesInvoiceNo);
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
     end;
@@ -3985,7 +3985,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CustNo);
-        Commit;
+        Commit();
         Customer.Get(CustNo);
         Customer.SetRecFilter;
         Customer.SetFilter("Date Filter", '%1..', WorkDate);
@@ -4016,7 +4016,7 @@ codeunit 134976 "ERM Sales Report"
           PrintOverdueEntries, true, false, PrintReversedEntries, PrintUnappliedEntries, IncludeAgingBand,
           Format(PeriodLength), DateChoice::"Posting Date", false, DMY2Date(1, 1, Date2DMY(PostingDate, 3)),
           DMY2Date(31, 12, Date2DMY(CalcDate('<1Y>', PostingDate), 3)));
-        Commit;
+        Commit();
         Statement.Run;
     end;
 
@@ -4044,13 +4044,13 @@ codeunit 134976 "ERM Sales Report"
         if ReportLayoutSelection.FindFirst then begin
             ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
             ReportLayoutSelection."Custom Report Layout Code" := '';
-            ReportLayoutSelection.Modify;
+            ReportLayoutSelection.Modify();
         end else begin
             ReportLayoutSelection."Report ID" := ReportID;
             ReportLayoutSelection."Company Name" := CompanyName;
             ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
             ReportLayoutSelection."Custom Report Layout Code" := '';
-            ReportLayoutSelection.Insert;
+            ReportLayoutSelection.Insert();
         end;
     end;
 
@@ -4058,7 +4058,7 @@ codeunit 134976 "ERM Sales Report"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldDefaultPostingDate := SalesReceivablesSetup."Default Posting Date";
         SalesReceivablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         SalesReceivablesSetup.Modify(true);

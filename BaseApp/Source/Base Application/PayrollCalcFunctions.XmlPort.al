@@ -47,20 +47,20 @@ xmlport 17402 "Payroll Calc. Functions"
         if SourcePayrollCalcFunction.FindSet then
             repeat
                 "Payroll Calculation Function" := SourcePayrollCalcFunction;
-                "Payroll Calculation Function".Insert;
+                "Payroll Calculation Function".Insert();
             until SourcePayrollCalcFunction.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure ImportData()
     begin
-        "Payroll Calculation Function".Reset;
+        "Payroll Calculation Function".Reset();
         if "Payroll Calculation Function".FindSet then
             repeat
                 if PayrollCalcFunction.Get("Payroll Calculation Function".Code) then
                     PayrollCalcFunction.Delete(true);
                 PayrollCalcFunction := "Payroll Calculation Function";
-                PayrollCalcFunction.Insert;
+                PayrollCalcFunction.Insert();
             until "Payroll Calculation Function".Next = 0;
     end;
 }

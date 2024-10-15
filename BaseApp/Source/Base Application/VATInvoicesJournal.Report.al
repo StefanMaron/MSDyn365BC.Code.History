@@ -119,8 +119,8 @@ report 14927 "VAT Invoices Journal"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        TaxRegSetup.Get;
+        CompanyInfo.Get();
+        TaxRegSetup.Get();
         TaxRegSetup.TestField("VAT Iss./Rcvd. Jnl. Templ Code");
     end;
 
@@ -176,7 +176,7 @@ report 14927 "VAT Invoices Journal"
         CurrDescr: Text[40];
         VATRegNoKPP: Text[30];
     begin
-        VendorLedgerEntry.Reset;
+        VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
         with VendorLedgerEntry do
             if FindSet then begin
@@ -217,7 +217,7 @@ report 14927 "VAT Invoices Journal"
         CurrDescr: Text[40];
         VATRegNoKPP: Text[30];
     begin
-        VendorLedgerEntry.Reset;
+        VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
         with VendorLedgerEntry do
             if FindSet then begin

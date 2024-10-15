@@ -266,7 +266,7 @@ page 12497 "FA Sheet"
         end;
 
         if DeprBookFilter = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookFilter := FASetup."Default Depr. Book";
         end;
         SetRange("Depreciation Book Code", DeprBookFilter);

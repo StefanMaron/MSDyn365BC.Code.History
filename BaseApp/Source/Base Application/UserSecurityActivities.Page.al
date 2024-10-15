@@ -172,6 +172,7 @@ page 9062 "User Security Activities"
         EnvironmentInfo: Codeunit "Environment Information";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
         if SoftwareAsAService then
@@ -185,13 +186,13 @@ page 9062 "User Security Activities"
 
         DataSensitivity.SetRange("Company Name", CompanyName);
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
-        UnclassifiedFields := DataSensitivity.Count;
+        UnclassifiedFields := DataSensitivity.Count();
 
         RoleCenterNotificationMgt.ShowNotifications;
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
         ShowIntelligentCloud := not SoftwareAsAService;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled;
+        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
 
         if PageNotifier.IsAvailable then begin
             PageNotifier := PageNotifier.Create;

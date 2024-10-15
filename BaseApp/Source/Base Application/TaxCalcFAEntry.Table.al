@@ -68,15 +68,13 @@ table 17318 "Tax Calc. FA Entry"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(43; "Depreciation Method (Base)"; Option)
+        field(43; "Depreciation Method (Base)"; Enum "FA Depreciation Method")
         {
             CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Method" WHERE("FA No." = FIELD("FA No."),
                                                                                      "Depreciation Book Code" = FIELD("Depreciation Book Code (Base)")));
             Caption = 'Depreciation Method (Base)';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Straight-Line,Declining-Balance 1,Declining-Balance 2,DB1/SL,DB2/SL,User-Defined,Manual,SL-RU,DB/SL-RU,DB/SL-RU Tax Group';
-            OptionMembers = "Straight-Line","Declining-Balance 1","Declining-Balance 2","DB1/SL","DB2/SL","User-Defined",Manual,"SL-RU","DB/SL-RU","DB/SL-RU Tax Group";
         }
         field(44; "No. of Depr. Months (Base)"; Decimal)
         {
@@ -154,7 +152,7 @@ table 17318 "Tax Calc. FA Entry"
         {
             Caption = 'Disposed';
         }
-        field(53; "Depreciation Method (Tax)"; Option)
+        field(53; "Depreciation Method (Tax)"; Enum "FA Depreciation Method")
         {
             CalcFormula = Lookup ("FA Depreciation Book"."Depreciation Method" WHERE("FA No." = FIELD("FA No."),
                                                                                      "Depreciation Book Code" = FIELD("Depreciation Book Code (Tax)"),
@@ -162,8 +160,6 @@ table 17318 "Tax Calc. FA Entry"
             Caption = 'Depreciation Method (Tax)';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Straight-Line,Declining-Balance 1,Declining-Balance 2,DB1/SL,DB2/SL,User-Defined,Manual,SL-RU,DB/SL-RU,DB/SL-RU Tax Group';
-            OptionMembers = "Straight-Line","Declining-Balance 1","Declining-Balance 2","DB1/SL","DB2/SL","User-Defined",Manual,"SL-RU","DB/SL-RU","DB/SL-RU Tax Group";
         }
         field(54; "No. of Depr. Months (Tax)"; Decimal)
         {

@@ -114,7 +114,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('ConfirmNoHandler')]
     [Scope('OnPrem')]
     procedure DepreciationOfFixedAsset()
     var
@@ -311,7 +311,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Acc. Periods: Posting");
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
@@ -336,7 +336,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         DepreciationBook.Validate("G/L Integration - Appreciation", true);
         DepreciationBook.Validate("G/L Integration - Depreciation", true);
         DepreciationBook.Validate("Use Rounding in Periodic Depr.", true);
-        DepreciationBook.Validate("Allow Depreciation", true);
         DepreciationBook.Modify(true);
 
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAssetNo, DepreciationBook.Code);
@@ -520,10 +519,11 @@ codeunit 134361 "No Acc. Periods: Posting"
         end;
     end;
 
-    [MessageHandler]
+    [ConfirmHandler]
     [Scope('OnPrem')]
-    procedure MessageHandler(Msg: Text)
+    procedure ConfirmNoHandler(Question: Text; var Reply: Boolean)
     begin
+        Reply := false;
     end;
 }
 

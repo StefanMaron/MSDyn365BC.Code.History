@@ -42,9 +42,9 @@ table 321 "Tax Group"
 
     trigger OnDelete()
     begin
-        TaxDetail.Reset;
+        TaxDetail.Reset();
         TaxDetail.SetRange("Tax Group Code", Code);
-        TaxDetail.DeleteAll;
+        TaxDetail.DeleteAll();
     end;
 
     trigger OnInsert()

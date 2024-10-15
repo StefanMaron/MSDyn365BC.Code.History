@@ -119,10 +119,10 @@ codeunit 139089 "PowerBI Select Reports Tests"
     begin
         // [SCENARIO] Disable an enabled row and click OK
         Init;
-        PowerBIReportConfiguration.Init;
+        PowerBIReportConfiguration.Init();
         PowerBIReportConfiguration."Report ID" := CreateGuid;
         PowerBIReportConfiguration."User Security ID" := UserSecurityId;
-        PowerBIReportConfiguration.Insert;
+        PowerBIReportConfiguration.Insert();
 
         // [GIVEN] Page is open with a report already enabled
         AddReportToList(PowerBIReportConfiguration."Report ID", 'Report 1', true);
@@ -157,11 +157,11 @@ codeunit 139089 "PowerBI Select Reports Tests"
         Context2 := 'BUSINESS MANAGER';
 
         // [GIVEN] Reports are already enabled for one context, SetContext called for a different context
-        PowerBIReportConfiguration.Init;
+        PowerBIReportConfiguration.Init();
         PowerBIReportConfiguration."Report ID" := ReportId1;
         PowerBIReportConfiguration."User Security ID" := UserSecurityId;
         PowerBIReportConfiguration.Context := Context1;
-        PowerBIReportConfiguration.Insert;
+        PowerBIReportConfiguration.Insert();
 
         AddReportToList(ReportId1, 'Report 1', false);
         AddReportToList(ReportId2, 'Report 2', false);
@@ -316,8 +316,8 @@ codeunit 139089 "PowerBI Select Reports Tests"
             IsInitialized := true;
         end;
 
-        PowerBIReportConfiguration.Reset;
-        PowerBIReportConfiguration.DeleteAll;
+        PowerBIReportConfiguration.Reset();
+        PowerBIReportConfiguration.DeleteAll();
         LibraryPowerBIServiceMgt.ClearReports;
     end;
 

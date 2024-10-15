@@ -71,11 +71,11 @@ codeunit 14960 "Payroll Analysis Report Mgt."
     begin
         if not PayrollAnalysisLineTemplate.Get(CurrentAnalysisLineTempl) then begin
             if not PayrollAnalysisLineTemplate.FindFirst then begin
-                PayrollAnalysisLineTemplate.Init;
+                PayrollAnalysisLineTemplate.Init();
                 PayrollAnalysisLineTemplate.Name := Text001;
                 PayrollAnalysisLineTemplate.Description := Text002;
                 PayrollAnalysisLineTemplate.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentAnalysisLineTempl := PayrollAnalysisLineTemplate.Name;
         end;
@@ -103,7 +103,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
     var
         PayrollAnalysisLineTemplate: Record "Payroll Analysis Line Template";
     begin
-        Commit;
+        Commit();
         PayrollAnalysisLineTemplate.Name := PayrollAnalysisLine.GetRangeMax("Analysis Line Template Name");
         if PAGE.RunModal(0, PayrollAnalysisLineTemplate) = ACTION::LookupOK then begin
             CheckAnalysisLineTemplName(PayrollAnalysisLineTemplate.Name, PayrollAnalysisLine);
@@ -120,7 +120,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
         PayrollAnalysisLine: Record "Payroll Analysis Line";
         PayrollAnalysisLines: Page "Payroll Analysis Lines";
     begin
-        Commit;
+        Commit();
         PayrollAnalysisLine.Copy(PayrollAnalysisLine2);
         PayrollAnalysisLines.SetCurrentAnalysisLineTempl(CurrentAnalysisLineTempl);
         PayrollAnalysisLines.SetTableView(PayrollAnalysisLine);
@@ -133,7 +133,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
         PayrollAnalysisColumn: Record "Payroll Analysis Column";
         PayrollAnalysisColumns: Page "Payroll Analysis Columns";
     begin
-        Commit;
+        Commit();
         PayrollAnalysisColumns.SetTableView(PayrollAnalysisColumn);
         PayrollAnalysisColumns.SetCurrentColumnName(CurrentColumnTempl);
         PayrollAnalysisColumns.RunModal;
@@ -162,11 +162,11 @@ codeunit 14960 "Payroll Analysis Report Mgt."
     begin
         if not PayrollAnalysisColumnTemplate.Get(CurrentColumnName) then begin
             if not PayrollAnalysisColumnTemplate.FindFirst then begin
-                PayrollAnalysisColumnTemplate.Init;
+                PayrollAnalysisColumnTemplate.Init();
                 PayrollAnalysisColumnTemplate.Name := Text001;
                 PayrollAnalysisColumnTemplate.Description := Text003;
                 PayrollAnalysisColumnTemplate.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentColumnName := PayrollAnalysisColumnTemplate.Name;
         end;
@@ -206,12 +206,12 @@ codeunit 14960 "Payroll Analysis Report Mgt."
     var
         PayrollAnalysisColumn: Record "Payroll Analysis Column";
     begin
-        TempPayrollAnalysisColumn.DeleteAll;
+        TempPayrollAnalysisColumn.DeleteAll();
         PayrollAnalysisColumn.SetRange("Analysis Column Template", ColumnName);
         if PayrollAnalysisColumn.FindSet then
             repeat
                 TempPayrollAnalysisColumn := PayrollAnalysisColumn;
-                TempPayrollAnalysisColumn.Insert;
+                TempPayrollAnalysisColumn.Insert();
             until PayrollAnalysisColumn.Next = 0;
         if TempPayrollAnalysisColumn.FindFirst then;
     end;
@@ -226,7 +226,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
         PayrollPeriod.SetRange("Starting Date", 0D, BalanceDate);
         if PayrollPeriod.FindLast then
             exit(PayrollPeriod."Starting Date");
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         PayrollPeriod.FindFirst;
         exit(PayrollPeriod."Starting Date");
     end;
@@ -264,13 +264,13 @@ codeunit 14960 "Payroll Analysis Report Mgt."
         // Find current period
         PayrollPeriod.SetFilter("Starting Date", '<=%1', Date);
         if not PayrollPeriod.Find('+') then begin
-            PayrollPeriod.Reset;
+            PayrollPeriod.Reset();
             if Steps < 0 then
                 PayrollPeriod.Find('-')
             else
                 PayrollPeriod.Find('+')
         end;
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
 
         case Type of
             Type::Period:
@@ -321,11 +321,11 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                 begin
                     PayrollPeriod.SetRange("New Payroll Year", true);
                     if not PayrollPeriod.Find('>') then begin
-                        PayrollPeriod.Reset;
+                        PayrollPeriod.Reset();
                         PayrollPeriod.Find('+');
                         exit;
                     end;
-                    PayrollPeriod.Reset;
+                    PayrollPeriod.Reset();
                     PayrollPeriod.Find('<');
                     exit;
                 end;
@@ -382,8 +382,8 @@ codeunit 14960 "Payroll Analysis Report Mgt."
            (OldPayrollAnalysisLineTemplate <> PayrollAnalysisLine."Analysis Line Template Name") or
            (OldPayrollAnalysisLineTemplate <> PayrollAnalysisColumn."Analysis Column Template")
         then begin
-            PayrollAnalysisCellValue.Reset;
-            PayrollAnalysisCellValue.DeleteAll;
+            PayrollAnalysisCellValue.Reset();
+            PayrollAnalysisCellValue.DeleteAll();
             OldPayrollAnalysisLineFilters := PayrollAnalysisLine.GetFilters;
             OldPayrollAnalysisColumnFilters := PayrollAnalysisColumn.GetFilters;
             OldPayrollAnalysisLineTemplate := PayrollAnalysisLine."Analysis Line Template Name";
@@ -456,7 +456,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                 PayrollAnalysisCellValue."Period Error" := PeriodError;
                 PayrollAnalysisCellValue."Formula Error" := FormulaError;
                 PayrollAnalysisCellValue."Cyclic Error" := CyclicError;
-                if PayrollAnalysisCellValue.Insert then;
+                if PayrollAnalysisCellValue.Insert() then;
             end;
         end;
         exit(Result);
@@ -928,7 +928,7 @@ codeunit 14960 "Payroll Analysis Report Mgt."
                 repeat
                     if not TempEmployee.Get(PayrollLedgerEntry."Employee No.") then begin
                         TempEmployee."No." := PayrollLedgerEntry."Employee No.";
-                        TempEmployee.Insert;
+                        TempEmployee.Insert();
                     end;
                 until PayrollLedgerEntry.Next = 0;
             exit(TempEmployee.Count);

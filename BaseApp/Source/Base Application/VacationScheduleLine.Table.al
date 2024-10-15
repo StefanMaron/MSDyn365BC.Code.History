@@ -18,7 +18,7 @@ table 17436 "Vacation Schedule Line"
                 UpdateEmployee("Start Date");
 
                 if ("Start Date" <> 0D) and ("End Date" <> 0D) then begin
-                    VacationScheduleLine.Reset;
+                    VacationScheduleLine.Reset();
                     VacationScheduleLine.SetRange(Year, Year);
                     VacationScheduleLine.SetRange("Employee No.", "Employee No.");
                     VacationScheduleLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -171,25 +171,25 @@ table 17436 "Vacation Schedule Line"
         StartDate: Date;
         LineNo: Integer;
     begin
-        VacationScheduleLine2.Reset;
+        VacationScheduleLine2.Reset();
         VacationScheduleLine2.SetRange(Year, Year);
         if VacationScheduleLine2.FindLast then
             LineNo := VacationScheduleLine2."Line No." + 10000;
 
         StartDate := DMY2Date(1, 1, Year);
-        Employee.Reset;
+        Employee.Reset();
         if Employee.FindSet then
             repeat
                 if Employee.IsEmployed(StartDate) then begin
-                    VacationScheduleLine2.Reset;
+                    VacationScheduleLine2.Reset();
                     VacationScheduleLine2.SetRange(Year, Year);
                     VacationScheduleLine2.SetRange("Employee No.", Employee."No.");
                     if VacationScheduleLine2.IsEmpty then begin
-                        VacationScheduleLine2.Init;
+                        VacationScheduleLine2.Init();
                         VacationScheduleLine2.Validate(Year, Year);
                         VacationScheduleLine2.Validate("Employee No.", Employee."No.");
                         VacationScheduleLine2."Line No." := LineNo;
-                        VacationScheduleLine2.Insert;
+                        VacationScheduleLine2.Insert();
 
                         LineNo += 10000;
                     end;

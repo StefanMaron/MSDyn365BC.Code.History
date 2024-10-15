@@ -140,7 +140,7 @@ report 12492 "FA Posted Release Act FA-1"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
                 FA1Helper.CheckPostedSignature(
                   StoredBy, DATABASE::"Posted FA Doc. Header", "Document Type", "No.", StoredBy."Employee Type"::StoredBy);
                 FA1Helper.CheckPostedSignature(
@@ -238,10 +238,10 @@ report 12492 "FA Posted Release Act FA-1"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
-        FASetup.Get;
+        FASetup.Get();
     end;
 
     trigger OnPostReport()

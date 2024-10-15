@@ -123,11 +123,9 @@ table 17209 "Tax Register G/L Entry"
         {
             Caption = 'Correction';
         }
-        field(109; "Source Type"; Option)
+        field(109; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset,Employee';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset",Employee;
         }
         field(110; "Source No."; Code[20])
         {

@@ -13,7 +13,7 @@ report 17410 "Suggest Salary Setup Lines"
             begin
                 Window.Update(1, Employee."No.");
 
-                EmplJnlLine2.Init;
+                EmplJnlLine2.Init();
                 EmplJnlLine2."Journal Template Name" := EmplJnlLine."Journal Template Name";
                 EmplJnlLine2."Journal Batch Name" := EmplJnlLine."Journal Batch Name";
                 EmplJnlLine2."Line No." := LineNo;
@@ -36,7 +36,7 @@ report 17410 "Suggest Salary Setup Lines"
                 EmplJnlLine2."Source Code" := SourceCodeSetup."Employee Journal";
                 if DescriptionText <> '' then
                     EmplJnlLine.Description := DescriptionText;
-                EmplJnlLine2.Insert;
+                EmplJnlLine2.Insert();
                 LineNo := LineNo + 10000;
             end;
 
@@ -162,7 +162,7 @@ report 17410 "Suggest Salary Setup Lines"
 
     trigger OnInitReport()
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
     end;
 
     var

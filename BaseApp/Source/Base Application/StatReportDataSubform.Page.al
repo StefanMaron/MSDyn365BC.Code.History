@@ -696,7 +696,7 @@ page 35622 "_Stat. Report Data Subform"
                 MatrixRecords[i] := StatReportTableColumn;
                 MATRIX_CaptionSet[i] := StatReportTableColumn."Column Header";
             until StatReportTableColumn.Next = 0;
-        MATRIX_CurrentNoOfMatrixColumn := StatReportTableColumn.Count;
+        MATRIX_CurrentNoOfMatrixColumn := StatReportTableColumn.Count();
 
         Field1Visible := MATRIX_CaptionSet[1] <> '';
         Field2Visible := MATRIX_CaptionSet[2] <> '';
@@ -782,9 +782,9 @@ page 35622 "_Stat. Report Data Subform"
              MatrixRecords[MATRIX_ColumnOrdinal]."Line No.")
         then begin
             StatutoryReportDataValue.Validate(Value, MATRIX_CellData[MATRIX_ColumnOrdinal]);
-            StatutoryReportDataValue.Modify;
+            StatutoryReportDataValue.Modify();
         end else begin
-            StatutoryReportDataValue.Init;
+            StatutoryReportDataValue.Init();
             StatutoryReportDataValue."Report Data No." := ResultCode;
             StatutoryReportDataValue."Report Code" := ReportCode;
             StatutoryReportDataValue."Table Code" := TableCode;
@@ -792,7 +792,7 @@ page 35622 "_Stat. Report Data Subform"
             StatutoryReportDataValue."Row No." := "Line No.";
             StatutoryReportDataValue."Column No." := MatrixRecords[MATRIX_ColumnOrdinal]."Line No.";
             StatutoryReportDataValue.Validate(Value, MATRIX_CellData[MATRIX_ColumnOrdinal]);
-            StatutoryReportDataValue.Insert;
+            StatutoryReportDataValue.Insert();
         end;
     end;
 }

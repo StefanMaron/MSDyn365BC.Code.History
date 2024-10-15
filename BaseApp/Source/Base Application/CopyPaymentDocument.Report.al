@@ -14,7 +14,7 @@ report 12424 "Copy Payment Document"
             begin
                 TestField("Check Printed", false);
 
-                CheckLedgerEntry.Reset;
+                CheckLedgerEntry.Reset();
                 CheckLedgerEntry.SetRange("Document No.", DocumentNo);
                 CheckLedgerEntry.SetRange("Posting Date", PostingDate);
                 if CheckLedgerEntry.Find('-') then begin

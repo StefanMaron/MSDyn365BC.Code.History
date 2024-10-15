@@ -42,7 +42,7 @@ codeunit 17204 "Create Tax Register CV Entry"
 
         TaxRegMgt.ValidateAbsenceCVEntriesDate(StartDate, EndDate, SectionCode);
 
-        TaxRegCVEntry.Reset;
+        TaxRegCVEntry.Reset();
         if not TaxRegCVEntry.FindLast then
             TaxRegCVEntry."Entry No." := 0;
 
@@ -50,7 +50,7 @@ codeunit 17204 "Create Tax Register CV Entry"
         Window.Update(1, StartDate);
         Window.Update(2, EndDate);
 
-        TaxRegCVEntry.Init;
+        TaxRegCVEntry.Init();
         TaxRegCVEntry."Section Code" := SectionCode;
         TaxRegCVEntry."Starting Date" := StartDate;
         TaxRegCVEntry."Ending Date" := EndDate;
@@ -65,7 +65,7 @@ codeunit 17204 "Create Tax Register CV Entry"
         end;
 
         Window.Update(4, Customer.TableCaption);
-        Total += Customer.Count;
+        Total += Customer.Count();
         if Customer.FindSet then
             repeat
                 Procesing += 1;
@@ -106,7 +106,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                           TaxRegCVEntry."CV Debit Balance Amnt 3" +
                           TaxRegCVEntry."CV Debit Balance Amnt 4";
                         TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert;
+                        TaxRegCVEntry.Insert();
                         CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
                         CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
                         CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
@@ -129,7 +129,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                         CalcSums("Amount (LCY)");
                         TaxRegCVEntry."CV Credit Balance Amnt 2" := "Amount (LCY)";
                         TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert;
+                        TaxRegCVEntry.Insert();
                         CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
                         CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
                     end;
@@ -177,7 +177,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                           TaxRegCVEntry."CV Debit Balance Amnt 3" +
                           TaxRegCVEntry."CV Debit Balance Amnt 4";
                         TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert;
+                        TaxRegCVEntry.Insert();
                         CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
                         CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
                         CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
@@ -200,23 +200,23 @@ codeunit 17204 "Create Tax Register CV Entry"
                         CalcSums("Amount (LCY)");
                         TaxRegCVEntry."CV Credit Balance Amnt 2" := "Amount (LCY)";
                         TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert;
+                        TaxRegCVEntry.Insert();
                         CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
                         CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
                     end;
                 end;
             until Vendor.Next = 0;
 
-        TaxRegAccumulation.Reset;
+        TaxRegAccumulation.Reset();
         if not TaxRegAccumulation.FindLast then
             TaxRegAccumulation."Entry No." := 0;
 
-        TaxRegAccumulation.Init;
+        TaxRegAccumulation.Init();
         TaxRegAccumulation."Section Code" := SectionCode;
         TaxRegAccumulation."Starting Date" := StartDate;
         TaxRegAccumulation."Ending Date" := EndDate;
 
-        TaxReg.Reset;
+        TaxReg.Reset();
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register CV Entry");
         TaxRegTemplate.SetRange("Section Code", SectionCode);
@@ -255,7 +255,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                             TaxRegAccumulation."Ending Date",
                             TaxRegTemplate.Period);
                         TaxRegAccumulation."Entry No." += 1;
-                        TaxRegAccumulation.Insert;
+                        TaxRegAccumulation.Insert();
                     until TaxRegTemplate.Next = 0;
             until TaxReg.Next = 0;
     end;

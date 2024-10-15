@@ -106,7 +106,7 @@ report 750 "Save as Standard Gen. Journal"
         StdGenJnlLine: Record "Standard General Journal Line";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        StdGenJnl.Init;
+        StdGenJnl.Init();
         StdGenJnl."Journal Template Name" := GenJnlBatch."Journal Template Name";
         StdGenJnl.Code := Code;
         StdGenJnl.Description := Description;
@@ -115,8 +115,8 @@ report 750 "Save as Standard Gen. Journal"
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, StdGenJnl.Code), true) then
                 exit;
 
-        StdGenJnlLine.LockTable;
-        StdGenJnl.LockTable;
+        StdGenJnlLine.LockTable();
+        StdGenJnl.LockTable();
 
         if StdGenJnlExists then begin
             StdGenJnl.Modify(true);
@@ -131,7 +131,7 @@ report 750 "Save as Standard Gen. Journal"
             repeat
                 StdGenJnlLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
-                StdGenJnlLine.Init;
+                StdGenJnlLine.Init();
                 StdGenJnlLine."Journal Template Name" := StdGenJnl."Journal Template Name";
                 StdGenJnlLine."Standard Journal Code" := StdGenJnl.Code;
                 StdGenJnlLine.TransferFields(GenJnlLine, false);
@@ -165,7 +165,7 @@ report 750 "Save as Standard Gen. Journal"
           StdGenJnlLine."Shortcut Dimension 2 Code");
         StdGenJnlLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
 
-        StdGenJnlLine.Modify;
+        StdGenJnlLine.Modify();
     end;
 
     local procedure StdGenJnlExists(): Boolean

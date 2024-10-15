@@ -10,7 +10,7 @@ codeunit 14961 "Update Payroll Analysis View"
     begin
         if Code <> '' then begin
             InitLastEntryNo;
-            LockTable;
+            LockTable();
             Find;
             UpdateOne(Rec, "Last Entry No." < LastEntryNo - 1000);
         end;
@@ -54,16 +54,16 @@ codeunit 14961 "Update Payroll Analysis View"
 
     local procedure InitLastEntryNo()
     begin
-        PayrollLedgerEntry.Reset;
+        PayrollLedgerEntry.Reset();
         if LastEntryNoIsInitialized then
             exit;
         LastEntryNoIsInitialized := true;
-        Commit;
+        Commit();
         with PayrollLedgerEntry do begin
-            LockTable;
+            LockTable();
             if FindLast then
                 LastEntryNo := "Entry No.";
-            Commit;
+            Commit();
         end;
     end;
 
@@ -84,7 +84,7 @@ codeunit 14961 "Update Payroll Analysis View"
         if DirectlyFromPosting then
             PayrollAnalysisView2.SetFilter("Last Entry No.", '<%1', LastEntryNo);
 
-        PayrollAnalysisView2.LockTable;
+        PayrollAnalysisView2.LockTable();
         if PayrollAnalysisView2.FindSet(true, true) then
             repeat
                 UpdateOne(PayrollAnalysisView2, not DirectlyFromPosting and (PayrollAnalysisView2."Last Entry No." < LastEntryNo - 1000));
@@ -95,7 +95,7 @@ codeunit 14961 "Update Payroll Analysis View"
     procedure Update(var NewPayrollAnalysisView: Record "Payroll Analysis View"; ShowWindow: Boolean)
     begin
         InitLastEntryNo;
-        NewPayrollAnalysisView.LockTable;
+        NewPayrollAnalysisView.LockTable();
         NewPayrollAnalysisView.Find;
         UpdateOne(NewPayrollAnalysisView, ShowWindow);
     end;
@@ -114,7 +114,7 @@ codeunit 14961 "Update Payroll Analysis View"
             UpdateEntries;
             PayrollAnalysisView."Last Entry No." := LastEntryNo;
             PayrollAnalysisView."Last Date Updated" := Today;
-            PayrollAnalysisView.Modify;
+            PayrollAnalysisView.Modify();
         end;
 
         if ShowProgressWindow then
@@ -171,7 +171,7 @@ codeunit 14961 "Update Payroll Analysis View"
             if PayrollAnalysisView."Date Compression" <> PayrollAnalysisView."Date Compression"::None then
                 EntryNo := 0;
         end;
-        TempPayrollAnalysisViewEntry.Init;
+        TempPayrollAnalysisViewEntry.Init();
         TempPayrollAnalysisViewEntry."Analysis View Code" := PayrollAnalysisView.Code;
         TempPayrollAnalysisViewEntry."Element Code" := ElementCode;
         TempPayrollAnalysisViewEntry."Use PF Accum. System" := UsePFAccumSystem;
@@ -193,7 +193,7 @@ codeunit 14961 "Update Payroll Analysis View"
         end else begin
             TempPayrollAnalysisViewEntry."Payroll Amount" := PayrollAmount;
             TempPayrollAnalysisViewEntry."Taxable Amount" := TaxableAmount;
-            TempPayrollAnalysisViewEntry.Insert;
+            TempPayrollAnalysisViewEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -238,17 +238,17 @@ codeunit 14961 "Update Payroll Analysis View"
             Window.Update(6, Text011);
         if TempPayrollAnalysisViewEntry.FindSet then
             repeat
-                PayrollAnalysisViewEntry.Init;
+                PayrollAnalysisViewEntry.Init();
                 PayrollAnalysisViewEntry := TempPayrollAnalysisViewEntry;
 
-                if not PayrollAnalysisViewEntry.Insert then begin
+                if not PayrollAnalysisViewEntry.Insert() then begin
                     PayrollAnalysisViewEntry.Find;
                     AddValue(PayrollAnalysisViewEntry."Payroll Amount", TempPayrollAnalysisViewEntry."Payroll Amount");
                     AddValue(PayrollAnalysisViewEntry."Taxable Amount", TempPayrollAnalysisViewEntry."Taxable Amount");
-                    PayrollAnalysisViewEntry.Modify;
+                    PayrollAnalysisViewEntry.Modify();
                 end;
             until TempPayrollAnalysisViewEntry.Next = 0;
-        TempPayrollAnalysisViewEntry.DeleteAll;
+        TempPayrollAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -310,7 +310,7 @@ codeunit 14961 "Update Payroll Analysis View"
     begin
         with TempDimBuf do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             Init;
             "Dimension Value Code" := DimValue;
             Insert;
@@ -325,7 +325,7 @@ codeunit 14961 "Update Payroll Analysis View"
         InFilters: Boolean;
     begin
         if not FilterIsInitialized then begin
-            TempDimEntryBuffer.DeleteAll;
+            TempDimEntryBuffer.DeleteAll();
             FilterIsInitialized := true;
             PayrollAnalysisViewFilter.SetRange("Analysis View Code", PayrollAnalysisView.Code);
             FiltersExist := not PayrollAnalysisViewFilter.IsEmpty;
@@ -351,7 +351,7 @@ codeunit 14961 "Update Payroll Analysis View"
             TempDimEntryBuffer."Dimension Entry No." := 1
         else
             TempDimEntryBuffer."Dimension Entry No." := 0;
-        TempDimEntryBuffer.Insert;
+        TempDimEntryBuffer.Insert();
         exit(InFilters);
     end;
 }

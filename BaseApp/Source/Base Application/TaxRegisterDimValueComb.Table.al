@@ -67,7 +67,7 @@ table 17216 "Tax Register Dim. Value Comb."
         TaxRegSection.Get("Section Code");
         TaxRegSection.ValidateChangeDeclaration;
 
-        TaxRegDimDefValue.Reset;
+        TaxRegDimDefValue.Reset();
         TaxRegDimDefValue.SetRange("Section Code", "Section Code");
         TaxRegDimDefValue.SetRange("Tax Register No.", "Tax Register No.");
         TaxRegDimDefValue.SetRange("Line No.", "Line No.");

@@ -219,7 +219,7 @@ table 287 "Customer Bank Account"
             trigger OnValidate()
             begin
                 if "Bank Corresp. Account No." <> '' then begin
-                    BankDir.Reset;
+                    BankDir.Reset();
                     BankDir.SetCurrentKey("Corr. Account No.");
                     BankDir.SetRange("Corr. Account No.", "Bank Corresp. Account No.");
                     if BankDir.Find('-') then
@@ -267,7 +267,7 @@ table 287 "Customer Bank Account"
             Error(BankAccDeleteErr);
         if Customer.Get("Customer No.") and (Customer."Preferred Bank Account Code" = Code) then begin
             Customer."Preferred Bank Account Code" := '';
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 

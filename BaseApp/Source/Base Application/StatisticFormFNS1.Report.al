@@ -45,7 +45,7 @@ report 17356 "Statistic Form FNS-1"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            ResponsibleEmployee.Reset;
+                            ResponsibleEmployee.Reset();
                             if PAGE.RunModal(PAGE::"Employee List", ResponsibleEmployee) = ACTION::LookupOK then
                                 EmployeeFullName := ResponsibleEmployee.FullName;
                         end;
@@ -98,8 +98,8 @@ report 17356 "Statistic Form FNS-1"
         ExcelTemplate: Record "Excel Template";
         LocRepMgt: Codeunit "Local Report Management";
     begin
-        CompanyInformation.Get;
-        HumanResourcesSetup.Get;
+        CompanyInformation.Get();
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("FSN-1 Template Code");
 
         if not IsSilentEmpStatisticalBuffer then
@@ -184,7 +184,7 @@ report 17356 "Statistic Form FNS-1"
     var
         Employee: Record Employee;
     begin
-        Employee.Reset;
+        Employee.Reset();
 
         if Employee.FindSet then
             repeat
@@ -299,8 +299,8 @@ report 17356 "Statistic Form FNS-1"
     var
         I: Integer;
     begin
-        EmployeeStatisticalBuffer.Reset;
-        EmployeeStatisticalBuffer.DeleteAll;
+        EmployeeStatisticalBuffer.Reset();
+        EmployeeStatisticalBuffer.DeleteAll();
 
         // Line No. | Range
         // 0     | Salary < 5965
@@ -328,9 +328,9 @@ report 17356 "Statistic Form FNS-1"
         // 22    | EXCEPTION: Qty of employee with salary less then minimum
 
         for I := 0 to Lines + 1 do begin
-            EmployeeStatisticalBuffer.Init;
+            EmployeeStatisticalBuffer.Init();
             EmployeeStatisticalBuffer."Line No." := I;
-            EmployeeStatisticalBuffer.Insert;
+            EmployeeStatisticalBuffer.Insert();
         end;
     end;
 
@@ -404,7 +404,7 @@ report 17356 "Statistic Form FNS-1"
         LaborContracts: Record "Labor Contract";
         HumResSetup: Record "Human Resources Setup";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         with LaborContracts do begin
             SetFilter(Status, '<>%1', Status::Open);
@@ -434,7 +434,7 @@ report 17356 "Statistic Form FNS-1"
         LaborContracts: Record "Labor Contract";
         HumResSetup: Record "Human Resources Setup";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         with LaborContracts do begin
             SetFilter(Status, '<>%1', Status::Open);
@@ -520,7 +520,7 @@ report 17356 "Statistic Form FNS-1"
         TimesheetMgt: Codeunit "Timesheet Management RU";
         HRSetup: Record "Human Resources Setup";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         exit(
           TimesheetMgt.GetTimesheetInfo(
             EmployeeNo, HRSetup."FSN-1 Work Time Group Code", StartDate, EndDate, 1));
@@ -532,7 +532,7 @@ report 17356 "Statistic Form FNS-1"
         TimesheetMgt: Codeunit "Timesheet Management RU";
         HRSetup: Record "Human Resources Setup";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         exit(
           TimesheetMgt.GetTimesheetInfo(
             EmployeeNo, HRSetup."FSN-1 Work Time Group Code", StartDate, EndDate, 3));
@@ -567,13 +567,13 @@ report 17356 "Statistic Form FNS-1"
         IsSilentEmpStatisticalBuffer := true;
         StatisticalLines := 21;
 
-        EmployeeStatisticalBuffer.Reset;
-        EmployeeStatisticalBuffer.DeleteAll;
+        EmployeeStatisticalBuffer.Reset();
+        EmployeeStatisticalBuffer.DeleteAll();
         for I := 0 to StatisticalLines + 1 do begin
             TempItemJournalBufferValue.Get(I);
-            EmployeeStatisticalBuffer.Init;
+            EmployeeStatisticalBuffer.Init();
             EmployeeStatisticalBuffer.TransferFields(TempItemJournalBufferValue);
-            EmployeeStatisticalBuffer.Insert;
+            EmployeeStatisticalBuffer.Insert();
         end;
     end;
 }

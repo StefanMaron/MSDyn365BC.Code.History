@@ -48,7 +48,7 @@ table 17310 "Tax Calc. Line"
             begin
                 if "Expression Type" = "Expression Type"::Norm then begin
                     TestField("Norm Jurisdiction Code");
-                    TaxRegNormGroup.Reset;
+                    TaxRegNormGroup.Reset();
                     TaxRegNormGroup.FilterGroup(2);
                     TaxRegNormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                     TaxRegNormGroup.FilterGroup(0);
@@ -61,7 +61,7 @@ table 17310 "Tax Calc. Line"
                     end;
                 end;
                 if "Expression Type" = "Expression Type"::Term then begin
-                    TaxCalcTerm.Reset;
+                    TaxCalcTerm.Reset();
                     TaxCalcTerm.FilterGroup(2);
                     TaxCalcTerm.SetRange("Section Code", "Section Code");
                     TaxCalcTerm.FilterGroup(0);
@@ -75,7 +75,7 @@ table 17310 "Tax Calc. Line"
                 if "Expression Type" = "Expression Type"::Link then begin
                     TestField("Link Register No.");
                     TaxCalcHeader.Get("Section Code", "Link Register No.");
-                    TaxCalcLine.Reset;
+                    TaxCalcLine.Reset();
                     TaxCalcLine.FilterGroup(2);
                     TaxCalcLine.SetRange("Section Code", TaxCalcHeader."Section Code");
                     TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
@@ -221,7 +221,7 @@ table 17310 "Tax Calc. Line"
                    ("Line Type" <> "Line Type"::" ")
                 then begin
                     TaxCalcHeader.Get("Section Code", Code);
-                    Fields.Reset;
+                    Fields.Reset();
                     if "Line Type" = "Line Type"::CalcField then
                         Fields.SetFilter("No.", MakeCalcFieldFilter(TaxCalcHeader."Table ID"))
                     else
@@ -254,7 +254,7 @@ table 17310 "Tax Calc. Line"
                     TaxCalcSection.ValidateChange;
                 end;
                 if "Tax Diff. Amount (Base)" then begin
-                    TaxCalcLine.Reset;
+                    TaxCalcLine.Reset();
                     TaxCalcLine.SetRange("Section Code", "Section Code");
                     TaxCalcLine.SetRange(Code, Code);
                     TaxCalcLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -279,7 +279,7 @@ table 17310 "Tax Calc. Line"
                     TaxCalcSection.ValidateChange;
                 end;
                 if "Tax Diff. Amount (Tax)" then begin
-                    TaxCalcLine.Reset;
+                    TaxCalcLine.Reset();
                     TaxCalcLine.SetRange("Section Code", "Section Code");
                     TaxCalcLine.SetRange(Code, Code);
                     TaxCalcLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -329,7 +329,7 @@ table 17310 "Tax Calc. Line"
                 if ("Expression Type" <> "Expression Type"::SumField) or ("Sum Field No." = 0) then
                     exit;
 
-                TaxCalcSelectionSetup.Reset;
+                TaxCalcSelectionSetup.Reset();
                 TaxCalcSelectionSetup.FilterGroup(2);
                 TaxCalcSelectionSetup.SetRange("Section Code", "Section Code");
                 TaxCalcSelectionSetup.FilterGroup(0);
@@ -346,7 +346,7 @@ table 17310 "Tax Calc. Line"
                 if "Selection Line Code" <> xRec."Selection Line Code" then begin
                     TaxCalcSection.Get("Section Code");
                     TaxCalcSection.ValidateChange;
-                    TaxCalcSelectionSetup.Reset;
+                    TaxCalcSelectionSetup.Reset();
                     TaxCalcSelectionSetup.SetRange("Section Code", "Section Code");
                     TaxCalcSelectionSetup.SetRange("Register No.", Code);
                     TaxCalcSelectionSetup.SetRange("Line Code", "Selection Line Code");
@@ -469,7 +469,7 @@ table 17310 "Tax Calc. Line"
 
     local procedure TaxCalcFieldFilter(TypeField: Option SumFields,CalcFields) FilterText: Text[1024]
     begin
-        Fields.Reset;
+        Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. G/L Entry");
         Fields.SetFilter(ObsoleteState, '<>%1', Fields.ObsoleteState::Removed);
         if Fields.FindSet then begin
@@ -496,7 +496,7 @@ table 17310 "Tax Calc. Line"
 
     local procedure TaxCalcItemFieldFilter(TypeField: Option SumFields,CalcFields) FilterText: Text[1024]
     begin
-        Fields.Reset;
+        Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. Item Entry");
         if Fields.FindSet then begin
             repeat
@@ -509,7 +509,7 @@ table 17310 "Tax Calc. Line"
 
     local procedure TaxCalcFAFieldFilter(TypeField: Option SumFields,CalcFields) FilterText: Text[1024]
     begin
-        Fields.Reset;
+        Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. FA Entry");
         if Fields.FindSet then begin
             repeat
@@ -567,7 +567,7 @@ table 17310 "Tax Calc. Line"
         GenTemplateProfile."Dimension Code (Dim)" := TaxCalcDimFilter.FieldNo("Dimension Code");
         GenTemplateProfile."Dimension Value Filter (Dim)" := TaxCalcDimFilter.FieldNo("Dimension Value Filter");
 
-        GenTemplateProfile.Insert;
+        GenTemplateProfile.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -575,7 +575,7 @@ table 17310 "Tax Calc. Line"
     begin
         if "Expression Type" = "Expression Type"::SumField then
             if TaxCalcHeader.Get("Section Code", Code) then begin
-                Fields.Reset;
+                Fields.Reset();
                 Fields.SetFilter("No.", MakeFieldFilter(TaxCalcHeader."Table ID"));
                 if Fields.FindFirst then
                     if Fields.Next = 0 then begin

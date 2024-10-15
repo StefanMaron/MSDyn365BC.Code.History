@@ -19,8 +19,8 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         MustBeBankAccErr: Label 'The balancing account must be a bank account.';
-        MustBeVendorOrCustomerErr: Label 'The account must be a vendor or customer account.';
-        MustBeVendPmtOrCustRefundErr: Label 'Only vendor payments and customer refunds are allowed.';
+        MustBeVendorEmployeeOrCustomerErr: Label 'The account must be a vendor, customer or employee account.';
+        MustBeVendEmplPmtOrCustRefundErr: Label 'Only vendor and employee payments and customer refunds are allowed.';
         MustBePositiveErr: Label 'The amount must be positive.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.';
@@ -38,7 +38,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -58,7 +58,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Bal. Account No." := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -79,7 +79,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Recipient Bank Account" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -100,13 +100,13 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorOrCustomerErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorEmployeeOrCustomerErr);
     end;
 
     [Test]
@@ -120,13 +120,13 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr)
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr)
     end;
 
     [Test]
@@ -140,13 +140,13 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr);
     end;
 
     [Test]
@@ -160,7 +160,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine.Amount := -1 * LibraryRandom.RandDec(100, 2);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -185,7 +185,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Currency Code" := Currency.Code;
         GenJnlLine.Amount := LibraryRandom.RandDec(100, 2);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -207,7 +207,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Posting Date" := CalcDate('<-1D>', Today);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -229,7 +229,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         BankAccount.Get(GenJnlLine."Bal. Account No.");
         BankAccount.IBAN := '';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -250,13 +250,13 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         GenJnlLine."Account No." := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorOrCustomerErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorEmployeeOrCustomerErr);
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
         Customer.Get(GenJnlLine."Account No.");
         Customer.Name := '';
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -295,7 +295,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
         CustomerBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account");
         CustomerBankAccount.IBAN := '';
-        CustomerBankAccount.Modify;
+        CustomerBankAccount.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -319,7 +319,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         Vendor.Get(GenJnlLine."Account No.");
         Vendor.Name := '';
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -342,7 +342,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
         VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account");
         VendorBankAccount.IBAN := '';
-        VendorBankAccount.Modify;
+        VendorBankAccount.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
@@ -366,13 +366,13 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
         GenJnlLine.Amount := -1 * LibraryRandom.RandDec(100, 2);
         GenJnlLine."Recipient Bank Account" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr);
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBePositiveErr);
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
           StrSubstNo(FieldBlankErr, GenJnlLine.FieldCaption("Recipient Bank Account")));
@@ -386,7 +386,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SEPA CT Gen. Jnl Line Errors");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SEPA CT Gen. Jnl Line Errors");
     end;
@@ -408,7 +408,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc.IBAN := LibraryUtility.GenerateGUID;
         BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        BankAcc.Modify;
+        BankAcc.Modify();
     end;
 
     local procedure CreateVendorGenJnlLineWithRecipientBankAcc(var GenJnlLine: Record "Gen. Journal Line")
@@ -446,7 +446,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAcc, CustomerNo);
         CustomerBankAcc.IBAN := LibraryUtility.GenerateGUID;
         CustomerBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        CustomerBankAcc.Modify;
+        CustomerBankAcc.Modify();
     end;
 
     local procedure CreateCustomerWithBankAccount(var Customer: Record Customer)
@@ -464,7 +464,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
         VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
         VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
-        VendorBankAcc.Modify;
+        VendorBankAcc.Modify();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor)

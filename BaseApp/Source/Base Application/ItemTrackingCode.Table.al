@@ -516,7 +516,7 @@ table 6502 "Item Tracking Code"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Item Tracking Code", Code);
         if Item.Find('-') then
             repeat
@@ -532,7 +532,7 @@ table 6502 "Item Tracking Code"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Item Tracking Code", Code);
         if Item.Find('-') then
             repeat
@@ -551,7 +551,7 @@ table 6502 "Item Tracking Code"
 
     local procedure TestDelete()
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Item Tracking Code", Code);
         if not Item.IsEmpty then
             Error(Text002, TableCaption, Code);

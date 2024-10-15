@@ -14,10 +14,10 @@ report 17461 "Export SPV-1 form"
             trigger OnAfterGetRecord()
             begin
                 if not PersonifiedAccountingMgt.CheckEmployeeLaborContract(Employee, StartDate, EndDate) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempEmployee := Employee;
-                TempEmployee.Insert;
+                TempEmployee.Insert();
             end;
 
             trigger OnPostDataItem()

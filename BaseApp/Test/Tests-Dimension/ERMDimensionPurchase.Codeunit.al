@@ -261,7 +261,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [GIVEN] Create Vendor.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [WHEN] Create Purchase Header and Update Shortcut Dimension 2 Code on Purchase Header.
@@ -482,13 +482,54 @@ codeunit 134476 "ERM Dimension Purchase"
         Initialize;
 
         // [WHEN] Create Purchase Credit Memo.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreatePurchaseDocument(PurchaseLine, SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"),
           CreateVendorWithDimension(DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
 
         // [THEN] Verify Dimension Value on Purchase Line.
         DimensionSetEntry.Get(PurchaseLine."Dimension Set ID", GeneralLedgerSetup."Global Dimension 1 Code");
         DimensionSetEntry.TestField("Dimension Value Code", PurchaseLine."Shortcut Dimension 1 Code");
+
+        // Tear Down: Remove Default Dimension from G/L Account.
+        DeleteDefaultDimension(DefaultDimension);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntryDimensionsForPurchase()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimension2: Record "Default Dimension";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO] Test Dimension on G/L Entry after posting Purchase document with IC Partner.
+
+        // [GIVEN] Set Default Dimension for G/L Account and Create Purchase Credit Memo.
+        Initialize;
+        GeneralLedgerSetup.Get();
+        Vendor.Get(
+          CreateVendorWithDimension(
+            DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
+        GLAccount.Get(SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"));
+        GLAccount."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
+        GLAccount.Modify();
+        CreatePurchaseDocument(PurchaseLine, GLAccount."No.", Vendor."No.");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
+        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Credit Memo.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify Dimension Value and IC Partner Code on GL Entry.
+        VerifyGLEntryICPartner(PostedDocumentNo, PurchaseLine."IC Partner Code", DefaultDimension."Dimension Value Code");
 
         // Tear Down: Remove Default Dimension from G/L Account.
         DeleteDefaultDimension(DefaultDimension);
@@ -957,11 +998,10 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1005,7 +1045,7 @@ codeunit 134476 "ERM Dimension Purchase"
     begin
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
-            TempDimensionSetEntry.Insert;
+            TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next = 0;
     end;
 
@@ -1096,7 +1136,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [GIVEN] Create Vendor, Item, Purchase Header and Purchase Line with Dimension.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code";
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, '', '', DefaultDimension."Value Posting"::" ", PurchaseHeader."Document Type"::Order);
@@ -1285,7 +1325,7 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
@@ -1340,7 +1380,7 @@ codeunit 134476 "ERM Dimension Purchase"
         Purchasing: Record Purchasing;
         RecordRef: RecordRef;
     begin
-        Purchasing.Init;
+        Purchasing.Init();
         Purchasing.SetRange("Drop Shipment", true);
         RecordRef.GetTable(Purchasing);
         LibraryUtility.FindRecord(RecordRef);
@@ -1364,8 +1404,8 @@ codeunit 134476 "ERM Dimension Purchase"
         ReqWkshTemplate.SetRange(Type, RequisitionWkshName."Template Type"::"Req.");
         ReqWkshTemplate.FindFirst;
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        Commit;
-        RequisitionLine.Init;
+        Commit();
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
 
@@ -1388,7 +1428,7 @@ codeunit 134476 "ERM Dimension Purchase"
         CopyPurchaseDocument: Report "Copy Purchase Document";
         DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
-        Commit;
+        Commit();
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.InitializeRequest(DocumentType::"Posted Shipment", DocumentNo, true, false);
@@ -1515,6 +1555,16 @@ codeunit 134476 "ERM Dimension Purchase"
         exit(GLAccount."No.");
     end;
 
+    local procedure FindICGLAccount(): Code[20]
+    var
+        ICGLAccount: Record "IC G/L Account";
+    begin
+        ICGLAccount.SetRange("Account Type", ICGLAccount."Account Type"::Posting);
+        ICGLAccount.SetRange(Blocked, false);
+        ICGLAccount.FindFirst;
+        exit(ICGLAccount."No.");
+    end;
+
     local procedure DeleteDefaultDimension(DefaultDimension: Record "Default Dimension")
     begin
         DefaultDimension.Get(DefaultDimension."Table ID", DefaultDimension."No.", DefaultDimension."Dimension Code");
@@ -1599,6 +1649,17 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.FindFirst;
         DimensionSetEntry.TestField("Dimension Code", DimensionCode)
+    end;
+
+    local procedure VerifyGLEntryICPartner(DocumentNo: Code[20]; ICPartnerCode: Code[20]; GlobalDimensionCode: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
+        GLEntry.FindFirst;
+        GLEntry.TestField("Global Dimension 1 Code", GlobalDimensionCode);
+        GLEntry.TestField("IC Partner Code", ICPartnerCode);
     end;
 
     local procedure VerifyGLEntry(DocumentnNo: Code[20]; DimensionCode: Code[20])

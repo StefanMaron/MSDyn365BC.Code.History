@@ -34,9 +34,8 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             TestField("Item No.");
             GetLocation("Location Code");
             if WhseEntryNo = 0 then begin
-                GlobalWhseEntry.LockTable;
-                if GlobalWhseEntry.FindLast then
-                    WhseEntryNo := GlobalWhseEntry."Entry No.";
+                GlobalWhseEntry.LockTable();
+                WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
             end;
             OnMovement := false;
             if "From Bin Code" <> '' then begin
@@ -63,7 +62,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseEntryNo := WhseEntryNo + 1;
 
         with WhseJnlLine do begin
-            WhseEntry.Init;
+            WhseEntry.Init();
             WhseEntry."Entry No." := WhseEntryNo;
             WhseEntryNo := WhseEntry."Entry No.";
             WhseEntry."Journal Template Name" := "Journal Template Name";
@@ -113,9 +112,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             WhseEntry."Reason Code" := "Reason Code";
             WhseEntry.Cubage := Cubage * Sign;
             WhseEntry.Weight := Weight * Sign;
-            WhseEntry."Serial No." := "Serial No.";
-            WhseEntry."Lot No." := "Lot No.";
-            WhseEntry."CD No." := "CD No.";
+            WhseEntry.CopyTrackingFromWhseJnlLine(WhseJnlLine);
             WhseEntry."Expiration Date" := "Expiration Date";
             if OnMovement and ("Entry Type" = "Entry Type"::Movement) then begin
                 if "New Serial No." <> '' then
@@ -154,20 +151,18 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     var
         FromBinContent: Record "Bin Content";
         WhseEntry2: Record "Warehouse Entry";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
-        WhseCDRequired: Boolean;
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         Sign: Integer;
         IsHandled: Boolean;
     begin
         with WhseEntry do begin
             FromBinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-            ItemTrackingMgt.CheckWhseItemTrkgSetup(FromBinContent."Item No.", FromBinContent."Location Code", WhseSNRequired, WhseLNRequired, WhseCDRequired, false);
-            if WhseLNRequired then
+            ItemTrackingMgt.GetWhseItemTrkgSetup(FromBinContent."Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup."Lot No. Required" then
                 FromBinContent.SetRange("Lot No. Filter", "Lot No.");
-            if WhseSNRequired then
+            if WhseItemTrackingSetup."Serial No. Required" then
                 FromBinContent.SetRange("Serial No. Filter", "Serial No.");
-            if WhseCDRequired then
+            if WhseItemTrackingSetup."CD No. Required" then
                 FromBinContent.SetRange("CD No. Filter", "CD No.");
             OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry);
             FromBinContent.CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
@@ -179,11 +174,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 WhseEntry2.SetRange("Location Code", "Location Code");
                 WhseEntry2.SetRange("Variant Code", "Variant Code");
                 WhseEntry2.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                if WhseLNRequired then
+                if WhseItemTrackingSetup."Lot No. Required" then
                     WhseEntry2.SetRange("Lot No.", "Lot No.");
-                if WhseSNRequired then
+                if WhseItemTrackingSetup."Serial No. Required" then
                     WhseEntry2.SetRange("Serial No.", "Serial No.");
-                if WhseCDRequired then
+                if WhseItemTrackingSetup."CD No. Required" then
                     WhseEntry2.SetRange("CD No.", "CD No.");
                 OnDeleteFromBinContentOnAfterSetFiltersForWhseEntry(WhseEntry2, FromBinContent, WhseEntry);
                 WhseEntry2.CalcSums(Cubage, Weight, "Qty. (Base)");
@@ -319,7 +314,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     begin
         if Bin.Empty <> NewEmpty then begin
             Bin.Empty := NewEmpty;
-            Bin.Modify;
+            Bin.Modify();
         end;
     end;
 
@@ -330,7 +325,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     begin
         with WhseEntry do begin
             GetBin("Location Code", "Bin Code");
-            BinContent.Init;
+            BinContent.Init();
             BinContent."Location Code" := "Location Code";
             BinContent."Zone Code" := "Zone Code";
             BinContent."Bin Code" := "Bin Code";
@@ -356,7 +351,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 BinContent.Fixed := BinContent.Default;
             end;
             OnBeforeBinContentInsert(BinContent, WhseEntry);
-            BinContent.Insert;
+            BinContent.Insert();
         end;
     end;
 
@@ -384,7 +379,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             BinContent2.SetRange("Bin Code", BinCode);
             BinContent2.FindFirst;
             BinContent2.Default := true;
-            BinContent2.Modify;
+            BinContent2.Modify();
         end;
     end;
 
@@ -399,7 +394,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         BinContent.SetRange("Variant Code", VariantCode);
         if BinContent.FindFirst then begin
             BinContent.Default := false;
-            BinContent.Modify;
+            BinContent.Modify();
         end;
     end;
 
@@ -407,12 +402,12 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     begin
         with WhseJnlLine do
             if WhseReg."No." = 0 then begin
-                WhseReg.LockTable;
+                WhseReg.LockTable();
                 if WhseReg.Find('+') then
                     WhseReg."No." := WhseReg."No." + 1
                 else
                     WhseReg."No." := 1;
-                WhseReg.Init;
+                WhseReg.Init();
                 WhseReg."From Entry No." := WhseEntryNo;
                 WhseReg."To Entry No." := WhseEntryNo;
                 WhseReg."Creation Date" := Today;
@@ -420,7 +415,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 WhseReg."Journal Batch Name" := "Journal Batch Name";
                 WhseReg."Source Code" := "Source Code";
                 WhseReg."User ID" := UserId;
-                WhseReg.Insert;
+                WhseReg.Insert();
             end else begin
                 if ((WhseEntryNo < WhseReg."From Entry No.") and (WhseEntryNo <> 0)) or
                    ((WhseReg."From Entry No." = 0) and (WhseEntryNo > 0))
@@ -428,7 +423,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     WhseReg."From Entry No." := WhseEntryNo;
                 if WhseEntryNo > WhseReg."To Entry No." then
                     WhseReg."To Entry No." := WhseEntryNo;
-                WhseReg.Modify;
+                WhseReg.Modify();
             end;
     end;
 

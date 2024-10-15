@@ -39,7 +39,7 @@ page 17317 "Tax Calc. Term Lines"
                         case "Account Type" of
                             "Account Type"::"GL Acc", "Account Type"::"Net Change":
                                 begin
-                                    GLAcc.Reset;
+                                    GLAcc.Reset();
                                     if "Bal. Account No." <> '' then
                                         if StrPos('|&<>', CopyStr("Account No.", StrLen("Account No."))) = 0 then begin
                                             GLAcc.SetFilter("No.", "Account No.");
@@ -53,7 +53,7 @@ page 17317 "Tax Calc. Term Lines"
                                 end;
                             "Account Type"::Termin:
                                 begin
-                                    TaxCalcTermName.Reset;
+                                    TaxCalcTermName.Reset();
                                     if "Account No." <> '' then begin
                                         TaxCalcTermName.SetFilter("Term Code", "Account No.");
                                         if TaxCalcTermName.FindFirst then;
@@ -69,7 +69,7 @@ page 17317 "Tax Calc. Term Lines"
                                 begin
                                     CalcFields("Norm Jurisdiction Code");
                                     if "Norm Jurisdiction Code" <> '' then begin
-                                        NormGroup.Reset;
+                                        NormGroup.Reset();
                                         NormGroup.FilterGroup(2);
                                         NormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                                         NormGroup.FilterGroup(0);
@@ -100,7 +100,7 @@ page 17317 "Tax Calc. Term Lines"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         if "Account Type" = "Account Type"::"Net Change" then begin
-                            GLAcc.Reset;
+                            GLAcc.Reset();
                             if "Bal. Account No." <> '' then
                                 if StrPos('|&<>', CopyStr("Bal. Account No.", StrLen("Bal. Account No."))) = 0 then begin
                                     GLAcc.SetFilter("No.", "Bal. Account No.");
@@ -114,7 +114,7 @@ page 17317 "Tax Calc. Term Lines"
                         end;
                         CalcFields("Expression Type");
                         if "Expression Type" = "Expression Type"::Compare then begin
-                            TaxCalcTermName.Reset;
+                            TaxCalcTermName.Reset();
                             if "Bal. Account No." <> '' then begin
                                 TaxCalcTermName.SetFilter("Term Code", "Bal. Account No.");
                                 if TaxCalcTermName.FindFirst then;
@@ -169,7 +169,7 @@ page 17317 "Tax Calc. Term Lines"
         if "Expression Type" = "Expression Type"::Compare then begin
             if not Confirm(Text001, false) then
                 exit(false);
-            DeleteAll;
+            DeleteAll();
             CurrPage.Close;
         end;
         exit(true);

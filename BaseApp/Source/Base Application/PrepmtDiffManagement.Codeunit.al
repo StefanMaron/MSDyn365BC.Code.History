@@ -16,11 +16,11 @@ codeunit 12412 PrepmtDiffManagement
     [Scope('OnPrem')]
     procedure Init()
     begin
-        GLSetup.Get;
-        SalesSetup.Get;
-        PurchSetup.Get;
+        GLSetup.Get();
+        SalesSetup.Get();
+        PurchSetup.Get();
 
-        AdvAdjmtEntryBuff.DeleteAll;
+        AdvAdjmtEntryBuff.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -95,12 +95,12 @@ codeunit 12412 PrepmtDiffManagement
     [Scope('OnPrem')]
     procedure InsertPrepmtDiffBufEntry(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; PostingType: Option ,Purchase,Sale; InitialVATTransactionNo: Integer)
     begin
-        AdvAdjmtEntryBuff.Init;
+        AdvAdjmtEntryBuff.Init();
         AdvAdjmtEntryBuff := DtldCVLedgEntryBuf;
         AdvAdjmtEntryBuff."Gen. Posting Type" := PostingType;
         AdvAdjmtEntryBuff."Transaction No." := InitialVATTransactionNo;
-        AdvAdjmtEntryBuff.Insert;
-        AdvAdjmtEntryBuff.Reset;
+        AdvAdjmtEntryBuff.Insert();
+        AdvAdjmtEntryBuff.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -136,7 +136,7 @@ codeunit 12412 PrepmtDiffManagement
                             end;
                     end;
                 until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -183,7 +183,7 @@ codeunit 12412 PrepmtDiffManagement
         case AccountType of
             AccountType::Cust:
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     case SalesSetup."PD Doc. Nos. Type" of
                         SalesSetup."PD Doc. Nos. Type"::"Use No. Series":
                             begin
@@ -200,7 +200,7 @@ codeunit 12412 PrepmtDiffManagement
                 end;
             AccountType::Vend:
                 begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     case PurchSetup."PD Doc. Nos. Type" of
                         PurchSetup."PD Doc. Nos. Type"::"Use No. Series":
                             begin
@@ -231,7 +231,7 @@ codeunit 12412 PrepmtDiffManagement
         case AccountType of
             AccountType::Cust:
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     SalesSetup.TestField("Symbol for PD Doc.");
                     SymbolForPDDoc := SalesSetup."Symbol for PD Doc.";
                     PostingNo := CopyStr(PostingNo + SymbolForPDDoc, 1, MaxStrLen(PostingNo));
@@ -240,21 +240,21 @@ codeunit 12412 PrepmtDiffManagement
                     case DocType of
                         DocType::Invoice:
                             begin
-                                SalesInvHeader.Reset;
+                                SalesInvHeader.Reset();
                                 SalesInvHeader.SetFilter("No.", '%1', PostingNo + '*');
-                                PDDocCount := SalesInvHeader.Count;
+                                PDDocCount := SalesInvHeader.Count();
                             end;
                         DocType::"Credit Memo":
                             begin
-                                SalesCrMemoHeader.Reset;
+                                SalesCrMemoHeader.Reset();
                                 SalesCrMemoHeader.SetFilter("No.", '%1', PostingNo + '*');
-                                PDDocCount := SalesCrMemoHeader.Count;
+                                PDDocCount := SalesCrMemoHeader.Count();
                             end;
                     end;
                 end;
             AccountType::Vend:
                 begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     PurchSetup.TestField("Symbol for PD Doc.");
                     SymbolForPDDoc := PurchSetup."Symbol for PD Doc.";
                     PostingNo := CopyStr(PostingNo + SymbolForPDDoc, 1, MaxStrLen(PostingNo));
@@ -263,15 +263,15 @@ codeunit 12412 PrepmtDiffManagement
                     case DocType of
                         DocType::Invoice:
                             begin
-                                PurchInvHeader.Reset;
+                                PurchInvHeader.Reset();
                                 PurchInvHeader.SetFilter("No.", '%1', PostingNo + '*');
-                                PDDocCount := PurchInvHeader.Count;
+                                PDDocCount := PurchInvHeader.Count();
                             end;
                         DocType::"Credit Memo":
                             begin
-                                PurchCrMemoHeader.Reset;
+                                PurchCrMemoHeader.Reset();
                                 PurchCrMemoHeader.SetFilter("No.", '%1', PostingNo + '*');
-                                PDDocCount := PurchCrMemoHeader.Count;
+                                PDDocCount := PurchCrMemoHeader.Count();
                             end;
                     end;
                 end;
@@ -324,15 +324,15 @@ codeunit 12412 PrepmtDiffManagement
         if DimCode = '' then
             exit;
         if TempDimSetEntry.Get(DimSetID, DimCode) then
-            TempDimSetEntry.Delete;
+            TempDimSetEntry.Delete();
         if DimValueCode <> '' then begin
             DimVal.Get(DimCode, DimValueCode);
-            TempDimSetEntry.Init;
+            TempDimSetEntry.Init();
             TempDimSetEntry."Dimension Set ID" := DimSetID;
             TempDimSetEntry."Dimension Code" := DimCode;
             TempDimSetEntry."Dimension Value Code" := DimValueCode;
             TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-            TempDimSetEntry.Insert;
+            TempDimSetEntry.Insert();
         end;
     end;
 }

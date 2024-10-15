@@ -9,7 +9,7 @@ codeunit 131922 "Library - O365"
         CashTxt: Label 'CASH', Comment = 'Cash';
         PaymentTxt: Label 'PAYMENT', Comment = 'Payment';
         DefaultCustomerTemplateDescriptionTxt: Label 'Cash-Payment / Retail Customer (Cash)';
-        DefaultItemTemplateDescriptionTxt: Label 'Service No VAT';
+        DefaultItemTemplateDescriptionTxt: Label 'Service';
         CHECKTxt: Label 'CHECK';
         X14DAYSTxt: Label '14 DAYS';
         DomesticTxt: Label 'DOMESTIC';
@@ -62,7 +62,7 @@ codeunit 131922 "Library - O365"
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         ConfigTemplateHeader.Validate(Description, TemplateDescription);
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
     end;
 }
 

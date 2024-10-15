@@ -158,7 +158,7 @@ page 17468 "Posted Travel Order"
                         AbsenceHeader: Record "Absence Header";
                         HRDocPrint: Codeunit "HR Order - Print";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         AbsenceHeader.TransferFields(Rec);
@@ -176,7 +176,7 @@ page 17468 "Posted Travel Order"
                     var
                         AbsenceHeader: Record "Absence Header";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         AbsenceHeader.TransferFields(Rec);
@@ -194,7 +194,7 @@ page 17468 "Posted Travel Order"
                     var
                         AbsenceHeader: Record "Absence Header";
                     begin
-                        AbsenceHeader.Reset;
+                        AbsenceHeader.Reset();
                         AbsenceHeader.SetRange("Document Type", "Document Type");
                         AbsenceHeader.SetRange("No.", "No.");
                         AbsenceHeader.TransferFields(Rec);

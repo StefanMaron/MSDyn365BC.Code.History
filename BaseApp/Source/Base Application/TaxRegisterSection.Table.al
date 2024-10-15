@@ -52,10 +52,10 @@ table 17207 "Tax Register Section"
             begin
                 if "Norm Jurisdiction Code" <> xRec."Norm Jurisdiction Code" then begin
                     CheckChangeDeclaration;
-                    TaxRegTemplate.Reset;
+                    TaxRegTemplate.Reset();
                     TaxRegTemplate.SetRange("Section Code", Code);
                     TaxRegTemplate.SetRange("Norm Jurisdiction Code", xRec."Norm Jurisdiction Code");
-                    TaxRegTermFormula.Reset;
+                    TaxRegTermFormula.Reset();
                     TaxRegTermFormula.SetRange("Section Code", Code);
                     TaxRegTermFormula.SetRange("Account Type", TaxRegTermFormula."Account Type"::Norm);
                     TaxRegTermFormula.SetRange("Norm Jurisdiction Code", xRec."Norm Jurisdiction Code");
@@ -344,7 +344,7 @@ table 17207 "Tax Register Section"
             Error(Text1009, Status);
 
         SectionReset;
-        TaxReg.Reset;
+        TaxReg.Reset();
         TaxReg.SetRange("Section Code", Code);
         TaxReg.DeleteAll(true);
 

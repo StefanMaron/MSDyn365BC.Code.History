@@ -13,7 +13,7 @@ table 17370 Position
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                 end;
             end;
@@ -67,7 +67,7 @@ table 17370 Position
             trigger OnValidate()
             begin
                 CheckModify;
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 if "Org. Unit Code" = '' then
                     "Org. Unit Name" := ''
                 else begin
@@ -567,16 +567,16 @@ table 17370 Position
         if not Confirm(Text000, true, "No.") then
             Error('');
 
-        LaborContractTermsSetup.Reset;
+        LaborContractTermsSetup.Reset();
         LaborContractTermsSetup.SetRange("Table Type", LaborContractTermsSetup."Table Type"::Position);
         LaborContractTermsSetup.SetRange("No.", "No.");
-        LaborContractTermsSetup.DeleteAll;
+        LaborContractTermsSetup.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -604,10 +604,10 @@ table 17370 Position
     begin
         with Position do begin
             Position := Rec;
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Position Nos.");
             if NoSeriesMgt.SelectSeries(HumanResSetup."Position Nos.", OldPosition."No. Series", "No. Series") then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("Position Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Position;
@@ -656,7 +656,7 @@ table 17370 Position
         Confirmed: Boolean;
     begin
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
         end;
 
@@ -703,7 +703,7 @@ table 17370 Position
     procedure Reopen(IsChangeOrder: Boolean)
     begin
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
         end;
 
@@ -725,7 +725,7 @@ table 17370 Position
     procedure Close(IsChangeOrder: Boolean)
     begin
         if not IsChangeOrder then begin
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             HumanResSetup.TestField("Use Staff List Change Orders", false);
         end;
 
@@ -733,7 +733,7 @@ table 17370 Position
         if "Budgeted Position" then begin
             CalcFields("Used Rate");
             if "Used Rate" > 0 then begin
-                Position2.Reset;
+                Position2.Reset();
                 Position2.SetCurrentKey("Budgeted Position", "Budgeted Position No.");
                 Position2.SetRange("Budgeted Position", false);
                 Position2.SetRange("Budgeted Position No.", "No.");
@@ -757,7 +757,7 @@ table 17370 Position
     procedure CopyContractTerms()
     begin
         if ("Job Title Code" <> '') and ("Org. Unit Code" <> '') and ("Category Code" <> '') then begin
-            DefaultLaborContractTerms.Reset;
+            DefaultLaborContractTerms.Reset();
             DefaultLaborContractTerms.SetFilter("Category Code", '%1|%2', "Category Code", '');
             DefaultLaborContractTerms.SetFilter("Org. Unit Code", '%1|%2', "Org. Unit Code", '');
             DefaultLaborContractTerms.SetFilter("Job Title Code", '%1|%2', "Job Title Code", '');
@@ -773,14 +773,14 @@ table 17370 Position
                     if LaborContractTermsSetup.FindFirst then begin
                         if LaborContractTermsSetup.Amount < DefaultLaborContractTerms.Amount then begin
                             LaborContractTermsSetup.Amount := DefaultLaborContractTerms.Amount;
-                            LaborContractTermsSetup.Modify;
+                            LaborContractTermsSetup.Modify();
                         end;
                         if LaborContractTermsSetup.Quantity < DefaultLaborContractTerms.Quantity then begin
                             LaborContractTermsSetup.Quantity := DefaultLaborContractTerms.Quantity;
-                            LaborContractTermsSetup.Modify;
+                            LaborContractTermsSetup.Modify();
                         end;
                     end else begin
-                        LaborContractTermsSetup.Init;
+                        LaborContractTermsSetup.Init();
                         LaborContractTermsSetup."Table Type" := LaborContractTermsSetup."Table Type"::Position;
                         LaborContractTermsSetup."No." := "No.";
                         LaborContractTermsSetup."Element Code" := DefaultLaborContractTerms."Element Code";
@@ -792,7 +792,7 @@ table 17370 Position
                         LaborContractTermsSetup.Percent := DefaultLaborContractTerms.Percent;
                         LaborContractTermsSetup.Quantity := DefaultLaborContractTerms.Quantity;
                         LaborContractTermsSetup."Additional Salary" := DefaultLaborContractTerms."Additional Salary";
-                        LaborContractTermsSetup.Insert;
+                        LaborContractTermsSetup.Insert();
                     end;
                 until DefaultLaborContractTerms.Next = 0;
         end;
@@ -833,7 +833,7 @@ table 17370 Position
         NewPosition: Record Position;
         NewLaborContractTermsSetup: Record "Labor Contract Terms Setup";
     begin
-        NewPosition.Init;
+        NewPosition.Init();
         NewPosition.TransferFields(Rec, false);
         NewPosition.Status := NewPosition.Status::Planned;
         NewPosition."Created By User" := UserId;
@@ -845,14 +845,14 @@ table 17370 Position
         NewPosition."No." := '';
         NewPosition.Insert(true);
 
-        LaborContractTermsSetup.Reset;
+        LaborContractTermsSetup.Reset();
         LaborContractTermsSetup.SetRange("Table Type", LaborContractTermsSetup."Table Type"::Position);
         LaborContractTermsSetup.SetRange("No.", "No.");
         if LaborContractTermsSetup.FindSet then
             repeat
                 NewLaborContractTermsSetup := LaborContractTermsSetup;
                 NewLaborContractTermsSetup."No." := NewPosition."No.";
-                NewLaborContractTermsSetup.Insert;
+                NewLaborContractTermsSetup.Insert();
             until LaborContractTermsSetup.Next = 0;
 
         exit(NewPosition."No.");

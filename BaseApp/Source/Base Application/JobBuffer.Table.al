@@ -108,9 +108,9 @@ table 1017 "Job Buffer"
                           TempJobBuffer[2]."Amount 4" + TempJobBuffer[1]."Amount 4";
                         TempJobBuffer[2]."Amount 5" :=
                           TempJobBuffer[2]."Amount 5" + TempJobBuffer[1]."Amount 5";
-                        TempJobBuffer[2].Modify;
+                        TempJobBuffer[2].Modify();
                     end else
-                        TempJobBuffer[1].Insert;
+                        TempJobBuffer[1].Insert();
                 end;
             until JobWIPGLEntry.Next = 0;
     end;
@@ -118,7 +118,7 @@ table 1017 "Job Buffer"
     procedure InitJobBuffer()
     begin
         Clear(TempJobBuffer);
-        TempJobBuffer[1].DeleteAll;
+        TempJobBuffer[1].DeleteAll();
     end;
 
     procedure GetJobBuffer(var Job: Record Job; var JobBuffer2: Record "Job Buffer")
@@ -126,7 +126,7 @@ table 1017 "Job Buffer"
         GLEntry: Record "G/L Entry";
         OldAcc: Code[20];
     begin
-        JobBuffer2.DeleteAll;
+        JobBuffer2.DeleteAll();
         GLEntry.SetCurrentKey("G/L Account No.", "Job No.", "Posting Date");
         GLEntry.SetFilter("Posting Date", Job.GetFilter("Posting Date Filter"));
         OldAcc := '';
@@ -143,9 +143,9 @@ table 1017 "Job Buffer"
                     OldAcc := TempJobBuffer[1]."Account No. 1";
                 end;
                 JobBuffer2 := TempJobBuffer[1];
-                JobBuffer2.Insert;
+                JobBuffer2.Insert();
             until TempJobBuffer[1].Next(-1) = 0;
-        TempJobBuffer[1].DeleteAll;
+        TempJobBuffer[1].DeleteAll();
     end;
 
     procedure ReportJobItem(var Job: Record Job; var item2: Record Item; var JobBuffer2: Record "Job Buffer")
@@ -158,8 +158,8 @@ table 1017 "Job Buffer"
     begin
         Clear(JobBuffer2);
         Clear(TempJobBuffer);
-        JobBuffer2.DeleteAll;
-        TempJobBuffer[1].DeleteAll;
+        JobBuffer2.DeleteAll();
+        TempJobBuffer[1].DeleteAll();
         if Job."No." = '' then
             exit;
         Item.Copy(item2);
@@ -177,12 +177,12 @@ table 1017 "Job Buffer"
                 then begin
                     InFilter := true;
                     if Itemfilter then begin
-                        Item.Init;
+                        Item.Init();
                         Item."No." := JobLedgEntry."No.";
                         InFilter := Item.Find;
                     end;
                     if InFilter then begin
-                        Item3.Init;
+                        Item3.Init();
                         if Item3.Get(JobLedgEntry."No.") then;
                         Clear(TempJobBuffer[1]);
                         TempJobBuffer[1]."Account No. 1" := JobLedgEntry."No.";
@@ -199,9 +199,9 @@ table 1017 "Job Buffer"
                               TempJobBuffer[2]."Amount 2" + TempJobBuffer[1]."Amount 2";
                             TempJobBuffer[2]."Amount 3" :=
                               TempJobBuffer[2]."Amount 3" + TempJobBuffer[1]."Amount 3";
-                            TempJobBuffer[2].Modify;
+                            TempJobBuffer[2].Modify();
                         end else
-                            TempJobBuffer[1].Insert;
+                            TempJobBuffer[1].Insert();
                     end;
                 end;
             until JobLedgEntry.Next = 0;
@@ -209,9 +209,9 @@ table 1017 "Job Buffer"
         if TempJobBuffer[1].Find('-') then
             repeat
                 JobBuffer2 := TempJobBuffer[1];
-                JobBuffer2.Insert;
+                JobBuffer2.Insert();
             until TempJobBuffer[1].Next = 0;
-        TempJobBuffer[1].DeleteAll;
+        TempJobBuffer[1].DeleteAll();
     end;
 
     procedure ReportItemJob(var Item: Record Item; var Job2: Record Job; var JobBuffer2: Record "Job Buffer")
@@ -224,8 +224,8 @@ table 1017 "Job Buffer"
     begin
         Clear(JobBuffer2);
         Clear(TempJobBuffer);
-        JobBuffer2.DeleteAll;
-        TempJobBuffer[1].DeleteAll;
+        JobBuffer2.DeleteAll();
+        TempJobBuffer[1].DeleteAll();
         if Item."No." = '' then
             exit;
         Job.Copy(Job2);
@@ -241,12 +241,12 @@ table 1017 "Job Buffer"
             repeat
                 InFilter := true;
                 if JobFilter then begin
-                    Job.Init;
+                    Job.Init();
                     Job."No." := JobLedgEntry."Job No.";
                     InFilter := Job.Find;
                 end;
                 if InFilter then begin
-                    Job3.Init;
+                    Job3.Init();
                     if Job3.Get(JobLedgEntry."Job No.") then;
                     Clear(TempJobBuffer[1]);
                     TempJobBuffer[1]."Account No. 1" := JobLedgEntry."Job No.";
@@ -263,18 +263,18 @@ table 1017 "Job Buffer"
                           TempJobBuffer[2]."Amount 2" + TempJobBuffer[1]."Amount 2";
                         TempJobBuffer[2]."Amount 3" :=
                           TempJobBuffer[2]."Amount 3" + TempJobBuffer[1]."Amount 3";
-                        TempJobBuffer[2].Modify;
+                        TempJobBuffer[2].Modify();
                     end else
-                        TempJobBuffer[1].Insert;
+                        TempJobBuffer[1].Insert();
                 end;
             until JobLedgEntry.Next = 0;
 
         if TempJobBuffer[1].Find('-') then
             repeat
                 JobBuffer2 := TempJobBuffer[1];
-                JobBuffer2.Insert;
+                JobBuffer2.Insert();
             until TempJobBuffer[1].Next = 0;
-        TempJobBuffer[1].DeleteAll;
+        TempJobBuffer[1].DeleteAll();
     end;
 }
 

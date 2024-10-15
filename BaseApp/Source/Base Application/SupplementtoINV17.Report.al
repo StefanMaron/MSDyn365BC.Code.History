@@ -20,24 +20,24 @@ report 14915 "Supplement to INV-17"
                     trigger OnAfterGetRecord()
                     begin
                         if InventActLine."Contractor Type" = InventActLine."Contractor Type"::Vendor then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         SetRange("Date Filter", 0D, InventActHeader."Inventory Date");
                         CalcFields("Remaining Amt. (LCY)");
 
                         if "Remaining Amt. (LCY)" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         DebtsAmount := 0;
                         LiabilitiesAmount := 0;
 
                         if InventActLine.Category = InventActLine.Category::Debts then begin
                             if "Remaining Amt. (LCY)" < 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             DebtsAmount := "Remaining Amt. (LCY)"
                         end else begin
                             if "Remaining Amt. (LCY)" > 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             LiabilitiesAmount := -"Remaining Amt. (LCY)";
                         end;
 
@@ -70,24 +70,24 @@ report 14915 "Supplement to INV-17"
                     trigger OnAfterGetRecord()
                     begin
                         if InventActLine."Contractor Type" = InventActLine."Contractor Type"::Customer then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         SetRange("Date Filter", 0D, InventActHeader."Inventory Date");
                         CalcFields("Remaining Amt. (LCY)");
 
                         if "Remaining Amt. (LCY)" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         DebtsAmount := 0;
                         LiabilitiesAmount := 0;
 
                         if InventActLine.Category = InventActLine.Category::Debts then begin
                             if "Remaining Amt. (LCY)" < 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             DebtsAmount := "Remaining Amt. (LCY)"
                         end else begin
                             if "Remaining Amt. (LCY)" > 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             LiabilitiesAmount := -"Remaining Amt. (LCY)";
                         end;
 
@@ -154,8 +154,8 @@ report 14915 "Supplement to INV-17"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         INV17Helper.InitReportTemplate(REPORT::"Supplement to INV-17");
     end;
 

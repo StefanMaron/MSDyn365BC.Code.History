@@ -44,12 +44,12 @@ report 12454 "Posted Advance Statement"
                         if VATAccountNo <> '' then
                             Separator := ',';
                         Buffer."Description 2" := CopyStr(AccountNo + Separator + VATAccountNo, 1, 30);
-                        Buffer.Insert;
+                        Buffer.Insert();
                     end else begin
                         Buffer."Amount Including VAT" += "Amount Including VAT";
                         if AccountNo <> Buffer."Description 2" then
                             Buffer."Description 2" := '';
-                        Buffer.Modify;
+                        Buffer.Modify();
                     end;
                 end;
             }
@@ -91,7 +91,7 @@ report 12454 "Posted Advance Statement"
 
                 trigger OnPreDataItem()
                 begin
-                    Buffer.Reset;
+                    Buffer.Reset();
                     SetRange(Number, 1, Buffer.Count);
                     TotalCurrAmount := 0;
                     TotalCurrAmount2 := 0;
@@ -111,7 +111,7 @@ report 12454 "Posted Advance Statement"
                 else
                     AmountInclVATLCY := "Amount Including VAT";
 
-                VendLedgerEntry2.Reset;
+                VendLedgerEntry2.Reset();
                 VendLedgerEntry2.SetCurrentKey("Vendor No.", "Posting Date");
                 VendLedgerEntry2.SetRange("Vendor No.", "Buy-from Vendor No.");
                 VendLedgerEntry2.SetRange(Positive, false);
@@ -128,7 +128,7 @@ report 12454 "Posted Advance Statement"
 
                 PaymentNo := 0;
 
-                VendLedgerEntry1.Reset;
+                VendLedgerEntry1.Reset();
                 VendLedgerEntry1.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                 VendLedgerEntry1.SetRange("Document No.", "Purch. Inv. Header"."No.");
                 VendLedgerEntry1.SetRange("Vendor No.", "Purch. Inv. Header"."Buy-from Vendor No.");
@@ -137,7 +137,7 @@ report 12454 "Posted Advance Statement"
                 InvoiceEntryNo := VendLedgerEntry1."Entry No.";
                 FindApplnEntries(InvoiceEntryNo);
 
-                VendLedgerEntry.Reset;
+                VendLedgerEntry.Reset();
                 VendLedgerEntry.SetCurrentKey("Vendor No.", Open, Positive);
                 VendLedgerEntry.SetRange("Vendor No.", Vend."No.");
                 VendLedgerEntry.SetRange(Open, true);
@@ -151,7 +151,7 @@ report 12454 "Posted Advance Statement"
                     until VendLedgerEntry.Next = 0;
                 VendLedgerEntry.SetRange(Positive, true);
 
-                PurchaseLine.Reset;
+                PurchaseLine.Reset();
                 PurchaseLine.SetRange("Document No.", "No.");
                 if PurchaseLine.Find('-') then
                     repeat
@@ -180,7 +180,7 @@ report 12454 "Posted Advance Statement"
                     Overdraft[2] := Temp;
 
                 if "Remaining/Overdraft Doc. No." <> '' then begin
-                    VendLedgerEntry3.Reset;
+                    VendLedgerEntry3.Reset();
                     VendLedgerEntry3.SetCurrentKey("Document No.");
                     VendLedgerEntry3.SetRange("Document No.", "Remaining/Overdraft Doc. No.");
                     if VendLedgerEntry3.FindFirst then begin
@@ -266,7 +266,7 @@ report 12454 "Posted Advance Statement"
 
     trigger OnPreReport()
     begin
-        CompInf.Get;
+        CompInf.Get();
     end;
 
     var
@@ -378,7 +378,7 @@ report 12454 "Posted Advance Statement"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with PurchesLineLoc do begin
-            VATPostingSetup.Reset;
+            VATPostingSetup.Reset();
             VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
             VATPostingSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
             if VATPostingSetup.FindFirst then begin
@@ -434,7 +434,7 @@ report 12454 "Posted Advance Statement"
                 if DtldVendLedgerEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgerEntry1."Applied Vend. Ledger Entry No."
                 then begin
-                    DtldVendLedgerEntry2.Init;
+                    DtldVendLedgerEntry2.Init();
                     DtldVendLedgerEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                     DtldVendLedgerEntry2.SetRange(
                       "Applied Vend. Ledger Entry No.", DtldVendLedgerEntry1."Applied Vend. Ledger Entry No.");

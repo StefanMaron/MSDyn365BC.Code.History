@@ -239,7 +239,7 @@ table 17200 "Tax Register"
         case "Table ID" of
             DATABASE::"Tax Register CV Entry":
                 begin
-                    TaxRegCVEntry.Reset;
+                    TaxRegCVEntry.Reset();
                     TaxRegCVEntry.SetCurrentKey("Section Code");
                     TaxRegCVEntry.FilterGroup(2);
                     TaxRegCVEntry.SetRange("Section Code", "Section Code");
@@ -250,7 +250,7 @@ table 17200 "Tax Register"
                 end;
             DATABASE::"Tax Register Item Entry":
                 begin
-                    TaxRegItemEntry.Reset;
+                    TaxRegItemEntry.Reset();
                     TaxRegItemEntry.SetCurrentKey("Section Code");
                     TaxRegItemEntry.CopyFilter("Date Filter", "Date Filter");
                     TaxRegItemEntry.FilterGroup(2);
@@ -268,7 +268,7 @@ table 17200 "Tax Register"
                 ShowFAEntriesDetails(TemplateLineNo);
             DATABASE::"Tax Register FE Entry":
                 begin
-                    TaxRegFEEntry.Reset;
+                    TaxRegFEEntry.Reset();
                     TaxRegFEEntry.SetCurrentKey("Section Code");
                     TaxRegFEEntry.FilterGroup(2);
                     TaxRegFEEntry.SetRange("Section Code", "Section Code");
@@ -316,7 +316,7 @@ table 17200 "Tax Register"
             repeat
                 if "G/L Corr. Analysis View Code" <> '' then begin
                     GLCorrAnalysisView.Get("G/L Corr. Analysis View Code");
-                    GLCorrAnalysisViewEntry.Reset;
+                    GLCorrAnalysisViewEntry.Reset();
                     TaxDimMgt.SetDimFilters2GLCorrAnViewEntry(
                       GLCorrAnalysisViewEntry,
                       GLCorrAnalysisView,
@@ -370,7 +370,7 @@ table 17200 "Tax Register"
                             end;
                         TaxRegLineSetup."Account Type"::"G/L Account":
                             begin
-                                GLCorrespondenceEntry.Reset;
+                                GLCorrespondenceEntry.Reset();
                                 case TaxRegLineSetup."Amount Type" of
                                     TaxRegLineSetup."Amount Type"::Debit:
                                         begin
@@ -429,7 +429,7 @@ table 17200 "Tax Register"
         if GLCorrespondenceEntry.FindSet then
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
-                if not TempGLCorrespondenceEntry.Insert then;
+                if not TempGLCorrespondenceEntry.Insert() then;
             until GLCorrespondenceEntry.Next = 0;
     end;
 
@@ -439,7 +439,7 @@ table 17200 "Tax Register"
         if GLCorrAnalysisViewEntry.FindSet then
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
-                if not TempGLCorrAnalysisViewEntry.Insert then;
+                if not TempGLCorrAnalysisViewEntry.Insert() then;
             until GLCorrAnalysisViewEntry.Next = 0;
     end;
 }

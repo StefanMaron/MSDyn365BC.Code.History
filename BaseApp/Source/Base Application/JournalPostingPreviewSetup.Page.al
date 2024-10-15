@@ -60,7 +60,7 @@ page 14939 "Journal Posting Preview Setup"
                         if JnlPostSetup.FindSet then
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := true;
-                                JnlPostSetup.Modify;
+                                JnlPostSetup.Modify();
                             until JnlPostSetup.Next = 0;
                     end;
                 }
@@ -76,7 +76,7 @@ page 14939 "Journal Posting Preview Setup"
                         if JnlPostSetup.FindSet then
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := false;
-                                JnlPostSetup.Modify;
+                                JnlPostSetup.Modify();
                             until JnlPostSetup.Next = 0;
                     end;
                 }

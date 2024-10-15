@@ -88,11 +88,11 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
           InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period"::Month);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(true);
 
         // Create and post Purchase Order, create and post Sales Order.
@@ -335,7 +335,7 @@ codeunit 137297 "SCM Inventory Misc. V"
               ItemChargeAssignmentPurch[i]."Applies-to Doc. Type"::Invoice,
               PurchaseLine[i]."Document No.", PurchaseLine[i]."Line No.", PurchaseLine[i]."No.",
               0.5, LibraryRandom.RandInt(1000));
-            ItemChargeAssignmentPurch[i].Insert;
+            ItemChargeAssignmentPurch[i].Insert();
         end;
 
         // [WHEN] Post "P"
@@ -529,7 +529,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
         CODEUNIT.Run(CODEUNIT::"Undo Purchase Receipt Line", PurchRcptLine);
-        Commit;
+        Commit();
 
         // [WHEN] Post purchase order as receipt
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -553,7 +553,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. V");
     end;
 
@@ -945,13 +945,13 @@ codeunit 137297 "SCM Inventory Misc. V"
         RefInventoryPostingSetup.SetFilter("Inventory Account", '<>%1', '');
         RefInventoryPostingSetup.SetFilter("WIP Account", '<>%1', '');
         RefInventoryPostingSetup.FindFirst;
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
         InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroupCode);
         if not InventoryPostingSetup.Insert(true) then;
         InventoryPostingSetup."Inventory Account" := RefInventoryPostingSetup."Inventory Account";
         InventoryPostingSetup."WIP Account" := RefInventoryPostingSetup."WIP Account";
-        InventoryPostingSetup.Modify;
+        InventoryPostingSetup.Modify();
     end;
 
     local procedure UpdateUOMInProdOrderLine(ProductionOrder: Record "Production Order"; ItemUnitOfMeasureCode: Code[10])
@@ -1115,7 +1115,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
     end;

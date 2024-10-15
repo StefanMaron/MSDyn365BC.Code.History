@@ -116,8 +116,8 @@ page 14944 "G/L Corr. Analysis View Entr."
     var
         AnalysisViewEntryToGLEntries: Codeunit GLCorrAnViewEntrToGLCorrEntr;
     begin
-        TempGLCorrEntry.Reset;
-        TempGLCorrEntry.DeleteAll;
+        TempGLCorrEntry.Reset();
+        TempGLCorrEntry.DeleteAll();
         AnalysisViewEntryToGLEntries.GetGLCorrEntries(AnalysisViewEntry, TempGLCorrEntry);
     end;
 }

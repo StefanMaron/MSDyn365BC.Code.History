@@ -34,7 +34,7 @@ codeunit 138029 "O365 Trial Balance"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
     end;
 
@@ -55,8 +55,8 @@ codeunit 138029 "O365 Trial Balance"
         Initialize;
 
         // [GIVEN] No Accounting periods
-        TrialBalanceCacheInfo.DeleteAll;
-        TrialBalanceCache.DeleteAll;
+        TrialBalanceCacheInfo.DeleteAll();
+        TrialBalanceCache.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
         TrialBalance.OpenEdit;
@@ -232,7 +232,7 @@ codeunit 138029 "O365 Trial Balance"
         Initialize;
 
         // [GIVEN] No Accounting periods
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
         TrialBalance.OpenEdit;
@@ -248,7 +248,7 @@ codeunit 138029 "O365 Trial Balance"
         AccountScheduleNames: TestPage "Account Schedule Names";
         TrialAccSchedName: Code[10];
     begin
-        TrialBalanceSetup.Get;
+        TrialBalanceSetup.Get();
         TrialAccSchedName := TrialBalanceSetup."Account Schedule Name";
 
         AccountScheduleNames.OpenEdit;
@@ -291,7 +291,7 @@ codeunit 138029 "O365 Trial Balance"
 
     [PageHandler]
     [Scope('OnPrem')]
-    procedure AccScheduleOverviewHandler(var AccSchedFormulaDrillDown: TestPage "Acc. Sched. Formula Drill-Down")
+    procedure AccScheduleOverviewHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
         RowNo: Variant;
         Amount1: Variant;
@@ -300,8 +300,20 @@ codeunit 138029 "O365 Trial Balance"
         LibraryVariableStorage.Dequeue(RowNo);
         LibraryVariableStorage.Dequeue(Amount2);
         LibraryVariableStorage.Dequeue(Amount1);
+        Assert.AreEqual(
+          RowNo,
+          AccScheduleOverview."Row No.".AsInteger,
+          'Unexpected account schedule line selected in the overview page.');
+        Assert.AreEqual(
+          Round(Amount1),
+          AccScheduleOverview.ColumnValues1.AsDEcimal,
+          'Unexpected amount shown in account schedule overview page.');
+        Assert.AreEqual(
+          Round(Amount2),
+          AccScheduleOverview.ColumnValues2.AsDEcimal,
+          'Unexpected amount shown in account schedule overview page.');
 
-        AccSchedFormulaDrillDown.Close;
+        AccScheduleOverview.Close;
     end;
 }
 

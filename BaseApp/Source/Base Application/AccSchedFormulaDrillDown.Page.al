@@ -232,7 +232,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
         if Buffer.FindSet then
             repeat
                 AccSchedCellValue.TransferFields(Buffer);
-                if AccSchedCellValue.Insert then;
+                if AccSchedCellValue.Insert() then;
             until Buffer.Next = 0;
 
         EvaluateExpression(true, AccSchedLine.Totaling, AccSchedLine, SourceColumnLayout);
@@ -256,7 +256,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
     begin
         Result := 0;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         Expression := DelChr(Expression, '<>', ' ');
         if StrLen(Expression) > 0 then begin

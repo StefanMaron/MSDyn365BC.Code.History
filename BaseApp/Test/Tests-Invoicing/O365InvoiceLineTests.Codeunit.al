@@ -286,7 +286,7 @@ codeunit 138935 "O365 Invoice Line Tests"
 
         LibraryVariableStorage.AssertEmpty;
         EventSubscriberInvoicingApp.Clear;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
@@ -298,7 +298,7 @@ codeunit 138935 "O365 Invoice Line Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
@@ -321,7 +321,7 @@ codeunit 138935 "O365 Invoice Line Tests"
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Validate(Code, CopyStr(UOMDescription, 1, MaxStrLen(UnitOfMeasure.Code)));
         UnitOfMeasure.Validate(Description, UOMDescription);
         UnitOfMeasure.Insert(true);
@@ -368,7 +368,7 @@ codeunit 138935 "O365 Invoice Line Tests"
         UnitOfMeasureTranslation.Code := UOMCode;
         UnitOfMeasureTranslation."Language Code" := Language.GetLanguageCode(GlobalLanguage);
         UnitOfMeasureTranslation.Description := TranslatedDescription;
-        if UnitOfMeasureTranslation.Insert then;
+        if UnitOfMeasureTranslation.Insert() then;
 
         exit(TranslatedDescription);
     end;

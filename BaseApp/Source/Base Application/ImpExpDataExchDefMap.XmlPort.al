@@ -482,7 +482,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                                 if (TransformationRule <> '') and not TempTransformationRuleRec.Get(TransformationRule) then begin
                                                     TransformationRuleRec.Get(TransformationRule);
                                                     TempTransformationRuleRec := TransformationRuleRec;
-                                                    TempTransformationRuleRec.Insert;
+                                                    TempTransformationRuleRec.Insert();
                                                 end;
                                             end;
                                     end;
@@ -562,7 +562,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 begin
                                     if not TransformationRuleRec.Get(TempTransformationRuleRec.Code) then begin
                                         TransformationRuleRec := TempTransformationRuleRec;
-                                        TransformationRuleRec.Insert;
+                                        TransformationRuleRec.Insert();
                                     end;
                                 end;
                             }
@@ -570,7 +570,7 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
 
                         trigger OnAfterGetRecord()
                         begin
-                            "Data Exch. Field Mapping".Init;
+                            "Data Exch. Field Mapping".Init();
                             "Data Exch. Field Mapping"."Column No." := 0;
                         end;
                     }

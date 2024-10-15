@@ -414,13 +414,13 @@ page 14947 "VAT Reinstatement Worksheet"
         if FindSet then
             repeat
                 LineToCopy := Rec;
-                LineToCopy.Insert;
+                LineToCopy.Insert();
             until Next = 0;
         Rec := CurrRec;
         Reset;
         CopyFilters(Filters);
 
-        LineToCopy.Reset;
+        LineToCopy.Reset();
         LineToCopy.SetFilter("Type Filter", GetFilter("Type Filter"));
         LineToCopy.SetFilter("Date Filter", GetFilter("Date Filter"));
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
@@ -429,8 +429,8 @@ page 14947 "VAT Reinstatement Worksheet"
             Error(Text001);
         CopyToVATReinstJournal.SetParameters(LineToCopy, VATEntry, LineToCopy.GetRangeMax("Date Filter"));
         CopyToVATReinstJournal.RunModal;
-        LineToCopy.Reset;
-        LineToCopy.DeleteAll;
+        LineToCopy.Reset();
+        LineToCopy.DeleteAll();
     end;
 
     local procedure AccountingPerioPeriodTypOnPush()

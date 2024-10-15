@@ -8,7 +8,7 @@ codeunit 17368 "Staff List Order-Post"
     var
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Use Staff List Change Orders", true);
 
         ClearAll;
@@ -26,26 +26,26 @@ codeunit 17368 "Staff List Order-Post"
             if Status = Status::Open then
                 CODEUNIT.Run(CODEUNIT::"Release Staff List Order", StaffOrderHeader);
 
-            StaffOrderLine.LockTable;
-            LockTable;
+            StaffOrderLine.LockTable();
+            LockTable();
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Vacation Order");
 
             // Insert posted absence header
-            PostedStaffOrderHeader.LockTable;
-            PostedStaffOrderHeader.Init;
+            PostedStaffOrderHeader.LockTable();
+            PostedStaffOrderHeader.Init();
             PostedStaffOrderHeader.TransferFields(StaffOrderHeader);
-            PostedStaffOrderHeader.Insert;
+            PostedStaffOrderHeader.Insert();
 
             CopyCommentLines("No.", PostedStaffOrderHeader."No.");
             RecordLinkManagement.CopyLinks(Rec, PostedStaffOrderHeader);
 
             // Lines
-            PostedStaffOrderLine.LockTable;
+            PostedStaffOrderLine.LockTable();
 
             LineCount := 0;
-            StaffOrderLine.Reset;
+            StaffOrderLine.Reset();
             StaffOrderLine.SetRange("Document No.", "No.");
             if StaffOrderLine.FindSet then
                 repeat
@@ -53,9 +53,9 @@ codeunit 17368 "Staff List Order-Post"
                     Window.Update(2, LineCount);
 
                     // insert posted lines
-                    PostedStaffOrderLine.Init;
+                    PostedStaffOrderLine.Init();
                     PostedStaffOrderLine.TransferFields(StaffOrderLine);
-                    PostedStaffOrderLine.Insert;
+                    PostedStaffOrderLine.Insert();
 
                     case StaffOrderLine.Type of
                         StaffOrderLine.Type::Position:
@@ -89,10 +89,10 @@ codeunit 17368 "Staff List Order-Post"
                 until StaffOrderLine.Next = 0;
 
             // Delete posted order
-            StaffOrderLine.DeleteAll;
+            StaffOrderLine.DeleteAll();
             Delete;
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -121,7 +121,7 @@ codeunit 17368 "Staff List Order-Post"
                 HROrderComment2 := HROrderComment;
                 HROrderComment2."Table Name" := HROrderComment2."Table Name"::"P.SL Order";
                 HROrderComment2."No." := ToNumber;
-                HROrderComment2.Insert;
+                HROrderComment2.Insert();
             until HROrderComment.Next = 0;
     end;
 }

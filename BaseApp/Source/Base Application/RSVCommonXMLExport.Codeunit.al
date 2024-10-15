@@ -117,7 +117,7 @@ codeunit 17472 "RSV Common XML Export"
             exit;
 
         FileName := GetXMLFileName(StartDate, 0, 0);
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         RSVCalculationMgt.CalcDetailedBuffer(
           TempDetailPayrollReportingBuffer, TempTotalPaidPayrollReportingBuffer, Person, StartDate, EndDate);
@@ -193,7 +193,7 @@ codeunit 17472 "RSV Common XML Export"
         FillPaymentsForPeriod(AccruedFromCalculationPeriodStartDateTxt, BlockType::Period, 110, TempTotalChargeAmtPayrollReportingBuffer);
 
         // Empty Values
-        TempTotalAmt100PayrollReportingBuffer.Init;
+        TempTotalAmt100PayrollReportingBuffer.Init();
         FillPayments(AddedFromCalculationPeriodStartTotalTxt, BlockType::All, '120', TempTotalAmt100PayrollReportingBuffer);
         FillPayments(AddedFromCalculationPeriodStartExtraTxt, BlockType::Additional, '121', TempTotalAmt100PayrollReportingBuffer);
         FillPayments(TotalToPayTxt, BlockType::All, '130', TempTotalAmt130PayrollReportingBuffer);
@@ -251,7 +251,7 @@ codeunit 17472 "RSV Common XML Export"
     begin
         XMLAddComplexElement(Chapter2TitleTxt);
 
-        PersonifiedPayrollReportingBuffer.Reset;
+        PersonifiedPayrollReportingBuffer.Reset();
         PersonifiedPayrollReportingBuffer.SetRange("Code 3", '01');
         FillSection2_1(PersonifiedPayrollReportingBuffer);
 
@@ -417,7 +417,7 @@ codeunit 17472 "RSV Common XML Export"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Pension Fund Registration No.");
         exit(
           'PFR-700-' +
@@ -576,11 +576,11 @@ codeunit 17472 "RSV Common XML Export"
             Amount206[i + 1] := -(PersonifiedPayrollReportingBuffer."Amount 8" - PersonifiedPayrollReportingBuffer."Amount 4");
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 7", '<>%1', 0);
-            Amount207[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount207[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 7");
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 3", '<>%1', 0);
-            Amount208[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount208[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 3");
 
             Amount210[i + 1] := Amount200[i + 1];
@@ -590,7 +590,7 @@ codeunit 17472 "RSV Common XML Export"
             Amount214[i + 1] := -PersonifiedPayrollReportingBuffer."Amount 9";
 
             PersonifiedPayrollReportingBuffer.SetFilter("Amount 9", '<>%1', 0);
-            Amount215[i + 1] := PersonifiedPayrollReportingBuffer.Count;
+            Amount215[i + 1] := PersonifiedPayrollReportingBuffer.Count();
             PersonifiedPayrollReportingBuffer.SetRange("Amount 9");
         end;
     end;

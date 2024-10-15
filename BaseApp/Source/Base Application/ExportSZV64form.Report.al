@@ -14,10 +14,10 @@ report 17464 "Export SZV-6-4 form"
             trigger OnAfterGetRecord()
             begin
                 if not PersonifiedAccountingMgt.CheckEmployeeLaborContract(Employee, StartDate, EndDate) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempEmployee_SZV6_4 := Employee;
-                TempEmployee_SZV6_4.Insert;
+                TempEmployee_SZV6_4.Insert();
             end;
 
             trigger OnPostDataItem()

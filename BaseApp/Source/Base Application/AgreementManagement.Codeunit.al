@@ -13,7 +13,7 @@ codeunit 12421 "Agreement Management"
     procedure CreateAgrmtFromCust(Cust: Record Customer; AgrmtNo: Code[20])
     begin
         if not CustAgrmt.Get(Cust."No.", AgrmtNo) then begin
-            CustAgrmt.Init;
+            CustAgrmt.Init();
             CustAgrmt."Customer No." := Cust."No.";
             CustAgrmt."No." := AgrmtNo;
             CustAgrmt."Global Dimension 1 Code" := Cust."Global Dimension 1 Code";
@@ -36,7 +36,7 @@ codeunit 12421 "Agreement Management"
             CustAgrmt."VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
             CustAgrmt."Responsibility Center" := Cust."Responsibility Center";
             CustAgrmt."Default Bank Code" := Cust."Default Bank Code";
-            CustAgrmt.Insert;
+            CustAgrmt.Insert();
         end;
     end;
 
@@ -44,7 +44,7 @@ codeunit 12421 "Agreement Management"
     procedure CreateAgrmtFromVend(Vend: Record Vendor; AgrmtNo: Code[20])
     begin
         if not VendAgrmt.Get(Vend."No.", AgrmtNo) then begin
-            VendAgrmt.Init;
+            VendAgrmt.Init();
             VendAgrmt."Vendor No." := Vend."No.";
             VendAgrmt."No." := AgrmtNo;
             VendAgrmt."Global Dimension 1 Code" := Vend."Global Dimension 1 Code";
@@ -61,7 +61,7 @@ codeunit 12421 "Agreement Management"
             VendAgrmt."VAT Bus. Posting Group" := Vend."VAT Bus. Posting Group";
             VendAgrmt."Responsibility Center" := Vend."Responsibility Center";
             VendAgrmt."Default Bank Code" := Vend."Default Bank Code";
-            VendAgrmt.Insert;
+            VendAgrmt.Insert();
         end;
     end;
 
@@ -81,7 +81,7 @@ codeunit 12421 "Agreement Management"
                 TempDimSetEntry."Dimension Code" := DefaultDimension."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := DefaultDimension."Dimension Value Code";
                 TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                TempDimSetEntry.Insert;
+                TempDimSetEntry.Insert();
             until DefaultDimension.Next = 0;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;

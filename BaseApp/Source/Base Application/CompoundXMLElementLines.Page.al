@@ -21,7 +21,7 @@ page 26589 "Compound XML Element Lines"
                     var
                         XMLElementLines: Page "XML Element Lines";
                     begin
-                        XMLElementLine.Reset;
+                        XMLElementLine.Reset();
                         XMLElementLine.FilterGroup(2);
                         XMLElementLine.SetRange("Report Code", "Report Code");
                         XMLElementLine.SetFilter("Line No.", '<>%1', "Base XML Element Line No.");
@@ -44,7 +44,7 @@ page 26589 "Compound XML Element Lines"
                     trigger OnValidate()
                     begin
                         if "XML Element Name" <> '' then begin
-                            XMLElementLine.Reset;
+                            XMLElementLine.Reset();
                             XMLElementLine.SetRange("Report Code", "Report Code");
                             XMLElementLine.SetRange("Element Name", "XML Element Name");
                             XMLElementLine.FindFirst;

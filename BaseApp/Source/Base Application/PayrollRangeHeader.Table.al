@@ -61,16 +61,16 @@ table 17410 "Payroll Range Header"
 
     trigger OnDelete()
     begin
-        PayrollRangeLine.Reset;
+        PayrollRangeLine.Reset();
         PayrollRangeLine.SetRange("Element Code", "Element Code");
         PayrollRangeLine.SetRange("Range Code", Code);
         PayrollRangeLine.SetRange("Period Code", "Period Code");
-        PayrollRangeLine.DeleteAll;
+        PayrollRangeLine.DeleteAll();
     end;
 
     trigger OnModify()
     begin
-        PayrollRangeLine.Reset;
+        PayrollRangeLine.Reset();
         PayrollRangeLine.SetRange("Element Code", "Element Code");
         PayrollRangeLine.SetRange("Range Code", Code);
         PayrollRangeLine.SetRange("Period Code", "Period Code");

@@ -154,7 +154,7 @@ page 14914 "Customer G/L Turnover Agr."
 
                     trigger OnAction()
                     begin
-                        Cust.Reset;
+                        Cust.Reset();
                         Cust.SetRange("No.", "Customer No.");
                         CopyFilter("Date Filter", Cust."Date Filter");
                         CopyFilter("G/L Starting Date Filter", Cust."G/L Starting Date Filter");

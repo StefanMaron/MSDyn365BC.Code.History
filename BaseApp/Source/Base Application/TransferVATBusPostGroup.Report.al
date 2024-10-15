@@ -17,7 +17,7 @@ report 14971 "Transfer VAT Bus. Post. Group"
                 NewVATBusPostGroup.Code := NewCode;
                 NewVATBusPostGroup.Description :=
                   CopyStr(Description, 1, MaxStrLen(Description) - StrLen(StrSubstNo(Text001, BlockingDate))) + StrSubstNo(Text001, BlockingDate);
-                NewVATBusPostGroup.Insert;
+                NewVATBusPostGroup.Insert();
 
                 Vendor.SetRange("VAT Bus. Posting Group", Code);
                 Vendor.ModifyAll("VAT Bus. Posting Group", NewCode);
@@ -41,7 +41,7 @@ report 14971 "Transfer VAT Bus. Post. Group"
                         NewVATPostingSetup."VAT Bus. Posting Group" := NewCode;
                         NewVATPostingSetup."Unrealized VAT Type" := 0;
                         NewVATPostingSetup."Manual VAT Settlement" := false;
-                        NewVATPostingSetup.Insert;
+                        NewVATPostingSetup.Insert();
                     until VATPostingSetup.Next = 0;
             end;
 

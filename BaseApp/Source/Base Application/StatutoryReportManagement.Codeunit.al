@@ -108,10 +108,7 @@ codeunit 26550 "Statutory Report Management"
         ReportFile: File;
         PathName: Text;
     begin
-        if not FileMgt.IsLocalFileSystemAccessible then
-            ReportFile.Open(FileName2)
-        else
-            ReportFile.Open(FileMgt.UploadFileSilent(FileName2));
+        ReportFile.Open(FileName2);
         ReportFile.CreateInStream(InStr);
 
         PathName := StrSubstNo('%1\', FileMgt.GetDirectoryName(FileName2));

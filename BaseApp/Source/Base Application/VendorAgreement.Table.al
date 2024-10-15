@@ -109,7 +109,7 @@ table 14901 "Vendor Agreement"
             trigger OnValidate()
             begin
                 if "Vendor Posting Group" <> xRec."Vendor Posting Group" then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     if not PurchSetup."Allow Alter Posting Groups" then
                         Error(Text12401, FieldCaption("Vendor Posting Group"),
                           PurchSetup.FieldCaption("Allow Alter Posting Groups"), PurchSetup.TableCaption);
@@ -442,7 +442,7 @@ table 14901 "Vendor Agreement"
     var
         LaborContract: Record "Labor Contract";
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetRange("Vendor No.", "Vendor No.");
         VendLedgEntry.SetRange("Agreement No.", "No.");
         if not VendLedgEntry.IsEmpty then
@@ -453,9 +453,9 @@ table 14901 "Vendor Agreement"
         if not LaborContract.IsEmpty then
             Error(Text17360);
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         if DimValue.Get(PurchSetup."Vendor Agreement Dim. Code", "No.") then
-            DimValue.Delete;
+            DimValue.Delete();
     end;
 
     trigger OnInsert()
@@ -468,7 +468,7 @@ table 14901 "Vendor Agreement"
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
-        VendAgrmt.Reset;
+        VendAgrmt.Reset();
         VendAgrmt.SetCurrentKey("No.");
         VendAgrmt.SetRange("No.", "No.");
         if VendAgrmt.FindSet then
@@ -480,36 +480,36 @@ table 14901 "Vendor Agreement"
         VendTransferFields;
         VendTransferDimensions;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Synch. Agreement Dimension" then begin
             PurchSetup.TestField("Vendor Agreement Dim. Code");
 
-            DimValue.Init;
+            DimValue.Init();
             DimValue."Dimension Code" := PurchSetup."Vendor Agreement Dim. Code";
             DimValue.Code := "No.";
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
-            if DimValue.Insert then;
+            if DimValue.Insert() then;
 
-            DefaultDim2.Init;
+            DefaultDim2.Init();
             DefaultDim2."Table ID" := DATABASE::"Vendor Agreement";
             DefaultDim2."No." := "No.";
             DefaultDim2."Dimension Code" := PurchSetup."Vendor Agreement Dim. Code";
             DefaultDim2."Dimension Value Code" := "No.";
             DefaultDim2."Value Posting" := DefaultDim2."Value Posting"::"Same Code";
-            if DefaultDim2.Insert then;
+            if DefaultDim2.Insert() then;
         end;
     end;
 
     trigger OnModify()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if DimValue.Get(PurchSetup."Vendor Agreement Dim. Code", "No.") then begin
             DimValue.Name := CopyStr("No.", 1, MaxStrLen(DimValue.Name));
             if Blocked > 0 then
                 DimValue.Blocked := true
             else
                 DimValue.Blocked := false;
-            DimValue.Modify;
+            DimValue.Modify();
         end;
     end;
 
@@ -643,18 +643,18 @@ table 14901 "Vendor Agreement"
     [Scope('OnPrem')]
     procedure VendTransferDimensions()
     begin
-        DefaultDim.Reset;
+        DefaultDim.Reset();
         DefaultDim.SetRange("Table ID", DATABASE::Vendor);
         DefaultDim.SetRange("No.", "Vendor No.");
         if DefaultDim.FindSet then
             repeat
-                DefaultDim2.Init;
+                DefaultDim2.Init();
                 DefaultDim2."Table ID" := DATABASE::"Vendor Agreement";
                 DefaultDim2."No." := "No.";
                 DefaultDim2."Dimension Code" := DefaultDim."Dimension Code";
                 DefaultDim2."Dimension Value Code" := DefaultDim."Dimension Value Code";
                 DefaultDim2."Value Posting" := DefaultDim."Value Posting";
-                DefaultDim2.Insert;
+                DefaultDim2.Insert();
             until DefaultDim.Next = 0;
     end;
 

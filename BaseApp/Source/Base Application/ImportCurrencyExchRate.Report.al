@@ -19,7 +19,7 @@ report 14900 "Import Currency Exch. Rate"
 
                 LoadXML("Period Start", XMLRootNode, DateLoaded, false);
                 if DateLoaded <> "Period Start" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ImportExchRates;
             end;
@@ -240,7 +240,7 @@ report 14900 "Import Currency Exch. Rate"
         if Company.FindSet then
             repeat
                 CompanyInformation.ChangeCompany(Company.Name);
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 if CompanyInformation."Import Curr. Exch. Rates" then begin
                     Currency.ChangeCompany(Company.Name);
                     Currency.SetRange(Import, true);
@@ -251,21 +251,21 @@ report 14900 "Import Currency Exch. Rate"
                             if GetExchRateParameters(Currency."RU Bank Code", ExchRateAmount, RelationalExchRateAmount, XMLRootNode) then begin
                                 CurrencyExchangeRate.ChangeCompany(Company.Name);
                                 if not CurrencyExchangeRate.Get(Currency.Code, DateLoaded) then begin
-                                    CurrencyExchangeRate.Init;
+                                    CurrencyExchangeRate.Init();
                                     CurrencyExchangeRate."Currency Code" := Currency.Code;
                                     CurrencyExchangeRate."Starting Date" := DateLoaded;
                                     CurrencyExchangeRate."Exchange Rate Amount" := ExchRateAmount;
                                     CurrencyExchangeRate."Adjustment Exch. Rate Amount" := ExchRateAmount;
                                     CurrencyExchangeRate."Relational Exch. Rate Amount" := RelationalExchRateAmount;
                                     CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := RelationalExchRateAmount;
-                                    CurrencyExchangeRate.Insert;
+                                    CurrencyExchangeRate.Insert();
                                 end else begin
                                     if CompanyInformation.IsNeedToReplaceCurrExchRate(Currency.Code, DateLoaded, Company.Name) then begin
                                         CurrencyExchangeRate."Exchange Rate Amount" := ExchRateAmount;
                                         CurrencyExchangeRate."Adjustment Exch. Rate Amount" := ExchRateAmount;
                                         CurrencyExchangeRate."Relational Exch. Rate Amount" := RelationalExchRateAmount;
                                         CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := RelationalExchRateAmount;
-                                        CurrencyExchangeRate.Modify;
+                                        CurrencyExchangeRate.Modify();
                                     end;
                                 end;
                             end;

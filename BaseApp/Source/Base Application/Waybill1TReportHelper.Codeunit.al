@@ -13,7 +13,7 @@ codeunit 14933 "Waybill 1-T Report Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Waybill 1-T Template Code");
         InitReportTemplate(InventorySetup."Waybill 1-T Template Code");
     end;

@@ -762,9 +762,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Job_Journal_Line__TABLECAPTION__________JobJnlLineFilter">
           <DataField>Job_Journal_Line__TABLECAPTION__________JobJnlLineFilter</DataField>
         </Field>

@@ -37,7 +37,7 @@ page 6066 "Contract Gain/Loss (Groups)"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ContractGr.Reset;
+                        ContractGr.Reset();
                         if PAGE.RunModal(0, ContractGr) = ACTION::LookupOK then begin
                             Text := ContractGr.Code;
                             exit(true);

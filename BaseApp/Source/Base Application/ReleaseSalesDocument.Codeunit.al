@@ -60,7 +60,7 @@
             OnBeforeSalesLineFind(SalesLine, SalesHeader);
             if not SalesLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Location Mandatory" then begin
                 SalesLine.SetRange(Type, SalesLine.Type::Item);
                 if SalesLine.FindSet then
@@ -77,11 +77,11 @@
             NotOnlyDropShipment := SalesLine.FindFirst;
             SalesLine.SetRange("Drop Shipment");
             TestTrackingSpecification(SalesHeader, SalesLine);
-            SalesLine.Reset;
+            SalesLine.Reset();
 
             OnBeforeCalcInvDiscount(SalesHeader, PreviewMode);
 
-            SalesSetup.Get;
+            SalesSetup.Get();
             if SalesSetup."Calc. Inv. Discount" then begin
                 PostingDate := "Posting Date";
                 PrintPostedDocuments := "Print Posted Documents";
@@ -167,10 +167,10 @@
 
         with SalesHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
-                if Status <> Status::"Pending Prepayment" then begin
+                if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
                     Modify;
-                    Commit;
+                    Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
             end;
@@ -250,6 +250,7 @@
         SalesLineToCheck: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         CDTrackingSetup: Record "CD Tracking Setup";
         Item: Record Item;
         CreateReservEntry: Codeunit "Create Reserv. Entry";
@@ -261,12 +262,6 @@
         TrackingQtyHandled: Decimal;
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        CDRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
-        CDInfoRequired: Boolean;
         CheckSalesLine: Boolean;
     begin
         // if a SalesLine is posted with ItemTracking then the whole quantity of
@@ -301,16 +296,8 @@
                     Inbound := (SalesLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
                     if CDTrackingSetup.Get(Item."Item Tracking Code", SalesLineToCheck."Location Code") then;
-                    ItemTrackingManagement.GetItemTrackingSettings(ItemTrackingCode, CDTrackingSetup,
-                      1,
-                      Inbound,
-                      SNRequired,
-                      LotRequired,
-                      CDRequired,
-                      SNInfoRequired,
-                      LotInfoRequired,
-                      CDInfoRequired);
-                    CheckSalesLine := CDRequired and CDTrackingSetup."CD Sales Check on Release";
+                    ItemTrackingManagement.GetItemTrackingSetup(ItemTrackingCode, CDTrackingSetup, 1, Inbound, ItemTrackingSetup);
+                    CheckSalesLine := ItemTrackingSetup."CD No. Required" and CDTrackingSetup."CD Sales Check on Release";
                     if CheckSalesLine then
                         if not GetTrackingQuantities(SalesLineToCheck, 0, TrackingQtyToHandle, TrackingQtyHandled) then
                             if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then

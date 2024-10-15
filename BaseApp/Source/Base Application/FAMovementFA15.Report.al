@@ -41,7 +41,7 @@ report 14992 "FA Movement FA-15"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 GetFAComments(Complect, FAComment.Type::Complect);
                 GetFAComments(Defect, FAComment.Type::Defect);

@@ -7,7 +7,7 @@ codeunit 382 "BankAccStmtLines-Delete"
     begin
         BankAccStmtLine.SetRange("Bank Account No.", "Bank Account No.");
         BankAccStmtLine.SetRange("Statement No.", "Statement No.");
-        BankAccStmtLine.DeleteAll;
+        BankAccStmtLine.DeleteAll();
     end;
 
     var

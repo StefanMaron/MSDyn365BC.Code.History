@@ -23,7 +23,7 @@ report 17301 "Calculate Tax Diff. for Calc."
                     Wnd.Update(1, "No.");
                     Wnd.Update(2, Round((Processing / Total) * 10000, 1));
                     if not TaxDiff.Get("Tax Diff. Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     AmountBase := 0;
                     AmountTax := 0;
@@ -48,14 +48,14 @@ report 17301 "Calculate Tax Diff. for Calc."
 
                     if (DisposalDate = 0D) or (TaxDiff."Tax Period Limited" = TaxDiff."Tax Period Limited"::" ") then
                         if (AmountBase = 0) and (AmountTax = 0) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     if (AmountBase = 0) and (AmountTax = 0) then
                         if DisposedFixedAsset or (TaxDiff."Calculation Mode" <> TaxDiff."Calculation Mode"::Balance) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     TaxDiffJnlLine."Line No." += 10000;
-                    TaxDiffJnlLine.Init;
+                    TaxDiffJnlLine.Init();
                     TaxDiffJnlLine.SetUpNewLine(TaxDiffJnlLine);
                     TaxDiffJnlLine."Posting Date" := PostingDate;
                     if TaxDiffJnlLine."Document No." = '' then
@@ -83,7 +83,7 @@ report 17301 "Calculate Tax Diff. for Calc."
                             TaxDiffJnlLine."Amount (Base)" := Abs(AmountBase);
                             TaxDiffJnlLine.Validate("Amount (Tax)", Abs(AmountTax));
                         end;
-                    TaxDiffJnlLine.Insert;
+                    TaxDiffJnlLine.Insert();
                 end;
 
                 trigger OnPostDataItem()

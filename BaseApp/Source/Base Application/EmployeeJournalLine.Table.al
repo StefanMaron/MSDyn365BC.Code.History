@@ -221,7 +221,7 @@ table 17382 "Employee Journal Line"
                 EmployeeLedgEntries: Page "Employee Ledger Entries";
             begin
                 if "Post Action" <> "Post Action"::Add then begin
-                    EmployeeLedgEntry.Reset;
+                    EmployeeLedgEntry.Reset();
                     EmployeeLedgEntry.SetCurrentKey("Employee No.", "Element Code");
                     EmployeeLedgEntry.SetRange("Employee No.", "Employee No.");
                     EmployeeLedgEntry.SetRange("Element Code", "Element Code");
@@ -330,7 +330,7 @@ table 17382 "Employee Journal Line"
             var
                 EmployeeRelative: Record "Employee Relative";
             begin
-                EmployeeRelative.Reset;
+                EmployeeRelative.Reset();
                 EmployeeRelative.SetRange("Person No.", "Person No.");
                 if PAGE.RunModal(0, EmployeeRelative) = ACTION::LookupOK then begin
                     EmployeeRelative.TestField("Relative Person No.");

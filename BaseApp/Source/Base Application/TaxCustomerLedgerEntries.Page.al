@@ -276,7 +276,7 @@ page 17243 "Tax Customer Ledger Entries"
         if FindSet then
             repeat
                 TmpCustLedgerEntry := Rec;
-                TmpCustLedgerEntry.Insert;
+                TmpCustLedgerEntry.Insert();
             until Next = 0;
 
         Reset;
@@ -290,7 +290,7 @@ page 17243 "Tax Customer Ledger Entries"
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin
                     TmpCustLedgerEntry := Rec;
-                    if TmpCustLedgerEntry.Insert then;
+                    if TmpCustLedgerEntry.Insert() then;
                 end;
             until Next = 0;
 
@@ -305,7 +305,7 @@ page 17243 "Tax Customer Ledger Entries"
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin
                     TmpCustLedgerEntry := Rec;
-                    if TmpCustLedgerEntry.Insert then;
+                    if TmpCustLedgerEntry.Insert() then;
                 end;
             until Next = 0;
         Reset;

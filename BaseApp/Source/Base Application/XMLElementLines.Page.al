@@ -72,19 +72,19 @@ page 26587 "XML Element Lines"
                             case xRec."Source Type" of
                                 xRec."Source Type"::Expression:
                                     begin
-                                        XMLElementExpressionLine.Reset;
+                                        XMLElementExpressionLine.Reset();
                                         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
                                         if XMLElementExpressionLine.FindFirst then
                                             if Confirm(Text002) then begin
-                                                XMLElementExpressionLine.DeleteAll;
+                                                XMLElementExpressionLine.DeleteAll();
                                                 Value := '';
                                             end else
                                                 Error('');
                                     end;
                                 xRec."Source Type"::"Compound Element":
                                     begin
-                                        XMLElementExpressionLine.Reset;
+                                        XMLElementExpressionLine.Reset();
                                         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
                                         if XMLElementExpressionLine.FindFirst then
@@ -384,7 +384,7 @@ page 26587 "XML Element Lines"
             if XMLElementLine.Find('+') then
                 repeat
                     XMLElementLine."Sequence No." := XMLElementLine."Sequence No." + 1;
-                    XMLElementLine.Modify;
+                    XMLElementLine.Modify();
                 until XMLElementLine.Next(-1) = 0;
 
             "Line No." := LineNo;
@@ -429,7 +429,7 @@ page 26587 "XML Element Lines"
         if UpperLine.FindLast then begin
             SequenceNo := UpperLine."Sequence No.";
             UpperLine."Sequence No." := "Sequence No.";
-            UpperLine.Modify;
+            UpperLine.Modify();
 
             CurrLineNo := "Line No.";
 
@@ -445,7 +445,7 @@ page 26587 "XML Element Lines"
             UpperLine.Get("Report Code", CurrLineNo);
             UpperLine.Indentation := Indentation;
             UpperLine."Sequence No." := SequenceNo;
-            UpperLine.Modify;
+            UpperLine.Modify();
         end;
 
         UpdateLinks;
@@ -465,7 +465,7 @@ page 26587 "XML Element Lines"
         if LowerLine.FindFirst then begin
             SequenceNo := LowerLine."Sequence No.";
             LowerLine."Sequence No." := "Sequence No.";
-            LowerLine.Modify;
+            LowerLine.Modify();
 
             CurrLineNo := "Line No.";
 
@@ -481,7 +481,7 @@ page 26587 "XML Element Lines"
             LowerLine.Get("Report Code", CurrLineNo);
             LowerLine.Indentation := Indentation;
             LowerLine."Sequence No." := SequenceNo;
-            LowerLine.Modify;
+            LowerLine.Modify();
         end;
         UpdateLinks;
     end;
@@ -524,11 +524,11 @@ page 26587 "XML Element Lines"
                     ParentLine.SetFilter(Indentation, '<%1', XMLElementLine.Indentation);
                     if ParentLine.FindLast then begin
                         XMLElementLine."Parent Line No." := ParentLine."Line No.";
-                        XMLElementLine.Modify;
+                        XMLElementLine.Modify();
                     end;
                 end else begin
                     XMLElementLine."Parent Line No." := 0;
-                    XMLElementLine.Modify;
+                    XMLElementLine.Modify();
                 end;
             until XMLElementLine.Next = 0;
     end;

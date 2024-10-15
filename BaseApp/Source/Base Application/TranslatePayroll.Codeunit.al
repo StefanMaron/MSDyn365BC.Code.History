@@ -69,7 +69,7 @@ codeunit 17499 "Translate Payroll"
         EC_BONUSANNUALPERCTxt: Label 'BONUS ANNUAL PERC';
         EC_BONUSMONTHLYAMTTxt: Label 'BONUS MONTHLY AMT';
         EC_BONUSMONTHLYPERCTxt: Label 'BONUS MONTHLY PERC';
-        EC_BONUSMONTHLYPERCLMTxt: Label 'BONUS MONTHLY PERC LM';
+        EC_BONUSMONTHLYPERCLMTxt: Label 'BONUS MONTHLY PCT LM';
         EC_BONUSQUARTERLYAMTTxt: Label 'BONUS QUARTERLY AMT';
         EC_BONUSQUARTERLYPERCTxt: Label 'BONUS QUARTERLY PERC';
         EC_BUSINESSTRAVELTxt: Label 'BUSINESS TRAVEL';
@@ -89,13 +89,13 @@ codeunit 17499 "Translate Payroll"
         EC_EXTRAPAYAMTTxt: Label 'EXTRA PAY AMT';
         EC_EXTRAPAYDAYTxt: Label 'EXTRA PAY DAY';
         EC_EXTRAPAYDAYPERTxt: Label 'EXTRA PAY DAY PER';
-        EC_EXTRAPAYHOLIDAYAMTTxt: Label 'EXTRA PAY HOLIDAY AMT';
+        EC_EXTRAPAYHOLIDAYAMTTxt: Label 'EXTRAPAY HOLIDAY AMT';
         EC_EXTRAPAYHOLIDAYSTxt: Label 'EXTRA PAY HOLIDAYS';
         EC_EXTRAPAYHOURSTxt: Label 'EXTRA PAY HOURS';
         EC_EXTRAPAYHOURSPERTxt: Label 'EXTRA PAY HOURS PER';
         EC_EXTRAPAYNIGHTTxt: Label 'EXTRA PAY NIGHT';
         EC_EXTRAPAYNIGHTAMTTxt: Label 'EXTRA PAY NIGHT AMT';
-        EC_EXTRAPAYNOWORKAMTTxt: Label 'EXTRA PAY NO WORK AMT';
+        EC_EXTRAPAYNOWORKAMTTxt: Label 'EXTRAPAY NO WORK AMT';
         EC_EXTRAPAYNOWORKDSTxt: Label 'EXTRA PAY NO WORK DS';
         EC_EXTRAPAYNOWORKHSTxt: Label 'EXTRA PAY NO WORK HS';
         EC_EXTRAPAYOVERTAMTTxt: Label 'EXTRA PAY OVERT AMT';
@@ -1779,7 +1779,7 @@ codeunit 17499 "Translate Payroll"
         if (GlobalLanguage <> 1049) and (not TestMode) then
             exit(ElementCodeFilter);
 
-        PayrollElement.Reset;
+        PayrollElement.Reset();
         if PayrollElement.Find('+') then
             repeat
                 ReplaceFilter(ElementCodeFilter, PayrollElement.Code, ElementCode(PayrollElement.Code));
@@ -1808,7 +1808,7 @@ codeunit 17499 "Translate Payroll"
         if (GlobalLanguage <> 1049) and (not TestMode) then
             exit(ElementGroupCodeFilter);
 
-        PayrollElementGroup.Reset;
+        PayrollElementGroup.Reset();
         if PayrollElementGroup.Find('+') then
             repeat
                 ReplaceGroupFilter(ElementGroupCodeFilter, PayrollElementGroup.Code, ElementGroup(PayrollElementGroup.Code));

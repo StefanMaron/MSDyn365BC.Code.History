@@ -16,7 +16,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         ExitWithoutSavingConfirmMsg: Label 'Payment Journal Approval has not been set up.';
 
     [Test]
-    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenHandler,ExitWithoutSavingConfirmHandlerYes')]
+    [HandlerFunctions('WizardOpenHandler,ExitWithoutSavingConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure CreateApprovalWorklfowOpensTheWizardTest()
     var
@@ -25,7 +25,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     begin
         // Setup
         Initialize;
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
 
         ApprovalWorkflowWizard."For All Batches" := false;
@@ -60,7 +60,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     end;
 
     [Test]
-    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
+    [HandlerFunctions('WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
     [Scope('OnPrem')]
     procedure FinishWizardWithAllBatchesSelectionTest()
     begin
@@ -68,7 +68,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     end;
 
     [Test]
-    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
+    [HandlerFunctions('WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
     [Scope('OnPrem')]
     procedure FinishWizardWithCurrentBatchSelectionTest()
     begin
@@ -138,14 +138,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
 
         PmtAppWorkflowSetupWzrd.NextPage.Invoke;
         PmtAppWorkflowSetupWzrd.Finish.Invoke;
-        Commit;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GenJnlTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    begin
-        GeneralJournalTemplateList.OK.Invoke;
+        Commit();
     end;
 
     [ConfirmHandler]
@@ -187,11 +180,11 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         Assert.IsFalse(FindWorkflowEnabledEntryPoints(DATABASE::"Gen. Journal Line",
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
             WorkflowDefinition), 'Workflow already exists');
-        Commit;
+        Commit();
 
         // Execute
-        Commit;
         PaymentJournal.OpenEdit;
+
         if ForAllBatches then
             ApprovalWorkflowWizard."For All Batches" := true
         else

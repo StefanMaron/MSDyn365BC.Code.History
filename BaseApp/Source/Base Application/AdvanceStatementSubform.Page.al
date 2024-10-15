@@ -41,7 +41,7 @@ page 12432 "Advance Statement Subform"
                     begin
                         if Type = Type::Item then begin
                             PurchHeader.Get("Document Type", "Document No.");
-                            ItemCrossReference.Reset;
+                            ItemCrossReference.Reset();
                             ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
                             ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
                             ItemCrossReference.SetRange("Cross-Reference Type No.", PurchHeader."Buy-from Vendor No.");
@@ -573,21 +573,9 @@ page 12432 "Advance Statement Subform"
     end;
 
     [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        Rec.ShowDimensions;
-    end;
-
-    [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
         ShowItemChargeAssgnt;
-    end;
-
-    [Scope('OnPrem')]
-    procedure OpenItemTrackingLines()
-    begin
-        Rec.OpenItemTrackingLines;
     end;
 
     [Scope('OnPrem')]

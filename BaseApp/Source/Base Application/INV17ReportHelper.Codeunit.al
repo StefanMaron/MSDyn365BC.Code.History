@@ -15,7 +15,7 @@ codeunit 14943 "INV-17 Report Helper"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         case ReportID of
             REPORT::"Invent. Act INV-17":
                 begin
@@ -36,7 +36,7 @@ codeunit 14943 "INV-17 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);
@@ -57,7 +57,7 @@ codeunit 14943 "INV-17 Report Helper"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ExcelReportBuilderManager.AddSection('REPORTHEADER');
         ExcelReportBuilderManager.AddDataToSection(
           'CompanyName', StdRepMgt.GetCompanyName);

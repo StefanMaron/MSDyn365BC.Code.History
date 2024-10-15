@@ -277,7 +277,7 @@ page 12449 "Item G/L Turnover"
         StartingQuantity := 0;
         EndingQuantity := 0;
 
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey(
           "Item No.", "Location Code",
           "Global Dimension 1 Code", "Global Dimension 2 Code",
@@ -335,7 +335,7 @@ page 12449 "Item G/L Turnover"
     var
         TempValueEntry: Record "Value Entry" temporary;
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey(
           "Item No.", "Location Code",
           "Global Dimension 1 Code", "Global Dimension 2 Code",
@@ -384,12 +384,12 @@ page 12449 "Item G/L Turnover"
         TempValueEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
         if ValueEntry.FindSet then
             repeat
-                TempValueEntry.Init;
+                TempValueEntry.Init();
                 TempValueEntry := ValueEntry;
                 if ((Show = Show::Debit) and TempValueEntry.IsDebit) or
                    ((Show = Show::Credit) and not TempValueEntry.IsDebit)
                 then
-                    if TempValueEntry.Insert then;
+                    if TempValueEntry.Insert() then;
             until ValueEntry.Next = 0;
     end;
 

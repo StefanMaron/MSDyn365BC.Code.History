@@ -113,23 +113,23 @@ table 17428 "Payroll Calendar"
 
     trigger OnDelete()
     begin
-        Employee.Reset;
+        Employee.Reset();
         Employee.SetRange("Calendar Code", Code);
         if not Employee.IsEmpty then
             Error(Text001, Code, Employee.TableCaption);
 
-        EmployeeJobEntry.Reset;
+        EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetRange("Calendar Code", Code);
         if not EmployeeJobEntry.IsEmpty then
             Error(Text001, Code, EmployeeJobEntry.TableCaption);
 
-        PayrollCalendarLine.Reset;
+        PayrollCalendarLine.Reset();
         PayrollCalendarLine.SetRange("Calendar Code", Code);
-        PayrollCalendarLine.DeleteAll;
+        PayrollCalendarLine.DeleteAll();
 
-        PayrollCalendarSetup.Reset;
+        PayrollCalendarSetup.Reset();
         PayrollCalendarSetup.SetRange("Calendar Code", Code);
-        PayrollCalendarSetup.DeleteAll;
+        PayrollCalendarSetup.DeleteAll();
     end;
 
     var

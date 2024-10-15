@@ -21,7 +21,7 @@ codeunit 17440 "Timesheet Management RU"
         PayrollPeriod: Record "Payroll Period";
     begin
         Selected := true;
-        PayrollPeriod.Reset;
+        PayrollPeriod.Reset();
         case PayrollPeriod.Count of
             0:
                 Error('');
@@ -38,7 +38,7 @@ codeunit 17440 "Timesheet Management RU"
     var
         PayrollPeriod: Record "Payroll Period";
     begin
-        Commit;
+        Commit();
         PayrollPeriod.Code := CurrentPeriodCode;
         if PAGE.RunModal(0, PayrollPeriod) = ACTION::LookupOK then begin
             CurrentPeriodCode := PayrollPeriod.Code;
@@ -69,23 +69,23 @@ codeunit 17440 "Timesheet Management RU"
     begin
         if Employee."Employment Date" <= PayrollPeriod."Ending Date" then begin
             if not TimesheetStatus.Get(PayrollPeriod.Code, Employee."No.") then begin
-                TimesheetStatus.Init;
+                TimesheetStatus.Init();
                 TimesheetStatus."Period Code" := PayrollPeriod.Code;
                 TimesheetStatus."Employee No." := Employee."No.";
-                TimesheetStatus.Insert;
+                TimesheetStatus.Insert();
             end;
             if not PayrollStatus.Get(PayrollPeriod.Code, Employee."No.") then begin
-                PayrollStatus.Init;
+                PayrollStatus.Init();
                 PayrollStatus."Period Code" := PayrollPeriod.Code;
                 PayrollStatus."Employee No." := Employee."No.";
-                PayrollStatus.Insert;
+                PayrollStatus.Insert();
             end;
         end;
 
         CurrentDate := PayrollPeriod."Starting Date";
         while CurrentDate <= PayrollPeriod."Ending Date" do begin
             if Employee.GetJobEntry(Employee."No.", CurrentDate, EmplJobEntry) then begin
-                TimesheetLine.Init;
+                TimesheetLine.Init();
                 TimesheetLine."Calendar Code" := EmplJobEntry."Calendar Code";
                 TimesheetLine.Date := CurrentDate;
                 CalendarLine.Get(TimesheetLine."Calendar Code", TimesheetLine.Date);
@@ -163,7 +163,7 @@ codeunit 17440 "Timesheet Management RU"
         EmplJobEntry: Record "Employee Job Entry";
         PreviousTimeActivityCode: Code[10];
     begin
-        TimesheetDetail.Reset;
+        TimesheetDetail.Reset();
         TimesheetDetail.SetRange("Employee No.", EmployeeNo);
         TimesheetDetail.SetRange(Date, Date);
         if TimesheetDetail.FindSet then
@@ -176,10 +176,10 @@ codeunit 17440 "Timesheet Management RU"
                         Error(Text001, TimesheetDetail."Document No.", EmployeeNo, Date);
                 end;
             until TimesheetDetail.Next = 0;
-        TimesheetDetail.DeleteAll;
+        TimesheetDetail.DeleteAll();
 
         // Insert planned hours
-        TimesheetDetail.Init;
+        TimesheetDetail.Init();
         TimesheetDetail.Validate("Employee No.", EmployeeNo);
         TimesheetDetail.Date := Date;
         if PostedOrderCancellation and (PreviousTimeActivityCode <> '') then
@@ -203,16 +203,16 @@ codeunit 17440 "Timesheet Management RU"
         end;
         if not PostedOrderCancellation then
             TimesheetDetail."Previous Time Activity Code" := PreviousTimeActivityCode;
-        TimesheetDetail.Insert;
+        TimesheetDetail.Insert();
 
         // insert night hours if any
         if NightHours <> 0 then begin
-            HRSetup.Get;
+            HRSetup.Get();
             HRSetup.TestField("Default Night Hours Code");
             TimesheetDetail."Time Activity Code" := HRSetup."Default Night Hours Code";
             TimesheetDetail."Actual Hours" := NightHours;
             TimesheetDetail."Previous Time Activity Code" := '';
-            TimesheetDetail.Insert;
+            TimesheetDetail.Insert();
         end;
     end;
 
@@ -236,7 +236,7 @@ codeunit 17440 "Timesheet Management RU"
             What::"Actual Work Days":
                 begin
                     ActualDays := 0;
-                    TimesheetDetail.Reset;
+                    TimesheetDetail.Reset();
                     TimesheetDetail.SetRange("Employee No.", EmployeeNo);
                     if TimeActivityGroupCode <> '' then begin
                         GetTimeGroupFilter(TimeActivityGroupCode, StartDate, TimeActivityFilter);
@@ -267,7 +267,7 @@ codeunit 17440 "Timesheet Management RU"
                 end;
             What::"Actual Hours":
                 begin
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetRange("Employee No. Filter", EmployeeNo);
                     Employee.SetRange("Date Filter", StartDate, EndDate);
                     if TimeActivityGroupCode <> '' then begin
@@ -303,7 +303,7 @@ codeunit 17440 "Timesheet Management RU"
                 end;
             UOM::Hour:
                 begin
-                    HRSetup.Get;
+                    HRSetup.Get();
                     if TimeActivityGroup = HRSetup."Night Work Group Code" then
                         PayrollDocLine."Payment Hours" :=
                           TimesheetMgt.GetTimesheetInfo(
@@ -323,7 +323,7 @@ codeunit 17440 "Timesheet Management RU"
     [Scope('OnPrem')]
     procedure GetTimeGroupFilter(GroupCode: Code[20]; StartDate: Date; var TimeActivityFilter: Record "Time Activity Filter")
     begin
-        TimeActivityFilter.Reset;
+        TimeActivityFilter.Reset();
         TimeActivityFilter.SetRange(Code, GroupCode);
         TimeActivityFilter.SetFilter("Starting Date", '..%1', StartDate);
         if not TimeActivityFilter.FindLast then
@@ -338,7 +338,7 @@ codeunit 17440 "Timesheet Management RU"
     begin
         CurrDate := StartDate;
         while CurrDate <= EndDate do begin
-            TimesheetLine.Reset;
+            TimesheetLine.Reset();
             TimesheetLine.SetRange("Employee No.", EmployeeNo);
             TimesheetLine.SetRange(Date, CurrDate);
             TimesheetLine.FindFirst;

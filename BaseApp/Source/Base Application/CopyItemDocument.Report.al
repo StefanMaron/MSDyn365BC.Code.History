@@ -140,7 +140,7 @@ report 12470 "Copy Item Document"
             FromItemDocHeader.Init
         else
             if FromItemDocHeader."No." = '' then begin
-                FromItemDocHeader.Init;
+                FromItemDocHeader.Init();
                 case DocType of
                     DocType::Receipt,
                   DocType::Shipment:

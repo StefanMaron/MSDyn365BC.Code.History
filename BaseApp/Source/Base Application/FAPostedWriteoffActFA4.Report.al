@@ -151,7 +151,7 @@ report 12494 "FA Posted Writeoff Act FA-4"
 
             trigger OnAfterGetRecord()
             begin
-                FASetup.Get;
+                FASetup.Get();
 
                 CheckSignature(Chairman, Chairman."Employee Type"::Chairman);
                 CheckSignature(Member1, Member1."Employee Type"::Member1);
@@ -186,8 +186,8 @@ report 12494 "FA Posted Writeoff Act FA-4"
     var
         Employee: Record Employee;
     begin
-        CompanyInfo.Get;
-        FASetup.Get;
+        CompanyInfo.Get();
+        FASetup.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             DirectorPosition := Employee.GetJobTitleName;
     end;

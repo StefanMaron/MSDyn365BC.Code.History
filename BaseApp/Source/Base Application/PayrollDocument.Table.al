@@ -133,7 +133,7 @@ table 17414 "Payroll Document"
             begin
                 with PayrollDocument do begin
                     PayrollDocument := Rec;
-                    HRSetup.Get;
+                    HRSetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(HRSetup."Posted Payroll Document Nos.", "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -144,7 +144,7 @@ table 17414 "Payroll Document"
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    HRSetup.Get;
+                    HRSetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(HRSetup."Posted Payroll Document Nos.", "Posting No. Series");
                 end;
@@ -236,11 +236,11 @@ table 17414 "Payroll Document"
                 PayrollStatus.Get("Period Code", "Employee No.");
                 if PayrollStatus."Payroll Status" = PayrollStatus."Payroll Status"::Calculated then begin
                     PayrollStatus."Payroll Status" := PayrollStatus."Payroll Status"::" ";
-                    PayrollStatus.Modify;
+                    PayrollStatus.Modify();
                 end;
             end;
 
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
         if not PayrollDocLine.IsEmpty then
             PayrollDocLine.DeleteAll(true);
@@ -249,7 +249,7 @@ table 17414 "Payroll Document"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            HRSetup.Get;
+            HRSetup.Get();
             TestNoSeries;
             NoSeriesMgt.InitSeries(
               HRSetup."Payroll Document Nos.", xRec."No. Series", "Posting Date",
@@ -274,7 +274,7 @@ table 17414 "Payroll Document"
     procedure AssistEdit(OldPayrollDocument: Record "Payroll Document"): Boolean
     begin
         PayrollDocument.Copy(Rec);
-        HRSetup.Get;
+        HRSetup.Get();
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(HRSetup."Payroll Document Nos.", OldPayrollDocument."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
@@ -292,7 +292,7 @@ table 17414 "Payroll Document"
     [Scope('OnPrem')]
     procedure DocLinesExist(): Boolean
     begin
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
         exit(not PayrollDocLine.IsEmpty);
     end;
@@ -305,7 +305,7 @@ table 17414 "Payroll Document"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';
@@ -366,9 +366,9 @@ table 17414 "Payroll Document"
         if not Confirm(Text064) then
             exit;
 
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
-        PayrollDocLine.LockTable;
+        PayrollDocLine.LockTable();
         if PayrollDocLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PayrollDocLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -376,7 +376,7 @@ table 17414 "Payroll Document"
                     PayrollDocLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PayrollDocLine."Dimension Set ID", PayrollDocLine."Shortcut Dimension 1 Code", PayrollDocLine."Shortcut Dimension 2 Code");
-                    PayrollDocLine.Modify;
+                    PayrollDocLine.Modify();
                 end;
             until PayrollDocLine.Next = 0;
     end;
@@ -384,7 +384,7 @@ table 17414 "Payroll Document"
     [Scope('OnPrem')]
     procedure CalcPayrollAmount(): Decimal
     begin
-        PayrollDocLine.Reset;
+        PayrollDocLine.Reset();
         PayrollDocLine.SetRange("Document No.", "No.");
         PayrollDocLine.SetFilter("Element Type", '%1|%2|%3|%4|%5',
           PayrollDocLine."Element Type"::Wage,

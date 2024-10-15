@@ -54,7 +54,7 @@ page 17287 "Tax Reg. Norm Dim. Filters"
     procedure DrillDownValueName()
     begin
         if "Dimension Value Filter" <> '' then begin
-            DimValue.Reset;
+            DimValue.Reset();
             DimValue.FilterGroup(2);
             DimValue.SetRange("Dimension Code", "Dimension Code");
             DimValue.FilterGroup(0);

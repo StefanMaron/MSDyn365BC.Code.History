@@ -198,7 +198,7 @@ page 12407 "Vendor G/L Turnover"
 
                     trigger OnAction()
                     begin
-                        Vend.Reset;
+                        Vend.Reset();
                         Vend.CopyFilters(Rec);
                         REPORT.RunModal(REPORT::"Vendor Accounting Card", true, false, Vend);
                     end;

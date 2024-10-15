@@ -19,9 +19,11 @@ codeunit 134768 "Test Posting Preview"
 
     var
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         AmountsNotEqualErr: Label 'The amount in the preview page was not expected.';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        MessageNotEqualErr: Label 'The message to the recipient in the preview page was not expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -32,7 +34,7 @@ codeunit 134768 "Test Posting Preview"
         GLEntriesPreview: TestPage "G/L Entries Preview";
     begin
         // [SCENARIO] G/L Entry is properly saved to temp tables and displayed in the preview page.
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(GLEntry.FieldNo(Amount));
 
@@ -52,7 +54,7 @@ codeunit 134768 "Test Posting Preview"
         VATEntriesPreview: TestPage "VAT Entries Preview";
     begin
         // [SCENARIO] VAT Entry is properly saved to temp tables and displayed in the preview page.
-        VATEntry.Init;
+        VATEntry.Init();
         VATEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(VATEntry.FieldNo(Amount));
 
@@ -72,7 +74,7 @@ codeunit 134768 "Test Posting Preview"
         ValueEntriesPreview: TestPage "Value Entries Preview";
     begin
         // [SCENARIO] Value Entry is properly saved to temp tables and displayed in the preview page.
-        ValueEntry.Init;
+        ValueEntry.Init();
         ValueEntry."Cost Amount (Actual)" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ValueEntry.FieldNo("Cost Amount (Actual)"));
 
@@ -95,7 +97,7 @@ codeunit 134768 "Test Posting Preview"
         ItemLedgerEntriesPreview: TestPage "Item Ledger Entries Preview";
     begin
         // [SCENARIO] Item Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry.Quantity := LibraryRandom.RandDec(100, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ItemLedgerEntry.FieldNo(Quantity));
 
@@ -115,7 +117,7 @@ codeunit 134768 "Test Posting Preview"
         CustLedgEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
     begin
         // [SCENARIO] Customer Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Max. Payment Tolerance" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(CustLedgerEntry.FieldNo("Max. Payment Tolerance"));
 
@@ -138,7 +140,7 @@ codeunit 134768 "Test Posting Preview"
         DetCustLedgEntrPreview: TestPage "Det. Cust. Ledg. Entr. Preview";
     begin
         // [SCENARIO] Detailed Customer Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(DetailedCustLedgEntry.FieldNo(Amount));
 
@@ -158,7 +160,7 @@ codeunit 134768 "Test Posting Preview"
         VendLedgEntriesPreview: TestPage "Vend. Ledg. Entries Preview";
     begin
         // [SCENARIO] Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Max. Payment Tolerance" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(VendorLedgerEntry.FieldNo("Max. Payment Tolerance"));
 
@@ -181,7 +183,7 @@ codeunit 134768 "Test Posting Preview"
         DetailedVendEntriesPreview: TestPage "Detailed Vend. Entries Preview";
     begin
         // [SCENARIO] Detailed Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(DetailedVendorLedgEntry.FieldNo(Amount));
 
@@ -194,6 +196,49 @@ codeunit 134768 "Test Posting Preview"
 
     [Test]
     [Scope('OnPrem')]
+    procedure EmployeeLedgerEntryTest()
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler";
+        EmplLedgerEntriesPreview: TestPage "Empl. Ledger Entries Preview";
+    begin
+        // [SCENARIO] Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
+        EmployeeLedgerEntry.Init();
+        EmployeeLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID;
+        LibraryPostPrevHandler.SetValueFieldNo(EmployeeLedgerEntry.FieldNo("Message to Recipient"));
+
+        EmplLedgerEntriesPreview.Trap;
+        RunPreview(LibraryPostPrevHandler, EmployeeLedgerEntry);
+
+        EmplLedgerEntriesPreview.First;
+        Assert.AreEqual(
+          EmployeeLedgerEntry."Message to Recipient",
+          Format(EmplLedgerEntriesPreview."Message to Recipient"),
+          MessageNotEqualErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DetailedEmployeeLedgerEntryTest()
+    var
+        DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry";
+        LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler";
+        DetailedEmplEntriesPreview: TestPage "Detailed Empl. Entries Preview";
+    begin
+        // [SCENARIO] Detailed Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
+        DetailedEmployeeLedgerEntry.Init();
+        DetailedEmployeeLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
+        LibraryPostPrevHandler.SetValueFieldNo(DetailedEmployeeLedgerEntry.FieldNo(Amount));
+
+        DetailedEmplEntriesPreview.Trap;
+        RunPreview(LibraryPostPrevHandler, DetailedEmployeeLedgerEntry);
+
+        DetailedEmplEntriesPreview.First;
+        Assert.AreEqual(DetailedEmployeeLedgerEntry.Amount, DetailedEmplEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure FALedgerEntryTest()
     var
         FALedgerEntry: Record "FA Ledger Entry";
@@ -202,7 +247,7 @@ codeunit 134768 "Test Posting Preview"
     begin
         // [SCENARIO] FA Ledger Entry is properly saved to temp tables and displayed in the preview page.
         LibraryLowerPermissions.SetOutsideO365Scope;
-        FALedgerEntry.Init;
+        FALedgerEntry.Init();
         FALedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(FALedgerEntry.FieldNo(Amount));
 
@@ -222,7 +267,7 @@ codeunit 134768 "Test Posting Preview"
         BankAccLedgEntrPreview: TestPage "Bank Acc. Ledg. Entr. Preview";
     begin
         // [SCENARIO] Bank Account Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        BankAccountLedgerEntry.Init;
+        BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(BankAccountLedgerEntry.FieldNo(Amount));
 
@@ -243,7 +288,7 @@ codeunit 134768 "Test Posting Preview"
     begin
         // [SCENARIO] Res. Ledger Entry is properly saved to temp tables and displayed in the preview page.
         LibraryLowerPermissions.SetOutsideO365Scope;
-        ResLedgerEntry.Init;
+        ResLedgerEntry.Init();
         ResLedgerEntry.Quantity := LibraryRandom.RandInt(100);
         LibraryPostPrevHandler.SetValueFieldNo(ResLedgerEntry.FieldNo(Quantity));
 
@@ -264,7 +309,7 @@ codeunit 134768 "Test Posting Preview"
     begin
         // [SCENARIO] Service Ledger Entry is properly saved to temp tables and displayed in the preview page.
         LibraryLowerPermissions.SetOutsideO365Scope;
-        ServiceLedgerEntry.Init;
+        ServiceLedgerEntry.Init();
         ServiceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ServiceLedgerEntry.FieldNo(Amount));
 
@@ -284,7 +329,7 @@ codeunit 134768 "Test Posting Preview"
         WarrantyLedgEntriesPreview: TestPage "Warranty Ledg. Entries Preview";
     begin
         // [SCENARIO] Warranty Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        WarrantyLedgerEntry.Init;
+        WarrantyLedgerEntry.Init();
         WarrantyLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(WarrantyLedgerEntry.FieldNo(Amount));
 
@@ -305,7 +350,7 @@ codeunit 134768 "Test Posting Preview"
     begin
         // [SCENARIO] Maintenance Ledger Entry is properly saved to temp tables and displayed in the preview page.
         LibraryLowerPermissions.SetOutsideO365Scope;
-        MaintenanceLedgerEntry.Init;
+        MaintenanceLedgerEntry.Init();
         MaintenanceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(MaintenanceLedgerEntry.FieldNo(Amount));
 
@@ -326,7 +371,7 @@ codeunit 134768 "Test Posting Preview"
     begin
         // [SCENARIO] Job Ledger Entry is properly saved to temp tables and displayed in the preview page.
         LibraryLowerPermissions.SetOutsideO365Scope;
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry."Line Amount" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(JobLedgerEntry.FieldNo("Line Amount"));
 
@@ -348,7 +393,7 @@ codeunit 134768 "Test Posting Preview"
         LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler";
     begin
         // [SCENARIO] Throw inconsistent error when COMMIT called during posting preview
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry."Line Amount" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(JobLedgerEntry.FieldNo("Line Amount"));
 
@@ -390,7 +435,7 @@ codeunit 134768 "Test Posting Preview"
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
     begin
         // [SCENARIO] Throw error when Preview return false without error
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         asserterror GenJnlPostPreview.Preview(LibraryPostPrevHandler, JobLedgerEntry);
         Assert.ExpectedError('The posting preview has stopped because of a state that is not valid.');
     end;

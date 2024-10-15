@@ -21,13 +21,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcHeader.TransferFields("Tax Calc. Header", true);
                         TaxCalcHeader."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcHeader.Insert;
+                        TaxCalcHeader.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcHeader.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcHeader.DeleteAll;
+                        TaxCalcHeader.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Selection Setup"; "Tax Calc. Selection Setup")
@@ -39,13 +39,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcSelectionSetup.TransferFields("Tax Calc. Selection Setup", true);
                         TaxCalcSelectionSetup."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcSelectionSetup.Insert;
+                        TaxCalcSelectionSetup.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcSelectionSetup.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcSelectionSetup.DeleteAll;
+                        TaxCalcSelectionSetup.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Line"; "Tax Calc. Line")
@@ -57,13 +57,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcLine.TransferFields("Tax Calc. Line", true);
                         TaxCalcLine."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcLine.Insert;
+                        TaxCalcLine.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcLine.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcLine.DeleteAll;
+                        TaxCalcLine.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Term"; "Tax Calc. Term")
@@ -75,13 +75,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcTerm.TransferFields("Tax Calc. Term", true);
                         TaxCalcTerm."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcTerm.Insert;
+                        TaxCalcTerm.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcTerm.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcTerm.DeleteAll;
+                        TaxCalcTerm.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Term Formula"; "Tax Calc. Term Formula")
@@ -93,13 +93,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcTermFormula.TransferFields("Tax Calc. Term Formula", true);
                         TaxCalcTermFormula."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcTermFormula.Insert;
+                        TaxCalcTermFormula.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcTermFormula.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcTermFormula.DeleteAll;
+                        TaxCalcTermFormula.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Dim. Filter"; "Tax Calc. Dim. Filter")
@@ -111,13 +111,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcDimFilter.TransferFields("Tax Calc. Dim. Filter", true);
                         TaxCalcDimFilter."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcDimFilter.Insert;
+                        TaxCalcDimFilter.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcDimFilter.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcDimFilter.DeleteAll;
+                        TaxCalcDimFilter.DeleteAll();
                     end;
                 }
                 dataitem("Tax Calc. Dim. Corr. Filter"; "Tax Calc. Dim. Corr. Filter")
@@ -129,13 +129,13 @@ report 17310 "Copy Tax Calc. Section"
                     begin
                         TaxCalcDimCorFilter.TransferFields("Tax Calc. Dim. Corr. Filter", true);
                         TaxCalcDimCorFilter."Section Code" := ToTaxCalcSection.Code;
-                        TaxCalcDimCorFilter.Insert;
+                        TaxCalcDimCorFilter.Insert();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         TaxCalcDimCorFilter.SetRange("Section Code", ToTaxCalcSection.Code);
-                        TaxCalcDimCorFilter.DeleteAll;
+                        TaxCalcDimCorFilter.DeleteAll();
                     end;
                 }
 
@@ -152,7 +152,7 @@ report 17310 "Copy Tax Calc. Section"
                     ToTaxCalcSection."Last G/L Entries Date" := 0D;
                     ToTaxCalcSection."Last Item Entries Date" := 0D;
                     ToTaxCalcSection."Last FA Entries Date" := 0D;
-                    ToTaxCalcSection.Modify;
+                    ToTaxCalcSection.Modify();
                 end;
 
                 trigger OnPostDataItem()

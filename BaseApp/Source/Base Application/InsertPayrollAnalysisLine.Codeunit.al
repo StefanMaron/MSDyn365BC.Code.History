@@ -16,7 +16,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
         PayrollElementList.LookupMode(true);
         if PayrollElementList.RunModal = ACTION::LookupOK then begin
             PayrollElementList.SetSelection(PayrollElement);
-            PayrollElementCount := PayrollElement.Count;
+            PayrollElementCount := PayrollElement.Count();
             if PayrollElementCount > 0 then begin
                 MoveAnalysisLines(PayrollAnalysisLine, AnalysisLineNo, PayrollElementCount);
 
@@ -41,7 +41,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
         PayrollElementGroups.LookupMode(true);
         if PayrollElementGroups.RunModal = ACTION::LookupOK then begin
             PayrollElementGroups.SetSelection(PayrollElementGroup);
-            Count := PayrollElementGroup.Count;
+            Count := PayrollElementGroup.Count();
             if Count > 0 then begin
                 MoveAnalysisLines(PayrollAnalysisLine, AnalysisLineNo, Count);
 
@@ -66,7 +66,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
         EmployeeList.LookupMode(true);
         if EmployeeList.RunModal = ACTION::LookupOK then begin
             EmployeeList.SetSelection(Employee);
-            Count := Employee.Count;
+            Count := Employee.Count();
             if Count > 0 then begin
                 MoveAnalysisLines(PayrollAnalysisLine, AnalysisLineNo, Count);
 
@@ -91,7 +91,7 @@ codeunit 14963 "Insert Payroll Analysis Line"
         OrgUnits.LookupMode(true);
         if OrgUnits.RunModal = ACTION::LookupOK then begin
             OrgUnits.SetSelection(OrgUnit);
-            Count := OrgUnit.Count;
+            Count := OrgUnit.Count();
             if Count > 0 then begin
                 MoveAnalysisLines(PayrollAnalysisLine, AnalysisLineNo, Count);
 

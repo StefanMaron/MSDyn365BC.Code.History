@@ -57,7 +57,7 @@ codeunit 17370 "Labor Contract Management"
                     else
                         exit
                 else
-                    LaborContractTerms.DeleteAll;
+                    LaborContractTerms.DeleteAll();
             end;
 
             Position.Get("Position No.");
@@ -70,7 +70,7 @@ codeunit 17370 "Labor Contract Management"
 
             // add base salary for new position
             if "Operation Type" in ["Operation Type"::Hire, "Operation Type"::Transfer] then begin
-                LaborContractTerms.Init;
+                LaborContractTerms.Init();
                 LaborContractTerms."Labor Contract No." := "Contract No.";
                 LaborContractTerms."Operation Type" := "Operation Type";
                 LaborContractTerms."Supplement No." := "Supplement No.";
@@ -80,12 +80,12 @@ codeunit 17370 "Labor Contract Management"
                 LaborContractTerms."Ending Date" := "Ending Date";
                 LaborContractTerms."Posting Group" := Position."Posting Group";
                 LaborContractTerms.Amount := Position."Base Salary";
-                if not LaborContractTerms.Insert then
-                    LaborContractTerms.Modify;
+                if not LaborContractTerms.Insert() then
+                    LaborContractTerms.Modify();
             end;
 
             // add other position payroll elements
-            LaborContractTermsSetup.Reset;
+            LaborContractTermsSetup.Reset();
             LaborContractTermsSetup.SetRange("Table Type", LaborContractTermsSetup."Table Type"::Position);
             LaborContractTermsSetup.SetRange("No.", Position."No.");
             LaborContractTermsSetup.SetFilter("Operation Type", '%1|%2',
@@ -99,7 +99,7 @@ codeunit 17370 "Labor Contract Management"
                 until LaborContractTermsSetup.Next = 0;
 
             // add personal payroll elements
-            LaborContractTermsSetup.Reset;
+            LaborContractTermsSetup.Reset();
             LaborContractTermsSetup.SetRange("Table Type", LaborContractTermsSetup."Table Type"::Person);
             LaborContractTermsSetup.SetRange("No.", Person."No.");
             LaborContractTermsSetup.SetFilter("Operation Type", '%1|%2',
@@ -183,20 +183,17 @@ codeunit 17370 "Labor Contract Management"
         AECalcMgt: Codeunit "AE Calc Management";
     begin
         with LaborContractLine do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Employee Journal");
 
-            LaborContractTerms.Reset;
+            LaborContractTerms.Reset();
             LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
             LaborContractTerms.SetRange("Operation Type", "Operation Type");
             LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
             LaborContractTerms.SetRange("Line Type", LaborContractTerms."Line Type"::"Vacation Accrual");
             if not LaborContractTerms.IsEmpty then begin
-                EmplAbsenceEntry.Reset;
-                if EmplAbsenceEntry.FindLast then
-                    NextEntryNo := EmplAbsenceEntry."Entry No." + 1
-                else
-                    NextEntryNo := 1;
+                EmplAbsenceEntry.Reset();
+                NextEntryNo := EmplAbsenceEntry.GetLastEntryNo() + 1;
             end;
             LaborContractTerms.SetRange("Line Type");
             if LaborContractTerms.FindSet then
@@ -204,7 +201,7 @@ codeunit 17370 "Labor Contract Management"
                     case LaborContractTerms."Line Type" of
                         LaborContractTerms."Line Type"::"Payroll Element":
                             begin
-                                EmplJnlLine.Init;
+                                EmplJnlLine.Init();
                                 EmplJnlLine."Employee No." := LaborContract."Employee No.";
                                 EmplJnlLine."Posting Date" := "Order Date";
                                 EmplJnlLine."Starting Date" := LaborContractTerms."Starting Date";
@@ -242,7 +239,7 @@ codeunit 17370 "Labor Contract Management"
                             end;
                         LaborContractTerms."Line Type"::"Vacation Accrual":
                             begin
-                                EmplAbsenceEntry.Reset;
+                                EmplAbsenceEntry.Reset();
                                 EmplAbsenceEntry.SetCurrentKey("Employee No.");
                                 EmplAbsenceEntry.SetRange("Employee No.", LaborContract."Employee No.");
                                 EmplAbsenceEntry.SetRange("Time Activity Code", LaborContractTerms."Time Activity Code");
@@ -254,7 +251,7 @@ codeunit 17370 "Labor Contract Management"
                                       LaborContract."Employee No.", LaborContractTerms."Time Activity Code",
                                       LaborContractTerms."Starting Date", CalcDate('<1Y-1D>', LaborContractTerms."Starting Date"));
 
-                                EmplAbsenceEntry.Init;
+                                EmplAbsenceEntry.Init();
                                 EmplAbsenceEntry."Entry No." := NextEntryNo;
                                 NextEntryNo := NextEntryNo + 1;
                                 EmplAbsenceEntry."Entry Type" := EmplAbsenceEntry."Entry Type"::Accrual;
@@ -267,7 +264,7 @@ codeunit 17370 "Labor Contract Management"
                                 EmplAbsenceEntry."End Date" := CalcDate('<1Y-1D>', EmplAbsenceEntry."Start Date");
                                 LaborContractTerms.TestField(Quantity);
                                 EmplAbsenceEntry."Calendar Days" := LaborContractTerms.Quantity;
-                                EmplAbsenceEntry.Insert;
+                                EmplAbsenceEntry.Insert();
                             end;
                     end;
                 until LaborContractTerms.Next = 0;
@@ -344,19 +341,19 @@ codeunit 17370 "Labor Contract Management"
             if LaborContract."Employee No." <> '' then
                 Employee.Get(LaborContract."Employee No.")
             else begin
-                Employee.Init;
+                Employee.Init();
                 Employee."No." := PersonNo;
             end;
             Employee.Validate("Person No.", LaborContract."Person No.");
             Employee.Validate("Position No.", "Position No.");
             Employee."Contract No." := "Contract No.";
 
-            AltAddrReg.Reset;
+            AltAddrReg.Reset();
             AltAddrReg.SetRange("Person No.", Person."No.");
             AltAddrReg.SetRange("Address Type", AltAddrReg."Address Type"::Registration);
             RegAddrExist := AltAddrReg.FindLast;
 
-            AltAddrPerm.Reset;
+            AltAddrPerm.Reset();
             AltAddrPerm.SetRange("Person No.", Person."No.");
             AltAddrPerm.SetRange("Address Type", AltAddrPerm."Address Type"::Permanent);
             PermAddrExist := AltAddrPerm.FindLast;
@@ -376,14 +373,11 @@ codeunit 17370 "Labor Contract Management"
 
             LaborContract."Employee No." := Employee."No.";
             LaborContract.Status := LaborContract.Status::Approved;
-            LaborContract.Modify;
+            LaborContract.Modify();
 
             // Update Job History
-            EmplJobEntry.Reset;
-            if EmplJobEntry.FindLast then
-                NextEntryNo := EmplJobEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            EmplJobEntry.Reset();
+            NextEntryNo := EmplJobEntry.GetLastEntryNo() + 1;
 
             if OrderNo <> '' then
                 "Order No." := OrderNo;
@@ -391,14 +385,14 @@ codeunit 17370 "Labor Contract Management"
                 "Order Date" := OrderDate;
 
             if "Order No." = '' then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("HR Order Nos.");
                 "Order No." := NoSeriesMgt.GetNextNo(HumanResSetup."HR Order Nos.", WorkDate, true);
             end;
             if "Order Date" = 0D then
                 "Order Date" := WorkDate;
 
-            EmplJobEntry.Init;
+            EmplJobEntry.Init();
             EmplJobEntry."Entry No." := NextEntryNo;
             EmplJobEntry.Validate("Employee No.", Employee."No.");
             EmplJobEntry.Type := EmplJobEntry.Type::Hire;
@@ -422,17 +416,17 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry."Record of Service Reason" := "Record of Service Reason";
             EmplJobEntry."Record of Service Additional" := "Record of Service Additional";
             EmplJobEntry."Service Years Reason" := "Service Years Reason";
-            EmplJobEntry.Insert;
+            EmplJobEntry.Insert();
 
             PostContractTerms(LaborContractLine);
 
             Status := Status::Approved;
             Modify;
-            Commit;
+            Commit();
 
             Employee.Validate("Employment Date", "Starting Date");
             Employee.Validate("Emplymt. Contract Code", LaborContract."Contract Type Code");
-            Employee.Modify;
+            Employee.Modify();
         end;
     end;
 
@@ -450,20 +444,17 @@ codeunit 17370 "Labor Contract Management"
             Position.Get("Position No.");
 
             if "Order No." = '' then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("HR Order Nos.");
                 "Order No." := NoSeriesMgt.GetNextNo(HumanResSetup."HR Order Nos.", WorkDate, true);
             end;
             if "Order Date" = 0D then
                 "Order Date" := WorkDate;
 
-            EmplJobEntry.Reset;
-            if EmplJobEntry.FindLast then
-                NextEntryNo := EmplJobEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            EmplJobEntry.Reset();
+            NextEntryNo := EmplJobEntry.GetLastEntryNo() + 1;
 
-            EmplJobEntry.Init;
+            EmplJobEntry.Init();
             EmplJobEntry."Entry No." := NextEntryNo;
             EmplJobEntry.Validate("Employee No.", Employee."No.");
             EmplJobEntry."Contract No." := "Contract No.";
@@ -486,13 +477,13 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry."Record of Service Reason" := "Record of Service Reason";
             EmplJobEntry."Record of Service Additional" := "Record of Service Additional";
             EmplJobEntry."Service Years Reason" := "Service Years Reason";
-            EmplJobEntry.Insert;
+            EmplJobEntry.Insert();
 
             PostContractTerms(LaborContractLine);
 
             Status := Status::Approved;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -519,14 +510,11 @@ codeunit 17370 "Labor Contract Management"
             CheckPosition(LaborContractLine);
 
             // Update Job History
-            EmplJobEntry.Reset;
-            if EmplJobEntry.FindLast then
-                NextEntryNo := EmplJobEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            EmplJobEntry.Reset();
+            NextEntryNo := EmplJobEntry.GetLastEntryNo() + 1;
 
             // close job enties for previous position
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplJobEntry.SetRange("Position No.", Employee."Position No.");
@@ -536,7 +524,7 @@ codeunit 17370 "Labor Contract Management"
                 EmplJobEntry."Ending Date" := CalcDate('<-1D>', "Starting Date");
                 if LaborContract."Insured Service" then
                     EmplJobEntry."Insured Period Ending Date" := EmplJobEntry."Ending Date";
-                EmplJobEntry.Modify;
+                EmplJobEntry.Modify();
                 EmplJobEntry2 := EmplJobEntry;
                 EmplJobEntry2."Entry No." := NextEntryNo;
                 NextEntryNo := NextEntryNo + 1;
@@ -547,11 +535,11 @@ codeunit 17370 "Labor Contract Management"
                 EmplJobEntry2."Starting Date" := "Starting Date";
                 EmplJobEntry2."Insured Period Starting Date" := 0D;
                 EmplJobEntry2."Insured Period Ending Date" := 0D;
-                EmplJobEntry2.Insert;
+                EmplJobEntry2.Insert();
             end;
 
             // Update parent positions
-            Position2.Reset;
+            Position2.Reset();
             Position2.SetCurrentKey("Parent Position No.");
             Position2.SetRange("Parent Position No.", Employee."Position No.");
             Position2.ModifyAll("Parent Position No.", "Position No.");
@@ -563,15 +551,12 @@ codeunit 17370 "Labor Contract Management"
                 if Employee."Calendar Code" <> Position."Calendar Code" then
                     CalendarChanged := true;
                 Employee.Validate("Position No.", "Position No.");
-                Employee.Modify;
+                Employee.Modify();
             end;
 
             // Update Job History
-            EmplJobEntry.Reset;
-            if EmplJobEntry.FindLast then
-                NextEntryNo := EmplJobEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            EmplJobEntry.Reset();
+            NextEntryNo := EmplJobEntry.GetLastEntryNo() + 1;
 
             if OrderNo <> '' then
                 "Order No." := OrderNo;
@@ -579,7 +564,7 @@ codeunit 17370 "Labor Contract Management"
                 "Order Date" := OrderDate;
 
             if "Order No." = '' then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("HR Order Nos.");
                 "Order No." := NoSeriesMgt.GetNextNo(HumanResSetup."HR Order Nos.", WorkDate, true);
             end;
@@ -587,7 +572,7 @@ codeunit 17370 "Labor Contract Management"
                 "Order Date" := WorkDate;
 
             // create new job entry
-            EmplJobEntry.Init;
+            EmplJobEntry.Init();
             EmplJobEntry."Entry No." := NextEntryNo;
             EmplJobEntry.Validate("Employee No.", Employee."No.");
             EmplJobEntry."Contract No." := "Contract No.";
@@ -608,7 +593,7 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry."Position Changed" := true;
             EmplJobEntry."Territorial Conditions" := "Territorial Conditions";
             EmplJobEntry."Special Conditions" := "Special Conditions";
-            EmplJobEntry.Insert;
+            EmplJobEntry.Insert();
 
             PostContractTerms(LaborContractLine);
 
@@ -642,7 +627,7 @@ codeunit 17370 "Labor Contract Management"
 
             Status := Status::Approved;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -664,7 +649,7 @@ codeunit 17370 "Labor Contract Management"
             LaborContract.Get("Contract No.");
             Employee.Get(LaborContract."Employee No.");
             LaborContract.Status := LaborContract.Status::Closed;
-            LaborContract.Modify;
+            LaborContract.Modify();
 
             // check payroll status
             PayrollStatus.Get(
@@ -676,11 +661,8 @@ codeunit 17370 "Labor Contract Management"
                   PayrollPeriod.PeriodByDate("Ending Date"));
 
             // Update Job History
-            EmplJobEntry.Reset;
-            if EmplJobEntry.FindLast then
-                NextEntryNo := EmplJobEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            EmplJobEntry.Reset();
+            NextEntryNo := EmplJobEntry.GetLastEntryNo() + 1;
 
             if OrderNo <> '' then
                 "Order No." := OrderNo;
@@ -688,7 +670,7 @@ codeunit 17370 "Labor Contract Management"
                 "Order Date" := OrderDate;
 
             if "Order No." = '' then begin
-                HumanResSetup.Get;
+                HumanResSetup.Get();
                 HumanResSetup.TestField("HR Order Nos.");
                 "Order No." := NoSeriesMgt.GetNextNo(HumanResSetup."HR Order Nos.", WorkDate, true);
             end;
@@ -696,14 +678,14 @@ codeunit 17370 "Labor Contract Management"
                 "Order Date" := WorkDate;
 
             // close job entry for current position
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplJobEntry.SetRange("Position No.", Employee."Position No.");
             EmplJobEntry.SetRange("Position Changed", true);
             if EmplJobEntry.FindLast then begin
                 EmplJobEntry."Ending Date" := "Ending Date";
-                EmplJobEntry.Modify;
+                EmplJobEntry.Modify();
                 EmplJobEntry2 := EmplJobEntry;
                 EmplJobEntry2."Entry No." := NextEntryNo;
                 NextEntryNo := NextEntryNo + 1;
@@ -712,7 +694,7 @@ codeunit 17370 "Labor Contract Management"
                 EmplJobEntry2."Position Rate" := -EmplJobEntry2."Position Rate";
                 EmplJobEntry2."Position Changed" := false;
                 EmplJobEntry2."Starting Date" := "Ending Date";
-                EmplJobEntry2.Insert;
+                EmplJobEntry2.Insert();
             end;
 
             // update Employee card
@@ -720,22 +702,22 @@ codeunit 17370 "Labor Contract Management"
             Employee.Validate("Termination Date", "Ending Date");
             Employee.Validate("Grounds for Term. Code", "Dismissal Reason");
             Employee.Status := Employee.Status::Terminated;
-            Employee.Modify;
+            Employee.Modify();
 
             // remove timesheets after dismissal period
-            TimesheetStatus.Reset;
+            TimesheetStatus.Reset();
             TimesheetStatus.SetRange("Employee No.", Employee."No.");
             TimesheetStatus.SetFilter("Period Code", '%1..',
               PayrollPeriod.PeriodByDate(CalcDate('<CM +1D>', Employee."Termination Date")));
             TimesheetStatus.DeleteAll(true);
 
-            TimesheetLine.Reset;
+            TimesheetLine.Reset();
             TimesheetLine.SetRange("Employee No.", Employee."No.");
             TimesheetLine.SetFilter(Date, '>%1', Employee."Termination Date");
             TimesheetLine.DeleteAll(true);
 
             // remove payroll status after dismissal period
-            PayrollStatus.Reset;
+            PayrollStatus.Reset();
             PayrollStatus.SetRange("Employee No.", Employee."No.");
             PayrollStatus.SetFilter("Period Code", '%1..',
               PayrollPeriod.PeriodByDate(CalcDate('<CM +1D>', Employee."Termination Date")));
@@ -744,7 +726,7 @@ codeunit 17370 "Labor Contract Management"
             // close line
 
             // close existing salary records
-            EmplLedgEntry.Reset;
+            EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplLedgEntry.SetRange("Action Ending Date", 0D);
             EmplLedgEntry.ModifyAll("Action Ending Date", "Starting Date");
@@ -756,7 +738,7 @@ codeunit 17370 "Labor Contract Management"
 
             Status := Status::Approved;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -774,7 +756,7 @@ codeunit 17370 "Labor Contract Management"
             Employee.Get(LaborContract."Employee No.");
             Position.Get("Position No.");
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Contract No.", LaborContract."No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -787,15 +769,15 @@ codeunit 17370 "Labor Contract Management"
             if EmplJobEntry.FindLast then begin
                 NextEntryNo := EmplJobEntry."Entry No." + 1;
                 EmplJobEntry."Ending Date" := "Ending Date";
-                EmplJobEntry.Modify;
+                EmplJobEntry.Modify();
                 EmplJobEntry2 := EmplJobEntry;
                 EmplJobEntry2."Entry No." := NextEntryNo;
                 EmplJobEntry2."Position Rate" := -EmplJobEntry2."Position Rate";
                 EmplJobEntry2."Position Changed" := false;
-                EmplJobEntry2.Insert;
+                EmplJobEntry2.Insert();
             end;
 
-            EmplLedgEntry.Reset;
+            EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Contract No.", "Contract No.");
             EmplLedgEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplLedgEntry.SetRange("HR Order No.", "Order No.");
@@ -803,7 +785,7 @@ codeunit 17370 "Labor Contract Management"
             EmplLedgEntry.ModifyAll("Action Ending Date", "Ending Date");
 
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -847,7 +829,7 @@ codeunit 17370 "Labor Contract Management"
 
         if LaborContracts.RunModal = ACTION::LookupOK then begin
             LaborContracts.SetSelection(LaborContract);
-            LaborContractCount := LaborContract.Count;
+            LaborContractCount := LaborContract.Count();
             if LaborContractCount > 0 then begin
                 GroupOrderLineNo := GroupOrderLine."Line No.";
                 GroupOrderLine.SetRange("Document Type", GroupOrderLine."Document Type");
@@ -856,9 +838,9 @@ codeunit 17370 "Labor Contract Management"
                     repeat
                         i := GroupOrderLine."Line No.";
                         if i >= GroupOrderLineNo then begin
-                            GroupOrderLine.Delete;
+                            GroupOrderLine.Delete();
                             GroupOrderLine."Line No." := i + 10000 * LaborContractCount;
-                            GroupOrderLine.Insert;
+                            GroupOrderLine.Insert();
                         end;
                     until (i <= GroupOrderLineNo) or (GroupOrderLine.Next(-1) = 0);
 
@@ -867,11 +849,11 @@ codeunit 17370 "Labor Contract Management"
 
                 if LaborContract.FindSet then
                     repeat
-                        GroupOrderLine.Init;
+                        GroupOrderLine.Init();
                         GroupOrderLine."Line No." := GroupOrderLineNo;
                         GroupOrderLineNo := GroupOrderLineNo + 10000;
                         GroupOrderLine.Validate("Contract No.", LaborContract."No.");
-                        GroupOrderLine.Insert;
+                        GroupOrderLine.Insert();
                         RecRef.GetTable(GroupOrderLine);
                         ChangeLogMgt.LogInsertion(RecRef);
                     until LaborContract.Next = 0;
@@ -938,7 +920,7 @@ codeunit 17370 "Labor Contract Management"
                 LaborContract.FieldError(Status);
             Employee.Get(LaborContract."Employee No.");
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplJobEntry.SetRange("Document No.", "Order No.");
@@ -951,18 +933,18 @@ codeunit 17370 "Labor Contract Management"
             Employee.Validate("Position No.", '');
             Employee.Validate("Employment Date", 0D);
             Employee.Validate("Emplymt. Contract Code", '');
-            Employee.Modify;
+            Employee.Modify();
 
-            TimesheetStatus.Reset;
+            TimesheetStatus.Reset();
             TimesheetStatus.SetRange("Employee No.", Employee."No.");
             TimesheetStatus.DeleteAll(true);
 
             LaborContract.Status := LaborContract.Status::Open;
-            LaborContract.Modify;
+            LaborContract.Modify();
 
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -980,7 +962,7 @@ codeunit 17370 "Labor Contract Management"
             Employee.Get(LaborContract."Employee No.");
             Position.Get("Position No.");
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -994,12 +976,12 @@ codeunit 17370 "Labor Contract Management"
                     if Employee."Calendar Code" <> Position."Calendar Code" then
                         CalendarChanged := true;
                     Employee.Validate("Position No.", Position."No.");
-                    Employee.Modify;
+                    Employee.Modify();
                 end;
             EmplJobEntry.ModifyAll("Position Rate", 0);
             EmplJobEntry.ModifyAll("Employee No.", '');
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -1007,14 +989,14 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry.SetRange("Position Changed", true);
             if EmplJobEntry.FindLast then begin
                 EmplJobEntry."Ending Date" := 0D;
-                EmplJobEntry.Modify;
+                EmplJobEntry.Modify();
             end;
 
             CancelPostedContractTerms(LaborContractLine);
 
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -1027,7 +1009,7 @@ codeunit 17370 "Labor Contract Management"
             Employee.Get(LaborContract."Employee No.");
             Position.Get("Position No.");
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -1036,7 +1018,7 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry.ModifyAll("Position Rate", 0);
             EmplJobEntry.ModifyAll("Employee No.", '');
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetCurrentKey("Employee No.");
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
@@ -1044,7 +1026,7 @@ codeunit 17370 "Labor Contract Management"
             EmplJobEntry.SetRange("Position Changed", true);
             if EmplJobEntry.FindLast then begin
                 EmplJobEntry."Ending Date" := 0D;
-                EmplJobEntry.Modify;
+                EmplJobEntry.Modify();
             end;
 
             CancelPostedContractTerms(LaborContractLine);
@@ -1055,13 +1037,13 @@ codeunit 17370 "Labor Contract Management"
             Employee.Validate("Termination Date", 0D);
             Employee.Validate("Grounds for Term. Code", '');
             Employee.Status := Employee.Status::Active;
-            Employee.Modify;
+            Employee.Modify();
 
             LaborContract.Status := LaborContract.Status::Approved;
-            LaborContract.Modify;
+            LaborContract.Modify();
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -1076,7 +1058,7 @@ codeunit 17370 "Labor Contract Management"
                 LaborContract.FieldError(Status);
             Employee.Get(LaborContract."Employee No.");
 
-            EmplJobEntry.Reset;
+            EmplJobEntry.Reset();
             EmplJobEntry.SetRange("Contract No.", "Contract No.");
             EmplJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
             EmplJobEntry.SetRange("Document No.", "Order No.");
@@ -1090,7 +1072,7 @@ codeunit 17370 "Labor Contract Management"
 
             Status := Status::Open;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -1101,14 +1083,14 @@ codeunit 17370 "Labor Contract Management"
         PayrollStatus: Record "Payroll Status";
     begin
         with LaborContractLine do begin
-            LaborContractTerms.Reset;
+            LaborContractTerms.Reset();
             LaborContractTerms.SetRange("Labor Contract No.", "Contract No.");
             LaborContractTerms.SetRange("Operation Type", "Operation Type");
             LaborContractTerms.SetRange("Supplement No.", "Supplement No.");
             LaborContractTerms.SetRange("Line Type", LaborContractTerms."Line Type"::"Vacation Accrual");
             if LaborContractTerms.FindSet then
                 repeat
-                    EmplAbsenceEntry.Reset;
+                    EmplAbsenceEntry.Reset();
                     EmplAbsenceEntry.SetCurrentKey("Employee No.");
                     EmplAbsenceEntry.SetRange("Employee No.", LaborContract."Employee No.");
                     EmplAbsenceEntry.SetRange("Time Activity Code", LaborContractTerms."Time Activity Code");
@@ -1122,7 +1104,7 @@ codeunit 17370 "Labor Contract Management"
 
             LaborContractTerms.SetRange("Line Type", LaborContractTerms."Line Type"::"Payroll Element");
             if not LaborContractTerms.IsEmpty then begin
-                EmplLedgEntry.Reset;
+                EmplLedgEntry.Reset();
                 EmplLedgEntry.SetRange("Contract No.", "Contract No.");
                 EmplLedgEntry.SetRange("Employee No.", LaborContract."Employee No.");
                 EmplLedgEntry.SetRange("HR Order No.", "Order No.");
@@ -1131,13 +1113,13 @@ codeunit 17370 "Labor Contract Management"
                     repeat
                         PayrollStatus.CheckPayrollStatus(EmplLedgEntry."Period Code", EmplLedgEntry."Employee No.");
                         EmplLedgEntry."Employee No." := '';
-                        EmplLedgEntry.Modify;
+                        EmplLedgEntry.Modify();
                     until EmplLedgEntry.Next = 0;
                 end;
             end;
 
             if "Operation Type" = "Operation Type"::Dismissal then begin
-                EmplLedgEntry.Reset;
+                EmplLedgEntry.Reset();
                 EmplLedgEntry.SetRange("Employee No.", LaborContract."Employee No.");
                 EmplLedgEntry.SetRange("Action Ending Date", "Starting Date");
                 EmplLedgEntry.ModifyAll("Action Ending Date", 0D);

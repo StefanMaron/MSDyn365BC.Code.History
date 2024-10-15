@@ -33,10 +33,10 @@ table 17240 "Tax Reg. Norm Term"
                         if not Confirm(Text21000900, false, xRec."Expression Type") then
                             Error('');
                         ValidateChangeDeclaration(true);
-                        TaxRegNormTermFormula.Reset;
+                        TaxRegNormTermFormula.Reset();
                         TaxRegNormTermFormula.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                         TaxRegNormTermFormula.SetRange("Term Code", "Term Code");
-                        TaxRegNormTermFormula.DeleteAll;
+                        TaxRegNormTermFormula.DeleteAll();
                         Validate(Expression, '');
                     end else
                         ValidateChangeDeclaration(true);
@@ -51,30 +51,30 @@ table 17240 "Tax Reg. Norm Term"
             begin
                 if "Term Code" = '' then
                     exit;
-                TaxRegNormTermFormula.Reset;
+                TaxRegNormTermFormula.Reset();
                 TaxRegNormTermFormula.FilterGroup(2);
                 TaxRegNormTermFormula.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                 TaxRegNormTermFormula.FilterGroup(0);
                 TaxRegNormTermFormula.SetRange("Term Code", "Term Code");
                 if ("Expression Type" = "Expression Type"::Compare) and not (TaxRegNormTermFormula.Count = 3) then begin
                     if not (TaxRegNormTermFormula.Count = 0) then
-                        TaxRegNormTermFormula.DeleteAll;
-                    TaxRegNormTermFormula.Init;
+                        TaxRegNormTermFormula.DeleteAll();
+                    TaxRegNormTermFormula.Init();
                     TaxRegNormTermFormula."Norm Jurisdiction Code" := "Norm Jurisdiction Code";
                     TaxRegNormTermFormula."Term Code" := "Term Code";
                     TaxRegNormTermFormula."Account Type" := TaxRegNormTermFormula."Account Type"::Termin;
                     TaxRegNormTermFormula.Operation := TaxRegNormTermFormula.Operation::Negative;
                     TaxRegNormTermFormula."Line No." := 10000;
-                    TaxRegNormTermFormula.Insert;
+                    TaxRegNormTermFormula.Insert();
                     TaxRegNormTermFormula.Operation := TaxRegNormTermFormula.Operation::Zero;
                     TaxRegNormTermFormula."Line No." := 20000;
-                    TaxRegNormTermFormula.Insert;
+                    TaxRegNormTermFormula.Insert();
                     TaxRegNormTermFormula.Operation := TaxRegNormTermFormula.Operation::Positive;
                     TaxRegNormTermFormula."Line No." := 30000;
-                    TaxRegNormTermFormula.Insert;
+                    TaxRegNormTermFormula.Insert();
                     TaxRegNormTermFormula."Line No." := 10000;
                     TaxRegNormTermFormula.Find;
-                    Commit;
+                    Commit();
                 end;
                 PAGE.RunModal(0, TaxRegNormTermFormula);
                 Expression :=
@@ -133,10 +133,10 @@ table 17240 "Tax Reg. Norm Term"
     begin
         ValidateChangeDeclaration(true);
 
-        TaxRegNormTermFormula.Reset;
+        TaxRegNormTermFormula.Reset();
         TaxRegNormTermFormula.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
         TaxRegNormTermFormula.SetRange("Term Code", "Term Code");
-        TaxRegNormTermFormula.DeleteAll;
+        TaxRegNormTermFormula.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -191,7 +191,7 @@ table 17240 "Tax Reg. Norm Term"
             GenTermProfile."Process Sign (Line)" := TaxRegNormTermFormula.FieldNo("Process Sign");
             GenTermProfile."Process Division by Zero(Line)" := TaxRegNormTermFormula.FieldNo("Process Division by Zero");
 
-            GenTermProfile.Insert;
+            GenTermProfile.Insert();
         end;
     end;
 }

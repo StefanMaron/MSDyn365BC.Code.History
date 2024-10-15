@@ -18,7 +18,7 @@ report 14902 "Cash Report CO-4"
                 trigger OnAfterGetRecord()
                 begin
                     if IsVoided then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Debit Amount" <> 0 then
                         IngoingOrder := IngoingOrder + 1
@@ -81,7 +81,7 @@ report 14902 "Cash Report CO-4"
                 trigger OnPostDataItem()
                 begin
                     if IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if ExcelReportBuilderManager.IsPageBreakRequired('CASHDAYTOTAL', 'RESTINCASHEND,FOOTER') then
                         AddPageBreak;
@@ -93,7 +93,7 @@ report 14902 "Cash Report CO-4"
                     if not Preview then
                         if ReportType = ReportType::"Cash Report CO-4" then begin
                             "Bank Account"."Last Cash Report Page No." := PageNo;
-                            "Bank Account".Modify;
+                            "Bank Account".Modify();
                         end;
 
                     if PrintLastSheet then
@@ -106,7 +106,7 @@ report 14902 "Cash Report CO-4"
                     SetRange(Reversed, false);
 
                     if IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if PrintTitleSheet and (ReportType = ReportType::"Cash Report CO-4") then
                         FillReportTitle;
@@ -123,7 +123,6 @@ report 14902 "Cash Report CO-4"
                     Cashier := Employee."Last Name" + ' ' + Employee.Initials
                 else
                     Cashier := '';
-                CurrReport.PageNo := 1;
 
                 SetFilter("Date Filter", '..%1', CalcDate('<-1D>', CreateDate));
                 CalcFields("Balance at Date (LCY)", "Balance at Date");
@@ -252,7 +251,7 @@ report 14902 "Cash Report CO-4"
     begin
         if CreateDate = 0D then
             Error(ReportDateErr);
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         InitReportTemplate;
     end;
@@ -411,7 +410,7 @@ report 14902 "Cash Report CO-4"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Cash Order KO4 Template Code");
         ExcelReportBuilderManager.InitTemplate(GeneralLedgerSetup."Cash Order KO4 Template Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');

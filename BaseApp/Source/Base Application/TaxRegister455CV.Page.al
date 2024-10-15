@@ -110,7 +110,7 @@ page 17235 "Tax Register (4.55) CV"
         SectionCode := GetRangeMin("Section Code");
         FilterGroup(0);
         ShowNewData;
-        Calendar.Reset;
+        Calendar.Reset();
     end;
 
     var

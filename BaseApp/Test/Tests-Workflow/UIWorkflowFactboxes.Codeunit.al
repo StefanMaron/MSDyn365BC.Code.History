@@ -46,7 +46,7 @@ codeunit 134339 "UI Workflow Factboxes"
         CreateGeneralJournalBatchWithOneJournalLine(
           GenJournalBatch, GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
-        Commit;
+        Commit();
         CashReceiptJournal.OpenView;
 
         // [WHEN] Open Cash Receipt Journal Page
@@ -76,7 +76,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
-        Commit;
+        Commit();
         CashReceiptJournal.OpenView;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -108,7 +108,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         // [GIVEN] Approval request sent
-        Commit;
+        Commit();
         CashReceiptJournal.OpenView;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         CashReceiptJournal.SendApprovalRequestJournalBatch.Invoke;
@@ -140,7 +140,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
-        Commit;
+        Commit();
         CashReceiptJournal.OpenView;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -172,7 +172,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalTemplate.Type::"Cash Receipts", PAGE::"Cash Receipt Journal");
 
         // [GIVEN] Approval request sent
-        Commit;
+        Commit();
         CashReceiptJournal.OpenView;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         CashReceiptJournal.SendApprovalRequestJournalLine.Invoke;
@@ -203,7 +203,7 @@ codeunit 134339 "UI Workflow Factboxes"
         CreateGeneralJournalBatchWithOneJournalLine(
           GenJournalBatch, GenJournalLine, GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
 
         // [WHEN] Open Payment Journal Page
@@ -232,7 +232,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode,
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
-        Commit;
+        Commit();
         PaymentJournal.OpenView;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -263,7 +263,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         // [GIVEN] Approval request sent
-        Commit;
+        Commit();
         PaymentJournal.OpenView;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.SendApprovalRequestJournalBatch.Invoke;
@@ -294,7 +294,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalBatch, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode,
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
-        Commit;
+        Commit();
         PaymentJournal.OpenView;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -325,7 +325,7 @@ codeunit 134339 "UI Workflow Factboxes"
           GenJournalTemplate.Type::Payments, PAGE::"Payment Journal");
 
         // [GIVEN] Approval request sent
-        Commit;
+        Commit();
         PaymentJournal.OpenView;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.SendApprovalRequestJournalLine.Invoke;
@@ -348,7 +348,7 @@ codeunit 134339 "UI Workflow Factboxes"
         LibraryVariableStorage.Clear;
 
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -395,7 +395,7 @@ codeunit 134339 "UI Workflow Factboxes"
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange("Page ID", PageID);
         GenJournalTemplate.SetFilter(Name, '<>%1', GenJournalBatch."Journal Template Name");
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,

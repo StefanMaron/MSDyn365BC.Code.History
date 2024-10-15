@@ -12,7 +12,7 @@ report 12485 "FA Comparative Sheet INV-18"
             trigger OnAfterGetRecord()
             begin
                 if "Calc. Quantity" = "Actual Quantity" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 QtyPlus := 0;
                 QtyMinus := 0;
@@ -51,7 +51,7 @@ report 12485 "FA Comparative Sheet INV-18"
             trigger OnPreDataItem()
             begin
                 LineNo := 1;
-                CompanyInf.Get;
+                CompanyInf.Get();
 
                 if FALocation.Get(GetFilter("Location Code")) then;
 

@@ -157,7 +157,7 @@ table 26587 "Stat. Report Table Mapping"
             Description := TableIndividualRequisite.Description
         end;
         if not StatReportTableMapping.Get(ReportCode, TableCode, LineNo, ColumnNo) then begin
-            StatReportTableMapping.Init;
+            StatReportTableMapping.Init();
             StatReportTableMapping."Report Code" := ReportCode;
             StatReportTableMapping."Table Code" := TableCode;
             StatReportTableMapping."Table Row No." := LineNo;
@@ -179,7 +179,7 @@ table 26587 "Stat. Report Table Mapping"
             if NewRecord then
                 StatReportTableMapping.Insert
             else
-                StatReportTableMapping.Modify;
+                StatReportTableMapping.Modify();
 
             NewRecordDescription := StatReportTableMapping.GetRecDescription;
         end;

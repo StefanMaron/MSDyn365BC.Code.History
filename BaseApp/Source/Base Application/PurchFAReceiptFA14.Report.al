@@ -31,7 +31,7 @@ report 14980 "Purch. FA Receipt FA-14"
                 FirstPurchLine.SetRange("Document No.", "No.");
                 FirstPurchLine.SetRange(Type, FirstPurchLine.Type::"Fixed Asset");
                 if not FirstPurchLine.FindFirst then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 FA14Helper.FillReportUnpostedHeader("Purchase Header", FirstPurchLine);
             end;

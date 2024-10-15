@@ -89,11 +89,11 @@ page 14928 "Group VAT Allocation"
     [Scope('OnPrem')]
     procedure GetRecords(var GroupVATAllocLine: Record "Default VAT Allocation Line" temporary)
     begin
-        GroupVATAllocLine.DeleteAll;
+        GroupVATAllocLine.DeleteAll();
         if FindSet then
             repeat
                 GroupVATAllocLine := Rec;
-                GroupVATAllocLine.Insert;
+                GroupVATAllocLine.Insert();
             until Next = 0;
     end;
 }

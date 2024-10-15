@@ -12,7 +12,7 @@ table 17360 "Labor Contract"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    HumanResSetup.Get;
+                    HumanResSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -45,7 +45,7 @@ table 17360 "Labor Contract"
                     TestField("Work Mode", "Work Mode"::"Primary Job")
                 else
                     if "Person No." <> '' then begin
-                        LaborContract.Reset;
+                        LaborContract.Reset();
                         LaborContract.SetRange("Person No.", "Person No.");
                         LaborContract.SetRange("Contract Type", "Contract Type"::"Labor Contract");
                         LaborContract.SetRange(Status, Status::Approved);
@@ -103,7 +103,7 @@ table 17360 "Labor Contract"
 
                 CalcFields("Person Name");
 
-                LaborContractLine.Reset;
+                LaborContractLine.Reset();
                 LaborContractLine.SetRange("Contract No.", "No.");
                 if not LaborContractLine.IsEmpty then
                     Error(Text000, FieldCaption("Person No."));
@@ -228,15 +228,15 @@ table 17360 "Labor Contract"
         TestField(Status, Status::Open);
 
         LaborContractLine.SetRange("Contract No.", "No.");
-        LaborContractLine.DeleteAll;
+        LaborContractLine.DeleteAll();
 
         LaborContractTerms.SetRange("Labor Contract No.", "No.");
-        LaborContractTerms.DeleteAll;
+        LaborContractTerms.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        HumanResSetup.Get;
+        HumanResSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", Today, "No.", "No. Series");
@@ -266,7 +266,7 @@ table 17360 "Labor Contract"
     begin
         with LaborContract do begin
             Copy(Rec);
-            HumanResSetup.Get;
+            HumanResSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldLaborContract."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

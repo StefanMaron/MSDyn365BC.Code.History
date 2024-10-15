@@ -124,7 +124,7 @@ codeunit 12458 "Copy Item Document Mgt."
                     end;
             end;
 
-            ToItemDocLine.LockTable;
+            ToItemDocLine.LockTable();
 
             if CreateToHeader then begin
                 Insert(true);
@@ -135,7 +135,7 @@ codeunit 12458 "Copy Item Document Mgt."
                 ToItemDocLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
                     if ToItemDocLine.FindFirst then begin
-                        Commit;
+                        Commit();
                         if not
                            Confirm(
                              Text002 +
@@ -187,7 +187,7 @@ codeunit 12458 "Copy Item Document Mgt."
                 ItemDocType::Receipt,
                 ItemDocType::Shipment:
                     begin
-                        FromItemDocLine.Reset;
+                        FromItemDocLine.Reset();
                         FromItemDocLine.SetRange("Document Type", FromItemDocHeader."Document Type");
                         FromItemDocLine.SetRange("Document No.", FromItemDocHeader."No.");
                         if FromItemDocLine.Find('-') then
@@ -198,7 +198,7 @@ codeunit 12458 "Copy Item Document Mgt."
                 ItemDocType::"Posted Receipt":
                     begin
                         FromItemDocHeader.TransferFields(FromItemRcptHeader);
-                        FromItemRcptLine.Reset;
+                        FromItemRcptLine.Reset();
                         FromItemRcptLine.SetRange("Document No.", FromItemRcptHeader."No.");
                         if FromItemRcptLine.Find('-') then
                             repeat
@@ -212,7 +212,7 @@ codeunit 12458 "Copy Item Document Mgt."
                     begin
                         FromItemDocHeader.TransferFields(FromItemShptHeader);
                         FromItemDocHeader."Document Type" := FromItemDocHeader."Document Type"::Shipment;
-                        FromItemShptLine.Reset;
+                        FromItemShptLine.Reset();
                         FromItemShptLine.SetRange("Document No.", FromItemShptHeader."No.");
                         if FromItemShptLine.Find('-') then
                             repeat

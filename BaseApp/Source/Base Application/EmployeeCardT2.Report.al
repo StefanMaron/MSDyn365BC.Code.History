@@ -149,12 +149,12 @@ report 17353 "Employee Card T-2"
         if CompositionDate = 0D then
             Error(Text14808);
 
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-2 Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."T-2 Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -213,7 +213,7 @@ report 17353 "Employee Card T-2"
     var
         EmplJobEntry: Record "Employee Job Entry";
     begin
-        EmplJobEntry.Reset;
+        EmplJobEntry.Reset();
         EmplJobEntry.SetCurrentKey("Employee No.", "Starting Date", "Ending Date");
         EmplJobEntry.SetRange("Employee No.", EmployeeNo);
         EmplJobEntry.FindLast;
@@ -539,7 +539,7 @@ report 17353 "Employee Card T-2"
         Employee: Record Employee;
         GroundsForTermination: Record "Grounds for Termination";
     begin
-        EmployeeJobEntry.Reset;
+        EmployeeJobEntry.Reset();
         EmployeeJobEntry.SetCurrentKey("Employee No.", "Starting Date", "Ending Date");
         EmployeeJobEntry.SetRange("Employee No.", EmployeeNo);
         if EmployeeJobEntry.FindLast then begin

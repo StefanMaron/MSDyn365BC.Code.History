@@ -37,12 +37,12 @@ codeunit 17305 "Create Tax Calc. Entries"
 
         Clear(TaxCalcDimMgt);
 
-        TaxCalcAccumul.Reset;
+        TaxCalcAccumul.Reset();
         if not TaxCalcAccumul.FindLast then
             TaxCalcAccumul."Entry No." := 0;
 
-        TaxCalcAccumul.Reset;
-        TaxCalcAccumul.Init;
+        TaxCalcAccumul.Reset();
+        TaxCalcAccumul.Init();
         TaxCalcAccumul."Section Code" := TaxDifSectionCode;
         TaxCalcAccumul."Starting Date" := DateBegin;
         TaxCalcAccumul."Ending Date" := DateEnd;
@@ -59,7 +59,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                     repeat
                         TempTaxCalcLine := TaxCalcLine;
                         if TaxCalcLine."Expression Type" = TaxCalcLine."Expression Type"::SumField then begin
-                            TaxCalcSelectionSetup.Reset;
+                            TaxCalcSelectionSetup.Reset();
                             TaxCalcSelectionSetup.SetRange("Section Code", TaxCalcHeader."Section Code");
                             TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
                             if TaxCalcLine."Selection Line Code" <> '' then
@@ -67,7 +67,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                             if TaxCalcSelectionSetup.FindSet then
                                 repeat
                                     if TaxCalcHeader."G/L Corr. Analysis View Code" <> '' then begin
-                                        GLCorrAnalysisViewEntry.Reset;
+                                        GLCorrAnalysisViewEntry.Reset();
                                         GLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", TaxCalcHeader."G/L Corr. Analysis View Code");
                                         GLCorrAnalysisViewEntry.SetRange("Posting Date", DateBegin, DateEnd);
                                         TaxCalcDimMgt.SetDimFilters2GLCorrAnViewEntr(
@@ -84,7 +84,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                                             TempTaxCalcLine.Value := TempTaxCalcLine.Value + GLCorrAnalysisViewEntry.Amount;
                                         end;
                                     end else begin
-                                        GLCorrEntry.Reset;
+                                        GLCorrEntry.Reset();
                                         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
                                         GLCorrEntry.SetRange("Posting Date", DateBegin, DateEnd);
                                         with TaxCalcSelectionSetup do begin
@@ -99,7 +99,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                                 until TaxCalcSelectionSetup.Next = 0;
                         end;
 
-                        TempTaxCalcLine.Insert;
+                        TempTaxCalcLine.Insert();
                     until TaxCalcLine.Next = 0;
 
                 if TempTaxCalcLine.FindSet then
@@ -122,10 +122,10 @@ codeunit 17305 "Create Tax Calc. Entries"
                             TempTaxCalcLine.Period);
                         TaxCalcAccumul.Amount := TaxCalcAccumul."Amount Period";
                         TaxCalcAccumul."Entry No." += 1;
-                        TaxCalcAccumul.Insert;
+                        TaxCalcAccumul.Insert();
                         if TempTaxCalcLine.Period <> '' then begin
                             TaxCalcAccumul0 := TaxCalcAccumul;
-                            TaxCalcAccumul0.Reset;
+                            TaxCalcAccumul0.Reset();
                             TaxCalcAccumul0.SetCurrentKey(
                               "Section Code", "Register No.", "Template Line No.", "Starting Date", "Ending Date");
                             TaxCalcAccumul0.SetRange("Section Code", TaxCalcAccumul."Section Code");
@@ -135,11 +135,11 @@ codeunit 17305 "Create Tax Calc. Entries"
                             TaxCalcAccumul0.SetFilter("Ending Date", TaxCalcAccumul."Amount Date Filter");
                             TaxCalcAccumul0.CalcSums("Amount Period");
                             TaxCalcAccumul.Amount := TaxCalcAccumul0."Amount Period";
-                            TaxCalcAccumul.Modify;
+                            TaxCalcAccumul.Modify();
                         end;
                     until TempTaxCalcLine.Next = 0;
 
-                TempTaxCalcLine.DeleteAll;
+                TempTaxCalcLine.DeleteAll();
             until TaxCalcHeader.Next = 0;
     end;
 
@@ -160,7 +160,7 @@ codeunit 17305 "Create Tax Calc. Entries"
     begin
         TaxCalcMgt.ValidateDateBeginDateEnd(DateBegin, DateEnd, SectionCode);
 
-        TaxCalcHeader.Reset;
+        TaxCalcHeader.Reset();
         TaxCalcHeader.SetRange("Section Code", SectionCode);
         if not TaxCalcHeader.FindFirst then
             exit;
@@ -170,9 +170,9 @@ codeunit 17305 "Create Tax Calc. Entries"
         Wnd.Update(2, DateEnd);
         Wnd.Update(4, GLCorrespondEntry.TableCaption);
 
-        TaxCalcSelectionSetup.Reset;
+        TaxCalcSelectionSetup.Reset();
         TaxCalcSelectionSetup.SetRange("Section Code", SectionCode);
-        Total := TaxCalcSelectionSetup.Count;
+        Total := TaxCalcSelectionSetup.Count();
         TaxCalcCorrespEntry."Section Code" := SectionCode;
 
         DebitGLAcc.SetRange("Account Type", DebitGLAcc."Account Type"::Posting);
@@ -230,7 +230,7 @@ codeunit 17305 "Create Tax Calc. Entries"
         TaxCalcHeader: Record "Tax Calc. Header";
     begin
         TaxCalcCorrEntry := TaxCalcCorrespEntry;
-        TmpTaxCalcDimFilter.Reset;
+        TmpTaxCalcDimFilter.Reset();
         with TaxCalcCorrespEntry do begin
             SetRange("Section Code", "Section Code");
             SetRange("Debit Account No.", "Debit Account No.");
@@ -260,7 +260,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                     repeat
                         TaxCalcDimFilter := TmpTaxCalcDimFilter;
                         TaxCalcDimFilter."Corresp. Entry No." := "Entry No.";
-                        TaxCalcDimFilter.Insert;
+                        TaxCalcDimFilter.Insert();
                     until TmpTaxCalcDimFilter.Next = 0;
                 end;
             end else begin
@@ -280,7 +280,7 @@ codeunit 17305 "Create Tax Calc. Entries"
     var
         TaxCalcDimFilter: Record "Tax Calc. Dim. Filter";
     begin
-        TmpTaxCalcDimFilter.DeleteAll;
+        TmpTaxCalcDimFilter.DeleteAll();
 
         TmpTaxCalcDimFilter."Section Code" := TaxCalcSelectionSetup."Section Code";
         TmpTaxCalcDimFilter."Corresp. Entry No." := 0;
@@ -292,7 +292,7 @@ codeunit 17305 "Create Tax Calc. Entries"
         if TaxCalcDimFilter.FindSet then
             repeat
                 TmpTaxCalcDimFilter."Connection Entry No." := TaxCalcDimFilter."Entry No.";
-                TmpTaxCalcDimFilter.Insert;
+                TmpTaxCalcDimFilter.Insert();
             until TaxCalcDimFilter.Next = 0;
     end;
 
@@ -376,11 +376,11 @@ codeunit 17305 "Create Tax Calc. Entries"
             LinkAccumulateRecordRef.SetView(GetView(false));
         end;
 
-        TaxCalcSelectionSetup.Reset;
+        TaxCalcSelectionSetup.Reset();
         TaxCalcSelectionSetup.SetRange("Section Code", SectionCode);
 
         TempGLCorrespondEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
-        TempGLCorrespondEntry.Insert;
+        TempGLCorrespondEntry.Insert();
 
         Clear(TaxCalcDimMgt);
 
@@ -400,7 +400,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                         TaxCalcAccumul.FindFirst;
                         TaxRegValueBuffer.Quantity := TaxCalcAccumul.Amount;
                         TaxRegValueBuffer."Order Line No." := TaxCalcLine0."Line No.";
-                        TaxRegValueBuffer.Insert;
+                        TaxRegValueBuffer.Insert();
                     until TaxCalcLine0.Next = 0;
                 TaxCalcLine0.SetRange("Line Type");
                 TaxCalcLine0.SetRange("Line Code");
@@ -413,18 +413,18 @@ codeunit 17305 "Create Tax Calc. Entries"
                     TaxCalcAccumul.SetRange("Template Line No.", TaxCalcLine."Line No.");
                     TaxCalcAccumul.FindFirst;
                     TaxCalcAccumul.Amount := EntryNoAmountBuffer.Amount;
-                    TaxCalcAccumul.Modify;
+                    TaxCalcAccumul.Modify();
                 until TaxCalcLine.Next = 0;
-                TaxRegValueBuffer.Reset;
-                TaxRegValueBuffer.DeleteAll;
-                EntryNoAmountBuffer.Reset;
-                EntryNoAmountBuffer.DeleteAll;
+                TaxRegValueBuffer.Reset();
+                TaxRegValueBuffer.DeleteAll();
+                EntryNoAmountBuffer.Reset();
+                EntryNoAmountBuffer.DeleteAll();
             end;
             TaxCalcLine.SetFilter("Sum Field No.", '<>0');
             if TaxCalcLine.FindFirst then begin
                 TaxCalcLine.SetRange("Sum Field No.");
-                TempTaxCalcLine.Reset;
-                TempTaxCalcLine.DeleteAll;
+                TempTaxCalcLine.Reset();
+                TempTaxCalcLine.DeleteAll();
                 if TaxCalcLine0.FindSet then
                     repeat
                         if TaxCalcLine0."Line Type" = TempTaxCalcLine."Line Type"::" " then
@@ -433,7 +433,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                             then begin
                                 TempTaxCalcLine := TaxCalcLine0;
                                 TempTaxCalcLine.Value := 0;
-                                TempTaxCalcLine.Insert;
+                                TempTaxCalcLine.Insert();
                             end;
                     until TaxCalcLine0.Next = 0;
                 TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
@@ -448,10 +448,10 @@ codeunit 17305 "Create Tax Calc. Entries"
                             TaxCalcAccumul.FindFirst;
                             TaxRegValueBuffer.Quantity := TaxCalcAccumul.Amount;
                             TaxRegValueBuffer."Order Line No." := TaxCalcLine."Line No.";
-                            TaxRegValueBuffer.Insert;
+                            TaxRegValueBuffer.Insert();
                         until TaxCalcLine.Next = 0;
                     RoundingAmount := 0;
-                    TaxCalcBufferEntry.Init;
+                    TaxCalcBufferEntry.Init();
                     TaxCalcBufferEntry.Code := TaxCalcHeader."No.";
                     repeat
                         TaxCalcLine.SetRange("Line Type", TaxCalcLine."Line Type"::LineField);
@@ -465,8 +465,8 @@ codeunit 17305 "Create Tax Calc. Entries"
                                         TaxRegValueBuffer.Quantity := 0;
                                 end;
                                 TaxRegValueBuffer."Order Line No." := TaxCalcLine."Line No.";
-                                if not TaxRegValueBuffer.Insert then
-                                    TaxRegValueBuffer.Modify;
+                                if not TaxRegValueBuffer.Insert() then
+                                    TaxRegValueBuffer.Modify();
                             until TaxCalcLine.Next = 0;
                         TaxCalcRecordRef.GetTable(TaxCalcLine);
                         TaxCalcRecordRef.SetView(TaxCalcLine0.GetView(false));
@@ -489,17 +489,17 @@ codeunit 17305 "Create Tax Calc. Entries"
                                     TaxCalcBufferEntry."Tax Factor" := EntryNoAmountBuffer.Amount;
                             end;
                         until TaxCalcLine.Next = 0;
-                        TaxCalcBufferEntry.Insert;
-                        EntryNoAmountBuffer.DeleteAll;
+                        TaxCalcBufferEntry.Insert();
+                        EntryNoAmountBuffer.DeleteAll();
 
-                        TempTaxCalcLine.Reset;
+                        TempTaxCalcLine.Reset();
                         if TempTaxCalcLine.FindFirst and TaxCalcSelectionSetup.Find('-') then begin
                             TaxCalcDimMgt.SetTaxCalcEntryDim(SectionCode,
                               TaxCalcEntry."Dimension 1 Value Code", TaxCalcEntry."Dimension 2 Value Code",
                               TaxCalcEntry."Dimension 3 Value Code", TaxCalcEntry."Dimension 4 Value Code");
                             TempGLCorrespondEntry."Debit Account No." := TaxCalcEntry."Debit Account No.";
                             TempGLCorrespondEntry."Credit Account No." := TaxCalcEntry."Credit Account No.";
-                            TempGLCorrespondEntry.Modify;
+                            TempGLCorrespondEntry.Modify();
                             repeat
                                 if (TaxCalcSelectionSetup."Account No." <> '') or
                                    (TaxCalcSelectionSetup."Bal. Account No." <> '')
@@ -521,7 +521,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                                                         TaxCalcEntry.FieldNo("Tax Amount"):
                                                             TempTaxCalcLine.Value += TaxCalcBufferEntry."Tax Amount";
                                                     end;
-                                                    TempTaxCalcLine.Modify;
+                                                    TempTaxCalcLine.Modify();
                                                 end;
                                             until TempTaxCalcLine.Next = 0;
                                     end;
@@ -531,7 +531,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                     until TaxCalcEntry.Next = 0;
                 end;
 
-                TempTaxCalcLine.Reset;
+                TempTaxCalcLine.Reset();
                 TaxCalcAccumul0.SetRange("Section Code", TempTaxCalcLine."Section Code");
                 TaxCalcAccumul0.SetRange("Register No.", TempTaxCalcLine.Code);
                 if TempTaxCalcLine.FindSet then
@@ -539,7 +539,7 @@ codeunit 17305 "Create Tax Calc. Entries"
                         TaxCalcAccumul0.SetRange("Template Line No.", TempTaxCalcLine."Line No.");
                         TaxCalcAccumul0.FindFirst;
                         TaxCalcAccumul0.Amount := TempTaxCalcLine.Value;
-                        TaxCalcAccumul0.Modify;
+                        TaxCalcAccumul0.Modify();
                     until TempTaxCalcLine.Next = 0;
             end;
         until TaxCalcHeader.Next = 0;

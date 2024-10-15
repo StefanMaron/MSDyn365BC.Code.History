@@ -14,7 +14,7 @@ codeunit 14937 "Bank Payment Order Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Bank Payment Order Tmpl. Code");
         ExcelReportBuilderManager.InitTemplate(GeneralLedgerSetup."Bank Payment Order Tmpl. Code");
         ExcelReportBuilderManager.SetSheet('Sheet1');

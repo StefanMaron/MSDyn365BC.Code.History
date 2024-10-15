@@ -132,7 +132,7 @@ table 12450 "Item Document Header"
             begin
                 with ItemDocHeader do begin
                     ItemDocHeader := Rec;
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -231,7 +231,7 @@ table 12450 "Item Document Header"
 
     trigger OnInsert()
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
@@ -296,10 +296,10 @@ table 12450 "Item Document Header"
     [Scope('OnPrem')]
     procedure AssistEdit(OldItemDocHeader: Record "Item Document Header"): Boolean
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldItemDocHeader."No. Series", "No. Series") then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             TestNoSeries;
             NoSeriesMgt.SetSeries("No.");
             exit(true);
@@ -351,7 +351,7 @@ table 12450 "Item Document Header"
     [Scope('OnPrem')]
     procedure DocLinesExist(): Boolean
     begin
-        ItemDocLine.Reset;
+        ItemDocLine.Reset();
         ItemDocLine.SetRange("Document Type", "Document Type");
         ItemDocLine.SetRange("Document No.", "No.");
         exit(ItemDocLine.FindFirst);
@@ -365,7 +365,7 @@ table 12450 "Item Document Header"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';
@@ -407,7 +407,7 @@ table 12450 "Item Document Header"
 
     local procedure UpdateItemDocLines(FieldRef: Integer)
     begin
-        ItemDocLine.LockTable;
+        ItemDocLine.LockTable();
         ItemDocLine.SetRange("Document Type", "Document Type");
         ItemDocLine.SetRange("Document No.", "No.");
         if ItemDocLine.FindSet(true, false) then begin
@@ -460,10 +460,10 @@ table 12450 "Item Document Header"
             if not Confirm(Text064) then
                 exit;
 
-        ItemDocLine.Reset;
+        ItemDocLine.Reset();
         ItemDocLine.SetRange("Document Type", "Document Type");
         ItemDocLine.SetRange("Document No.", "No.");
-        ItemDocLine.LockTable;
+        ItemDocLine.LockTable();
         if ItemDocLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ItemDocLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -471,7 +471,7 @@ table 12450 "Item Document Header"
                     ItemDocLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ItemDocLine."Dimension Set ID", ItemDocLine."Shortcut Dimension 1 Code", ItemDocLine."Shortcut Dimension 2 Code");
-                    ItemDocLine.Modify;
+                    ItemDocLine.Modify();
                 end;
             until ItemDocLine.Next = 0;
     end;

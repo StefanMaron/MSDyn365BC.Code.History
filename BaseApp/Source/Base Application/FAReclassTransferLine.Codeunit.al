@@ -20,7 +20,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FAJnlLine: Record "FA Journal Line";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         FAGetJnl: Codeunit "FA Get Journal";
-        FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         TransferToGenJnl: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
@@ -127,7 +127,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
             if NewFA."Undepreciable FA" then
                 if TransferType[1] and (Amounts[1] <> 0) then begin
                     FAGetJnl.JnlName(
-                      "Depreciation Book Code", OldFA."Budgeted Asset", FAPostingType::Acquisition,
+                      "Depreciation Book Code", OldFA."Budgeted Asset", FAPostingType::"Acquisition Cost",
                       TransferToGenJnl, TemplateName, BatchName);
                     SetJnlRange;
                     if TransferToGenJnl then begin
@@ -136,9 +136,9 @@ codeunit 5642 "FA Reclass. Transfer Line"
                         DeprBookCode := FADeprBook3."Depreciation Book Code";
                         DeprBook.Get(DeprBookCode);
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
-                        FAPostingType := FAPostingType::Acquisition;
+                        FAPostingType := FAPostingType::"Acquisition Cost";
                         FAGetJnl.JnlName(
-                          DeprBookCode, NewFA."Budgeted Asset", FAPostingType::Acquisition,
+                          DeprBookCode, NewFA."Budgeted Asset", FAPostingType::"Acquisition Cost",
                           TransferAmntToGenJnl, TemplateName, BatchName);
                         if TransferAmntToGenJnl then
                             InsertGenJnlLine(FAReclassJnlLine, NewFA, Sign * Amounts[1], true)
@@ -211,18 +211,18 @@ codeunit 5642 "FA Reclass. Transfer Line"
     local procedure SetJnlRange()
     begin
         if (FAJnlNextLineNo = 0) and not TransferToGenJnl then begin
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAGetJnl.SetFAJnlRange(FAJnlLine, TemplateName, BatchName);
             FAJnlNextLineNo := FAJnlLine."Line No.";
         end;
         if (GenJnlNextLineNo = 0) and TransferToGenJnl then begin
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAGetJnl.SetGenJnlRange(GenJnlLine, TemplateName, BatchName);
             GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 
-    local procedure Convert(OldNewFA: Option OldFA,NewFA; J: Integer; var FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,"Salvage Value"; var Sign: Integer; var CurrFA: Record "Fixed Asset")
+    local procedure Convert(OldNewFA: Option OldFA,NewFA; J: Integer; var FAPostingType: Enum "FA Journal Line FA Posting Type"; var Sign: Integer; var CurrFA: Record "Fixed Asset")
     begin
         if OldNewFA = OldNewFA::OldFA then begin
             Sign := -1;
@@ -238,34 +238,34 @@ codeunit 5642 "FA Reclass. Transfer Line"
                 1:
                     FAPostingType := FAPostingType::"Salvage Value";
                 2:
-                    FAPostingType := FAPostingType::Depr;
+                    FAPostingType := FAPostingType::Depreciation;
                 3:
-                    FAPostingType := FAPostingType::WriteDown;
+                    FAPostingType := FAPostingType::"Write-Down";
                 4:
-                    FAPostingType := FAPostingType::Custom1;
+                    FAPostingType := FAPostingType::"Custom 1";
                 5:
-                    FAPostingType := FAPostingType::Custom2;
+                    FAPostingType := FAPostingType::"Custom 2";
                 6:
-                    FAPostingType := FAPostingType::Appr;
+                    FAPostingType := FAPostingType::Appreciation;
                 9:
-                    FAPostingType := FAPostingType::Acquisition;
+                    FAPostingType := FAPostingType::"Acquisition Cost";
             end;
         if OldNewFA = OldNewFA::NewFA then
             case J of
                 1:
-                    FAPostingType := FAPostingType::Acquisition;
+                    FAPostingType := FAPostingType::"Acquisition Cost";
                 2:
                     FAPostingType := FAPostingType::"Salvage Value";
                 3:
-                    FAPostingType := FAPostingType::Appr;
+                    FAPostingType := FAPostingType::Appreciation;
                 4:
-                    FAPostingType := FAPostingType::WriteDown;
+                    FAPostingType := FAPostingType::"Write-Down";
                 5:
-                    FAPostingType := FAPostingType::Custom1;
+                    FAPostingType := FAPostingType::"Custom 1";
                 6:
-                    FAPostingType := FAPostingType::Custom2;
+                    FAPostingType := FAPostingType::"Custom 2";
                 9:
-                    FAPostingType := FAPostingType::Depr;
+                    FAPostingType := FAPostingType::Depreciation;
             end;
     end;
 
@@ -278,7 +278,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
               FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, FAReclassJnlLine."FA Posting Date", false);
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
         with FAJnlLine do begin
             Init;
             "Line No." := 0;
@@ -327,7 +327,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
               FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, FAReclassJnlLine."FA Posting Date", false);
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             Init;
             "Line No." := 0;
@@ -472,12 +472,12 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FADeprBook."Temp. Fixed Depr. Amount" :=
           Round(FixedAmount * (100 - FAReclassJnlLine."Reclassify Acq. Cost %") / 100);
         FADeprBook."Temp. Ending Date" := DeprUntilDate;
-        FADeprBook.Modify;
+        FADeprBook.Modify();
 
         FADeprBook2."Temp. Fixed Depr. Amount" :=
           Round(FixedAmount2 + FixedAmount - FADeprBook."Temp. Fixed Depr. Amount");
         FADeprBook2."Temp. Ending Date" := FADeprBook."Temp. Ending Date";
-        FADeprBook2.Modify;
+        FADeprBook2.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -514,12 +514,12 @@ codeunit 5642 "FA Reclass. Transfer Line"
             if "Document No." = '' then
                 FAReclassJnlLine.TestField(FAReclassJnlLine."Document No.");
             "Depreciation Book Code" := FAReclassJnlLine."New Depreciation Book Code";
-            FADepreciationBook.Reset;
+            FADepreciationBook.Reset();
             FADepreciationBook.SetRange("FA No.", "Account No.");
             FADepreciationBook.SetRange("Depreciation Book Code", "Depreciation Book Code");
             if FADepreciationBook.Find('-') then begin
                 FADepreciationBook.TestField("FA Posting Group");
-                FAPostingGroup.Reset;
+                FAPostingGroup.Reset();
                 FAPostingGroup.SetRange(Code, FADepreciationBook."FA Posting Group");
                 if FAPostingGroup.Find('-') then begin
                     "Posting Group" := FAPostingGroup.Code;
@@ -568,19 +568,19 @@ codeunit 5642 "FA Reclass. Transfer Line"
     local procedure GetNewFADeprBook(var FAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin
         with FAReclassJnlLine do begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Enable Russian Accounting" then begin
                 FADeprBook2.Get("New FA No.", "New Depreciation Book Code");
                 if NewFA."Undepreciable FA" then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     FASetup.TestField("Quantitative Depr. Book");
                     FADeprBook3.SetRange("FA No.", "New FA No.");
                     FADeprBook3.SetRange("Depreciation Book Code", FASetup."Quantitative Depr. Book");
                     if not FADeprBook3.Find('-') then begin
-                        FADeprBook3.Init;
+                        FADeprBook3.Init();
                         FADeprBook3."FA No." := "New FA No.";
                         FADeprBook3."Depreciation Book Code" := FASetup."Quantitative Depr. Book";
-                        FADeprBook3.Insert;
+                        FADeprBook3.Insert();
                     end;
                 end;
             end else

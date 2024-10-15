@@ -37,7 +37,7 @@ table 17444 "Time Activity Group"
         TimeActivityFilter: Record "Time Activity Filter";
     begin
         TempTimeActivity.Code := TimeActivityCode;
-        TempTimeActivity.Insert;
+        TempTimeActivity.Insert();
 
         TimesheetMgt.GetTimeGroupFilter(
           Code,

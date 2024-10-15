@@ -124,7 +124,7 @@ report 5500 "Prod. Order Comp. and Routing"
                     trigger OnAfterGetRecord()
                     begin
                         if ProductionJrnlMgt.RoutingLinkValid("Prod. Order Component", "Prod. Order Line") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                 }
                 dataitem("Prod. Order Routing Line"; "Prod. Order Routing Line")

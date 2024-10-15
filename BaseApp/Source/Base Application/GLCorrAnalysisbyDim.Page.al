@@ -442,7 +442,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     begin
         ValidateGLCorrAnalysisViewCode;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if LineDimCode = '' then
             LineDimCode := FindFirstDimension;
@@ -453,7 +453,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     end;
 
     var
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>';
+        Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
         Text002: Label 'You have not yet defined an analysis view.';
         Text003: Label '%1 is not a valid line definition.';
         Text005: Label '1,6,,Debit Dimension 1 Filter';
@@ -902,7 +902,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     var
         GLCorrByDim: Page "G/L Corr. by Dimension";
     begin
-        GLCorrAnalysisViewEntry.Reset;
+        GLCorrAnalysisViewEntry.Reset();
         SetCommonFilters(GLCorrAnalysisViewEntry);
         SetDimFilters(GLCorrAnalysisViewEntry, DimCodeToOption(LineDimCode, GroupType));
         GLCorrByDim.InitParameters(GLCorrAnalysisViewEntry);
@@ -995,7 +995,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     var
         Amount: Decimal;
     begin
-        GLCorrAnalysisViewEntry.Reset;
+        GLCorrAnalysisViewEntry.Reset();
         SetCommonFilters(GLCorrAnalysisViewEntry);
         SetDimFilters(GLCorrAnalysisViewEntry, DimCodeToOption(LineDimCode, DimGroupType::Debit));
 
@@ -1009,7 +1009,7 @@ page 14940 "G/L Corr. Analysis by Dim."
     var
         Amount: Decimal;
     begin
-        GLCorrAnalysisViewEntry.Reset;
+        GLCorrAnalysisViewEntry.Reset();
         SetCommonFilters(GLCorrAnalysisViewEntry);
         SetDimFilters(GLCorrAnalysisViewEntry, DimCodeToOption(LineDimCode, DimGroupType::Credit));
 

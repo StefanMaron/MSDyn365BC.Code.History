@@ -69,12 +69,12 @@ report 17363 "Reward Order T-11a"
         FileName: Text[1024];
         Employee: Record Employee;
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("T-11a Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."T-11a Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         ExcelMgt.OpenBookForUpdate(FileName);
         ExcelMgt.OpenSheet('Sheet1');

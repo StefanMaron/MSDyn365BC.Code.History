@@ -220,12 +220,6 @@ page 14901 "Customer Agreement Card"
                 ApplicationArea = RecordLinks;
                 Visible = false;
             }
-            part(Control1901430907; "Default Dimensions")
-            {
-                SubPageLink = "Table ID" = CONST(14902),
-                              "No." = FIELD("No.");
-                Visible = false;
-            }
         }
     }
 

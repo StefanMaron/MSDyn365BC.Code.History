@@ -316,10 +316,8 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!CurrReport_PAGENO.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
+                                  <Value />
+                                  <Style />
                                 </TextRun>
                               </TextRuns>
                             </Paragraph>
@@ -1185,9 +1183,6 @@ End Function
       <Fields>
         <Field Name="USERID">
           <DataField>USERID</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
         </Field>
         <Field Name="RequestFilter">
           <DataField>RequestFilter</DataField>

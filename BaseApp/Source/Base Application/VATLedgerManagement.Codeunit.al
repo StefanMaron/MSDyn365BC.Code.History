@@ -38,7 +38,7 @@ codeunit 12423 "VAT Ledger Management"
     begin
         if CustFilter <> '' then begin
             Delimiter := '';
-            Customer.Reset;
+            Customer.Reset();
             Customer.SetFilter("No.", CustFilter);
             if Customer.FindSet then
                 repeat
@@ -58,7 +58,7 @@ codeunit 12423 "VAT Ledger Management"
     begin
         if VendFilter <> '' then begin
             Delimiter := '';
-            Vendor.Reset;
+            Vendor.Reset();
             Vendor.SetFilter("No.", VendFilter);
             if Vendor.Find('-') then
                 repeat
@@ -388,7 +388,7 @@ codeunit 12423 "VAT Ledger Management"
         if CDNo <> '' then begin
             VATLedgerLine.Get(VATLedgerLineBuf.Type, VATLedgerLineBuf.Code, VATLedgerLineBuf."Line No.");
             VATLedgerLine."CD No." := CDNo;
-            VATLedgerLine.Modify;
+            VATLedgerLine.Modify();
         end;
     end;
 
@@ -444,7 +444,7 @@ codeunit 12423 "VAT Ledger Management"
         if TariffNo <> '' then begin
             VATLedgerLine.Get(VATLedgerLineBuf.Type, VATLedgerLineBuf.Code, VATLedgerLineBuf."Line No.");
             VATLedgerLine."Tariff No." := TariffNo;
-            VATLedgerLine.Modify;
+            VATLedgerLine.Modify();
         end;
     end;
 

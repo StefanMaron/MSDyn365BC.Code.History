@@ -175,12 +175,12 @@ report 17355 "Statistic Form P-4"
             Error(Text14701);
         Period := Format(StartDate, 0, '<Month Text>') + ' ' + Format(Date2DMY(StartDate, 3)) + Text14703;
 
-        HumResSetup.Get;
+        HumResSetup.Get();
         HumResSetup.TestField("P-4 Template Code");
 
         FileName := ExcelTemplate.OpenTemplate(HumResSetup."P-4 Template Code");
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -299,7 +299,7 @@ report 17355 "Statistic Form P-4"
         HumResSetup: Record "Human Resources Setup";
         TimesheetMgt: Codeunit "Timesheet Management RU";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         with LaborContracts do begin
             SetFilter(Status, '<>%1', Status::Open);
@@ -326,7 +326,7 @@ report 17355 "Statistic Form P-4"
         LaborContracts: Record "Labor Contract";
         HumResSetup: Record "Human Resources Setup";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         with LaborContracts do begin
             SetFilter(Status, '<>%1', Status::Open);
@@ -358,7 +358,7 @@ report 17355 "Statistic Form P-4"
         LaborContracts: Record "Labor Contract";
         HumResSetup: Record "Human Resources Setup";
     begin
-        HumResSetup.Get;
+        HumResSetup.Get();
 
         with LaborContracts do begin
             SetFilter(Status, '<>%1', Status::Open);

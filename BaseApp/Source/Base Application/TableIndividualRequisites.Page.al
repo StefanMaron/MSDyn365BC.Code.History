@@ -57,7 +57,7 @@ page 26555 "Table Individual Requisites"
                     begin
                         if IntDataSourceCellMapping = '' then
                             if StatReportTableMapping.Get("Report Code", "Table Code", "Line No.", 0) then
-                                StatReportTableMapping.Delete;
+                                StatReportTableMapping.Delete();
                     end;
                 }
             }

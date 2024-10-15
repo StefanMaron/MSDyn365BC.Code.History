@@ -22,17 +22,17 @@ report 14916 "Posted Cr. M. Shipment TORG-12"
                     begin
                         if Number = 1 then begin
                             if not SalesLine1.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if SalesLine1.Next(1) = 0 then begin
                                 SerialNumbersText := LocMgt.Integer2Text(SerialNumbers, 1, '', '', '');
                                 SerialNumbersText := LowerCase(CopyStr(SerialNumbersText, 1, 1)) + CopyStr(SerialNumbersText, 2);
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                         if SalesLine1.Type <> SalesLine1.Type::" " then begin
                             if SalesLine1.Quantity = 0 then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             SerialNumbers += 1;
                             if AmountInvoiceCurrent = AmountInvoiceCurrent::LCY then begin
                                 SalesLine1.Amount := SalesLine1."Amount (LCY)";
@@ -94,7 +94,7 @@ report 14916 "Posted Cr. M. Shipment TORG-12"
                 begin
                     SalesLine1.SetFilter(Quantity, '<>0');
                     if not SalesLine1.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, CopiesNumber);
                 end;
             }
@@ -103,7 +103,7 @@ report 14916 "Posted Cr. M. Shipment TORG-12"
             var
                 SalesHeader: Record "Sales Header";
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 DocumentNo := "No.";
                 DocumentDate := "Document Date";
@@ -114,7 +114,7 @@ report 14916 "Posted Cr. M. Shipment TORG-12"
                 if "Currency Code" = '' then
                     AmountInvoiceCurrent := AmountInvoiceCurrent::LCY;
 
-                SalesLine1.Reset;
+                SalesLine1.Reset();
                 SalesLine1.SetRange("Document No.", "No.");
 
                 ReasonType := '';
@@ -177,7 +177,7 @@ report 14916 "Posted Cr. M. Shipment TORG-12"
 
             trigger OnPreDataItem()
             begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 AddConditionCurrency := ConvertStr(SalesSetup."Invoice Comment", '\', ' ');
             end;
         }

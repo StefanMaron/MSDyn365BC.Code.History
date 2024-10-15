@@ -1,6 +1,9 @@
 table 7023 "Sales Price Worksheet"
 {
     Caption = 'Sales Price Worksheet';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {

@@ -673,7 +673,7 @@ table 12453 "Item Document Line"
     begin
         TestStatusOpen;
         ReserveItemDocLine.VerifyQuantity(Rec, xRec);
-        LockTable;
+        LockTable();
         ItemDocHeader."No." := '';
     end;
 
@@ -809,8 +809,8 @@ table 12453 "Item Document Line"
     begin
         TestField("Item No.");
         Clear(Reservation);
-        Reservation.SetItemDocLine(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -826,7 +826,7 @@ table 12453 "Item Document Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -871,7 +871,7 @@ table 12453 "Item Document Line"
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;
@@ -907,7 +907,7 @@ table 12453 "Item Document Line"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         ValueEntry.CalcSums("Invoiced Quantity", "Cost Amount (Actual)");
@@ -967,10 +967,10 @@ table 12453 "Item Document Line"
         ReservMgt: Codeunit "Reservation Management";
         AutoReserv: Boolean;
     begin
-        if ItemDocLine.FindSet then
+        if ItemDocLine.FindSet() then
             repeat
-                ReservMgt.SetItemDocLine(ItemDocLine);
                 ItemDocLine.TestField("Posting Date");
+                ReservMgt.SetReservSource(ItemDocLine);
                 ItemDocLine.CalcFields("Reserved Qty. Outbnd. (Base)");
                 ReservMgt.AutoReserveToShip(
                   AutoReserv, '', ItemDocLine."Posting Date",
@@ -978,7 +978,93 @@ table 12453 "Item Document Line"
                   ItemDocLine."Quantity (Base)" - ItemDocLine."Reserved Qty. Outbnd. (Base)");
                 if not AutoReserv then
                     Error(Text12402, ItemDocLine."Quantity (Base)", ItemDocLine."Line No.");
-            until ItemDocLine.Next = 0;
+            until ItemDocLine.Next() = 0;
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal; Direction: Integer)
+    begin
+        case Direction of
+            1: // Shipment
+                begin
+                    CalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
+                    RemainingQty := Quantity - Abs("Reserved Quantity Outbnd.");
+                    RemainingQtyBase := "Quantity (Base)" - Abs("Reserved Qty. Outbnd. (Base)");
+                end;
+            0: // Receipt
+                begin
+                    CalcFields("Reserved Quantity Inbnd.", "Reserved Qty. Inbnd. (Base)");
+                    RemainingQty := Quantity - Abs("Reserved Quantity Inbnd.");
+                    RemainingQtyBase := "Quantity (Base)" - Abs("Reserved Qty. Inbnd. (Base)");
+                end;
+        end;
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; SourceSubtype: Integer): Decimal
+    begin
+        if SourceSubtype = 0 then begin // Inbound
+            CalcFields("Reserved Quantity Inbnd.", "Reserved Qty. Inbnd. (Base)");
+            QtyReserved := "Reserved Quantity Inbnd.";
+            QtyReservedBase := "Reserved Qty. Inbnd. (Base)";
+            QtyToReserve := Quantity;
+            QtyToReserveBase := "Quantity (Base)";
+        end else begin // Outbound
+            CalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
+            QtyReserved := "Reserved Quantity Outbnd.";
+            QtyReservedBase := "Reserved Qty. Outbnd. (Base)";
+            QtyToReserve := Quantity;
+            QtyToReserveBase := "Quantity (Base)";
+        end;
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Document No.", "Line No.", "Item No."));
+    end;
+
+    procedure FilterReceiptLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey("Location Code");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetRange("Document Type", "Document Type"::Receipt);
+        SetFilter("Document Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Quantity (Base)", '>0')
+        else
+            SetFilter("Quantity (Base)", '<0');
+    end;
+
+    procedure FilterShipmentLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey("Location Code");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetRange("Document Type", "Document Type"::Shipment);
+        SetFilter("Document Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Item Document Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', 0);
     end;
 }
 

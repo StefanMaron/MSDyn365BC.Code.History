@@ -40,7 +40,7 @@ page 17237 "Tax Reg. Payroll Line Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Account No.");
                             if GLAcc.FindFirst then;
@@ -60,7 +60,7 @@ page 17237 "Tax Reg. Payroll Line Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLAcc.Reset;
+                        GLAcc.Reset();
                         if "Bal. Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Bal. Account No.");
                             if GLAcc.FindFirst then;
@@ -176,7 +176,7 @@ page 17237 "Tax Reg. Payroll Line Subform"
         TaxRegDimFilter: Record "Tax Register Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         if "Line No." <> 0 then begin
             TaxRegDimFilter.FilterGroup(2);
             TaxRegDimFilter.SetRange("Section Code", "Section Code");

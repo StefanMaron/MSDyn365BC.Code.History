@@ -209,7 +209,7 @@ report 308 "Vendor - Order Detail"
                     else
                         OK := CurrencyTotalBuffer.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CurrencyTotalBuffer2.UpdateTotal(
                       CurrencyTotalBuffer."Currency Code",
@@ -220,7 +220,7 @@ report 308 "Vendor - Order Detail"
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll;
+                    CurrencyTotalBuffer.DeleteAll();
                 end;
             }
 
@@ -259,12 +259,12 @@ report 308 "Vendor - Order Detail"
                 else
                     OK := CurrencyTotalBuffer2.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll;
+                CurrencyTotalBuffer2.DeleteAll();
             end;
         }
     }

@@ -88,7 +88,7 @@ codeunit 12401 "Local Report Management"
         Clear(BenefeciaryCode);
         Clear(DocAmount);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with GenJnlLine do begin
             TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
@@ -197,7 +197,7 @@ codeunit 12401 "Local Report Management"
         Clear(BenefeciaryCode);
         Clear(BenefeciaryCode);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         with CheckLedgerEntries do begin
             BankAccount.Get("Bank Account No.");
@@ -566,7 +566,7 @@ codeunit 12401 "Local Report Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         with CompanyInfo do
             exit(
               StrSubstNo(
@@ -592,7 +592,7 @@ codeunit 12401 "Local Report Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if CompanyInfo."Phone No." <> '' then
             PhoneFaxNo := Text009 + CompanyInfo."Phone No.";
         if CompanyInfo."Fax No." <> '' then
@@ -604,7 +604,7 @@ codeunit 12401 "Local Report Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if (CompanyInfo."Bank Account No." <> '') and
            (CompanyInfo."Bank Name" <> '') and
            (CompanyInfo."Bank Corresp. Account No." <> '') and
@@ -689,7 +689,7 @@ codeunit 12401 "Local Report Management"
             Vendor.Get(ConsignerNo);
             exit(Vendor."OKPO Code");
         end;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(CompanyInfo."OKPO Code");
     end;
 
@@ -857,7 +857,7 @@ codeunit 12401 "Local Report Management"
         then
             exit(EmployeeName);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(CompanyInfo."Director Name");
     end;
 
@@ -880,7 +880,7 @@ codeunit 12401 "Local Report Management"
         then
             exit(EmployeeName);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(CompanyInfo."Director Name");
     end;
 
@@ -903,7 +903,7 @@ codeunit 12401 "Local Report Management"
         then
             exit(EmployeeName);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(CompanyInfo."Accountant Name");
     end;
 
@@ -993,7 +993,7 @@ codeunit 12401 "Local Report Management"
               GetRespCenterPhoneFax(ResponsibilityCenter) +
               GetCompanyBankAttrib);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         exit(
           GetCompanyName + ' ' +
           CompanyInfo."Ship-to Address" + ' ' + CompanyInfo."Ship-to Address 2" +
@@ -1070,7 +1070,7 @@ codeunit 12401 "Local Report Management"
         CompanyInformation: Record "Company Information";
         VATLedger: Record "VAT Ledger";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Result := 'NO_NDS.';
 
         if VATLedgerType = VATLedger.Type::Sales then
@@ -1162,7 +1162,7 @@ codeunit 12401 "Local Report Management"
     begin
         if CurrencyCode = '' then
             exit(false);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."LCY Code" <> CurrencyCode);
     end;
 

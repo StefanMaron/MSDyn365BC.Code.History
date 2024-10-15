@@ -21,16 +21,16 @@ report 14964 "Export Payr. An. Rep. to Excel"
                   Text000 +
                   '@1@@@@@@@@@@@@@@@@@@@@@\');
                 Window.Update(1, 0);
-                TotalRecNo := PayrollAnalysisLine.Count;
+                TotalRecNo := PayrollAnalysisLine.Count();
                 RecNo := 0;
 
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 Clear(TempExcelBuffer);
 
                 PayrollAnalysisLineTemplate.Get(PayrollAnalysisLine."Analysis Line Template Name");
                 if PayrollAnalysisLineTemplate."Payroll Analysis View Code" <> '' then
                     PayrollAnalysisView.Get(PayrollAnalysisLineTemplate."Payroll Analysis View Code");
-                GLSetup.Get;
+                GLSetup.Get();
 
                 RowNo := 1;
                 EnterCell(RowNo, 1, Text001, false, false, true);
@@ -221,7 +221,7 @@ report 14964 "Export Payr. An. Rep. to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -229,7 +229,7 @@ report 14964 "Export Payr. An. Rep. to Excel"
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Italic := Italic;
         TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure GetDimFilterCaption(DimFilterNo: Integer): Text[80]

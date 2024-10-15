@@ -104,7 +104,7 @@ page 14965 "Payroll Analysis Report"
                         FindPeriod('');
                     end;
                 }
-                field(ColumnsSet; ColumnsSet)
+                field(ColumnsSet; GetColumnsRange)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Column Set';
@@ -243,7 +243,7 @@ page 14965 "Payroll Analysis Report"
 
         PayrollAnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, PayrollAnalysisColumn);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if PayrollAnalysisLineTemplate.Get(CurrentLineTemplate) then
             if PayrollAnalysisLineTemplate."Payroll Analysis View Code" <> '' then
@@ -358,14 +358,14 @@ page 14965 "Payroll Analysis Report"
     [Scope('OnPrem')]
     procedure SetFilters()
     begin
-        PayrollAnalysisColumn.Reset;
+        PayrollAnalysisColumn.Reset();
         PayrollAnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
 
         PayrollAnalysisLine.Copy(Rec);
         PayrollAnalysisLine.SetRange("Analysis Line Template Name", CurrentLineTemplate);
     end;
 
-    local procedure ColumnsSet(): Text[80]
+    local procedure GetColumnsRange(): Text[80]
     begin
         if FirstColumn = LastColumn then
             exit(FirstColumn);

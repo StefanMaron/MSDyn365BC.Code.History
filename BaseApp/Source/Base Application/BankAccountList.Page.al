@@ -1,4 +1,4 @@
-﻿page 371 "Bank Account List"
+page 371 "Bank Account List"
 {
     Caption = 'Bank Accounts';
     CardPageID = "Bank Account Card";
@@ -314,7 +314,7 @@
                     var
                         BankAccount: Record "Bank Account";
                     begin
-                        BankAccount.Init;
+                        BankAccount.Init();
                         BankAccount.LinkStatementProvider(BankAccount);
                     end;
                 }

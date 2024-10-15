@@ -21,9 +21,9 @@ report 17201 "Create Closing Gen. Jnl. Line"
                     CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
                     SetFilter("Date Filter", '..%1', DateEnd);
                     if CustLedgEntry."Remaining Amt. (LCY)" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Line No." += 10000;
                     GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
                     GenJnlLine."Posting Date" := DateEnd;
@@ -43,7 +43,7 @@ report 17201 "Create Closing Gen. Jnl. Line"
                 trigger OnPreDataItem()
                 begin
                     if "Tax Register CV Entry"."Object Type" <> "Tax Register CV Entry"."Object Type"::Customer then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Customer No.", Open, Positive, "Due Date");
                     SetRange("Customer No.", "Tax Register CV Entry"."C/V No.");
@@ -64,9 +64,9 @@ report 17201 "Create Closing Gen. Jnl. Line"
                     VendLedgEntry.SetRange("Date Filter");
                     VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
                     if VendLedgEntry."Remaining Amt. (LCY)" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Line No." += 10000;
                     GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
                     GenJnlLine."Posting Date" := DateEnd;
@@ -86,7 +86,7 @@ report 17201 "Create Closing Gen. Jnl. Line"
                 trigger OnPreDataItem()
                 begin
                     if "Tax Register CV Entry"."Object Type" <> "Tax Register CV Entry"."Object Type"::Vendor then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
                     SetRange("Vendor No.", "Tax Register CV Entry"."C/V No.");
@@ -146,7 +146,7 @@ report 17201 "Create Closing Gen. Jnl. Line"
                         trigger OnLookup(var Text: Text): Boolean
                         begin
                             if GenJnlLine."Journal Template Name" <> '' then begin
-                                GenJnlBatch.Reset;
+                                GenJnlBatch.Reset();
                                 GenJnlBatch.FilterGroup(2);
                                 GenJnlBatch.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                                 GenJnlBatch.FilterGroup(0);
@@ -167,7 +167,6 @@ report 17201 "Create Closing Gen. Jnl. Line"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bal. Account Type';
-                        OptionCaption = 'G/L Account,Customer,Vendor,Bank Account';
                         ToolTip = 'Specifies the type of the balancing account that has been entered on the journal line.';
                     }
                     field("GenJnlLine.""Bal. Account No."""; GenJnlLine."Bal. Account No.")
@@ -295,12 +294,12 @@ report 17201 "Create Closing Gen. Jnl. Line"
 
         GenJnlLine0 := GenJnlLine;
         GenJnlLine0."Line No." := 0;
-        GenJnlLine0.Reset;
+        GenJnlLine0.Reset();
         GenJnlLine0.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine0.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         if GenJnlLine0.FindLast then;
 
-        GenJnlLine0.Init;
+        GenJnlLine0.Init();
         GenJnlLine0."Line No." += 10000;
         GenJnlLine0."Account Type" := GenJnlLine."Bal. Account Type";
         GenJnlLine0."Posting Date" := DateEnd;

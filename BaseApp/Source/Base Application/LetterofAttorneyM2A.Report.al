@@ -47,7 +47,7 @@ report 14905 "Letter of Attorney M-2A"
                 trigger OnPreDataItem()
                 begin
                     if not PrintItemList then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -117,11 +117,11 @@ report 14905 "Letter of Attorney M-2A"
             var
                 FASetup: Record "FA Setup";
             begin
-                CompanyInformation.Get;
-                PurchSetup.Get;
+                CompanyInformation.Get();
+                PurchSetup.Get();
                 PurchSetup.TestField("Released Letter of Attor. Nos.");
 
-                FASetup.Get;
+                FASetup.Get();
                 FASetup.TestField("M-2a Template Code");
                 ExcelReportBuilderManager.InitTemplate(FASetup."M-2a Template Code");
                 ExcelReportBuilderManager.SetSheet('Sheet1');

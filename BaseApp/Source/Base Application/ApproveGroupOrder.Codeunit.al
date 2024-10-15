@@ -13,7 +13,7 @@ codeunit 17371 "Approve Group Order"
         TestField("Document Date");
         TestField("Posting Date");
 
-        GroupOrderLine.Reset;
+        GroupOrderLine.Reset();
         GroupOrderLine.SetRange("Document Type", "Document Type");
         GroupOrderLine.SetRange("Document No.", "No.");
         if GroupOrderLine.FindSet(true) then
@@ -22,7 +22,7 @@ codeunit 17371 "Approve Group Order"
                 LaborContractMgt.SetOrderNoDate("No.", "Document Date");
                 LaborContractMgt.DoApprove(LaborContractLine);
                 GroupOrderLine.Validate("Contract No.");
-                GroupOrderLine.Modify;
+                GroupOrderLine.Modify();
             until GroupOrderLine.Next = 0
         else
             Error(Text001, "No.");

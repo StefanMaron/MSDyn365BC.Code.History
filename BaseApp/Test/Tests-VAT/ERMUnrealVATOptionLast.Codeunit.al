@@ -42,7 +42,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         LibraryERM.SetUnrealizedVAT(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Unreal VAT Option Last");
     end;

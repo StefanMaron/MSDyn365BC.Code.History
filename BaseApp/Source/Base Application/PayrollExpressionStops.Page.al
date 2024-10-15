@@ -17,7 +17,7 @@ page 17439 "Payroll Expression Stops"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        PayrollElementExpr.Reset;
+                        PayrollElementExpr.Reset();
                         PayrollElementExpr.SetRange("Element Code", "Element Code");
                         PayrollElementExpr.SetRange("Period Code", "Period Code");
                         PayrollElementExpr.SetFilter("Assign to Variable", '<>%1', '');

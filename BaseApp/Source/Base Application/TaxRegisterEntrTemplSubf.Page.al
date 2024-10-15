@@ -151,7 +151,7 @@ page 17206 "Tax Register Entr. Templ. Subf"
         DimCodeFilter: Text[1024];
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxRegisterName.Get("Section Code", Code);
         if TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry" then
             Error(Text1002, FieldCaption("G/L Corr. Dimensions Filters"));
@@ -191,7 +191,7 @@ page 17206 "Tax Register Entr. Templ. Subf"
         TaxRegGLCorrDimFilter: Record "Tax Reg. G/L Corr. Dim. Filter";
     begin
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         TaxRegisterName.Get("Section Code", Code);
         if (TaxRegisterName."Table ID" = DATABASE::"Tax Register G/L Entry") and ("Line No." <> 0) then begin
             TaxRegGLCorrDimFilter.FilterGroup(2);

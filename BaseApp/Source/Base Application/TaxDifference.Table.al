@@ -80,7 +80,7 @@ table 17300 "Tax Difference"
             trigger OnValidate()
             begin
                 if "Calc. Norm Code" <> '' then begin
-                    TaxDiff.Reset;
+                    TaxDiff.Reset();
                     TaxDiff.SetRange("Calc. Norm Jurisdiction Code", "Calc. Norm Jurisdiction Code");
                     TaxDiff.SetRange("Calc. Norm Code", "Calc. Norm Code");
                     TaxDiff.SetFilter(Code, '<>%1', Code);

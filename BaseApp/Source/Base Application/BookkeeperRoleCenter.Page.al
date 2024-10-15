@@ -767,7 +767,6 @@ page 9004 "Bookkeeper Role Center"
             group(Warehouse)
             {
                 Caption = 'Warehouse';
-                Image = Warehouse;
                 action("Item List")
                 {
                     Caption = 'Item List';

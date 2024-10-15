@@ -1,4 +1,4 @@
-﻿codeunit 312 "Cust-Check Cr. Limit"
+codeunit 312 "Cust-Check Cr. Limit"
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -26,12 +26,12 @@
         if not GuiAllowed then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable Russian Accounting" and (GenJnlLine."Unrealized VAT Entry No." <> 0) then
             exit;
 
         if not SalesHeader.Get(GenJnlLine."Document Type", GenJnlLine."Document No.") then
-            SalesHeader.Init;
+            SalesHeader.Init();
         OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
         if CustCheckCreditLimit.GenJnlLineShowWarningAndGetCause(GenJnlLine, AdditionalContextId) then
@@ -73,7 +73,7 @@
         AdditionalContextId: Guid;
     begin
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
-            SalesHeader.Init;
+            SalesHeader.Init();
 
         if GuiAllowed then
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, false);
@@ -111,7 +111,7 @@
             exit;
 
         if not ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.") then
-            ServiceHeader.Init;
+            ServiceHeader.Init();
         OnNewCheckRemoveCustomerNotifications(ServiceHeader.RecordId, false);
 
         if CustCheckCreditLimit.ServiceLineShowWarningAndGetCause(ServiceLine, AdditionalContextId) then

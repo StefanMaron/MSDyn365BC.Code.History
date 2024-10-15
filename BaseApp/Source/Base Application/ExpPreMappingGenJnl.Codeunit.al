@@ -37,7 +37,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GenJnlLine.TestField("Account Type", GenJnlLine."Account Type"::Vendor);
         Vendor.Get(GenJnlLine."Account No.");
 
@@ -53,14 +53,8 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen("Sender Bank Account No."));
 
             if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
-                if BankAccount."Country/Region Code" = VendorBankAccount."Country/Region Code" then begin
-                    Amount := GenJnlLine."Amount (LCY)";
-                    "Currency Code" := GeneralLedgerSetup."LCY Code";
-                end else begin
-                    Amount := GenJnlLine.Amount;
-                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                end;
-
+                Amount := GenJnlLine.Amount;
+                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
                 "Recipient Bank Acc. No." :=
                   CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";

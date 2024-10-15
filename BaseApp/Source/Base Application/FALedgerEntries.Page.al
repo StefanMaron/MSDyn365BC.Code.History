@@ -1,4 +1,4 @@
-﻿page 5604 "FA Ledger Entries"
+page 5604 "FA Ledger Entries"
 {
     AdditionalSearchTerms = 'fixed asset ledger entries';
     ApplicationArea = FixedAssets;
@@ -407,7 +407,7 @@
                     var
                         FALedgEntry1: Record "FA Ledger Entry";
                     begin
-                        FALedgEntry1.Reset;
+                        FALedgEntry1.Reset();
                         CurrPage.SetSelectionFilter(FALedgEntry1);
                         FALedgEntry.UnMarkAsDeprBonusBase(FALedgEntry1, true);
                     end;
@@ -423,7 +423,7 @@
                     var
                         FALedgEntry1: Record "FA Ledger Entry";
                     begin
-                        FALedgEntry1.Reset;
+                        FALedgEntry1.Reset();
                         CurrPage.SetSelectionFilter(FALedgEntry1);
                         FALedgEntry.UnMarkAsDeprBonusBase(FALedgEntry1, false);
                     end;

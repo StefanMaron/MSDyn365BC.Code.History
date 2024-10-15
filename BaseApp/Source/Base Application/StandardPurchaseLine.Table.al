@@ -15,11 +15,9 @@ table 174 "Standard Purchase Line"
             Caption = 'Line No.';
             Editable = false;
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
 
             trigger OnValidate()
             var
@@ -41,7 +39,9 @@ table 174 "Standard Purchase Line"
             ELSE
             IF (Type = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge";
+            IF (Type = CONST("Charge (Item)")) "Item Charge"
+            else
+            if (Type = const(Resource)) Resource;
 
             trigger OnValidate()
             var
@@ -51,6 +51,7 @@ table 174 "Standard Purchase Line"
                 FA: Record "Fixed Asset";
                 StdTxt: Record "Standard Text";
                 StdPurchCode: Record "Standard Purchase Code";
+                Resource: Record Resource;
             begin
                 Quantity := 0;
                 "Amount Excl. VAT" := 0;
@@ -84,8 +85,14 @@ table 174 "Standard Purchase Line"
                             Description := Item.Description;
                             "Variant Code" := '';
                         end;
-                    3:
-                        Error(Text001);
+                    Type::Resource:
+                        begin
+                            Resource.Get("No.");
+                            Resource.TestField(Blocked, false);
+                            Resource.TestField("Gen. Prod. Posting Group");
+                            Description := Resource.Name;
+                            "Unit of Measure Code" := Resource."Base Unit of Measure";
+                        end;
                     Type::"Fixed Asset":
                         begin
                             FA.Get("No.");
@@ -218,7 +225,7 @@ table 174 "Standard Purchase Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         StdPurchCode.Get("Standard Purchase Code");
     end;
 
@@ -231,7 +238,6 @@ table 174 "Standard Purchase Line"
         StdPurchCode: Record "Standard Purchase Code";
         DimMgt: Codeunit DimensionManagement;
         Text000: Label 'You cannot rename a %1.';
-        Text001: Label 'You cannot purchase resources.';
         Text002: Label '%1 must not be %2.';
         CommentLbl: Label 'Comment';
 

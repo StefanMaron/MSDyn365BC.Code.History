@@ -132,6 +132,13 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in sales documents.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;

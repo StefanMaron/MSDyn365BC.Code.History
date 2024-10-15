@@ -18,12 +18,13 @@ table 83 "Item Journal Line"
         field(3; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item WHERE(Blocked = CONST(false));
+            TableRelation = Item;
 
             trigger OnValidate()
             var
                 ProdOrderLine: Record "Prod. Order Line";
                 ProdOrderComp: Record "Prod. Order Component";
+                PriceType: Enum "Price Type";
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -91,16 +92,16 @@ table 83 "Item Journal Line"
 
                 case "Entry Type" of
                     "Entry Type"::Purchase,
-                  "Entry Type"::Output,
-                  "Entry Type"::"Assembly Output":
-                        PurchPriceCalcMgt.FindItemJnlLinePrice(Rec, FieldNo("Item No."));
+                    "Entry Type"::Output,
+                    "Entry Type"::"Assembly Output":
+                        ApplyPrice(PriceType::Purchase, FieldNo("Item No."));
                     "Entry Type"::"Positive Adjmt.",
-                  "Entry Type"::"Negative Adjmt.",
-                  "Entry Type"::Consumption,
-                  "Entry Type"::"Assembly Consumption":
+                    "Entry Type"::"Negative Adjmt.",
+                    "Entry Type"::Consumption,
+                    "Entry Type"::"Assembly Consumption":
                         "Unit Amount" := UnitCost;
                     "Entry Type"::Sale:
-                        SalesPriceCalcMgt.FindItemJnlLinePrice(Rec, FieldNo("Item No."));
+                        ApplyPrice(PriceType::Sale, FieldNo("Item No."));
                     "Entry Type"::Transfer:
                         begin
                             "Unit Amount" := 0;
@@ -229,6 +230,8 @@ table 83 "Item Journal Line"
 
                 if "Entry Type" <> "Entry Type"::Output then
                     Type := Type::" ";
+
+                SetDefaultPriceCalculationMethod();
 
                 ReserveItemJnlLine.VerifyChange(Rec, xRec);
             end;
@@ -871,22 +874,18 @@ table 83 "Item Journal Line"
             Editable = false;
             TableRelation = Currency;
         }
-        field(79; "Document Type"; Option)
+        field(79; "Document Type"; Enum "Item Ledger Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Shipment,Sales Invoice,Sales Return Receipt,Sales Credit Memo,Purchase Receipt,Purchase Invoice,Purchase Return Shipment,Purchase Credit Memo,Transfer Shipment,Transfer Receipt,Service Shipment,Service Invoice,Service Credit Memo,Posted Assembly,Posted Disassembly,,,,,Item Receipt,Item Shipment,Direct Transfer';
-            OptionMembers = " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly","Posted Disassembly",,,,,"Item Receipt","Item Shipment","Direct Transfer";
         }
         field(80; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             Editable = false;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
 
             trigger OnValidate()
             begin
@@ -908,7 +907,8 @@ table 83 "Item Journal Line"
                 ProdOrderLine: Record "Prod. Order Line";
             begin
                 case "Order Type" of
-                    "Order Type"::Production, "Order Type"::Assembly:
+                    "Order Type"::Production,
+                    "Order Type"::Assembly:
                         begin
                             if "Order No." = '' then begin
                                 case "Order Type" of
@@ -970,6 +970,8 @@ table 83 "Item Journal Line"
                         end;
                     "Order Type"::Transfer, "Order Type"::Service, "Order Type"::" ":
                         Error(Text002, FieldCaption("Order No."), FieldCaption("Order Type"), "Order Type");
+                    else
+                        OnValidateOrderNoOnCaseOrderTypeElse(Rec);
                 end;
             end;
         }
@@ -985,7 +987,8 @@ table 83 "Item Journal Line"
             begin
                 TestField("Order No.");
                 case "Order Type" of
-                    "Order Type"::Production, "Order Type"::Assembly:
+                    "Order Type"::Production,
+                    "Order Type"::Assembly:
                         begin
                             if "Order Type" = "Order Type"::Production then begin
                                 ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
@@ -1011,6 +1014,8 @@ table 83 "Item Journal Line"
                                         CreateAssemblyDim;
                                 end;
                         end;
+                    else
+                        OnValidateOrderLineNoOnCaseOrderTypeElse(Rec);
                 end;
             end;
         }
@@ -1852,6 +1857,8 @@ table 83 "Item Journal Line"
                             end;
                         "Order Type"::Assembly:
                             CostCalcMgt.ResourceCostPerUnit("No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost");
+                        else
+                            OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(Rec);
                     end;
 
                 ReadGLSetup;
@@ -2000,6 +2007,10 @@ table 83 "Item Journal Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7315; "Warehouse Adjustment"; Boolean)
         {
             Caption = 'Warehouse Adjustment';
@@ -2045,7 +2056,7 @@ table 83 "Item Journal Line"
             var
                 InventorySetup: Record "Inventory Setup";
             begin
-                InventorySetup.Get;
+                InventorySetup.Get();
                 InventorySetup.TestField("Enable Red Storno");
             end;
         }
@@ -2166,7 +2177,7 @@ table 83 "Item Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ItemJnlTemplate.Get("Journal Template Name");
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
 
@@ -2205,7 +2216,6 @@ table 83 "Item Journal Line"
         MachineCenter: Record "Machine Center";
         Location: Record Location;
         Bin: Record Bin;
-        CustDeclLine: Record "CD No. Information";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2214,8 +2224,6 @@ table 83 "Item Journal Line"
         UserMgt: Codeunit "User Setup Management";
         CalendarMgt: Codeunit "Shop Calendar Management";
         CostCalcMgt: Codeunit "Cost Calculation Management";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         WMSManagement: Codeunit "WMS Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         PhysInvtEntered: Boolean;
@@ -2348,7 +2356,7 @@ table 83 "Item Journal Line"
 
     procedure SetUpNewLine(LastItemJnlLine: Record "Item Journal Line")
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         ItemJnlTemplate.Get("Journal Template Name");
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -2388,6 +2396,7 @@ table 83 "Item Journal Line"
             "Value Entry Type" := "Value Entry Type"::Revaluation;
             "Entry Type" := "Entry Type"::"Positive Adjmt.";
         end;
+        SetDefaultPriceCalculationMethod();
 
         case "Entry Type" of
             "Entry Type"::Purchase:
@@ -2405,6 +2414,29 @@ table 83 "Item Journal Line"
         OnAfterSetupNewLine(Rec, LastItemJnlLine, ItemJnlTemplate);
     end;
 
+    local procedure SetDefaultPriceCalculationMethod()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        case "Entry Type" of
+            "Entry Type"::Purchase,
+            "Entry Type"::Output,
+            "Entry Type"::"Assembly Output":
+                begin
+                    PurchasesPayablesSetup.Get();
+                    "Price Calculation Method" := PurchasesPayablesSetup."Price Calculation Method";
+                end;
+            "Entry Type"::Sale:
+                begin
+                    SalesReceivablesSetup.Get();
+                    "Price Calculation Method" := SalesReceivablesSetup."Price Calculation Method";
+                end;
+            else
+                "Price Calculation Method" := "Price Calculation Method"::" ";
+        end;
+    end;
+
     procedure SetDocNos(DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; PostingNos: Code[20])
     begin
         "Document Type" := DocType;
@@ -2415,6 +2447,7 @@ table 83 "Item Journal Line"
 
     local procedure GetUnitAmount(CalledByFieldNo: Integer)
     var
+        PriceType: Enum "Price Type";
         UnitCostValue: Decimal;
         IsHandled: Boolean;
     begin
@@ -2436,9 +2469,9 @@ table 83 "Item Journal Line"
 
         case "Entry Type" of
             "Entry Type"::Purchase:
-                PurchPriceCalcMgt.FindItemJnlLinePrice(Rec, CalledByFieldNo);
+                ApplyPrice(PriceType::Purchase, CalledByFieldNo);
             "Entry Type"::Sale:
-                SalesPriceCalcMgt.FindItemJnlLinePrice(Rec, CalledByFieldNo);
+                ApplyPrice(PriceType::Sale, CalledByFieldNo);
             "Entry Type"::"Positive Adjmt.":
                 "Unit Amount" :=
                   Round(
@@ -2450,6 +2483,20 @@ table 83 "Item Journal Line"
                 "Unit Amount" := 0;
         end;
         OnAfterGetUnitAmount(Rec);
+    end;
+
+    procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+    begin
+        ItemJournalLinePrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(ItemJournalLinePrice, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
     end;
 
     procedure Signed(Value: Decimal): Decimal
@@ -2678,7 +2725,7 @@ table 83 "Item Journal Line"
         Validate("Unit Amount", 0);
         Validate(Quantity, ItemLedgEntry2."Invoiced Quantity");
 
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
         ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
@@ -2717,6 +2764,7 @@ table 83 "Item Journal Line"
         "Reason Code" := SalesHeader."Reason Code";
         "Source Currency Code" := SalesHeader."Currency Code";
         "Shpt. Method Code" := SalesHeader."Shipment Method Code";
+        "Price Calculation Method" := SalesHeader."Price Calculation Method";
 
         OnAfterCopyItemJnlLineFromSalesHeader(Rec, SalesHeader);
     end;
@@ -2759,6 +2807,7 @@ table 83 "Item Journal Line"
         "Value Entry Type" := "Value Entry Type"::"Direct Cost";
         "Source Type" := "Source Type"::Customer;
         "Source No." := SalesLine."Sell-to Customer No.";
+        "Price Calculation Method" := SalesLine."Price Calculation Method";
         "Invoice-to Source No." := SalesLine."Bill-to Customer No.";
 
         OnAfterCopyItemJnlLineFromSalesLine(Rec, SalesLine);
@@ -2774,6 +2823,7 @@ table 83 "Item Journal Line"
         "Reason Code" := PurchHeader."Reason Code";
         "Source Currency Code" := PurchHeader."Currency Code";
         "Shpt. Method Code" := PurchHeader."Shipment Method Code";
+        "Price Calculation Method" := PurchHeader."Price Calculation Method";
 
         OnAfterCopyItemJnlLineFromPurchHeader(Rec, PurchHeader);
     end;
@@ -2818,6 +2868,7 @@ table 83 "Item Journal Line"
         "Value Entry Type" := "Value Entry Type"::"Direct Cost";
         "Source Type" := "Source Type"::Vendor;
         "Source No." := PurchLine."Buy-from Vendor No.";
+        "Price Calculation Method" := PurchLine."Price Calculation Method";
         "Invoice-to Source No." := PurchLine."Pay-to Vendor No.";
         "Purchasing Code" := PurchLine."Purchasing Code";
         "Indirect Cost %" := PurchLine."Indirect Cost %";
@@ -2838,6 +2889,7 @@ table 83 "Item Journal Line"
         "Source Type" := "Source Type"::Customer;
         "Source No." := ServiceHeader."Customer No.";
         "Shpt. Method Code" := ServiceHeader."Shipment Method Code";
+        "Price Calculation Method" := ServiceHeader."Price Calculation Method";
 
         OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
     end;
@@ -2874,6 +2926,7 @@ table 83 "Item Journal Line"
         "Order Line No." := ServiceLine."Line No.";
         "Job No." := ServiceLine."Job No.";
         "Job Task No." := ServiceLine."Job Task No.";
+        "Price Calculation Method" := ServiceLine."Price Calculation Method";
 
         OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
     end;
@@ -3047,7 +3100,7 @@ table 83 "Item Journal Line"
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
 
@@ -3073,7 +3126,7 @@ table 83 "Item Journal Line"
         ReadGLSetup;
         GetItem;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
             UnitCost := Item."Unit Cost"
         else
@@ -3124,7 +3177,7 @@ table 83 "Item Journal Line"
     local procedure GetMfgSetup()
     begin
         if not MfgSetupRead then
-            MfgSetup.Get;
+            MfgSetup.Get();
         MfgSetupRead := true;
     end;
 
@@ -3179,6 +3232,39 @@ table 83 "Item Journal Line"
         else
             if (Bin.Code <> BinCode) or (Bin."Location Code" <> LocationCode) then
                 Bin.Get(LocationCode, BinCode);
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Item No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Posting Date";
+        ReservEntry."Shipment Date" := "Posting Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(
+          DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+        ReservEntry.SetTrackingFilterFromItemJnlLine(Rec);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        ReservEntry.ClearTrackingFilter;
+        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure ItemPosting(): Boolean
@@ -3321,6 +3407,7 @@ table 83 "Item Journal Line"
     procedure RecalculateUnitAmount()
     var
         ItemJnlLine1: Record "Item Journal Line";
+        PriceType: Enum "Price Type";
     begin
         GetItem;
 
@@ -3345,7 +3432,7 @@ table 83 "Item Journal Line"
             "Entry Type"::Purchase:
                 begin
                     ItemJnlLine1.Copy(Rec);
-                    PurchPriceCalcMgt.FindItemJnlLinePrice(ItemJnlLine1, FieldNo("Unit of Measure Code"));
+                    ItemJnlLine1.ApplyPrice(PriceType::Purchase, FieldNo("Unit of Measure Code"));
                     "Unit Cost" := Round(ItemJnlLine1."Unit Amount" * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
                 end;
             "Entry Type"::Sale:
@@ -3476,6 +3563,15 @@ table 83 "Item Journal Line"
         OnAfterClearTracking(Rec);
     end;
 
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+        "CD No." := ItemLedgEntry."CD No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
     procedure CopyTrackingFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         "Serial No." := TrackingSpecification."Serial No.";
@@ -3485,9 +3581,30 @@ table 83 "Item Journal Line"
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure CopyNewTrackingFromNewSpec(TrackingSpecification: Record "Tracking Specification")
     begin
-        exit(("Serial No." <> '') or ("Lot No." <> '') or ("CD No." <> ''));
+        "New Serial No." := TrackingSpecification."New Serial No.";
+        "New Lot No." := TrackingSpecification."New Lot No.";
+        "New CD No." := TrackingSpecification."New CD No.";
+
+        OnAfterCopyNewTrackingFromNewSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure TrackingExists(): Boolean
+    var
+        IsTrackingExist: Boolean;
+    begin
+        IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '') or ("CD No." <> '');
+        exit(IsTrackingExist);
+    end;
+
+    procedure HasSameNewTracking(): Boolean
+    var
+        IsSameTracking: Boolean;
+    begin
+        IsSameTracking := ("Serial No." = "New Serial No.") and ("Lot No." = "New Lot No.") and ("CD No." = "New CD No.");
+        OnAfterHasSameNewTracking(Rec, IsSameTracking);
+        exit(IsSameTracking);
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -3756,6 +3873,38 @@ table 83 "Item Journal Line"
         OnCheckItemJournalLinePostRestrictions;
     end;
 
+    procedure CheckTrackingIsEmpty()
+    begin
+        ItemJnlLine.TestField("Serial No.", '');
+        ItemJnlLine.TestField("Lot No.", '');
+        ItemJnlLine.TestField("CD No.", '');
+    end;
+
+    procedure CheckNewTrackingIsEmpty()
+    begin
+        ItemJnlLine.TestField("New Serial No.", '');
+        ItemJnlLine.TestField("New Lot No.", '');
+        ItemJnlLine.TestField("New CD No.", '');
+    end;
+
+    procedure CheckTrackingEqualItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        TestField("Lot No.", ItemLedgerEntry."Lot No.");
+        TestField("Serial No.", ItemLedgerEntry."Serial No.");
+        TestField("CD No.", ItemLedgerEntry."CD No.");
+
+        OnAfterCheckTrackingEqualItemLedgEntry(Rec, ItemLedgerEntry);
+    end;
+
+    procedure CheckTrackingEqualTrackingSpecification(TrackingSpecification: Record "Tracking Specification")
+    begin
+        TestField("Lot No.", TrackingSpecification."Lot No.");
+        TestField("Serial No.", TrackingSpecification."Serial No.");
+        TestField("CD No.", TrackingSpecification."CD No.");
+
+        OnAfterCheckTrackingEqualTrackingSpecification(Rec, TrackingSpecification);
+    end;
+
     procedure ValidateTypeWithItemNo()
     begin
         // Validate the item type when defining a relation with another table
@@ -3774,6 +3923,16 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingEqualItemLedgEntry(ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingEqualTrackingSpecification(ItemJournalLine: Record "Item Journal Line"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3833,7 +3992,17 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromSpec(var ItemJournalLine: Record "Item Journal Line"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyNewTrackingFromNewSpec(var ItemJournalLine: Record "Item Journal Line"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3868,6 +4037,11 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasSameNewTracking(ItemJournalLine: Record "Item Journal Line"; var IsSameTracking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemPosting(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var NextOperationNoIsEmpty: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -3889,6 +4063,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculateUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line");
     begin
     end;
 
@@ -3992,12 +4171,27 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateCapUnitOfMeasureCodeOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateOrderNoOrderTypeProduction(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderLineNoOnCaseOrderTypeElse(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

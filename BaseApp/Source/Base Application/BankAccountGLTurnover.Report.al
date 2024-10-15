@@ -30,9 +30,6 @@ report 12447 "Bank Account G/L Turnover"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Bank_Account__No__; "No.")
             {
             }
@@ -206,7 +203,7 @@ report 12447 "Bank Account G/L Turnover"
                   (BalanceDebitBegining = 0) and (BalanceCreditBegining = 0) and
                   (NetChangeDebit = 0) and (NetChangeCredit = 0) and
                   (BalanceDebitEnding = 0) and (BalanceCreditEnding = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TextLineValues(SubstituteSpacesZeroVal);
             end;

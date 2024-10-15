@@ -35,7 +35,7 @@ table 17313 "Tax Calc. Dim. Filter"
 
             trigger OnLookup()
             begin
-                Dimension.Reset;
+                Dimension.Reset();
                 Dimension.FilterGroup(2);
                 FilterGroup(2);
                 CopyFilter("Dimension Code", Dimension.Code);

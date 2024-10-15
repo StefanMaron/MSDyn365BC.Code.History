@@ -5258,9 +5258,6 @@ End Function
         <Field Name="PeriodText">
           <DataField>PeriodText</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>

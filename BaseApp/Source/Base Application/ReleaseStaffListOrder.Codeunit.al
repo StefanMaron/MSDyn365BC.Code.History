@@ -7,7 +7,7 @@ codeunit 17366 "Release Staff List Order"
         if Status = Status::Released then
             exit;
 
-        HRSetup.Get;
+        HRSetup.Get();
         HRSetup.TestField("Use Staff List Change Orders", true);
 
         TestField("No.");
@@ -38,7 +38,7 @@ codeunit 17366 "Release Staff List Order"
             if Status = Status::Open then
                 exit;
 
-            HRSetup.Get;
+            HRSetup.Get();
             HRSetup.TestField("Use Staff List Change Orders", true);
 
             Status := Status::Open;

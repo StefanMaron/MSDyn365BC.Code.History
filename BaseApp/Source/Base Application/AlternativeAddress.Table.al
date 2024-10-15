@@ -146,7 +146,7 @@ table 5201 "Alternative Address"
                 if CountryRegion.Get("Country/Region Code") then
                     if CountryRegion."Local Country/Region Code" = '' then begin
                         CountryRegion."Local Country/Region Code" := "Country/Region Code";
-                        CountryRegion.Modify;
+                        CountryRegion.Modify();
                     end;
             end;
         }
@@ -340,7 +340,7 @@ table 5201 "Alternative Address"
 
             trigger OnValidate()
             begin
-                AltAddr.Reset;
+                AltAddr.Reset();
                 AltAddr.SetCurrentKey("Person No.", "Address Type", "Valid from Date");
                 AltAddr.SetRange("Person No.", "Person No.");
                 AltAddr.SetRange("Address Type", "Address Type");
@@ -455,7 +455,7 @@ table 5201 "Alternative Address"
     [Scope('OnPrem')]
     procedure GetAddressPart(AddressType: Option; EmployeeNo: Code[20]; ShowCategory: Boolean; FromLevel: Integer; Full: Boolean): Text[250]
     begin
-        AltAddr.Reset;
+        AltAddr.Reset();
         AltAddr.SetCurrentKey("Person No.", "Address Type");
         AltAddr.SetRange("Person No.", EmployeeNo);
         AltAddr.SetRange("Address Type", AddressType);
@@ -604,7 +604,7 @@ table 5201 "Alternative Address"
                 Employee."Post Code" := "Post Code";
                 Employee."Country/Region Code" := "Country/Region Code";
 
-                Employee.Modify;
+                Employee.Modify();
             until Employee.Next = 0;
     end;
 

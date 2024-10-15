@@ -587,7 +587,7 @@ page 35663 "Payroll Analysis by Dim Matrix"
         Field31Visible := 31 <= NoOfRecords;
         Field32Visible := 32 <= NoOfRecords;
 
-        GLSetup.Get;
+        GLSetup.Get();
         NormalFormatString := StrSubstNo(Text001, GLSetup."Amount Decimal Places");
     end;
 
@@ -626,7 +626,7 @@ page 35663 "Payroll Analysis by Dim Matrix"
         Steps: Integer;
         NoOfRecords: Integer;
         MatrixData: array[32] of Decimal;
-        Text001: Label '<Precision,%1><Standard Format,0>';
+        Text001: Label '<Precision,%1><Standard Format,0>', Locked = true;
         ElementTypeFilter1: Text;
         ElementFilter1: Text;
         ElementGroupFilter1: Text;
@@ -777,7 +777,7 @@ page 35663 "Payroll Analysis by Dim Matrix"
                 AVBreakdownBuffer."Line Code" := Code;
                 AVBreakdownBuffer."Column Code" := DimCodeBufferColumn1.Code;
                 AVBreakdownBuffer.Amount := Amt;
-                AVBreakdownBuffer.Insert;
+                AVBreakdownBuffer.Insert();
             end;
         end;
 

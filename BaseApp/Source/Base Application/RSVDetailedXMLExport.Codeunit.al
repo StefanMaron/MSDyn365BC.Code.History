@@ -103,7 +103,7 @@ codeunit 17473 "RSV Detailed XML Export"
         if Person.IsEmpty then
             exit;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         RSVCalculationMgt.CalcDetailedBuffer(
           TempDetailPayrollReportingBuffer, TempTotalPaidPayrollReportingBuffer, Person, StartDate, EndDate);
@@ -116,7 +116,7 @@ codeunit 17473 "RSV Detailed XML Export"
                 PackPayrollReportingBuffer."File Name" :=
                   CreateDetailedXML(TempDetailPayrollReportingBuffer, TempPersonPayrollReportingBuffer,
                     StartDate, EndDate, CreationDate, InfoType, FolderName);
-                PackPayrollReportingBuffer.Insert;
+                PackPayrollReportingBuffer.Insert();
                 PackNo += 1;
             end;
         end;
@@ -269,7 +269,7 @@ codeunit 17473 "RSV Detailed XML Export"
 
     local procedure AddCompanyInfo()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         XMLAddComplexElement(PackCreatorTxt);
         XMLAddComplexElement(TaxNumberTxt);
         XMLAddSimpleElement(INNTxt, CompanyInfo."VAT Registration No.");
@@ -411,7 +411,7 @@ codeunit 17473 "RSV Detailed XML Export"
 
     local procedure ResetAllFiltersExceptPackNo(var PersonifiedPayrollReportingBuffer: Record "Payroll Reporting Buffer"; PackNo: Integer)
     begin
-        PersonifiedPayrollReportingBuffer.Reset;
+        PersonifiedPayrollReportingBuffer.Reset();
         PersonifiedPayrollReportingBuffer.SetCurrentKey("Pack No.");
         PersonifiedPayrollReportingBuffer.SetRange("Pack No.", PackNo);
     end;

@@ -32,7 +32,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create country with custom address format
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [WHEN] Open Country/Regions page with created country
         CountriesRegions.OpenEdit;
@@ -97,7 +97,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create country with Address Format = City+County+Post Code
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::"City+County+Post Code");
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [WHEN] Address Format is being changed to Custom
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
@@ -146,7 +146,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create country with custom address format
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Open Custom Address Format page for created country
         CustomAddressFormatPage.OpenEdit;
@@ -173,7 +173,7 @@ codeunit 134448 "Custom Address Format"
 
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Mock Custom Address Format line with Line No. = 0
         CustomAddressFormat."Country/Region Code" := CountryRegion.Code;
@@ -201,7 +201,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Find defalut CustomAddressFormat wiht Field ID <> 0
         CustomAddressFormat.SetFilter("Field ID", '<>0');
@@ -231,7 +231,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Create new CustomAddressFormat line with Field ID = 0
         CustomAddressFormat."Country/Region Code" := CountryRegion.Code;
@@ -271,7 +271,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Create new CustomAddressFormat record with Field ID = 0
         CustomAddressFormat."Country/Region Code" := CountryRegion.Code;
@@ -300,7 +300,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Create new CustomAddressFormat record with Field ID = 0
         CustomAddressFormat."Country/Region Code" := CountryRegion.Code;
@@ -354,7 +354,7 @@ codeunit 134448 "Custom Address Format"
         // [City] [Post Code] [County]
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
         CustomAddressFormat.SetRange("Field ID", 0);
@@ -406,22 +406,22 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country COUNTRY with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Setup first CustomAddressFormat record with different separators as [City]-[Post Code]+[County]
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
         CustomAddressFormat.FindFirst;
 
         CustomAddressFormat.Validate("Field ID", 0);
-        CustomAddressFormat.Modify;
+        CustomAddressFormat.Modify();
 
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo(City));
         CustomAddressFormatLine.Validate(Separator, '-');
-        CustomAddressFormatLine.Modify;
+        CustomAddressFormatLine.Modify();
 
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo("Post Code"));
         CustomAddressFormatLine.Validate(Separator, '+');
-        CustomAddressFormatLine.Modify;
+        CustomAddressFormatLine.Modify();
 
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo(County));
 
@@ -450,7 +450,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create new country COUNTRY with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [GIVEN] Setup three fields for last custom address format record as [City] [Post Code] [County]
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
@@ -478,7 +478,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Create country with non-exiting Address Format value
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion."Address Format" := 99;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // [WHEN] Address Format is being changed to Custom
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
@@ -495,12 +495,12 @@ codeunit 134448 "Custom Address Format"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomFormatAddressLine(CustomAddressFormat: Record "Custom Address Format"; var CustomAddressFormatLine: Record "Custom Address Format Line"; FieldID: Integer)
     begin
-        CustomAddressFormatLine.Init;
+        CustomAddressFormatLine.Init();
         CustomAddressFormatLine."Country/Region Code" := CustomAddressFormat."Country/Region Code";
         CustomAddressFormatLine."Line No." := CustomAddressFormat."Line No.";
         CustomAddressFormatLine.Validate("Field ID", FieldID);

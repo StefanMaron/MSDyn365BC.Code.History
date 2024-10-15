@@ -21,9 +21,6 @@ report 12432 "G/L Corresp. Journal Order"
             column(CurrentDate; CurrentDate)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -71,7 +68,7 @@ report 12432 "G/L Corresp. Journal Order"
                 begin
                     if InvProcessing = InvProcessing::Pass
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, PassLinesBeforeAccount);
                 end;
             }
@@ -104,7 +101,7 @@ report 12432 "G/L Corresp. Journal Order"
                 begin
                     if InvProcessing = InvProcessing::Pass
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Period Month"; "Integer")
@@ -167,9 +164,9 @@ report 12432 "G/L Corresp. Journal Order"
 
                         if GLAcc.Totaling <> '' then begin
                             if TempGLAcc.Get("Double Entry"."Debit Account No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TempGLAcc."No." := "Double Entry"."Debit Account No.";
-                            TempGLAcc.Insert;
+                            TempGLAcc.Insert();
                             "Double Entry"."Credit Totaling" := GLAcc.Totaling;
                         end;
 
@@ -181,14 +178,14 @@ report 12432 "G/L Corresp. Journal Order"
                     trigger OnPreDataItem()
                     begin
                         if WithoutAccountCorresp then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DoubleEntriesSeparator := true;
                         if GLAcc.Totaling = '' then
                             SetFilter("Credit Account No.", GLAcc."No.")
                         else
                             SetFilter("Credit Account No.", GLAcc.Totaling);
 
-                        TempGLAcc.DeleteAll;
+                        TempGLAcc.DeleteAll();
                     end;
                 }
 
@@ -245,7 +242,7 @@ report 12432 "G/L Corresp. Journal Order"
                 begin
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if (not ManualInputBeginingDate) and (not ManualInputEndingDate) then
                         SetRange(Number, 0,
                            Date2DMY(EndingPeriodDate, 2) - Date2DMY(DateStartedOfPeriod, 2) +
@@ -315,9 +312,9 @@ report 12432 "G/L Corresp. Journal Order"
 
                         if GLAcc.Totaling <> '' then begin
                             if TempGLAcc.Get("Double Entry"."Debit Account No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TempGLAcc."No." := "Double Entry"."Debit Account No.";
-                            TempGLAcc.Insert;
+                            TempGLAcc.Insert();
                             "Double Entry"."Credit Totaling" := GLAcc.Totaling;
                         end;
 
@@ -329,14 +326,14 @@ report 12432 "G/L Corresp. Journal Order"
                     trigger OnPreDataItem()
                     begin
                         if WithoutAccountCorresp then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if GLAcc.Totaling = '' then
                             SetFilter("Credit Account No.", GLAcc."No.")
                         else
                             SetFilter("Credit Account No.", GLAcc.Totaling);
 
-                        TempGLAcc.DeleteAll;
+                        TempGLAcc.DeleteAll();
                     end;
                 }
 
@@ -353,7 +350,7 @@ report 12432 "G/L Corresp. Journal Order"
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                        or (Date2DMY(DateStartedOfPeriod, 2) = Date2DMY(EndingPeriodDate, 2))
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     DoubleEntriesSeparator := true;
                 end;
             }
@@ -368,7 +365,7 @@ report 12432 "G/L Corresp. Journal Order"
                 begin
                     if (InvProcessing in [InvProcessing::Pass, InvProcessing::"Bold Header"])
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1);
                 end;
             }
