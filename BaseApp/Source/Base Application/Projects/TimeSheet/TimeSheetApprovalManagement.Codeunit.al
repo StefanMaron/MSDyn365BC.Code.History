@@ -7,6 +7,7 @@ namespace Microsoft.Projects.TimeSheet;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.Setup;
 using System.Security.User;
@@ -21,12 +22,14 @@ codeunit 951 "Time Sheet Approval Management"
     end;
 
     var
-        Text001: Label 'There is nothing to submit for line with %1=%2, %3=%4.', Comment = 'There is nothing to submit for line with Time Sheet No.=10, Line No.=10000.';
+        ResourcesSetup: Record "Resources Setup";
+        ResourceSetupRead: Boolean;
+        NothingToSubmitErr: Label 'There is nothing to submit for line with %1=%2, %3=%4.', Comment = '%1 = Time Sheet No. caption; %2 = Time Sheet No. value; %3 = Line No. caption; %4 = Line No. value; Example = There is nothing to submit for line with Time Sheet No.=10, Line No.=10000.';
         Text002: Label 'You are not authorized to approve time sheet lines. Contact your time sheet administrator.';
         Text003: Label 'Time sheet line cannot be reopened because there are linked service lines.';
-        Text004: Label '&All open lines [%1 line(s)],&Selected line(s) only';
-        Text005: Label '&All submitted lines [%1 line(s)],&Selected line(s) only';
-        Text006: Label '&All approved lines [%1 line(s)],&Selected line(s) only';
+        ProcessOpenLinesQst: Label '&All open lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
+        ProcessSubmittedLinesQst: Label '&All submitted lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
+        ProcessApprovedLinesQst: Label '&All approved lines with %2 defined [%1 line(s)],&Selected line(s) with %2 defined only', Comment = '%1 = Lines count, %2 = Type caption';
         Text007: Label 'Submit for approval';
         Text008: Label 'Reopen for editing';
         Text009: Label 'Approve for posting';
@@ -40,6 +43,7 @@ codeunit 951 "Time Sheet Approval Management"
         ReopenLineQst: Label 'Do you want to reopen line?';
         ApproveLineQst: Label 'Do you want to approve line?';
         RejectLineQst: Label 'Do you want to reject line?';
+        NoTimeSheetLinesToProcessErr: Label 'There are no time sheet lines to process in %1 action.', Comment = '%1 = Action';
 
     procedure ProcessAction(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
     var
@@ -75,33 +79,45 @@ codeunit 951 "Time Sheet Approval Management"
         if isHandled then
             exit;
 
-        with TimeSheetLine do begin
-            if Status = Status::Submitted then
-                exit;
-            if Type = Type::" " then
-                FieldError(Type);
-            TestStatus();
-            CalcFields("Total Quantity");
-            if "Total Quantity" = 0 then
-                Error(
-                  Text001, FieldCaption("Time Sheet No."), "Time Sheet No.", FieldCaption("Line No."), "Line No.");
-            case Type of
-                Type::Job:
-                    begin
-                        TestField("Job No.");
-                        TestField("Job Task No.");
-                    end;
-                Type::Absence:
-                    TestField("Cause of Absence Code");
-                Type::Service:
-                    TestField("Service Order No.");
-            end;
-            UpdateApproverID();
-            Status := Status::Submitted;
-            OnSubmitOnBeforeTimeSheetLineModify(TimeSheetLine);
-            Modify(true);
-            OnAfterSubmit(TimeSheetLine);
+        if TimeSheetLine.Status = TimeSheetLine.Status::Submitted then
+            exit;
+        if TimeSheetLine.Type = TimeSheetLine.Type::" " then
+            TimeSheetLine.FieldError(Type);
+        TimeSheetLine.TestStatus();
+        TimeSheetLine.CalcFields("Total Quantity");
+
+        if CheckEmptyLineNotRequireSubmit(TimeSheetLine) then
+            exit;
+
+        if TimeSheetLine."Total Quantity" = 0 then
+            Error(
+              NothingToSubmitErr, TimeSheetLine.FieldCaption("Time Sheet No."), TimeSheetLine."Time Sheet No.", TimeSheetLine.FieldCaption("Line No."), TimeSheetLine."Line No.");
+        case TimeSheetLine.Type of
+            TimeSheetLine.Type::Job:
+                begin
+                    TimeSheetLine.TestField("Job No.");
+                    TimeSheetLine.TestField("Job Task No.");
+                end;
+            TimeSheetLine.Type::Absence:
+                TimeSheetLine.TestField("Cause of Absence Code");
+            TimeSheetLine.Type::Service:
+                TimeSheetLine.TestField("Service Order No.");
         end;
+        TimeSheetLine.UpdateApproverID();
+        TimeSheetLine.Status := TimeSheetLine.Status::Submitted;
+        OnSubmitOnBeforeTimeSheetLineModify(TimeSheetLine);
+        TimeSheetLine.Modify(true);
+        OnAfterSubmit(TimeSheetLine);
+    end;
+
+    local procedure CheckEmptyLineNotRequireSubmit(var TimeSheetLine: Record "Time Sheet Line"): Boolean
+    begin
+        GetResourceSetup();
+
+        if ResourcesSetup."Time Sheet Submission Policy" = ResourcesSetup."Time Sheet Submission Policy"::"Stop and Show Empty Line Error" then
+            exit(false);
+
+        exit(TimeSheetLine."Total Quantity" = 0);
     end;
 
     procedure SubmitIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
@@ -116,21 +132,18 @@ codeunit 951 "Time Sheet Approval Management"
         TimeSheetMgt: Codeunit "Time Sheet Management";
 #endif
     begin
-        with TimeSheetLine do begin
-            if Status = Status::Open then
-                exit;
-
+        if TimeSheetLine.Status = TimeSheetLine.Status::Open then
+            exit;
 #if not CLEAN22
-            if not TimeSheetMgt.TimeSheetV2Enabled() then
-                TestField(Status, Status::Submitted);
+        if not TimeSheetMgt.TimeSheetV2Enabled() then
+            TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
 #endif
-            Status := Status::Open;
-            OnReopenSubmittedOnBeforeModify(TimeSheetLine);
-            Modify(true);
-            OnReopenSubmittedOnAfterModify(TimeSheetLine);
+        TimeSheetLine.Status := TimeSheetLine.Status::Open;
+        OnReopenSubmittedOnBeforeModify(TimeSheetLine);
+        TimeSheetLine.Modify(true);
+        OnReopenSubmittedOnAfterModify(TimeSheetLine);
 
-            OnAfterReopenSubmitted(TimeSheetLine);
-        end;
+        OnAfterReopenSubmitted(TimeSheetLine);
     end;
 
     procedure ReopenSubmittedIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
@@ -145,23 +158,21 @@ codeunit 951 "Time Sheet Approval Management"
         TimeSheetMgt: Codeunit "Time Sheet Management";
 #endif
     begin
-        with TimeSheetLine do begin
-            if Status = Status::Submitted then
-                exit;
+        if TimeSheetLine.Status = TimeSheetLine.Status::Submitted then
+            exit;
 #if not CLEAN22
-            if not TimeSheetMgt.TimeSheetV2Enabled() then
-                TestField(Status, Status::Approved);
+        if not TimeSheetMgt.TimeSheetV2Enabled() then
+            TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
 #endif
-            TestField(Posted, false);
-            CheckApproverPermissions(TimeSheetLine);
-            CheckLinkedServiceDoc(TimeSheetLine);
-            UpdateApproverID();
-            Status := Status::Submitted;
-            OnReopenApprovedOnBeforeTimeSheetLineModify(TimeSheetLine);
-            Modify(true);
+        TimeSheetLine.TestField(Posted, false);
+        CheckApproverPermissions(TimeSheetLine);
+        CheckLinkedServiceDoc(TimeSheetLine);
+        TimeSheetLine.UpdateApproverID();
+        TimeSheetLine.Status := TimeSheetLine.Status::Submitted;
+        OnReopenApprovedOnBeforeTimeSheetLineModify(TimeSheetLine);
+        TimeSheetLine.Modify(true);
 
-            OnAfterReopenApproved(TimeSheetLine);
-        end;
+        OnAfterReopenApproved(TimeSheetLine);
     end;
 
     procedure ReopenApprovedIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
@@ -176,16 +187,15 @@ codeunit 951 "Time Sheet Approval Management"
     begin
         IsHandled := false;
         OnBeforeReject(TimeSheetLine, IsHandled);
-        if not IsHandled then
-            with TimeSheetLine do begin
-                if Status = Status::Rejected then
-                    exit;
-                TestField(Status, Status::Submitted);
-                CheckApproverPermissions(TimeSheetLine);
-                Status := Status::Rejected;
-                OnRejectOnBeforeTimeSheetLineModify(TimeSheetLine);
-                Modify(true);
-            end;
+        if not IsHandled then begin
+            if TimeSheetLine.Status = TimeSheetLine.Status::Rejected then
+                exit;
+            TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
+            CheckApproverPermissions(TimeSheetLine);
+            TimeSheetLine.Status := TimeSheetLine.Status::Rejected;
+            OnRejectOnBeforeTimeSheetLineModify(TimeSheetLine);
+            TimeSheetLine.Modify(true);
+        end;
 
         OnAfterReject(TimeSheetLine);
     end;
@@ -205,22 +215,20 @@ codeunit 951 "Time Sheet Approval Management"
         if IsHandled then
             exit;
 
-        with TimeSheetLine do begin
-            if Status = Status::Approved then
-                exit;
-            TestField(Status, Status::Submitted);
-            CheckApproverPermissions(TimeSheetLine);
-            Status := Status::Approved;
-            "Approved By" := UserId;
-            "Approval Date" := Today;
-            OnApproveOnBeforeTimeSheetLineModify(TimeSheetLine);
-            Modify(true);
-            case Type of
-                Type::Absence:
-                    PostAbsence(TimeSheetLine);
-                Type::Service:
-                    AfterApproveServiceOrderTmeSheetEntries(TimeSheetLine);
-            end;
+        if TimeSheetLine.Status = TimeSheetLine.Status::Approved then
+            exit;
+        TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
+        CheckApproverPermissions(TimeSheetLine);
+        TimeSheetLine.Status := TimeSheetLine.Status::Approved;
+        TimeSheetLine."Approved By" := CopyStr(UserId(), 1, MaxStrLen(TimeSheetLine."Approved By"));
+        TimeSheetLine."Approval Date" := Today();
+        OnApproveOnBeforeTimeSheetLineModify(TimeSheetLine);
+        TimeSheetLine.Modify(true);
+        case TimeSheetLine.Type of
+            TimeSheetLine.Type::Absence:
+                PostAbsence(TimeSheetLine);
+            TimeSheetLine.Type::Service:
+                AfterApproveServiceOrderTmeSheetEntries(TimeSheetLine);
         end;
 
         OnAfterApprove(TimeSheetLine);
@@ -230,6 +238,14 @@ codeunit 951 "Time Sheet Approval Management"
     begin
         if Confirm(ApproveLineQst) then
             Approve(TimeSheetLine);
+    end;
+
+    internal procedure NoTimeSheetLinesToProcess(TimeSheetAction: Enum "Time Sheet Action")
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        Error(NoTimeSheetLinesToProcessErr, TimeSheetAction);
     end;
 
     procedure PostAbsence(var TimeSheetLine: Record "Time Sheet Line")
@@ -308,6 +324,7 @@ codeunit 951 "Time Sheet Approval Management"
 
     procedure GetTimeSheetDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text[100]
     var
+        TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
     begin
@@ -318,14 +335,15 @@ codeunit 951 "Time Sheet Approval Management"
 
         case ActionType of
             ActionType::Submit:
-                exit(StrSubstNo(Text004, LinesQty));
+                exit(StrSubstNo(ProcessOpenLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
             ActionType::Reopen:
-                exit(StrSubstNo(Text005, LinesQty));
+                exit(StrSubstNo(ProcessSubmittedLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
         end;
     end;
 
     procedure GetManagerTimeSheetDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text[100]
     var
+        TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
     begin
@@ -336,15 +354,16 @@ codeunit 951 "Time Sheet Approval Management"
 
         case ActionType of
             ActionType::Approve,
-          ActionType::Reject:
-                exit(StrSubstNo(Text005, LinesQty));
+            ActionType::Reject:
+                exit(StrSubstNo(ProcessSubmittedLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
             ActionType::Reopen:
-                exit(StrSubstNo(Text006, LinesQty));
+                exit(StrSubstNo(ProcessApprovedLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
         end;
     end;
 
     procedure GetCommonTimeSheetDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text[100]
     var
+        TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
     begin
@@ -355,13 +374,13 @@ codeunit 951 "Time Sheet Approval Management"
 
         case ActionType of
             ActionType::Submit:
-                exit(StrSubstNo(Text004, LinesQty));
+                exit(StrSubstNo(ProcessOpenLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
             ActionType::ReopenSubmitted,
             ActionType::Approve,
             ActionType::Reject:
-                exit(StrSubstNo(Text005, LinesQty));
+                exit(StrSubstNo(ProcessSubmittedLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
             ActionType::ReopenApproved:
-                exit(StrSubstNo(Text006, LinesQty));
+                exit(StrSubstNo(ProcessApprovedLinesQst, LinesQty, TimeSheetLine.FieldCaption(Type)));
         end;
     end;
 
@@ -420,6 +439,14 @@ codeunit 951 "Time Sheet Approval Management"
                 exit(Text009);
             ActionType::Reject:
                 exit(Text010);
+        end;
+    end;
+
+    local procedure GetResourceSetup()
+    begin
+        if not ResourceSetupRead then begin
+            ResourcesSetup.Get();
+            ResourceSetupRead := true;
         end;
     end;
 

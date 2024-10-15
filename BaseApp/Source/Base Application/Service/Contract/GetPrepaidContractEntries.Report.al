@@ -130,13 +130,12 @@ report 6033 "Get Prepaid Contract Entries"
 
     local procedure GetCurrency()
     begin
-        with ServHeader do
-            if "Currency Code" = '' then
-                Currency.InitRoundingPrecision()
-            else begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
+        if ServHeader."Currency Code" = '' then
+            Currency.InitRoundingPrecision()
+        else begin
+            Currency.Get(ServHeader."Currency Code");
+            Currency.TestField("Amount Rounding Precision");
+        end;
     end;
 }
 

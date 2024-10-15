@@ -32,9 +32,9 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingAgentServices: Record "Shipping Agent Services";
         BaseCalendar: Record "Base Calendar";
         BaseCalendarChange: Record "Base Calendar Change";
+        ShippingTime: DateFormula;
         ExpectedDeliveryDate: Date;
         PlannedShipmentDate: Date;
-        ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time.
         Initialize();
@@ -61,9 +61,9 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine: Record "Sales Line";
         ShippingAgentServices: Record "Shipping Agent Services";
         Item: Record Item;
+        Shippingtime: DateFormula;
         PlannedShipmentDate: Date;
         PlannedDeliveryDate: Date;
-        Shippingtime: DateFormula;
     begin
         // Setup: Create Shipping agent services with random shipping time and Create Sales Header and Calculate Dates.
         Initialize();
@@ -90,9 +90,9 @@ codeunit 137050 "SCM Sales Order Management"
         BaseCalendarChange: Record "Base Calendar Change";
         SalesHeader: Record "Sales Header";
         Item: Record Item;
+        ShippingTime: DateFormula;
         PlannedShipmentDate: Date;
         PlannedDeliveryDate: Date;
-        ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time and Create Sales Header and calculate dates.
         Initialize();
@@ -103,7 +103,7 @@ codeunit 137050 "SCM Sales Order Management"
           BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange."Recurring System"::"Weekly Recurring", 0D,
           BaseCalendarChange.Day::Monday);
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, '');
-        CreateSalesHeader(SalesHeader, CreateCustomer(ShippingAgentServices, BaseCalendar.Code), '');
+        CreateSalesHeaderWithRandomShippingTime(SalesHeader, CreateCustomer(ShippingAgentServices, BaseCalendar.Code), '');
 
         // Exercise: Create a Sales Line.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
@@ -121,10 +121,10 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingAgentServices: Record "Shipping Agent Services";
         BaseCalendar: Record "Base Calendar";
         SalesHeader: Record "Sales Header";
+        ShippingTime: DateFormula;
         PlannedShipmentDate: Date;
         PlannedDeliveryDate: Date;
         ShipmentDate: Date;
-        ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time and Calculate Dates.
         Initialize();
@@ -155,10 +155,10 @@ codeunit 137050 "SCM Sales Order Management"
         Item: Record Item;
         BaseCalendar2: Record "Base Calendar";
         Location: Record Location;
+        ShippingTime: DateFormula;
         PlannedShipmentDate: Date;
         PlannedDeliveryDate: Date;
         ShipmentDate: Date;
-        ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time.
         Initialize();
@@ -171,7 +171,7 @@ codeunit 137050 "SCM Sales Order Management"
         Evaluate(ShippingTime, '<0D>');  // Evaluating Shipping Time to Blank .
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, '');
         CreateLocation(Location, BaseCalendar2.Code);
-        CreateSalesHeader(SalesHeader, CreateCustomer(ShippingAgentServices, BaseCalendar.Code), Location.Code);
+        CreateSalesHeaderWithRandomShippingTime(SalesHeader, CreateCustomer(ShippingAgentServices, BaseCalendar.Code), Location.Code);
         ShipmentDate := SalesHeader."Shipment Date";
 
         // Exercise: Create a Sales Line.
@@ -193,8 +193,8 @@ codeunit 137050 "SCM Sales Order Management"
         Location: Record Location;
         BaseCalendar: Record "Base Calendar";
         CustomizedCalendarChange: Record "Customized Calendar Change";
-        ExpectedShipmentDate: Date;
         Shippingtime: DateFormula;
+        ExpectedShipmentDate: Date;
         OutboundShippingDays: Integer;
     begin
         // [FEATURE] [Shipment Date] [Shipping Agent Service] [Planning]
@@ -339,7 +339,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] Customer with Base Calendar where 16-01-2020 is non-working, Shipping time = 1D
         LibraryService.CreateBaseCalendar(BaseCalendar[1]);
         LibraryInventory.CreateBaseCalendarChange(
-          BaseCalendarChange, BaseCalendar[1].Code, BaseCalendarChange."Recurring System"::" ", WorkDate + 1, BaseCalendarChange.Day::" ");
+          BaseCalendarChange, BaseCalendar[1].Code, BaseCalendarChange."Recurring System"::" ", WorkDate() + 1, BaseCalendarChange.Day::" ");
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, '');
         CustomerNo := CreateCustomer(ShippingAgentServices, BaseCalendar[1].Code);
 
@@ -350,17 +350,17 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] A Sales Line for Customer with Location
         CreateSalesHeader(SalesHeader, CustomerNo, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Location Code", Location.Code);
 
         // [WHEN] Validating Planned Delivery Date to 17-01-2020
-        SalesLine.Validate("Planned Delivery Date", WorkDate + 2);
+        SalesLine.Validate("Planned Delivery Date", WorkDate() + 2);
 
         // [THEN] Planned Shipment Date = 16-01-2020
-        SalesLine.TestField("Planned Shipment Date", WorkDate + 1);
+        SalesLine.TestField("Planned Shipment Date", WorkDate() + 1);
 
         // [THEN] Shipment Date = 16-01-2020
-        SalesLine.TestField("Shipment Date", WorkDate + 1);
+        SalesLine.TestField("Shipment Date", WorkDate() + 1);
     end;
 
     [Test]
@@ -384,24 +384,24 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] Customer with Base Calendar, Shipping time = 1D
         LibraryService.CreateBaseCalendar(BaseCalendar[1]);
         LibraryInventory.CreateBaseCalendarChange(
-          BaseCalendarChange, BaseCalendar[1].Code, BaseCalendarChange."Recurring System"::" ", WorkDate + 1, BaseCalendarChange.Day::" ");
+          BaseCalendarChange, BaseCalendar[1].Code, BaseCalendarChange."Recurring System"::" ", WorkDate() + 1, BaseCalendarChange.Day::" ");
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, '');
         CustomerNo := CreateCustomer(ShippingAgentServices, BaseCalendar[1].Code);
 
         // [GIVEN] Location with Base Calendar where 16-01-2020 is non-working
         LibraryService.CreateBaseCalendar(BaseCalendar[2]);
         LibraryInventory.CreateBaseCalendarChange(
-          BaseCalendarChange, BaseCalendar[2].Code, BaseCalendarChange."Recurring System"::" ", WorkDate + 1, BaseCalendarChange.Day::" ");
+          BaseCalendarChange, BaseCalendar[2].Code, BaseCalendarChange."Recurring System"::" ", WorkDate() + 1, BaseCalendarChange.Day::" ");
         CreateLocation(Location, BaseCalendar[2].Code);
 
         // [GIVEN] A Sales Line for Customer with Location
         CreateSalesHeader(SalesHeader, CustomerNo, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Location Code", Location.Code);
 
         // [WHEN] Validating Planned Delivery Date to 17-01-2020
-        SalesLine.Validate("Planned Delivery Date", WorkDate + 2);
+        SalesLine.Validate("Planned Delivery Date", WorkDate() + 2);
 
         // [THEN] Planned Shipment Date = 15-01-2020
         SalesLine.TestField("Planned Shipment Date", WorkDate());
@@ -429,7 +429,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] Shipping Agent with Base Calendar where 17-01-2020 in non-working and Shipping Time 2D
         LibraryService.CreateBaseCalendar(BaseCalendar[2]);
         LibraryInventory.CreateBaseCalendarChange(
-          BaseCalendarChange, BaseCalendar[2].Code, BaseCalendarChange."Recurring System"::" ", WorkDate + 2, BaseCalendarChange.Day::" ");
+          BaseCalendarChange, BaseCalendar[2].Code, BaseCalendarChange."Recurring System"::" ", WorkDate() + 2, BaseCalendarChange.Day::" ");
         Evaluate(ShippingTime, '<2D>');
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, BaseCalendar[2].Code);
 
@@ -443,16 +443,16 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] A Sales Line for Customer with Location
         CreateSalesHeaderWithCustomerAndLocation(SalesHeader, CustomerNo, Location.Code);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Validating Planned Delivery Date to 19-01-2020
-        SalesLine.Validate("Planned Delivery Date", WorkDate + 4);
+        SalesLine.Validate("Planned Delivery Date", WorkDate() + 4);
 
         // [THEN] Planned Shipment Date = 16-01-2020
-        SalesLine.TestField("Planned Shipment Date", WorkDate + 1);
+        SalesLine.TestField("Planned Shipment Date", WorkDate() + 1);
 
         // [THEN] Shipment Date = 16-01-2020
-        SalesLine.TestField("Shipment Date", WorkDate + 1);
+        SalesLine.TestField("Shipment Date", WorkDate() + 1);
     end;
 
     [Test]
@@ -477,11 +477,11 @@ codeunit 137050 "SCM Sales Order Management"
         // [GIVEN] A Sales Line for Customer with Location
         CreateSalesHeader(SalesHeader, CustomerNo, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         Commit();
 
         // [WHEN] Run the Preview
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         asserterror LibrarySales.PreviewPostSalesDocument(SalesHeader);
 
         // [THEN] The COMMIT in the subscriber is stopped because of a transaction error
@@ -514,7 +514,7 @@ codeunit 137050 "SCM Sales Order Management"
         SalesHeader.Modify(true);
 
         // [GIVEN] Sales order line. Select Shipping Agent Service Code = "X".
-        // [GIVEN] Ensure that "Shipping Time" = 5D, "Planned Delivery Date" = WorkDate + 5 days.
+        // [GIVEN] Ensure that "Shipping Time" = 5D, "Planned Delivery Date" = WorkDate() + 5 days.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         SalesLine.Validate("Shipping Agent Code", ShippingAgentServices."Shipping Agent Code");
         SalesLine.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
@@ -528,7 +528,7 @@ codeunit 137050 "SCM Sales Order Management"
         SalesLine.Validate("Shipping Agent Service Code", '');
 
         // [THEN] "Shipping Time" got updated from the sales header (= 15D).
-        // [THEN] "Planned Delivery Date" = WorkDate + 15 days.
+        // [THEN] "Planned Delivery Date" = WorkDate() + 15 days.
         SalesLine.TestField("Shipping Time", ShippingTime[2]);
         SalesLine.TestField("Planned Delivery Date", CalcDate(ShippingTime[2], SalesLine."Shipment Date"));
     end;
@@ -649,19 +649,31 @@ codeunit 137050 "SCM Sales Order Management"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
 
+    local procedure CreateSalesHeaderWithRandomShippingTime(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10])
+    var
+        ShippingTime: DateFormula;
+    begin
+        Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        CreateSalesHeader(SalesHeader, CustomerNo, LocationCode, ShippingTime);
+    end;
+
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10])
     var
         OutboundWhseHandlingTime: DateFormula;
-        ShippingTime: DateFormula;
         ShipmentDate: Date;
     begin
-        Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         Evaluate(OutboundWhseHandlingTime, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Validate("Outbound Whse. Handling Time", OutboundWhseHandlingTime);
         SalesHeader.Validate("Shipment Date", ShipmentDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]; ShippingTime: DateFormula)
+    begin
+        CreateSalesHeader(SalesHeader, CustomerNo, LocationCode);
         SalesHeader.Validate("Shipping Time", ShippingTime);
         SalesHeader.Modify(true);
     end;
@@ -731,7 +743,6 @@ codeunit 137050 "SCM Sales Order Management"
     local procedure CreateBaseCalendar(var BaseCalendar: Record "Base Calendar")
     var
         BaseCalendarChange: Record "Base Calendar Change";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryService.CreateBaseCalendar(BaseCalendar);
         LibraryInventory.CreateBaseCalendarChange(
@@ -781,7 +792,7 @@ codeunit 137050 "SCM Sales Order Management"
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.GetShipmentLines.Invoke;
+        ItemChargeAssignmentSales.GetShipmentLines.Invoke();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnAfterInsertEvent', '', false, false)]

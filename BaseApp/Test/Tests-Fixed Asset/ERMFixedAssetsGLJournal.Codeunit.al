@@ -42,16 +42,16 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Initialize();
 
         // Setup
-        FixedAssetGLJournal.OpenEdit;
+        FixedAssetGLJournal.OpenEdit();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryVariableStorage.Enqueue(false);
-        FixedAssetGLJournal.CurrentJnlBatchName.Lookup;
+        FixedAssetGLJournal.CurrentJnlBatchName.Lookup();
 
         // Verify
         // ModalPageHandler verifies the visibility status of Allow Payment Export
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -64,17 +64,17 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Initialize();
 
         // Setup
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         // Exercise
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddBanking;
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.AddBanking();
         LibraryVariableStorage.Enqueue(true);
-        PaymentJournal.CurrentJnlBatchName.Lookup;
+        PaymentJournal.CurrentJnlBatchName.Lookup();
 
         // Verify
         // ModalPageHandler verifies the visibility status of Allow Payment Export
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -97,8 +97,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and Post General Journal Line with Duplicate in Depreciation Book Code.
-        LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
         CreateGeneralJournal(GenJournalLine, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", GLAccount);
         GenJournalLine.Validate("Duplicate in Depreciation Book", DepreciationBook.Code);
         GenJournalLine.Modify(true);
@@ -134,7 +134,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and Post General Journal Line with Use Duplication List as True.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateGeneralJournal(GenJournalLine, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", GLAccount);
         GenJournalLine.Validate("Use Duplication List", true);
@@ -175,8 +175,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and Post General Journal Line with Use Duplication List as True.
-        LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
         CreateGeneralJournal(GenJournalLine, FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", GLAccount);
         GenJournalLine.Validate("Use Duplication List", true);
         GenJournalLine.Modify(true);
@@ -203,7 +203,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateJournalSetupDepreciation(DepreciationBook);
 
         // 2. Exercise: Update Use FA Exch. Rate in Duplic. as False on Depreciation Book.
-        LibraryLowerPermissions.SetO365FASetup;
+        LibraryLowerPermissions.SetO365FASetup();
         DepreciationBook.Validate("Use FA Exch. Rate in Duplic.", false);
         DepreciationBook.Modify(true);
 
@@ -235,7 +235,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and post a line in FA G/L Journal with FA Posting Type Acquisition Cost.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateGenJournalLine(
           GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Acquisition Cost",
@@ -261,7 +261,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::Depreciation, -1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -285,7 +285,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Write-Down", -1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -309,7 +309,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::Appreciation, 1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -333,7 +333,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 1", -1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -357,7 +357,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FANo := CreateFixedAssetWithIntegration(GenJournalLine."FA Posting Type"::"Custom 2", -1, GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -409,7 +409,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         MaintenanceCodeGenJournalLine(GenJournalLine, Maintenance);
 
         // 2. Exercise: To create and post a line in FA G/L Journal with FA Posting Type Maintenance.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -451,7 +451,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and post a line in FA G/L Journal with FA Posting Type Maintenance.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateJnlLineWithBudgetedAsset(GenJournalLine, FADepreciationBook, GenJournalBatch, FixedAsset."No.", Maintenance, GLAccount);
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -497,7 +497,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // 2. Exercise: Create and post a line in FA G/L Journal with FA Posting Type Maintenance.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateJnlLineWithBudgetedAsset(GenJournalLine, FADepreciationBook2, GenJournalBatch, FixedAsset."No.", Maintenance, GLAccount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -531,7 +531,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         SetupPartialGLIntegrationBook(DepreciationBook, true);
 
         // 2. Exercise: Create and post a line in FA G/L Journal with FA Posting Type Acquisition Cost.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateGenJournalLine(
           GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Acquisition Cost",
@@ -572,7 +572,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Create and post a line in FA G/L Journal with FA Posting Type Disposal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateGenJournalLine(
           GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::Disposal,
@@ -616,7 +616,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Create and post a line in FA G/L Journal with FA Posting Type Disposal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         CreateGenJournalLine(
           GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::Disposal, -GenJournalLine.Amount,
@@ -645,7 +645,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateFAWithDecliningBalanceFADeprBook(FADepreciationBook);
 
         // 2.Exercise: Create and post journal lines
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         Amount := LibraryRandom.RandDec(100, 2);
         CreateAndPostFAJournalLine(FADepreciationBook, Amount, FAJournalLine."FA Posting Type"::"Acquisition Cost");
         CreateAndPostFAJournalLine(FADepreciationBook, -Amount / 2, FAJournalLine."FA Posting Type"::"Salvage Value");
@@ -677,7 +677,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateFAJournalSetup(FADepreciationBook."Depreciation Book Code");
 
         // Exercise: Calculate Depreciation. Required 12 for dividing Depreciation Value with Random Values.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         Amount := FAAmount / 2;
         NoOfMonth := LibraryRandom.RandInt(10);
         RunCalculateDepeciation(FADepreciationBook, FADepreciationBook."FA No.", NoOfMonth);
@@ -759,17 +759,17 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Setup: Create FA and Post Fa Journal Line with Acquisition Cost then Post Sales Invoice.
         Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", CreateDepreciationBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", CreateDepreciationBook());
         CreateAndPostFAJournalLine(
           FADepreciationBook, LibraryRandom.RandDec(100, 2), FAJournalLine."FA Posting Type"::"Acquisition Cost");
         CreateAndPostSalesInvoice(SalesLine, FADepreciationBook);
 
         // Exercise: Try Reverse Transaction on Posted FA Entry which is posted through Sales Invoice.
-        LibraryLowerPermissions.SetO365FAView;
-        FALedgerEntries.OpenView;
+        LibraryLowerPermissions.SetO365FAView();
+        FALedgerEntries.OpenView();
         FALedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
         FALedgerEntries.FILTER.SetFilter("FA Posting Category", Format(FALedgerEntry."FA Posting Category"::Disposal));
-        asserterror FALedgerEntries.ReverseTransaction.Invoke;
+        asserterror FALedgerEntries.ReverseTransaction.Invoke();
 
         // Verify: Verify Error raised on FA Ledger entry during Reverse Transaction.
         Assert.ExpectedError(StrSubstNo(ReverseErr));
@@ -785,7 +785,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Initialize();
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget with Random Starting Date.
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         asserterror RunCopyFAEntriesToGLBudget('', '', '', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // 3. Verify: Verify that System generates an error when Starting Date is later than the Ending Date.
@@ -806,22 +806,22 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // 1. Setup: Create Fixed Asset, FA Depreciation Book with FA Posting Group. Create and post General Journal Lines.
         Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         CreateAndPostFAJournalLines(FADepreciationBook);
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
         Commit();  // COMMIT required for Batch Report.
-        DepreciationBook := LibraryFixedAsset.GetDefaultDeprBook;
+        DepreciationBook := LibraryFixedAsset.GetDefaultDeprBook();
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget.
-        LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddFinancialReporting;
+        LibraryLowerPermissions.SetO365FAEdit();
+        LibraryLowerPermissions.AddFinancialReporting();
         LibraryLowerPermissions.AddJournalsPost();
         RunCopyFAEntriesToGLBudget(FixedAsset."No.", DepreciationBook, GLBudgetName.Name, WorkDate());
 
         // 3. Verify: Verify FA Entries must be copy to G\L Budget Entries for Active Fixed Asset.
         // Using 6 because we have created 6 General Journal Lines with different FA Posting Type.
         Assert.AreEqual(6, GetNumberOfGLBudgetEntries(GLBudgetName.Name), GLBudgetEntriesMustExistMsg);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // 1. Setup: Create Fixed Asset, FA Depreciation Book with FA Posting Group. Create and post General Journal Lines.
         Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         CreateAndPostFAJournalLines(FADepreciationBook);
         FixedAsset.Validate(Inactive, true);
         FixedAsset.Modify(true);
@@ -845,14 +845,14 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Commit();  // COMMIT required for Batch Report.
 
         // 2. Exercise: Run Copy FA Entries To G/L Budget.
-        LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddFinancialReporting;
+        LibraryLowerPermissions.SetO365FAEdit();
+        LibraryLowerPermissions.AddFinancialReporting();
         LibraryLowerPermissions.AddJournalsPost();
-        RunCopyFAEntriesToGLBudget(FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook, GLBudgetName.Name, WorkDate());
+        RunCopyFAEntriesToGLBudget(FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook(), GLBudgetName.Name, WorkDate());
 
         // 3. Verify: Verify FA Entries must not be copy to G\L Budget Entries for Inactive Fixed Asset.
         Assert.AreEqual(0, GetNumberOfGLBudgetEntries(GLBudgetName.Name), GLBudgetEntriesMustNotExistMsg);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -924,7 +924,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         DepreciationAfterReclassification := Round(DepreciationBeforeReclassification * ReclassifyAcqCostPct / 100);
 
         // 2. Exercise: Create and Post FA Raclass Journal.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         DocumentNo := CreateFAReclassJournalLine(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, ReclassifyAcqCostPct);
         FindAndPostGenJournalLines(DocumentNo);
@@ -933,7 +933,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
         VerifyGLEntry(FixedAsset."No.", DocumentNo, FAPostingGroup."Acquisition Cost Account", -AcquisitionCostAfterReclassification);
         VerifyGLEntry(FixedAsset2."No.", DocumentNo, FAPostingGroup."Accum. Depreciation Account", DepreciationAfterReclassification);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1066,7 +1066,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FindAndPostGenJournalLines(DocumentNo);
 
         // 2. Exercise: Calculate Depreciation and post FA GL Lines created again.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         DocumentNo := RunCalculateDepeciationWithBalAccount(FADepreciationBook, 13);  // Calculate Depreciation after one year and one month.
         FindAndPostGenJournalLines(DocumentNo);
@@ -1080,7 +1080,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
 
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
         VerifyGLEntry(FixedAsset."No.", DocumentNo, FAPostingGroup."Accum. Depreciation Account", ExpDeprAmount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1102,9 +1102,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Excercise: Post Gen. Journal Line with Salvage Value in Foreign Currency.
-        LibraryLowerPermissions.SetO365FAEdit;
+        LibraryLowerPermissions.SetO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
-        SalvageValue := PostGenJnlLineWithDeprAcqCostAndSalvageValue(FADepreciationBook, CreateCurrencyWithExchRate, GLAccount);
+        SalvageValue := PostGenJnlLineWithDeprAcqCostAndSalvageValue(FADepreciationBook, CreateCurrencyWithExchRate(), GLAccount);
 
         // Verify: Salvage Value and Depreciation Amount.
         VerifyLastFALedgEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::"Salvage Value", SalvageValue);
@@ -1113,7 +1113,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           CalcAcqCostDepreciation(
             FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", AcquisitionAmount, DeprAmount, SalvageValue));
 
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1127,10 +1127,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // for Zero amount.
         // 1. Setup
         Initialize();
-        Currency := CreateCurrencyWithExchRate;
+        Currency := CreateCurrencyWithExchRate();
 
         // 2. Exercise
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         GenerateGenJnlLine(GenJournalLine, Currency);
 
         // 3. Verify
@@ -1147,7 +1147,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Unit Test: verify that the function ConvertAmountToLCYForSourceCurrency returns the correct result
         // for Local Currency.
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         GenerateGenJnlLine(GenJournalLine, '');
         Amount := LibraryRandom.RandDec(10000, 2);
         Assert.AreEqual(Amount, GenJournalLine.ConvertAmtFCYToLCYForSourceCurrency(Amount), WrongAmountErr);
@@ -1165,12 +1165,12 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // for Foreign Currency.
         // 1. Setup
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchRate;
+        CurrencyCode := CreateCurrencyWithExchRate();
         GenerateGenJnlLine(GenJournalLine, CurrencyCode);
         Amount := LibraryRandom.RandDec(10000, 2);
 
         // 2. Exercise and verify
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Assert.AreEqual(
           LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()),
           GenJournalLine.ConvertAmtFCYToLCYForSourceCurrency(Amount), WrongAmountErr);
@@ -1197,8 +1197,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Exercise
-        LibraryLowerPermissions.SetO365FASetup;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetO365FASetup();
+        LibraryLowerPermissions.AddO365FAEdit();
         LibraryLowerPermissions.AddJournalsPost();
         FADepreciationBook.Validate("Default FA Depreciation Book", true);
         FADepreciationBook.Modify(true);
@@ -1235,9 +1235,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Exercise
-        LibraryLowerPermissions.SetO365FASetup;
+        LibraryLowerPermissions.SetO365FASetup();
         LibraryLowerPermissions.AddJournalsPost();
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.AddO365FAEdit();
         FASetup.Get();
         CreateFADepreciationBook(SetupFADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", FASetup."Default Depr. Book");
 
@@ -1277,9 +1277,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FASetup.Modify(true);
 
         // Exercise
-        LibraryLowerPermissions.SetO365FASetup;
+        LibraryLowerPermissions.SetO365FASetup();
         LibraryLowerPermissions.AddJournalsPost();
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.AddO365FAEdit();
         FADepreciationBook.Validate("Default FA Depreciation Book", true);
         FADepreciationBook.Modify(true);
 
@@ -1313,8 +1313,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         DefaultFADepreciationBook.Modify(true);
 
         // Exercise
-        LibraryLowerPermissions.SetO365FASetup;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetO365FASetup();
+        LibraryLowerPermissions.AddO365FAEdit();
         CreateJournalSetupDepreciation(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         asserterror FADepreciationBook.Validate("Default FA Depreciation Book", true);
@@ -1335,7 +1335,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateFAPostingGroup;
+        LibraryERMCountryData.UpdateFAPostingGroup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
@@ -1485,7 +1485,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBookCode);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
     end;
 
     local procedure CreateFAWithAcquisitionCost(var FADepreciationBook: Record "FA Depreciation Book")
@@ -1623,10 +1623,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     local procedure GetDocumentNo(FAJournalBatch: Record "FA Journal Batch"): Code[20]
     var
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         NoSeries.Get(FAJournalBatch."No. Series");
-        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        exit(NoSeriesCodeunit.PeekNextNo(FAJournalBatch."No. Series"));
     end;
 
     local procedure GetNumberOfGLBudgetEntries(BudgetName: Code[10]): Integer
@@ -1837,7 +1837,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     var
         FAJournalSetup2: Record "FA Journal Setup";
     begin
-        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
+        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook());
         FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
@@ -1975,7 +1975,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     [Scope('OnPrem')]
     procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueBoolean, GeneralJournalBatches."Allow Payment Export".Visible, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueBoolean(), GeneralJournalBatches."Allow Payment Export".Visible(), '');
     end;
 }
 

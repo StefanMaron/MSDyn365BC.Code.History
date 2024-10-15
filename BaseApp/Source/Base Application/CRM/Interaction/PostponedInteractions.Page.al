@@ -78,7 +78,9 @@ page 5082 "Postponed Interactions"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the interaction.';
                 }
+#pragma warning disable AA0100
                 field("""Attachment No."" <> 0"; Rec."Attachment No." <> 0)
+#pragma warning restore AA0100
                 {
                     ApplicationArea = RelationshipMgmt;
                     BlankZero = true;

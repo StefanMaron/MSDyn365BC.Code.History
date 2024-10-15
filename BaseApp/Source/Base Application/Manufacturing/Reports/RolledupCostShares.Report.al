@@ -327,23 +327,12 @@ report 99000754 "Rolled-up Cost Shares"
     var
         GLSetup: Record "General Ledger Setup";
         ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: array[99] of Record "Production BOM Line";
         MfgItem: Record Item;
         CompItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         CostCalcMgt: Codeunit "Cost Calculation Management";
         ItemFilter: Text;
-        CalculateDate: Date;
-        Level: Integer;
-        Index: Integer;
-        NextIndex: Integer;
-        VersionCode: array[99] of Code[20];
-        NoListType: array[99] of Option Item,"Production BOM";
-        NoList: array[99] of Code[20];
-        LotSize: array[99] of Decimal;
-        MfgItemQtyBase: array[99] of Decimal;
-        Quantity: array[99] of Decimal;
         BOMCompQtyBase: Decimal;
         MaterialCost: Decimal;
         CapacityCost: Decimal;
@@ -365,6 +354,19 @@ report 99000754 "Rolled-up Cost Shares"
         CompItemBaseUOMCaptLbl: Label 'Base Unit of Measure Code';
         CostShareItemCaptLbl: Label 'Cost Shares for this Item';
         ProductionBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
+
+    protected var
+        ProdBOMLine: array[99] of Record "Production BOM Line";
+        CalculateDate: Date;
+        Level: Integer;
+        Index: Integer;
+        NextIndex: Integer;
+        VersionCode: array[99] of Code[20];
+        NoListType: array[99] of Option Item,"Production BOM";
+        NoList: array[99] of Code[20];
+        LotSize: array[99] of Decimal;
+        MfgItemQtyBase: array[99] of Decimal;
+        Quantity: array[99] of Decimal;
 
     local procedure GetLotSize(Item: Record Item): Decimal
     begin

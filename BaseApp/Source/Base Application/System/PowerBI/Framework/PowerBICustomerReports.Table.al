@@ -11,6 +11,7 @@ table 6310 "Power BI Customer Reports"
 {
     Caption = 'Power BI Customer Reports';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

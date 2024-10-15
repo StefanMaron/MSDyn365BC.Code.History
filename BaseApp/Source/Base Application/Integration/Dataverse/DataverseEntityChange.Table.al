@@ -11,6 +11,7 @@ table 5395 "Dataverse Entity Change"
 {
     Caption = 'Dataverse Entity Change';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -43,7 +44,7 @@ table 5395 "Dataverse Entity Change"
         if not CDSConnectionSetup.Get() then
             exit;
 
-        If not CDSConnectionSetup."Is Enabled" then
+        if not CDSConnectionSetup."Is Enabled" then
             exit;
 
         TableMetadata.SetRange(ExternalName, "Entity Name");

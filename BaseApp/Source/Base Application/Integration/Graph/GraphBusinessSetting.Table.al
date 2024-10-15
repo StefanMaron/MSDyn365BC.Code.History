@@ -14,6 +14,7 @@ table 5460 "Graph Business Setting"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'This functionality is out of support';
+    DataClassification = CustomerContent;
 
     fields
     {

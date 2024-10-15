@@ -16,10 +16,10 @@ codeunit 139319 "O365 Integration Record UT"
     procedure EntityTablesAreNotEmpty()
     begin
         // this test must run in O365 buckets only and because it verifies demo data of O365 copmany
-        VerifySalesQuoteEntityTable;
-        VerifySalesInvoiceEntityTable;
-        VerifySalesOrderEntityTable;
-        VerifyPurchaseInvoiceEntityTable;
+        VerifySalesQuoteEntityTable();
+        VerifySalesInvoiceEntityTable();
+        VerifySalesOrderEntityTable();
+        VerifyPurchaseInvoiceEntityTable();
     end;
 
     local procedure VerifySalesQuoteEntityTable()

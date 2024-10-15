@@ -3,6 +3,7 @@ namespace Microsoft.Booking;
 table 1638 "Invoiced Booking Item"
 {
     Caption = 'Invoiced Booking Item';
+    DataClassification = CustomerContent;
 
     fields
     {

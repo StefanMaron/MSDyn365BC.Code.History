@@ -13,6 +13,7 @@ using System.Threading;
 table 9059 "Administration Cue"
 {
     Caption = 'Administration Cue';
+    DataClassification = CustomerContent;
 
     fields
     {

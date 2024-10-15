@@ -9,6 +9,7 @@ table 4803 "VATGroup Submission Line"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to VAT Group Management extension table 4703 VAT Group Submission Line';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

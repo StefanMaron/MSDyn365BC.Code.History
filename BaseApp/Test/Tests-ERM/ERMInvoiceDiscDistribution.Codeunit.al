@@ -47,7 +47,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Quantity, UnitPrice, 2);
 
         // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SalesLines."Invoice Discount Amount".SetValue(UnitPrice);
 
@@ -57,11 +57,11 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         VerifySalesLines(SalesLine, 1);
 
         // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
-        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -92,8 +92,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenSalesOrderAndStatistics(SalesOrder, SalesHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Discount Amount Excl. VAT" = 1000 on subtotals part.
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(UnitPrice);
 
@@ -131,8 +131,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenSalesOrderAndStatistics(SalesOrder, SalesHeader);
 
         // [THEN] "Invoice Discount Amount" = 0 on General tab
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Discount Amount Excl. VAT" = 0 on subtotals part.
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
 
@@ -167,8 +167,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenSalesOrderAndStatistics(SalesOrder, SalesHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Discount Amount Excl. VAT" = 1000 on subtotals part.
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(UnitPrice);
     end;
@@ -200,7 +200,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SalesLines."Invoice Discount Amount".SetValue(UnitPrice);
 
@@ -211,11 +211,11 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         VerifySalesLines(SalesLine, 1);
 
         // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
-        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -249,8 +249,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenSalesOrderAndStatistics(SalesOrder, SalesHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Discount Amount Excl. VAT" = 1000 on subtotals part.
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(UnitPrice);
 
@@ -292,8 +292,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenSalesOrderAndStatistics(SalesOrder, SalesHeader);
 
         // [THEN] "Invoice Discount Amount" = 0 on General tab
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Discount Amount Excl. VAT" = 0 on subtotals part.
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
 
@@ -328,7 +328,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Quantity, UnitPrice, 2);
 
         // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(UnitPrice);
 
@@ -338,11 +338,11 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         VerifyPurchaseLines(PurchaseLine, 1);
 
         // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
-        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -373,8 +373,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
 
@@ -412,8 +412,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 1000 on General tab
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 0;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
 
@@ -447,8 +447,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
     end;
@@ -480,7 +480,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Set "Invoice Discount Amount Excl. VAT" = 1000 at subtotals
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(UnitPrice);
 
@@ -491,11 +491,11 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         VerifyPurchaseLines(PurchaseLine, 1);
 
         // [THEN] "Invoice Discount Amount" on Invoicing tab of Statistics page = 500
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
-        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -529,8 +529,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 500 on Invoicing tab
-        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountInvoicingTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(UnitPrice / 2, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountInvoicingTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 1000;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(UnitPrice);
 
@@ -572,8 +572,8 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         OpenPurchasOrderAndStatistics(PurchaseOrder, PurchaseHeader);
 
         // [THEN] "Invoice Discount Amount" = 0 on General tab
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, InvoiceDiscountGeneralTabErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), InvoiceDiscountGeneralTabErr);
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] "Inv. Disc. Amount Excl. VAT" on subtotals = 0;
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
 
@@ -612,12 +612,12 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     begin
         Count := Lines;
         ItemNo := LibraryInventory.CreateItemNo();
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         for Index := 0 to Count do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, ItemQauntity);
 
             SalesLine.Validate("Unit Price", UnitPrice);
-            SalesLine.Validate("Qty. to Invoice", Round(SalesLine.Quantity * Index / Count, LibraryERM.GetAmountRoundingPrecision));
+            SalesLine.Validate("Qty. to Invoice", Round(SalesLine.Quantity * Index / Count, LibraryERM.GetAmountRoundingPrecision()));
             SalesLine.Modify(true);
         end;
 
@@ -635,12 +635,12 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     begin
         Count := Lines;
         ItemNo := LibraryInventory.CreateItemNo();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         for Index := 0 to Count do begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, ItemQauntity);
 
             PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-            PurchaseLine.Validate("Qty. to Invoice", Round(PurchaseLine.Quantity * Index / Count, LibraryERM.GetAmountRoundingPrecision));
+            PurchaseLine.Validate("Qty. to Invoice", Round(PurchaseLine.Quantity * Index / Count, LibraryERM.GetAmountRoundingPrecision()));
             PurchaseLine.Modify(true);
         end;
 
@@ -662,16 +662,16 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
 
     local procedure OpenSalesOrderAndStatistics(var SalesOrder: TestPage "Sales Order"; var SalesHeader: Record "Sales Header")
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPurchasOrderAndStatistics(var PurchaseOrder: TestPage "Purchase Order"; var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure VerifySalesLines(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
@@ -679,9 +679,9 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         with SalesLine do begin
             FindSet();
             VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 0);
-            Next;
+            Next();
             VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.34 * Multiplier, 333.34 / 2);
-            Next;
+            Next();
             VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 333.33);
         end;
     end;
@@ -697,9 +697,9 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         with PurchaseLine do begin
             FindSet();
             VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 0);
-            Next;
+            Next();
             VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.34 * Multiplier, 333.34 / 2);
-            Next;
+            Next();
             VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 333.33);
         end;
     end;
@@ -714,54 +714,54 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsMPHGetInvoiceDiscountAmounts(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_General.AsDEcimal);
-        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDEcimal);
-        SalesOrderStatistics.OK.Invoke;
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsMPHSetInvoiceDiscountGeneral(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal);
-        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDEcimal);
-        SalesOrderStatistics.OK.Invoke;
+        SalesOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsMPHSetInvoiceDiscountInvoicing(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal);
-        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_General.AsDEcimal);
-        SalesOrderStatistics.OK.Invoke;
+        SalesOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(SalesOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHGetInvoiceDiscountAmounts(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDEcimal);
-        PurchaseOrderStatistics.OK.Invoke;
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHSetInvoiceDiscountGeneral(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDEcimal);
-        PurchaseOrderStatistics.OK.Invoke;
+        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsMPHSetInvoiceDiscountInvoicing(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        PurchaseOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDEcimal);
-        PurchaseOrderStatistics.OK.Invoke;
+        PurchaseOrderStatistics.InvDiscountAmount_Invoicing.SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ConfirmHandler]

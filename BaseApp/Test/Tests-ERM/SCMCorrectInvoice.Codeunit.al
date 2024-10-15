@@ -30,9 +30,6 @@ codeunit 137019 "SCM Correct Invoice"
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
-        DocumentNoErr: Label 'Document No. are not equal.';
-        TransactionTypeErr: Label 'Transaction Type are not equal';
-        TransportMethodErr: Label 'Transport Method are not equal';
         CommentCountErr: Label 'Wrong Sales Line Count';
 
     [Test]
@@ -60,7 +57,7 @@ codeunit 137019 "SCM Correct Invoice"
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         // EXERCISE
-        TurnOffExactCostReversing;
+        TurnOffExactCostReversing();
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
@@ -97,12 +94,12 @@ codeunit 137019 "SCM Correct Invoice"
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", 1);
         SalesLine.Modify(true);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate(Type, SalesLine.Type::" ");
         SalesLine.Validate(Description, 'Blank line');
         SalesLine.Modify(true);
@@ -224,13 +221,13 @@ codeunit 137019 "SCM Correct Invoice"
         CreateItemWithPrice(Item, 0);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, Item."No.", 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), Item."No.", 1, '', 0D);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, '', 'LOT1', 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         GLEntry.FindLast();
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, Item."No.", 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), Item."No.", 1, '', 0D);
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', 'LOT1', 1);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -329,14 +326,14 @@ codeunit 137019 "SCM Correct Invoice"
 
         Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Sales & Receivables Setup
-        SetInvoiceRounding;
+        SetInvoiceRounding();
 
         // [GIVEN] Posted Invoice "A" with total amount = 100 (Amount Including VAT is 99.98, Invoice Rounding Line is 0.02)
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 99.98, 1, SalesInvHeader);
         LibrarySmallBusiness.UpdateInvRoundingAccountWithSalesSetup(
           SalesInvHeader."Customer Posting Group", SalesInvHeader."Gen. Bus. Posting Group");
         ExpectedAmount := GetAmountInclVATOfSalesInvLine(SalesInvHeader);
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         Commit();
 
         // [WHEN] Correct Posted Invoice "A" with new Invoice "B"
@@ -365,14 +362,14 @@ codeunit 137019 "SCM Correct Invoice"
 
         Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Sales & Receivables Setup
-        SetInvoiceRounding;
+        SetInvoiceRounding();
 
         // [GIVEN] Posted Invoice "A" with total amount = 100 (Amount Including VAT is 99.98, Invoice Rounding Line is 0.02)
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 99.98, 1, SalesInvHeader);
         LibrarySmallBusiness.UpdateInvRoundingAccountWithSalesSetup(
           SalesInvHeader."Customer Posting Group", SalesInvHeader."Gen. Bus. Posting Group");
         SalesInvHeader.CalcFields("Amount Including VAT");
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         Commit();
 
         // [WHEN] Cancel Posted Invoice "A" with Corrective Credit Memo "B"
@@ -410,7 +407,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySales.SetInvoiceRounding(false);
         LibrarySales.CreateCustomer(Cust);
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
-        InvRndAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        InvRndAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         OldInvRndAccountNo :=
           UpdateInvRndAccountInCustPostingGroup(SalesHeader."Customer Posting Group", InvRndAccountNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", InvRndAccountNo, 1);
@@ -419,7 +416,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Cancel Posted Invoice
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
 
         // [THEN] Credit memo of cancelled invoice has same Amount Including VAT
@@ -459,12 +456,12 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySmallBusiness.FindSalesCorrectiveCrMemo(SalesCrMemoHeader, SalesInvHeader);
 
         // [GIVEN] Opened page "Posted Sales Invoice" with Invoice "A"
-        PostedSalesCreditMemo.Trap;
-        PostedSalesInvoice.OpenView;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedSalesInvoice.ShowCreditMemo.Invoke;
+        PostedSalesInvoice.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Sales Credit Memo" page with Credit Memo "B" is opened
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -494,12 +491,12 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySmallBusiness.FindSalesCorrectiveCrMemo(SalesCrMemoHeader, SalesInvHeader);
 
         // [GIVEN] Opened page "Posted Sales Invoices" with Invoice "A"
-        PostedSalesCreditMemo.Trap;
-        PostedSalesInvoices.OpenView;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.FILTER.SetFilter("No.", SalesInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedSalesInvoices.ShowCreditMemo.Invoke;
+        PostedSalesInvoices.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Sales Credit Memo" page with Credit Memo "B" is opened
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -529,12 +526,12 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySmallBusiness.FindSalesCorrectiveCrMemo(SalesCrMemoHeader, SalesInvHeader);
 
         // [GIVEN] Opened page "Posted Sales Credit Memo" with Credit Memo "B"
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedSalesCreditMemo.ShowInvoice.Invoke;
+        PostedSalesCreditMemo.ShowInvoice.Invoke();
 
         // [THEN] "Posted Sales Invoice" page with Invoice "A" is opened
         PostedSalesInvoice."No.".AssertEquals(SalesInvHeader."No.");
@@ -564,12 +561,12 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySmallBusiness.FindSalesCorrectiveCrMemo(SalesCrMemoHeader, SalesInvHeader);
 
         // [GIVEN] Opened page "Posted Sales Credit Memos" with Credit Memo "B"
-        PostedSalesInvoice.Trap;
-        PostedSalesCreditMemos.OpenView;
+        PostedSalesInvoice.Trap();
+        PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedSalesCreditMemos.ShowInvoice.Invoke;
+        PostedSalesCreditMemos.ShowInvoice.Invoke();
 
         // [THEN] "Posted Sales Invoice" page with Invoice "A" is opened
         PostedSalesInvoice."No.".AssertEquals(SalesInvHeader."No.");
@@ -736,7 +733,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         // [THEN] Error message 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.' is thrown
         Assert.ExpectedError(CannotAssignNumbersAutoErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -757,7 +754,7 @@ codeunit 137019 "SCM Correct Invoice"
         Initialize();
 
         // [GIVEN] Item with Lot Tracking
-        ItemNo := CreateTrackedItem;
+        ItemNo := CreateTrackedItem();
 
         // [GIVEN] Posted Sales Invoice with Quantity = - 1 and "Lot No."
         PostSalesInvWithNegativeLineAndLotNo(InvNo, SalesLine, ItemNo);
@@ -786,7 +783,7 @@ codeunit 137019 "SCM Correct Invoice"
         Initialize();
 
         // [GIVEN] Item with Lot Tracking
-        ItemNo := CreateTrackedItem;
+        ItemNo := CreateTrackedItem();
 
         // [GIVEN] Posted Sales Invoice with Quantity = - 1 and "Lot No."
         PostSalesInvWithNegativeLineAndLotNo(InvNo, SalesLine, ItemNo);
@@ -1183,18 +1180,53 @@ codeunit 137019 "SCM Correct Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Correct Invoice");
 
-        LibrarySmallBusiness.SetNoSeries;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
 
+        // fix No. Series setup
+        SetGlobalNoSeriesInSetups();
+
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Correct Invoice");
+    end;
+
+    local procedure SetGlobalNoSeriesInSetups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        MarketingSetup: Record "Marketing Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        //        SalesReceivablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup.Modify();
+
+        MarketingSetup.Get();
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        MarketingSetup.Modify();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup.Modify();
+
+        WarehouseSetup.Get();
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup.Modify();
     end;
 
     local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1272,7 +1304,7 @@ codeunit 137019 "SCM Correct Invoice"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, -1);
         SalesLine.OpenItemTrackingLines();
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1311,11 +1343,9 @@ codeunit 137019 "SCM Correct Invoice"
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         InvNo: Code[20];
     begin
-        with SalesHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::"Credit Memo");
-            Insert(true);
-        end;
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Insert(true);
         CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
         CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvHeader."No.", SalesHeader);
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1443,7 +1473,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
         ItemTrackingCode.Validate("Lot Specific Tracking", true);
         ItemTrackingCode.Modify(true);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
         exit(Item."No.");
     end;
 
@@ -1477,16 +1507,16 @@ codeunit 137019 "SCM Correct Invoice"
     [Scope('OnPrem')]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
-        NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        NoSeriesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AssignLotItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1495,7 +1525,7 @@ codeunit 137019 "SCM Correct Invoice"
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]

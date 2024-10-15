@@ -5,8 +5,9 @@ using Microsoft.Projects.Project.Journal;
 
 report 1088 "Job Split Planning Line"
 {
+    AdditionalSearchTerms = 'Job Split Planning Line';
     ApplicationArea = Jobs;
-    Caption = 'Job Split Planning Line';
+    Caption = 'Project Split Planning Line';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 

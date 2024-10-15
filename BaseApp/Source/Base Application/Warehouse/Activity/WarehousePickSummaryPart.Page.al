@@ -1,5 +1,4 @@
 ﻿namespace Microsoft.Warehouse.Activity;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Ledger;
@@ -79,7 +78,7 @@ page 5773 "Warehouse Pick Summary Part"
 
                         field("Qty. in Pickable Bins"; Rec."Qty. in Pickable Bins")
                         {
-                            ToolTip = 'Specifies the quantity in pickable bins. The quantity is not reduced by item tracking.';
+                            ToolTip = 'Specifies the quantity in pickable bins. The quantity is not reduced by item tracking or items that are being picked.';
 
                             trigger OnDrillDown()
                             begin
@@ -171,13 +170,8 @@ page 5773 "Warehouse Pick Summary Part"
                 }
                 field("Qty. Reserved in Warehouse"; Rec."Qty. Reserved in Warehouse")
                 {
-                    Caption = 'Total Reserved Qty. in Warehouse';
-                    ToolTip = 'Specifies the quantity reserved in warehouse. This quantity consists of inventory from reservation excluding inventory that is picked or being picked but not yet shipped or consumed.';
-
-                    trigger OnDrillDown()
-                    begin
-                        ShowReservationEntries();
-                    end;
+                    Caption = 'Reserved Qty. in Warehouse';
+                    ToolTip = 'Specifies the quantity reserved in warehouse. This quantity consists of inventory from reservation including inventory that is picked or being picked but not yet shipped or consumed. It excludes the quantity blocked by bins, item tracking or reserved against dedicated bins.';
                 }
                 field("Qty. Res. in Pick/Ship Bins"; Rec."Qty. Res. in Pick/Ship Bins")
                 {
@@ -290,46 +284,5 @@ page 5773 "Warehouse Pick Summary Part"
             exit('attention')
         else
             exit('favorable');
-    end;
-
-    local procedure ShowReservationEntries()
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        ReservationEntry.InitSortingAndFilters(true);
-        SetReservationFilters(ReservationEntry);
-        Page.RunModal(Page::"Reservation Entries", ReservationEntry);
-    end;
-
-    local procedure SetReservationFilters(var ReservationEntry: Record "Reservation Entry")
-    begin
-        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
-        ReservationEntry.SetRange("Source Subtype", 0);
-        ReservationEntry.SetRange("Reservation Status", Enum::"Reservation Status"::Reservation);
-        ReservationEntry.SetRange("Location Code", Rec."Location Code");
-        ReservationEntry.SetRange("Item No.", Rec."Item No.");
-        ReservationEntry.SetRange("Variant Code", Rec."Variant Code");
-        SetTrackingFilterFromWhseItemTrackingSetupIfRequired(ReservationEntry);
-    end;
-
-    local procedure SetTrackingFilterFromWhseItemTrackingSetupIfRequired(var ReservationEntry: Record "Reservation Entry")
-    begin
-        if WhseItemTrackingSetup."Serial No." <> '' then
-            if WhseItemTrackingSetup."Serial No. Required" then
-                ReservationEntry.SetRange("Serial No.", WhseItemTrackingSetup."Serial No.")
-            else
-                ReservationEntry.SetFilter("Serial No.", '%1|%2', WhseItemTrackingSetup."Serial No.", '');
-
-        if WhseItemTrackingSetup."Lot No." <> '' then
-            if WhseItemTrackingSetup."Lot No. Required" then
-                ReservationEntry.SetRange("Lot No.", WhseItemTrackingSetup."Lot No.")
-            else
-                ReservationEntry.SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
-
-        if WhseItemTrackingSetup."Package No." <> '' then
-            if WhseItemTrackingSetup."Package No. Required" then
-                ReservationEntry.SetRange("Package No.", WhseItemTrackingSetup."Lot No.")
-            else
-                ReservationEntry.SetFilter("Package No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
     end;
 }

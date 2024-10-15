@@ -613,7 +613,7 @@ page 9307 "Purchase Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -629,7 +629,7 @@ page 9307 "Purchase Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -741,8 +741,11 @@ page 9307 "Purchase Order List"
 
                     trigger OnAction()
                     var
+                        SelectedPurchaseHeader: Record "Purchase Header";
                         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedPurchaseHeader);
+                        PurchPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedPurchaseHeader, Rec."No.");
                         PurchPostYesNo.Preview(Rec);
                     end;
                 }
@@ -889,6 +892,35 @@ page 9307 "Purchase Order List"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
+        }
+    }
+
+    views
+    {
+        view(PendingConfirmation)
+        {
+            Caption = 'Pending Confirmation';
+            Filters = where(Status = filter(Open));
+        }
+        view(UpcomingOrders)
+        {
+            Caption = 'Upcoming Orders';
+            Filters = where(Status = filter(Released), "Expected Receipt Date" = filter(>= '%workdate'));
+        }
+        view(OutstandingPurchaseOrders)
+        {
+            Caption = 'Outstanding Purchase Orders';
+            Filters = where(Status = filter(Released), "Completely Received" = const(false));
+        }
+        view(PartiallyInvoiced)
+        {
+            Caption = 'Partially Invoiced';
+            Filters = where("Partially Invoiced" = const(true), "Completely Received" = const(true));
+        }
+        view(ReceivedNotInvoiced)
+        {
+            Caption = 'Received Not Invoiced';
+            Filters = where("Received Not Invoiced" = const(true));
         }
     }
 

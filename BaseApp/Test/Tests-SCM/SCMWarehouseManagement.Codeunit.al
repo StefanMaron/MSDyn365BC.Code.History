@@ -1630,14 +1630,14 @@ codeunit 137064 "SCM Warehouse Management"
         case LotType of
             0: // No lots
                 begin
-                    Assert.IsTrue(WhseActivityLine.FindFirst, '');
+                    Assert.IsTrue(WhseActivityLine.FindFirst(), '');
                     Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
                     Assert.AreEqual(BinContentUnblocked."Bin Code", WhseActivityLine."Bin Code", '');
                 end;
             1, // same lot
             2: // Different lots
                 begin
-                    Assert.IsTrue(WhseActivityLine.FindFirst, '');
+                    Assert.IsTrue(WhseActivityLine.FindFirst(), '');
                     Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
                     Assert.AreEqual(BinContentUnblocked."Bin Code", WhseActivityLine."Bin Code", '');
                     Assert.AreEqual(LotUnblocked, WhseActivityLine."Lot No.", '');
@@ -1849,7 +1849,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual('', WhseActivityLine."Lot No.", '');
     end;
@@ -1912,7 +1912,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual(LotUnblocked, WhseActivityLine."Lot No.", '');
     end;
@@ -1945,7 +1945,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual(LotUnblocked, WhseActivityLine."Lot No.", '');
     end;
@@ -1978,7 +1978,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual('', WhseActivityLine."Lot No.", '');
         Assert.AreEqual('', WhseActivityLine."Serial No.", '');
@@ -2042,7 +2042,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual(LotUnblocked, WhseActivityLine."Lot No.", '');
         Assert.AreEqual(SNUnblocked, WhseActivityLine."Serial No.", '');
@@ -2076,7 +2076,7 @@ codeunit 137064 "SCM Warehouse Management"
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(1, WhseActivityLine.Count, '');
-        Assert.IsTrue(WhseActivityLine.FindFirst, '');
+        Assert.IsTrue(WhseActivityLine.FindFirst(), '');
         Assert.AreEqual(UnblockedQty, WhseActivityLine.Quantity, '');
         Assert.AreEqual(LotUnblocked, WhseActivityLine."Lot No.", '');
         Assert.AreEqual(SNUnblocked, WhseActivityLine."Serial No.", '');
@@ -2398,7 +2398,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationWhite.Code);
         DeltaDate := LibraryRandom.RandInt(10);
-        WarehouseShipmentHeader.Validate("Shipment Date", WorkDate + DeltaDate);
+        WarehouseShipmentHeader.Validate("Shipment Date", WorkDate() + DeltaDate);
         WarehouseShipmentHeader.Modify();
 
         // [GIVEN] Registered Pick for "WS"
@@ -2413,7 +2413,7 @@ codeunit 137064 "SCM Warehouse Management"
         with SalesLine do begin
             SetRange("Document No.", SalesHeader."No.");
             FindFirst();
-            TestField("Shipment Date", WorkDate + DeltaDate);
+            TestField("Shipment Date", WorkDate() + DeltaDate);
         end;
     end;
 
@@ -2505,8 +2505,8 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Two bins - "BULK" and "SHIP".
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
-        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
-        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         LotNo := LibraryUtility.GenerateGUID();
         SalesDocNo := LibraryUtility.GenerateGUID();
@@ -2518,7 +2518,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] 100 pcs are stored in bin "BULK".
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, LibraryRandom.RandIntInRange(100, 200),
-          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID, WarehouseEntry."Whse. Document Type"::" ", '',
+          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID(), WarehouseEntry."Whse. Document Type"::" ", '',
           WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Reference Document"::"Item Journal");
 
         // [GIVEN] Create warehouse shipment, pick and register the pick.
@@ -2578,8 +2578,8 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Two bins - "BULK" and "SHIP".
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
-        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
-        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         LotNo := LibraryUtility.GenerateGUID();
         SalesDocNo := LibraryUtility.GenerateGUID();
@@ -2591,7 +2591,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] 100 pcs are stored in bin "BULK".
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, LibraryRandom.RandIntInRange(100, 200),
-          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID, WarehouseEntry."Whse. Document Type"::" ", '',
+          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID(), WarehouseEntry."Whse. Document Type"::" ", '',
           WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Reference Document"::"Item Journal");
 
         // [GIVEN] Create warehouse shipment, pick and register the pick.
@@ -2652,8 +2652,8 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] Two bins - "BULK" and "SHIP".
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
-        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
-        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(BulkBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         LotNo := LibraryUtility.GenerateGUID();
         SalesDocNo := LibraryUtility.GenerateGUID();
@@ -2664,7 +2664,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [GIVEN] 100 pcs are stored in bin "BULK".
         MockWhseEntry(
           Location.Code, BulkBin.Code, Item."No.", LotNo, LibraryRandom.RandIntInRange(100, 200),
-          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID, WarehouseEntry."Whse. Document Type"::" ", '',
+          DATABASE::"Item Journal Line", LibraryUtility.GenerateGUID(), WarehouseEntry."Whse. Document Type"::" ", '',
           WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Reference Document"::"Item Journal");
 
         // [GIVEN] Create warehouse shipment, pick and register the pick.
@@ -2779,14 +2779,14 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Management");
-        ClearWarehouseEntry;
+        ClearWarehouseEntry();
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management");
 
         NoSeriesSetup();
-        ItemJournalSetup;
-        CreateLocationSetup;
+        ItemJournalSetup();
+        CreateLocationSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
@@ -2802,11 +2802,11 @@ codeunit 137064 "SCM Warehouse Management"
         WarehouseSetup: Record "Warehouse Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
@@ -2886,13 +2886,13 @@ codeunit 137064 "SCM Warehouse Management"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -2940,8 +2940,8 @@ codeunit 137064 "SCM Warehouse Management"
         BinTypeCode: Code[10];
     begin
         BinTypeCode := LibraryWarehouse.SelectBinType(false, false, false, true);
-        LibraryWarehouse.CreateZone(Zone, LibraryUtility.GenerateGUID, LocationCode, BinTypeCode, '', '', 0, false);
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, Zone.Code, BinTypeCode);
+        LibraryWarehouse.CreateZone(Zone, LibraryUtility.GenerateGUID(), LocationCode, BinTypeCode, '', '', 0, false);
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), Zone.Code, BinTypeCode);
         CreateBinContentWithMinAndMaxQty(BinContent, Item, LocationCode, Bin.Code, Zone.Code, BinTypeCode, MinQty, MaxQty, 1000);
     end;
 
@@ -3086,7 +3086,7 @@ codeunit 137064 "SCM Warehouse Management"
         PurchaseLine: Record "Purchase Line";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
@@ -3214,7 +3214,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure MockWhseEntry(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; QtyBase: Decimal; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; EntryType: Option; RefDoc: Option)
+    local procedure MockWhseEntry(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; QtyBase: Decimal; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; EntryType: Option; RefDoc: Enum "Whse. Reference Document Type")
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
@@ -3420,7 +3420,7 @@ codeunit 137064 "SCM Warehouse Management"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        ClearWarehouseJournal;
+        ClearWarehouseJournal();
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, '',
@@ -3694,15 +3694,15 @@ codeunit 137064 "SCM Warehouse Management"
     [Scope('OnPrem')]
     procedure ChangeUOMRequestPageHandler(var WhseChangeUnitOfMeasure: TestRequestPage "Whse. Change Unit of Measure")
     begin
-        WhseChangeUnitOfMeasure.UnitOfMeasureCode.SetValue(LibraryVariableStorage.DequeueText);
-        WhseChangeUnitOfMeasure.OK.Invoke;
+        WhseChangeUnitOfMeasure.UnitOfMeasureCode.SetValue(LibraryVariableStorage.DequeueText());
+        WhseChangeUnitOfMeasure.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseSourceCreateDocumentPageHandler(var WhseSourceCreateDocumentPageHandler: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocumentPageHandler.OK.Invoke;
+        WhseSourceCreateDocumentPageHandler.OK().Invoke();
     end;
 
     [MessageHandler]

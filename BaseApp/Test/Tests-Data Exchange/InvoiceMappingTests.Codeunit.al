@@ -180,9 +180,9 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingEntryNo);
         PurchaseHeader.FindFirst();
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoice.Post.Invoke;
+        asserterror PurchaseInvoice.Post.Invoke();
         Assert.ExpectedError(CannotPostErr);
     end;
 
@@ -439,7 +439,7 @@ codeunit 139158 "Invoice Mapping Tests"
 
         // Verify
         PurchaseHeader.SetRange("Incoming Document Entry No.", DataExch."Incoming Entry No.");
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'Document was not created.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'Document was not created.');
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
@@ -447,7 +447,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseLine.SetRange(Quantity, 1);
         PurchaseLine.SetRange("Direct Unit Cost", ChargeAmount);
         PurchaseLine.SetRange("No.", TextToAccountMapping."Debit Acc. No.");
-        Assert.IsTrue(PurchaseLine.FindFirst, 'Purchase line for invoice charge not created correctly.');
+        Assert.IsTrue(PurchaseLine.FindFirst(), 'Purchase line for invoice charge not created correctly.');
     end;
 
     [Test]
@@ -711,7 +711,7 @@ codeunit 139158 "Invoice Mapping Tests"
         // [FEATURE] [Incoming Document]
         // [SCENARIO 294747] Purchase Invoice is not posted when totals differ from Incoming Document totals in case Incoming Document has LCY
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         UpdateGLSetupLCYCode(CurrencyCode);
 
         // [GIVEN] Purchase Invoice and mapped Incoming Document both had LCY, but totals were different
@@ -737,7 +737,6 @@ codeunit 139158 "Invoice Mapping Tests"
         IncomingDocument: Record "Incoming Document";
         PurchaseHeader: Record "Purchase Header";
         PurchInvoiceHeader: Record "Purch. Inv. Header";
-        PurchaseInvoice: TestPage "Purchase Invoice";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
         VendorNo: Code[10];
         IncomingDocDesc: Text[250];
@@ -765,7 +764,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchInvoiceHeader.FindFirst();
 
         // [VERIFY] Open the posted purchase invoice and verify Incoming Document will appear on factbox.
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvoiceHeader);
         PostedPurchaseInvoice.IncomingDocAttachFactBox.Name.AssertEquals(IncomingDocDesc);
     end;
@@ -783,8 +782,8 @@ codeunit 139158 "Invoice Mapping Tests"
 
         IntermediateDataImport.DeleteAll();
         TextToAccountMapping.DeleteAll();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -866,7 +865,7 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Header",
           PurchaseHeader.FieldNo("Document Type"), Format(PurchaseHeader."Document Type"::Invoice, 0, 9), HeaderRecNo, 0);
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         InsertIntermediateTableRowWithRecordNo(DataExch, DATABASE::"Purchase Header",
           PurchaseHeader.FieldNo("Currency Code"), Currency.Code, HeaderRecNo, 0);
         LibraryPurchase.CreateVendor(BuyFromVendor);
@@ -981,7 +980,7 @@ codeunit 139158 "Invoice Mapping Tests"
         LineDiscPerc: Decimal;
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", DataExch."Incoming Entry No.");
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'Document was not created.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'Document was not created.');
         Assert.AreEqual(BuyFromVendor."No.", PurchaseHeader."Buy-from Vendor No.",
           'Vendor no is not correctly set on the Purchase Header.');
         Assert.AreEqual(PayToVendor."No.", PurchaseHeader."Pay-to Vendor No.",
@@ -995,13 +994,13 @@ codeunit 139158 "Invoice Mapping Tests"
         Assert.IsTrue(PurchaseLine.Count = 3, '3 Purchase lines should have been created.');
 
         PurchaseLine.SetRange("No.", Item1."No.");
-        Assert.IsTrue(PurchaseLine.FindFirst, 'Purchase line for Item ' + Item1."No." + ' is not created');
+        Assert.IsTrue(PurchaseLine.FindFirst(), 'Purchase line for Item ' + Item1."No." + ' is not created');
         LineDiscPerc := PurchaseLine."Line Discount %";
         PurchaseLine.Validate("Line Discount Amount", PurchaseLine."Line Discount Amount"); // call actual trigger
         Assert.AreEqual(LineDiscPerc, PurchaseLine."Line Discount %",
           'Line disc % for purchase line with Item ' + Item1."No." + ' is wrong');
         PurchaseLine.SetRange("No.", Item2."No.");
-        Assert.IsTrue(PurchaseLine.FindFirst, 'Purchase line for Item ' + Item2."No." + ' is not created');
+        Assert.IsTrue(PurchaseLine.FindFirst(), 'Purchase line for Item ' + Item2."No." + ' is not created');
         LineDiscPerc := PurchaseLine."Line Discount %";
         PurchaseLine.Validate("Line Discount Amount", PurchaseLine."Line Discount Amount"); // call actual trigger
         Assert.AreEqual(LineDiscPerc, PurchaseLine."Line Discount %",
@@ -1009,7 +1008,7 @@ codeunit 139158 "Invoice Mapping Tests"
         // description line
         PurchaseLine.SetRange("No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::" ");
-        Assert.IsTrue(PurchaseLine.FindFirst, 'Purchase line for description only is not created');
+        Assert.IsTrue(PurchaseLine.FindFirst(), 'Purchase line for description only is not created');
 
         // Invoice discount
         if DiscountAmount <> 0 then begin
@@ -1025,10 +1024,10 @@ codeunit 139158 "Invoice Mapping Tests"
         DataExchField: Record "Data Exch. Field";
     begin
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        Assert.IsFalse(DataExchField.FindFirst, StrSubstNo(TableNotEmptiedErr, DataExchField.TableCaption(), DataExch."Entry No."));
+        Assert.IsFalse(DataExchField.FindFirst(), StrSubstNo(TableNotEmptiedErr, DataExchField.TableCaption(), DataExch."Entry No."));
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
         Assert.IsFalse(
-          IntermediateDataImport.FindFirst, StrSubstNo(TableNotEmptiedErr, IntermediateDataImport.TableCaption(), DataExch."Entry No."));
+          IntermediateDataImport.FindFirst(), StrSubstNo(TableNotEmptiedErr, IntermediateDataImport.TableCaption(), DataExch."Entry No."));
     end;
 
     local procedure CalculateTotalsForCreatedDoc(DataExch: Record "Data Exch."): Decimal
@@ -1063,7 +1062,7 @@ codeunit 139158 "Invoice Mapping Tests"
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
         ErrorMessage.SetFilter("Message", StrSubstNo('*%1*', Message));
         ErrorMessage.SetRange("Message Type", MessageType);
-        Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo('Expected message ''%1'' not found', Message));
+        Assert.IsTrue(ErrorMessage.FindFirst(), StrSubstNo('Expected message ''%1'' not found', Message));
     end;
 
     local procedure AssertWarning(DataExch: Record "Data Exch."; WarningMessage: Text)

@@ -5,6 +5,7 @@ using System.Reflection;
 table 1225 "Data Exch. Field Mapping"
 {
     Caption = 'Data Exch. Field Mapping';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -94,14 +95,14 @@ table 1225 "Data Exch. Field Mapping"
         }
         field(12; "Target Table Caption"; Text[250])
         {
-            CalcFormula = Lookup("Table Metadata".Caption where(ID = field("Target Table ID")));
+            CalcFormula = lookup("Table Metadata".Caption where(ID = field("Target Table ID")));
             Caption = 'Target Table Caption';
             FieldClass = FlowField;
         }
 #pragma warning disable AS0086
         field(13; "Target Field Caption"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
                                                               "No." = field("Target Field ID")));
             Caption = 'Target Field Caption';
             FieldClass = FlowField;
@@ -112,7 +113,7 @@ table 1225 "Data Exch. Field Mapping"
 #pragma warning restore AS0086
         field(14; "Target Table Field Caption"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
                                                               "No." = field("Target Field ID")));
             Caption = 'Target Field Caption';
             FieldClass = FlowField;

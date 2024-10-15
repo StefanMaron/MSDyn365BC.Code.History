@@ -204,7 +204,7 @@ codeunit 1502 "Workflow Setup"
         OnAddWorkflowCategoriesToLibrary();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertWorkflowTemplates()
     begin
     end;
@@ -1979,12 +1979,10 @@ codeunit 1502 "Workflow Setup"
 
     procedure InsertStep(var WorkflowStep: Record "Workflow Step"; WorkflowCode: Code[20]; StepType: Option; FunctionName: Code[128])
     begin
-        with WorkflowStep do begin
-            Validate("Workflow Code", WorkflowCode);
-            Validate(Type, StepType);
-            Validate("Function Name", FunctionName);
-            Insert(true);
-        end;
+        WorkflowStep.Validate("Workflow Code", WorkflowCode);
+        WorkflowStep.Validate(Type, StepType);
+        WorkflowStep.Validate("Function Name", FunctionName);
+        WorkflowStep.Insert(true);
     end;
 
     procedure MarkWorkflowAsTemplate(var Workflow: Record Workflow)
@@ -2215,19 +2213,6 @@ codeunit 1502 "Workflow Setup"
         WorkflowStepArgument."Show Confirmation Message" := ShowConfirmationMessage;
     end;
 
-    [Obsolete('Replaced by InitWorkflowStepArgument().', '18.0')]
-    procedure PopulateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; ApproverType: Option; ApproverLimitType: Option; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
-    begin
-        WorkflowStepArgument.Init();
-        WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
-        WorkflowStepArgument."Approver Type" := "Workflow Approver Type".FromInteger(ApproverType);
-        WorkflowStepArgument."Approver Limit Type" := "Workflow Approver Limit Type".FromInteger(ApproverLimitType);
-        WorkflowStepArgument."Workflow User Group Code" := WorkflowUserGroupCode;
-        WorkflowStepArgument."Due Date Formula" := DueDateFormula;
-        WorkflowStepArgument."Link Target Page" := ApprovalEntriesPage;
-        WorkflowStepArgument."Show Confirmation Message" := ShowConfirmationMessage;
-    end;
-
     procedure BuildNoPendingApprovalsConditions(): Text
     var
         ApprovalEntry: Record "Approval Entry";
@@ -2341,22 +2326,20 @@ codeunit 1502 "Workflow Setup"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", ObjectTypeToRun);
-            SetRange("Object ID to Run", ObjectIdToRun);
-            SetRange("Recurring Job", true);
-            if not IsEmpty() then
-                exit;
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToRun);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIdToRun);
+        JobQueueEntry.SetRange("Recurring Job", true);
+        if not JobQueueEntry.IsEmpty() then
+            exit;
 
-            InitRecurringJob(NoOfMinutesBetweenRuns);
-            "Earliest Start Date/Time" := NotBefore;
-            "Object Type to Run" := ObjectTypeToRun;
-            "Object ID to Run" := ObjectIdToRun;
-            "Report Output Type" := "Report Output Type"::"None (Processing only)";
-            "Maximum No. of Attempts to Run" := 3;
-            Description := JobQueueEntryDescription;
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        end;
+        JobQueueEntry.InitRecurringJob(NoOfMinutesBetweenRuns);
+        JobQueueEntry."Earliest Start Date/Time" := NotBefore;
+        JobQueueEntry."Object Type to Run" := ObjectTypeToRun;
+        JobQueueEntry."Object ID to Run" := ObjectIdToRun;
+        JobQueueEntry."Report Output Type" := JobQueueEntry."Report Output Type"::"None (Processing only)";
+        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+        JobQueueEntry.Description := JobQueueEntryDescription;
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
     procedure Encode(Text: Text): Text

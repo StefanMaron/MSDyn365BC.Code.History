@@ -4,6 +4,7 @@ table 130402 "CAL Test Codeunit"
 {
     Caption = 'CAL Test Codeunit';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

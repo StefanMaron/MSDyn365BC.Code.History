@@ -424,7 +424,7 @@ codeunit 137087 "SCM Order Planning - II"
         CreateSalesOrder(SalesHeader, Item."No.", LocationBlue.Code, Quantity, Quantity);
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
         ChangeReplenishmentSystem(
-          RequisitionLine, ReplenishmentSystem, ReplenishmentSystem2, SalesHeader."No.", LibraryPurchase.CreateVendorNo);
+          RequisitionLine, ReplenishmentSystem, ReplenishmentSystem2, SalesHeader."No.", LibraryPurchase.CreateVendorNo());
 
         // Exercise : Make Order for changed Replenishment System on Requisition Line.
         MakeSupplyOrdersActiveLine(
@@ -527,7 +527,7 @@ codeunit 137087 "SCM Order Planning - II"
 
         // Exercise : Click On Assist Edit Of Available To Transfer, Select the value and click OK on Order Planning Page.
         OrderPlanning."Alternative Supply".Invoke();
-        OrderPlanning.OK.Invoke;
+        OrderPlanning.OK().Invoke();
 
         // Verify : Check that Replenishment System and Quantity is same as expected on Order Planning.
         FindRequisitionLine(RequisitionLine, SalesHeader."No.", Item."No.", LocationBlue2.Code);
@@ -1088,7 +1088,7 @@ codeunit 137087 "SCM Order Planning - II"
         ItemTranslationDescription := CreateItemTranslation(Item."No.", Vendor."Language Code");
 
         // [GIVEN] Sales Order for Item
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [WHEN] Calculate Plan in Order Planning
@@ -1165,7 +1165,7 @@ codeunit 137087 "SCM Order Planning - II"
         WarehouseSetup.Modify(true);
 
         // [GIVEN] Create Service Order with Service Line
-        CreateServiceOrderWithServiceLine(ServiceHeader, ServiceLine, LibraryInventory.CreateItemNo, Location);
+        CreateServiceOrderWithServiceLine(ServiceHeader, ServiceLine, LibraryInventory.CreateItemNo(), Location);
         ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity);
         ServiceLine.Modify(true);
 
@@ -1177,7 +1177,7 @@ codeunit 137087 "SCM Order Planning - II"
             UserSetup.Delete(true);
         UserSetup.Init();
         UserSetup.Validate("User ID", UserId);
-        UserSetup.Validate("Allow Posting From", WorkDate + 1);
+        UserSetup.Validate("Allow Posting From", WorkDate() + 1);
         UserSetup.Insert(true);
 
         // [GIVEN] Try to post Whse. Shipment
@@ -1307,9 +1307,9 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Planning - II");
-        ClearGlobals;
+        ClearGlobals();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if IsInitialized then
             exit;
@@ -1317,7 +1317,7 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        CreateLocationSetup;
+        CreateLocationSetup();
         NoSeriesSetup();
         IsInitialized := true;
         Commit();
@@ -1331,7 +1331,7 @@ codeunit 137087 "SCM Order Planning - II"
         Clear(DemandTypeGlobal);
         Clear(ExpectedQuantity);
         RequisitionLine.DeleteAll();
-        ClearManufacturingUserTemplate;
+        ClearManufacturingUserTemplate();
     end;
 
     local procedure NoSeriesSetup()
@@ -1340,11 +1340,11 @@ codeunit 137087 "SCM Order Planning - II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1401,7 +1401,7 @@ codeunit 137087 "SCM Order Planning - II"
         Item.Validate("Unit Cost", LibraryRandom.RandDec(20, 2));
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Validate("Routing No.", RoutingHeaderNo);
         Item.Validate("Production BOM No.", ProductionBOMNo);
         Item.Modify(true);
@@ -1574,7 +1574,7 @@ codeunit 137087 "SCM Order Planning - II"
         ServiceLine: Record "Service Line";
     begin
         Clear(ServiceHeader);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
@@ -1686,7 +1686,7 @@ codeunit 137087 "SCM Order Planning - II"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        ClearManufacturingUserTemplate;
+        ClearManufacturingUserTemplate();
         CreateItem(Item, Item."Replenishment System"::Purchase, '', '');
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLine(SalesHeader, Item."No.", LocationCode, Quantity, Quantity);
@@ -1812,7 +1812,7 @@ codeunit 137087 "SCM Order Planning - II"
 
     local procedure OpenOrderPlanningPage(var OrderPlanning: TestPage "Order Planning"; DemandOrderNo: Code[20]; No: Code[20])
     begin
-        OrderPlanning.OpenEdit;
+        OrderPlanning.OpenEdit();
         OrderPlanning.FILTER.SetFilter("Demand Order No.", DemandOrderNo);
         OrderPlanning.Expand(true);
         OrderPlanning.FILTER.SetFilter("No.", No);
@@ -1965,7 +1965,7 @@ codeunit 137087 "SCM Order Planning - II"
     local procedure CreateVendorFCY(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        Vendor.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         Vendor.Modify(true);
     end;
 
@@ -2096,7 +2096,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         Assert.AreEqual(
           LocationBlue.Code, GetAlternativeSupply."Transfer-from Code".Value, StrSubstNo(LocationErrorText, LocationBlue.Code));
-        Assert.AreEqual(ExpectedQuantity, GetAlternativeSupply."Demand Qty. Available".AsDEcimal, QuantityError);
+        Assert.AreEqual(ExpectedQuantity, GetAlternativeSupply."Demand Qty. Available".AsDecimal(), QuantityError);
     end;
 
     local procedure VerifyTransferLine(ItemNo: Code[20]; ExpectedQuantity: Decimal)
@@ -2161,7 +2161,7 @@ codeunit 137087 "SCM Order Planning - II"
         OpenOrderPlanningPage(OrderPlanning, JobNo, ItemNo);
         with OrderPlanning do begin
             "Needed Quantity".AssertEquals(Quantities[1]);
-            Next;
+            Next();
             "Needed Quantity".AssertEquals(Quantities[2]);
         end;
     end;
@@ -2185,7 +2185,7 @@ codeunit 137087 "SCM Order Planning - II"
     [Scope('OnPrem')]
     procedure AlternativeSupplyPageHandler(var GetAlternativeSupply: TestPage "Get Alternative Supply")
     begin
-        GetAlternativeSupply.First;
+        GetAlternativeSupply.First();
         VerifyGetAlternativeSupplyPage(GetAlternativeSupply);  // Check the value on Get alternative supply page.
     end;
 
@@ -2193,8 +2193,8 @@ codeunit 137087 "SCM Order Planning - II"
     [Scope('OnPrem')]
     procedure GetAlternativeSupplyPageHandler(var GetAlternativeSupply: TestPage "Get Alternative Supply")
     begin
-        GetAlternativeSupply.First;
-        GetAlternativeSupply.OK.Invoke;  // Click Ok after selecting first record.
+        GetAlternativeSupply.First();
+        GetAlternativeSupply.OK().Invoke();  // Click Ok after selecting first record.
     end;
 }
 

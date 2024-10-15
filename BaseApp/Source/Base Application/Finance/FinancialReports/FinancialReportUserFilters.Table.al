@@ -6,6 +6,7 @@ using System.Security.AccessControl;
 table 89 "Financial Report User Filters"
 {
     Caption = 'Financial Report User Filters';
+    DataClassification = CustomerContent;
 
     fields
     {

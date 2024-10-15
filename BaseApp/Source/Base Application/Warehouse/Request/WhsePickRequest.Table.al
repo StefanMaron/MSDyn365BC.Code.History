@@ -13,6 +13,7 @@ using Microsoft.Warehouse.Structure;
 table 7325 "Whse. Pick Request"
 {
     Caption = 'Whse. Pick Request';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -78,7 +79,7 @@ table 7325 "Whse. Pick Request"
         }
         field(9; "Shipment Method Code"; Code[10])
         {
-            CalcFormula = Lookup("Warehouse Shipment Header"."Shipment Method Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Warehouse Shipment Header"."Shipment Method Code" where("No." = field("Document No.")));
             Caption = 'Shipment Method Code';
             Editable = false;
             FieldClass = FlowField;
@@ -87,7 +88,7 @@ table 7325 "Whse. Pick Request"
         field(10; "Shipping Agent Code"; Code[10])
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
-            CalcFormula = Lookup("Warehouse Shipment Header"."Shipping Agent Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Warehouse Shipment Header"."Shipping Agent Code" where("No." = field("Document No.")));
             Caption = 'Shipping Agent Code';
             Editable = false;
             FieldClass = FlowField;
@@ -95,7 +96,7 @@ table 7325 "Whse. Pick Request"
         }
         field(11; "Shipping Agent Service Code"; Code[10])
         {
-            CalcFormula = Lookup("Warehouse Shipment Header"."Shipping Agent Service Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Warehouse Shipment Header"."Shipping Agent Service Code" where("No." = field("Document No.")));
             Caption = 'Shipping Agent Service Code';
             Editable = false;
             FieldClass = FlowField;

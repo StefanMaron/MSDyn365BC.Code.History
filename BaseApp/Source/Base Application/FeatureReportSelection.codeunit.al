@@ -74,7 +74,7 @@ codeunit 5409 "Feature - Report Selection" implements "Feature Data Update"
             InsertDocumentEntry(Database::"Custom Report Layout", CustomReportLayout.TableCaption(), NoOfNonUpdatedLayouts);
     end;
 
-    local procedure MigrateCustomReportLayouts()
+    internal procedure MigrateCustomReportLayouts()
     var
         CustomReportLayout: Record "Custom Report Layout";
         TenantReportLayout: Record "Tenant Report Layout";

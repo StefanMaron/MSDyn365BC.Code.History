@@ -22,6 +22,7 @@ table 304 "Issued Fin. Charge Memo Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Issued Fin. Charge Memo List";
     LookupPageID = "Issued Fin. Charge Memo List";
+    DataClassification = CustomerContent;
 
     fields
     {

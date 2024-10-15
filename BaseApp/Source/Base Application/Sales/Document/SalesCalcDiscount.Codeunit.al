@@ -65,129 +65,127 @@ codeunit 60 "Sales-Calc. Discount"
         if IsHandled then
             exit;
 
-        with SalesLine do begin
-            LockTable();
-            SalesHeader.TestField("Customer Posting Group");
-            CustPostingGr.Get(SalesHeader."Customer Posting Group");
+        SalesLine.LockTable();
+        SalesHeader.TestField("Customer Posting Group");
+        CustPostingGr.Get(SalesHeader."Customer Posting Group");
 
-            SalesLine2.Reset();
-            SalesLine2.SetRange("Document Type", "Document Type");
-            SalesLine2.SetRange("Document No.", "Document No.");
-            SalesLine2.SetRange("System-Created Entry", true);
-            SalesLine2.SetRange(Type, SalesLine2.Type::"G/L Account");
-            SalesLine2.SetRange("No.", CustPostingGr."Service Charge Acc.");
-            SalesLine2.SetLoadFields("Unit Price", "Shipment No.", "Qty. Shipped Not Invoiced");
-            if SalesLine2.FindSet(true) then
-                repeat
-                    SalesLine2."Unit Price" := 0;
-                    SalesLine2.Modify();
-                    TempServiceChargeLine := SalesLine2;
-                    TempServiceChargeLine.Insert();
-                until SalesLine2.Next() = 0;
+        SalesLine2.Reset();
+        SalesLine2.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine2.SetRange("Document No.", SalesLine."Document No.");
+        SalesLine2.SetRange("System-Created Entry", true);
+        SalesLine2.SetRange(Type, SalesLine2.Type::"G/L Account");
+        SalesLine2.SetRange("No.", CustPostingGr."Service Charge Acc.");
+        SalesLine2.SetLoadFields("Unit Price", "Shipment No.", "Qty. Shipped Not Invoiced");
+        if SalesLine2.FindSet(true) then
+            repeat
+                SalesLine2."Unit Price" := 0;
+                SalesLine2.Modify();
+                TempServiceChargeLine := SalesLine2;
+                TempServiceChargeLine.Insert();
+            until SalesLine2.Next() = 0;
 
-            SalesLine2.Reset();
-            SalesLine2.SetLoadFields();
-            SalesLine2.SetRange("Document Type", "Document Type");
-            SalesLine2.SetRange("Document No.", "Document No.");
-            SalesLine2.SetFilter(Type, '<>0');
-            OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
-            if SalesLine2.FindFirst() then;
-            SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
-            InvDiscBase :=
-              TempVATAmountLine.GetTotalInvDiscBaseAmount(
-                SalesHeader."Prices Including VAT", SalesHeader."Currency Code");
-            ChargeBase :=
-              TempVATAmountLine.GetTotalLineAmount(
-                SalesHeader."Prices Including VAT", SalesHeader."Currency Code");
+        SalesLine2.Reset();
+        SalesLine2.SetLoadFields();
+        SalesLine2.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine2.SetRange("Document No.", SalesLine."Document No.");
+        SalesLine2.SetFilter(Type, '<>0');
+        OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
+        if SalesLine2.FindFirst() then;
+        SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+        InvDiscBase :=
+          TempVATAmountLine.GetTotalInvDiscBaseAmount(
+            SalesHeader."Prices Including VAT", SalesHeader."Currency Code");
+        ChargeBase :=
+          TempVATAmountLine.GetTotalLineAmount(
+            SalesHeader."Prices Including VAT", SalesHeader."Currency Code");
 
-            if UpdateHeader then
-                SalesHeader.Modify();
+        if UpdateHeader then
+            SalesHeader.Modify();
 
-            if SalesHeader."Posting Date" = 0D then
-                CurrencyDate := WorkDate()
-            else
-                CurrencyDate := SalesHeader."Posting Date";
+        if SalesHeader."Posting Date" = 0D then
+            CurrencyDate := WorkDate()
+        else
+            CurrencyDate := SalesHeader."Posting Date";
 
-            CustInvDisc.GetRec(
-              SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
+        CustInvDisc.GetRec(
+          SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
-            OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
-            if CustInvDisc."Service Charge" <> 0 then begin
-                OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
-                Currency.Initialize(SalesHeader."Currency Code");
-                if not UpdateHeader then
-                    SalesLine2.SetSalesHeader(SalesHeader);
-                if not TempServiceChargeLine.IsEmpty() then begin
-                    TempServiceChargeLine.FindLast();
-                    SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
-                    SetSalesLineServiceCharge(SalesHeader, SalesLine2);
-                    SalesLine2.Modify();
-                end else begin
-                    IsHandled := false;
-                    OnCalculateInvoiceDiscountOnBeforeUpdateSalesLine2(SalesHeader, SalesLine2, UpdateHeader, CustInvDisc, IsHandled);
-                    if not IsHandled then begin
-                        SalesLine2.Reset();
-                        SalesLine2.SetRange("Document Type", "Document Type");
-                        SalesLine2.SetRange("Document No.", "Document No.");
-                        SalesLine2.FindLast();
-                        SalesLine2.Init();
-                        if not UpdateHeader then
-                            SalesLine2.SetSalesHeader(SalesHeader);
-                        SalesLine2."Line No." := SalesLine2."Line No." + 10000;
-                        SalesLine2."System-Created Entry" := true;
-                        SalesLine2.Type := SalesLine2.Type::"G/L Account";
-                        SalesLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount());
-                        SalesLine2.Description := Text000;
-                        SalesLine2.Validate(Quantity, 1);
-
-                        OnAfterValidateSalesLine2Quantity(SalesHeader, SalesLine2, CustInvDisc);
-
-                        if SalesLine2."Document Type" in
-                            [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"]
-                        then
-                            SalesLine2.Validate("Return Qty. to Receive", SalesLine2.Quantity)
-                        else
-                            SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
-                        SetSalesLineServiceCharge(SalesHeader, SalesLine2);
-                        OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(SalesLine2, SalesHeader);
-                        SalesLine2.Insert();
-                    end;
-                end;
-                SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
-            end else
-                if TempServiceChargeLine.FindSet(false, false) then
-                    repeat
-                        if (TempServiceChargeLine."Shipment No." = '') and (TempServiceChargeLine."Qty. Shipped Not Invoiced" = 0) then begin
-                            SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
-                            IsHandled := false;
-                            OnCalculateInvoiceDiscountOnBeforeSalesLine2DeleteTrue(UpdateHeader, SalesLine2, IsHandled);
-                            if not IsHandled then
-                                SalesLine2.Delete(true);
-                        end;
-                    until TempServiceChargeLine.Next() = 0;
-
-            IsHandled := false;
-            OnCalculateInvoiceDiscountOnBeforeCustInvDiscRecExists(SalesHeader, SalesLine2, UpdateHeader, InvDiscBase, ChargeBase, TempVATAmountLine, IsHandled);
-            If IsHandled then
-                exit;
-
-            if CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then begin
-                ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
-                OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
-                if ShouldGetCustInvDisc then
-                    CustInvDisc.GetRec(
-                      SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
-
-                DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group", SalesLine2."Gen. Prod. Posting Group",
-                  SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
-
-                UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");
-
+        OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
+        if CustInvDisc."Service Charge" <> 0 then begin
+            OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
+            Currency.Initialize(SalesHeader."Currency Code");
+            if not UpdateHeader then
                 SalesLine2.SetSalesHeader(SalesHeader);
-                SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
-                UpdatePrepmtLineAmount(SalesHeader);
+            if not TempServiceChargeLine.IsEmpty() then begin
+                TempServiceChargeLine.FindLast();
+                SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", TempServiceChargeLine."Line No.");
+                SetSalesLineServiceCharge(SalesHeader, SalesLine2);
+                SalesLine2.Modify();
+            end else begin
+                IsHandled := false;
+                OnCalculateInvoiceDiscountOnBeforeUpdateSalesLine2(SalesHeader, SalesLine2, UpdateHeader, CustInvDisc, IsHandled);
+                if not IsHandled then begin
+                    SalesLine2.Reset();
+                    SalesLine2.SetRange("Document Type", SalesLine."Document Type");
+                    SalesLine2.SetRange("Document No.", SalesLine."Document No.");
+                    SalesLine2.FindLast();
+                    SalesLine2.Init();
+                    if not UpdateHeader then
+                        SalesLine2.SetSalesHeader(SalesHeader);
+                    SalesLine2."Line No." := SalesLine2."Line No." + 10000;
+                    SalesLine2."System-Created Entry" := true;
+                    SalesLine2.Type := SalesLine2.Type::"G/L Account";
+                    SalesLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount());
+                    SalesLine2.Description := Text000;
+                    SalesLine2.Validate(Quantity, 1);
+
+                    OnAfterValidateSalesLine2Quantity(SalesHeader, SalesLine2, CustInvDisc);
+
+                    if SalesLine2."Document Type" in
+                        [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"]
+                    then
+                        SalesLine2.Validate("Return Qty. to Receive", SalesLine2.Quantity)
+                    else
+                        SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
+                    SetSalesLineServiceCharge(SalesHeader, SalesLine2);
+                    OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(SalesLine2, SalesHeader);
+                    SalesLine2.Insert();
+                end;
             end;
+            SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+        end else
+            if TempServiceChargeLine.FindSet(false) then
+                repeat
+                    if (TempServiceChargeLine."Shipment No." = '') and (TempServiceChargeLine."Qty. Shipped Not Invoiced" = 0) then begin
+                        SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", TempServiceChargeLine."Line No.");
+                        IsHandled := false;
+                        OnCalculateInvoiceDiscountOnBeforeSalesLine2DeleteTrue(UpdateHeader, SalesLine2, IsHandled);
+                        if not IsHandled then
+                            SalesLine2.Delete(true);
+                    end;
+                until TempServiceChargeLine.Next() = 0;
+
+        IsHandled := false;
+        OnCalculateInvoiceDiscountOnBeforeCustInvDiscRecExists(SalesHeader, SalesLine2, UpdateHeader, InvDiscBase, ChargeBase, TempVATAmountLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then begin
+            ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
+            OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
+            if ShouldGetCustInvDisc then
+                CustInvDisc.GetRec(
+                  SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
+
+            DiscountNotificationMgt.NotifyAboutMissingSetup(
+              SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group", SalesLine2."Gen. Prod. Posting Group",
+              SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
+
+            UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");
+
+            SalesLine2.SetSalesHeader(SalesHeader);
+            SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+            UpdatePrepmtLineAmount(SalesHeader);
         end;
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
@@ -302,19 +300,18 @@ codeunit 60 "Sales-Calc. Discount"
         if (SalesHeader."Invoice Discount Calculation" = SalesHeader."Invoice Discount Calculation"::"%") and
            (SalesHeader."Prepayment %" > 0) and (SalesHeader."Invoice Discount Value" > 0) and
            (SalesHeader."Invoice Discount Value" + SalesHeader."Prepayment %" >= 100)
-        then
-            with SalesLine do begin
-                SetRange("Document Type", SalesHeader."Document Type");
-                SetRange("Document No.", SalesHeader."No.");
-                SetLoadFields(Type, Quantity, "Unit Price", "Qty. to Invoice", "Prepayment %", "Prepmt. Line Amount", Amount);
-                if FindSet(true) then
-                    repeat
-                        if not ZeroAmountLine(0) and ("Prepayment %" = SalesHeader."Prepayment %") then begin
-                            "Prepmt. Line Amount" := Amount;
-                            Modify();
-                        end;
-                    until Next() = 0;
-            end;
+        then begin
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            SalesLine.SetLoadFields(Type, Quantity, "Unit Price", "Qty. to Invoice", "Prepayment %", "Prepmt. Line Amount", Amount);
+            if SalesLine.FindSet(true) then
+                repeat
+                    if not SalesLine.ZeroAmountLine(0) and (SalesLine."Prepayment %" = SalesHeader."Prepayment %") then begin
+                        SalesLine."Prepmt. Line Amount" := SalesLine.Amount;
+                        SalesLine.Modify();
+                    end;
+                until SalesLine.Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -401,7 +398,6 @@ codeunit 60 "Sales-Calc. Discount"
     local procedure OnBeforeCustInvDiscRecExists(InvDiscCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
-
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var UpdateHeader: Boolean)

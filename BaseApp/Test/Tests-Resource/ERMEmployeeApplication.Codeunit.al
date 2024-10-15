@@ -49,7 +49,7 @@ codeunit 134115 "ERM Employee Application"
         // Setup: Create Employee, Create and post General Journal  Line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateEmployeeNo, DocumentType, -LibraryRandom.RandDec(100, 2),
+          GenJournalLine, GenJournalBatch, CreateEmployeeNo(), DocumentType, -LibraryRandom.RandDec(100, 2),
           CurrencyCode3, GenJournalLine."Account Type"::Employee);
         Amount := GenJournalLine.Amount;
         CreateGeneralJournalLines(
@@ -60,15 +60,15 @@ codeunit 134115 "ERM Employee Application"
         // Exercise.
         OpenEmployeeLedgerEntryPage(DocumentType2, GenJournalLine."Account No.");
 
-        AppliedAmount := LibraryVariableStorage.DequeueDecimal;
-        ApplyingAmount := LibraryVariableStorage.DequeueDecimal;
-        Balance := LibraryVariableStorage.DequeueDecimal;
+        AppliedAmount := LibraryVariableStorage.DequeueDecimal();
+        ApplyingAmount := LibraryVariableStorage.DequeueDecimal();
+        Balance := LibraryVariableStorage.DequeueDecimal();
 
         // Verify: Verify Page fields value on Apply Employee Entries Page.
         Assert.AreEqual(Amount, AppliedAmount, StrSubstNo(ApplyAmountErr, 'Applied Amount', Amount));
         Assert.AreEqual(GenJournalLine.Amount, ApplyingAmount, StrSubstNo(ApplyAmountErr, 'Applying Amount', GenJournalLine.Amount));
         Assert.AreEqual(Amount + GenJournalLine.Amount, Balance, StrSubstNo(ApplyAmountErr, 'Balance', Amount + GenJournalLine.Amount));
-        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText, StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
+        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText(), StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateEmployeeNo, DocumentType, -LibraryRandom.RandDec(100, 2), '',
+          GenJournalLine, GenJournalBatch, CreateEmployeeNo(), DocumentType, -LibraryRandom.RandDec(100, 2), '',
           GenJournalLine."Account Type"::Employee);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", DocumentType2, -GenJournalLine.Amount / 2, '',
@@ -133,7 +133,7 @@ codeunit 134115 "ERM Employee Application"
         Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateEmployeeNo, GenJournalLine."Document Type"::" ",
+          GenJournalLine, GenJournalBatch, CreateEmployeeNo(), GenJournalLine."Document Type"::" ",
           -LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Employee);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", GenJournalLine."Document Type"::Payment,
@@ -173,7 +173,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateEmployeeNo, GenJournalLine."Document Type"::" ",
+          GenJournalLine, GenJournalBatch, CreateEmployeeNo(), GenJournalLine."Document Type"::" ",
           -LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Employee);
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -204,7 +204,7 @@ codeunit 134115 "ERM Employee Application"
         // Check Applies to ID field should be blank on Apply Employee Entries Page.
         // Verify with ApplyEmployeeEntriesPageHandler.
         Initialize();
-        CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Employee, CreateEmployeeNo, -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
+        CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Employee, CreateEmployeeNo(), -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
     end;
 
     local procedure CreateGeneralLineAndApplyEntries(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -229,9 +229,9 @@ codeunit 134115 "ERM Employee Application"
           AccountType, AccountNo, 0);
 
         // Verify: Open Apply Entries Page and Check Applies to ID field should be blank.
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     [Test]
@@ -245,7 +245,7 @@ codeunit 134115 "ERM Employee Application"
         Initialize();
 
         // [GIVEN] 3 Employee expenses with Amounts = -10, -20, -30, One payment with Amount = 60
-        EmployeeNo := CreateEmployeeNo;
+        EmployeeNo := CreateEmployeeNo();
         CreateAndPostEmployeeMultipleJnlLines(PaymentNo, EmployeeNo);
 
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
@@ -328,7 +328,7 @@ codeunit 134115 "ERM Employee Application"
         Initialize();
 
         // [GIVEN] Employee with ledger entry
-        EmployeeNo := CreateEmployeeNo;
+        EmployeeNo := CreateEmployeeNo();
         CreateAndPostJournalLine(
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee, EmployeeNo, LibraryRandom.RandDec(100, 2));
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -340,26 +340,26 @@ codeunit 134115 "ERM Employee Application"
         // [THEN] "Payment Method Code" and "Message to Recipient" are updated with "Pmt" and "Msg" respectively
 
         with EmployeeLedgerEntries do begin
-            OpenEdit;
+            OpenEdit();
             FILTER.SetFilter("Employee No.", EmployeeNo);
-            Assert.IsFalse("Posting Date".Editable, EmployeeLedgerEntry.FieldCaption("Posting Date"));
-            Assert.IsFalse("Document Type".Editable, EmployeeLedgerEntry.FieldCaption("Document Type"));
-            Assert.IsFalse("Document No.".Editable, EmployeeLedgerEntry.FieldCaption("Document No."));
-            Assert.IsFalse("Employee No.".Editable, EmployeeLedgerEntry.FieldCaption("Employee No."));
-            Assert.IsFalse(Description.Editable, EmployeeLedgerEntry.FieldCaption(Description));
-            Assert.IsFalse(Open.Editable, EmployeeLedgerEntry.FieldCaption(Open));
-            Assert.IsFalse("Entry No.".Editable, EmployeeLedgerEntry.FieldCaption("Entry No."));
+            Assert.IsFalse("Posting Date".Editable(), EmployeeLedgerEntry.FieldCaption("Posting Date"));
+            Assert.IsFalse("Document Type".Editable(), EmployeeLedgerEntry.FieldCaption("Document Type"));
+            Assert.IsFalse("Document No.".Editable(), EmployeeLedgerEntry.FieldCaption("Document No."));
+            Assert.IsFalse("Employee No.".Editable(), EmployeeLedgerEntry.FieldCaption("Employee No."));
+            Assert.IsFalse(Description.Editable(), EmployeeLedgerEntry.FieldCaption(Description));
+            Assert.IsFalse(Open.Editable(), EmployeeLedgerEntry.FieldCaption(Open));
+            Assert.IsFalse("Entry No.".Editable(), EmployeeLedgerEntry.FieldCaption("Entry No."));
 
-            Assert.IsFalse("Original Amount".Editable, EmployeeLedgerEntry.FieldCaption("Original Amount"));
-            Assert.IsFalse(Amount.Editable, EmployeeLedgerEntry.FieldCaption(Amount));
-            Assert.IsFalse("Remaining Amount".Editable, EmployeeLedgerEntry.FieldCaption("Remaining Amount"));
-            Assert.IsFalse("Remaining Amt. (LCY)".Editable, EmployeeLedgerEntry.FieldCaption("Remaining Amt. (LCY)"));
+            Assert.IsFalse("Original Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Original Amount"));
+            Assert.IsFalse(Amount.Editable(), EmployeeLedgerEntry.FieldCaption(Amount));
+            Assert.IsFalse("Remaining Amount".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amount"));
+            Assert.IsFalse("Remaining Amt. (LCY)".Editable(), EmployeeLedgerEntry.FieldCaption("Remaining Amt. (LCY)"));
 
-            Assert.IsTrue("Payment Method Code".Editable, EmployeeLedgerEntry.FieldCaption("Payment Method Code"));
-            Assert.IsTrue("Message to Recipient".Editable, EmployeeLedgerEntry.FieldCaption("Message to Recipient"));
+            Assert.IsTrue("Payment Method Code".Editable(), EmployeeLedgerEntry.FieldCaption("Payment Method Code"));
+            Assert.IsTrue("Message to Recipient".Editable(), EmployeeLedgerEntry.FieldCaption("Message to Recipient"));
             "Payment Method Code".SetValue(PaymentMethod.Code);
             "Message to Recipient".SetValue(MsgToRecipient);
-            Close;
+            Close();
         end;
 
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
@@ -493,7 +493,7 @@ codeunit 134115 "ERM Employee Application"
         LibrarySetupStorage.Restore();
 
         EmployeePostingGroup.DeleteAll();
-        CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting());
 
         // Lazy Setup.
         if isInitialized then
@@ -594,10 +594,10 @@ codeunit 134115 "ERM Employee Application"
     var
         EmployeeLedgerEntries: TestPage "Employee Ledger Entries";
     begin
-        EmployeeLedgerEntries.OpenView;
+        EmployeeLedgerEntries.OpenView();
         EmployeeLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
         EmployeeLedgerEntries.FILTER.SetFilter("Employee No.", EmployeeNo);
-        EmployeeLedgerEntries.ActionApplyEntries.Invoke;
+        EmployeeLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -641,7 +641,7 @@ codeunit 134115 "ERM Employee Application"
     [Scope('OnPrem')]
     procedure ApplyEmployeePageHandler(var ApplyEmployeeEntries: TestPage "Apply Employee Entries")
     begin
-        ApplyEmployeeEntries.ActionSetAppliesToID.Invoke;
+        ApplyEmployeeEntries.ActionSetAppliesToID.Invoke();
         LibraryVariableStorage.Enqueue(ApplyEmployeeEntries.AppliedAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyEmployeeEntries.ApplyingAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyEmployeeEntries.ControlBalance.Value);
@@ -652,8 +652,8 @@ codeunit 134115 "ERM Employee Application"
     [Scope('OnPrem')]
     procedure PostAndApplyEmployeePageHandler(var ApplyEmployeeEntries: TestPage "Apply Employee Entries")
     begin
-        ApplyEmployeeEntries.ActionSetAppliesToID.Invoke;
-        ApplyEmployeeEntries.ActionPostApplication.Invoke;
+        ApplyEmployeeEntries.ActionSetAppliesToID.Invoke();
+        ApplyEmployeeEntries.ActionPostApplication.Invoke();
     end;
 
     [MessageHandler]
@@ -675,8 +675,8 @@ codeunit 134115 "ERM Employee Application"
     [Scope('OnPrem')]
     procedure EmployeeLedgerEntriesPageHandler(var EmployeeLedgerEntries: TestPage "Employee Ledger Entries")
     begin
-        EmployeeLedgerEntries.Last;
-        EmployeeLedgerEntries.ActionApplyEntries.Invoke;
+        EmployeeLedgerEntries.Last();
+        EmployeeLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     [ModalPageHandler]

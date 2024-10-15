@@ -63,8 +63,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         Clear(InsuranceUninsuredFAs);
         InsuranceUninsuredFAs.SetTableView(FixedAsset);
@@ -72,11 +72,11 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceUninsuredFAs.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetLineValues(FADepreciationBook);
         VerifyFixedAssetLineValues(FADepreciationBook2);
         VerifyTotalAmount(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -108,8 +108,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         Insurance.SetFilter("No.", '%1|%2', Insurance."No.", Insurance2."No.");
         Clear(InsuranceAnalysis);
         InsuranceAnalysis.InitializeRequest(true);
@@ -118,10 +118,10 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceAnalysis.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceAnalysisLine(Insurance);
         VerifyInsuranceAnalysisLine(Insurance2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -153,8 +153,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetJournalsEdit;
-        LibraryLowerPermissions.AddO365FAView;
+        LibraryLowerPermissions.SetJournalsEdit();
+        LibraryLowerPermissions.AddO365FAView();
         Insurance.SetFilter("No.", '%1|%2', Insurance."No.", Insurance2."No.");
         Clear(InsuranceAnalysis);
         InsuranceAnalysis.InitializeRequest(false);
@@ -163,9 +163,9 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceAnalysis.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceAnalysisTotal(Insurance, Insurance2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -183,8 +183,8 @@ codeunit 134980 "ERM Insurance Reports"
         CreateInsurance(Insurance);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         Insurance.SetRange("No.", Insurance."No.");
         Clear(InsuranceList);
         InsuranceList.SetTableView(Insurance);
@@ -192,7 +192,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceList.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceList(Insurance);
     end;
 
@@ -224,8 +224,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         InsuranceRegister2.SetRange("Journal Batch Name", GenJournalBatch.Name);
         Clear(InsuranceRegister);
         InsuranceRegister.SetTableView(InsuranceRegister2);
@@ -233,10 +233,10 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceRegister.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceRegisterLine(FixedAsset."No.");
         VerifyInsuranceRegisterLine(FixedAsset2."No.");
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -264,8 +264,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         Insurance.SetRange("No.", Insurance."No.");
         Clear(InsuranceCoverageDetails);
         InsuranceCoverageDetails.SetTableView(Insurance);
@@ -273,7 +273,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceCoverageDetails.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceCoverageDetails(Insurance);
     end;
 
@@ -302,8 +302,8 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Report.
-        LibraryLowerPermissions.SetJournalsEdit;
-        LibraryLowerPermissions.AddO365FAView;
+        LibraryLowerPermissions.SetJournalsEdit();
+        LibraryLowerPermissions.AddO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         Clear(InsuranceTotValueInsured);
         InsuranceTotValueInsured.SetTableView(FixedAsset);
@@ -311,14 +311,14 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceTotValueInsured.Run();
 
         // 3.Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInsuranceValueInsured(FixedAsset."No.");
     end;
 
     [Normal]
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
     begin
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         UpdateDateFADepreciationBook(FADepreciationBook);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
         FADepreciationBook.Modify(true);
@@ -424,7 +424,7 @@ codeunit 134980 "ERM Insurance Reports"
     begin
         FADepreciationBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
         LibraryReportDataset.SetRange('No_FixedAsset', FADepreciationBook."FA No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amounts1', FADepreciationBook."Acquisition Cost");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amounts2', FADepreciationBook.Depreciation);
@@ -435,7 +435,7 @@ codeunit 134980 "ERM Insurance Reports"
     begin
         Insurance.CalcFields("Total Value Insured");
         LibraryReportDataset.SetRange('Insurance__No__', Insurance."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Annual_Premium_', Insurance."Annual Premium");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Policy_Coverage_', Insurance."Policy Coverage");
@@ -483,7 +483,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.SetRange("Insurance No.", Insurance."No.");
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__Posting_Date_', Format(InsCoverageLedgerEntry."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Ins__Coverage_Ledger_Entry_Amount', InsCoverageLedgerEntry.Amount);
@@ -492,7 +492,7 @@ codeunit 134980 "ERM Insurance Reports"
     local procedure VerifyInsuranceList(Insurance: Record Insurance)
     begin
         LibraryReportDataset.SetRange('Insurance__No__', Insurance."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Insurance__No__', Insurance."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Annual_Premium_', Insurance."Annual Premium");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance__Policy_Coverage_', Insurance."Policy Coverage");
@@ -505,7 +505,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.SetRange("FA No.", FANo);
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Ins__Coverage_Ledger_Entry__FA_No__', FANo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Ins__Coverage_Ledger_Entry__FA_No__', FANo);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Ins__Coverage_Ledger_Entry__Insurance_No__', InsCoverageLedgerEntry."Insurance No.");
@@ -520,7 +520,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsCoverageLedgerEntry.SetRange("FA No.", FANo);
         InsCoverageLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('FANo', FANo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'FANo', FANo);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Ins__Coverage_Ledger_Entry__Insurance_No__', InsCoverageLedgerEntry."Insurance No.");
@@ -532,7 +532,7 @@ codeunit 134980 "ERM Insurance Reports"
         FADepreciationBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
         FADepreciationBook2.CalcFields("Acquisition Cost", Depreciation, "Book Value");
         LibraryReportDataset.SetRange('No_FixedAsset', FADepreciationBook2."FA No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_FixedAsset', FADepreciationBook2."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmounts1',
           FADepreciationBook."Acquisition Cost" + FADepreciationBook2."Acquisition Cost");
@@ -546,42 +546,42 @@ codeunit 134980 "ERM Insurance Reports"
     [Scope('OnPrem')]
     procedure InsuranceUninsuredFAsReqPageHandler(var InsuranceUninsuredFAs: TestRequestPage "Insurance - Uninsured FAs")
     begin
-        InsuranceUninsuredFAs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceUninsuredFAs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InsuranceAnalysisReqPageHandler(var InsuranceAnalysis: TestRequestPage "Insurance - Analysis")
     begin
-        InsuranceAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InsuranceListReqPageHandler(var InsuranceList: TestRequestPage "Insurance - List")
     begin
-        InsuranceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InsuranceRegisterReqPageHandler(var InsuranceRegister: TestRequestPage "Insurance Register")
     begin
-        InsuranceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InsuranceCoverageDetailsReqPageHandler(var InsuranceCoverageDetails: TestRequestPage "Insurance - Coverage Details")
     begin
-        InsuranceCoverageDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceCoverageDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InsuranceTotValueInsuredReqPageHandler(var InsuranceTotValueInsured: TestRequestPage "Insurance - Tot. Value Insured")
     begin
-        InsuranceTotValueInsured.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceTotValueInsured.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CreateTwoFixedAssets(var FixedAsset: Record "Fixed Asset"; var FixedAsset2: Record "Fixed Asset"; var FADepreciationBook: Record "FA Depreciation Book"; var FADepreciationBook2: Record "FA Depreciation Book")

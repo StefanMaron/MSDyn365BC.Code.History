@@ -4,7 +4,7 @@ using Microsoft.Inventory.Item;
 
 page 1637 "Office Suggested Line Items"
 {
-    Caption = 'Suggested Line Items';
+    Caption = ' '; // We do not show caption as it is not visible correctly by limited space
     DataCaptionExpression = ''; // Avoid showing zero as a subcaption
     PageType = StandardDialog;
     ShowFilter = false;
@@ -155,4 +155,3 @@ page 1637 "Office Suggested Line Items"
     begin
     end;
 }
-

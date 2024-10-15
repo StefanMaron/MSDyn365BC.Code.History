@@ -412,17 +412,15 @@ codeunit 7600 "Calendar Management"
         CustomizedCalendarChange: Record "Customized Calendar Change";
     begin
         FillSource(SourceVariant, CustomizedCalendarChange);
-        with CustomizedCalendarChange do begin
-            Reset();
-            SetRange("Source Type", "Source Type");
-            SetRange("Source Code", "Source Code");
-            SetRange("Additional Source Code", "Additional Source Code");
-            SetRange("Base Calendar Code", "Base Calendar Code");
-            exit(not IsEmpty());
-        end;
+        CustomizedCalendarChange.Reset();
+        CustomizedCalendarChange.SetRange("Source Type", CustomizedCalendarChange."Source Type");
+        CustomizedCalendarChange.SetRange("Source Code", CustomizedCalendarChange."Source Code");
+        CustomizedCalendarChange.SetRange("Additional Source Code", CustomizedCalendarChange."Additional Source Code");
+        CustomizedCalendarChange.SetRange("Base Calendar Code", CustomizedCalendarChange."Base Calendar Code");
+        exit(not CustomizedCalendarChange.IsEmpty());
     end;
 
-    procedure CalcDateBOC(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean): Date
+    procedure CalcDateBOC(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean): Date
     var
         CompanyInfo: Record "Company Information";
         CalendarMgt: array[2] of Codeunit "Calendar Management";
@@ -495,7 +493,7 @@ codeunit 7600 "Calendar Management"
         exit(NewDate);
     end;
 
-    procedure CalcDateBOC2(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean): Date
+    procedure CalcDateBOC2(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean): Date
     var
         NewOrgDateExpression: Text[30];
     begin
@@ -544,13 +542,13 @@ codeunit 7600 "Calendar Management"
             Result += 1000;
     end;
 
-    local procedure IsOnBeforeCalcDateBOCHandled(var CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var CalConvTimeFrame: Integer) IsHandled: Boolean
+    local procedure IsOnBeforeCalcDateBOCHandled(var CustomCalendarChange: array[2] of Record "Customized Calendar Change"; var CalConvTimeFrame: Integer) IsHandled: Boolean
     begin
         OnBeforeCalcDateBOC(CustomCalendarChange, CalConvTimeFrame, IsHandled)
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcDateBOC(var CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var CalConvTimeFrame: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCalcDateBOC(var CustomCalendarChange: array[2] of Record "Customized Calendar Change"; var CalConvTimeFrame: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -713,12 +711,12 @@ codeunit 7600 "Calendar Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcDateBOCOnAfterGetCalendarCodes(var CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure OnCalcDateBOCOnAfterGetCalendarCodes(var CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcDateBOCOnAfterSetNonworking(var CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure OnCalcDateBOCOnAfterSetNonworking(var CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     begin
     end;
 
@@ -733,7 +731,7 @@ codeunit 7600 "Calendar Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcDateBOCOnBeforeCalcNewDate(var OrgDateExpression: Text[30]; var OrgDate: Date; var CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var NewDate: Date; var IsHandled: Boolean)
+    local procedure OnCalcDateBOCOnBeforeCalcNewDate(var OrgDateExpression: Text[30]; var OrgDate: Date; var CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var NewDate: Date; var IsHandled: Boolean)
     begin
     end;
 

@@ -79,12 +79,68 @@ page 1253 "Payment Application Settings"
                         ToolTip = 'Specifies if the algorithm should search Vendor and Customer Ledger Entries when matching Bank Ledger Entries. This functionality should be used only if your process requires it, otherwise it has a high performance impact.';
                     }
                 }
+                group(LedgersInApplyManually)
+                {
+                    Caption = 'Ledger Entries in "Apply Manually" page';
+                    field(CustLedgerEntriesShown; CustomerLedgerEntriesShown)
+                    {
+                        Caption = 'Show Customer Ledger Entries in "Apply Manually" page';
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies if Customer Ledger Entries are shown in the "Apply Manually page".';
+                        trigger OnValidate()
+                        begin
+                            Rec."Cust Ledg Hidden In Apply Man" := not CustomerLedgerEntriesShown;
+                            Rec.Modify();
+                        end;
+                    }
+
+                    field(VendorLedgerEntriesShown; VendorLedgerEntriesShown)
+                    {
+                        Caption = 'Show Vendor Ledger Entries in "Apply Manually" page';
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies if Vendor Ledger Entries are shown in the "Apply Manually page".';
+                        trigger OnValidate()
+                        begin
+                            Rec."Vend Ledg Hidden In Apply Man" := not VendorLedgerEntriesShown;
+                            Rec.Modify();
+                        end;
+                    }
+                    field(EmployeeLedgerEntriesShown; EmployeeLedgerEntriesShown)
+                    {
+                        Caption = 'Show Employee Ledger Entries in "Apply Manually" page';
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies if Employee Ledger Entries are shown in the "Apply Manually page".';
+                        trigger OnValidate()
+                        begin
+                            Rec."Empl Ledg Hidden In Apply Man" := not EmployeeLedgerEntriesShown;
+                            Rec.Modify();
+                        end;
+                    }
+                    field(BankLedgerEntriesShown; BankLedgerEntriesShown)
+                    {
+                        Caption = 'Show Bank Ledger Entries in "Apply Manually" page';
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies if Bank Ledger Entries are shown in the "Apply Manually page".';
+                        trigger OnValidate()
+                        begin
+                            Rec."Bank Ledg Hidden In Apply Man" := not BankLedgerEntriesShown;
+                            Rec.Modify();
+                        end;
+                    }
+                }
             }
         }
     }
 
+    var
+        CustomerLedgerEntriesShown, VendorLedgerEntriesShown, EmployeeLedgerEntriesShown, BankLedgerEntriesShown : Boolean;
+
     trigger OnOpenPage()
     begin
         Rec.GetOrInsert();
+        CustomerLedgerEntriesShown := not Rec."Cust Ledg Hidden In Apply Man";
+        VendorLedgerEntriesShown := not Rec."Vend Ledg Hidden In Apply Man";
+        EmployeeLedgerEntriesShown := not Rec."Empl Ledg Hidden In Apply Man";
+        BankLedgerEntriesShown := not Rec."Bank Ledg Hidden In Apply Man";
     end;
 }

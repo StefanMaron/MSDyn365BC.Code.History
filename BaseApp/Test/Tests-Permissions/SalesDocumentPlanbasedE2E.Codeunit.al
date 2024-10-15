@@ -30,10 +30,10 @@ codeunit 135404 "Sales Document Plan-based E2E"
         Initialize();
 
         // [Given] A user with BASIC permission
-        // LibraryLowerPermissions.SetO365Basic; TODO: Uncomment this when fixing the test
+        // LibraryLowerPermissions.SetO365Basic(); TODO: Uncomment this when fixing the test
 
         // [WHEN] The user creates a new Country/Region
-        CountryRegion.Code := CopyStr(DelChr(CreateGuid, '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
+        CountryRegion.Code := CopyStr(DelChr(CreateGuid(), '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
         CountryRegion.Insert();
 
         // [THEN] No error occurs
@@ -41,10 +41,10 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [Given] A user with TEAMMEMBER plan
         // LibraryLowerPermissions.SetOutsideO365Scope(); TODO: Uncomment this when fixing the test
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] The user creates a new Country/Region
-        CountryRegion.Code := CopyStr(DelChr(CreateGuid, '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
+        CountryRegion.Code := CopyStr(DelChr(CreateGuid(), '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
         asserterror CountryRegion.Insert();
 
         // [THEN]
@@ -67,7 +67,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] A sales order
         CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -78,7 +78,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -98,7 +98,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
         // [GIVEN] The user has the team member plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] User tries to create a sales order
         asserterror CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -124,7 +124,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] A sales order
         CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -135,7 +135,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -155,7 +155,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [GIVEN] A sales order
         CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -166,7 +166,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -186,7 +186,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
         // [GIVEN] The user has the team member ISV plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] User tries to create a sales order
         asserterror CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -212,7 +212,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         FindVendorPostingAndVATSetup(TempVendorDetails);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [GIVEN] A sales order
         CreateSalesOrder(SalesOrder, TempCustomerDetails);
@@ -223,7 +223,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -234,7 +234,6 @@ codeunit 135404 "Sales Document Plan-based E2E"
     procedure TestCustomerOnSalesQuoteWithAssemblyItemTeamMember()
     var
         SalesQuote: TestPage "Sales Quote";
-        PurchaseOrder: TestPage "Purchase Order";
         Item: Record Item;
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -254,7 +253,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
 
         // [WHEN] Change the sell-to customer 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         SalesQuote.OpenEdit();
         SalesQuote.GoToRecord(SalesHeader);
@@ -291,7 +290,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         SalesOrder.Close();
 
         // [WHEN] Change the quantity
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         SalesOrder.OpenEdit();
         SalesOrder.GoToRecord(SalesHeader);
@@ -313,7 +312,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -337,8 +336,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
     local procedure CreatePurchaseOrderFromSalesOrder(var SalesOrder: TestPage "Sales Order"; var PurchaseOrder: TestPage "Purchase Order")
     begin
-        PurchaseOrder.Trap;
-        SalesOrder.CreatePurchaseOrder.Invoke;
+        PurchaseOrder.Trap();
+        SalesOrder.CreatePurchaseOrder.Invoke();
     end;
 
     local procedure CreateSalesOrder(var SalesOrder: TestPage "Sales Order"; TempCustomerDetails: Record Customer temporary)
@@ -354,7 +353,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer(TempCustomerDetails));
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         if ItemNo = '' then
-            SalesOrder.SalesLines."No.".SetValue(CreateItem)
+            SalesOrder.SalesLines."No.".SetValue(CreateItem())
         else
             SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
@@ -379,8 +378,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
     begin
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -402,8 +401,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
         VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
         VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
         VendorCard."Vendor Posting Group".SetValue(TempVendorDetails."Vendor Posting Group");
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
         Commit();
     end;
 
@@ -417,8 +416,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
         CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
         CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
         CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
         Commit();
     end;
 
@@ -426,14 +425,14 @@ codeunit 135404 "Sales Document Plan-based E2E"
     begin
         TempVendorDetails.Init();
         FindBusPostingGroups(TempVendorDetails."Gen. Bus. Posting Group", TempVendorDetails."VAT Bus. Posting Group");
-        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup;
+        TempVendorDetails."Vendor Posting Group" := LibraryPurchase.FindVendorPostingGroup();
     end;
 
     local procedure FindCustomerPostingAndVATSetup(var TempCustomerDetails: Record Customer temporary)
     begin
         TempCustomerDetails.Init();
         FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
-        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
+        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup();
     end;
 
     local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
@@ -450,16 +449,16 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
     local procedure VerifyPurchaseOrderCreatedFromSalesOrder(var SalesOrder: TestPage "Sales Order"; var PurchaseOrder: TestPage "Purchase Order")
     begin
-        PurchaseOrder.PurchLines.First;
-        SalesOrder.SalesLines.First;
+        PurchaseOrder.PurchLines.First();
+        SalesOrder.SalesLines.First();
 
         repeat
             PurchaseOrder.PurchLines."No.".AssertEquals(SalesOrder.SalesLines."No.".Value);
             PurchaseOrder.PurchLines.Quantity.AssertEquals(SalesOrder.SalesLines.Quantity.Value);
         until not SalesOrder.SalesLines.Next() and not PurchaseOrder.PurchLines.Next();
 
-        PurchaseOrder.OK.Invoke;
-        SalesOrder.OK.Invoke;
+        PurchaseOrder.OK().Invoke();
+        SalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -507,15 +506,15 @@ codeunit 135404 "Sales Document Plan-based E2E"
     begin
         TempVendorDetails.Init();
         TempVendorDetails."Gen. Bus. Posting Group" :=
-          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."Gen. Bus. Posting Group"));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TempVendorDetails."Gen. Bus. Posting Group"));
         TempVendorDetails."VAT Bus. Posting Group" :=
-          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."VAT Bus. Posting Group"));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TempVendorDetails."VAT Bus. Posting Group"));
         TempVendorDetails."Vendor Posting Group" :=
-          CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempVendorDetails."Vendor Posting Group"));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TempVendorDetails."Vendor Posting Group"));
 
-        PurchOrderFromSalesOrder.First;
+        PurchOrderFromSalesOrder.First();
         PurchOrderFromSalesOrder.Vendor.SetValue(CreateVendor(TempVendorDetails));
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [RecallNotificationHandler]

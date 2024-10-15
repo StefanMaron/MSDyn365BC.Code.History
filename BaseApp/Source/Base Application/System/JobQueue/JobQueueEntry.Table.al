@@ -19,6 +19,7 @@ table 472 "Job Queue Entry"
     Permissions = TableData "Job Queue Entry" = rimd,
                   TableData "Job Queue Log Entry" = rimd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -130,7 +131,7 @@ table 472 "Job Queue Entry"
         }
         field(9; "Object Caption to Run"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type to Run"),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type to Run"),
                                                                            "Object ID" = field("Object ID to Run")));
             Caption = 'Object Caption to Run';
             Editable = false;
@@ -827,14 +828,21 @@ table 472 "Job Queue Entry"
     end;
 
     procedure CancelTask()
+    begin
+        CancelTask(true);
+    end;
+
+    internal procedure CancelTask(EmitTelemetry: Boolean)
     var
         ScheduledTask: Record "Scheduled Task";
         TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        Success: Boolean;
     begin
         if not IsNullGuid("System Task ID") then begin
             if ScheduledTask.Get("System Task ID") then begin
-                TASKSCHEDULER.CancelTask("System Task ID");
-                TelemetrySubscribers.SendTraceOnJobQueueEntryScheduledTaskCancelled(Rec);
+                Success := TASKSCHEDULER.CancelTask("System Task ID");
+                if EmitTelemetry then
+                    TelemetrySubscribers.SendTraceOnJobQueueEntryScheduledTaskCancelled(Rec, Success);
             end;
             Clear("System Task ID");
         end;
@@ -881,7 +889,7 @@ table 472 "Job Queue Entry"
 
     local procedure Reschedule()
     begin
-        CancelTask();
+        CancelTask(false);
         if Status in [Status::Ready, Status::"On Hold with Inactivity Timeout"] then begin
             SetDefaultValues(false);
             EnqueueTask();
@@ -893,8 +901,10 @@ table 472 "Job Queue Entry"
     procedure ReuseExistingJobFromID(JobID: Guid; ExecutionDateTime: DateTime): Boolean
     begin
         if Get(JobID) then begin
-            if not (Status in [Status::Ready, Status::"In Process"]) then begin
-                "Earliest Start Date/Time" := ExecutionDateTime;
+            Rec.CalcFields(Scheduled);
+            if (not (Rec.Status in [Status::Ready, Status::"In Process"])) or (not Rec.Scheduled) then begin
+                Rec."Earliest Start Date/Time" := ExecutionDateTime;
+                Rec.Status := Rec.Status::"On Hold";
                 SetStatus(Status::Ready);
             end;
 
@@ -977,7 +987,6 @@ table 472 "Job Queue Entry"
         "User Session Started" := 0DT;
         "User Service Instance ID" := 0;
         "User Session ID" := 0;
-        "No. of Attempts to Run" := 0;
     end;
 
     procedure CleanupAfterExecution()
@@ -992,6 +1001,7 @@ table 472 "Job Queue Entry"
 
         if "Recurring Job" then begin
             ClearServiceValues();
+            "No. of Attempts to Run" := 0;
             if Status = Status::"On Hold with Inactivity Timeout" then
                 "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeHoldDuetoInactivityJob(Rec, CurrentDateTime)
             else
@@ -1052,7 +1062,6 @@ table 472 "Job Queue Entry"
         "Run on Wednesdays" := false;
     end;
 
-    [Scope('OnPrem')]
     procedure IsNextRunDateFormulaSet(): Boolean
     begin
         exit(Format("Next Run Date Formula") <> '');
@@ -1514,7 +1523,7 @@ table 472 "Job Queue Entry"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Result: Boolean)
     begin
     end;

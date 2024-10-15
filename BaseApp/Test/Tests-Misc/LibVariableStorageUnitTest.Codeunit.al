@@ -27,10 +27,10 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Initialize();
 
         // Setup
-        EnqueueElements(LibraryVariableStorage.MaxLength);
+        EnqueueElements(LibraryVariableStorage.MaxLength());
 
         // Post-Setup
-        DequeueElements(LibraryVariableStorage.MaxLength);
+        DequeueElements(LibraryVariableStorage.MaxLength());
 
         // Exercise
         asserterror LibraryVariableStorage.Dequeue(Value);
@@ -47,13 +47,13 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Initialize();
 
         // Setup
-        EnqueueElements(LibraryVariableStorage.MaxLength);
+        EnqueueElements(LibraryVariableStorage.MaxLength());
 
         // Exercise
-        DequeueElements(LibraryVariableStorage.MaxLength);
+        DequeueElements(LibraryVariableStorage.MaxLength());
 
         // Verify
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -72,7 +72,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         LibraryVariableStorage.Dequeue(Value);
 
         // Verify
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -83,7 +83,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Initialize();
 
         // Setup
-        EnqueueElements(LibraryVariableStorage.MaxLength);
+        EnqueueElements(LibraryVariableStorage.MaxLength());
 
         // Exercise
         asserterror LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(100));
@@ -100,10 +100,10 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Initialize();
 
         // Exercise
-        EnqueueElements(LibraryVariableStorage.MaxLength);
+        EnqueueElements(LibraryVariableStorage.MaxLength());
 
         // Verify
-        LibraryVariableStorage.AssertFull;
+        LibraryVariableStorage.AssertFull();
     end;
 
     [Test]
@@ -117,7 +117,7 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(100));
 
         // Verify
-        Assert.AreEqual(1, LibraryVariableStorage.Length, WrongSize);
+        Assert.AreEqual(1, LibraryVariableStorage.Length(), WrongSize);
     end;
 
     [Test]
@@ -130,22 +130,22 @@ codeunit 132539 "Lib Variable Storage Unit Test"
         Initialize();
 
         // Setup
-        EnqueueElements(LibraryVariableStorage.MaxLength);
+        EnqueueElements(LibraryVariableStorage.MaxLength());
 
         // Post-Setup
-        NoOfDequeuedElements := LibraryRandom.RandInt(LibraryVariableStorage.Length div 2);
+        NoOfDequeuedElements := LibraryRandom.RandInt(LibraryVariableStorage.Length() div 2);
         DequeueElements(NoOfDequeuedElements);
 
         // Exercise
         EnqueueElements(NoOfDequeuedElements);
 
         // Post-Exercise
-        NoOfDequeuedElements := LibraryRandom.RandInt(LibraryVariableStorage.Length div 2);
+        NoOfDequeuedElements := LibraryRandom.RandInt(LibraryVariableStorage.Length() div 2);
         DequeueElements(NoOfDequeuedElements);
 
         // Verify
         EnqueueElements(NoOfDequeuedElements);
-        LibraryVariableStorage.AssertFull;
+        LibraryVariableStorage.AssertFull();
     end;
 
     [Test]

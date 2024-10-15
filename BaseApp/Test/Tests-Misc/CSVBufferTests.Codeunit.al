@@ -98,7 +98,7 @@ codeunit 135100 "CSV Buffer Tests"
         // [SCENARIO] Load an empty CSV file into the buffer
 
         // [GIVEN] An empty CSV file
-        ServerTempFileName := CreateEmptyCSVFile;
+        ServerTempFileName := CreateEmptyCSVFile();
 
         // [WHEN] The file is loaded into the buffer
         TempCSVBuffer.LoadData(ServerTempFileName, ';');
@@ -265,11 +265,11 @@ codeunit 135100 "CSV Buffer Tests"
         File.Create(ServerTempFileName);
         File.CreateOutStream(OutStream);
         OutStream.WriteText('01;Test 1;1234');
-        OutStream.WriteText;
+        OutStream.WriteText();
         OutStream.WriteText('02;Test 2;5678');
-        OutStream.WriteText;
+        OutStream.WriteText();
         OutStream.WriteText('02;Test 1;9012');
-        OutStream.WriteText;
+        OutStream.WriteText();
         OutStream.WriteText('03;Test 2;3456');
         File.Close();
     end;
@@ -303,7 +303,7 @@ codeunit 135100 "CSV Buffer Tests"
         ServerTempFileName := FileManagement.ServerTempFileName('csv');
         File.Create(ServerTempFileName);
         File.CreateOutStream(OutStream);
-        OutStream.WriteText;
+        OutStream.WriteText();
         File.Close();
     end;
 }

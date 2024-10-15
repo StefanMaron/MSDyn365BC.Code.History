@@ -12,7 +12,7 @@ report 7312 "Bin Content Create Wksh Report"
     {
         dataitem("Bin Creation Worksheet Line"; "Bin Creation Worksheet Line")
         {
-            DataItemTableView = SORTING("Location Code", "Zone Code", "Bin Code", "Item No.", "Variant Code");
+            DataItemTableView = sorting("Location Code", "Zone Code", "Bin Code", "Item No.", "Variant Code");
             RequestFilterFields = "Location Code", "Zone Code", "Bin Code";
             column(TodayFormatted; Format(Today, 0, 4))
             {

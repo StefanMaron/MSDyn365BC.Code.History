@@ -156,7 +156,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         DateComprGLBudgetEntries.SetTableView(GLBudgetEntry);
         StartingDate := DMY2Date(1, 1, Year);
         EndingDate := DMY2Date(31, 12, Year);
-        DateComprGLBudgetEntries.InitializeRequest(StartingDate, EndingDate, PeriodLength, '', false, InsertDimSelectionBuffer);
+        DateComprGLBudgetEntries.InitializeRequest(StartingDate, EndingDate, PeriodLength, '', false, InsertDimSelectionBuffer());
         DateComprGLBudgetEntries.UseRequestPage(false);
         DateComprGLBudgetEntries.Run();
     end;

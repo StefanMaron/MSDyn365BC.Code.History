@@ -9,6 +9,7 @@ table 4802 "VATGroup Submission Header"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to VAT Group Management extension table 4702 VAT Group Submission Header';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

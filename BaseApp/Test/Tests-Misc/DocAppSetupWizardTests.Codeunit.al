@@ -385,7 +385,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowResponse: Record "Workflow Response";
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         WorkflowEvent.DeleteAll();
         WorkflowResponse.DeleteAll();
 
@@ -420,7 +420,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         // Get the step
         WorkflowStep.SetFilter("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetFilter("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetFilter("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
         Assert.RecordIsNotEmpty(WorkflowStep);
 
@@ -471,7 +471,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         UserName: Code[50];
     begin
         for I := 1 to NoOfUsers do begin
-            UserName := GenerateUserName;
+            UserName := GenerateUserName();
             LibraryPermissions.CreateUser(User, UserName, false);
         end;
     end;

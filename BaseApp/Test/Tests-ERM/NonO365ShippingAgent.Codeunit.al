@@ -34,7 +34,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         SalesHeaderCopy := SalesHeader;
@@ -68,7 +68,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         SalesHeaderCopy := SalesHeader;
@@ -106,7 +106,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgentServiceCode := LibraryInventory.CreateShippingAgentServiceUsingPages(ShippingAgent.Code);
-        PackageTrackingNo := GenerateRandomPackageTrackingNo;
+        PackageTrackingNo := GenerateRandomPackageTrackingNo();
 
         CreateSalesDocumentForCustomerWithShippingAgent(
           SalesHeader, SalesHeader."Document Type"::"Return Order", ShippingAgent.Code, ShippingAgentServiceCode);
@@ -128,7 +128,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Non-O365 Shipping Agent");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         if IsInitialized then
             exit;
@@ -148,7 +148,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', 0D);
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', 0D);
     end;
 
     local procedure CreateSalesDocumentForCustomerWithShippingAgent(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
@@ -163,30 +163,30 @@ codeunit 138060 "Non-O365 Shipping Agent"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Shipping Agent Code".SetValue(ShippingAgentCode);
-        SalesReturnOrder.OK.Invoke;
+        SalesReturnOrder.OK().Invoke();
     end;
 
     local procedure AddShippingAgentServiceToSalesReturnOrder(var SalesHeader: Record "Sales Header"; ShippingAgentServiceCode: Code[10])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        SalesReturnOrder.OK.Invoke;
+        SalesReturnOrder.OK().Invoke();
     end;
 
     local procedure AddPackageTrackingNumberToSalesReturnOrder(var SalesHeader: Record "Sales Header"; PackageTrackingNo: Text[30])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Package Tracking No.".SetValue(PackageTrackingNo);
-        SalesReturnOrder.OK.Invoke;
+        SalesReturnOrder.OK().Invoke();
     end;
 
     local procedure CreateCustomerWithShippingAgentService(ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]): Code[20]
@@ -196,11 +196,11 @@ codeunit 138060 "Non-O365 Shipping Agent"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Shipping Agent Code".SetValue(ShippingAgentCode);
         CustomerCard."Shipping Agent Service Code".SetValue(ShippingAgentServiceCode);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         exit(Customer."No.");
     end;
@@ -217,9 +217,9 @@ codeunit 138060 "Non-O365 Shipping Agent"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Post.Invoke;
+        SalesReturnOrder.Post.Invoke();
     end;
 
     local procedure VerifySalesReturnReceiptExists(SalesHeader: Record "Sales Header"; ShippingAgentCode: Code[10]; CheckShippingAgentCode: Boolean; PackageTrackingNo: Text)
@@ -231,13 +231,13 @@ codeunit 138060 "Non-O365 Shipping Agent"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         ReturnReceiptHeader.FindLast();
 
-        PostedReturnReceipt.OpenView;
+        PostedReturnReceipt.OpenView();
         PostedReturnReceipt.GotoRecord(ReturnReceiptHeader);
         PostedReturnReceipt."External Document No.".AssertEquals(SalesHeader."External Document No.");
         if CheckShippingAgentCode then
             PostedReturnReceipt."Shipping Agent Code".AssertEquals(ShippingAgentCode);
         PostedReturnReceipt."Package Tracking No.".AssertEquals(PackageTrackingNo);
-        PostedReturnReceipt.OK.Invoke;
+        PostedReturnReceipt.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -251,8 +251,8 @@ codeunit 138060 "Non-O365 Shipping Agent"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, '');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

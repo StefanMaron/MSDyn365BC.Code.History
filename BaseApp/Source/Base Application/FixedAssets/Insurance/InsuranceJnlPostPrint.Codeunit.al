@@ -28,43 +28,41 @@ codeunit 5672 "Insurance Jnl.-Post+Print"
     var
         HideDialog: Boolean;
     begin
-        with InsuranceJnlLine do begin
-            InsuranceJnlTempl.Get("Journal Template Name");
-            InsuranceJnlTempl.TestField("Posting Report ID");
+        InsuranceJnlTempl.Get(InsuranceJnlLine."Journal Template Name");
+        InsuranceJnlTempl.TestField("Posting Report ID");
 
-            HideDialog := false;
-            OnBeforePostJournalBatch(InsuranceJnlLine, HideDialog);
-            if not HideDialog then
-                if not Confirm(Text000, false) then
-                    exit;
+        HideDialog := false;
+        OnBeforePostJournalBatch(InsuranceJnlLine, HideDialog);
+        if not HideDialog then
+            if not Confirm(Text000, false) then
+                exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := InsuranceJnlLine."Journal Batch Name";
 
-            CODEUNIT.Run(CODEUNIT::"Insurance Jnl.-Post Batch", InsuranceJnlLine);
+        CODEUNIT.Run(CODEUNIT::"Insurance Jnl.-Post Batch", InsuranceJnlLine);
 
-            if InsuranceReg.Get("Line No.") then begin
-                InsuranceReg.SetRecFilter();
-                REPORT.Run(InsuranceJnlTempl."Posting Report ID", false, false, InsuranceReg);
-            end;
+        if InsuranceReg.Get(InsuranceJnlLine."Line No.") then begin
+            InsuranceReg.SetRecFilter();
+            REPORT.Run(InsuranceJnlTempl."Posting Report ID", false, false, InsuranceReg);
+        end;
 
-            if "Line No." = 0 then
-                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        if InsuranceJnlLine."Line No." = 0 then
+            Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        else
+            if TempJnlBatchName = InsuranceJnlLine."Journal Batch Name" then
+                Message(Text002)
             else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text002)
-                else
-                    Message(
-                      Text003,
-                      "Journal Batch Name");
+                Message(
+                  Text003,
+                  InsuranceJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup := 2;
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup := 0;
-                "Line No." := 1;
-            end;
+        if not InsuranceJnlLine.Find('=><') or (TempJnlBatchName <> InsuranceJnlLine."Journal Batch Name") then begin
+            InsuranceJnlLine.Reset();
+            InsuranceJnlLine.FilterGroup := 2;
+            InsuranceJnlLine.SetRange("Journal Template Name", InsuranceJnlLine."Journal Template Name");
+            InsuranceJnlLine.SetRange("Journal Batch Name", InsuranceJnlLine."Journal Batch Name");
+            InsuranceJnlLine.FilterGroup := 0;
+            InsuranceJnlLine."Line No." := 1;
         end;
     end;
 

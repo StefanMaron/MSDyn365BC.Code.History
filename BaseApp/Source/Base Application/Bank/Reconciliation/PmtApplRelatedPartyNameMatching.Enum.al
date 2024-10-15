@@ -1,6 +1,8 @@
 namespace Microsoft.Bank.Reconciliation;
 
+#pragma warning disable AL0659
 enum 1253 "Pmt. Appl. Related Party Name Matching"
+#pragma warning restore AL0659
 {
     Extensible = true;
 

@@ -9,6 +9,7 @@ using System.Security.AccessControl;
 table 1107 "Cost Allocation Target"
 {
     Caption = 'Cost Allocation Target';
+    DataClassification = CustomerContent;
     DrillDownPageID = "Cost Allocation Target List";
     LookupPageID = "Cost Allocation Target List";
 

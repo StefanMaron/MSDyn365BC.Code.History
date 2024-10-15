@@ -490,9 +490,9 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
 
         // Setup: Create Purchase Order, with Modified Item and Random Direct Unit Cost. Release it and Calculate VAT Amount Line.
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendAndInvoiceDiscount);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendAndInvoiceDiscount());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ModifyAllowInvoiceDiscInItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ModifyAllowInvoiceDiscInItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -589,7 +589,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
           -LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 2));
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
-          UpdateItemWithVATProdPostingGroup(CreateItem, VATPostingSetup."VAT Prod. Posting Group"),
+          UpdateItemWithVATProdPostingGroup(CreateItem(), VATPostingSetup."VAT Prod. Posting Group"),
           -SalesLine.Quantity, SalesLine."Unit Price");
 
         // Exercise: Calculate VAT Amount Line.
@@ -630,7 +630,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
           -LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 2));
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          UpdateItemWithVATProdPostingGroup(CreateItem, VATPostingSetup."VAT Prod. Posting Group"),
+          UpdateItemWithVATProdPostingGroup(CreateItem(), VATPostingSetup."VAT Prod. Posting Group"),
           -PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
 
         // Exercise: Calculate VAT Amount Line.
@@ -1145,7 +1145,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Setup: Create Purchase Return Order and Credit Memo.
         Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
-        VendorNo := CreateVendAndInvoiceDiscount;
+        VendorNo := CreateVendAndInvoiceDiscount();
         InvoiceDiscountAmount := CreateAndPostPurchaseReturnOrder(PurchaseHeader."Document Type"::"Return Order", VendorNo);
         LibraryVariableStorage.Enqueue(InvoiceDiscountAmount);
 
@@ -1172,7 +1172,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Setup: Create Purchase Return Order,Credit Memo and Run Get Return Shipment Lines Codeunit for Purchase CreditMemo.
         Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
-        VendorNo := CreateVendAndInvoiceDiscount;
+        VendorNo := CreateVendAndInvoiceDiscount();
         InvoiceDiscountAmount := CreateAndPostPurchaseReturnOrder(PurchaseHeader."Document Type"::"Return Order", VendorNo);
         CreatePurchaseCreditMemoAndGetShipmentLines(PurchaseHeader, VendorNo);
 
@@ -1197,7 +1197,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Setup: Create Sales Return Order and Credit Memo.
         Initialize();
         LibrarySales.SetCalcInvDiscount(true);
-        CustomerNo := CreateCustAndInvoiceDiscount;
+        CustomerNo := CreateCustAndInvoiceDiscount();
         InvoiceDiscountAmount := CreateAndPostSalesReturnOrder(SalesHeader."Document Type"::"Return Order", CustomerNo);
         LibraryVariableStorage.Enqueue(InvoiceDiscountAmount);
 
@@ -1224,7 +1224,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Setup: Create Sales Return Order,Credit Memo and Run Get Return Shipment Lines Codeunit for Sales CreditMemo.
         Initialize();
         LibrarySales.SetCalcInvDiscount(true);
-        CustomerNo := CreateCustAndInvoiceDiscount;
+        CustomerNo := CreateCustAndInvoiceDiscount();
         InvoiceDiscountAmount := CreateAndPostSalesReturnOrder(SalesHeader."Document Type"::"Return Order", CustomerNo);
         CreateSalesCreditMemoAndGetShipmentLines(SalesHeader, CustomerNo);
 
@@ -1542,7 +1542,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
 
         // [GIVEN] Created Sales Invoice with two lines for Item and Item Charge
-        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeaderInvoice, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         LibrarySales.CreateSalesLine(
@@ -1591,8 +1591,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
 
         // [GIVEN] Created Sales Invoice with Currency setup, two lines for Item and Item Charge
-        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        SalesHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         SalesHeaderInvoice.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeaderInvoice, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
@@ -1644,7 +1644,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // [GIVEN] Created Purchase Invoice with two lines for Item and Item Charge
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderInvoice, PurchaseLine, PurchaseHeaderInvoice."Document Type"::Invoice,
-          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', 0D);
+          LibraryPurchase.CreateVendorNo(), Item."No.", LibraryRandom.RandInt(10), '', 0D);
         LibraryPurchase.CreatePurchaseLine(
           ItemChargePurchaseLine, PurchaseHeaderInvoice, ItemChargePurchaseLine.Type::"Charge (Item)",
           ItemCharge."No.", LibraryRandom.RandInt(10));
@@ -1695,8 +1695,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // [GIVEN] Created Purchase Invoice with Currency setup, two lines for Item and Item Charge
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderInvoice, PurchaseLine, PurchaseHeaderInvoice."Document Type"::Invoice,
-          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', 0D);
-        PurchaseHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+          LibraryPurchase.CreateVendorNo(), Item."No.", LibraryRandom.RandInt(10), '', 0D);
+        PurchaseHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         PurchaseHeaderInvoice.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           ItemChargePurchaseLine, PurchaseHeaderInvoice, ItemChargePurchaseLine.Type::"Charge (Item)",
@@ -1813,10 +1813,10 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         "Count": Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustAndInvoiceDiscount);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustAndInvoiceDiscount());
         for Count := 1 to NoOfLines do begin
             ;  // Create Multiple Sales Line with Random Qty and Price.
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
             SalesLine.Modify(true);
         end;
@@ -1826,14 +1826,14 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         "Count": Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendAndInvoiceDiscount);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendAndInvoiceDiscount());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         for Count := 1 to NoOFLines do begin
             ;  // Create Multiple Purchase Line with Random Qty and Unit Cost.
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
             PurchaseLine.Modify(true);
         end;
@@ -1865,7 +1865,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
@@ -1880,7 +1880,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         SalesLine2: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
@@ -2078,7 +2078,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Allow Invoice Disc.", false);
         Item.Modify(true);
         exit(Item."No.");
@@ -2141,9 +2141,9 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, Quanitiy);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), Quanitiy);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
     end;
 
@@ -2151,8 +2151,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     var
         ServiceHeader: Record "Service Header";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, Quanitiy);
         ServiceLine.Validate("Unit Price", UnitPrice);
     end;
@@ -2175,7 +2175,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATEntry.SetRange(Type, Type);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange(Base, Base);
-        Assert.IsTrue(VATEntry.FindFirst, StrSubstNo(ErrorAmount, Base, DocumentNo));
+        Assert.IsTrue(VATEntry.FindFirst(), StrSubstNo(ErrorAmount, Base, DocumentNo));
     end;
 
     local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; VATAmount: Decimal)
@@ -2394,7 +2394,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     [Scope('OnPrem')]
     procedure GetReturnShipmentLinesForSalesPageHandler(var GetReturnShipmentLines: TestPage "Get Return Receipt Lines")
     begin
-        GetReturnShipmentLines.OK.Invoke;
+        GetReturnShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2421,7 +2421,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     [Scope('OnPrem')]
     procedure GetReturnShipmentLinesForPurchasePageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
-        GetReturnShipmentLines.OK.Invoke;
+        GetReturnShipmentLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -174,7 +174,7 @@ page 9082 "Customer Statistics FactBox"
                 Caption = 'Total (LCY)';
                 Importance = Promoted;
                 Style = Strong;
-                StyleExpr = TRUE;
+                StyleExpr = true;
                 ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing.';
             }
             field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")

@@ -424,7 +424,7 @@ codeunit 134827 "UT Item Table"
         Initialize();
 
         // [GIVEN] Set InventorySetyp."Skip Prompt to Create Item" = Yes
-        SetInventorySetupSkipPromptToCreateItemTRUE;
+        SetInventorySetupSkipPromptToCreateItemTRUE();
 
         // [WHEN] Item.TryGetItemNo is being run
         // [THEN] It returns FALSE
@@ -455,9 +455,9 @@ codeunit 134827 "UT Item Table"
 
         SubString := LibraryUtility.GenerateGUID();
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LookupItem.TryGetItemNoOpenCard(DummyReturnValue, SubString, true, true, true);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHits :=
           GetCodeCoverageForObject(
@@ -467,15 +467,15 @@ codeunit 134827 "UT Item Table"
         for Index := 1 to ArrayLen(Item) do
             Assert.AreEqual(
               Item[Index]."No.",
-              LibraryVariableStorage.DequeueText,
+              LibraryVariableStorage.DequeueText(),
               'Expected match in Item."No"');
 
         Assert.AreEqual(
           ArrayLen(Item),
-          LibraryVariableStorage.DequeueInteger,
+          LibraryVariableStorage.DequeueInteger(),
           StrSubstNo('Expected %1 items in the ItemList page', ArrayLen(Item)));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -582,7 +582,7 @@ codeunit 134827 "UT Item Table"
 
     local procedure CounStoretItemsFilteredOnPage(var ItemList: TestPage "Item List") "Count": Integer
     begin
-        if ItemList.First then
+        if ItemList.First() then
             repeat
                 Count += 1;
                 LibraryVariableStorage.Enqueue(ItemList."No.".Value);
@@ -594,7 +594,7 @@ codeunit 134827 "UT Item Table"
     var
         CodeCoverage: Record "Code Coverage";
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -604,7 +604,7 @@ codeunit 134827 "UT Item Table"
             if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -637,7 +637,7 @@ codeunit 134827 "UT Item Table"
     [Scope('OnPrem')]
     procedure CancelSelectionOfItemFromItemListModalPageHandler(var ItemList: TestPage "Item List")
     begin
-        ItemList.Cancel.Invoke;
+        ItemList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -645,14 +645,14 @@ codeunit 134827 "UT Item Table"
     procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
     begin
         LibraryVariableStorage.Enqueue(CounStoretItemsFilteredOnPage(ItemList));
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectionFirstItemFromItemListModalPageHandler(var ItemList: TestPage "Item List")
     begin
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -673,7 +673,7 @@ codeunit 134827 "UT Item Table"
             ItemList."No.".AssertEquals(Item."No.");
             ItemList.Next();
         until Item.Next() = 0;
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 }
 

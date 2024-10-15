@@ -41,74 +41,73 @@ codeunit 5702 "Dist. Integration"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            TestField("Document Type", "Document Type"::Order);
+        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
 
-            IsHandled := false;
-            OnGetSpecialOrdersOnBeforeSelectSalesHeader(PurchHeader, SalesHeader, IsHandled);
-            if not IsHandled then begin
-                SalesHeader.SetCurrentKey("Document Type", "Sell-to Customer No.");
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                SalesHeader.SetRange("Sell-to Customer No.", "Sell-to Customer No.");
-                if (PAGE.RunModal(PAGE::"Sales List", SalesHeader) <> ACTION::LookupOK) or
-                   (SalesHeader."No." = '')
-                then
-                    exit;
-            end;
-
-            LockTable();
-
-            OnGetSpecialOrdersOnBeforeTestSalesHeader(SalesHeader);
-
-            SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
-            TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-            CheckShipToCode(PurchHeader, SalesHeader);
-            CheckAddSpecialOrderToAddress(PurchHeader, SalesHeader);
-
-            if Vendor.Get("Buy-from Vendor No.") then
-                Validate("Shipment Method Code", Vendor."Shipment Method Code");
-
-            PurchLine.LockTable();
-            SalesLine.LockTable();
-
-            PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-            PurchLine.SetRange("Document No.", "No.");
-            if PurchLine.FindLast() then
-                NextLineNo := PurchLine."Line No." + 10000
-            else
-                NextLineNo := 10000;
-
-            SalesLine.Reset();
-            SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-            SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.SetRange("Special Order", true);
-            SalesLine.SetFilter("Outstanding Quantity", '<>0');
-            SalesLine.SetRange(Type, SalesLine.Type::Item);
-            SalesLine.SetFilter("No.", '<>%1', '');
-            SalesLine.SetRange("Special Order Purch. Line No.", 0);
-            OnGetSpecialOrdersOnAfterSalesLineSetFilters(SalesLine, SalesHeader, PurchHeader);
-            if SalesLine.FindSet() then
-                repeat
-                    IsHandled := false;
-                    OnGetSpecialOrdersOnBeforeTestSalesLine(SalesLine, PurchHeader, IsHandled);
-                    if not IsHandled then
-                        if (SalesLine.Type = SalesLine.Type::Item) and
-                           ItemUnitOfMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code")
-                        then
-                            if SalesLine."Qty. per Unit of Measure" <> ItemUnitOfMeasure."Qty. per Unit of Measure" then
-                                Error(Text001,
-                                  SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
-                                  ItemUnitOfMeasure."Qty. per Unit of Measure");
-
-                    ProcessSalesLine(SalesLine, PurchLine, NextLineNo, PurchHeader);
-                until SalesLine.Next() = 0
-            else
-                Error(ItemsNotFoundErr, SalesHeader."No.");
-
-            OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(PurchHeader);
-            Modify(); // Only version check
-            SalesHeader.Modify(); // Only version check
+        IsHandled := false;
+        OnGetSpecialOrdersOnBeforeSelectSalesHeader(PurchHeader, SalesHeader, IsHandled);
+        if not IsHandled then begin
+            SalesHeader.SetCurrentKey("Document Type", "Sell-to Customer No.");
+            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+            SalesHeader.SetRange("Sell-to Customer No.", PurchHeader."Sell-to Customer No.");
+            if (PAGE.RunModal(PAGE::"Sales List", SalesHeader) <> ACTION::LookupOK) or
+               (SalesHeader."No." = '')
+            then
+                exit;
         end;
+
+        PurchHeader.LockTable();
+
+        OnGetSpecialOrdersOnBeforeTestSalesHeader(SalesHeader);
+
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
+        PurchHeader.TestField(PurchHeader."Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        CheckShipToCode(PurchHeader, SalesHeader);
+        CheckAddSpecialOrderToAddress(PurchHeader, SalesHeader);
+
+        if Vendor.Get(PurchHeader."Buy-from Vendor No.") then
+            PurchHeader.Validate(PurchHeader."Shipment Method Code", Vendor."Shipment Method Code");
+
+        PurchLine.LockTable();
+        SalesLine.LockTable();
+
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        if PurchLine.FindLast() then
+            NextLineNo := PurchLine."Line No." + 10000
+        else
+            NextLineNo := 10000;
+
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Special Order", true);
+        SalesLine.SetFilter("Outstanding Quantity", '<>0');
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetFilter("No.", '<>%1', '');
+        SalesLine.SetRange("Special Order Purch. Line No.", 0);
+        OnGetSpecialOrdersOnAfterSalesLineSetFilters(SalesLine, SalesHeader, PurchHeader);
+        if SalesLine.FindSet() then
+            repeat
+                IsHandled := false;
+                OnGetSpecialOrdersOnBeforeTestSalesLine(SalesLine, PurchHeader, IsHandled);
+                if not IsHandled then
+                    if (SalesLine.Type = SalesLine.Type::Item) and
+                       ItemUnitOfMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code")
+                    then
+                        if SalesLine."Qty. per Unit of Measure" <> ItemUnitOfMeasure."Qty. per Unit of Measure" then
+                            Error(Text001,
+                              SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+                              ItemUnitOfMeasure."Qty. per Unit of Measure");
+
+                ProcessSalesLine(SalesLine, PurchLine, NextLineNo, PurchHeader);
+            until SalesLine.Next() = 0
+        else
+            Error(ItemsNotFoundErr, SalesHeader."No.");
+
+        OnGetSpecialOrdersOnBeforeModifyPurchaseHeader(PurchHeader);
+        PurchHeader.Modify();
+        // Only version check
+        SalesHeader.Modify(); // Only version check
     end;
 
     local procedure CheckShipToCode(var PurchHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")

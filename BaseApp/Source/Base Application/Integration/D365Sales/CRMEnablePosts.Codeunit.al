@@ -20,17 +20,15 @@ codeunit 5353 "CRM Enable Posts"
     var
         CRMPostConfiguration: Record "CRM Post Configuration";
     begin
-        with CRMPostConfiguration do begin
-            SetRange(msdyn_EntityName, CRMOrderEntityNameTxt);
-            if FindFirst() then begin
-                if (statecode = statecode::Active) and (statuscode = statuscode::Active) and msdyn_ConfigureWall then
-                    exit;
-                statecode := statecode::Active;
-                statuscode := statuscode::Active;
-                msdyn_ConfigureWall := true;
-                if Modify() then;
-            end
-        end;
+        CRMPostConfiguration.SetRange(msdyn_EntityName, CRMOrderEntityNameTxt);
+        if CRMPostConfiguration.FindFirst() then begin
+            if (CRMPostConfiguration.statecode = CRMPostConfiguration.statecode::Active) and (CRMPostConfiguration.statuscode = CRMPostConfiguration.statuscode::Active) and CRMPostConfiguration.msdyn_ConfigureWall then
+                exit;
+            CRMPostConfiguration.statecode := CRMPostConfiguration.statecode::Active;
+            CRMPostConfiguration.statuscode := CRMPostConfiguration.statuscode::Active;
+            CRMPostConfiguration.msdyn_ConfigureWall := true;
+            if CRMPostConfiguration.Modify() then;
+        end
     end;
 }
 

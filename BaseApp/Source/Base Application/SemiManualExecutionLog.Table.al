@@ -4,6 +4,7 @@ table 130416 "Semi-Manual Execution Log"
 {
     Caption = 'Semi-Manual Execution Log';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

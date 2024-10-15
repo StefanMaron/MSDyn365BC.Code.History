@@ -155,7 +155,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.Modify();
 
         // [GIVEN] "Last Update Invoice Entry No." is 72 in CRM Connection Setup, while the last detailed entry is 73
-        CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo;
+        CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo();
         CRMSynchStatus."Last Update Invoice Entry No." -= 1;
         CRMSynchStatus.Modify();
 
@@ -195,7 +195,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [GIVEN] CRM Statistics job is executed once
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
         // [GIVEN] "Last Update Invoice Entry No." is set to the last detailed entry
-        CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo;
+        CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo();
 
         // [WHEN] Run CRM Statistics job again
         IntegrationSynchJob[1].DeleteAll();
@@ -209,12 +209,12 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         // [THEN] CRM Synch. Log Entry for Account Statistics update, where "Unchanged" = 1
         Assert.RecordCount(IntegrationSynchJob[1], 2);
-        IntegrationSynchJob[1].SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage);
+        IntegrationSynchJob[1].SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage());
         IntegrationSynchJob[1].FindFirst();
         IntegrationSynchJob[1].TestField(Unchanged, 0);
         IntegrationSynchJob[1].TestField(Inserted, 0);
         // [THEN] CRM Synch. Log Entry for Invoice Status update, where "Modified" = 0
-        IntegrationSynchJob[2].SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage);
+        IntegrationSynchJob[2].SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage());
         IntegrationSynchJob[2].FindFirst();
         IntegrationSynchJob[2].TestField(Modified, 0);
         IntegrationSynchJob[2].TestField(Inserted, 0);
@@ -225,15 +225,17 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMOrganization: Record "CRM Organization";
+        User: Record User;
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        LibraryPermissions: Codeunit "Library - Permissions";
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.InitializeCRMSynchStatus;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.InitializeCRMSynchStatus();
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
@@ -244,7 +246,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+
+        User.SetRange("User Name", UserId());
+        if User.IsEmpty() then
+            LibraryPermissions.CreateUser(User, CopyStr(UserId(), 1, 50), true);
     end;
 
     local procedure FindJobQueueEntryForMapping(var JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer; JobStatus: Option; InactivityPeriod: Integer)

@@ -46,14 +46,14 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] 2 items
-        Item1Code := CreateItem;
-        Item2Code := CreateItem;
+        Item1Code := CreateItem();
+        Item2Code := CreateItem();
 
         // [WHEN] Create Sales Budget
-        CreateBudgetNamesSales;
+        CreateBudgetNamesSales();
 
         // Use Sales Analysis Report to compare actual sales with budget
         // [WHEN] Create Analysis Line Template
@@ -63,7 +63,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         CreateAnalysisColumnTemplate(AnalysisColumnTemplate."Analysis Area"::Sales);
 
         // [WHEN] Open Sales Analysis Report
-        CreateAnalysisReportSales;
+        CreateAnalysisReportSales();
 
         // [THEN] No error has been thrown
     end;
@@ -80,14 +80,14 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The External Accountant plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] 2 items
-        Item1Code := CreateItem;
-        Item2Code := CreateItem;
+        Item1Code := CreateItem();
+        Item2Code := CreateItem();
 
         // [WHEN] Create Sales Budget
-        CreateBudgetNamesSales;
+        CreateBudgetNamesSales();
 
         // Use Sales Analysis Report to compare actual sales with budget
         // [WHEN] Create Analysis Line Template
@@ -97,7 +97,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         CreateAnalysisColumnTemplate(AnalysisColumnTemplate."Analysis Area"::Sales);
 
         // [WHEN] Open Sales Analysis Report
-        CreateAnalysisReportSales;
+        CreateAnalysisReportSales();
 
         // [THEN] No error has been thrown
     end;
@@ -114,19 +114,19 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The Team Member plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [GIVEN] 2 items
-        asserterror Item1Code := CreateItem;
+        asserterror Item1Code := CreateItem();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        asserterror Item2Code := CreateItem;
+        asserterror Item2Code := CreateItem();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
         // [WHEN] Create Sales Budget
-        asserterror CreateBudgetNamesSales;
+        asserterror CreateBudgetNamesSales();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(InsertNotAllowedErr);
 
@@ -142,7 +142,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Assert.ExpectedError(InsertNotAllowedErr);
 
         // [WHEN] Open Sales Analysis Report
-        asserterror CreateAnalysisReportSales;
+        asserterror CreateAnalysisReportSales();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
@@ -161,14 +161,14 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] 2 items
-        Item1Code := CreateItem;
-        Item2Code := CreateItem;
+        Item1Code := CreateItem();
+        Item2Code := CreateItem();
 
         // [WHEN] Create Purchase Budget
-        CreateBudgetNamesPurchase;
+        CreateBudgetNamesPurchase();
 
         // [WHEN] Use Purchase Analysis Report to compare actual sales with budget
         CreateAnalysisLineTemplate(AnalysisLineTemplate."Analysis Area"::Purchase);
@@ -177,7 +177,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         CreateAnalysisColumnTemplate(AnalysisColumnTemplate."Analysis Area"::Purchase);
 
         // [WHEN] Open Purchase Analysis Report
-        CreateAnalysisReportPurchase;
+        CreateAnalysisReportPurchase();
 
         // [THEN] No error was thrown
     end;
@@ -194,14 +194,14 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The External Accountant plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] 2 items
-        Item1Code := CreateItem;
-        Item2Code := CreateItem;
+        Item1Code := CreateItem();
+        Item2Code := CreateItem();
 
         // [WHEN] Create Purchase Budget
-        CreateBudgetNamesPurchase;
+        CreateBudgetNamesPurchase();
 
         // [WHEN] Use Purchase Analysis Report to compare actual sales with budget
         CreateAnalysisLineTemplate(AnalysisLineTemplate."Analysis Area"::Purchase);
@@ -210,7 +210,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         CreateAnalysisColumnTemplate(AnalysisColumnTemplate."Analysis Area"::Purchase);
 
         // [WHEN] Open Purchase Analysis Report
-        CreateAnalysisReportPurchase;
+        CreateAnalysisReportPurchase();
 
         // [THEN] No error was thrown
     end;
@@ -227,19 +227,19 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Initialize();
 
         // [GIVEN] The Team Member plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [GIVEN] 2 items
-        asserterror Item1Code := CreateItem;
+        asserterror Item1Code := CreateItem();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        asserterror Item2Code := CreateItem;
+        asserterror Item2Code := CreateItem();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
         // [WHEN] Create Purchase Budget
-        asserterror CreateBudgetNamesPurchase;
+        asserterror CreateBudgetNamesPurchase();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(InsertNotAllowedErr);
 
@@ -254,7 +254,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         Assert.ExpectedError(InsertNotAllowedErr);
 
         // [WHEN] Open Purchase Analysis Report
-        asserterror CreateAnalysisReportPurchase;
+        asserterror CreateAnalysisReportPurchase();
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
@@ -274,7 +274,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Budgets & Analysis Reports E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         ItemBudgetName.DeleteAll();
@@ -292,8 +292,8 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     begin
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -301,24 +301,24 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     var
         BudgetNamesSales: TestPage "Budget Names Sales";
     begin
-        BudgetNamesSales.OpenEdit;
-        BudgetNamesSales.New;
+        BudgetNamesSales.OpenEdit();
+        BudgetNamesSales.New();
         BudgetNamesSales.Name.SetValue(Sales17Q1Tok);
         BudgetNamesSales.Description.SetValue(SalesBudgetQ1Txt);
-        BudgetNamesSales.EditBudget.Invoke;
-        BudgetNamesSales.OK.Invoke;
+        BudgetNamesSales.EditBudget.Invoke();
+        BudgetNamesSales.OK().Invoke();
     end;
 
     local procedure CreateBudgetNamesPurchase()
     var
         BudgetNamesPurchase: TestPage "Budget Names Purchase";
     begin
-        BudgetNamesPurchase.OpenEdit;
-        BudgetNamesPurchase.New;
+        BudgetNamesPurchase.OpenEdit();
+        BudgetNamesPurchase.New();
         BudgetNamesPurchase.Name.SetValue(Purchase17Q1Tok);
         BudgetNamesPurchase.Description.SetValue(PurchaseBudgetQ1Txt);
-        BudgetNamesPurchase.EditBudget.Invoke;
-        BudgetNamesPurchase.OK.Invoke;
+        BudgetNamesPurchase.EditBudget.Invoke();
+        BudgetNamesPurchase.OK().Invoke();
     end;
 
     local procedure CreateAnalysisReportSales()
@@ -330,7 +330,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisReportSale.Description.SetValue(SalesSelectedItemsTxt);
         AnalysisReportSale."Analysis Line Template Name".SetValue(SelectedTok);
         AnalysisReportSale."Analysis Column Template Name".SetValue(BudgetTok);
-        AnalysisReportSale.EditAnalysisReport.Invoke;
+        AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
     local procedure CreateAnalysisReportPurchase()
@@ -342,7 +342,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisReportPurchase.Description.SetValue(SalesSelectedItemsTxt);
         AnalysisReportPurchase."Analysis Line Template Name".SetValue(SelectedTok);
         AnalysisReportPurchase."Analysis Column Template Name".SetValue(BudgetTok);
-        AnalysisReportPurchase.EditAnalysisReport.Invoke;
+        AnalysisReportPurchase.EditAnalysisReport.Invoke();
     end;
 
     local procedure SetValuesOnSalesBudgetMatrix(var SalesBudgetOverview: TestPage "Sales Budget Overview"; ItemCode: Code[20])
@@ -361,7 +361,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         PurchaseBudgetOverview.MATRIX.Field3.SetValue(LibraryRandom.RandInt(1000));
     end;
 
-    local procedure CreateAnalysisLineTemplate(AnalysisArea: Option)
+    local procedure CreateAnalysisLineTemplate(AnalysisArea: Enum "Analysis Area Type")
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
@@ -371,7 +371,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         PAGE.RunModal(0, AnalysisLineTemplate);
     end;
 
-    local procedure CreateAnalysisColumnTemplate(AnalysisArea: Option)
+    local procedure CreateAnalysisColumnTemplate(AnalysisArea: Enum "Analysis Area Type")
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -385,20 +385,20 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     [Scope('OnPrem')]
     procedure AnalysisLineTemplateModalPageHandler(var AnalysisLineTemplates: TestPage "Analysis Line Templates")
     begin
-        AnalysisLineTemplates.New;
+        AnalysisLineTemplates.New();
         AnalysisLineTemplates.Name.SetValue(SelectedTok);
         AnalysisLineTemplates.Description.SetValue(SelectedTxt);
-        AnalysisLineTemplates.Lines.Invoke;
+        AnalysisLineTemplates.Lines.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisColumnTemplateModalPageHandler(var AnalysisColumnTemplates: TestPage "Analysis Column Templates")
     begin
-        AnalysisColumnTemplates.New;
+        AnalysisColumnTemplates.New();
         AnalysisColumnTemplates.Name.SetValue(BudgetTok);
         AnalysisColumnTemplates.Description.SetValue(BudgetTok);
-        AnalysisColumnTemplates.Columns.Invoke;
+        AnalysisColumnTemplates.Columns.Invoke();
     end;
 
     [ModalPageHandler]
@@ -425,7 +425,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
 
     local procedure CreateColumn(var AnalysisColumns: TestPage "Analysis Columns"; ColumnNo: Code[10]; ColumnHeader: Text[50]; Invoiced: Boolean; ColumnType: Enum "Analysis Column Type"; LedgerEntryType: Option; Formula: Text[50]; ValueType: Enum "Analysis Value Type")
     begin
-        AnalysisColumns.New;
+        AnalysisColumns.New();
         AnalysisColumns."Column No.".SetValue(ColumnNo);
         AnalysisColumns."Column Header".SetValue(ColumnHeader);
         AnalysisColumns.Invoiced.SetValue(Invoiced);
@@ -442,17 +442,17 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisLine: Record "Analysis Line";
     begin
         LibraryVariableStorage.Enqueue(Item1Code);
-        SalesAnalysisLines."Insert &Item".Invoke;
+        SalesAnalysisLines."Insert &Item".Invoke();
 
         LibraryVariableStorage.Enqueue(Item2Code);
-        SalesAnalysisLines."Insert &Item".Invoke;
+        SalesAnalysisLines."Insert &Item".Invoke();
 
-        SalesAnalysisLines.New;
+        SalesAnalysisLines.New();
         SalesAnalysisLines."Row Ref. No.".SetValue(TotalTxt);
         SalesAnalysisLines.Type.SetValue(AnalysisLine.Type::Formula);
         SalesAnalysisLines.Range.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
 
-        SalesAnalysisLines.OK.Invoke;
+        SalesAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -462,17 +462,17 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisLine: Record "Analysis Line";
     begin
         LibraryVariableStorage.Enqueue(Item1Code);
-        PurchaseAnalysisLines."Insert &Items".Invoke;
+        PurchaseAnalysisLines."Insert &Items".Invoke();
 
         LibraryVariableStorage.Enqueue(Item2Code);
-        PurchaseAnalysisLines."Insert &Items".Invoke;
+        PurchaseAnalysisLines."Insert &Items".Invoke();
 
-        PurchaseAnalysisLines.New;
+        PurchaseAnalysisLines.New();
         PurchaseAnalysisLines."Row Ref. No.".SetValue(TotalTxt);
         PurchaseAnalysisLines.Type.SetValue(AnalysisLine.Type::Formula);
         PurchaseAnalysisLines.Range.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
 
-        PurchaseAnalysisLines.OK.Invoke;
+        PurchaseAnalysisLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -483,7 +483,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         ItemList.FILTER.SetFilter("No.", ItemNo);
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -506,7 +506,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         SetValuesOnSalesBudgetMatrix(SalesBudgetOverview, Item1Code);
         SetValuesOnSalesBudgetMatrix(SalesBudgetOverview, Item2Code);
 
-        SalesBudgetOverview.OK.Invoke;
+        SalesBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -524,7 +524,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         PurchaseBudgetOverview.ValueType.SetValue(ValueType::"Cost Amount");
         SetValuesOnPurchaseBudgetMatrix(PurchaseBudgetOverview, Item1Code);
         SetValuesOnPurchaseBudgetMatrix(PurchaseBudgetOverview, Item2Code);
-        PurchaseBudgetOverview.OK.Invoke;
+        PurchaseBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -540,7 +540,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         SalesAnalysisReport.CurrentSourceTypeFilter.SetValue(AnalysisLine."Source Type Filter"::Item);
         SalesAnalysisReport.CurrentSourceTypeNoFilter.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
         Commit();
-        SalesAnalysisReport.ShowMatrix.Invoke;
+        SalesAnalysisReport.ShowMatrix.Invoke();
     end;
 
     [PageHandler]
@@ -556,7 +556,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         PurchaseAnalysisReport.CurrentSourceTypeFilter.SetValue(AnalysisLine."Source Type Filter"::Item);
         PurchaseAnalysisReport.CurrentSourceTypeNoFilter.SetValue(StrSubstNo('%1..%2', Item1Code, Item2Code));
         Commit();
-        PurchaseAnalysisReport.ShowMatrix.Invoke;
+        PurchaseAnalysisReport.ShowMatrix.Invoke();
     end;
 
     [PageHandler]

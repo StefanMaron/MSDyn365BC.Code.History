@@ -8,6 +8,7 @@ table 47 "Aging Band Buffer"
 {
     Caption = 'Aging Band Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -140,7 +140,7 @@
     begin
         Initialize();
 
-        SetupPaymentTolerance;
+        SetupPaymentTolerance();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
@@ -290,7 +290,7 @@
         // [SCENARIO] Currency Adjustment job posts Detailed Vendor Ledger Entries linked by "Transaction No." with related G/L Entries
         Initialize();
 
-        // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate + 1)
+        // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate() + 1)
         CurrencyCode := SetExchRateForCurrency(2);
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -302,31 +302,31 @@
                 InvAmount := LibraryRandom.RandDec(1000, 2);
                 DocumentNo := CreateJournalLine(
                     GenJournalLine, GenJournalBatch, "Document Type"::Invoice, "Account Type"::Vendor,
-                    Vendor."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                    Vendor."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 RunGenJnlPostLine(GenJournalLine);
 
                 // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
                 CreateJournalLine(
                   GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Vendor,
-                  Vendor."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                  Vendor."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
                 Modify();
                 RunGenJnlPostLine(GenJournalLine);
 
-                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate + 2) with application to Invoice
+                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
                 CreateJournalLine(
                   GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Vendor,
-                  Vendor."No.", InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                  Vendor."No.", InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
                 Modify();
                 RunGenJnlPostLine(GenJournalLine);
             end;
 
-        LastTransactionNo[1] := GetLastTransactionNo;
+        LastTransactionNo[1] := GetLastTransactionNo();
 
-        // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
+        // [WHEN] Run the Adjust Exchange Rates Batch job on (WorkDate() + 1)
 #if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
@@ -337,7 +337,7 @@
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Vendor Ledger Entries have same "Transaction No." with related G/L Entries
-        LastTransactionNo[2] := GetLastTransactionNo;
+        LastTransactionNo[2] := GetLastTransactionNo();
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         for TransactionNo := LastTransactionNo[1] + 1 to LastTransactionNo[2] do begin
             GLEntry.SetRange("Transaction No.", TransactionNo);
@@ -426,7 +426,7 @@
         Amount := LibraryRandom.RandDec(1000, 2);  // Using Random value for Amount.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount, -Amount);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount(), -Amount);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", Amount / 2);
@@ -463,7 +463,7 @@
         Amount := LibraryRandom.RandDec(1000, 2);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount, -Amount);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount(), -Amount);
 
         // [GIVEN] Posted Purchase Credit Memo with Amount "Y" < "X"
         LibraryERM.CreateGeneralJnlLine(
@@ -510,7 +510,7 @@
         Amount := LibraryRandom.RandDec(1000, 2);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount, Amount);
+          GenJournalLine."Account Type"::Vendor, CreateVendorWithPaymentTermsDiscount(), Amount);
 
         // [GIVEN] Posted Purchase Invoice with Amount "Y" < "X"
         LibraryERM.CreateGeneralJnlLine(
@@ -561,7 +561,7 @@
         // [GIVEN] Batch GJB posted
         Amount := LibraryRandom.RandDec(1000, 2);
         DocNo := LibraryERM.CreateAndPostTwoGenJourLinesWithSameBalAccAndDocNo(
-            DummyGenJournalLine, DummyGenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, Amount);
+            DummyGenJournalLine, DummyGenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), Amount);
 
         // [WHEN] Apply Payment to Invoice
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Payment, DocNo);
@@ -889,7 +889,6 @@
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-        AppliesToId: Code[20];
         Index: Integer;
     begin
         // [FEATURE] [General Journal]
@@ -1005,7 +1004,7 @@
         CreateVendorWithPaymentTerms(Vendor, GetPaymentTerms('0'));
 
         // Find currency code with realized gaisn/losses account
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
 
         // Create new exchange rate
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -1029,7 +1028,7 @@
 
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
@@ -1068,7 +1067,7 @@
 
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorPmtDiscVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1095,7 +1094,7 @@
         // Apply / Unapply with VAT posting setup
         VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetDiscount(Vendor."Payment Terms Code", Amount), Amount, '<0D>', Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorPmtTolVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1120,9 +1119,9 @@
           Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Tolerance", 0);
 
         // Apply / Unapply with VAT posting setup
-        VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetPaymentTolerance, Amount, '<0D>', Stepwise);
+        VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetPaymentTolerance(), Amount, '<0D>', Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorPmtDiscTolVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1155,7 +1154,7 @@
         // Apply / Unapply with VAT posting setup
         VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetDiscount(PaymentTerms.Code, Amount), Amount, Offset, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorInvPmt(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1180,7 +1179,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount, Amount, '<0D>', '', '');
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorInvPmtDisc(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1204,7 +1203,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount - DiscountAmount, Amount, '<0D>', '', '');
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorInvPmtVAT(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1241,7 +1240,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount, Amount, '<0D>', '', '');
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorInvPmtCorrection(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1274,7 +1273,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
         VendorApplyUnapply(Desc, Stepwise);
 
-        LibraryERMVendorWatch.AssertVendor;
+        LibraryERMVendorWatch.AssertVendor();
     end;
 
     local procedure VendorApplyUnapplyVAT(Vendor: Record Vendor; PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; Stepwise: Boolean)
@@ -1565,7 +1564,7 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Find currency code with realized gaisn/losses account
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
 
         // Create new exchange rates
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
@@ -1662,7 +1661,7 @@
         GenJnlBatch.SetFilter("Journal Template Name", GenJnlTemplate.Name);
         GenJnlBatch.SetRange("Bal. Account No.");
         GenJnlBatch.FindFirst();
-        GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJnlBatch.Modify(true);
 
         ClearJournalBatch(GenJnlBatch);
@@ -1721,7 +1720,7 @@
             FindFirst();
             repeat
                 Assert.IsFalse(Open, StrSubstNo('Vendor ledger entry %1 did not close.', "Entry No."));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1731,7 +1730,7 @@
             FindFirst();
             repeat
                 Assert.IsTrue(Open, StrSubstNo('Vendor ledger entry %1 did not open.', "Entry No."));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1875,7 +1874,7 @@
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 }
 

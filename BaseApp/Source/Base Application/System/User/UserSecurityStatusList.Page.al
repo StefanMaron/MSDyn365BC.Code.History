@@ -15,7 +15,7 @@ page 9818 "User Security Status List"
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "User Security Status";
-    SourceTableView = where("User Security ID" = filter(<> '{00000000-0000-0000-0000-000000000000}'));
+    SourceTableView = where("User Security ID" = filter(<> '{00000000-0000-0000-0000-000000000000}'), "User Exists" = const(true));
     UsageCategory = Lists;
 
     layout
@@ -29,7 +29,7 @@ page 9818 "User Security Status List"
                     ApplicationArea = All;
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Reviewed;
+                    StyleExpr = not Rec.Reviewed;
                     ToolTip = 'Specifies the user''s name. If the user is required to present credentials when starting the client, this is the name that the user must present.';
                 }
                 field("Full Name"; Rec."Full Name")
@@ -53,7 +53,7 @@ page 9818 "User Security Status List"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Style = Attention;
-                    StyleExpr = NOT BelongsToSubscriptionPlan;
+                    StyleExpr = not BelongsToSubscriptionPlan;
                     ToolTip = 'Specifies that the user is covered by a subscription plan.';
                     Visible = SoftwareAsAService;
                 }
@@ -63,7 +63,7 @@ page 9818 "User Security Status List"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Style = Attention;
-                    StyleExpr = NOT Rec."Belongs to User Group";
+                    StyleExpr = not Rec."Belongs to User Group";
                     ToolTip = 'Specifies that the user is assigned to a user group.';
                     Visible = LegacyUserGroupsVisible;
                     ObsoleteState = Pending;

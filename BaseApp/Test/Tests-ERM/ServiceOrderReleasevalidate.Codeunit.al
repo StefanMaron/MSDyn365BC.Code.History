@@ -63,7 +63,7 @@ codeunit 136141 "Service Order Release validate"
     begin
         Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
-        asserterror ServiceLine.Validate("Gen. Prod. Posting Group", CreateNewGenPPGroup);
+        asserterror ServiceLine.Validate("Gen. Prod. Posting Group", CreateNewGenPPGroup());
     end;
 
     [Test]
@@ -107,7 +107,7 @@ codeunit 136141 "Service Order Release validate"
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
-        ServiceOrderTP.ServItemLines."Service Lines".Invoke;
+        ServiceOrderTP.ServItemLines."Service Lines".Invoke();
         ServiceOrderTP.Close();
     end;
 
@@ -185,7 +185,7 @@ codeunit 136141 "Service Order Release validate"
     begin
         Initialize();
         CreateAndReleaseServOrder(ServiceHeader, ServiceLine, ServiceItemLine);
-        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
     end;
 
     [Test]
@@ -198,7 +198,7 @@ codeunit 136141 "Service Order Release validate"
     begin
         Initialize();
         CreateWhsShpReopenOrder(ServiceHeader, ServiceItemLine, ServiceLine);
-        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
     end;
 
     [Test]
@@ -273,7 +273,7 @@ codeunit 136141 "Service Order Release validate"
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
         ServiceOrderTP.OpenNew();
         ServiceOrderTP.GotoRecord(ServHeader);
-        ServiceOrderTP.ServItemLines."Service Lines".Invoke;
+        ServiceOrderTP.ServItemLines."Service Lines".Invoke();
         ServiceOrderTP.Close();
     end;
 
@@ -401,7 +401,7 @@ codeunit 136141 "Service Order Release validate"
     var
         ServiceItem: Record "Service Item";
     begin
-        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem);
@@ -445,11 +445,11 @@ codeunit 136141 "Service Order Release validate"
 
     local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item")
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
         // Use Random For Quantity and Quantity to Consume.
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
-        ServiceLine.Validate("Location Code", GetWhiteLocation);
+        ServiceLine.Validate("Location Code", GetWhiteLocation());
         ServiceLine.Modify(true);
     end;
 
@@ -507,7 +507,7 @@ codeunit 136141 "Service Order Release validate"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Release validate");
 
         LibraryService.SetupServiceMgtNoSeries();
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation(), false);
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Release validate");

@@ -77,82 +77,81 @@ codeunit 5816 "Undo Return Receipt Line"
     begin
         IsHandled := false;
         OnBeforeCode(ReturnRcptLine, HideDialog, IsHandled);
-        if not IsHandled then
-            with ReturnRcptLine do begin
-                Clear(ItemJnlPostLine);
-                SetRange(Correction, false);
-                SetFilter(Quantity, '<>0');
-                if IsEmpty() then
-                    Error(AlreadyReversedErr);
+        if not IsHandled then begin
+            Clear(ItemJnlPostLine);
+            ReturnRcptLine.SetRange(Correction, false);
+            ReturnRcptLine.SetFilter(Quantity, '<>0');
+            if ReturnRcptLine.IsEmpty() then
+                Error(AlreadyReversedErr);
 
-                FindFirst();
-                repeat
-                    if not HideDialog then
-                        Window.Open(Text003);
-                    OnCodeOnBeforeCallCheckReturnRcptLine(ReturnRcptLine);
-                    CheckReturnRcptLine(ReturnRcptLine);
-                until Next() = 0;
+            ReturnRcptLine.FindFirst();
+            repeat
+                if not HideDialog then
+                    Window.Open(Text003);
+                OnCodeOnBeforeCallCheckReturnRcptLine(ReturnRcptLine);
+                CheckReturnRcptLine(ReturnRcptLine);
+            until ReturnRcptLine.Next() = 0;
 
-                Find('-');
-                repeat
-                    TempGlobalItemLedgEntry.Reset();
-                    if not TempGlobalItemLedgEntry.IsEmpty() then
-                        TempGlobalItemLedgEntry.DeleteAll();
-                    TempGlobalItemEntryRelation.Reset();
-                    if not TempGlobalItemEntryRelation.IsEmpty() then
-                        TempGlobalItemEntryRelation.DeleteAll();
+            ReturnRcptLine.Find('-');
+            repeat
+                TempGlobalItemLedgEntry.Reset();
+                if not TempGlobalItemLedgEntry.IsEmpty() then
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
+                if not TempGlobalItemEntryRelation.IsEmpty() then
+                    TempGlobalItemEntryRelation.DeleteAll();
 
-                    if not HideDialog then
-                        Window.Open(Text001);
+                if not HideDialog then
+                    Window.Open(Text001);
 
-                    if Type = Type::Item then begin
-                        PostedWhseRcptLineFound :=
-                        WhseUndoQty.FindPostedWhseRcptLine(
-                            PostedWhseRcptLine,
-                            DATABASE::"Return Receipt Line", "Document No.",
-                            DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
+                if ReturnRcptLine.Type = ReturnRcptLine.Type::Item then begin
+                    PostedWhseRcptLineFound :=
+                    WhseUndoQty.FindPostedWhseRcptLine(
+                        PostedWhseRcptLine,
+                        DATABASE::"Return Receipt Line", ReturnRcptLine."Document No.",
+                        DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), ReturnRcptLine."Return Order No.", ReturnRcptLine."Return Order Line No.");
 
-                        ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
-                    end else
-                        DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
+                    ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
+                end else
+                    DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
-                    InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
+                InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
 
-                    IsHandled := false;
-                    OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, IsHandled);
-                    if not IsHandled then begin
-                        SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.",
-                        "Return Order Line No.");
-                        if "Item Rcpt. Entry No." > 0 then
-                            if SalesLine."Appl.-from Item Entry" <> 0 then begin
-                                SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
-                                SalesLine.Modify();
-                            end;
-
-                        if PostedWhseRcptLineFound then
-                            WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
-
-                        UpdateOrderLine(ReturnRcptLine);
-                        UpdateItemTrkgApplFromEntry(SalesLine);
-                    end;
+                IsHandled := false;
+                OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, IsHandled);
+                if not IsHandled then begin
+                    SalesLine.Get(SalesLine."Document Type"::"Return Order", ReturnRcptLine."Return Order No.",
+                    ReturnRcptLine."Return Order Line No.");
+                    if ReturnRcptLine."Item Rcpt. Entry No." > 0 then
+                        if SalesLine."Appl.-from Item Entry" <> 0 then begin
+                            SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
+                            SalesLine.Modify();
+                        end;
 
                     if PostedWhseRcptLineFound then
-                        WhseUndoQty.UpdateRcptSourceDocLines(PostedWhseRcptLine);
+                        WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
 
-                    "Quantity Invoiced" := Quantity;
-                    "Qty. Invoiced (Base)" := "Quantity (Base)";
-                    "Return Qty. Rcd. Not Invd." := 0;
-                    Correction := true;
+                    UpdateOrderLine(ReturnRcptLine);
+                    UpdateItemTrkgApplFromEntry(SalesLine);
+                end;
 
-                    OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
-                    Modify();
-                    OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
-                until Next() = 0;
+                if PostedWhseRcptLineFound then
+                    WhseUndoQty.UpdateRcptSourceDocLines(PostedWhseRcptLine);
 
-                MakeInventoryAdjustment();
+                ReturnRcptLine."Quantity Invoiced" := ReturnRcptLine.Quantity;
+                ReturnRcptLine."Qty. Invoiced (Base)" := ReturnRcptLine."Quantity (Base)";
+                ReturnRcptLine."Return Qty. Rcd. Not Invd." := 0;
+                ReturnRcptLine.Correction := true;
 
-                WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
-            end;
+                OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
+                ReturnRcptLine.Modify();
+                OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
+            until ReturnRcptLine.Next() = 0;
+
+            MakeInventoryAdjustment();
+
+            WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
+        end;
 
         OnAfterCode(ReturnRcptLine);
     end;
@@ -199,21 +198,19 @@ codeunit 5816 "Undo Return Receipt Line"
         if IsHandled then
             exit(Result);
 
-        with ReturnRcptLine do begin
-            ReturnRcptLine2.SetRange("Document No.", "Document No.");
-            ReturnRcptLine2."Document No." := "Document No.";
-            ReturnRcptLine2."Line No." := "Line No.";
-            ReturnRcptLine2.Find('=');
+        ReturnRcptLine2.SetRange("Document No.", ReturnRcptLine."Document No.");
+        ReturnRcptLine2."Document No." := ReturnRcptLine."Document No.";
+        ReturnRcptLine2."Line No." := ReturnRcptLine."Line No.";
+        ReturnRcptLine2.Find('=');
 
-            if ReturnRcptLine2.Find('>') then begin
-                LineSpacing := (ReturnRcptLine2."Line No." - "Line No.") div 2;
-                if LineSpacing = 0 then
-                    Error(Text002);
-            end else
-                LineSpacing := 10000;
+        if ReturnRcptLine2.Find('>') then begin
+            LineSpacing := (ReturnRcptLine2."Line No." - ReturnRcptLine."Line No.") div 2;
+            if LineSpacing = 0 then
+                Error(Text002);
+        end else
+            LineSpacing := 10000;
 
-            exit("Line No." + LineSpacing);
-        end;
+        exit(ReturnRcptLine."Line No." + LineSpacing);
     end;
 
     local procedure PostItemJnlLine(ReturnRcptLine: Record "Return Receipt Line"; var DocLineNo: Integer): Integer
@@ -231,81 +228,77 @@ codeunit 5816 "Undo Return Receipt Line"
         if IsHandled then
             exit(ItemLedgEntryNo);
 
-        with ReturnRcptLine do begin
-            DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
+        DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
-            SourceCodeSetup.Get();
-            ReturnRcptHeader.Get("Document No.");
-            ItemJnlLine.Init();
-            ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
-            ItemJnlLine."Item No." := "No.";
-            ItemJnlLine."Posting Date" := ReturnRcptHeader."Posting Date";
-            ItemJnlLine."Document No." := "Document No.";
-            ItemJnlLine."Document Line No." := DocLineNo;
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            ItemJnlLine."Location Code" := "Location Code";
-            ItemJnlLine."Source Code" := SourceCodeSetup.Sales;
-            ItemJnlLine."Applies-to Entry" := "Item Rcpt. Entry No.";
-            ItemJnlLine.Correction := true;
-            ItemJnlLine."Variant Code" := "Variant Code";
-            ItemJnlLine."Bin Code" := "Bin Code";
-            ItemJnlLine.Quantity := Quantity;
-            ItemJnlLine."Quantity (Base)" := "Quantity (Base)";
-            ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
-            ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            ItemJnlLine."Document Date" := ReturnRcptHeader."Document Date";
+        SourceCodeSetup.Get();
+        ReturnRcptHeader.Get(ReturnRcptLine."Document No.");
+        ItemJnlLine.Init();
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
+        ItemJnlLine."Item No." := ReturnRcptLine."No.";
+        ItemJnlLine."Posting Date" := ReturnRcptHeader."Posting Date";
+        ItemJnlLine."Document No." := ReturnRcptLine."Document No.";
+        ItemJnlLine."Document Line No." := DocLineNo;
+        ItemJnlLine."Gen. Bus. Posting Group" := ReturnRcptLine."Gen. Bus. Posting Group";
+        ItemJnlLine."Gen. Prod. Posting Group" := ReturnRcptLine."Gen. Prod. Posting Group";
+        ItemJnlLine."Location Code" := ReturnRcptLine."Location Code";
+        ItemJnlLine."Source Code" := SourceCodeSetup.Sales;
+        ItemJnlLine."Applies-to Entry" := ReturnRcptLine."Item Rcpt. Entry No.";
+        ItemJnlLine.Correction := true;
+        ItemJnlLine."Variant Code" := ReturnRcptLine."Variant Code";
+        ItemJnlLine."Bin Code" := ReturnRcptLine."Bin Code";
+        ItemJnlLine.Quantity := ReturnRcptLine.Quantity;
+        ItemJnlLine."Quantity (Base)" := ReturnRcptLine."Quantity (Base)";
+        ItemJnlLine."Unit of Measure Code" := ReturnRcptLine."Unit of Measure Code";
+        ItemJnlLine."Qty. per Unit of Measure" := ReturnRcptLine."Qty. per Unit of Measure";
+        ItemJnlLine."Document Date" := ReturnRcptHeader."Document Date";
 
-            IsHandled := false;
-            OnAfterCopyItemJnlLineFromReturnRcpt(
-                ItemJnlLine, ReturnRcptHeader, ReturnRcptLine, WhseUndoQty, ItemLedgEntryNo, TempWhseJnlLine, NextLineNo, ReturnRcptHeader,
-                TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
-            if IsHandled then
-                exit(ItemLedgEntryNo);
+        IsHandled := false;
+        OnAfterCopyItemJnlLineFromReturnRcpt(
+            ItemJnlLine, ReturnRcptHeader, ReturnRcptLine, WhseUndoQty, ItemLedgEntryNo, TempWhseJnlLine, NextLineNo, ReturnRcptHeader,
+            TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
 
-            WhseUndoQty.InsertTempWhseJnlLine(
-                ItemJnlLine,
-                DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.",
-                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.".AsInteger(), TempWhseJnlLine, NextLineNo);
+        WhseUndoQty.InsertTempWhseJnlLine(
+            ItemJnlLine,
+            DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), ReturnRcptLine."Return Order No.", ReturnRcptLine."Return Order Line No.",
+            TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.".AsInteger(), TempWhseJnlLine, NextLineNo);
 
-            if "Item Rcpt. Entry No." <> 0 then begin
-                ItemJnlPostLine.Run(ItemJnlLine);
-                exit(ItemJnlLine."Item Shpt. Entry No.");
-            end;
-
-            UndoPostingMgt.CollectItemLedgEntries(
-                TempApplyToEntryList, DATABASE::"Return Receipt Line", "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
-
-            UndoPostingMgt.PostItemJnlLineAppliedToList(
-                ItemJnlLine, TempApplyToEntryList, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
-
-            exit(0); // "Item Shpt. Entry No."
+        if ReturnRcptLine."Item Rcpt. Entry No." <> 0 then begin
+            ItemJnlPostLine.Run(ItemJnlLine);
+            exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
+
+        UndoPostingMgt.CollectItemLedgEntries(
+            TempApplyToEntryList, DATABASE::"Return Receipt Line", ReturnRcptLine."Document No.", ReturnRcptLine."Line No.", ReturnRcptLine."Quantity (Base)", ReturnRcptLine."Item Rcpt. Entry No.");
+
+        UndoPostingMgt.PostItemJnlLineAppliedToList(
+            ItemJnlLine, TempApplyToEntryList, ReturnRcptLine.Quantity, ReturnRcptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+
+        exit(0); // "Item Shpt. Entry No."
     end;
 
     local procedure InsertNewReceiptLine(OldReturnRcptLine: Record "Return Receipt Line"; ItemShptEntryNo: Integer; DocLineNo: Integer)
     var
         NewReturnRcptLine: Record "Return Receipt Line";
     begin
-        with OldReturnRcptLine do begin
-            NewReturnRcptLine.Init();
-            NewReturnRcptLine.Copy(OldReturnRcptLine);
-            NewReturnRcptLine."Line No." := DocLineNo;
-            NewReturnRcptLine."Appl.-from Item Entry" := "Item Rcpt. Entry No.";
-            NewReturnRcptLine."Item Rcpt. Entry No." := ItemShptEntryNo;
-            NewReturnRcptLine.Quantity := -Quantity;
-            NewReturnRcptLine."Return Qty. Rcd. Not Invd." := 0;
-            NewReturnRcptLine."Quantity (Base)" := -"Quantity (Base)";
-            NewReturnRcptLine."Quantity Invoiced" := NewReturnRcptLine.Quantity;
-            NewReturnRcptLine."Qty. Invoiced (Base)" := NewReturnRcptLine."Quantity (Base)";
-            NewReturnRcptLine.Correction := true;
-            NewReturnRcptLine."Dimension Set ID" := "Dimension Set ID";
-            OnBeforeNewReturnRcptLineInsert(NewReturnRcptLine, OldReturnRcptLine);
-            NewReturnRcptLine.Insert();
-            OnAfterNewReturnRcptLineInsert(NewReturnRcptLine, OldReturnRcptLine);
+        NewReturnRcptLine.Init();
+        NewReturnRcptLine.Copy(OldReturnRcptLine);
+        NewReturnRcptLine."Line No." := DocLineNo;
+        NewReturnRcptLine."Appl.-from Item Entry" := OldReturnRcptLine."Item Rcpt. Entry No.";
+        NewReturnRcptLine."Item Rcpt. Entry No." := ItemShptEntryNo;
+        NewReturnRcptLine.Quantity := -OldReturnRcptLine.Quantity;
+        NewReturnRcptLine."Return Qty. Rcd. Not Invd." := 0;
+        NewReturnRcptLine."Quantity (Base)" := -OldReturnRcptLine."Quantity (Base)";
+        NewReturnRcptLine."Quantity Invoiced" := NewReturnRcptLine.Quantity;
+        NewReturnRcptLine."Qty. Invoiced (Base)" := NewReturnRcptLine."Quantity (Base)";
+        NewReturnRcptLine.Correction := true;
+        NewReturnRcptLine."Dimension Set ID" := OldReturnRcptLine."Dimension Set ID";
+        OnBeforeNewReturnRcptLineInsert(NewReturnRcptLine, OldReturnRcptLine);
+        NewReturnRcptLine.Insert();
+        OnAfterNewReturnRcptLineInsert(NewReturnRcptLine, OldReturnRcptLine);
 
-            InsertItemEntryRelation(TempGlobalItemEntryRelation, NewReturnRcptLine);
-        end;
+        InsertItemEntryRelation(TempGlobalItemEntryRelation, NewReturnRcptLine);
     end;
 
     procedure UpdateOrderLine(ReturnRcptLine: Record "Return Receipt Line")
@@ -318,12 +311,10 @@ codeunit 5816 "Undo Return Receipt Line"
         if IsHandled then
             exit;
 
-        with ReturnRcptLine do begin
-            SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
-            OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine, SalesLine);
-            UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
-            OnAfterUpdateSalesLine(ReturnRcptLine, SalesLine);
-        end;
+        SalesLine.Get(SalesLine."Document Type"::"Return Order", ReturnRcptLine."Return Order No.", ReturnRcptLine."Return Order Line No.");
+        OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine, SalesLine);
+        UndoPostingMgt.UpdateSalesLine(SalesLine, ReturnRcptLine.Quantity, ReturnRcptLine."Quantity (Base)", TempGlobalItemLedgEntry);
+        OnAfterUpdateSalesLine(ReturnRcptLine, SalesLine);
     end;
 
     local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewReturnRcptLine: Record "Return Receipt Line")

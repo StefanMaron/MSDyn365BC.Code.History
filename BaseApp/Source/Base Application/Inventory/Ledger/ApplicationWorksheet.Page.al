@@ -542,30 +542,27 @@ page 521 "Application Worksheet"
 
     local procedure InsertUnapplyItem(ItemNo: Code[20])
     begin
-        with TempUnapplyItem do
-            if not Get(ItemNo) then begin
-                Init();
-                "No." := ItemNo;
-                Insert();
-            end;
+        if not TempUnapplyItem.Get(ItemNo) then begin
+            TempUnapplyItem.Init();
+            TempUnapplyItem."No." := ItemNo;
+            TempUnapplyItem.Insert();
+        end;
     end;
 
     local procedure UnblockItems()
     var
         Item: Record Item;
     begin
-        with TempUnapplyItem do begin
-            if FindSet() then
-                repeat
-                    Item.Get("No.");
-                    if Item."Application Wksh. User ID" = UpperCase(UserId) then begin
-                        Item."Application Wksh. User ID" := '';
-                        Item.Modify();
-                    end;
-                until Next() = 0;
+        if TempUnapplyItem.FindSet() then
+            repeat
+                Item.Get(TempUnapplyItem."No.");
+                if Item."Application Wksh. User ID" = UpperCase(UserId) then begin
+                    Item."Application Wksh. User ID" := '';
+                    Item.Modify();
+                end;
+            until TempUnapplyItem.Next() = 0;
 
-            DeleteAll();
-        end;
+        TempUnapplyItem.DeleteAll();
     end;
 
     local procedure DocumentFilterOnAfterValidate()

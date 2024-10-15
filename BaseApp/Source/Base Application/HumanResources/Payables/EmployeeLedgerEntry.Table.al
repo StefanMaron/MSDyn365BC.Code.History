@@ -19,6 +19,9 @@ using System.Utilities;
 table 5222 "Employee Ledger Entry"
 {
     Caption = 'Employee Ledger Entry';
+    DrillDownPageID = "Employee Ledger Entries";
+    LookupPageID = "Employee Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -266,6 +269,28 @@ table 5222 "Employee Ledger Entry"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+        field(65; "Closed by Currency Code"; Code[10])
+        {
+            Caption = 'Closed by Currency Code';
+            TableRelation = Currency;
+        }
+        field(66; "Closed by Currency Amount"; Decimal)
+        {
+            AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = "Closed by Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Closed by Currency Amount';
+        }
+        field(73; "Adjusted Currency Factor"; Decimal)
+        {
+            Caption = 'Adjusted Currency Factor';
+            DecimalPlaces = 0 : 15;
+        }
+        field(74; "Original Currency Factor"; Decimal)
+        {
+            Caption = 'Original Currency Factor';
+            DecimalPlaces = 0 : 15;
+        }
         field(75; "Original Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -453,7 +478,7 @@ table 5222 "Employee Ledger Entry"
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";
         Description := GenJnlLine.Description;
-        "Amount (LCY)" := GenJnlLine."Amount (LCY)";
+        "Currency Code" := GenJnlLine."Currency Code";
         "Employee Posting Group" := GenJnlLine."Posting Group";
         "Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
@@ -523,9 +548,26 @@ table 5222 "Employee Ledger Entry"
         "Debit Amount (LCY)" := CVLedgerEntryBuffer."Debit Amount (LCY)";
         "Credit Amount (LCY)" := CVLedgerEntryBuffer."Credit Amount (LCY)";
         "No. Series" := CVLedgerEntryBuffer."No. Series";
+        "Closed by Currency Code" := CVLedgerEntryBuffer."Closed by Currency Code";
+        "Closed by Currency Amount" := CVLedgerEntryBuffer."Closed by Currency Amount";
+        "Adjusted Currency Factor" := CVLedgerEntryBuffer."Adjusted Currency Factor";
+        "Original Currency Factor" := CVLedgerEntryBuffer."Original Currency Factor";
         "Amount to Apply" := CVLedgerEntryBuffer."Amount to Apply";
 
         OnAfterCopyEmplLedgerEntryFromCVLedgEntryBuffer(Rec, CVLedgerEntryBuffer);
+    end;
+
+    procedure RecalculateAmounts(FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+    begin
+        if ToCurrencyCode = FromCurrencyCode then
+            exit;
+        "Remaining Amount" := CurrExchRate.ExchangeAmount("Remaining Amount", FromCurrencyCode, ToCurrencyCode, PostingDate);
+        "Amount to Apply" :=
+          CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
+
+        OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
 
     local procedure AreOppositeSign(Amount1: Decimal; Amount2: Decimal): Boolean
@@ -545,6 +587,11 @@ table 5222 "Employee Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyEmplLedgerEntryFromCVLedgEntryBuffer(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculateAmounts(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
     begin
     end;
 }

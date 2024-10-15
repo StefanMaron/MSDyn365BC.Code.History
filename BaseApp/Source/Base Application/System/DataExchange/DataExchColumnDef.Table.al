@@ -3,6 +3,7 @@ namespace System.IO;
 table 1223 "Data Exch. Column Def"
 {
     Caption = 'Data Exch. Column Def';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,11 +27,11 @@ table 1223 "Data Exch. Column Def"
         {
             Caption = 'Show';
         }
-        field(5; "Data Type"; Option)
+        field(5;"Data Type"; Option)
         {
             Caption = 'Data Type';
-            OptionCaption = 'Text,Date,Decimal,DateTime';
-            OptionMembers = Text,Date,Decimal,DateTime;
+            OptionCaption = 'Text,Date,Decimal,DateTime,Boolean';
+            OptionMembers = Text,Date,Decimal,DateTime,Boolean;
         }
         field(6; "Data Format"; Text[100])
         {
@@ -161,14 +162,6 @@ table 1223 "Data Exch. Column Def"
         Validate(Constant, NewConstant);
         Insert();
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by procedure InsertRecordForImport with extended paremeter NewDescription: Text[100]', '21.0')]
-    procedure InsertRecForImport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewDescription: Text[50]; NewShow: Boolean; DataType: Option; DataFormat: Text[100]; DataFormattingCulture: Text[10])
-    begin
-        InsertRecordForImport(DataExchDefCode, DataExchLineDefCode, ColumnNo, NewName, NewDescription, NewShow, DataType, DataFormat, DataFormattingCulture);
-    end;
-#endif
 
     procedure InsertRecordForImport(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewDescription: Text[100]; NewShow: Boolean; DataType: Option; DataFormat: Text[100]; DataFormattingCulture: Text[10])
     begin

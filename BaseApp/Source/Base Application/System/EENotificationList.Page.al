@@ -9,7 +9,8 @@ page 3301 "EE Notification List"
     PageType = List;
     PopulateAllFields = true;
     Editable = false;
-
+    InsertAllowed = false;
+    ModifyAllowed = false;
     SourceTable = "External Event Notification";
 
     layout

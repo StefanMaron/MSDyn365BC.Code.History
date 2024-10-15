@@ -1,6 +1,7 @@
 namespace System.AI;
 
 using System.Environment;
+using System.Integration;
 
 page 4010 "Intelligent Cloud"
 {
@@ -13,7 +14,7 @@ page 4010 "Intelligent Cloud"
     {
         area(content)
         {
-            usercontrol(WebPageViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
+            usercontrol(WebPageViewer; WebPageViewer)
             {
                 ApplicationArea = Basic, Suite;
                 Visible = ShowIntelligentCloud;

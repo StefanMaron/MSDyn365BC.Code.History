@@ -5,6 +5,7 @@ table 1544 "Flow User Environment Buffer"
     Caption = 'Power Automate User Environment Buffer';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

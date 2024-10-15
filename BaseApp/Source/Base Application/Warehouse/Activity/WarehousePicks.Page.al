@@ -164,6 +164,20 @@ page 9313 "Warehouse Picks"
                     WhseActPrint.PrintPickHeader(Rec);
                 end;
             }
+            action("Assign to me")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Assign to me';
+                Image = User;
+                Gesture = LeftSwipe;
+                ToolTip = 'Assigns this pick document to the current user.';
+
+                trigger OnAction()
+                begin
+                    Rec.AssignToCurrentUser();
+                    CurrPage.Update();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -177,7 +191,24 @@ page 9313 "Warehouse Picks"
                 actionref("Print_Promoted"; "Print")
                 {
                 }
+                actionref("Assign to me_Promoted"; "Assign to me")
+                {
+                }
             }
+        }
+    }
+
+    views
+    {
+        view(Unassigned)
+        {
+            Caption = 'Unassigned';
+            Filters = where("Assigned User ID" = filter(''));
+        }
+        view(MyPicks)
+        {
+            Caption = 'My Picks';
+            Filters = where("Assigned User ID" = filter('%user'));
         }
     }
 

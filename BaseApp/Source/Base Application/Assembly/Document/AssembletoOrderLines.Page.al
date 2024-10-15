@@ -5,7 +5,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Sales.Document;
 using System.Globalization;
 
 page 914 "Assemble-to-Order Lines"
@@ -284,7 +283,6 @@ page 914 "Assemble-to-Order Lines"
                 trigger OnAction()
                 var
                     ATOLink: Record "Assemble-to-Order Link";
-                    SalesLine: Record "Sales Line";
                     IsHandled: Boolean;
                 begin
                     IsHandled := false;
@@ -293,8 +291,7 @@ page 914 "Assemble-to-Order Lines"
                         exit;
 
                     ATOLink.Get(Rec."Document Type", Rec."Document No.");
-                    SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
-                    ATOLink.ShowAsm(SalesLine);
+                    ATOLink.ShowAsmDocument();
                 end;
             }
             action(Dimensions)

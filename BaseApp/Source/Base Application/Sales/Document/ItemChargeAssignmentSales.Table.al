@@ -11,6 +11,7 @@ using Microsoft.Sales.History;
 table 5809 "Item Charge Assignment (Sales)"
 {
     Caption = 'Item Charge Assignment (Sales)';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -201,7 +202,7 @@ table 5809 "Item Charge Assignment (Sales)"
     begin
         SalesLine.Get("Document Type", "Document No.", "Document Line No.");
         if not Currency.Get(SalesLine."Currency Code") then
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
     end;
 
     procedure SalesLineInvoiced() Result: Boolean

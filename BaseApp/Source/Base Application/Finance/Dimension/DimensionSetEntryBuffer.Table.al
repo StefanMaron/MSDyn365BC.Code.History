@@ -5,6 +5,7 @@ table 5489 "Dimension Set Entry Buffer"
     Caption = 'Dimension Set Entry Buffer';
     ReplicateData = false;
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -34,14 +35,14 @@ table 5489 "Dimension Set Entry Buffer"
         }
         field(5; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
+            CalcFormula = lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;

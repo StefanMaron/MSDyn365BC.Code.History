@@ -80,7 +80,7 @@ page 7376 "Invt. Put-away Subform"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the package number to handle in the document.';
-                    Visible = PackageTrackingVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -234,6 +234,34 @@ page 7376 "Invt. Put-away Subform"
                         CallSplitLine();
                     end;
                 }
+                action(FillQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Autofill Qty. To Handle';
+                    Image = AutofillQtyToHandle;
+                    Gesture = LeftSwipe;
+                    ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.AutofillQtyToHandleOnLine(Rec);
+                    end;
+                }
+                action(ResetQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Reset Qty. To Handle';
+                    Image = UndoFluent;
+                    Gesture = RightSwipe;
+                    ToolTip = 'Have the system clear the value in the Qty. To Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.DeleteQtyToHandleOnLine(Rec);
+                    end;
+                }
             }
             group("&Line")
             {
@@ -371,14 +399,12 @@ page 7376 "Invt. Put-away Subform"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
     end;
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         WMSMgt: Codeunit "WMS Management";
         ExpirationDateEditable: Boolean;
-        PackageTrackingVisible: Boolean;
 
     local procedure ShowSourceLine()
     begin
@@ -504,13 +530,6 @@ page 7376 "Invt. Put-away Subform"
     local procedure ExpirationDateOnFormat()
     begin
         if UpdateExpDateEditable() then;
-    end;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

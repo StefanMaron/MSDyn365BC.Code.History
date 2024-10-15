@@ -280,7 +280,7 @@ codeunit 136119 "Service Standard Codes"
         // 3. Verify: Standard Service Code and Standard service lines are deleted.
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode.Code);
         Assert.IsFalse(
-          StandardServiceLine.FindFirst,
+          StandardServiceLine.FindFirst(),
           StrSubstNo(StdServiceLinesMustNotExist, StandardServiceCode.Code, StandardServiceLine."Line No."));
     end;
 
@@ -355,7 +355,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         Assert.IsFalse(
-          ServiceLine.FindFirst,
+          ServiceLine.FindFirst(),
           StrSubstNo(
             ServiceLineMustNotExist, ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
             ServiceLine.FieldCaption("Document No."), ServiceLine."Document No."));
@@ -818,7 +818,7 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceCode.InsertServiceLines(ServiceHeader);
 
         // 2. Exercise: Post the Service Document.
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
         // 3. Verify: Check Service Ledger Entry, Customer Ledger Entries, Detailed Customer Ledger Entries, Resource Leger Entry,
@@ -963,14 +963,14 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceItemGrCode1.Delete(true);
 
         // [THEN] "SIGR1" is deleted
-        Assert.IsFalse(StandardServiceItemGrCode1.Find, 'The Standard Service Item Gr. Code must be deleted');
+        Assert.IsFalse(StandardServiceItemGrCode1.Find(), 'The Standard Service Item Gr. Code must be deleted');
 
         // [THEN] "SSL1" is deleted
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceItemGrCode1.Code);
         Assert.RecordIsNotEmpty(StandardServiceLine);
 
         // [THEN] "SIGR2" is exist
-        Assert.IsTrue(StandardServiceItemGrCode2.Find, 'The Standard Service Item Gr. Code must exist');
+        Assert.IsTrue(StandardServiceItemGrCode2.Find(), 'The Standard Service Item Gr. Code must exist');
 
         // [THEN] "SSL2" is exist
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceItemGrCode2.Code);
@@ -1015,8 +1015,8 @@ codeunit 136119 "Service Standard Codes"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Standard Codes");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
-        LibraryERMCountryData.UpdateAccountInServiceCosts;
+        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups();
+        LibraryERMCountryData.UpdateAccountInServiceCosts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryService.SetupServiceMgtNoSeries();
         Commit();
@@ -1123,7 +1123,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode);
         StandardServiceLine.Validate(Type, StandardServiceLine.Type::"G/L Account");
-        StandardServiceLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        StandardServiceLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
         StandardServiceLine.Modify(true);
     end;
 
@@ -1134,7 +1134,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode);
         StandardServiceLine.Validate(Type, StandardServiceLine.Type::Item);
-        StandardServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        StandardServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
         StandardServiceLine.Modify(true);
     end;
 
@@ -1145,7 +1145,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode);
         StandardServiceLine.Validate(Type, StandardServiceLine.Type::Resource);
-        StandardServiceLine.Validate("No.", LibraryResource.CreateResourceNo);
+        StandardServiceLine.Validate("No.", LibraryResource.CreateResourceNo());
         StandardServiceLine.Modify(true);
     end;
 
@@ -1265,7 +1265,7 @@ codeunit 136119 "Service Standard Codes"
         FindServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1289,7 +1289,7 @@ codeunit 136119 "Service Standard Codes"
         repeat
             ServiceLine.Validate(
               "Qty. to Invoice",
-              (ServiceLine."Quantity Shipped" - ServiceLine."Quantity Consumed") * LibraryUtility.GenerateRandomFraction);
+              (ServiceLine."Quantity Shipped" - ServiceLine."Quantity Consumed") * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;

@@ -11,6 +11,7 @@ using System.Threading;
 table 5373 "CRM Full Synch. Review Line"
 {
     Caption = 'CRM Full Synch. Review Line';
+    DataClassification = CustomerContent;
 
     fields
     {

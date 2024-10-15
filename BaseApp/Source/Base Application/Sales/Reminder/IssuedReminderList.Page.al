@@ -258,6 +258,20 @@ page 440 "Issued Reminder List"
                 RunObject = Report "Customer - Detail Trial Bal.";
                 ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
             }
+            action(MarkAsSent)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark as Sent';
+                Image = SendConfirmation;
+                ToolTip = 'Mark the reminder as sent.';
+
+                trigger OnAction()
+                var
+                    SendReminder: Codeunit "Send Reminder";
+                begin
+                    SendReminder.UpdateReminderSentFromUI(Rec);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -275,6 +289,9 @@ page 440 "Issued Reminder List"
                 {
                 }
                 actionref(Cancel_Promoted; Cancel)
+                {
+                }
+                actionref(MarkAsSent_Promoted; MarkAsSent)
                 {
                 }
             }

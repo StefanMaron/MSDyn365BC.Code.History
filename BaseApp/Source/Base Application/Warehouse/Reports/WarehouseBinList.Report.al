@@ -15,7 +15,7 @@ report 7319 "Warehouse Bin List"
     {
         dataitem(Bin; Bin)
         {
-            DataItemTableView = SORTING("Location Code", Code);
+            DataItemTableView = sorting("Location Code", Code);
             RequestFilterFields = "Location Code", "Code";
             column(TodayFormatted; Format(Today, 0, 4))
             {
@@ -93,8 +93,8 @@ report 7319 "Warehouse Bin List"
             dataitem("Bin Content"; "Bin Content")
             {
                 CalcFields = "Quantity (Base)", "Pick Quantity (Base)", "Put-away Quantity (Base)";
-                DataItemLink = "Location Code" = FIELD("Location Code"), "Bin Code" = FIELD(Code);
-                DataItemTableView = SORTING("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
+                DataItemLink = "Location Code" = field("Location Code"), "Bin Code" = field(Code);
+                DataItemTableView = sorting("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
                 column(ItemNo_BinContent; "Item No.")
                 {
                     IncludeCaption = true;

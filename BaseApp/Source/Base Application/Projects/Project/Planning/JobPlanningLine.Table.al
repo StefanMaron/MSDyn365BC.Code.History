@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Projects.Project.Planning;
 
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -9,6 +11,7 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -20,7 +23,7 @@ using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -35,9 +38,10 @@ using System.Security.AccessControl;
 
 table 1003 "Job Planning Line"
 {
-    Caption = 'Job Planning Line';
+    Caption = 'Project Planning Line';
     DrillDownPageID = "Job Planning Lines";
     LookupPageID = "Job Planning Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -48,7 +52,7 @@ table 1003 "Job Planning Line"
         }
         field(2; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             NotBlank = true;
             TableRelation = Job;
         }
@@ -141,7 +145,10 @@ table 1003 "Job Planning Line"
                     "Cost Factor" := 0;
                     if Type = Type::Item then begin
                         "Bin Code" := '';
-                        SetDefaultBin();
+                        if "No." <> '' then
+                            InitLocation();
+                        if "Bin Code" = '' then
+                            SetDefaultBin();
                         JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("No."));
                     end;
                     if "No." = '' then
@@ -160,6 +167,8 @@ table 1003 "Job Planning Line"
                     Type::Text:
                         CopyFromStandardText();
                 end;
+
+                InitQtyToAsm();
 
                 OnValidateNoOnAfterCopyFromAccount(Rec, xRec, Job);
 
@@ -221,6 +230,11 @@ table 1003 "Job Planning Line"
                 UpdateReservation(FieldNo(Quantity));
 
                 UpdateAllAmounts();
+
+                InitQtyToAsm();
+                if "Line Type" in ["Line Type"::"Both Budget and Billable", "Line Type"::Budget] then
+                    Validate("Qty. to Assemble");
+
                 if not BypassQtyValidation then
                     JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo(Quantity));
 
@@ -385,6 +399,8 @@ table 1003 "Job Planning Line"
                     Validate(Quantity);
                     SetDefaultBin();
                     JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Location Code"));
+                    InitQtyToAsm();
+                    ATOLink.UpdateAsmFromJobPlanningLine(Rec);
 
                     DeleteWarehouseRequest(xRec);
                     CreateWarehouseRequest();
@@ -481,9 +497,67 @@ table 1003 "Job Planning Line"
                 JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Planning Due Date"));
             end;
         }
+        field(900; "Qty. to Assemble"; Decimal)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Qty. to Assemble';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if "Line Type" = "Line Type"::Billable then
+                    FieldError("Line Type");
+
+                if ("Qty. to Assemble" <> Quantity) and ("Qty. to Assemble" <> 0) and WhsePickReqForLocation() then
+                    FieldError("Qty. to Assemble", StrSubstNo(DifferentQtyToAssembleErr, FieldCaption(Quantity)));
+
+                "Qty. to Assemble" := UOMMgt.RoundAndValidateQty("Qty. to Assemble", "Qty. Rounding Precision", FieldCaption("Qty. to Assemble"));
+                "Qty. to Assemble (Base)" := CalcBaseQty("Qty. to Assemble", FieldCaption("Qty. to Assemble"), FieldCaption("Qty. to Assemble (Base)"));
+
+                if "Qty. to Assemble (Base)" < 0 then
+                    FieldError("Qty. to Assemble", NegativeQtyToAssembleErr);
+
+                CheckItemAvailable(FieldNo("Qty. to Assemble"));
+                ATOLink.UpdateAsmFromJobPlanningLine(Rec);
+            end;
+        }
+        field(901; "Qty. to Assemble (Base)"; Decimal)
+        {
+            Caption = 'Qty. to Assemble (Base)';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                TestField("Qty. per Unit of Measure", 1);
+                Validate("Qty. to Assemble", "Qty. to Assemble (Base)");
+            end;
+        }
+        field(902; "Assemble to Order"; Boolean)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Assemble to Order';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+        field(903; "BOM Item No."; Code[20])
+        {
+            Caption = 'BOM Item No.';
+            TableRelation = Item;
+            DataClassification = CustomerContent;
+        }
+        field(904; "Attached to Line No."; Integer)
+        {
+            Caption = 'Attached to Line No.';
+            Editable = false;
+            DataClassification = CustomerContent;
+            TableRelation = "Job Planning Line"."Line No." where("Job No." = field("Job No."),
+                                                           "Job Task No." = field("Job Task No."));
+        }
         field(1000; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             NotBlank = true;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
@@ -704,7 +778,7 @@ table 1003 "Job Planning Line"
         }
         field(1030; "Job Contract Entry No."; Integer)
         {
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
             Editable = false;
         }
         field(1035; "Invoiced Amount (LCY)"; Decimal)
@@ -748,7 +822,7 @@ table 1003 "Job Planning Line"
         field(1043; "Job Ledger Entry No."; Integer)
         {
             BlankZero = true;
-            Caption = 'Job Ledger Entry No.';
+            Caption = 'Project Ledger Entry No.';
             Editable = false;
             TableRelation = "Job Ledger Entry";
         }
@@ -1019,7 +1093,7 @@ table 1003 "Job Planning Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1032,7 +1106,6 @@ table 1003 "Job Planning Line"
                         Item.Get("No.");
                         Description := Item.Description;
                         "Description 2" := Item."Description 2";
-                        GetItemTranslation();
                     end
                 end else begin
                     TestField(Type, Type::Item);
@@ -1042,9 +1115,12 @@ table 1003 "Job Planning Line"
                     Description := ItemVariant.Description;
                     "Description 2" := ItemVariant."Description 2";
                 end;
+                GetItemTranslation();
                 Validate(Quantity);
                 CheckItemAvailable(FieldNo("Variant Code"));
                 UpdateReservation(FieldNo("Variant Code"));
+                InitQtyToAsm();
+                ATOLink.UpdateAsmFromJobPlanningLine(Rec);
                 JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Variant Code"));
             end;
         }
@@ -1069,15 +1145,14 @@ table 1003 "Job Planning Line"
                     CheckItemAvailable(FieldNo("Bin Code"));
                     WMSManagement.FindBin("Location Code", "Bin Code", '');
                     BinCodeCaption := CopyStr(FieldCaption("Bin Code"), 1, 30);
-                    WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Job Planning Line",
-                      BinCodeCaption,
-                      "Location Code",
-                      "Bin Code", 0);
+                    WhseIntegrationMgt.CheckBinTypeAndCode(
+                        DATABASE::"Job Planning Line", BinCodeCaption, "Location Code", "Bin Code", 0);
                     CheckBin();
                 end;
 
                 UpdateReservation(FieldNo("Bin Code"));
                 JobWarehouseMgt.JobPlanningLineVerifyChange(Rec, xRec, FieldNo("Bin Code"));
+                ATOLink.UpdateAsmBinCodeFromJobPlanningLine(Rec);
             end;
 
             trigger OnLookup()
@@ -1341,6 +1416,9 @@ table 1003 "Job Planning Line"
 
         JobWarehouseMgt.JobPlanningLineDelete(Rec);
 
+        if Rec.Type = Rec.Type::Item then
+            ATOLink.DeleteAsmFromJobPlanningLine(Rec);
+
         DeleteWarehouseRequest(Rec);
     end;
 
@@ -1411,29 +1489,34 @@ table 1003 "Job Planning Line"
         StandardText: Record "Standard Text";
         ItemTranslation: Record "Item Translation";
         GLSetup: Record "General Ledger Setup";
+        ATOLink: Record "Assemble-to-Order Link";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         JobWarehouseMgt: Codeunit "Job Warehouse Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         CurrencyFactorErr: Label 'cannot be specified without %1', Comment = '%1 = Currency Code field name';
-        RecordRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Job Number field name; %2 = Job Task Number field name; %3 = Job Planning Line table name';
+        RecordRenameErr: Label 'You cannot change the %1 or %2 of this %3.', Comment = '%1 = Project Number field name; %2 = Project Task Number field name; %3 = Project Planning Line table name';
         CurrencyDate: Date;
         MissingItemResourceGLErr: Label 'You must specify %1 %2 in planning line.', Comment = '%1 = Document Type (Item, Resoure, or G/L); %2 = Field name';
         HasGotGLSetup: Boolean;
         QtyLessErr: Label '%1 cannot be less than %2.', Comment = '%1 = Name of first field to compare; %2 = Name of second field to compare';
-        ControlUsageLinkErr: Label 'The %1 must be a %2 and %3 must be enabled, because linked Job Ledger Entries exist.', Comment = '%1 = Job Planning Line table name; %2 = Caption for field Schedule Line; %3 = Captiion for field Usage Link';
-        JobUsageLinkErr: Label 'This %1 cannot be deleted because linked job ledger entries exist.', Comment = '%1 = Job Planning Line table name';
+        ControlUsageLinkErr: Label 'The %1 must be a %2 and %3 must be enabled, because linked Project Ledger Entries exist.', Comment = '%1 = Project Planning Line table name; %2 = Caption for field Schedule Line; %3 = Captiion for field Usage Link';
+        JobUsageLinkErr: Label 'This %1 cannot be deleted because linked project ledger entries exist.', Comment = '%1 = Project Planning Line table name';
         BypassQtyValidation: Boolean;
-        LinkedJobLedgerErr: Label 'You cannot change this value because linked job ledger entries exist.';
-        LineTypeErr: Label 'The %1 cannot be of %2 %3 because it is transferred to an invoice.', Comment = 'The Job Planning Line cannot be of Line Type Schedule, because it is transferred to an invoice.';
+        SkipCheckForMultipleJobsOnSalesLine: Boolean;
+        LinkedJobLedgerErr: Label 'You cannot change this value because linked project ledger entries exist.';
+        LineTypeErr: Label 'The %1 cannot be of %2 %3 because it is transferred to an invoice.', Comment = 'The Project Planning Line cannot be of Line Type Schedule, because it is transferred to an invoice.';
         QtyToTransferToInvoiceErr: Label '%1 may not be lower than %2 and may not exceed %3.', Comment = '%1 = Qty. to Transfer to Invoice field name; %2 = First value in comparison; %3 = Second value in comparison';
         AutoReserveQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
-        NoContractLineErr: Label '%1 cannot be set on a %2 of type %3.', Comment = '%1 = Qty. to Transfer to Invoice field name; %2 = Job Planning Line table name; %3 = The job''s line type';
-        QtyAlreadyTransferredErr: Label 'The %1 has already been completely transferred.', Comment = '%1 = Job Planning Line table name';
-        UsageLinkErr: Label '%1 cannot be enabled on a %2 with %3 %4.', Comment = 'Usage Link cannot be enabled on a Job Planning Line with Line Type Schedule';
+        NoContractLineErr: Label '%1 cannot be set on a %2 of type %3.', Comment = '%1 = Qty. to Transfer to Invoice field name; %2 = Project Planning Line table name; %3 = The project''s line type';
+        QtyAlreadyTransferredErr: Label 'The %1 has already been completely transferred.', Comment = '%1 = Project Planning Line table name';
+        UsageLinkErr: Label '%1 cannot be enabled on a %2 with %3 %4.', Comment = 'Usage Link cannot be enabled on a Project Planning Line with Line Type Schedule';
         QtyGreaterErr: Label '%1 cannot be higher than %2.', Comment = '%1 = Caption for field Quantity; %2 = Captiion for field Qty. Transferred to Invoice';
         RequestedDeliveryDateErr: Label 'You cannot change the %1 when the %2 has been filled in.', Comment = '%1 = Caption for field Requested Delivery Date; %2 = Captiion for field Promised Delivery Date';
-        NotPossibleJobPlanningLineErr: Label 'It is not possible to deleted job planning line transferred to an invoice.';
+        NotPossibleJobPlanningLineErr: Label 'It is not possible to deleted project planning line transferred to an invoice.';
+        NegativeQtyToAssembleErr: Label ' must be positive.', Comment = 'Qty. to Assemble can''t be negative';
+        DifferentQtyToAssembleErr: Label ' must be equal to %1.', Comment = 'Qty. to Assemble must be equal to Quantity, %1 = Quantity';
+        CannotBeMoreErr: Label 'cannot be more than %1', Comment = '%1 = Quantity';
 
     protected var
         Job: Record Job;
@@ -1622,7 +1705,7 @@ table 1003 "Job Planning Line"
         LocationToCheck.TestField("Directed Put-away and Pick", false);
     end;
 
-    local procedure GetJob()
+    procedure GetJob()
     begin
         if ("Job No." <> Job."No.") and ("Job No." <> '') then
             Job.Get("Job No.");
@@ -1956,14 +2039,15 @@ table 1003 "Job Planning Line"
         OnAfterCalculateRetrievedCost(Rec, xRec, SKU, Item, RetrievedCost);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost");
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
 #endif
-    local procedure RetrieveCostPrice(CalledByFieldNo: Integer): Boolean
+
+    protected procedure RetrieveCostPrice(CalledByFieldNo: Integer): Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
         IsHandled: Boolean;
@@ -2018,14 +2102,14 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN21
+#if not CLEAN23
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN21
+#if not CLEAN23
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
 #else
         exit(true);
@@ -2257,7 +2341,7 @@ table 1003 "Job Planning Line"
     local procedure UpdateQtyPickedForOptionalWhsePick(QtyPosted: Decimal)
     begin
         GetLocation("Location Code");
-        if not (Location."Require Pick" and Location."Require Shipment") then
+        if Location."Job Consump. Whse. Handling" <> Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)" then
             if ("Qty. Picked" < QtyPosted) then
                 Validate("Qty. Picked", QtyPosted);
     end;
@@ -2838,12 +2922,24 @@ table 1003 "Job Planning Line"
             exit(NewBinCode);
 
         if (Rec."No." <> '') and (Rec."Location Code" <> '') then begin
+            if FindBinFromJobTask(NewBinCode) then
+                exit(NewBinCode);
             GetLocation(Rec."Location Code");
             if Location."To-Job Bin Code" <> '' then
                 NewBinCode := Location."To-Job Bin Code"
             else
                 if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                     WMSManagement.GetDefaultBin(Rec."No.", Rec."Variant Code", Rec."Location Code", NewBinCode);
+        end;
+    end;
+
+    local procedure FindBinFromJobTask(var NewBinCode: Code[20]): Boolean
+    begin
+        if JobTask.IsEmpty() then
+            JobTask.Get(Rec."Job No.", Rec."Job Task No.");
+        if JobTask."Bin Code" <> '' then begin
+            NewBinCode := JobTask."Bin Code";
+            exit(true);
         end;
     end;
 
@@ -2950,6 +3046,208 @@ table 1003 "Job Planning Line"
         exit(Result);
     end;
 
+    procedure IsAsmToOrderAllowed() Result: Boolean
+    begin
+        Result := true;
+
+        if Quantity < 0 then
+            Result := false;
+        if Type <> Type::Item then
+            Result := false;
+        if "No." = '' then
+            Result := false;
+        if "Line Type" = "Line Type"::Billable then
+            Result := false;
+    end;
+
+    procedure QtyToAsmBaseOnATO(): Decimal
+    var
+        AsmHeader: Record "Assembly Header";
+    begin
+        if AsmToOrderExists(AsmHeader) then
+            exit(AsmHeader."Quantity to Assemble (Base)");
+        exit(0);
+    end;
+
+    procedure ShowAsmToJobPlanningLines()
+    begin
+        ATOLink.ShowAsmToJobPlanningLines(Rec);
+    end;
+
+    procedure CheckAsmToOrder(AsmHeader: Record "Assembly Header")
+    begin
+        TestField("Qty. to Assemble", AsmHeader.Quantity);
+        TestField(Type, Type::Item);
+        TestField("No.", AsmHeader."Item No.");
+        TestField("Location Code", AsmHeader."Location Code");
+        TestField("Unit of Measure Code", AsmHeader."Unit of Measure Code");
+        TestField("Variant Code", AsmHeader."Variant Code");
+        GetJob();
+        if Job.Status = Job.Status::Open then begin
+            AsmHeader.CalcFields("Reserved Qty. (Base)");
+            AsmHeader.TestField("Reserved Qty. (Base)", AsmHeader."Remaining Quantity (Base)");
+        end;
+        TestField("Qty. to Assemble (Base)", AsmHeader."Quantity (Base)");
+        if "Remaining Qty. (Base)" < AsmHeader."Remaining Quantity (Base)" then
+            AsmHeader.FieldError("Remaining Quantity (Base)", StrSubstNo(CannotBeMoreErr, "Remaining Qty. (Base)"));
+    end;
+
+    procedure AsmToOrderExists(var AsmHeader: Record "Assembly Header"): Boolean
+    begin
+        if not ATOLink.AsmExistsForJobPlanningLine(Rec) then
+            exit(false);
+        exit(AsmHeader.Get(ATOLink."Assembly Document Type", ATOLink."Assembly Document No."));
+    end;
+
+    protected procedure InitQtyToAsm()
+    var
+        Qty, QtyBase : Decimal;
+    begin
+        if not IsAsmToOrderAllowed() then begin
+            "Qty. to Assemble" := 0;
+            "Qty. to Assemble (Base)" := 0;
+            exit;
+        end;
+
+        if ((xRec."Qty. to Assemble (Base)" = 0) and IsAsmToOrderRequired()) or
+           ((xRec."Qty. to Assemble (Base)" <> 0) and (xRec."Qty. to Assemble (Base)" = xRec."Quantity (Base)")) or
+           ("Qty. to Assemble (Base)" > "Quantity (Base)")
+        then begin
+            Qty := 0;
+            QtyBase := 0;
+            AssembledQuantity(Qty, QtyBase);
+            "Qty. to Assemble" := Quantity - Qty;
+            "Qty. to Assemble (Base)" := "Quantity (Base)" - QtyBase;
+        end;
+    end;
+
+    procedure AssembledQuantity(var Qty: Decimal; var QtyBase: Decimal)
+    var
+        PostedATOLink: Record "Posted Assemble-to-Order Link";
+    begin
+        PostedATOLink.SetCurrentKey("Job No.", "Job Task No.", "Document Line No.");
+        PostedATOLink.SetRange("Job No.", Rec."Job No.");
+        PostedATOLink.SetRange("Job Task No.", Rec."Job Task No.");
+        PostedATOLink.SetRange("Document Line No.", Rec."Line No.");
+        if PostedATOLink.FindSet() then
+            repeat
+                Qty += PostedATOLink."Assembled Quantity";
+                QtyBase += PostedATOLink."Assembled Quantity (Base)";
+            until PostedATOLink.Next() = 0;
+    end;
+
+    procedure IsAsmToOrderRequired(): Boolean
+    begin
+        if (Type <> Type::Item) or ("No." = '') then
+            exit(false);
+        GetItem();
+        if GetSKU() then
+            exit(SKU."Assembly Policy" = SKU."Assembly Policy"::"Assemble-to-Order");
+        exit(Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order");
+    end;
+
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        OnBeforeSelectMultipleItems(Rec);
+
+        SelectionFilter := ItemListPage.SelectActiveItems();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+
+        OnAfterSelectMultipleItems(Rec);
+    end;
+
+    local procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record "Item";
+        NewJobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAddItems(Rec, SelectionFilter, IsHandled);
+        if IsHandled then
+            exit;
+
+        InitNewLine(NewJobPlanningLine);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(NewJobPlanningLine, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    procedure GetATOBin(Location: Record Location; var BinCode: Code[20]) Result: Boolean
+    var
+        AsmHeader: Record "Assembly Header";
+    begin
+        if not Location."Require Shipment" then
+            BinCode := Location."Asm.-to-Order Shpt. Bin Code";
+        if BinCode <> '' then
+            exit(true);
+
+        if AsmHeader.GetFromAssemblyBin(Location, BinCode) then
+            exit(true);
+
+        exit(false);
+    end;
+
+    local procedure AddItem(var NewJobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20])
+    begin
+        NewJobPlanningLine."Line No." += 10000;
+        NewJobPlanningLine.Validate(Type, NewJobPlanningLine.Type::Item);
+        NewJobPlanningLine.Validate("No.", ItemNo);
+        NewJobPlanningLine.Insert(true);
+    end;
+
+    local procedure InitNewLine(var NewJobPlanningLine: Record "Job Planning Line")
+    var
+        ExistingJobPlanningLine: Record "Job Planning Line";
+    begin
+        NewJobPlanningLine.Copy(Rec);
+        ExistingJobPlanningLine.SetRange("Job No.", NewJobPlanningLine."Job No.");
+        ExistingJobPlanningLine.SetRange("Job Task No.", NewJobPlanningLine."Job Task No.");
+        if ExistingJobPlanningLine.FindLast() then
+            NewJobPlanningLine."Line No." := ExistingJobPlanningLine."Line No."
+        else
+            NewJobPlanningLine."Line No." := 0;
+    end;
+
+    procedure IsExtendedText(): Boolean
+    begin
+        exit((Type = Type::Text) and ("Attached to Line No." <> 0) and (Quantity = 0));
+    end;
+
+    local procedure WhsePickReqForLocation(): Boolean
+    begin
+        if Rec."Location Code" = '' then
+            exit(false);
+
+        GetLocation(Rec."Location Code");
+        if Location."Job Consump. Whse. Handling" = Enum::"Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)" then
+            exit(true);
+    end;
+
+    local procedure InitLocation()
+    begin
+        if JobTask.Get(Rec."Job No.", Rec."Job Task No.") and (JobTask."Location Code" <> '') then
+            Validate("Location Code", JobTask."Location Code");
+    end;
+
+    procedure SetSkipCheckForMultipleJobsOnSalesLine(Skip: Boolean)
+    begin
+        SkipCheckForMultipleJobsOnSalesLine := Skip;
+    end;
+
+    procedure GetSkipCheckForMultipleJobsOnSalesLine(): Boolean
+    begin
+        exit(SkipCheckForMultipleJobsOnSalesLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateRetrievedCost(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; var RetrievedCost: Decimal)
     begin
@@ -3045,7 +3343,7 @@ table 1003 "Job Planning Line"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobPlanningLine: Record "Job Planning Line"; var ResourceCost: Record "Resource Cost")
@@ -3288,10 +3586,12 @@ table 1003 "Job Planning Line"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateRemainingCostsAndAmounts(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; CurrencyFactor: Decimal; AmountRoundingPrecisionFCY: Decimal; AmountRoundingPrecision: Decimal; IsHandled: Boolean)
+    local procedure OnBeforeUpdateRemainingCostsAndAmounts(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; CurrencyFactor: Decimal; AmountRoundingPrecisionFCY: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTotalCost(var JobPlanningLine: Record "Job Planning Line"; AmountRoundingPrecisionFCY: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean)
@@ -3310,6 +3610,21 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCopyFromGLAccount(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectMultipleItems(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectMultipleItems(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddItems(var JobPlanningLine: Record "Job Planning Line"; SelectionFilter: Text; var IsHandled: Boolean)
     begin
     end;
 }

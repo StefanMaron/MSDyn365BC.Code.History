@@ -9,6 +9,7 @@ table 5715 "Item Substitution"
     Caption = 'Item Substitution';
     DrillDownPageID = "Item Substitution Entry";
     LookupPageID = "Item Substitution Entry";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -187,7 +188,7 @@ table 5715 "Item Substitution"
         }
         field(102; "Sub. Item No."; Code[20])
         {
-            CalcFormula = Lookup("Nonstock Item"."Item No." where("Entry No." = field("Substitute No.")));
+            CalcFormula = lookup("Nonstock Item"."Item No." where("Entry No." = field("Substitute No.")));
             Caption = 'Sub. Item No.';
             Editable = false;
             FieldClass = FlowField;

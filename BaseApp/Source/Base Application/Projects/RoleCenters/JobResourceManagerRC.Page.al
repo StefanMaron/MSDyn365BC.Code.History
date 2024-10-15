@@ -2,21 +2,21 @@
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Purchases.Pricing;
 #endif
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Customer;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Service.Resources;
@@ -33,8 +33,12 @@ page 9014 "Job Resource Manager RC"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1904257908; "Resource Manager Activities")
                 {
@@ -51,6 +55,9 @@ page 9014 "Job Resource Manager RC"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control19; "My Job Queue")
                 {
@@ -70,6 +77,37 @@ page 9014 "Job Resource Manager RC"
                     ApplicationArea = Jobs;
                 }
             }
+#else
+            part(Control1904257908; "Resource Manager Activities")
+            {
+                ApplicationArea = Jobs;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Jobs;
+            }
+            part(Control19; "My Job Queue")
+            {
+                ApplicationArea = Jobs;
+                Visible = false;
+            }
+            part(Control18; "Time Sheet Chart")
+            {
+                ApplicationArea = Jobs;
+            }
+            part(Control22; "Report Inbox Part")
+            {
+                ApplicationArea = Jobs;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Jobs;
+            }
+#endif
         }
     }
 
@@ -107,7 +145,7 @@ page 9014 "Job Resource Manager RC"
                 Caption = 'Resource - Cost &Breakdown';
                 Image = "Report";
                 RunObject = Report "Resource - Cost Breakdown";
-                ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the job journal.';
+                ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the project journal.';
             }
         }
         area(embedding)
@@ -125,7 +163,7 @@ page 9014 "Job Resource Manager RC"
                 Caption = 'People';
                 RunObject = Page "Resource List";
                 RunPageView = where(Type = filter(Person));
-                ToolTip = 'View the list of people that can be assigned to jobs.';
+                ToolTip = 'View the list of people that can be assigned to projects.';
             }
             action(ResourcesMachines)
             {
@@ -133,7 +171,7 @@ page 9014 "Job Resource Manager RC"
                 Caption = 'Machines';
                 RunObject = Page "Resource List";
                 RunPageView = where(Type = filter(Machine));
-                ToolTip = 'View the list of machines that can be assigned to jobs.';
+                ToolTip = 'View the list of machines that can be assigned to projects.';
             }
             action("Resource Groups")
             {
@@ -161,17 +199,17 @@ page 9014 "Job Resource Manager RC"
             action(Jobs)
             {
                 ApplicationArea = Jobs;
-                Caption = 'Jobs';
+                Caption = 'Projects';
                 Image = Job;
                 RunObject = Page "Job List";
-                ToolTip = 'Define a project activity by creating a job card with integrated job tasks and job planning lines, structured in two layers. The job task enables you to set up job planning lines and to post consumption to the job. The job planning lines specify the detailed use of resources, items, and various general ledger expenses.';
+                ToolTip = 'Define a project activity by creating a project card with integrated project tasks and project planning lines, structured in two layers. The project task enables you to set up project planning lines and to post consumption to the project. The project planning lines specify the detailed use of resources, items, and various general ledger expenses.';
             }
             action("Time Sheets")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Time Sheets';
                 RunObject = Page "Time Sheet List";
-                ToolTip = 'Enable resources to register time. When approved, if approval is required, time sheet entries can be posted to the relevant job journal or resource journal as part of project progress reporting. To save setup time and to ensure data correctness, you can copy job planning lines into time sheets.';
+                ToolTip = 'Enable resources to register time. When approved, if approval is required, time sheet entries can be posted to the relevant project journal or resource journal as part of project progress reporting. To save setup time and to ensure data correctness, you can copy project planning lines into time sheets.';
             }
             action("Page Time Sheet List Open")
             {
@@ -219,7 +257,7 @@ page 9014 "Job Resource Manager RC"
             {
                 Caption = 'Administration';
                 Image = Administration;
-#if not CLEAN21
+#if not CLEAN23
                 action("Resource Costs")
                 {
                     ApplicationArea = Jobs;
@@ -281,7 +319,7 @@ page 9014 "Job Resource Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Work Types';
                     RunObject = Page "Work Types";
-                    ToolTip = 'View or edit the list of work types that are used with the registration of both the usage and sales of resources in job journals, resource journals, sales invoices, and so on. Work types indicate the various kinds of work that a resource is capable of carrying out, such as overtime or transportation.';
+                    ToolTip = 'View or edit the list of work types that are used with the registration of both the usage and sales of resources in project journals, resource journals, sales invoices, and so on. Work types indicate the various kinds of work that a resource is capable of carrying out, such as overtime or transportation.';
                 }
                 action("Navi&gate")
                 {
@@ -309,7 +347,7 @@ page 9014 "Job Resource Manager RC"
                 RunObject = Report "Adjust Resource Costs/Prices";
                 ToolTip = 'Adjust one or more fields on the resource card. For example, you can change the direct unit cost by 10 percent on all resources from a specific resource group. The changes are processed immediately after the batch job is started. The fields on the resource card that are dependent on the adjusted field are also changed.';
             }
-#if not CLEAN21
+#if not CLEAN23
             action("Resource P&rice Changes")
             {
                 ApplicationArea = Jobs;

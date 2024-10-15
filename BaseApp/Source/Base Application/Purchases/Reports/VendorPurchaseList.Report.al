@@ -163,24 +163,22 @@ report 309 "Vendor - Purchase List"
         Amt: Decimal;
         i: Integer;
     begin
-        with VendorLedgEntry do begin
-            SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
-            SetRange("Vendor No.", Vendor."No.");
-            SetFilter("Posting Date", Vendor.GetFilter("Date Filter"));
-            for i := 1 to 3 do begin
-                case i of
-                    1:
-                        SetRange("Document Type", "Document Type"::Invoice);
-                    2:
-                        SetRange("Document Type", "Document Type"::"Credit Memo");
-                    3:
-                        SetRange("Document Type", "Document Type"::Refund);
-                end;
-                CalcSums("Purchase (LCY)");
-                Amt := Amt + "Purchase (LCY)";
+        VendorLedgEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
+        VendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgEntry.SetFilter("Posting Date", Vendor.GetFilter("Date Filter"));
+        for i := 1 to 3 do begin
+            case i of
+                1:
+                    VendorLedgEntry.SetRange("Document Type", VendorLedgEntry."Document Type"::Invoice);
+                2:
+                    VendorLedgEntry.SetRange("Document Type", VendorLedgEntry."Document Type"::"Credit Memo");
+                3:
+                    VendorLedgEntry.SetRange("Document Type", VendorLedgEntry."Document Type"::Refund);
             end;
-            exit(-Amt);
+            VendorLedgEntry.CalcSums("Purchase (LCY)");
+            Amt := Amt + VendorLedgEntry."Purchase (LCY)";
         end;
+        exit(-Amt);
     end;
 
     procedure InitializeRequest(NewMinAmtLCY: Decimal; NewHideAddress: Boolean)

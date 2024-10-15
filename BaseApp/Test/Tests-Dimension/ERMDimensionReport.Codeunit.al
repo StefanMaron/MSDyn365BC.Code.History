@@ -131,7 +131,7 @@ codeunit 134975 "ERM Dimension Report"
         RunCheckValuePosting(DimensionValue."Dimension Code");
 
         // Verify: Verify conflict dimension error.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorMessage_DefaultDim2',
           StrSubstNo(CheckValuePostingError, DimensionValueCode, DimensionValue.Code));
 
@@ -305,7 +305,7 @@ codeunit 134975 "ERM Dimension Report"
         Initialize();
 
         // Setup:
-        SetDimensionTotalParameters('', CreateColumnLayout, Format(WorkDate()));
+        SetDimensionTotalParameters('', CreateColumnLayout(), Format(WorkDate()));
 
         // Exercise & Verify:
         Commit();
@@ -347,7 +347,7 @@ codeunit 134975 "ERM Dimension Report"
         // Setup:
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAnalysisView(AnalysisView, AnalysisView."Account Source"::"G/L Account", GLAccount."No.");
-        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, '');
+        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout(), '');
 
         // Exercise & Verify:
         Commit();
@@ -376,7 +376,7 @@ codeunit 134975 "ERM Dimension Report"
         UpdateAnalysisView(AnalysisView.Code);
 
         // Exercise:
-        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate()));
+        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout(), Format(WorkDate()));
         Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
@@ -405,7 +405,7 @@ codeunit 134975 "ERM Dimension Report"
         UpdateAnalysisView(AnalysisView.Code);
 
         // Exercise:
-        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate()));
+        SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout(), Format(WorkDate()));
         Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
@@ -432,17 +432,17 @@ codeunit 134975 "ERM Dimension Report"
             CreateDimensionAndValue(Dimension[i], DimensionValue[i]);
         end;
 
-        FindJnlTemplate;
+        FindJnlTemplate();
 
         // Exercise
         SetDifferDimensions(DimSetID, Dimension, DimensionValue, 0);
         PrepareGeneralLine(GenJournalLine, GenJnlAllocation, GLAccount, DimSetID);
 
-        RunReportGeneralJournalTest;
+        RunReportGeneralJournalTest();
 
         // Verify single Dimension Line is displayed on the report
         GetExpectResultForSingleDim(Dimension, DimensionValue, ExpectedResult);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyDimensionInJournalLine(GLAccount[1]."No.", ExpectedResult[1]);
         VerifyDimensionInAllocationLine(GLAccount[2]."No.", ExpectedResult[2]);
@@ -480,19 +480,19 @@ codeunit 134975 "ERM Dimension Report"
 
         SetDifferDimensions(DimSetID, Dimension, DimensionValue, DimSetID[3]);
 
-        FindJnlTemplate;
+        FindJnlTemplate();
 
         // Exercise
         PrepareGeneralLine(GenJournalLine, GenJnlAllocation, GLAccount, DimSetID);
 
-        RunReportGeneralJournalTest;
+        RunReportGeneralJournalTest();
 
         // Verify multiple Dimension Lines are displayed on the report
         // First line of the dimension.
         FirstDimensionLine[1] := CopyStr(FirstDimensionLine[1], 1, StrLen(FirstDimensionLine[1]) - 1);
         // Second line of the dimension.
         GetExpectResultForMultipleDim(Dimension, DimensionValue, FirstDimensionLine[2], ExpectedResult);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyDimensionInJournalLine(GLAccount[1]."No.", FirstDimensionLine);
         VerifyDimensionInJournalLine(GLAccount[1]."No.", ExpectedResult[1]);
@@ -530,7 +530,7 @@ codeunit 134975 "ERM Dimension Report"
         DimensionSelectionBuffer.SetDimSelectionLevelGLAcc(0, 0, AnalysisView.Code, SelectedDimText);
 
         // [THEN] "Dimension Selection - Level" page shows "GLAccount.TABLECAPTION" first then all of the created dimensions
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -618,7 +618,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // [GIVEN] Bank Account Reconciliation line for the vendor
         LibraryERM.CreateBankAccReconciliation(
-          BankAccReconciliation, LibraryERM.CreateBankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+          BankAccReconciliation, LibraryERM.CreateBankAccountNo(), BankAccReconciliation."Statement Type"::"Bank Reconciliation");
         BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
@@ -640,7 +640,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // [THEN] Error shown that "Dim1" and "Dim2" dimensions cannot be used concurrently
         // [THEN] Error shown that "Dim3" is blocked
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists(
           'ErrorText_Number__Control97', StrSubstNo(DimensionsCantBeUsedConcurrentlyErr, Dimension[1].Code, Dimension[2].Code));
         LibraryReportDataset.AssertElementTagWithValueExists(
@@ -660,7 +660,7 @@ codeunit 134975 "ERM Dimension Report"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        ClearDimensionCombinations;
+        ClearDimensionCombinations();
 
         isInitialized := true;
         Commit();
@@ -768,7 +768,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryReportDataset.SetRange(AccNoGenJnlLineCap, AccountNo);
         LibraryReportDataset.AssertElementWithValueExists(DimTextCap, ExpectedResult[1]);
         if ExpectedResult[2] <> '' then begin
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertElementWithValueExists(DimTextCap, ExpectedResult[2]);
         end;
     end;
@@ -778,7 +778,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryReportDataset.SetRange(AccNoGenJnlAlloCap, AccountNo);
         LibraryReportDataset.AssertElementWithValueExists(AllocationDimTextCap, ExpectedResult[1]);
         if ExpectedResult[2] <> '' then begin
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertElementWithValueExists(AllocationDimTextCap, ExpectedResult[2]);
         end;
     end;
@@ -817,11 +817,11 @@ codeunit 134975 "ERM Dimension Report"
         Commit();
         REPORT.Run(REPORT::"Check Value Posting");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_DefaultDim2', Customer."No.")
     end;
 
-    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Option; AccountNo: Code[20])
+    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source"; AccountNo: Code[20])
     begin
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisView.Validate("Account Source", AccountSource);
@@ -831,7 +831,7 @@ codeunit 134975 "ERM Dimension Report"
         AnalysisView.Modify(true);
     end;
 
-    local procedure CreateAnalysisViewFullDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Option; AccountNo: Code[20]; DimCodes: array[4] of Code[20])
+    local procedure CreateAnalysisViewFullDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source"; AccountNo: Code[20]; DimCodes: array[4] of Code[20])
     begin
         CreateAnalysisView(AnalysisView, AccountSource, AccountNo);
         AnalysisView.Validate("Dimension 1 Code", DimCodes[1]);
@@ -864,7 +864,7 @@ codeunit 134975 "ERM Dimension Report"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         DimensionValue: Record "Dimension Value";
     begin
-        LibraryCashFlow.ClearJournal;
+        LibraryCashFlow.ClearJournal();
 
         LibraryCashFlow.CreateCashFlowCard(CashFlowForecast);
         LibraryCashFlow.CreateJournalLine(CFWorksheetLine, CashFlowForecast."No.", AnalysisVIew."Account Filter");
@@ -873,7 +873,7 @@ codeunit 134975 "ERM Dimension Report"
         CFWorksheetLine.Validate("Amount (LCY)", Amount);
         CFWorksheetLine.Modify(true);
 
-        LibraryCashFlow.PostJournal;
+        LibraryCashFlow.PostJournal();
     end;
 
     local procedure CreateColumnLayout(): Code[20]
@@ -1011,7 +1011,7 @@ codeunit 134975 "ERM Dimension Report"
                 LibraryInventory.CreateItemJournalLine(
                   ItemJournalLine, ItemJournalBatch."Journal Template Name",
                   ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo[Counter], LibraryRandom.RandInt(9) + 1);
-            until (Next = 0) or (Counter = 2)
+            until (Next() = 0) or (Counter = 2)
         end;
     end;
 
@@ -1108,7 +1108,7 @@ codeunit 134975 "ERM Dimension Report"
     var
         AnalysisView: Record "Analysis View";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         AnalysisView.Get(AnalysisViewCode);
 
         LibraryReportDataset.AssertElementWithValueExists('DimValCode_1_', AnalysisView."Account Filter");
@@ -1120,7 +1120,7 @@ codeunit 134975 "ERM Dimension Report"
     var
         AnalysisView: Record "Analysis View";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         AnalysisView.Get(AnalysisViewCode);
 
         LibraryReportDataset.AssertElementWithValueExists('DimValCode_1_', AnalysisView."Account Filter");
@@ -1151,7 +1151,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         LibraryVariableStorage.Dequeue(DimensionCode);
         CheckValuePosting.DefaultDim1.SetFilter("Dimension Code", DimensionCode);
-        CheckValuePosting.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CheckValuePosting.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1162,7 +1162,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         LibraryVariableStorage.Dequeue(TableID);
         CheckValuePosting.DefaultDim1.SetFilter("Table ID", Format(TableID));
-        CheckValuePosting.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CheckValuePosting.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1182,9 +1182,9 @@ codeunit 134975 "ERM Dimension Report"
         DimensionDetail.ShowAmountsInAddRepCurrency.SetValue(ShowInAddCurrency);
 
         LibraryVariableStorage.Enqueue(AnalysisViewCode);
-        DimensionDetail.IncludeDimensions.AssistEdit;
+        DimensionDetail.IncludeDimensions.AssistEdit();
 
-        DimensionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DimensionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1207,9 +1207,9 @@ codeunit 134975 "ERM Dimension Report"
         DimensionTotal.ShowAmountsInAddRepCurrency.SetValue(ShowInAddCurrency);
 
         LibraryVariableStorage.Enqueue(AnalysisViewCode);
-        DimensionTotal.IncludeDimensions.AssistEdit;
+        DimensionTotal.IncludeDimensions.AssistEdit();
 
-        DimensionTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DimensionTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1220,14 +1220,14 @@ codeunit 134975 "ERM Dimension Report"
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", GenJnlTemplate.Name);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", GenJnlBatch.Name);
 
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankAccReconTestHandler(var BankAccReconTest: TestRequestPage "Bank Acc. Recon. - Test")
     begin
-        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1241,7 +1241,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryVariableStorage.Dequeue(AnalysisViewCode);
         if AnalysisView.Get(AnalysisViewCode) then begin
             DimensionSelectionLevel.Level.SetValue(DimensionSelectionBuffer.Level::"Level 1");
-            DimensionSelectionLevel.OK.Invoke;
+            DimensionSelectionLevel.OK().Invoke();
         end
     end;
 
@@ -1254,18 +1254,18 @@ codeunit 134975 "ERM Dimension Report"
         LinesExpected: Integer;
     begin
         Lines := 1;
-        LinesExpected := LibraryVariableStorage.DequeueInteger;
-        DimensionSelectionLevel.First;
+        LinesExpected := LibraryVariableStorage.DequeueInteger();
+        DimensionSelectionLevel.First();
         DimensionSelectionLevel.Code.AssertEquals(GLAccount.TableCaption());
         while DimensionSelectionLevel.Next() do begin
-            DimensionSelectionLevel.Code.AssertEquals(LibraryVariableStorage.DequeueText);
+            DimensionSelectionLevel.Code.AssertEquals(LibraryVariableStorage.DequeueText());
             Lines += 1;
         end;
         Assert.AreEqual(
           LinesExpected,
           Lines,
           '%1 lines in page expected, %2 lines actually shown');
-        DimensionSelectionLevel.OK.Invoke;
+        DimensionSelectionLevel.OK().Invoke();
     end;
 }
 

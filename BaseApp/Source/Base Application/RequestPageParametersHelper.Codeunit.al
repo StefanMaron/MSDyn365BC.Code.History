@@ -4,6 +4,8 @@ using System;
 using System.Reflection;
 using System.Utilities;
 using System.Xml;
+using System.IO;
+using System.Globalization;
 
 codeunit 1530 "Request Page Parameters Helper"
 {
@@ -40,6 +42,53 @@ codeunit 1530 "Request Page Parameters Helper"
           RequestPageParametersHelper.GetViewFromDynamicRequestPage(FilterPageBuilder, EntityName, TableNum);
 
         FiltersSet := true;
+    end;
+
+    procedure OpenPageToGetFilter(MainRecordRef: RecordRef; var SelectionFilterOutStream: OutStream; ExistingFilters: Text): Boolean
+    var
+        RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
+        TranslationHelper: Codeunit "Translation Helper";
+        Language: Codeunit Language;
+        RequestFilterPageBuilder: FilterPageBuilder;
+        RequestPageView: Text;
+    begin
+        RequestPageParametersHelper.BuildDynamicRequestPage(RequestFilterPageBuilder, CopyStr(MainRecordRef.Caption(), 1, 20), MainRecordRef.Number);
+        if ExistingFilters <> '' then
+            RequestPageParametersHelper.SetViewOnDynamicRequestPage(RequestFilterPageBuilder, ExistingFilters, CopyStr(MainRecordRef.Caption(), 1, 20), MainRecordRef.Number);
+
+        if not RequestFilterPageBuilder.RunModal() then
+            exit(false);
+
+        TranslationHelper.SetGlobalLanguageById(Language.GetDefaultApplicationLanguageId());
+        RequestPageView := RequestPageParametersHelper.GetViewFromDynamicRequestPage(RequestFilterPageBuilder, CopyStr(MainRecordRef.Caption(), 1, 20), MainRecordRef.Number);
+        TranslationHelper.RestoreGlobalLanguage();
+
+        SelectionFilterOutStream.WriteText(RequestPageView);
+        exit(true);
+    end;
+
+    procedure GetFilterDisplayText(MainRecord: Variant; TargetTableId: Integer; FilterFieldNumber: Integer): Text
+    var
+        RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
+        TempBlob: Codeunit "Temp Blob";
+        MainRecordRef: RecordRef;
+    begin
+        TempBlob.FromRecord(MainRecord, FilterFieldNumber);
+        MainRecordRef.Open(TargetTableId, true);
+        RequestPageParametersHelper.ConvertParametersToFilters(MainRecordRef, TempBlob, TextEncoding::UTF16);
+        exit(MainRecordRef.GetFilters());
+    end;
+
+    procedure GetFilterViewFilters(MainRecord: Variant; TargetTableId: Integer; FilterFieldNumber: Integer): Text
+    var
+        RequestPageParametersHelper: Codeunit "Request Page Parameters Helper";
+        TempBlob: Codeunit "Temp Blob";
+        MainRecordRef: RecordRef;
+    begin
+        TempBlob.FromRecord(MainRecord, FilterFieldNumber);
+        MainRecordRef.Open(TargetTableId, true);
+        RequestPageParametersHelper.ConvertParametersToFilters(MainRecordRef, TempBlob, TextEncoding::UTF16);
+        exit(MainRecordRef.GetView(false));
     end;
 
     procedure ConvertParametersToFilters(RecRef: RecordRef; TempBlob: Codeunit "Temp Blob"): Boolean
@@ -248,7 +297,7 @@ codeunit 1530 "Request Page Parameters Helper"
 
         foreach Table in TableList do
             if not TableFilterDictionary.ContainsKey(Table) then
-            TableFilterDictionary.Add(Table, FilterPageBuilder.GetView(GetTableCaption(Table), false));
+                TableFilterDictionary.Add(Table, FilterPageBuilder.GetView(GetTableCaption(Table), false));
 
         exit(ConvertFiltersToParameters(TableFilterDictionary));
     end;
@@ -286,7 +335,7 @@ codeunit 1530 "Request Page Parameters Helper"
             exit('');
 
         foreach FoundXmlNode in FoundXmlNodeList do begin
-            TempValue := FoundXmlNode.Attributes.ItemOf('name').Value;
+            TempValue := FoundXmlNode.Attributes.ItemOf('name').Value();
             if Format(TempValue) = Format(OptionName) then
                 exit(FoundXmlNode.InnerText);
         end;

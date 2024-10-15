@@ -9,6 +9,7 @@ using System.Reflection;
 table 7355 "Report Selection Warehouse"
 {
     Caption = 'Report Selection Warehouse';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -32,7 +33,7 @@ table 7355 "Report Selection Warehouse"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;

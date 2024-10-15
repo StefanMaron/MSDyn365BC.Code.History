@@ -30,6 +30,7 @@ table 5965 "Service Contract Header"
     DataCaptionFields = "Contract No.", Description;
     DrillDownPageID = "Service Contract List";
     LookupPageID = "Service Contract List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -41,7 +42,7 @@ table 5965 "Service Contract Header"
             begin
                 if "Contract No." <> xRec."Contract No." then begin
                     ServMgtSetup.Get();
-                    NoSeriesMgt.TestManual(GetServiceContractNos());
+                    NoSeries.TestManual(GetServiceContractNos());
                     "No. Series" := '';
                 end;
             end;
@@ -98,35 +99,35 @@ table 5965 "Service Contract Header"
         }
         field(8; Name; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(9; Address; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Post Code" where("No." = field("Customer No.")));
             Caption = 'Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; City; Text[30])
         {
-            CalcFormula = Lookup(Customer.City where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
             Editable = false;
             FieldClass = FlowField;
@@ -235,35 +236,35 @@ table 5965 "Service Contract Header"
         }
         field(17; "Bill-to Name"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer.Name where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(18; "Bill-to Address"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer.Address where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(19; "Bill-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer."Address 2" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(20; "Bill-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer."Post Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Bill-to City"; Text[30])
         {
-            CalcFormula = Lookup(Customer.City where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer.City where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to City';
             Editable = false;
             FieldClass = FlowField;
@@ -294,7 +295,7 @@ table 5965 "Service Contract Header"
         }
         field(23; "Ship-to Name"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
             Editable = false;
@@ -302,7 +303,7 @@ table 5965 "Service Contract Header"
         }
         field(24; "Ship-to Address"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
             Editable = false;
@@ -310,7 +311,7 @@ table 5965 "Service Contract Header"
         }
         field(25; "Ship-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
             Editable = false;
@@ -318,7 +319,7 @@ table 5965 "Service Contract Header"
         }
         field(26; "Ship-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Post Code';
             Editable = false;
@@ -326,7 +327,7 @@ table 5965 "Service Contract Header"
         }
         field(27; "Ship-to City"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
             Editable = false;
@@ -1050,7 +1051,7 @@ table 5965 "Service Contract Header"
         }
         field(89; "Bill-to County"; Text[30])
         {
-            CalcFormula = Lookup(Customer.County where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer.County where("No." = field("Bill-to Customer No.")));
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
             Editable = false;
@@ -1058,7 +1059,7 @@ table 5965 "Service Contract Header"
         }
         field(90; County; Text[30])
         {
-            CalcFormula = Lookup(Customer.County where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             Editable = false;
@@ -1066,7 +1067,7 @@ table 5965 "Service Contract Header"
         }
         field(91; "Ship-to County"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
                                                                  Code = field("Ship-to Code")));
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
@@ -1075,21 +1076,21 @@ table 5965 "Service Contract Header"
         }
         field(92; "Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
             Caption = 'Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(93; "Bill-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer."Country/Region Code" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(94; "Ship-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
                                                                                 Code = field("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
             Editable = false;
@@ -1097,21 +1098,21 @@ table 5965 "Service Contract Header"
         }
         field(95; "Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(96; "Bill-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Bill-to Customer No.")));
+            CalcFormula = lookup(Customer."Name 2" where("No." = field("Bill-to Customer No.")));
             Caption = 'Bill-to Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(97; "Ship-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
                                                                    Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
             Editable = false;
@@ -1443,6 +1444,9 @@ table 5965 "Service Contract Header"
         fieldgroup(DropDown; "Contract No.", Description, "Customer No.", Status, "Change Status", "Starting Date")
         {
         }
+        fieldgroup(Brick; "Contract No.", Description, "Customer No.", Status, "Change Status", "Starting Date")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -1592,7 +1596,7 @@ table 5965 "Service Contract Header"
         ServContractLine2: Record "Service Contract Line";
         Currency: Record Currency;
         Salesperson: Record "Salesperson/Purchaser";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         UserMgt: Codeunit "User Setup Management";
         ServContractMgt: Codeunit ServContractManagement;
         ServOrderMgt: Codeunit ServOrderManagement;
@@ -1861,14 +1865,12 @@ table 5965 "Service Contract Header"
 
     procedure AssistEdit(OldServContract: Record "Service Contract Header"): Boolean
     begin
-        with ServContractHeader do begin
-            ServContractHeader := Rec;
+        ServContractHeader := Rec;
 
-            if NoSeriesMgt.SelectSeries(GetServiceContractNos(), OldServContract."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("Contract No.");
-                Rec := ServContractHeader;
-                exit(true);
-            end;
+        if NoSeries.LookupRelatedNoSeries(GetServiceContractNos(), OldServContract."No. Series", ServContractHeader."No. Series") then begin
+            ServContractHeader."Contract No." := NoSeries.GetNextNo(ServContractHeader."No. Series");
+            Rec := ServContractHeader;
+            exit(true);
         end;
 
         OnAfterAssistEdit(OldServContract);
@@ -1876,6 +1878,9 @@ table 5965 "Service Contract Header"
 
     local procedure InitNoSeries()
     var
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1885,8 +1890,19 @@ table 5965 "Service Contract Header"
 
         if "Contract No." = '' then begin
             ServMgtSetup.TestField("Service Contract Nos.");
-            NoSeriesMgt.InitSeries(GetServiceContractNos(), xRec."No. Series", 0D,
-              "Contract No.", "No. Series");
+            "No. Series" := GetServiceContractNos();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", 0D, "Contract No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "Contract No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetServiceContractNos(), 0D, "Contract No.");
+            end;
+#endif
+
         end;
     end;
 
@@ -2674,7 +2690,7 @@ table 5965 "Service Contract Header"
             Validate("Invoice Period");
     end;
 
-    local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         IsHandled: Boolean;
     begin

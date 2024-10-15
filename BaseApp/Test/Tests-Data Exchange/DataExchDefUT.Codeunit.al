@@ -32,7 +32,7 @@ codeunit 132543 "Data Exch. Def UT"
 
         // Exercise
         DataExchDefCard.Code.SetValue(DataExchCode);
-        DataExchDefCard.OK.Invoke;
+        DataExchDefCard.OK().Invoke();
 
         // Verify
         DataExchDef.Get(DataExchCode);
@@ -57,7 +57,7 @@ codeunit 132543 "Data Exch. Def UT"
 
         // Exercise
         DataExchDefCard.Code.SetValue(DataExchCode);
-        DataExchDefCard.OK.Invoke;
+        DataExchDefCard.OK().Invoke();
         DataExchDef.Get(DataExchCode);
 
         // Pre-Verify
@@ -79,7 +79,7 @@ codeunit 132543 "Data Exch. Def UT"
         // Setup
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Variable Text");
         // Verify
-        Assert.IsTrue(DataExchDef.CheckEnableDisableIsNonXMLFileType, '');
+        Assert.IsTrue(DataExchDef.CheckEnableDisableIsNonXMLFileType(), '');
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Validate(Type, DataExchDef.Type::"Payment Export");
 
         // Verify
-        Assert.IsFalse(DataExchDef.CheckEnableDisableIsImportType, '');
+        Assert.IsFalse(DataExchDef.CheckEnableDisableIsImportType(), '');
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Validate("File Type", DataExchDef."File Type"::Xml);
 
         // Verify
-        Assert.IsFalse(DataExchDef.CheckEnableDisableIsImportType, '');
+        Assert.IsFalse(DataExchDef.CheckEnableDisableIsImportType(), '');
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Validate("File Type", DataExchDef."File Type"::"Variable Text");
 
         // Verify
-        Assert.IsTrue(DataExchDef.CheckEnableDisableDelimitedFileType, '');
+        Assert.IsTrue(DataExchDef.CheckEnableDisableDelimitedFileType(), '');
     end;
 
     [Test]
@@ -171,24 +171,24 @@ codeunit 132543 "Data Exch. Def UT"
 
         // Exercise
         DataExchDefCard.Code.SetValue(DataExchCode);
-        DataExchDefCard.OK.Invoke;
+        DataExchDefCard.OK().Invoke();
 
         DataExchDef.Get(DataExchCode);
         DataExchDef.Type := "Data Exchange Definition Type".FromInteger(1000);
         DataExchDef.Modify();
 
         // Verify - Check is done in handler
-        DataExchDefCard.OpenView;
+        DataExchDefCard.OpenView();
         DataExchDefCard.GotoRecord(DataExchDef);
 
-        DataExchDefCard."Line Definitions"."Field Mapping".Invoke;
+        DataExchDefCard."Line Definitions"."Field Mapping".Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure MappingPageHandler(var MappingPage: TestPage "Data Exch Mapping Card")
     begin
-        Assert.AreEqual(0, MappingPage."Table ID".AsInteger, 'There must be no default mapping for custom Types');
+        Assert.AreEqual(0, MappingPage."Table ID".AsInteger(), 'There must be no default mapping for custom Types');
     end;
 
     [Test]
@@ -394,7 +394,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Insert(true);
 
         // [THEN] The record is inserted with "File Type" as "Fixed Text"
-        Assert.IsTrue(DataExchDef.Find, AssertIsNotTrueOnInsertFailedErr);
+        Assert.IsTrue(DataExchDef.Find(), AssertIsNotTrueOnInsertFailedErr);
         DataExchDef.TestField("File Type", DataExchDef."File Type"::"Fixed Text");
     end;
 
@@ -419,7 +419,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDef.Insert(true);
 
         // [THEN] The record is inserted with "File Type" as "Variable Text"
-        Assert.IsTrue(DataExchDef.Find, AssertIsNotTrueOnInsertFailedErr);
+        Assert.IsTrue(DataExchDef.Find(), AssertIsNotTrueOnInsertFailedErr);
         DataExchDef.TestField("File Type", DataExchDef."File Type"::"Variable Text");
     end;
 
@@ -674,7 +674,7 @@ codeunit 132543 "Data Exch. Def UT"
         // Exercise
         DataExchDefCard.Code.SetValue(DataExchCode);
         DataExchDefCard."Line Definitions"."Line Type".SetValue(DataExchLineType);
-        DataExchDefCard.OK.Invoke;
+        DataExchDefCard.OK().Invoke();
 
         // Verify record saved, Line Type should equal Line Type passed in.
         DataExchDef.Get(DataExchCode);

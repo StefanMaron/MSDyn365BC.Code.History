@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Availability;
 table 99000832 "Item Availability Line"
 {
     Caption = 'Item Availability Line';
+    DataClassification = CustomerContent;
 
     fields
     {

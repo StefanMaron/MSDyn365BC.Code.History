@@ -11,6 +11,7 @@ table 5790 "Shipping Agent Services"
     Caption = 'Shipping Agent Services';
     DrillDownPageID = "Shipping Agent Services";
     LookupPageID = "Shipping Agent Services";
+    DataClassification = CustomerContent;
 
     fields
     {

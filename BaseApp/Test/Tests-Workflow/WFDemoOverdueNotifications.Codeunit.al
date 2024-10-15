@@ -42,7 +42,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
 
         // Setup
         Initialize();
-        EnableOverdueWorkflow;
+        EnableOverdueWorkflow();
 
         LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowPurchaseDoc, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowSalesDoc, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
@@ -76,7 +76,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         // [THEN] An error is shown to the user.
 
         // Setup
-        DisableOverdueWorkflow;
+        DisableOverdueWorkflow();
 
         // Exercise
         asserterror REPORT.Run(REPORT::"Send Overdue Appr. Notif.");
@@ -88,7 +88,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Overdue Notifications");
-        LibraryERMCountryData.InitializeCountry;
+        LibraryERMCountryData.InitializeCountry();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -177,7 +177,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         Workflow: Record Workflow;
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.OverdueNotificationsWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.OverdueNotificationsWorkflowCode());
     end;
 
     local procedure DisableOverdueWorkflow()
@@ -203,7 +203,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         Workflow.Modify(true);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
 
         Evaluate(DueDateFormula, '<' + Format(DueDateDelay) + 'D>');

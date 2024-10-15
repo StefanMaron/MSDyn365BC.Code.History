@@ -248,7 +248,7 @@ page 5601 "Fixed Asset List"
                     RunObject = Page "FA Ledger Entries";
                     RunPageLink = "FA No." = field("No.");
                     RunPageView = sorting("FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -260,7 +260,7 @@ page 5601 "Fixed Asset List"
                     RunObject = Page "FA Error Ledger Entries";
                     RunPageLink = "Canceled from FA No." = field("No.");
                     RunPageView = sorting("Canceled from FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the entries that have been posted as a result of you using the Cancel function to cancel an entry.';
                 }
                 action("Maintenance &Registration")
@@ -422,27 +422,9 @@ page 5601 "Fixed Asset List"
                 actionref(CalculateDepreciation_Promoted; CalculateDepreciation)
                 {
                 }
-#if not CLEAN21
-                actionref("Fixed Asset G/L Journal_Promoted"; "Fixed Asset G/L Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("C&opy Fixed Asset_Promoted"; "C&opy Fixed Asset")
                 {
                 }
-#if not CLEAN21
-                actionref("FA Posting Types Overview_Promoted"; "FA Posting Types Overview")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Category_Fixed Asset")
             {

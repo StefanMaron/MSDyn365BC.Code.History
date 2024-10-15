@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Document;
 
+#pragma warning disable AL0659
 enum 7323 "Warehouse Shipment Posted Source Document"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

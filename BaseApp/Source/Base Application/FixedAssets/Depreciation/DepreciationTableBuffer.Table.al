@@ -4,6 +4,7 @@ table 5646 "Depreciation Table Buffer"
 {
     Caption = 'Depreciation Table Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

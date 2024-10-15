@@ -3,7 +3,7 @@ codeunit 130030 "License Mgt. Limited User"
 
     trigger OnRun()
     begin
-        ReduceDemoData;
+        ReduceDemoData();
     end;
 
     var
@@ -17,8 +17,8 @@ codeunit 130030 "License Mgt. Limited User"
     procedure ReduceDemoData()
     begin
         CODEUNIT.Run(CODEUNIT::"License Management Starter");
-        CreateSetupData;
-        CreateLimitedLicenseUser;
+        CreateSetupData();
+        CreateLimitedLicenseUser();
     end;
 
     local procedure CreateSetupData()

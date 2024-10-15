@@ -30,7 +30,7 @@ codeunit 131002 "Library - Report Validation"
     var
         FilePath: Text;
     begin
-        FilePath := GetFileName;
+        FilePath := GetFileName();
         OpenFileAsExcel(FilePath);
         FileOpened := true;
     end;
@@ -39,7 +39,7 @@ codeunit 131002 "Library - Report Validation"
     var
         FilePath: Text;
     begin
-        FilePath := GetFileName;
+        FilePath := GetFileName();
         OpenFileAsExcel(FilePath);
         FileOpened := true;
     end;
@@ -54,10 +54,10 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         FilterExcelBuffer(ExcelBuffer, ColumnValue);
-        exit(ExcelBuffer.FindFirst())
+        exit(not ExcelBuffer.IsEmpty());
     end;
 
     procedure CheckIfDecimalValueExists(Value: Decimal): Boolean
@@ -70,12 +70,12 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange(xlColID, Column);
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
 
-        exit(ExcelBuffer.FindFirst())
+        exit(not ExcelBuffer.IsEmpty());
     end;
 
     procedure CheckIfValueExistsOnSpecifiedWorksheet(WorksheetNo: Integer; ColumnValue: Text[250]): Boolean
@@ -83,12 +83,12 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange(Comment, Format(WorksheetNo));
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
 
-        exit(ExcelBuffer.FindFirst())
+        exit(not ExcelBuffer.IsEmpty());
     end;
 
     procedure CountDistinctRows(var ExcelBuffer: Record "Excel Buffer"): Integer
@@ -96,7 +96,7 @@ codeunit 131002 "Library - Report Validation"
         TempExcelBuffer: Record "Excel Buffer" temporary;
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if ExcelBuffer.FindSet() then
             repeat
@@ -112,7 +112,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetFilter(
           "Row No.", '>%1 & <%2', FindRowNoFromColumnCaption(ColumnCaptionFrom), FindRowNoFromColumnCaption(ColumnCaptionTo));
@@ -125,7 +125,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Count the number of rows for where a given Column has the value specified.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange("Column No.", FindColumnNoFromColumnCaption(FilterColumnCaption));
         ExcelBuffer.SetRange("Cell Value as Text", FilterColumnValue);
@@ -139,7 +139,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Count the number of Columns.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if ExcelBuffer.FindSet() then
             repeat
@@ -154,14 +154,14 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Count the number of Worksheets.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         exit(WorksheetCount);
     end;
 
     procedure DownloadFile()
     begin
-        SetFullFileName(GetFileName);
+        SetFullFileName(GetFileName());
     end;
 
     local procedure FilterExcelBuffer(var ExcelBuffer: Record "Excel Buffer"; ColumnCaption: Text)
@@ -174,7 +174,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if FixedColumnNo <> 0 then
             exit(FixedColumnNo);
@@ -190,7 +190,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if FixedColumnNo <> 0 then
             exit(FixedColumnNo);
@@ -206,7 +206,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         FilterExcelBuffer(ExcelBuffer, ColumnCaption);
         if ExcelBuffer.FindFirst() then
@@ -219,7 +219,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange("Column No.", ColumnNo);
         ExcelBuffer.SetRange("Cell Value as Text", ColumnValue);
@@ -233,7 +233,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if FixedColumnNo <> 0 then
             exit(FixedColumnNo);
@@ -251,7 +251,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetFilter("Row No.", FilterRowNo);
         ExcelBuffer.SetRange("Column No.", ColumnNo);
@@ -269,7 +269,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Retrieve the first row.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         Counter := 1;
         if FilterColumnCaption <> '' then begin
@@ -297,7 +297,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Retrieve the next row.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         Counter := 1;
         if FilterColumnCaption <> '' then begin
@@ -325,7 +325,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Retrieve all the values in a Column where another given Column has the value specified.
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if FilterColumnCaption <> '' then begin
             ExcelBuffer.SetRange("Column No.", FindColumnNoFromColumnCaption(FilterColumnCaption));
@@ -340,7 +340,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange("Column No.", ColumnNo);
         FindSetByFilters(ExcelBuffer, ColumnNo, ColumnValueSet);
@@ -369,7 +369,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         RowNo := 0;
         ColumnNo := 0;
@@ -382,7 +382,7 @@ codeunit 131002 "Library - Report Validation"
 
     procedure FormatDecimalValue(Value: Decimal): Text
     begin
-        exit(Format(Value, 0, GetDefaultDecimalFormat));
+        exit(Format(Value, 0, GetDefaultDecimalFormat()));
     end;
 
     local procedure GetDefaultDecimalFormat(): Text
@@ -406,7 +406,7 @@ codeunit 131002 "Library - Report Validation"
         // To check whether a cell contains a value or not, use function IsEmptyCell()
 
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if ExcelBuffer.Get(
              FindRowNoFromColumnNoAndValue(FindColumnNoFromColumnCaption(FilterColumnCaption), FilterColumnValue),
@@ -426,7 +426,7 @@ codeunit 131002 "Library - Report Validation"
         // Retrieve the value of a Column where another given Column has the value specified.
 
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ColumnNo := FindColumnNoFromColumnCaptionInsideArea(ColumnCaption, FilterRowNo, FilterColumnNo);
         RowNo := FindRowNoFromColumnNoAndValueInsideArea(FindColumnNoFromColumnCaptionInsideArea(
@@ -450,7 +450,7 @@ codeunit 131002 "Library - Report Validation"
         // To check whether a cell contains a value or not, use function IsEmptyCell()
 
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         FoundValue := true;
         if ExcelBuffer.Get(RowNo, ColumnNo)
@@ -470,7 +470,7 @@ codeunit 131002 "Library - Report Validation"
         // To check whether a cell contains a value or not, use function IsEmptyCell()
 
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if ExcelBuffer.Get(RowNo, ColumnNo) and (ExcelBuffer.Comment = Worksheet)
         then
@@ -485,7 +485,7 @@ codeunit 131002 "Library - Report Validation"
     begin
         // Checks the value in specified cell within specified worksheet (note the function requires row number within worksheet not report).
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         if WorksheetNo > 1 then begin
             ExcelBuffer.SetRange(Comment, Format(WorksheetNo - 1));
@@ -503,7 +503,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange(xlColID, ColumnName);
         ExcelBuffer.SetRange(xlRowID, Format(RowNo));
@@ -518,7 +518,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange("Row No.", RowNo);
         ExcelBuffer.Get(RowNo, ColumnNo);
@@ -531,7 +531,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         NumberFormat := '';
         if ExcelBuffer.Get(RowNo, ColumnNo) then begin
@@ -549,7 +549,7 @@ codeunit 131002 "Library - Report Validation"
         // otherwise false.
 
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         exit(
           not ExcelBuffer.Get(FindRowNoFromColumnNoAndValue(FindColumnNoFromColumnCaption(FilterColumnCaption), FilterColumnValue),
@@ -609,7 +609,7 @@ codeunit 131002 "Library - Report Validation"
         WorkbookReader := WorkbookReader.Open(ClientFileName, false);
 
         ValueMaxLength := MaxStrLen(Value);
-        SheetNames := WorkbookReader.SheetNames;
+        SheetNames := WorkbookReader.SheetNames();
         WorksheetCount := SheetNames.Length;
         SheetIndex := 0;
         RowOffset := 0;
@@ -684,7 +684,7 @@ codeunit 131002 "Library - Report Validation"
         ExcelBuffer: Record "Excel Buffer";
     begin
         if not FileOpened then
-            OpenFile;
+            OpenFile();
 
         ExcelBuffer.SetRange(xlColID, ColumnName);
         ExcelBuffer.SetRange(xlRowID, Format(RowNo));
@@ -710,12 +710,10 @@ codeunit 131002 "Library - Report Validation"
         if CurrentSaveValuesId <= 0 then
             exit;
 
-        with ObjectOptions do begin
-            SetFilter("Object ID", Format(CurrentSaveValuesId));
-            SetFilter("Object Type", Format("Object Type"::Report));
-            SetFilter("User Name", UserId);
-            DeleteAll();
-        end;
+        ObjectOptions.SetFilter("Object ID", Format(CurrentSaveValuesId));
+        ObjectOptions.SetFilter("Object Type", Format(ObjectOptions."Object Type"::Report));
+        ObjectOptions.SetFilter("User Name", UserId);
+        ObjectOptions.DeleteAll();
 
         CurrentSaveValuesId := 0;
     end;

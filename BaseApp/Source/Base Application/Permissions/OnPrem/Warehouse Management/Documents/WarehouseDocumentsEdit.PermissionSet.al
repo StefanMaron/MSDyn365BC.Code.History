@@ -77,6 +77,7 @@ permissionset 5888 "Warehouse Documents - Edit"
                   tabledata "Warehouse Comment Line" = RIMD,
                   tabledata "Warehouse Employee" = R,
                   tabledata "Warehouse Entry" = Ri,
+                  tabledata "Warehouse Reason Code" = RIMD,
                   tabledata "Warehouse Receipt Header" = RIMD,
                   tabledata "Warehouse Receipt Line" = RIMD,
                   tabledata "Warehouse Register" = Rim,

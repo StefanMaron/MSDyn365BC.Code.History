@@ -9,9 +9,8 @@ using Microsoft.Pricing.PriceList;
 
 table 7007 "Price Calculation Buffer"
 {
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -6,6 +6,7 @@ table 1302 "Dimensions Template"
 {
     Caption = 'Dimensions Template';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

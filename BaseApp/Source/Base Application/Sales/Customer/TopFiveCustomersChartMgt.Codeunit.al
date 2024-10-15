@@ -29,18 +29,16 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         CustomerName: array[11] of Text[100];
         SalesLCY: array[11] of Decimal;
     begin
-        with BusChartBuf do begin
-            Initialize();
-            if GLSetup.Get() then;
-            AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::Doughnut);
-            SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
-            CalcTopSalesCustomers(CustomerName, SalesLCY);
-            for ColumnIndex := 1 to 6 do begin
-                if SalesLCY[ColumnIndex] = 0 then
-                    exit;
-                AddColumn(CustomerName[ColumnIndex]);
-                SetValueByIndex(0, ColumnIndex - 1, SalesLCY[ColumnIndex]);
-            end;
+        BusChartBuf.Initialize();
+        if GLSetup.Get() then;
+        BusChartBuf.AddDecimalMeasure(SalesLCYYCaptionTxt, 1, BusChartBuf."Chart Type"::Doughnut);
+        BusChartBuf.SetXAxis(CustomerXCaptionTxt, BusChartBuf."Data Type"::String);
+        CalcTopSalesCustomers(CustomerName, SalesLCY);
+        for ColumnIndex := 1 to 6 do begin
+            if SalesLCY[ColumnIndex] = 0 then
+                exit;
+            BusChartBuf.AddColumn(CustomerName[ColumnIndex]);
+            BusChartBuf.SetValueByIndex(0, ColumnIndex - 1, SalesLCY[ColumnIndex]);
         end;
     end;
 

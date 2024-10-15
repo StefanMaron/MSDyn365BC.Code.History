@@ -2311,8 +2311,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Release Prod. Order
         ProductionOrder.Get(
           ProductionOrder.Status::Released,
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released));
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No."));
 
         // [WHEN] Create Whse. Pick from Released Prod. Order
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -3149,7 +3148,7 @@ codeunit 137072 "SCM Production Orders II"
         // [WHEN] Change Production Order status from "Released" to "Finished"
         LibraryVariableStorage.Enqueue(ConfirmStatusFinishTxt);
         FinishedProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+          LibraryManufacturing.ChangeProuctionOrderStatus(
             ProductionOrder."No.", ProductionOrder.Status::Released, ProductionOrder.Status::Finished);
 
         // [THEN] Capacity Ledger Entries for operations "10", "20", "30" have total "Output Quantity" = 7 each
@@ -3210,7 +3209,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [WHEN] Change Production Order status from "Released" to "Finished"
         FinishedProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+          LibraryManufacturing.ChangeProuctionOrderStatus(
             ProductionOrder."No.", ProductionOrder.Status::Released, ProductionOrder.Status::Finished);
 
         // [THEN] Capacity Ledger Entries for operations "10", "20", "30" have total "Output Quantity" = 10 each
@@ -4907,14 +4906,12 @@ codeunit 137072 "SCM Production Orders II"
     local procedure CalculateInventoryValue(var Item: Record Item)
     var
         ItemJournalLine: Record "Item Journal Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         SelectItemJournalLine(ItemJournalLine, RevaluationItemJournalTemplate.Name, RevaluationItemJournalBatch.Name);
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CalculateInventoryValue(
           ItemJournalLine, Item, WorkDate(), ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."),
-          CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ", false);
+          "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ", false);
     end;
 
     local procedure CreateAndRegisterPickWithProductionOrderSetup(var ProductionOrder: Record "Production Order"; Location: Record Location; ItemNo: Code[20]; Quantity: Decimal)
@@ -5040,8 +5037,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Change Production Order Status from Firm Planned to Released.
         ProductionOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
     end;
 
     local procedure CreatePickFromReleasedProductionOrder(ProductionOrderNo: Code[20])

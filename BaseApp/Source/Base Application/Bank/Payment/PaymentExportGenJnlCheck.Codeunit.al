@@ -29,60 +29,58 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         GenJnlBatch: Record "Gen. Journal Batch";
         Handled: Boolean;
     begin
-        with GenJournalLine do begin
-            DeletePaymentFileErrors();
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        GenJournalLine.DeletePaymentFileErrors();
+        GenJnlBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
-            if not TempGenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
-                CheckGenJournalBatch(GenJournalLine, GenJnlBatch);
+        if not TempGenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
+            CheckGenJournalBatch(GenJournalLine, GenJnlBatch);
 
-            if "Payment Method Code" = '' then
-                AddFieldEmptyError(GenJournalLine, TableCaption(), FieldCaption("Payment Method Code"), '');
+        if GenJournalLine."Payment Method Code" = '' then
+            AddFieldEmptyError(GenJournalLine, GenJournalLine.TableCaption(), GenJournalLine.FieldCaption("Payment Method Code"), '');
 
-            if ("Recipient Bank Account" <> '') and ("Creditor No." <> '') then
-                InsertPaymentFileError(StrSubstNo(SimultaneousPaymentDetailsErr,
-                    FieldCaption("Recipient Bank Account"), FieldCaption("Creditor No.")));
+        if (GenJournalLine."Recipient Bank Account" <> '') and (GenJournalLine."Creditor No." <> '') then
+            GenJournalLine.InsertPaymentFileError(StrSubstNo(SimultaneousPaymentDetailsErr,
+                GenJournalLine.FieldCaption("Recipient Bank Account"), GenJournalLine.FieldCaption("Creditor No.")));
 
-            if "Bal. Account Type" <> "Bal. Account Type"::"Bank Account" then
-                InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, FieldCaption("Bal. Account Type"),
-                    TableCaption, "Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
+        if GenJournalLine."Bal. Account Type" <> GenJournalLine."Bal. Account Type"::"Bank Account" then
+            GenJournalLine.InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, GenJournalLine.FieldCaption("Bal. Account Type"),
+                GenJournalLine.TableCaption, GenJournalLine."Bal. Account Type"::"Bank Account", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
 
-            if "Bal. Account No." <> GenJnlBatch."Bal. Account No." then
-                InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, FieldCaption("Bal. Account No."),
-                    TableCaption, GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
+        if GenJournalLine."Bal. Account No." <> GenJnlBatch."Bal. Account No." then
+            GenJournalLine.InsertPaymentFileError(StrSubstNo(WrongBalAccountErr, GenJournalLine.FieldCaption("Bal. Account No."),
+                GenJournalLine.TableCaption, GenJnlBatch."Bal. Account No.", GenJnlBatch.TableCaption(), GenJnlBatch.Name));
 
-            if Amount <= 0 then
-                InsertPaymentFileError(MustBePositiveErr);
+        if GenJournalLine.Amount <= 0 then
+            GenJournalLine.InsertPaymentFileError(MustBePositiveErr);
 
-            if (("Account Type" = "Account Type"::"Bank Account") or
-                ("Bal. Account Type" = "Bal. Account Type"::"Bank Account")) and
-               (("Bank Payment Type" <> "Bank Payment Type"::"Electronic Payment") and
-                ("Bank Payment Type" <> "Bank Payment Type"::"Electronic Payment-IAT"))
+        if ((GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account") or
+            (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"Bank Account")) and
+           ((GenJournalLine."Bank Payment Type" <> GenJournalLine."Bank Payment Type"::"Electronic Payment") and
+            (GenJournalLine."Bank Payment Type" <> GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT"))
+        then
+            GenJournalLine.InsertPaymentFileError(StrSubstNo(WrongBankPaymentTypeErr, GenJournalLine.FieldCaption("Bank Payment Type"),
+                GenJournalLine."Bank Payment Type"::"Electronic Payment", GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT"));
+
+        OnPaymentExportGenJnlCheck(GenJournalLine, Handled);
+        if not Handled then begin
+            if not (GenJournalLine."Account Type" in [GenJournalLine."Account Type"::Customer, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account Type"::Employee])
             then
-                InsertPaymentFileError(StrSubstNo(WrongBankPaymentTypeErr, FieldCaption("Bank Payment Type"),
-                    "Bank Payment Type"::"Electronic Payment", "Bank Payment Type"::"Electronic Payment-IAT"));
+                GenJournalLine.InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
 
-            OnPaymentExportGenJnlCheck(GenJournalLine, Handled);
-            if not Handled then begin
-                if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee])
-                then
-                    InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
+            if ((GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) and
+                (GenJournalLine."Document Type" <> GenJournalLine."Document Type"::Payment)) or
+               ((GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) and
+                (GenJournalLine."Document Type" <> GenJournalLine."Document Type"::Refund)) or
+               ((GenJournalLine."Account Type" = GenJournalLine."Account Type"::Employee) and
+                (GenJournalLine."Document Type" <> GenJournalLine."Document Type"::Payment))
+            then
+                GenJournalLine.InsertPaymentFileError(MustBeVendEmplPmtOrCustRefundErr);
 
-                if (("Account Type" = "Account Type"::Vendor) and
-                    ("Document Type" <> "Document Type"::Payment)) or
-                   (("Account Type" = "Account Type"::Customer) and
-                    ("Document Type" <> "Document Type"::Refund)) or
-                   (("Account Type" = "Account Type"::Employee) and
-                    ("Document Type" <> "Document Type"::Payment))
-                then
-                    InsertPaymentFileError(MustBeVendEmplPmtOrCustRefundErr);
-
-                if not ("Account Type" = "Account Type"::Employee) and
-                   ("Recipient Bank Account" = '') and ("Creditor No." = '')
-                then
-                    InsertPaymentFileError(StrSubstNo(EmptyPaymentDetailsErr,
-                        FieldCaption("Recipient Bank Account"), FieldCaption("Creditor No.")));
-            end;
+            if not (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Employee) and
+               (GenJournalLine."Recipient Bank Account" = '') and (GenJournalLine."Creditor No." = '')
+            then
+                GenJournalLine.InsertPaymentFileError(StrSubstNo(EmptyPaymentDetailsErr,
+                    GenJournalLine.FieldCaption("Recipient Bank Account"), GenJournalLine.FieldCaption("Creditor No.")));
         end;
     end;
 

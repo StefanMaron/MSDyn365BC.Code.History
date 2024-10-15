@@ -340,20 +340,18 @@ codeunit 8 AccSchedManagement
         Clear(BasePercentLine);
         BaseIdx := 0;
 
-        with AccSchedLine do begin
-            SetRange("Schedule Name", "Schedule Name");
-            if Find('-') then
-                repeat
-                    if "Totaling Type" = "Totaling Type"::"Set Base For Percent" then begin
-                        BaseIdx := BaseIdx + 1;
-                        if BaseIdx > ArrayLen(BasePercentLine) then
-                            ShowError(
-                              StrSubstNo(Text022, ArrayLen(BasePercentLine), FieldCaption("Totaling Type"), "Totaling Type"),
-                              AccSchedLine, ColumnLayout);
-                        BasePercentLine[BaseIdx] := "Line No.";
-                    end;
-                until Next() = 0;
-        end;
+        AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
+        if AccSchedLine.Find('-') then
+            repeat
+                if AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Set Base For Percent" then begin
+                    BaseIdx := BaseIdx + 1;
+                    if BaseIdx > ArrayLen(BasePercentLine) then
+                        ShowError(
+                          StrSubstNo(Text022, ArrayLen(BasePercentLine), AccSchedLine.FieldCaption("Totaling Type"), AccSchedLine."Totaling Type"),
+                          AccSchedLine, ColumnLayout);
+                    BasePercentLine[BaseIdx] := AccSchedLine."Line No.";
+                end;
+            until AccSchedLine.Next() = 0;
 
         if BaseIdx = 0 then begin
             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Set Base For Percent";
@@ -445,25 +443,23 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with ColumnLayout do begin
-            case Show of
-                Show::"When Positive":
-                    if Result < 0 then
-                        Result := 0;
-                Show::"When Negative":
-                    if Result > 0 then
-                        Result := 0;
-            end;
-            if "Show Opposite Sign" then
-                Result := -Result;
-            case "Show Indented Lines" of
-                "Show Indented Lines"::"Indented Only":
-                    if AccSchedLine.Indentation = 0 then
-                        Result := 0;
-                "Show Indented Lines"::"Non-Indented Only":
-                    if AccSchedLine.Indentation > 0 then
-                        Result := 0;
-            end;
+        case ColumnLayout.Show of
+            ColumnLayout.Show::"When Positive":
+                if Result < 0 then
+                    Result := 0;
+            ColumnLayout.Show::"When Negative":
+                if Result > 0 then
+                    Result := 0;
+        end;
+        if ColumnLayout."Show Opposite Sign" then
+            Result := -Result;
+        case ColumnLayout."Show Indented Lines" of
+            ColumnLayout."Show Indented Lines"::"Indented Only":
+                if AccSchedLine.Indentation = 0 then
+                    Result := 0;
+            ColumnLayout."Show Indented Lines"::"Non-Indented Only":
+                if AccSchedLine.Indentation > 0 then
+                    Result := 0;
         end;
 
         if AccSchedLine."Show Opposite Sign" then
@@ -656,158 +652,154 @@ codeunit 8 AccSchedManagement
             UseDimFilter := HasDimFilter(AccSchedLine, ColumnLayout);
             case ColumnLayout."Ledger Entry Type" of
                 ColumnLayout."Ledger Entry Type"::Entries:
-                    if AccSchedName."Analysis View Name" = '' then
-                        with GLEntry do begin
-                            SetGLAccGLEntryFilters(GLAcc, GLEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
-                            case AmountType of
-                                AmountType::"Net Amount":
-                                    begin
-                                        if CalcAddCurr then begin
-                                            CalcSums("Additional-Currency Amount");
-                                            ColValue := "Additional-Currency Amount";
-                                        end else begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                        end;
-                                        Balance := ColValue;
-                                    end;
-                                AmountType::"Debit Amount":
+                    if AccSchedName."Analysis View Name" = '' then begin
+                        SetGLAccGLEntryFilters(GLAcc, GLEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
+                        case AmountType of
+                            AmountType::"Net Amount":
+                                begin
                                     if CalcAddCurr then begin
-                                        if TestBalance then begin
-                                            CalcSums("Add.-Currency Debit Amount", "Additional-Currency Amount");
-                                            Balance := "Additional-Currency Amount";
-                                        end else
-                                            CalcSums("Add.-Currency Debit Amount");
-                                        ColValue := "Add.-Currency Debit Amount";
+                                        GLEntry.CalcSums("Additional-Currency Amount");
+                                        ColValue := GLEntry."Additional-Currency Amount";
                                     end else begin
-                                        if TestBalance then begin
-                                            CalcSums("Debit Amount", Amount);
-                                            Balance := Amount;
-                                        end else
-                                            CalcSums("Debit Amount");
-                                        ColValue := "Debit Amount";
+                                        GLEntry.CalcSums(Amount);
+                                        ColValue := GLEntry.Amount;
                                     end;
-                                AmountType::"Credit Amount":
-                                    if CalcAddCurr then begin
-                                        if TestBalance then begin
-                                            CalcSums("Add.-Currency Credit Amount", "Additional-Currency Amount");
-                                            Balance := "Additional-Currency Amount";
-                                        end else
-                                            CalcSums("Add.-Currency Credit Amount");
-                                        ColValue := "Add.-Currency Credit Amount";
-                                    end else begin
-                                        if TestBalance then begin
-                                            CalcSums("Credit Amount", Amount);
-                                            Balance := Amount;
-                                        end else
-                                            CalcSums("Credit Amount");
-                                        ColValue := "Credit Amount";
-                                    end;
-                            end;
-                        end
-                    else
-                        with AnalysisViewEntry do begin
-                            SetGLAccAnalysisViewEntryFilters(GLAcc, AnalysisViewEntry, AccSchedLine, ColumnLayout);
-                            case AmountType of
-                                AmountType::"Net Amount":
-                                    begin
-                                        if CalcAddCurr then begin
-                                            CalcSums("Add.-Curr. Amount");
-                                            ColValue := "Add.-Curr. Amount";
-                                        end else begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                        end;
-                                        Balance := ColValue;
-                                    end;
-                                AmountType::"Debit Amount":
-                                    if CalcAddCurr then begin
-                                        if TestBalance then begin
-                                            CalcSums("Add.-Curr. Debit Amount", "Add.-Curr. Amount");
-                                            Balance := "Add.-Curr. Amount";
-                                        end else
-                                            CalcSums("Add.-Curr. Debit Amount");
-                                        ColValue := "Add.-Curr. Debit Amount";
-                                    end else begin
-                                        if TestBalance then begin
-                                            CalcSums("Debit Amount", Amount);
-                                            Balance := Amount;
-                                        end else
-                                            CalcSums("Debit Amount");
-                                        ColValue := "Debit Amount";
-                                    end;
-                                AmountType::"Credit Amount":
-                                    if CalcAddCurr then begin
-                                        if TestBalance then begin
-                                            CalcSums("Add.-Curr. Credit Amount", "Add.-Curr. Amount");
-                                            Balance := "Add.-Curr. Amount";
-                                        end else
-                                            CalcSums("Add.-Curr. Credit Amount");
-                                        ColValue := "Add.-Curr. Credit Amount";
-                                    end else begin
-                                        if TestBalance then begin
-                                            CalcSums("Credit Amount", Amount);
-                                            Balance := Amount;
-                                        end else
-                                            CalcSums("Credit Amount");
-                                        ColValue := "Credit Amount";
-                                    end;
-                            end;
+                                    Balance := ColValue;
+                                end;
+                            AmountType::"Debit Amount":
+                                if CalcAddCurr then begin
+                                    if TestBalance then begin
+                                        GLEntry.CalcSums("Add.-Currency Debit Amount", "Additional-Currency Amount");
+                                        Balance := GLEntry."Additional-Currency Amount";
+                                    end else
+                                        GLEntry.CalcSums("Add.-Currency Debit Amount");
+                                    ColValue := GLEntry."Add.-Currency Debit Amount";
+                                end else begin
+                                    if TestBalance then begin
+                                        GLEntry.CalcSums("Debit Amount", Amount);
+                                        Balance := GLEntry.Amount;
+                                    end else
+                                        GLEntry.CalcSums("Debit Amount");
+                                    ColValue := GLEntry."Debit Amount";
+                                end;
+                            AmountType::"Credit Amount":
+                                if CalcAddCurr then begin
+                                    if TestBalance then begin
+                                        GLEntry.CalcSums("Add.-Currency Credit Amount", "Additional-Currency Amount");
+                                        Balance := GLEntry."Additional-Currency Amount";
+                                    end else
+                                        GLEntry.CalcSums("Add.-Currency Credit Amount");
+                                    ColValue := GLEntry."Add.-Currency Credit Amount";
+                                end else begin
+                                    if TestBalance then begin
+                                        GLEntry.CalcSums("Credit Amount", Amount);
+                                        Balance := GLEntry.Amount;
+                                    end else
+                                        GLEntry.CalcSums("Credit Amount");
+                                    ColValue := GLEntry."Credit Amount";
+                                end;
                         end;
+                    end
+                    else begin
+                        SetGLAccAnalysisViewEntryFilters(GLAcc, AnalysisViewEntry, AccSchedLine, ColumnLayout);
+                        case AmountType of
+                            AmountType::"Net Amount":
+                                begin
+                                    if CalcAddCurr then begin
+                                        AnalysisViewEntry.CalcSums("Add.-Curr. Amount");
+                                        ColValue := AnalysisViewEntry."Add.-Curr. Amount";
+                                    end else begin
+                                        AnalysisViewEntry.CalcSums(Amount);
+                                        ColValue := AnalysisViewEntry.Amount;
+                                    end;
+                                    Balance := ColValue;
+                                end;
+                            AmountType::"Debit Amount":
+                                if CalcAddCurr then begin
+                                    if TestBalance then begin
+                                        AnalysisViewEntry.CalcSums("Add.-Curr. Debit Amount", "Add.-Curr. Amount");
+                                        Balance := AnalysisViewEntry."Add.-Curr. Amount";
+                                    end else
+                                        AnalysisViewEntry.CalcSums("Add.-Curr. Debit Amount");
+                                    ColValue := AnalysisViewEntry."Add.-Curr. Debit Amount";
+                                end else begin
+                                    if TestBalance then begin
+                                        AnalysisViewEntry.CalcSums("Debit Amount", Amount);
+                                        Balance := AnalysisViewEntry.Amount;
+                                    end else
+                                        AnalysisViewEntry.CalcSums("Debit Amount");
+                                    ColValue := AnalysisViewEntry."Debit Amount";
+                                end;
+                            AmountType::"Credit Amount":
+                                if CalcAddCurr then begin
+                                    if TestBalance then begin
+                                        AnalysisViewEntry.CalcSums("Add.-Curr. Credit Amount", "Add.-Curr. Amount");
+                                        Balance := AnalysisViewEntry."Add.-Curr. Amount";
+                                    end else
+                                        AnalysisViewEntry.CalcSums("Add.-Curr. Credit Amount");
+                                    ColValue := AnalysisViewEntry."Add.-Curr. Credit Amount";
+                                end else begin
+                                    if TestBalance then begin
+                                        AnalysisViewEntry.CalcSums("Credit Amount", Amount);
+                                        Balance := AnalysisViewEntry.Amount;
+                                    end else
+                                        AnalysisViewEntry.CalcSums("Credit Amount");
+                                    ColValue := AnalysisViewEntry."Credit Amount";
+                                end;
+                        end;
+                    end;
                 ColumnLayout."Ledger Entry Type"::"Budget Entries":
                     begin
-                        if AccSchedName."Analysis View Name" = '' then
-                            with GLBudgEntry do begin
-                                SetGLAccGLBudgetEntryFilters(GLAcc, GLBudgEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
-                                case AmountType of
-                                    AmountType::"Net Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                        end;
-                                    AmountType::"Debit Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                            if ColValue < 0 then
-                                                ColValue := 0;
-                                        end;
-                                    AmountType::"Credit Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := -Amount;
-                                            if ColValue < 0 then
-                                                ColValue := 0;
-                                        end;
-                                end;
-                                Balance := Amount;
-                            end
-                        else
-                            with AnalysisViewBudgetEntry do begin
-                                SetGLAccAnalysisViewBudgetEntries(GLAcc, AnalysisViewBudgetEntry, AccSchedLine, ColumnLayout);
-                                case AmountType of
-                                    AmountType::"Net Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                        end;
-                                    AmountType::"Debit Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := Amount;
-                                            if ColValue < 0 then
-                                                ColValue := 0;
-                                        end;
-                                    AmountType::"Credit Amount":
-                                        begin
-                                            CalcSums(Amount);
-                                            ColValue := -Amount;
-                                            if ColValue < 0 then
-                                                ColValue := 0;
-                                        end;
-                                end;
-                                Balance := Amount;
+                        if AccSchedName."Analysis View Name" = '' then begin
+                            SetGLAccGLBudgetEntryFilters(GLAcc, GLBudgEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
+                            case AmountType of
+                                AmountType::"Net Amount":
+                                    begin
+                                        GLBudgEntry.CalcSums(Amount);
+                                        ColValue := GLBudgEntry.Amount;
+                                    end;
+                                AmountType::"Debit Amount":
+                                    begin
+                                        GLBudgEntry.CalcSums(Amount);
+                                        ColValue := GLBudgEntry.Amount;
+                                        if ColValue < 0 then
+                                            ColValue := 0;
+                                    end;
+                                AmountType::"Credit Amount":
+                                    begin
+                                        GLBudgEntry.CalcSums(Amount);
+                                        ColValue := -GLBudgEntry.Amount;
+                                        if ColValue < 0 then
+                                            ColValue := 0;
+                                    end;
                             end;
+                            Balance := GLBudgEntry.Amount;
+                        end
+                        else begin
+                            SetGLAccAnalysisViewBudgetEntries(GLAcc, AnalysisViewBudgetEntry, AccSchedLine, ColumnLayout);
+                            case AmountType of
+                                AmountType::"Net Amount":
+                                    begin
+                                        AnalysisViewBudgetEntry.CalcSums(Amount);
+                                        ColValue := AnalysisViewBudgetEntry.Amount;
+                                    end;
+                                AmountType::"Debit Amount":
+                                    begin
+                                        AnalysisViewBudgetEntry.CalcSums(Amount);
+                                        ColValue := AnalysisViewBudgetEntry.Amount;
+                                        if ColValue < 0 then
+                                            ColValue := 0;
+                                    end;
+                                AmountType::"Credit Amount":
+                                    begin
+                                        AnalysisViewBudgetEntry.CalcSums(Amount);
+                                        ColValue := -AnalysisViewBudgetEntry.Amount;
+                                        if ColValue < 0 then
+                                            ColValue := 0;
+                                    end;
+                            end;
+                            Balance := AnalysisViewBudgetEntry.Amount;
+                        end;
                         if CalcAddCurr then
                             ColValue := CalcLCYToACY(ColValue);
                     end;
@@ -850,28 +842,26 @@ codeunit 8 AccSchedManagement
         if ColumnLayout."Column Type" <> ColumnLayout."Column Type"::Formula then
             case ColumnLayout."Ledger Entry Type" of
                 ColumnLayout."Ledger Entry Type"::Entries:
-                    if AccSchedName."Analysis View Name" = '' then
-                        with CFForecastEntry do begin
-                            SetCFEntryFilters(CFAccount, CFForecastEntry, AccSchedLine, ColumnLayout);
-                            case ColumnLayout."Amount Type" of
-                                ColumnLayout."Amount Type"::"Net Amount":
-                                    begin
-                                        CalcSums("Amount (LCY)");
-                                        ColValue := "Amount (LCY)";
-                                    end;
-                            end;
-                        end
-                    else
-                        with AnalysisViewEntry do begin
-                            SetCFAnalysisViewEntryFilters(CFAccount, AnalysisViewEntry, AccSchedLine, ColumnLayout);
-                            case ColumnLayout."Amount Type" of
-                                ColumnLayout."Amount Type"::"Net Amount":
-                                    begin
-                                        CalcSums(Amount);
-                                        ColValue := Amount;
-                                    end;
-                            end;
+                    if AccSchedName."Analysis View Name" = '' then begin
+                        SetCFEntryFilters(CFAccount, CFForecastEntry, AccSchedLine, ColumnLayout);
+                        case ColumnLayout."Amount Type" of
+                            ColumnLayout."Amount Type"::"Net Amount":
+                                begin
+                                    CFForecastEntry.CalcSums("Amount (LCY)");
+                                    ColValue := CFForecastEntry."Amount (LCY)";
+                                end;
                         end;
+                    end
+                    else begin
+                        SetCFAnalysisViewEntryFilters(CFAccount, AnalysisViewEntry, AccSchedLine, ColumnLayout);
+                        case ColumnLayout."Amount Type" of
+                            ColumnLayout."Amount Type"::"Net Amount":
+                                begin
+                                    AnalysisViewEntry.CalcSums(Amount);
+                                    ColValue := AnalysisViewEntry.Amount;
+                                end;
+                        end;
+                    end;
             end;
 
         exit(ColValue);
@@ -942,19 +932,18 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with AccSchedLine2 do
-            case "Totaling Type" of
-                "Totaling Type"::"Posting Accounts":
-                    begin
-                        GLAcc.SetFilter("No.", Totaling);
-                        GLAcc.SetRange("Account Type", GLAcc."Account Type"::Posting);
-                    end;
-                "Totaling Type"::"Total Accounts":
-                    begin
-                        GLAcc.SetFilter("No.", Totaling);
-                        GLAcc.SetFilter("Account Type", '<>%1', GLAcc."Account Type"::Posting);
-                    end;
-            end;
+        case AccSchedLine2."Totaling Type" of
+            AccSchedLine2."Totaling Type"::"Posting Accounts":
+                begin
+                    GLAcc.SetFilter("No.", AccSchedLine2.Totaling);
+                    GLAcc.SetRange("Account Type", GLAcc."Account Type"::Posting);
+                end;
+            AccSchedLine2."Totaling Type"::"Total Accounts":
+                begin
+                    GLAcc.SetFilter("No.", AccSchedLine2.Totaling);
+                    GLAcc.SetFilter("Account Type", '<>%1', GLAcc."Account Type"::Posting);
+                end;
+        end;
 
         OnAfterSetGLAccRowFilters(GLAcc, AccSchedLine2);
     end;
@@ -968,36 +957,34 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with GLEntry do begin
-            if UseBusUnitFilter then
-                if UseDimFilter then
-                    SetCurrentKey(
-                      "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code")
-                else
-                    SetCurrentKey(
-                      "G/L Account No.", "Business Unit Code", "Posting Date")
+        if UseBusUnitFilter then
+            if UseDimFilter then
+                GLEntry.SetCurrentKey(
+                  "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code")
             else
-                if UseDimFilter then
-                    SetCurrentKey("G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code")
-                else
-                    SetCurrentKey("G/L Account No.", "Posting Date");
-            if GLAcc.Totaling = '' then
-                SetRange("G/L Account No.", GLAcc."No.")
+                GLEntry.SetCurrentKey(
+                  "G/L Account No.", "Business Unit Code", "Posting Date")
+        else
+            if UseDimFilter then
+                GLEntry.SetCurrentKey("G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code")
             else
-                SetFilter("G/L Account No.", GLAcc.Totaling);
-            GLAcc.CopyFilter("Date Filter", "Posting Date");
-            AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
-            AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
-            AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
-            FilterGroup(2);
-            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
-            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
-            FilterGroup(8);
-            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
-            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
-            SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
-            FilterGroup(0);
-        end;
+                GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+        if GLAcc.Totaling = '' then
+            GLEntry.SetRange("G/L Account No.", GLAcc."No.")
+        else
+            GLEntry.SetFilter("G/L Account No.", GLAcc.Totaling);
+        GLAcc.CopyFilter("Date Filter", GLEntry."Posting Date");
+        AccSchedLine.CopyFilter("Business Unit Filter", GLEntry."Business Unit Code");
+        AccSchedLine.CopyFilter("Dimension 1 Filter", GLEntry."Global Dimension 1 Code");
+        AccSchedLine.CopyFilter("Dimension 2 Filter", GLEntry."Global Dimension 2 Code");
+        GLEntry.FilterGroup(2);
+        GLEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
+        GLEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
+        GLEntry.FilterGroup(8);
+        GLEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+        GLEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+        GLEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLEntryFilters(GLAcc, GLEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
     end;
@@ -1011,103 +998,97 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with GLBudgetEntry do begin
-            if UseBusUnitFilter or UseDimFilter then
-                SetCurrentKey(
-                  "Budget Name", "G/L Account No.", "Business Unit Code",
-                  "Global Dimension 1 Code", "Global Dimension 2 Code",
-                  "Budget Dimension 1 Code", "Budget Dimension 2 Code",
-                  "Budget Dimension 3 Code", "Budget Dimension 4 Code", Date)
-            else
-                SetCurrentKey("Budget Name", "G/L Account No.", Date);
-            if GLAcc.Totaling = '' then
-                SetRange("G/L Account No.", GLAcc."No.")
-            else
-                SetFilter("G/L Account No.", GLAcc.Totaling);
-            GLAcc.CopyFilter("Date Filter", Date);
+        if UseBusUnitFilter or UseDimFilter then
+            GLBudgetEntry.SetCurrentKey(
+              "Budget Name", "G/L Account No.", "Business Unit Code",
+              "Global Dimension 1 Code", "Global Dimension 2 Code",
+              "Budget Dimension 1 Code", "Budget Dimension 2 Code",
+              "Budget Dimension 3 Code", "Budget Dimension 4 Code", Date)
+        else
+            GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
+        if GLAcc.Totaling = '' then
+            GLBudgetEntry.SetRange("G/L Account No.", GLAcc."No.")
+        else
+            GLBudgetEntry.SetFilter("G/L Account No.", GLAcc.Totaling);
+        GLAcc.CopyFilter("Date Filter", GLBudgetEntry.Date);
 
-            if ColumnLayout."Budget Name" <> '' then
-                GLBudgetEntry.SetRange("Budget Name", ColumnLayout."Budget Name")
-            else
-                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
-            AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
-            AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
-            AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
-            FilterGroup(2);
-            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
-            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
-            FilterGroup(8);
-            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
-            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
-            SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
-            FilterGroup(0);
-        end;
+        if ColumnLayout."Budget Name" <> '' then
+            GLBudgetEntry.SetRange("Budget Name", ColumnLayout."Budget Name")
+        else
+            AccSchedLine.CopyFilter("G/L Budget Filter", GLBudgetEntry."Budget Name");
+        AccSchedLine.CopyFilter("Business Unit Filter", GLBudgetEntry."Business Unit Code");
+        AccSchedLine.CopyFilter("Dimension 1 Filter", GLBudgetEntry."Global Dimension 1 Code");
+        AccSchedLine.CopyFilter("Dimension 2 Filter", GLBudgetEntry."Global Dimension 2 Code");
+        GLBudgetEntry.FilterGroup(2);
+        GLBudgetEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
+        GLBudgetEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
+        GLBudgetEntry.FilterGroup(8);
+        GLBudgetEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+        GLBudgetEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+        GLBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        GLBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccGLBudgetEntryFilters(GLAcc, GLBudgetEntry, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter);
     end;
 
     procedure SetGLAccAnalysisViewBudgetEntries(var GLAcc: Record "G/L Account"; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with AnalysisViewBudgetEntry do begin
-            if GLAcc.Totaling = '' then
-                SetRange("G/L Account No.", GLAcc."No.")
-            else
-                SetFilter("G/L Account No.", GLAcc.Totaling);
-            SetRange("Analysis View Code", AccSchedName."Analysis View Name");
-            GLAcc.CopyFilter("Date Filter", "Posting Date");
-            if ColumnLayout."Budget Name" <> '' then
-                SetRange("Budget Name", ColumnLayout."Budget Name")
-            else
-                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
-            AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
-            CopyDimFilters(AccSchedLine);
-            FilterGroup(2);
-            SetDimFilters(
-              GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
-            FilterGroup(8);
-            SetDimFilters(
-              GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
-            SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
-            FilterGroup(0);
-        end;
+        if GLAcc.Totaling = '' then
+            AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAcc."No.")
+        else
+            AnalysisViewBudgetEntry.SetFilter("G/L Account No.", GLAcc.Totaling);
+        AnalysisViewBudgetEntry.SetRange("Analysis View Code", AccSchedName."Analysis View Name");
+        GLAcc.CopyFilter("Date Filter", AnalysisViewBudgetEntry."Posting Date");
+        if ColumnLayout."Budget Name" <> '' then
+            AnalysisViewBudgetEntry.SetRange("Budget Name", ColumnLayout."Budget Name")
+        else
+            AccSchedLine.CopyFilter("G/L Budget Filter", AnalysisViewBudgetEntry."Budget Name");
+        AccSchedLine.CopyFilter("Business Unit Filter", AnalysisViewBudgetEntry."Business Unit Code");
+        AnalysisViewBudgetEntry.CopyDimFilters(AccSchedLine);
+        AnalysisViewBudgetEntry.FilterGroup(2);
+        AnalysisViewBudgetEntry.SetDimFilters(
+          GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
+        AnalysisViewBudgetEntry.FilterGroup(8);
+        AnalysisViewBudgetEntry.SetDimFilters(
+          GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+        AnalysisViewBudgetEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewBudgetEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewBudgetEntries(GLAcc, AnalysisViewBudgetEntry, AccSchedLine, ColumnLayout);
     end;
 
     procedure SetGLAccAnalysisViewEntryFilters(var GLAcc: Record "G/L Account"; var AnalysisViewEntry: Record "Analysis View Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with AnalysisViewEntry do begin
-            SetRange("Analysis View Code", AccSchedName."Analysis View Name");
-            SetRange("Account Source", "Account Source"::"G/L Account");
-            if GLAcc.Totaling = '' then
-                SetRange("Account No.", GLAcc."No.")
-            else
-                SetFilter("Account No.", GLAcc.Totaling);
-            GLAcc.CopyFilter("Date Filter", "Posting Date");
-            OnSetGLAccAnalysisViewEntryFiltersOnBeforeAccSchedLineCopyFilter(AccSchedLine, AnalysisViewEntry);
-            AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
-            CopyDimFilters(AccSchedLine);
-            FilterGroup(2);
-            SetDimFilters(
-              GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
-            FilterGroup(8);
-            SetDimFilters(
-              GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
-            SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
-            FilterGroup(0);
-        end;
+        AnalysisViewEntry.SetRange("Analysis View Code", AccSchedName."Analysis View Name");
+        AnalysisViewEntry.SetRange("Account Source", AnalysisViewEntry."Account Source"::"G/L Account");
+        if GLAcc.Totaling = '' then
+            AnalysisViewEntry.SetRange("Account No.", GLAcc."No.")
+        else
+            AnalysisViewEntry.SetFilter("Account No.", GLAcc.Totaling);
+        GLAcc.CopyFilter("Date Filter", AnalysisViewEntry."Posting Date");
+        OnSetGLAccAnalysisViewEntryFiltersOnBeforeAccSchedLineCopyFilter(AccSchedLine, AnalysisViewEntry);
+        AccSchedLine.CopyFilter("Business Unit Filter", AnalysisViewEntry."Business Unit Code");
+        AnalysisViewEntry.CopyDimFilters(AccSchedLine);
+        AnalysisViewEntry.FilterGroup(2);
+        AnalysisViewEntry.SetDimFilters(
+          GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
+        AnalysisViewEntry.FilterGroup(8);
+        AnalysisViewEntry.SetDimFilters(
+          GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+        AnalysisViewEntry.SetFilter("Business Unit Code", ColumnLayout."Business Unit Totaling");
+        AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetGLAccAnalysisViewEntryFilters(GLAcc, AnalysisViewEntry, AccSchedLine, ColumnLayout);
     end;
@@ -1121,21 +1102,19 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with AccSchedLine2 do begin
-            CopyFilter("Cash Flow Forecast Filter", CFAccount."Cash Flow Forecast Filter");
+        AccSchedLine2.CopyFilter("Cash Flow Forecast Filter", CFAccount."Cash Flow Forecast Filter");
 
-            case "Totaling Type" of
-                "Totaling Type"::"Cash Flow Entry Accounts":
-                    begin
-                        CFAccount.SetFilter("No.", Totaling);
-                        CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-                    end;
-                "Totaling Type"::"Cash Flow Total Accounts":
-                    begin
-                        CFAccount.SetFilter("No.", Totaling);
-                        CFAccount.SetFilter("Account Type", '<>%1', CFAccount."Account Type"::Entry);
-                    end;
-            end;
+        case AccSchedLine2."Totaling Type" of
+            AccSchedLine2."Totaling Type"::"Cash Flow Entry Accounts":
+                begin
+                    CFAccount.SetFilter("No.", AccSchedLine2.Totaling);
+                    CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
+                end;
+            AccSchedLine2."Totaling Type"::"Cash Flow Total Accounts":
+                begin
+                    CFAccount.SetFilter("No.", AccSchedLine2.Totaling);
+                    CFAccount.SetFilter("Account Type", '<>%1', CFAccount."Account Type"::Entry);
+                end;
         end;
 
         OnAfterSetCFAccRowFilter(CFAccount, AccSchedLine2);
@@ -1147,61 +1126,64 @@ codeunit 8 AccSchedManagement
         ToDate: Date;
         FiscalStartDate2: Date;
     begin
-        with ColumnLayout do begin
-            CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
-            case "Column Type" of
-                "Column Type"::"Net Change":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            GLAcc.SetRange("Date Filter", FromDate, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FromDate - 1)); // always includes closing date
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            GLAcc.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Balance at Date":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
-                        GLAcc.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+        CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
+        case ColumnLayout."Column Type" of
+            ColumnLayout."Column Type"::"Net Change":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        GLAcc.SetRange("Date Filter", FromDate, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FromDate - 1));
+                    // always includes closing date
+                    AccSchedLine2."Row Type"::"Balance at Date":
                         GLAcc.SetRange("Date Filter", 0D, ToDate);
-                "Column Type"::"Beginning Balance":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
-                        GLAcc.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+                end;
+            ColumnLayout."Column Type"::"Balance at Date":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
+                    GLAcc.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    GLAcc.SetRange("Date Filter", 0D, ToDate);
+            ColumnLayout."Column Type"::"Beginning Balance":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
+                    GLAcc.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    GLAcc.SetRange(
+                      "Date Filter", 0D, ClosingDate(FromDate - 1));
+            ColumnLayout."Column Type"::"Year to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        GLAcc.SetRange("Date Filter", FiscalStartDate2, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1));
+                    // always includes closing date
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        GLAcc.SetRange("Date Filter", 0D, ToDate);
+                end;
+            ColumnLayout."Column Type"::"Rest of Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
                         GLAcc.SetRange(
-                          "Date Filter", 0D, ClosingDate(FromDate - 1));
-                "Column Type"::"Year to Date":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            GLAcc.SetRange("Date Filter", FiscalStartDate2, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1)); // always includes closing date
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            GLAcc.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Rest of Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            GLAcc.SetRange(
-                              "Date Filter", CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            GLAcc.SetRange("Date Filter", 0D, ToDate);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            GLAcc.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-                "Column Type"::"Entire Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            GLAcc.SetRange(
-                              "Date Filter",
-                              FiscalStartDate2,
-                              AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1)); // always includes closing date
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            GLAcc.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-            end;
+                          "Date Filter", CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        GLAcc.SetRange("Date Filter", 0D, ToDate);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        GLAcc.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
+            ColumnLayout."Column Type"::"Entire Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        GLAcc.SetRange(
+                          "Date Filter",
+                          FiscalStartDate2,
+                          AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1));
+                    // always includes closing date
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        GLAcc.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
         end;
 
         OnAfterSetGLAccColumnFilters(GLAcc, AccSchedLine2, ColumnLayout, StartDate, EndDate);
@@ -1213,61 +1195,61 @@ codeunit 8 AccSchedManagement
         ToDate: Date;
         FiscalStartDate2: Date;
     begin
-        with ColumnLayout2 do begin
-            CalcColumnDates(ColumnLayout2, FromDate, ToDate, FiscalStartDate2);
-            case "Column Type" of
-                "Column Type"::"Net Change":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CFAccount.SetRange("Date Filter", FromDate, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(FromDate - 1));
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CFAccount.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Balance at Date":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
-                        CFAccount.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+        CalcColumnDates(ColumnLayout2, FromDate, ToDate, FiscalStartDate2);
+        case ColumnLayout2."Column Type" of
+            ColumnLayout2."Column Type"::"Net Change":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CFAccount.SetRange("Date Filter", FromDate, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(FromDate - 1));
+                    AccSchedLine2."Row Type"::"Balance at Date":
                         CFAccount.SetRange("Date Filter", 0D, ToDate);
-                "Column Type"::"Beginning Balance":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
-                        CFAccount.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+                end;
+            ColumnLayout2."Column Type"::"Balance at Date":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
+                    CFAccount.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    CFAccount.SetRange("Date Filter", 0D, ToDate);
+            ColumnLayout2."Column Type"::"Beginning Balance":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
+                    CFAccount.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    CFAccount.SetRange(
+                      "Date Filter", 0D, CalcDate('<-1D>', FromDate));
+            ColumnLayout2."Column Type"::"Year to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CFAccount.SetRange("Date Filter", FiscalStartDate2, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CFAccount.SetFilter("Date Filter", '..%1', FiscalStartDate2 - 1);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CFAccount.SetRange("Date Filter", 0D, ToDate);
+                end;
+            ColumnLayout2."Column Type"::"Rest of Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
                         CFAccount.SetRange(
-                          "Date Filter", 0D, CalcDate('<-1D>', FromDate));
-                "Column Type"::"Year to Date":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CFAccount.SetRange("Date Filter", FiscalStartDate2, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CFAccount.SetFilter("Date Filter", '..%1', FiscalStartDate2 - 1);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CFAccount.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Rest of Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CFAccount.SetRange(
-                              "Date Filter",
-                              CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CFAccount.SetRange("Date Filter", 0D, ToDate);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CFAccount.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-                "Column Type"::"Entire Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CFAccount.SetRange(
-                              "Date Filter",
-                              FiscalStartDate2, AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1));
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CFAccount.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-            end;
+                          "Date Filter",
+                          CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CFAccount.SetRange("Date Filter", 0D, ToDate);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CFAccount.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
+            ColumnLayout2."Column Type"::"Entire Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CFAccount.SetRange(
+                          "Date Filter",
+                          FiscalStartDate2, AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1));
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CFAccount.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
         end;
 
         OnAfterSetCFAccColumnFilter(CFAccount, AccSchedLine2, ColumnLayout2, StartDate, EndDate);
@@ -1275,54 +1257,50 @@ codeunit 8 AccSchedManagement
 
     local procedure SetCFEntryFilters(var CFAccount: Record "Cash Flow Account"; var CFForecastEntry: Record "Cash Flow Forecast Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with CFForecastEntry do begin
-            SetCurrentKey(
-              "Cash Flow Account No.", "Cash Flow Forecast No.", "Global Dimension 1 Code",
-              "Global Dimension 2 Code", "Cash Flow Date");
-            if CFAccount.Totaling = '' then
-                SetRange("Cash Flow Account No.", CFAccount."No.")
-            else
-                SetFilter("Cash Flow Account No.", CFAccount.Totaling);
-            CFAccount.CopyFilter("Date Filter", "Cash Flow Date");
-            AccSchedLine.CopyFilter("Cash Flow Forecast Filter", "Cash Flow Forecast No.");
-            AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
-            AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
-            FilterGroup(2);
-            SetFilter("Global Dimension 1 Code", AccSchedLine."Dimension 1 Totaling");
-            SetFilter("Global Dimension 2 Code", AccSchedLine."Dimension 2 Totaling");
-            FilterGroup(8);
-            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
-            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
-            FilterGroup(0);
-        end;
+        CFForecastEntry.SetCurrentKey(
+            "Cash Flow Account No.", "Cash Flow Forecast No.", "Global Dimension 1 Code",
+            "Global Dimension 2 Code", "Cash Flow Date");
+        if CFAccount.Totaling = '' then
+            CFForecastEntry.SetRange("Cash Flow Account No.", CFAccount."No.")
+        else
+            CFForecastEntry.SetFilter("Cash Flow Account No.", CFAccount.Totaling);
+        CFAccount.CopyFilter("Date Filter", CFForecastEntry."Cash Flow Date");
+        AccSchedLine.CopyFilter("Cash Flow Forecast Filter", CFForecastEntry."Cash Flow Forecast No.");
+        AccSchedLine.CopyFilter("Dimension 1 Filter", CFForecastEntry."Global Dimension 1 Code");
+        AccSchedLine.CopyFilter("Dimension 2 Filter", CFForecastEntry."Global Dimension 2 Code");
+        CFForecastEntry.FilterGroup(2);
+        CFForecastEntry.SetFilter("Global Dimension 1 Code", AccSchedLine."Dimension 1 Totaling");
+        CFForecastEntry.SetFilter("Global Dimension 2 Code", AccSchedLine."Dimension 2 Totaling");
+        CFForecastEntry.FilterGroup(8);
+        CFForecastEntry.SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+        CFForecastEntry.SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+        CFForecastEntry.FilterGroup(0);
     end;
 
     local procedure SetCFAnalysisViewEntryFilters(var CFAccount: Record "Cash Flow Account"; var AnalysisViewEntry: Record "Analysis View Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with AnalysisViewEntry do begin
-            SetRange("Analysis View Code", AccSchedName."Analysis View Name");
-            SetRange("Account Source", "Account Source"::"Cash Flow Account");
-            if CFAccount.Totaling = '' then
-                SetRange("Account No.", CFAccount."No.")
-            else
-                SetFilter("Account No.", CFAccount.Totaling);
-            CFAccount.CopyFilter("Date Filter", "Posting Date");
-            AccSchedLine.CopyFilter("Cash Flow Forecast Filter", "Cash Flow Forecast No.");
-            CopyDimFilters(AccSchedLine);
-            FilterGroup(2);
-            SetDimFilters(
-              GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
-            FilterGroup(8);
-            SetDimFilters(
-              GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
-              GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
-              GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
-              GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
-            FilterGroup(0);
-        end;
+        AnalysisViewEntry.SetRange("Analysis View Code", AccSchedName."Analysis View Name");
+        AnalysisViewEntry.SetRange("Account Source", AnalysisViewEntry."Account Source"::"Cash Flow Account");
+        if CFAccount.Totaling = '' then
+            AnalysisViewEntry.SetRange("Account No.", CFAccount."No.")
+        else
+            AnalysisViewEntry.SetFilter("Account No.", CFAccount.Totaling);
+        CFAccount.CopyFilter("Date Filter", AnalysisViewEntry."Posting Date");
+        AccSchedLine.CopyFilter("Cash Flow Forecast Filter", AnalysisViewEntry."Cash Flow Forecast No.");
+        AnalysisViewEntry.CopyDimFilters(AccSchedLine);
+        AnalysisViewEntry.FilterGroup(2);
+        AnalysisViewEntry.SetDimFilters(
+          GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
+        AnalysisViewEntry.FilterGroup(8);
+        AnalysisViewEntry.SetDimFilters(
+          GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"),
+          GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"),
+          GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"),
+          GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+        AnalysisViewEntry.FilterGroup(0);
 
         OnAfterSetCFAnalysisViewEntryFilters(AnalysisViewEntry, AccSchedLine, ColumnLayout);
     end;
@@ -1396,7 +1374,7 @@ codeunit 8 AccSchedManagement
         MaxLevel: Integer;
     begin
         Result := 0;
-        MaxLevel := 200; // 1000 is current's MaxStack Depth, 400 is considered CriticalStackDepth. See NavMethodScope.cs if you need to update it
+        MaxLevel := 25; // 1000 is current's MaxStack Depth, 400 is considered CriticalStackDepth. See NavMethodScope.cs if you need to update it
 
         OnBeforeEvaluateExpression(AccSchedLine, ColumnLayout, MaxLevel);
 
@@ -1873,75 +1851,69 @@ codeunit 8 AccSchedManagement
 
     local procedure SetCostEntryFilters(var CostType: Record "Cost Type"; var CostEntry: Record "Cost Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseDimFilter: Boolean)
     begin
-        with CostEntry do begin
-            if UseDimFilter then
-                SetCurrentKey("Cost Type No.", "Cost Center Code", "Cost Object Code")
-            else
-                SetCurrentKey("Cost Type No.", "Posting Date");
-            if CostType.Totaling = '' then
-                SetRange("Cost Type No.", CostType."No.")
-            else
-                SetFilter("Cost Type No.", CostType.Totaling);
-            CostType.CopyFilter("Date Filter", "Posting Date");
-            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
-            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
-            FilterGroup(2);
-            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
-            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
-            FilterGroup(8);
-            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
-            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
-            FilterGroup(0);
-        end;
+        if UseDimFilter then
+            CostEntry.SetCurrentKey("Cost Type No.", "Cost Center Code", "Cost Object Code")
+        else
+            CostEntry.SetCurrentKey("Cost Type No.", "Posting Date");
+        if CostType.Totaling = '' then
+            CostEntry.SetRange("Cost Type No.", CostType."No.")
+        else
+            CostEntry.SetFilter("Cost Type No.", CostType.Totaling);
+        CostType.CopyFilter("Date Filter", CostEntry."Posting Date");
+        AccSchedLine.CopyFilter("Cost Center Filter", CostEntry."Cost Center Code");
+        AccSchedLine.CopyFilter("Cost Object Filter", CostEntry."Cost Object Code");
+        CostEntry.FilterGroup(2);
+        CostEntry.SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
+        CostEntry.SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
+        CostEntry.FilterGroup(8);
+        CostEntry.SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
+        CostEntry.SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
+        CostEntry.FilterGroup(0);
 
         OnAfterSetCostEntryFilters(CostType, CostEntry, AccSchedLine, ColumnLayout, UseDimFilter);
     end;
 
     local procedure SetCostBudgetEntryFilters(var CostType: Record "Cost Type"; var CostBudgetEntry: Record "Cost Budget Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with CostBudgetEntry do begin
-            SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
-            if CostType.Totaling = '' then
-                SetRange("Cost Type No.", CostType."No.")
-            else
-                SetFilter("Cost Type No.", CostType.Totaling);
-            CostType.CopyFilter("Date Filter", Date);
-            AccSchedLine.CopyFilter("Cost Budget Filter", "Budget Name");
-            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
-            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
-            FilterGroup(2);
-            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
-            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
-            FilterGroup(8);
-            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
-            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
-            FilterGroup(0);
-        end;
+        CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
+        if CostType.Totaling = '' then
+            CostBudgetEntry.SetRange("Cost Type No.", CostType."No.")
+        else
+            CostBudgetEntry.SetFilter("Cost Type No.", CostType.Totaling);
+        CostType.CopyFilter("Date Filter", CostBudgetEntry.Date);
+        AccSchedLine.CopyFilter("Cost Budget Filter", CostBudgetEntry."Budget Name");
+        AccSchedLine.CopyFilter("Cost Center Filter", CostBudgetEntry."Cost Center Code");
+        AccSchedLine.CopyFilter("Cost Object Filter", CostBudgetEntry."Cost Object Code");
+        CostBudgetEntry.FilterGroup(2);
+        CostBudgetEntry.SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
+        CostBudgetEntry.SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
+        CostBudgetEntry.FilterGroup(8);
+        CostBudgetEntry.SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
+        CostBudgetEntry.SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
+        CostBudgetEntry.FilterGroup(0);
 
         OnAfterSetCostBudgetEntryFilters(CostType, CostBudgetEntry, AccSchedLine, ColumnLayout);
     end;
 
     procedure SetCostTypeRowFilters(var CostType: Record "Cost Type"; var AccSchedLine2: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
-        with AccSchedLine2 do begin
-            case "Totaling Type" of
-                "Totaling Type"::"Cost Type":
-                    begin
-                        CostType.SetFilter("No.", Totaling);
-                        CostType.SetRange(Type, CostType.Type::"Cost Type");
-                    end;
-                "Totaling Type"::"Cost Type Total":
-                    begin
-                        CostType.SetFilter("No.", Totaling);
-                        CostType.SetFilter(Type, '<>%1', CostType.Type::"Cost Type");
-                    end;
-            end;
-
-            CostType.SetFilter("Cost Center Filter", GetFilter("Cost Center Filter"));
-            CostType.SetFilter("Cost Object Filter", GetFilter("Cost Object Filter"));
-            if ColumnLayout."Ledger Entry Type" = ColumnLayout."Ledger Entry Type"::"Budget Entries" then
-                CostType.SetFilter("Budget Filter", GetFilter("Cost Budget Filter"));
+        case AccSchedLine2."Totaling Type" of
+            AccSchedLine2."Totaling Type"::"Cost Type":
+                begin
+                    CostType.SetFilter("No.", AccSchedLine2.Totaling);
+                    CostType.SetRange(Type, CostType.Type::"Cost Type");
+                end;
+            AccSchedLine2."Totaling Type"::"Cost Type Total":
+                begin
+                    CostType.SetFilter("No.", AccSchedLine2.Totaling);
+                    CostType.SetFilter(Type, '<>%1', CostType.Type::"Cost Type");
+                end;
         end;
+
+        CostType.SetFilter("Cost Center Filter", AccSchedLine2.GetFilter("Cost Center Filter"));
+        CostType.SetFilter("Cost Object Filter", AccSchedLine2.GetFilter("Cost Object Filter"));
+        if ColumnLayout."Ledger Entry Type" = ColumnLayout."Ledger Entry Type"::"Budget Entries" then
+            CostType.SetFilter("Budget Filter", AccSchedLine2.GetFilter("Cost Budget Filter"));
 
         OnAfterSetCostTypeRowFilters(CostType, AccSchedLine2);
     end;
@@ -1952,59 +1924,59 @@ codeunit 8 AccSchedManagement
         ToDate: Date;
         FiscalStartDate2: Date;
     begin
-        with ColumnLayout do begin
-            CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
-            case "Column Type" of
-                "Column Type"::"Net Change":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CostType.SetRange("Date Filter", FromDate, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CostType.SetFilter("Date Filter", '<%1', FromDate);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CostType.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Balance at Date":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
-                        CostType.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+        CalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2);
+        case ColumnLayout."Column Type" of
+            ColumnLayout."Column Type"::"Net Change":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CostType.SetRange("Date Filter", FromDate, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CostType.SetFilter("Date Filter", '<%1', FromDate);
+                    AccSchedLine2."Row Type"::"Balance at Date":
                         CostType.SetRange("Date Filter", 0D, ToDate);
-                "Column Type"::"Beginning Balance":
-                    if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
-                        CostType.SetRange("Date Filter", 0D) // Force a zero return
-                    else
+                end;
+            ColumnLayout."Column Type"::"Balance at Date":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Beginning Balance" then
+                    CostType.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    CostType.SetRange("Date Filter", 0D, ToDate);
+            ColumnLayout."Column Type"::"Beginning Balance":
+                if AccSchedLine2."Row Type" = AccSchedLine2."Row Type"::"Balance at Date" then
+                    CostType.SetRange("Date Filter", 0D)
+                // Force a zero return
+                else
+                    CostType.SetRange(
+                      "Date Filter", 0D, CalcDate('<-1D>', FromDate));
+            ColumnLayout."Column Type"::"Year to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CostType.SetRange("Date Filter", FiscalStartDate2, ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CostType.SetFilter("Date Filter", '<%1', FiscalStartDate2);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CostType.SetRange("Date Filter", 0D, ToDate);
+                end;
+            ColumnLayout."Column Type"::"Rest of Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
                         CostType.SetRange(
-                          "Date Filter", 0D, CalcDate('<-1D>', FromDate));
-                "Column Type"::"Year to Date":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CostType.SetRange("Date Filter", FiscalStartDate2, ToDate);
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CostType.SetFilter("Date Filter", '<%1', FiscalStartDate2);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CostType.SetRange("Date Filter", 0D, ToDate);
-                    end;
-                "Column Type"::"Rest of Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CostType.SetRange(
-                              "Date Filter", CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CostType.SetRange("Date Filter", 0D, ToDate);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CostType.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-                "Column Type"::"Entire Fiscal Year":
-                    case AccSchedLine2."Row Type" of
-                        AccSchedLine2."Row Type"::"Net Change":
-                            CostType.SetRange(
-                              "Date Filter", FiscalStartDate2, AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
-                        AccSchedLine2."Row Type"::"Beginning Balance":
-                            CostType.SetFilter("Date Filter", '<%1', FiscalStartDate2);
-                        AccSchedLine2."Row Type"::"Balance at Date":
-                            CostType.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
-                    end;
-            end;
+                          "Date Filter", CalcDate('<+1D>', ToDate), AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CostType.SetRange("Date Filter", 0D, ToDate);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CostType.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
+            ColumnLayout."Column Type"::"Entire Fiscal Year":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CostType.SetRange(
+                          "Date Filter", FiscalStartDate2, AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CostType.SetFilter("Date Filter", '<%1', FiscalStartDate2);
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CostType.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
         end;
 
         OnAfterSetCostTypeColumnFilters(CostType, AccSchedLine2, ColumnLayout);
@@ -2132,44 +2104,42 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with AccScheduleLine do begin
-            if TempColumnLayout."Column Type" = TempColumnLayout."Column Type"::Formula then begin
-                CalcFieldError(ErrorType, "Line No.", TempColumnLayout."Line No.");
-                if ErrorType <> ErrorType::None then
-                    Message(StrSubstNo(ColumnFormulaErrorMsg, TempColumnLayout.Formula, Format(ErrorType)))
-                else
-                    Message(ColumnFormulaMsg, TempColumnLayout.Formula);
-                exit;
-            end;
+        if TempColumnLayout."Column Type" = TempColumnLayout."Column Type"::Formula then begin
+            CalcFieldError(ErrorType, AccScheduleLine."Line No.", TempColumnLayout."Line No.");
+            if ErrorType <> ErrorType::None then
+                Message(StrSubstNo(ColumnFormulaErrorMsg, TempColumnLayout.Formula, Format(ErrorType)))
+            else
+                Message(ColumnFormulaMsg, TempColumnLayout.Formula);
+            exit;
+        end;
 
-            if "Totaling Type" in ["Totaling Type"::Formula, "Totaling Type"::"Set Base For Percent"] then begin
-                AccScheduleOverview.SetAccSchedName("Schedule Name");
-                AccScheduleOverview.SetColumnDefinition(TempColumnLayout."Column Layout Name");
-                AccScheduleOverview.SetTableView(AccScheduleLine);
-                AccScheduleOverview.SetRecord(AccScheduleLine);
-                AccScheduleOverview.SetViewOnlyMode(true);
-                AccScheduleOverview.SetPeriodType(PeriodLength);
-                AccScheduleOverview.Run();
-                exit;
-            end;
+        if AccScheduleLine."Totaling Type" in [AccScheduleLine."Totaling Type"::Formula, AccScheduleLine."Totaling Type"::"Set Base For Percent"] then begin
+            AccScheduleOverview.SetAccSchedName(AccScheduleLine."Schedule Name");
+            AccScheduleOverview.SetColumnDefinition(TempColumnLayout."Column Layout Name");
+            AccScheduleOverview.SetTableView(AccScheduleLine);
+            AccScheduleOverview.SetRecord(AccScheduleLine);
+            AccScheduleOverview.SetViewOnlyMode(true);
+            AccScheduleOverview.SetPeriodType(PeriodLength);
+            AccScheduleOverview.Run();
+            exit;
+        end;
 
-            OnBeforeDrillDownOnAccounts(AccScheduleLine, TempColumnLayout, PeriodLength, StartDate, EndDate);
+        OnBeforeDrillDownOnAccounts(AccScheduleLine, TempColumnLayout, PeriodLength, StartDate, EndDate);
 
-            if Totaling = '' then
-                exit;
+        if AccScheduleLine.Totaling = '' then
+            exit;
 
-            case "Totaling Type" of
-                "Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts",
-                "Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total":
-                    DrillDownOnGLAccount(TempColumnLayout, AccScheduleLine);
-                "Totaling Type"::"Cash Flow Entry Accounts",
-                "Totaling Type"::"Cash Flow Total Accounts":
-                    DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine);
-                "Totaling Type"::"Account Category":
-                    DrillDownOnGLAccCategory(TempColumnLayout, AccScheduleLine);
-                else
-                    OnDrillDownTotalingTypeElseCase(TempColumnLayout, AccScheduleLine);
-            end;
+        case AccScheduleLine."Totaling Type" of
+            AccScheduleLine."Totaling Type"::"Posting Accounts", AccScheduleLine."Totaling Type"::"Total Accounts",
+            AccScheduleLine."Totaling Type"::"Cost Type", AccScheduleLine."Totaling Type"::"Cost Type Total":
+                DrillDownOnGLAccount(TempColumnLayout, AccScheduleLine);
+            AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts",
+            AccScheduleLine."Totaling Type"::"Cash Flow Total Accounts":
+                DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine);
+            AccScheduleLine."Totaling Type"::"Account Category":
+                DrillDownOnGLAccCategory(TempColumnLayout, AccScheduleLine);
+            else
+                OnDrillDownTotalingTypeElseCase(TempColumnLayout, AccScheduleLine);
         end;
     end;
 
@@ -2182,17 +2152,15 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with AccScheduleLine do begin
-            if ("Totaling Type" = "Totaling Type"::Formula) and
-               (TempColumnLayout."Column Type" = TempColumnLayout."Column Type"::Formula)
-            then
-                Message(RowFormulaMsg, TempColumnLayout.Formula)
+        if (AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula) and
+           (TempColumnLayout."Column Type" = TempColumnLayout."Column Type"::Formula)
+        then
+            Message(RowFormulaMsg, TempColumnLayout.Formula)
+        else
+            if AccScheduleLine."Totaling Type" in [AccScheduleLine."Totaling Type"::Formula, AccScheduleLine."Totaling Type"::"Set Base For Percent"] then
+                Message(RowFormulaMsg, AccScheduleLine.Totaling)
             else
-                if "Totaling Type" in ["Totaling Type"::Formula, "Totaling Type"::"Set Base For Percent"] then
-                    Message(RowFormulaMsg, Totaling)
-                else
-                    DrillDown(TempColumnLayout, AccScheduleLine, PeriodLength);
-        end;
+                DrillDown(TempColumnLayout, AccScheduleLine, PeriodLength);
     end;
 
     procedure GLAccCategoryText(AccScheduleLine: Record "Acc. Schedule Line"): Text[250]
@@ -2271,71 +2239,70 @@ codeunit 8 AccSchedManagement
         if IsHandled then
             exit;
 
-        with AccScheduleLine do
-            if "Totaling Type" in ["Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total"] then begin
-                SetCostTypeRowFilters(CostType, AccScheduleLine, TempColumnLayout);
-                SetCostTypeColumnFilters(CostType, AccScheduleLine, TempColumnLayout);
-                CopyFilter("Cost Center Filter", CostType."Cost Center Filter");
-                CopyFilter("Cost Object Filter", CostType."Cost Object Filter");
-                CopyFilter("Cost Budget Filter", CostType."Budget Filter");
-                CostType.FilterGroup(2);
-                CostType.SetFilter("Cost Center Filter", GetDimTotalingFilter(1, "Cost Center Totaling"));
-                CostType.SetFilter("Cost Object Filter", GetDimTotalingFilter(1, "Cost Object Totaling"));
-                CostType.FilterGroup(8);
-                CostType.SetFilter("Cost Center Filter", GetDimTotalingFilter(1, TempColumnLayout."Cost Center Totaling"));
-                CostType.SetFilter("Cost Object Filter", GetDimTotalingFilter(1, TempColumnLayout."Cost Object Totaling"));
-                CostType.FilterGroup(0);
-                PAGE.Run(PAGE::"Chart of Cost Types", CostType);
-            end else begin
-                CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
-                CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
-                SetGLAccRowFilters(GLAcc, AccScheduleLine);
-                SetGLAccColumnFilters(GLAcc, AccScheduleLine, TempColumnLayout);
-                AccSchedName.Get("Schedule Name");
-                if AccSchedName."Analysis View Name" = '' then begin
-                    OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(AccScheduleLine, TempColumnLayout, GLAcc);
-                    CopyFilter("Dimension 1 Filter", GLAcc."Global Dimension 1 Filter");
-                    CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
-                    CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
-                    GLAcc.FilterGroup(2);
-                    OnDrillDownOnGLAccCatFilterOnAfterGLAccSetFilterGroup2(AccScheduleLine, GLAcc);
-                    GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, "Dimension 1 Totaling"));
-                    GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, "Dimension 2 Totaling"));
-                    GLAcc.FilterGroup(8);
-                    GLAcc.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
-                    GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
-                    GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
-                    if SubcategoryEntryFilter <> '' then begin
-                        GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
-                        GLAcc.SetFilter("Account Subcategory Entry No.", SubcategoryEntryFilter);
-                    end;
-                    GLAcc.FilterGroup(0);
-                    PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
-                end else begin
-                    OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(AccScheduleLine, TempColumnLayout, GLAcc);
-                    GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
-                    GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
-                    GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
-                    GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
-                    GLAccAnalysisView.CopyDimFilters(AccScheduleLine);
-                    GLAccAnalysisView.FilterGroup(2);
-                    GLAccAnalysisView.SetDimFilters(
-                      GetDimTotalingFilter(1, "Dimension 1 Totaling"), GetDimTotalingFilter(2, "Dimension 2 Totaling"),
-                      GetDimTotalingFilter(3, "Dimension 3 Totaling"), GetDimTotalingFilter(4, "Dimension 4 Totaling"));
-                    GLAccAnalysisView.FilterGroup(8);
-                    GLAccAnalysisView.SetDimFilters(
-                      GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"),
-                      GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"),
-                      GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
-                      GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
-                    GLAccAnalysisView.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
-                    GLAccAnalysisView.FilterGroup(0);
-                    Clear(ChartOfAccsAnalysisView);
-                    ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
-                    ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
-                    ChartOfAccsAnalysisView.Run();
+        if AccScheduleLine."Totaling Type" in [AccScheduleLine."Totaling Type"::"Cost Type", AccScheduleLine."Totaling Type"::"Cost Type Total"] then begin
+            SetCostTypeRowFilters(CostType, AccScheduleLine, TempColumnLayout);
+            SetCostTypeColumnFilters(CostType, AccScheduleLine, TempColumnLayout);
+            AccScheduleLine.CopyFilter("Cost Center Filter", CostType."Cost Center Filter");
+            AccScheduleLine.CopyFilter("Cost Object Filter", CostType."Cost Object Filter");
+            AccScheduleLine.CopyFilter("Cost Budget Filter", CostType."Budget Filter");
+            CostType.FilterGroup(2);
+            CostType.SetFilter("Cost Center Filter", GetDimTotalingFilter(1, AccScheduleLine."Cost Center Totaling"));
+            CostType.SetFilter("Cost Object Filter", GetDimTotalingFilter(1, AccScheduleLine."Cost Object Totaling"));
+            CostType.FilterGroup(8);
+            CostType.SetFilter("Cost Center Filter", GetDimTotalingFilter(1, TempColumnLayout."Cost Center Totaling"));
+            CostType.SetFilter("Cost Object Filter", GetDimTotalingFilter(1, TempColumnLayout."Cost Object Totaling"));
+            CostType.FilterGroup(0);
+            PAGE.Run(PAGE::"Chart of Cost Types", CostType);
+        end else begin
+            AccScheduleLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
+            AccScheduleLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
+            SetGLAccRowFilters(GLAcc, AccScheduleLine);
+            SetGLAccColumnFilters(GLAcc, AccScheduleLine, TempColumnLayout);
+            AccSchedName.Get(AccScheduleLine."Schedule Name");
+            if AccSchedName."Analysis View Name" = '' then begin
+                OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(AccScheduleLine, TempColumnLayout, GLAcc);
+                AccScheduleLine.CopyFilter("Dimension 1 Filter", GLAcc."Global Dimension 1 Filter");
+                AccScheduleLine.CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
+                AccScheduleLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
+                GLAcc.FilterGroup(2);
+                OnDrillDownOnGLAccCatFilterOnAfterGLAccSetFilterGroup2(AccScheduleLine, GLAcc);
+                GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, AccScheduleLine."Dimension 1 Totaling"));
+                GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, AccScheduleLine."Dimension 2 Totaling"));
+                GLAcc.FilterGroup(8);
+                GLAcc.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
+                GLAcc.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
+                GLAcc.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
+                if SubcategoryEntryFilter <> '' then begin
+                    GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
+                    GLAcc.SetFilter("Account Subcategory Entry No.", SubcategoryEntryFilter);
                 end;
+                GLAcc.FilterGroup(0);
+                PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
+            end else begin
+                OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(AccScheduleLine, TempColumnLayout, GLAcc);
+                GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
+                GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
+                GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
+                GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
+                GLAccAnalysisView.CopyDimFilters(AccScheduleLine);
+                GLAccAnalysisView.FilterGroup(2);
+                GLAccAnalysisView.SetDimFilters(
+                  GetDimTotalingFilter(1, AccScheduleLine."Dimension 1 Totaling"), GetDimTotalingFilter(2, AccScheduleLine."Dimension 2 Totaling"),
+                  GetDimTotalingFilter(3, AccScheduleLine."Dimension 3 Totaling"), GetDimTotalingFilter(4, AccScheduleLine."Dimension 4 Totaling"));
+                GLAccAnalysisView.FilterGroup(8);
+                GLAccAnalysisView.SetDimFilters(
+                  GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"),
+                  GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"),
+                  GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
+                  GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
+                GLAccAnalysisView.SetFilter("Business Unit Filter", TempColumnLayout."Business Unit Totaling");
+                GLAccAnalysisView.FilterGroup(0);
+                Clear(ChartOfAccsAnalysisView);
+                ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
+                ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
+                ChartOfAccsAnalysisView.Run();
             end;
+        end;
     end;
 
 
@@ -2350,46 +2317,44 @@ codeunit 8 AccSchedManagement
         GLAccAnalysisView: Record "G/L Account (Analysis View)";
         ChartOfAccsAnalysisView: Page "Chart of Accs. (Analysis View)";
     begin
-        with AccScheduleLine do begin
-            CopyFilter("Cash Flow Forecast Filter", CFAccount."Cash Flow Forecast Filter");
+        AccScheduleLine.CopyFilter("Cash Flow Forecast Filter", CFAccount."Cash Flow Forecast Filter");
 
-            SetCFAccRowFilter(CFAccount, AccScheduleLine);
-            SetCFAccColumnFilter(CFAccount, AccScheduleLine, TempColumnLayout);
-            AccSchedName.Get("Schedule Name");
-            if AccSchedName."Analysis View Name" = '' then begin
-                CopyFilter("Dimension 1 Filter", CFAccount."Global Dimension 1 Filter");
-                CopyFilter("Dimension 2 Filter", CFAccount."Global Dimension 2 Filter");
-                CFAccount.FilterGroup(2);
-                CFAccount.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, "Dimension 1 Totaling"));
-                CFAccount.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, "Dimension 2 Totaling"));
-                CFAccount.FilterGroup(8);
-                CFAccount.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
-                CFAccount.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
-                CFAccount.FilterGroup(0);
-                PAGE.Run(PAGE::"Chart of Cash Flow Accounts", CFAccount)
-            end else begin
-                CFAccount.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
-                CFAccount.CopyFilter("Cash Flow Forecast Filter", GLAccAnalysisView."Cash Flow Forecast Filter");
-                GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
-                GLAccAnalysisView.CopyDimFilters(AccScheduleLine);
-                GLAccAnalysisView.FilterGroup(2);
-                GLAccAnalysisView.SetDimFilters(
-                  GetDimTotalingFilter(1, "Dimension 1 Totaling"),
-                  GetDimTotalingFilter(2, "Dimension 2 Totaling"),
-                  GetDimTotalingFilter(3, "Dimension 3 Totaling"),
-                  GetDimTotalingFilter(4, "Dimension 4 Totaling"));
-                GLAccAnalysisView.FilterGroup(8);
-                GLAccAnalysisView.SetDimFilters(
-                  GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"),
-                  GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"),
-                  GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
-                  GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
-                GLAccAnalysisView.FilterGroup(0);
-                Clear(ChartOfAccsAnalysisView);
-                ChartOfAccsAnalysisView.InsertTempCFAccountAnalysisVie(CFAccount);
-                ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
-                ChartOfAccsAnalysisView.Run();
-            end;
+        SetCFAccRowFilter(CFAccount, AccScheduleLine);
+        SetCFAccColumnFilter(CFAccount, AccScheduleLine, TempColumnLayout);
+        AccSchedName.Get(AccScheduleLine."Schedule Name");
+        if AccSchedName."Analysis View Name" = '' then begin
+            AccScheduleLine.CopyFilter("Dimension 1 Filter", CFAccount."Global Dimension 1 Filter");
+            AccScheduleLine.CopyFilter("Dimension 2 Filter", CFAccount."Global Dimension 2 Filter");
+            CFAccount.FilterGroup(2);
+            CFAccount.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, AccScheduleLine."Dimension 1 Totaling"));
+            CFAccount.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, AccScheduleLine."Dimension 2 Totaling"));
+            CFAccount.FilterGroup(8);
+            CFAccount.SetFilter("Global Dimension 1 Filter", GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"));
+            CFAccount.SetFilter("Global Dimension 2 Filter", GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"));
+            CFAccount.FilterGroup(0);
+            PAGE.Run(PAGE::"Chart of Cash Flow Accounts", CFAccount)
+        end else begin
+            CFAccount.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
+            CFAccount.CopyFilter("Cash Flow Forecast Filter", GLAccAnalysisView."Cash Flow Forecast Filter");
+            GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
+            GLAccAnalysisView.CopyDimFilters(AccScheduleLine);
+            GLAccAnalysisView.FilterGroup(2);
+            GLAccAnalysisView.SetDimFilters(
+              GetDimTotalingFilter(1, AccScheduleLine."Dimension 1 Totaling"),
+              GetDimTotalingFilter(2, AccScheduleLine."Dimension 2 Totaling"),
+              GetDimTotalingFilter(3, AccScheduleLine."Dimension 3 Totaling"),
+              GetDimTotalingFilter(4, AccScheduleLine."Dimension 4 Totaling"));
+            GLAccAnalysisView.FilterGroup(8);
+            GLAccAnalysisView.SetDimFilters(
+              GetDimTotalingFilter(1, TempColumnLayout."Dimension 1 Totaling"),
+              GetDimTotalingFilter(2, TempColumnLayout."Dimension 2 Totaling"),
+              GetDimTotalingFilter(3, TempColumnLayout."Dimension 3 Totaling"),
+              GetDimTotalingFilter(4, TempColumnLayout."Dimension 4 Totaling"));
+            GLAccAnalysisView.FilterGroup(0);
+            Clear(ChartOfAccsAnalysisView);
+            ChartOfAccsAnalysisView.InsertTempCFAccountAnalysisVie(CFAccount);
+            ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
+            ChartOfAccsAnalysisView.Run();
         end;
     end;
 
@@ -2398,18 +2363,16 @@ codeunit 8 AccSchedManagement
         Calendar: Record Date;
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        with AccScheduleLine do begin
-            if GetFilter("Date Filter") <> '' then begin
-                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-                if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
-                    PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
-                Calendar.SetRange("Period Start");
-            end;
-            PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
-            SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-            if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                SetRange("Date Filter", GetRangeMin("Date Filter"));
+        if AccScheduleLine.GetFilter("Date Filter") <> '' then begin
+            Calendar.SetFilter("Period Start", AccScheduleLine.GetFilter("Date Filter"));
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
+            Calendar.SetRange("Period Start");
         end;
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
+        AccScheduleLine.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+        if AccScheduleLine.GetRangeMin("Date Filter") = AccScheduleLine.GetRangeMax("Date Filter") then
+            AccScheduleLine.SetRange("Date Filter", AccScheduleLine.GetRangeMin("Date Filter"));
     end;
 
     procedure CalcFieldError(var ErrorType: Option "None","Division by Zero","Period Error",Both; RowNo: Integer; ColumnNo: Integer)

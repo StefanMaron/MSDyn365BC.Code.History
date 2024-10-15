@@ -39,11 +39,11 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Viral Signup Plan
-        LibraryE2EPlanPermissions.SetViralSignupPlan;
+        LibraryE2EPlanPermissions.SetViralSignupPlan();
 
         // [WHEN] A sales order is created and posted
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -73,11 +73,11 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Premium User Plan
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
 
         // [WHEN] A sales order is created and posted
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -107,37 +107,37 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] It fails with a permission error
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [WHEN] A Service Order is posted
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('FormAbort:Permission');
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         PostedServiceOrderNo := PostServiceOrder(ServiceOrderNo);
 
         // [THEN] GL Entries contains lines pointing to that order
@@ -161,42 +161,42 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A user with External Accountant Plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] A sales order is created and posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] It fails with a permission error
         Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Close();
 
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         // [WHEN] A Service Order is posted
         ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Close();
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         PostedServiceOrderNo := PostServiceOrder(ServiceOrderNo);
 
         // [THEN] GL Entries contains lines pointing to that order
@@ -220,43 +220,43 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] A sales order is created
         asserterror SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A sales order is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostSalesOrder(SalesOrderNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Close();
 
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         PostSalesOrder(SalesOrderNo, false);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Service Order is posted
         ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
@@ -283,11 +283,11 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Premium ISV Emb User Plan
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
 
         // [WHEN] A sales order is created and posted
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -317,40 +317,40 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Essential ISV Emb Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] It fails with a permission error
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         // [WHEN] A Service Order is posted
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('FormAbort:Permission');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         PostedServiceOrderNo := PostServiceOrder(ServiceOrderNo);
 
         // [THEN] GL Entries contains lines pointing to that order
@@ -374,45 +374,45 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Team Member ISV Emb Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] A sales order is created
         asserterror SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         SalesOrderNo := CreateSalesOrder(CustomerNo, ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A sales order is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostSalesOrder(SalesOrderNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Close();
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         PostSalesOrder(SalesOrderNo, false);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Service Order is posted
         ErrorMessagesPage.Trap();
         asserterror PostServiceOrder(ServiceOrderNo);
@@ -439,40 +439,40 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Device ISV Emb Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] It fails with a permission error
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         // [WHEN] A Service Order is created
         asserterror ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         ServiceOrderNo := CreateServiceOrder(CustomerNo, ServiceItemNo);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         // [WHEN] A Service Order is posted
         asserterror PostServiceOrder(ServiceOrderNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('FormAbort:Permission');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         PostedServiceOrderNo := PostServiceOrder(ServiceOrderNo);
 
         // [THEN] GL Entries contains lines pointing to that order
@@ -494,13 +494,13 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Viral Signup Plan
-        LibraryE2EPlanPermissions.SetViralSignupPlan;
+        LibraryE2EPlanPermissions.SetViralSignupPlan();
 
         // [WHEN] A sales order is created and posted
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -528,22 +528,22 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
@@ -551,7 +551,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         asserterror CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -574,25 +574,25 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A user with External Accountant Plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] A sales order is created and posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Close();
 
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
@@ -600,7 +600,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         asserterror CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -622,23 +622,23 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] A posted sales order
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
         // [GIVEN] A Service Item
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] A service contract is created and signed
         asserterror CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -660,23 +660,23 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Essential ISV Emb Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
@@ -685,7 +685,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -707,25 +707,25 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] A posted sales order
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
         // [GIVEN] A Service Item
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
         // [GIVEN] A user with Team Member ISV Emb Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] A service contract is created and signed
         asserterror CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -747,23 +747,23 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
 
         Initialize();
         // [GIVEN] A service account group
-        ServiceAccountGroupCode := CreateServiceContractAccountGroup;
+        ServiceAccountGroupCode := CreateServiceContractAccountGroup();
         // [GIVEN] An item with service item group
-        ItemNo := CreateItem(CreateServiceItemGroup);
+        ItemNo := CreateItem(CreateServiceItemGroup());
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Device ISV Emb Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] A sales order is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         // [THEN] Service Items contain a Service Item for the given ItemNo
         ServiceItemNo := GetServiceItemNoFromItemNo(ItemNo);
 
@@ -772,7 +772,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
         CreateAndSignServiceContract(CustomerNo, ServiceItemNo, ServiceAccountGroupCode);
 
         // [THEN] A service invoice is created
@@ -791,9 +791,9 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Mgmt. Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Preview));
 
@@ -805,16 +805,16 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceContractTemplate.DeleteAll();
         PlanningAssignment.DeleteAll();
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryTemplates.EnableTemplatesFeature();
 
         LibraryERMCountryData.CreateVATData();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
 
-        Resource := CreateItem(CreateServiceItemGroup);
-        CreateServiceMgmtSetup;
+        Resource := CreateItem(CreateServiceItemGroup());
+        CreateServiceMgmtSetup();
 
         IsInitialized := true;
         Commit();
@@ -829,13 +829,13 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
-        SalesOrder.SalesLines.New;
+        SalesOrder.SalesLines.New();
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
         SalesOrder.SalesLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesOrderNo := SalesOrder."No.".Value;
-        SalesOrder.OK.Invoke;
+        SalesOrderNo := SalesOrder."No.".Value();
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure PostSalesOrder(SalesOrderNo: Code[20]; ExpectFailure: Boolean) PostedSalesOrderNo: Code[20]
@@ -843,11 +843,11 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
         if not ExpectFailure then
-            PostedSalesOrderNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedSalesOrderNo));
+            PostedSalesOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedSalesOrderNo));
     end;
 
     local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; ItemNo: Code[20]; ExpectFailure: Boolean) PostedSalesOrderNo: Code[20]
@@ -864,12 +864,12 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         ServiceOrder.OpenNew();
         ServiceOrder."Customer No.".SetValue(CustomerNo);
-        ServiceOrder.ServItemLines.New;
+        ServiceOrder.ServItemLines.New();
         ServiceOrder.ServItemLines.ServiceItemNo.SetValue(ServiceItemNo);
-        ServiceOrder.ServItemLines."Item No.".Activate;
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-        ServiceOrderNo := ServiceOrder."No.".Value;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.ServItemLines."Item No.".Activate();
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+        ServiceOrderNo := ServiceOrder."No.".Value();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure PostServiceOrder(ServiceOrderNo: Code[20]) PostedServiceOrderNo: Code[20]
@@ -877,10 +877,10 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceHeader: Record "Service Header";
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoKey(ServiceHeader."Document Type"::Order, ServiceOrderNo);
-        ServiceOrder.Post.Invoke;
-        PostedServiceOrderNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedServiceOrderNo));
+        ServiceOrder.Post.Invoke();
+        PostedServiceOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedServiceOrderNo));
     end;
 
     local procedure CreateAndSignServiceContract(CustomerNo: Code[20]; ServiceItemNo: Code[20]; ServiceAccountGroupCode: Code[10]) ServiceContractNo: Code[20]
@@ -891,15 +891,15 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         OldDate := WorkDate();
         WorkDate := CalcDate('<-1D>', WorkDate());
         ServiceContract.OpenNew();
-        ServiceContract."Customer No.".Activate;
+        ServiceContract."Customer No.".Activate();
         ServiceContract."Customer No.".SetValue(CustomerNo);
         ServiceContract."Serv. Contract Acc. Gr. Code".SetValue(ServiceAccountGroupCode);
         ServiceContract."Service Period".SetValue('1Y');
         ServiceContract.ServContractLines."Service Item No.".SetValue(ServiceItemNo);
         ServiceContract.ServContractLines."Line Value".SetValue(10);
-        ServiceContractNo := ServiceContract."Contract No.".Value;
+        ServiceContractNo := ServiceContract."Contract No.".Value();
         WorkDate := OldDate;
-        ServiceContract.SignContract.Invoke;
+        ServiceContract.SignContract.Invoke();
     end;
 
     local procedure CreateBaseCalendar() BaseCalendarCode: Code[10]
@@ -917,25 +917,25 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     var
         ServiceMgtSetup: TestPage "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.OpenEdit;
-        ServiceMgtSetup."Base Calendar Code".SetValue(CreateBaseCalendar);
+        ServiceMgtSetup.OpenEdit();
+        ServiceMgtSetup."Base Calendar Code".SetValue(CreateBaseCalendar());
         ServiceMgtSetup."Shipment on Invoice".SetValue(true);
-        ServiceMgtSetup."Service Item Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Service Quote Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Service Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Service Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Posted Service Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Service Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Posted Serv. Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Posted Service Shipment Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Loaner Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Troubleshooting Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Service Contract Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Contract Template Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Contract Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Contract Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup."Prepaid Posting Document Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        ServiceMgtSetup.OK.Invoke;
+        ServiceMgtSetup."Service Item Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Service Quote Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Service Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Service Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Posted Service Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Service Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Posted Serv. Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Posted Service Shipment Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Loaner Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Troubleshooting Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Service Contract Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Contract Template Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Contract Invoice Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Contract Credit Memo Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup."Prepaid Posting Document Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        ServiceMgtSetup.OK().Invoke();
         Commit();
     end;
 
@@ -947,8 +947,8 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemCard."Service Item Group".SetValue(ServiceItemGroup);
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -965,8 +965,8 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
         CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
         CustomerCard."Customer Posting Group".SetValue(TempCustomerDetails."Customer Posting Group");
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
         Commit();
     end;
 
@@ -974,7 +974,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     begin
         TempCustomerDetails.Init();
         FindBusPostingGroups(TempCustomerDetails."Gen. Bus. Posting Group", TempCustomerDetails."VAT Bus. Posting Group");
-        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup;
+        TempCustomerDetails."Customer Posting Group" := LibrarySales.FindCustomerPostingGroup();
     end;
 
     local procedure FindBusPostingGroups(var GenBusPostingGroup: Code[20]; var VATBusPostingGroup: Code[20])
@@ -994,15 +994,15 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceItemGroup: Record "Service Item Group";
         ServiceItemGroups: TestPage "Service Item Groups";
     begin
-        ServiceItemGroups.OpenEdit;
-        ServiceItemGroups.New;
+        ServiceItemGroups.OpenEdit();
+        ServiceItemGroups.New();
         ServiceItemGroupCode :=
           LibraryUtility.GenerateRandomCodeWithLength(
             ServiceItemGroup.FieldNo(Code), DATABASE::"Service Item Group", MaxStrLen(ServiceItemGroup.Code));
         ServiceItemGroups.Code.SetValue(ServiceItemGroupCode);
         ServiceItemGroups."Default Response Time (Hours)".SetValue(LibraryRandom.RandInt(10));
         ServiceItemGroups."Create Service Item".SetValue(true);
-        ServiceItemGroups.OK.Invoke;
+        ServiceItemGroups.OK().Invoke();
         Commit();
     end;
 
@@ -1011,8 +1011,8 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceContractAccountGroup: Record "Service Contract Account Group";
         ServContractAccountGroups: TestPage "Serv. Contract Account Groups";
     begin
-        ServContractAccountGroups.OpenEdit;
-        ServContractAccountGroups.New;
+        ServContractAccountGroups.OpenEdit();
+        ServContractAccountGroups.New();
         ServContractAccountGroupCode :=
           LibraryUtility.GenerateRandomCodeWithLength(
             ServiceContractAccountGroup.FieldNo(Code), DATABASE::"Service Contract Account Group",
@@ -1020,7 +1020,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServContractAccountGroups.Code.SetValue(ServContractAccountGroupCode);
         ServContractAccountGroups."Non-Prepaid Contract Acc.".SetValue(GLAccountNo);
         ServContractAccountGroups."Prepaid Contract Acc.".SetValue(GLAccountNo);
-        ServContractAccountGroups.OK.Invoke;
+        ServContractAccountGroups.OK().Invoke();
         Commit();
     end;
 
@@ -1028,36 +1028,36 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     var
         ServiceItemList: TestPage "Service Item List";
     begin
-        ServiceItemList.OpenView;
+        ServiceItemList.OpenView();
         ServiceItemList.FILTER.SetFilter("Item No.", Format(ItemNo));
-        Assert.IsTrue(ServiceItemList.First, 'Service Item List should contain at least a service item of the given no');
-        ServiceItemNo := ServiceItemList."No.".Value;
+        Assert.IsTrue(ServiceItemList.First(), 'Service Item List should contain at least a service item of the given no');
+        ServiceItemNo := ServiceItemList."No.".Value();
     end;
 
     local procedure VerifyGLEntriesForPostedServiceOrder(DocumentNo: Code[20])
     var
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
         GeneralLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        Assert.IsTrue(GeneralLedgerEntries.First, 'G/L Entries does not contain any entry for the given No');
+        Assert.IsTrue(GeneralLedgerEntries.First(), 'G/L Entries does not contain any entry for the given No');
     end;
 
     local procedure VerifyServiceInvoiceExists(CustomerNo: Code[20])
     var
         ServiceInvoices: TestPage "Service Invoices";
     begin
-        ServiceInvoices.OpenView;
+        ServiceInvoices.OpenView();
         ServiceInvoices.FILTER.SetFilter("Customer No.", CustomerNo);
-        Assert.IsTrue(ServiceInvoices.First, 'Service Invoices does not contain any document for the given customer no.');
+        Assert.IsTrue(ServiceInvoices.First(), 'Service Invoices does not contain any document for the given customer no.');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        ConfigTemplates.First();
+        ConfigTemplates.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1086,7 +1086,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceItemWorksheet.ServInvLines."No.".SetValue(Resource);
         ServiceItemWorksheet.ServInvLines.Quantity.SetValue(LibraryRandom.RandInt(10));
         ServiceItemWorksheet.ServInvLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        ServiceItemWorksheet.OK.Invoke;
+        ServiceItemWorksheet.OK().Invoke();
     end;
 
     [ConfirmHandler]

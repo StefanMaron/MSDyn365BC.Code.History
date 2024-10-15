@@ -213,7 +213,7 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         TransferReservations(
           OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewProdOrderComponent."Qty. per Unit of Measure",
-          DATABASE::"Prod. Order Component", NewProdOrderComponent.Status, NewProdOrderComponent."Prod. Order No.",
+          DATABASE::"Prod. Order Component", NewProdOrderComponent.Status.AsInteger(), NewProdOrderComponent."Prod. Order No.",
           '', NewProdOrderComponent."Prod. Order Line No.", NewProdOrderComponent."Line No.");
     end;
 
@@ -229,7 +229,7 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         TransferReservations(
           OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewAssemblyLine."Qty. per Unit of Measure",
-          DATABASE::"Assembly Line", NewAssemblyLine."Document Type", NewAssemblyLine."Document No.",
+          DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.",
           '', 0, NewAssemblyLine."Line No.");
     end;
 

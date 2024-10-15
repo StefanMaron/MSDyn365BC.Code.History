@@ -31,7 +31,7 @@ codeunit 134401 "ERM KPI Web Service"
         InitSetupData();
         CopyBudgetEntries(GLBudgetEntry, TempGLBudgetEntry);
         GLBudgetEntry.DeleteAll();
-        Assert.AreEqual(0D, AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate, 'Wrong Last Date Modified for empty budget.');
+        Assert.AreEqual(0D, AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate(), 'Wrong Last Date Modified for empty budget.');
         CopyBudgetEntries(TempGLBudgetEntry, GLBudgetEntry);
     end;
 
@@ -46,10 +46,10 @@ codeunit 134401 "ERM KPI Web Service"
 
         with GLBudgetEntry do begin
             SetCurrentKey("Last Date Modified", "Budget Name");
-            SetRange("Budget Name", GetBudgetName);
+            SetRange("Budget Name", GetBudgetName());
             FindLast();
             Assert.AreEqual(
-              "Last Date Modified", AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate, 'Wrong Last Date Modified for existing budget.');
+              "Last Date Modified", AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate(), 'Wrong Last Date Modified for existing budget.');
         end;
     end;
 
@@ -169,13 +169,13 @@ codeunit 134401 "ERM KPI Web Service"
         LastClosedDate: Date;
     begin
         InitSetupData();
-        if LibraryERM.GetAllowPostingFrom = 0D then
-            LastClosedDate := WorkDate
+        if LibraryERM.GetAllowPostingFrom() = 0D then
+            LastClosedDate := WorkDate()
         else
-            LastClosedDate := LibraryERM.GetAllowPostingFrom - 1;
+            LastClosedDate := LibraryERM.GetAllowPostingFrom() - 1;
 
         AccSchedKPIWebSrvSetup.Get();
-        Assert.AreEqual(LastClosedDate, AccSchedKPIWebSrvSetup.GetLastClosedAccDate, 'Wrong last closed date.');
+        Assert.AreEqual(LastClosedDate, AccSchedKPIWebSrvSetup.GetLastClosedAccDate(), 'Wrong last closed date.');
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 134401 "ERM KPI Web Service"
         WebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
         if WebService.FindFirst() then
             WebService.Delete();
-        AccSchedKPIWebSrvSetup.PublishWebService;
+        AccSchedKPIWebSrvSetup.PublishWebService();
         WebService.Get(WebService."Object Type"::Page, AccSchedKPIWebSrvSetup."Web Service Name");
     end;
 
@@ -220,8 +220,8 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         InitSetupData();
         AccSchedKPIWebSrvSetup.Get();
-        AccSchedKPIWebSrvSetup.PublishWebService;
-        AccSchedKPIWebSrvSetup.DeleteWebService;
+        AccSchedKPIWebSrvSetup.PublishWebService();
+        AccSchedKPIWebSrvSetup.DeleteWebService();
         asserterror WebService.Get(WebService."Object Type"::Page, PAGE::"Acc. Sched. KPI Web Service");
     end;
 
@@ -230,7 +230,7 @@ codeunit 134401 "ERM KPI Web Service"
     procedure TestWebServicePage()
     begin
         InitSetupData();
-        ValidateWebServicePage;
+        ValidateWebServicePage();
     end;
 
     [Test]
@@ -243,7 +243,7 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         InitSetupData();
         // Run the web service page once to initiate data
-        ValidateWebServicePage;
+        ValidateWebServicePage();
         AccSchedKPIBufferCount := AccSchedKPIBuffer.Count();
         Assert.AreNotEqual(0, AccSchedKPIBufferCount, 'AccSchedKPIBuffer is not updated');
         // Simulated that some gl entries have been posted and time has passed
@@ -253,7 +253,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup.Modify();
 
         // WHEN running the page again, it should be refreshed
-        ValidateWebServicePage;
+        ValidateWebServicePage();
 
         // THEN the page still produces same data as nothing was really posted
         Assert.AreEqual(AccSchedKPIBufferCount, AccSchedKPIBuffer.Count, 'Not same amount of lines in page');
@@ -274,37 +274,37 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
 
-        AccSchedKPIWSDimensions.OpenView;
-        AccSchedKPIWSDimensions.First;
-        Assert.AreEqual(StartDate, AccSchedKPIWSDimensions.Date.AsDate, 'Wrong StartDate.');
+        AccSchedKPIWSDimensions.OpenView();
+        AccSchedKPIWSDimensions.First();
+        Assert.AreEqual(StartDate, AccSchedKPIWSDimensions.Date.AsDate(), 'Wrong StartDate.');
         Assert.AreEqual(
           Format(ActivitiesTxt), AccSchedKPIWSDimensions."Account Schedule Name".Value, 'Wrong Account Schedule Name.');
         Assert.AreEqual(
-          GetNetChange(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate),
-          AccSchedKPIWSDimensions."Net Change Actual".AsDEcimal, 'Wrong Net Change Actual.');
+          GetNetChange(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate()),
+          AccSchedKPIWSDimensions."Net Change Actual".AsDecimal(), 'Wrong Net Change Actual.');
         Assert.AreEqual(
-          GetBalance(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate),
-          AccSchedKPIWSDimensions."Balance at Date Actual".AsDEcimal, 'Wrong Balance at Date Actual.');
+          GetBalance(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate()),
+          AccSchedKPIWSDimensions."Balance at Date Actual".AsDecimal(), 'Wrong Balance at Date Actual.');
         Assert.AreEqual(
-          GetNetChangeBudget(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate),
-          AccSchedKPIWSDimensions."Net Change Budget".AsDEcimal, 'Wrong Net Change Budget.');
+          GetNetChangeBudget(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate()),
+          AccSchedKPIWSDimensions."Net Change Budget".AsDecimal(), 'Wrong Net Change Budget.');
         Assert.AreEqual(
-          GetBalanceBudget(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate),
-          AccSchedKPIWSDimensions."Balance at Date Budget".AsDEcimal, 'Wrong Balance at Date Budget.');
+          GetBalanceBudget(GLAccNo1, AccSchedKPIWSDimensions.Date.AsDate()),
+          AccSchedKPIWSDimensions."Balance at Date Budget".AsDecimal(), 'Wrong Balance at Date Budget.');
         Assert.AreEqual(
-          GetNetChange(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate)),
-          AccSchedKPIWSDimensions."Net Change Actual Last Year".AsDEcimal, 'Wrong Net Change Actual Last Year.');
+          GetNetChange(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate())),
+          AccSchedKPIWSDimensions."Net Change Actual Last Year".AsDecimal(), 'Wrong Net Change Actual Last Year.');
         Assert.AreEqual(
-          GetBalance(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate)),
-          AccSchedKPIWSDimensions."Balance at Date Actual Last Year".AsDEcimal, 'Wrong Balance at Date Actual Last Year.');
+          GetBalance(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate())),
+          AccSchedKPIWSDimensions."Balance at Date Actual Last Year".AsDecimal(), 'Wrong Balance at Date Actual Last Year.');
         Assert.AreEqual(
-          GetNetChangeBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate)),
-          AccSchedKPIWSDimensions."Net Change Budget Last Year".AsDEcimal, 'Wrong Net Change Budget Last Year.');
+          GetNetChangeBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate())),
+          AccSchedKPIWSDimensions."Net Change Budget Last Year".AsDecimal(), 'Wrong Net Change Budget Last Year.');
         Assert.AreEqual(
-          GetBalanceBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate)),
-          AccSchedKPIWSDimensions."Balance at Date Budget Last Year".AsDEcimal, 'Wrong Balance at Date Budget Last Year.');
+          GetBalanceBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWSDimensions.Date.AsDate())),
+          AccSchedKPIWSDimensions."Balance at Date Budget Last Year".AsDecimal(), 'Wrong Balance at Date Budget Last Year.');
 
-        PrevKPIName := AccSchedKPIWSDimensions."KPI Name".Value;
+        PrevKPIName := AccSchedKPIWSDimensions."KPI Name".Value();
         Assert.AreNotEqual('', PrevKPIName, 'Missing KPI Name.');
         AccSchedKPIWSDimensions.Next();
         Assert.AreNotEqual(PrevKPIName, AccSchedKPIWSDimensions."KPI Name".Value, 'Expected KPI names to be different.');
@@ -332,7 +332,7 @@ codeunit 134401 "ERM KPI Web Service"
         GLBudgetEntry.Insert();
 
         // Then AccSchedKPIWebSrvSetup is reset.
-        ValidateAccSchedKpiIsReset;
+        ValidateAccSchedKpiIsReset();
     end;
 
     [Test]
@@ -356,7 +356,7 @@ codeunit 134401 "ERM KPI Web Service"
         GLBudgetEntry.Insert();
 
         // Then AccSchedKPIWebSrvSetup is reset.
-        ValidateAccSchedKpiIsNotReset;
+        ValidateAccSchedKpiIsNotReset();
     end;
 
     [Test]
@@ -376,7 +376,7 @@ codeunit 134401 "ERM KPI Web Service"
         InsertTestData(LiquidityTxt, 20000, 'FOO', 'Foo', 'FOO');
 
         // Then AccSchedKPIWebSrvSetup is reset.
-        ValidateAccSchedKpiIsReset;
+        ValidateAccSchedKpiIsReset();
     end;
 
     [Test]
@@ -399,7 +399,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccScheduleLine.Modify();
 
         // Then AccSchedKPIWebSrvSetup is reset.
-        ValidateAccSchedKpiIsReset;
+        ValidateAccSchedKpiIsReset();
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 134401 "ERM KPI Web Service"
         AccScheduleLine.Insert();
 
         // Then AccSchedKPIWebSrvSetup not is reset.
-        ValidateAccSchedKpiIsNotReset;
+        ValidateAccSchedKpiIsNotReset();
     end;
 
     [Test]
@@ -547,7 +547,7 @@ codeunit 134401 "ERM KPI Web Service"
             if Get() then
                 Delete();
             Init();
-            "G/L Budget Name" := GetBudgetName;
+            "G/L Budget Name" := GetBudgetName();
             "Web Service Name" := 'kpi';
             "View By" := "View By"::Day;
             Insert();
@@ -702,10 +702,10 @@ codeunit 134401 "ERM KPI Web Service"
     [Scope('OnPrem')]
     procedure CreateFiscalYearRequestPageHandler(var CreateFiscalYear: TestRequestPage "Create Fiscal Year")
     begin
-        CreateFiscalYear.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        CreateFiscalYear.NoOfPeriods.SetValue(LibraryVariableStorage.DequeueInteger);
-        CreateFiscalYear.PeriodLength.SetValue(LibraryVariableStorage.DequeueText);
-        CreateFiscalYear.OK.Invoke;
+        CreateFiscalYear.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CreateFiscalYear.NoOfPeriods.SetValue(LibraryVariableStorage.DequeueInteger());
+        CreateFiscalYear.PeriodLength.SetValue(LibraryVariableStorage.DequeueText());
+        CreateFiscalYear.OK().Invoke();
     end;
 
     local procedure ValidateWebServicePage()
@@ -720,37 +720,37 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
 
-        AccSchedKPIWebService.OpenView;
-        AccSchedKPIWebService.First;
-        Assert.AreEqual(StartDate, AccSchedKPIWebService.Date.AsDate, 'Wrong StartDate.');
+        AccSchedKPIWebService.OpenView();
+        AccSchedKPIWebService.First();
+        Assert.AreEqual(StartDate, AccSchedKPIWebService.Date.AsDate(), 'Wrong StartDate.');
         Assert.AreEqual(
           Format(ActivitiesTxt), AccSchedKPIWebService."Account Schedule Name".Value, 'Wrong Account Schedule Name.');
         Assert.AreEqual(
-          GetNetChange(GLAccNo1, AccSchedKPIWebService.Date.AsDate),
-          AccSchedKPIWebService."Net Change Actual".AsDEcimal, 'Wrong Net Change Actual.');
+          GetNetChange(GLAccNo1, AccSchedKPIWebService.Date.AsDate()),
+          AccSchedKPIWebService."Net Change Actual".AsDecimal(), 'Wrong Net Change Actual.');
         Assert.AreEqual(
-          GetBalance(GLAccNo1, AccSchedKPIWebService.Date.AsDate),
-          AccSchedKPIWebService."Balance at Date Actual".AsDEcimal, 'Wrong Balance at Date Actual.');
+          GetBalance(GLAccNo1, AccSchedKPIWebService.Date.AsDate()),
+          AccSchedKPIWebService."Balance at Date Actual".AsDecimal(), 'Wrong Balance at Date Actual.');
         Assert.AreEqual(
-          GetNetChangeBudget(GLAccNo1, AccSchedKPIWebService.Date.AsDate),
-          AccSchedKPIWebService."Net Change Budget".AsDEcimal, 'Wrong Net Change Budget.');
+          GetNetChangeBudget(GLAccNo1, AccSchedKPIWebService.Date.AsDate()),
+          AccSchedKPIWebService."Net Change Budget".AsDecimal(), 'Wrong Net Change Budget.');
         Assert.AreEqual(
-          GetBalanceBudget(GLAccNo1, AccSchedKPIWebService.Date.AsDate),
-          AccSchedKPIWebService."Balance at Date Budget".AsDEcimal, 'Wrong Balance at Date Budget.');
+          GetBalanceBudget(GLAccNo1, AccSchedKPIWebService.Date.AsDate()),
+          AccSchedKPIWebService."Balance at Date Budget".AsDecimal(), 'Wrong Balance at Date Budget.');
         Assert.AreEqual(
-          GetNetChange(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate)),
-          AccSchedKPIWebService."Net Change Actual Last Year".AsDEcimal, 'Wrong Net Change Actual Last Year.');
+          GetNetChange(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate())),
+          AccSchedKPIWebService."Net Change Actual Last Year".AsDecimal(), 'Wrong Net Change Actual Last Year.');
         Assert.AreEqual(
-          GetBalance(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate)),
-          AccSchedKPIWebService."Balance at Date Actual Last Year".AsDEcimal, 'Wrong Balance at Date Actual Last Year.');
+          GetBalance(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate())),
+          AccSchedKPIWebService."Balance at Date Actual Last Year".AsDecimal(), 'Wrong Balance at Date Actual Last Year.');
         Assert.AreEqual(
-          GetNetChangeBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate)),
-          AccSchedKPIWebService."Net Change Budget Last Year".AsDEcimal, 'Wrong Net Change Budget Last Year.');
+          GetNetChangeBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate())),
+          AccSchedKPIWebService."Net Change Budget Last Year".AsDecimal(), 'Wrong Net Change Budget Last Year.');
         Assert.AreEqual(
-          GetBalanceBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate)),
-          AccSchedKPIWebService."Balance at Date Budget Last Year".AsDEcimal, 'Wrong Balance at Date Budget Last Year.');
+          GetBalanceBudget(GLAccNo1, CalcDate('<-1Y>', AccSchedKPIWebService.Date.AsDate())),
+          AccSchedKPIWebService."Balance at Date Budget Last Year".AsDecimal(), 'Wrong Balance at Date Budget Last Year.');
 
-        PrevKPIName := AccSchedKPIWebService."KPI Name".Value;
+        PrevKPIName := AccSchedKPIWebService."KPI Name".Value();
         Assert.AreNotEqual('', PrevKPIName, 'Missing KPI Name.');
         AccSchedKPIWebService.Next();
         Assert.AreNotEqual(PrevKPIName, AccSchedKPIWebService."KPI Name".Value, 'Expected KPI names to be different.');

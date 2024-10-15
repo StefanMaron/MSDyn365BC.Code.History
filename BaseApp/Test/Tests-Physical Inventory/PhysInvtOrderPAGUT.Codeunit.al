@@ -9,6 +9,9 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     end;
 
     var
+#if not CLEAN24
+        LibraryInventory: Codeunit "Library - Inventory";
+#endif
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -29,8 +32,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
 
         // Exercise & verify: Invokes Action - Print on Page Posted Phys. Invt. Order. Added ReportHandler - PostedPhysInvtOrderDiffReportHandler.
-        PostedPhysInvtOrder.OpenEdit;
-        PostedPhysInvtOrder.Print.Invoke;  // Invokes PostedPhysInvtOrderDiffReportHandler.
+        PostedPhysInvtOrder.OpenEdit();
+        PostedPhysInvtOrder.Print.Invoke();  // Invokes PostedPhysInvtOrderDiffReportHandler.
         PostedPhysInvtOrder.Close();
     end;
 
@@ -47,11 +50,11 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // [SCENARIO] validate Print - OnAction Trigger of Page ID - 5005362 Posted Physical Inventory Recording.
         // Setup.
         CreateReportSelections(ReportSelections.Usage::"P.Phys.Invt.Rec.", REPORT::"Posted Phys. Invt. Recording");
-        CreatePostedPhysInvtRecHeader(PstdPhysInvtRecordHdr, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInvtRecHeader(PstdPhysInvtRecordHdr, LibraryUTUtility.GetNewCode());
 
         // Exercise & verify: Invokes Action - Print on Page Posted Phys. Invt. Recording. Added ReportHandler - PostedPhysInvtRecordingReportHandler.
-        PostedPhysInvtRecording.OpenEdit;
-        PostedPhysInvtRecording.Print.Invoke;  // Invokes PostedPhysInvtRecordingReportHandler.
+        PostedPhysInvtRecording.OpenEdit();
+        PostedPhysInvtRecording.Print.Invoke();  // Invokes PostedPhysInvtRecordingReportHandler.
         PostedPhysInvtRecording.Close();
     end;
 
@@ -68,11 +71,11 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // [SCENARIO] validate Print - OnAction Trigger of Page ID - 5005354 Physical Inventory Recording.
         // Setup.
         CreateReportSelections(ReportSelections.Usage::"Phys.Invt.Rec.", REPORT::"Phys. Invt. Recording");
-        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode);
+        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode());
 
         // Exercise & verify: Invokes Action - Print on Page Phys. Invt. Recording. Added ReportHandler - PhysInvtRecordingReportHandler.
-        PhysInventoryRecording.OpenEdit;
-        PhysInventoryRecording.Print.Invoke;  // Invokes PhysInvtRecordingReportHandler.
+        PhysInventoryRecording.OpenEdit();
+        PhysInventoryRecording.Print.Invoke();  // Invokes PhysInvtRecordingReportHandler.
         PhysInventoryRecording.Close();
     end;
 
@@ -158,9 +161,9 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
 
         // Exercise & verify: Invokes Action - Navigate on page Posted Phys. Invt. Order List. Verify correct entries created for Posted Physical Inventory Order Header in PostPhysInvtOrderNavigatePageHandler.
-        PostedPhysInvtOrderList.OpenEdit;
+        PostedPhysInvtOrderList.OpenEdit();
         PostedPhysInvtOrderList.FILTER.SetFilter("No.", PstdPhysInvtOrderHdr."No.");
-        PostedPhysInvtOrderList.Navigate.Invoke;  // Invokes PostPhysInvtOrderNavigatePageHandler.
+        PostedPhysInvtOrderList.Navigate.Invoke();  // Invokes PostPhysInvtOrderNavigatePageHandler.
         PostedPhysInvtOrderList.Close();
     end;
 
@@ -188,7 +191,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // Exercise & verify: Invokes Action - RecordingLines on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in PostedPhysInvtRecordLinesPageHandler.
         OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
-        PostedPhysInvtOrder.OrderLines.RecordingLines.Invoke;  // Invokes PostedPhysInvtRecordLinesPageHandler.
+        PostedPhysInvtOrder.OrderLines.RecordingLines.Invoke();  // Invokes PostedPhysInvtRecordLinesPageHandler.
         PostedPhysInvtOrder.Close();
     end;
 
@@ -219,10 +222,11 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // Exercise & verify: Invokes Action - Dimensions on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in DimensionSetEntriesPageHandler.
         OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
-        PostedPhysInvtOrder.OrderLines.Dimensions.Invoke;  // Invokes DimensionSetEntriesPageHandler.
+        PostedPhysInvtOrder.OrderLines.Dimensions.Invoke();  // Invokes DimensionSetEntriesPageHandler.
         PostedPhysInvtOrder.Close();
     end;
 
+#if not CLEAN24
     [Test]
     [HandlerFunctions('PostExpPhInTrackListPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -250,10 +254,50 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // Exercise & verify: Invokes Action - ExpectedTrackingLines on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in DimensionSetEntriesPageHandler.
         OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
-        PostedPhysInvtOrder.OrderLines.ExpectedTrackingLines.Invoke;  // Invokes PostExpPhInTrackListPageHandler.
+        PostedPhysInvtOrder.OrderLines.ExpectedTrackingLines.Invoke();  // Invokes PostExpPhInTrackListPageHandler.
         PostedPhysInvtOrder.Close();
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PostedExpInvtOrderTrackingPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExpectedTrackingLinesPostedPhysInvtOrderSubformPackage()
+    var
+        PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
+        PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
+        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
+        PostedPhysInvtOrder: TestPage "Posted Phys. Invt. Order";
+    begin
+        // [SCENARIO] validate ExpectedTrackingLines - OnAction trigger of Page ID - 5005360  Posted Physical Inventory Order Subform.
+        // Setup.
+        Initialize();
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(true);
+#endif
+        CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, PstdPhysInvtOrderHdr."No.");
+        PstdPhysInvtOrderLine."Quantity (Base)" := 1;
+        PstdPhysInvtOrderLine.Modify();
+
+        CreatePostedExpInvtOrderTracking(
+          PstdExpInvtOrderTracking, PstdPhysInvtOrderLine."Document No.", PstdPhysInvtOrderLine."Line No.");
+        LibraryVariableStorage.Enqueue(PstdPhysInvtOrderHdr."No.");
+        LibraryVariableStorage.Enqueue(PstdExpInvtOrderTracking."Serial No.");
+        LibraryVariableStorage.Enqueue(PstdExpInvtOrderTracking."Lot No.");
+        LibraryVariableStorage.Enqueue(PstdExpInvtOrderTracking."Package No.");
+
+        // Exercise & verify: Invokes Action - ExpectedTrackingLines on Posted Physical Inventory Order Subform and verify correct entries created for Posted Physical Inventory Order Header in DimensionSetEntriesPageHandler.
+        OpenPostedPhysInventoryOrderPage(PostedPhysInvtOrder, PstdPhysInvtOrderHdr."No.");
+        PostedPhysInvtOrder.OrderLines.ExpectedTrackingLines.Invoke();  // Invokes PostedExpInvtTrackingPageHandler.
+        PostedPhysInvtOrder.Close();
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(false);
+#endif
+    end;
+
+#if not CLEAN24
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -265,11 +309,11 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         // [SCENARIO] validate SetSources Function on Page Used Tracking Lines.
         // Setup: Create Physical Inventory Tracking Buffer.
-        PhysInvtTrackingBuffer."Lot No" := LibraryUTUtility.GetNewCode;
-        PhysInvtTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode;
+        PhysInvtTrackingBuffer."Lot No" := LibraryUTUtility.GetNewCode();
+        PhysInvtTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode();
         PhysInvtTrackingBuffer."Qty. Expected (Base)" := 1;
         PhysInvtTrackingBuffer.Insert();
-        PhysInvtTrackingLines.Trap;
+        PhysInvtTrackingLines.Trap();
 
         // [WHEN] SetSources and run the Page - Used Tracking Lines.
         PhysInvtTrackingLinesPage.SetSources(PhysInvtTrackingBuffer);
@@ -279,6 +323,42 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInvtTrackingLines."Lot No".AssertEquals(PhysInvtTrackingBuffer."Lot No");
         PhysInvtTrackingLines."Serial No.".AssertEquals(PhysInvtTrackingBuffer."Serial No.");
         PhysInvtTrackingLines."Qty. Expected (Base)".AssertEquals(PhysInvtTrackingBuffer."Qty. Expected (Base)");
+    end;
+#endif
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure SetSourcesUsedPackageTrackingLines()
+    var
+        InvtOrderTrackingBuffer: Record "Invt. Order Tracking";
+        InvtOrderTrackingLinesPage: Page "Invt. Order Tracking Lines";
+        InvtOrderTrackingLines: TestPage "Invt. Order Tracking Lines";
+    begin
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(true);
+#endif
+        // [SCENARIO] validate SetSources Function on Page Used Tracking Lines.
+        // Setup: Create Physical Inventory Tracking Buffer.
+        InvtOrderTrackingBuffer."Serial No." := LibraryUTUtility.GetNewCode();
+        InvtOrderTrackingBuffer."Lot No." := LibraryUTUtility.GetNewCode();
+        InvtOrderTrackingBuffer."Package No." := LibraryUTUtility.GetNewCode();
+        InvtOrderTrackingBuffer."Qty. Expected (Base)" := 1;
+        InvtOrderTrackingBuffer.Insert();
+        InvtOrderTrackingLines.Trap();
+
+        // [WHEN] SetSources and run the Page - Used Tracking Lines.
+        InvtOrderTrackingLinesPage.SetSources(InvtOrderTrackingBuffer);
+        InvtOrderTrackingLinesPage.Run();
+
+        // [THEN] Verify Serial No, Lot, Package No and Qty. Expected (Base) on Page Used Tracking Lines.
+        InvtOrderTrackingLines."Serial No.".AssertEquals(InvtOrderTrackingBuffer."Serial No.");
+        InvtOrderTrackingLines."Lot No.".AssertEquals(InvtOrderTrackingBuffer."Lot No.");
+        InvtOrderTrackingLines."Package No.".AssertEquals(InvtOrderTrackingBuffer."Package No.");
+        InvtOrderTrackingLines."Qty. Expected (Base)".AssertEquals(InvtOrderTrackingBuffer."Qty. Expected (Base)");
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(false);
+#endif
     end;
 
     [Test]
@@ -295,8 +375,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPhysInventoryOrderPage(PhysInventoryOrder, CreatePhysInventoryOrder(PhysInvtOrderLine."Entry Type"::" ", 0, false));  // Quantity (Base) - 0 and Without Difference - False.
 
         // [WHEN] Open Physical Inventory Order Statistics page.
-        PhysInvtOrderStatistics.Trap;
-        asserterror PhysInventoryOrder.Statistics.Invoke;
+        PhysInvtOrderStatistics.Trap();
+        asserterror PhysInventoryOrder.Statistics.Invoke();
 
         // [THEN] Verify Error Code, Error Msg - Unknown Entry type.
         Assert.ExpectedErrorCode('Dialog');
@@ -317,7 +397,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 0, true);  // Quantity (Base) - 0 and Without Difference - True.
 
         // Exercise.
-        PhysInvtOrderStatistics.NoCorrectLines.DrillDown;  // Open page in PhysInventoryOrderLinesPageHandler.
+        PhysInvtOrderStatistics.NoCorrectLines.DrillDown();  // Open page in PhysInventoryOrderLinesPageHandler.
 
         // [THEN] Verify NoCorrectLines on Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PhysInventoryOrderLinesPageHandler.
         PhysInvtOrderStatistics.NoCorrectLines.AssertEquals(1);
@@ -339,7 +419,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 1, false);  // Quantity (Base) - 1 and Without Difference - False.
 
         // Exercise.
-        PhysInvtOrderStatistics.NoPosDiffLines.DrillDown;  // Open page in PhysInventoryOrderLinesPageHandler.
+        PhysInvtOrderStatistics.NoPosDiffLines.DrillDown();  // Open page in PhysInventoryOrderLinesPageHandler.
 
         // [THEN] Verify NoPosDiffLines on Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PhysInventoryOrderLinesPageHandler.
         PhysInvtOrderStatistics.NoPosDiffLines.AssertEquals(1);
@@ -361,7 +441,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPhysInvtOrderStatisticsPage(PhysInvtOrderStatistics, PhysInvtOrderLine."Entry Type"::"Negative Adjmt.", 0, false);  // Quantity (Base) - 0 and Without Difference - False.
 
         // Exercise.
-        PhysInvtOrderStatistics.NoNegDiffLines.DrillDown;  // Open page in PhysInventoryOrderLinesPageHandler.
+        PhysInvtOrderStatistics.NoNegDiffLines.DrillDown();  // Open page in PhysInventoryOrderLinesPageHandler.
 
         // [THEN] Verify NoNegDiffLines on Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PhysInventoryOrderLinesPageHandler.
         PhysInvtOrderStatistics.NoNegDiffLines.AssertEquals(1);
@@ -383,8 +463,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
           PostedPhysInvtOrder, CreatePostedPhysInventoryOrder(PstdPhysInvtOrderLine."Entry Type"::" ", 0, false));  // Quantity (Base) - 0 and Without Difference - False.
 
         // [WHEN] Open Posted Physical Inventory Order Statistics page.
-        PostedPhysInvtOrderStat.Trap;
-        asserterror PostedPhysInvtOrder.Statistics.Invoke;
+        PostedPhysInvtOrderStat.Trap();
+        asserterror PostedPhysInvtOrder.Statistics.Invoke();
 
         // [THEN] Verify Error Code, Error Msg - Unknown Entry type.
         Assert.ExpectedErrorCode('Dialog');
@@ -406,7 +486,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
           PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 0, true);  // Quantity (Base) - 0 and Without Difference - True.
 
         // Exercise.
-        PostedPhysInvtOrderStat.NoCorrectLines.DrillDown;  // Open page in PstdPhysInvtOrderLinesPageHandler.
+        PostedPhysInvtOrderStat.NoCorrectLines.DrillDown();  // Open page in PstdPhysInvtOrderLinesPageHandler.
 
         // [THEN] Verify NoCorrectLines on Posted Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PstdPhysInvtOrderLinesPageHandler.
         PostedPhysInvtOrderStat.NoCorrectLines.AssertEquals(1);
@@ -428,7 +508,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPostedPhysInvtOrderStatisticsPage(PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Positive Adjmt.", 1, false);  // Quantity (Base) - 1 and Without Difference - False.
 
         // [WHEN] Open Posted Physical Inventory Order Statistics page.
-        PostedPhysInvtOrderStat.NoPosDiffLines.DrillDown;  // Open page in PstdPhysInvtOrderLinesPageHandler.
+        PostedPhysInvtOrderStat.NoPosDiffLines.DrillDown();  // Open page in PstdPhysInvtOrderLinesPageHandler.
 
         // [THEN] Verify NoPosDiffLines on Posted Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PstdPhysInvtOrderLinesPageHandler.
         // [THEN] DiffAmountPosDiffLines should be -1
@@ -452,7 +532,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         OpenPostedPhysInvtOrderStatisticsPage(PostedPhysInvtOrderStat, PstdPhysInvtOrderLine."Entry Type"::"Negative Adjmt.", 0, false);  // Quantity (Base) - 0 and Without Difference - False.
 
         // [WHEN] Open Posted Physical Inventory Order Statistics page.
-        PostedPhysInvtOrderStat.NoNegDiffLines.DrillDown;  // Open page in PstdPhysInvtOrderLinesPageHandler.
+        PostedPhysInvtOrderStat.NoNegDiffLines.DrillDown();  // Open page in PstdPhysInvtOrderLinesPageHandler.
 
         // [THEN] Verify NoNegDiffLines on Posted Physical Inventory Order Statistics page and Entry Type and Quantity Base verify in Page handler - PstdPhysInvtOrderLinesPageHandler.
         // [THEN] DiffAmountPosDiffLines should be -1
@@ -476,7 +556,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
         // Setup: Create Physical Inventory Order with Line, and create another Physical Inventory Order Header.
         Initialize();
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
@@ -485,9 +565,9 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // [WHEN] Invoke Action - CopyDocument of Page Physical Inventory Order.
         Commit();  // COMMIT required because explicit COMMIT in OnPreReport Trigger of Report Copy Phys. Invt. Order.
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside CopyPhysInvtOrderRequestPageHandler.
-        PhysInventoryOrder.OpenEdit;
+        PhysInventoryOrder.OpenEdit();
         PhysInventoryOrder.FILTER.SetFilter("No.", PhysInvtOrderHeader2."No.");
-        PhysInventoryOrder.CopyDocument.Invoke;
+        PhysInventoryOrder.CopyDocument.Invoke();
         PhysInventoryOrder.Close();
 
         // [THEN] Verify Physical Inventory Order Line successfully copied to second Physical Inventory Order.
@@ -512,9 +592,9 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
 
         // Exercise & Verify: Invoke Action - TestReport on Page Phys. Inventory Order. Verify Physical Invt. Order Test report opens up.
-        PhysInventoryOrder.OpenEdit;
+        PhysInventoryOrder.OpenEdit();
         PhysInventoryOrder.FILTER.SetFilter("No.", PhysInvtOrderHeader."No.");
-        PhysInventoryOrder.TestReport.Invoke;  // Invokes PhysInvtOrderTestReportHandler.
+        PhysInventoryOrder.TestReport.Invoke();  // Invokes PhysInvtOrderTestReportHandler.
         PhysInventoryOrder.Close();
     end;
 
@@ -527,8 +607,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     var
         DimensionValue: Record "Dimension Value";
     begin
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
 
         DimensionSetEntry."Dimension Set ID" := DimensionSetID;
@@ -543,14 +623,14 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         ReportSelections.Init();
         ReportSelections.Usage := Usage;
-        ReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
+        ReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
         ReportSelections."Report ID" := ReportID;
         ReportSelections.Insert();
     end;
 
     local procedure CreatePostedPhysInvtOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
-        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderHdr."Posting Date" := WorkDate();
         PstdPhysInvtOrderHdr.Insert();
     end;
@@ -559,7 +639,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         PstdPhysInvtOrderLine."Document No." := DocumentNo;
         PstdPhysInvtOrderLine."Line No." := 1;
-        PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderLine.Insert();
     end;
 
@@ -586,24 +666,37 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
             PhysInventoryLedgerEntry2."Entry No." := 1
         else
             PhysInventoryLedgerEntry2."Entry No." := PhysInventoryLedgerEntry."Entry No." + 1;
-        PhysInventoryLedgerEntry2."Document No." := LibraryUTUtility.GetNewCode;
+        PhysInventoryLedgerEntry2."Document No." := LibraryUTUtility.GetNewCode();
         PhysInventoryLedgerEntry2."Posting Date" := WorkDate();
         PhysInventoryLedgerEntry2.Insert();
     end;
 
+#if not CLEAN24
     local procedure CreatePostedExpectPhysInvtTrackLine(var PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track"; DocumentNo: Code[20]; OrderLineNo: Integer)
     begin
         PstdExpPhysInvtTrack."Order No" := DocumentNo;
         PstdExpPhysInvtTrack."Order Line No." := OrderLineNo;
-        PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode;
-        PstdExpPhysInvtTrack."Lot No." := LibraryUTUtility.GetNewCode;
+        PstdExpPhysInvtTrack."Serial No." := LibraryUTUtility.GetNewCode();
+        PstdExpPhysInvtTrack."Lot No." := LibraryUTUtility.GetNewCode();
         PstdExpPhysInvtTrack."Quantity (Base)" := 1;
         PstdExpPhysInvtTrack.Insert();
+    end;
+#endif
+
+    local procedure CreatePostedExpInvtOrderTracking(var PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking"; DocumentNo: Code[20]; OrderLineNo: Integer)
+    begin
+        PstdExpInvtOrderTracking."Order No" := DocumentNo;
+        PstdExpInvtOrderTracking."Order Line No." := OrderLineNo;
+        PstdExpInvtOrderTracking."Serial No." := LibraryUTUtility.GetNewCode();
+        PstdExpInvtOrderTracking."Lot No." := LibraryUTUtility.GetNewCode();
+        PstdExpInvtOrderTracking."Package No." := LibraryUTUtility.GetNewCode();
+        PstdExpInvtOrderTracking."Quantity (Base)" := 1;
+        PstdExpInvtOrderTracking.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
     end;
 
@@ -627,7 +720,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInvtOrderHeader.Modify();
 
         // Create Physical Inventory Order Line.
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode());
         PhysInvtOrderLine."Entry Type" := EntryType;
         PhysInvtOrderLine."Quantity (Base)" := QuantityBase;
         PhysInvtOrderLine."Without Difference" := WithoutDifference;
@@ -666,13 +759,13 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
 
     local procedure OpenPhysInventoryOrderPage(var PhysInventoryOrder: TestPage "Physical Inventory Order"; No: Code[20])
     begin
-        PhysInventoryOrder.OpenEdit;
+        PhysInventoryOrder.OpenEdit();
         PhysInventoryOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPostedPhysInventoryOrderPage(var PostedPhysInvtOrder: TestPage "Posted Phys. Invt. Order"; No: Code[20])
     begin
-        PostedPhysInvtOrder.OpenEdit;
+        PostedPhysInvtOrder.OpenEdit();
         PostedPhysInvtOrder.FILTER.SetFilter("No.", No);
     end;
 
@@ -685,8 +778,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // Enqueue value for Page handler PhysInventoryOrderLinesPageHandler.
         LibraryVariableStorage.Enqueue(EntryType);
         LibraryVariableStorage.Enqueue(QuantityBase);
-        PhysInvtOrderStatistics.Trap;
-        PhysInventoryOrder.Statistics.Invoke;
+        PhysInvtOrderStatistics.Trap();
+        PhysInventoryOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPostedPhysInvtOrderStatisticsPage(var PostedPhysInvtOrderStat: TestPage "Posted Phys. Invt. Order Stat."; EntryType: Option; QuantityBase: Decimal; WithoutDifference: Boolean)
@@ -698,8 +791,8 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         // Enqueue value for Page handler PstdPhysInvtOrderLinesPageHandler.
         LibraryVariableStorage.Enqueue(EntryType);
         LibraryVariableStorage.Enqueue(QuantityBase);
-        PostedPhysInvtOrderStat.Trap;
-        PostedPhysInvtOrder.Statistics.Invoke;
+        PostedPhysInvtOrderStat.Trap();
+        PostedPhysInvtOrder.Statistics.Invoke();
     end;
 
     [ReportHandler]
@@ -747,7 +840,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
     begin
         Navigate.FindFirstField("Table Name", PstdPhysInvtOrderHdr.TableName);
-        Navigate.Show.Invoke;  // Opens PostedPhysInvtOrderListPageHandler.
+        Navigate.Show.Invoke();  // Opens PostedPhysInvtOrderListPageHandler.
     end;
 
     [PageHandler]
@@ -759,7 +852,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         LibraryVariableStorage.Dequeue(No);
         PostedPhysInvtOrderList."No.".AssertEquals(No);
         PostedPhysInvtOrderList."Posting Date".AssertEquals(WorkDate());
-        PostedPhysInvtOrderList.OK.Invoke;
+        PostedPhysInvtOrderList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -767,7 +860,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     procedure ShowPhysInvtLedgEntryNavigatePageHandler(var Navigate: TestPage Navigate)
     begin
         Navigate.FindFirstField("Table Name", 'Phys. Inventory Ledger Entry');
-        Navigate.Show.Invoke;  // Opens PhysInventoryLedgerEntriesPageHandler.
+        Navigate.Show.Invoke();  // Opens PhysInventoryLedgerEntriesPageHandler.
     end;
 
     [PageHandler]
@@ -779,7 +872,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         LibraryVariableStorage.Dequeue(DocumentNo);
         PhysInventoryLedgerEntries."Document No.".AssertEquals(DocumentNo);
         PhysInventoryLedgerEntries."Posting Date".AssertEquals(WorkDate());
-        PhysInventoryLedgerEntries.OK.Invoke;
+        PhysInventoryLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -793,9 +886,10 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         LibraryVariableStorage.Dequeue(DimensionValueCode);
         DimensionSetEntries."Dimension Code".AssertEquals(DimensionCode);
         DimensionSetEntries.DimensionValueCode.AssertEquals(DimensionValueCode);
-        DimensionSetEntries.OK.Invoke;
+        DimensionSetEntries.OK().Invoke();
     end;
 
+#if not CLEAN24
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostExpPhInTrackListPageHandler(var PostExpPhInTrackList: TestPage "Posted Exp. Phys. Invt. Track")
@@ -812,7 +906,30 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PostExpPhInTrackList."Quantity (Base)".AssertEquals(1);
         PostExpPhInTrackList."Order No".AssertEquals(OrderNo);
         PostExpPhInTrackList."Order Line No.".AssertEquals(1);
-        PostExpPhInTrackList.OK.Invoke;
+        PostExpPhInTrackList.OK().Invoke();
+    end;
+#endif
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedExpInvtOrderTrackingPageHandler(var PostedExpInvtOrderTracking: TestPage "Posted.Exp.Invt.Order.Tracking")
+    var
+        OrderNo: Variant;
+        SerialNo: Variant;
+        LotNo: Variant;
+        PackageNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(OrderNo);
+        LibraryVariableStorage.Dequeue(SerialNo);
+        LibraryVariableStorage.Dequeue(LotNo);
+        LibraryVariableStorage.Dequeue(PackageNo);
+        PostedExpInvtOrderTracking."Serial No.".AssertEquals(SerialNo);
+        PostedExpInvtOrderTracking."Lot No.".AssertEquals(LotNo);
+        PostedExpInvtOrderTracking."Package No.".AssertEquals(PackageNo);
+        PostedExpInvtOrderTracking."Quantity (Base)".AssertEquals(1);
+        PostedExpInvtOrderTracking."Order No".AssertEquals(OrderNo);
+        PostedExpInvtOrderTracking."Order Line No.".AssertEquals(1);
+        PostedExpInvtOrderTracking.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -823,7 +940,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     begin
         LibraryVariableStorage.Dequeue(OrderNo);
         PostedPhysInvtRecLines."Order No.".AssertEquals(OrderNo);
-        PostedPhysInvtRecLines.OK.Invoke;
+        PostedPhysInvtRecLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -862,7 +979,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         LibraryVariableStorage.Dequeue(PhysInvtOrderHeaderNo);
         CopyPhysInvtOrder.DocumentType.SetValue(Format(DocumentType::"Phys. Invt. Order"));
         CopyPhysInvtOrder.DocumentNo.SetValue(PhysInvtOrderHeaderNo);
-        CopyPhysInvtOrder.OK.Invoke;
+        CopyPhysInvtOrder.OK().Invoke();
     end;
 
     [ReportHandler]

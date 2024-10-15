@@ -32,7 +32,6 @@ codeunit 134785 "Test Assembly Order Post Prev."
         AssembledItem: Record Item;
         CompItem: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
-        Location: Record Location;
         ValueEntry: Record "Value Entry";
         AsemblyPostYesNo: Codeunit "Assembly-Post (Yes/No)";
         GLPostingPreview: TestPage "G/L Posting Preview";
@@ -49,17 +48,17 @@ codeunit 134785 "Test Assembly Order Post Prev."
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror AsemblyPostYesNo.Preview(AssemblyHeader);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the asembly order is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 2);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -202,7 +201,7 @@ codeunit 134785 "Test Assembly Order Post Prev."
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 

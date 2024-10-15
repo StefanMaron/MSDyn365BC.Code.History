@@ -7,6 +7,7 @@ namespace Microsoft.Projects.TimeSheet;
 table 959 "Time Sheet Chart Setup"
 {
     Caption = 'Time Sheet Chart Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -28,7 +29,7 @@ table 959 "Time Sheet Chart Setup"
         field(4; "Measure Type"; Option)
         {
             Caption = 'Measure Type';
-            OptionCaption = 'Open,Submitted,Rejected,Approved,Scheduled,Posted,Not Posted,Resource,Job,Service,Absence,Assembly Order';
+            OptionCaption = 'Open,Submitted,Rejected,Approved,Scheduled,Posted,Not Posted,Resource,Project,Service,Absence,Assembly Order';
             OptionMembers = Open,Submitted,Rejected,Approved,Scheduled,Posted,"Not Posted",Resource,Job,Service,Absence,"Assembly Order";
         }
     }

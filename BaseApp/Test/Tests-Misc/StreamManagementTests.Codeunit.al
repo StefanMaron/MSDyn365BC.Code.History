@@ -38,10 +38,10 @@ codeunit 132592 "Stream Management Tests"
         Content += '</env:Envelope>';
 
         // [GIVEN] An Mtom String embedding the xml document
-        MtomString := '------=_Part_170043_1574782596.1513784534431' + TypeHelper.NewLine;
-        MtomString += 'Content-Type: application/xop+xml; charset=utf-8; type="application/soap+xml"' + TypeHelper.NewLine;
-        MtomString += '' + TypeHelper.NewLine;
-        MtomString += Content + TypeHelper.NewLine;
+        MtomString := '------=_Part_170043_1574782596.1513784534431' + TypeHelper.NewLine();
+        MtomString += 'Content-Type: application/xop+xml; charset=utf-8; type="application/soap+xml"' + TypeHelper.NewLine();
+        MtomString += '' + TypeHelper.NewLine();
+        MtomString += Content + TypeHelper.NewLine();
         MtomString += '------=_Part_170043_1574782596.1513784534431--';
 
         // [WHEN] The Mtom String is processed by the MtomStreamToXmlStream function

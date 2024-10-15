@@ -6,6 +6,7 @@ table 5820 "Cost Element Buffer"
 {
     Caption = 'Cost Element Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -102,11 +103,14 @@ table 5820 "Cost Element Buffer"
             Init();
     end;
 
+#if not CLEAN24
+    [Obsolete('Unused', '24.0')]
     procedure AddActualCost(NewType: Option; NewVarianceType: Option; NewActualCost: Decimal; NewActualCostACY: Decimal)
     begin
         AddActualCostElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType), NewActualCost, NewActualCostACY);
     end;
 
+    [Obsolete('Use AddActualCostElement(NewEntryType: Enum "Cost Entry Type"; NewActualCost: Decimal; NewActualCostACY: Decimal) instead.', '24.0')]
     procedure AddActualCostElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"; NewActualCost: Decimal; NewActualCostACY: Decimal)
     begin
         if not HasNewCost(NewActualCost, NewActualCostACY) then begin
@@ -124,6 +128,7 @@ table 5820 "Cost Element Buffer"
         end;
     end;
 
+    [Obsolete('Use AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; NewActualCost: Decimal; NewActualCostACY: Decimal) instead.', '24.0')]
     procedure AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
     begin
         if not HasNewCost(NewExpectedCost, NewExpectedCostACY) then begin
@@ -139,6 +144,52 @@ table 5820 "Cost Element Buffer"
             "Expected Cost (ACY)" := NewExpectedCostACY;
             Insert();
         end;
+    end;
+#endif
+
+    procedure AddActualCostElement(NewEntryType: Enum "Cost Entry Type"; NewActualCost: Decimal; NewActualCostACY: Decimal)
+    begin
+        if not HasNewCost(NewActualCost, NewActualCostACY) then begin
+            GetElement(NewEntryType);
+            exit;
+        end;
+
+        if GetElement(NewEntryType) then begin
+            "Actual Cost" += NewActualCost;
+            "Actual Cost (ACY)" += NewActualCostACY;
+            Modify();
+        end else begin
+            "Actual Cost" := NewActualCost;
+            "Actual Cost (ACY)" := NewActualCostACY;
+            Insert();
+        end;
+    end;
+
+    procedure AddActualCostElement(NewEntryType: Enum "Cost Entry Type"; ValueEntry: Record "Value Entry")
+    begin
+        AddActualCostElement(NewEntryType, ValueEntry."Cost Amount (Actual)", ValueEntry."Cost Amount (Actual) (ACY)");
+    end;
+
+    procedure AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; NewExpectedCost: Decimal; NewExpectedCostACY: Decimal)
+    begin
+        if not HasNewCost(NewExpectedCost, NewExpectedCostACY) then begin
+            GetElement(NewEntryType);
+            exit;
+        end;
+        if GetElement(NewEntryType) then begin
+            "Expected Cost" += NewExpectedCost;
+            "Expected Cost (ACY)" += NewExpectedCostACY;
+            Modify();
+        end else begin
+            "Expected Cost" := NewExpectedCost;
+            "Expected Cost (ACY)" := NewExpectedCostACY;
+            Insert();
+        end;
+    end;
+
+    procedure AddExpectedCostElement(NewEntryType: Enum "Cost Entry Type"; ValueEntry: Record "Value Entry")
+    begin
+        AddExpectedCostElement(NewEntryType, ValueEntry."Cost Amount (Expected)", ValueEntry."Cost Amount (Expected) (ACY)");
     end;
 
     procedure RoundActualCost(ShareOfTotalCost: Decimal; AmtRndgPrec: Decimal; AmtRndgPrecACY: Decimal)
@@ -169,6 +220,8 @@ table 5820 "Cost Element Buffer"
         OnAfterExcludeBufFromAvgCostCalc(Rec, InvtAdjmtBuffer);
     end;
 
+#if not CLEAN24
+    [Obsolete('Use GetElement(NewEntryType: Enum "Cost Entry Type") instead.', '24.0')]
     procedure GetElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"): Boolean
     begin
         Reset();
@@ -179,6 +232,18 @@ table 5820 "Cost Element Buffer"
             exit(false);
         end;
         exit(true);
+    end;
+#endif
+
+    procedure GetElement(NewEntryType: Enum "Cost Entry Type"): Boolean
+    begin
+        if Get(NewEntryType, "Variance Type"::" ") then
+            exit(true);
+
+        Init();
+        Type := NewEntryType;
+        "Variance Type" := "Variance Type"::" ";
+        exit(false);
     end;
 
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean

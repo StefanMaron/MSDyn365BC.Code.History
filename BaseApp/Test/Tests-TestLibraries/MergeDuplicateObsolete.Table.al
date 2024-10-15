@@ -4,6 +4,7 @@ table 134400 "Merge Duplicate Obsolete"
     ObsoleteReason = 'verify if Merge Duplicate function skips obsolete tables';
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

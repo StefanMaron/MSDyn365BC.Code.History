@@ -51,6 +51,7 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Employee Ledger Entry" = imd,
                   tabledata "FA Setup" = R,
                   tabledata "G/L Account" = RIM,
+                  tabledata "G/L Account Source Currency" = RIM,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Rimd,
                   tabledata "G/L Register" = Rimd,
@@ -79,7 +80,7 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Purch. Rcpt. Header" = imD,
                   tabledata "Purch. Rcpt. Line" = imd,
                   tabledata "Purchase Discount Access" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif

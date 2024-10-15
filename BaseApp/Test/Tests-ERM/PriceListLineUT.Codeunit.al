@@ -30,9 +30,8 @@ codeunit 134123 "Price List Line UT"
         AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
         AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
-        NotPostingJobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''';
+        NotPostingJobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price List Line contains a value (%1) that cannot be found';
-        WorkTypeCodeMustBeEmptyErr: Label 'Work Type Code can be set only if the product type is resourse or resource group.';
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
@@ -41,9 +40,7 @@ codeunit 134123 "Price List Line UT"
         SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (custom) must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (custom) must be equal to ''''';
-        SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
         CustomSourceNoMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         CustomSourceNoMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
@@ -51,7 +48,6 @@ codeunit 134123 "Price List Line UT"
         IsInitialized: Boolean;
         ResourceNoErr: Label 'Resource Group is not updated';
         JobPriceListFieldErr: Label 'Invalid %1', Comment = '%1 Price List Header Field Caption';
-        SourceNoErr: Label 'Invalid Source No.';
         AssignToNoErr: Label 'Invalid Assign-to No.';
         VATProdPostingGroupErr: Label 'VAT Product Posting Group are not equal.';
         AmountTypeNotAllowedForSourceTypeErr: Label '%1 is not allowed for %2.', Comment = '%1 - Price or Discount, %2 - Source Type';
@@ -349,7 +345,6 @@ codeunit 134123 "Price List Line UT"
     procedure T010_ValidateSourceNo()
     var
         Customer: Record Customer;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -370,7 +365,6 @@ codeunit 134123 "Price List Line UT"
     procedure T011_ReValidateSourceType()
     var
         Customer: Record Customer;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -393,7 +387,6 @@ codeunit 134123 "Price List Line UT"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -416,7 +409,6 @@ codeunit 134123 "Price List Line UT"
     procedure T013_ValidateSourceID()
     var
         Customer: Record Customer;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -438,7 +430,6 @@ codeunit 134123 "Price List Line UT"
     procedure T014_LookupSourceNo()
     var
         Customer: Record Customer;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -463,7 +454,6 @@ codeunit 134123 "Price List Line UT"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Source]
@@ -488,7 +478,6 @@ codeunit 134123 "Price List Line UT"
     procedure T016_LookupAssetNo()
     var
         Item: Record Item;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Asset]
@@ -558,7 +547,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T019_SourceTypeInLineMustBeInTheHeadersSourceGroup()
     var
-        Job: Record Job;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
     begin
@@ -1693,9 +1681,7 @@ codeunit 134123 "Price List Line UT"
     var
         Customer: Record Customer;
         ItemDiscountGroup: Record "Item Discount Group";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
         PriceListLine: Record "Price List Line";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         // [FEATURE] [Customer] [Item Discount Group]
         Initialize();
@@ -1910,7 +1896,6 @@ codeunit 134123 "Price List Line UT"
     var
         Customer: Record Customer;
         Resource: Record Resource;
-        Job: Record Job;
         PriceListLine: Record "Price List Line";
         WorkType: Record "Work Type";
     begin
@@ -1944,7 +1929,6 @@ codeunit 134123 "Price List Line UT"
     procedure T111_ValidateResourceGroupForVendor()
     var
         ResourceGroup: Record "Resource Group";
-        Job: Record Job;
         PriceListLine: Record "Price List Line";
         Vendor: Record Vendor;
         WorkType: Record "Work Type";
@@ -2006,7 +1990,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T113_ValidateAllCustomersSourceNoForItem()
     var
-        Item: Record Item;
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [All Customers]
@@ -2025,7 +2008,6 @@ codeunit 134123 "Price List Line UT"
     procedure T114_ValidateCustomerNoForItem()
     var
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
     begin
@@ -2058,7 +2040,6 @@ codeunit 134123 "Price List Line UT"
     procedure T115_ValidateCustomerPriceGroupForItem()
     var
         CustomerPriceGroup: Record "Customer Price Group";
-        Currency: Record Currency;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
     begin
@@ -2115,7 +2096,6 @@ codeunit 134123 "Price List Line UT"
     var
         Contact: Record Contact;
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
     begin
@@ -2146,7 +2126,6 @@ codeunit 134123 "Price List Line UT"
     var
         Contact: Record Contact;
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
     begin
@@ -2203,7 +2182,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T120_DeletePricesOnResourceDeletion()
     var
-        PriceListLine: Record "Price List Line";
         Resource: Array[2] of Record Resource;
     begin
         // [FEATURE] [Resource]
@@ -2223,7 +2201,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T121_DeletePricesOnResourceGroupDeletion()
     var
-        PriceListLine: Record "Price List Line";
         ResourceGroup: Array[2] of Record "Resource Group";
     begin
         // [FEATURE] [Resource Group]
@@ -2243,7 +2220,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T122_DeletePricesOnItemDeletion()
     var
-        PriceListLine: Record "Price List Line";
         Item: Array[2] of Record Item;
     begin
         // [FEATURE] [Item]
@@ -2263,7 +2239,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T123_DeletePricesOnItemDiscountGroupDeletion()
     var
-        PriceListLine: Record "Price List Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
     begin
         // [FEATURE] [Item Discount Group]
@@ -2284,7 +2259,6 @@ codeunit 134123 "Price List Line UT"
     procedure T124_DeletePricesOnGLAccountDeletion()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        PriceListLine: Record "Price List Line";
         GLAccount: Array[2] of Record "G/L Account";
     begin
         // [FEATURE] [G/L Account]
@@ -2308,7 +2282,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T125_DeletePricesOnServiceCostDeletion()
     var
-        PriceListLine: Record "Price List Line";
         ServiceCost: Array[2] of Record "Service Cost";
     begin
         // [FEATURE] [Service Cost]
@@ -2328,7 +2301,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T126_DeletePricesOnItemVariantDeletion()
     var
-        PriceListLine: Record "Price List Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
     begin
@@ -2350,7 +2322,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T130_ModifyPricesOnResourceRename()
     var
-        PriceListLine: Record "Price List Line";
         Resource: Array[2] of Record Resource;
         OldNo: Code[20];
     begin
@@ -2372,7 +2343,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T131_ModifyPricesOnResourceGroupRename()
     var
-        PriceListLine: Record "Price List Line";
         ResourceGroup: Array[2] of Record "Resource Group";
         OldNo: Code[20];
     begin
@@ -2394,7 +2364,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T132_ModifyPricesOnItemRename()
     var
-        PriceListLine: Record "Price List Line";
         Item: Array[2] of Record Item;
         OldNo: Code[20];
     begin
@@ -2416,7 +2385,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T133_ModifyPricesOnItemDiscountGroupRename()
     var
-        PriceListLine: Record "Price List Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
         OldNo: Code[20];
     begin
@@ -2438,7 +2406,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T134_ModifyPricesOnGLAccountRename()
     var
-        PriceListLine: Record "Price List Line";
         GLAccount: Array[2] of Record "G/L Account";
         OldNo: Code[20];
     begin
@@ -2460,7 +2427,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T135_ModifyPricesOnServiceCostRename()
     var
-        PriceListLine: Record "Price List Line";
         ServiceCost: Array[2] of Record "Service Cost";
         OldNo: Code[20];
     begin
@@ -2482,7 +2448,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T136_ModifyPricesOnItemVariantRename()
     var
-        PriceListLine: Record "Price List Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
         OldNo: Code[10];
@@ -2506,7 +2471,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T137_ModifyPricesOnUnitOfMeasureRename()
     var
-        PriceListLine: Record "Price List Line";
         UnitOfMeasure: Array[2] of Record "Unit Of Measure";
         OldNo: Code[20];
     begin
@@ -2717,7 +2681,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine."Parent Source No." := Job."No.";
         // [WHEN] Set "Source No." as 'JT'
         asserterror PriceListLine.Validate("Source No.", JobTask."Job Task No.");
-        // [THEN] Error message: 'Job Task Type must be equal to Posting'
+        // [THEN] Error message: 'Project Task Type must be equal to Posting'
         Assert.ExpectedError(NotPostingJobTaskTypeErr);
     end;
 
@@ -3013,7 +2977,6 @@ codeunit 134123 "Price List Line UT"
     procedure T216_LookupProductNo()
     var
         Item: Record Item;
-        PriceListLine: Record "Price List Line";
         MockPriceListLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Asset]
@@ -3403,7 +3366,6 @@ codeunit 134123 "Price List Line UT"
         ResourceGroup: Record "Resource Group";
         Job: Record Job;
         JobTask: Record "Job Task";
-        OldNo: Code[20];
         ResourceGroupNo: Code[20];
         JobTaskNo: Code[20];
     begin
@@ -3730,7 +3692,6 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure VerifyAmountTypeAnyIsNotAllowedForCustomerDiscGroupInPriceList()
     var
-        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         CustomerDiscountGroup: Record "Customer Discount Group";
     begin
@@ -3780,7 +3741,7 @@ codeunit 134123 "Price List Line UT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price List Line UT");
         LibraryERM.SetBlockDeleteGLAccount(false);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price List Line UT");
     end;
 

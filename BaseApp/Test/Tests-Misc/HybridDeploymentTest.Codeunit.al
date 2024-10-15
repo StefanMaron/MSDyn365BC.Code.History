@@ -73,7 +73,7 @@ codeunit 139065 "Hybrid Deployment Test"
 
         // [WHEN] Hybrid Replication Service returns an error code.
         // [THEN] An error is thrown.
-        asserterror HybridDeployment.DisableReplication;
+        asserterror HybridDeployment.DisableReplication();
         // [THEN] An appropriate error message is provided.
         Assert.AreEqual(ErrorMessageTxt, GetLastErrorText, 'Unexpected error message');
     end;

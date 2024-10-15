@@ -65,7 +65,7 @@ page 5830 "Demand Overview"
                 {
                     ApplicationArea = Planning;
                     Caption = 'Demand Type';
-                    OptionCaption = ' All Demand,Sale,Production,Job,Service,Assembly';
+                    OptionCaption = ' All Demand,Sale,Production,Project,Service,Assembly';
                     ToolTip = 'Specifies a list of the types of orders for which you can calculate demand. Select one order type from the list:';
 
                     trigger OnValidate()
@@ -510,7 +510,7 @@ page 5830 "Demand Overview"
         Text003: Label 'Purchase';
         Text004: Label 'Inventory';
         Text005: Label 'Service';
-        Text006: Label 'Job';
+        Text006: Label 'Project';
         Text007: Label 'Prod. Comp.';
         Text008: Label 'Transfer';
         Text009: Label 'Assembly';

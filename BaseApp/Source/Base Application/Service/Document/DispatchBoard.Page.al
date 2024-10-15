@@ -170,7 +170,7 @@ page 6000 "Dispatch Board"
                 {
                     ApplicationArea = Service;
                     Caption = 'Contract Filter';
-                    ToolTip = 'Specifies all billable prices for the job task.';
+                    ToolTip = 'Specifies all billable prices for the project task.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -364,7 +364,7 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
+                    ToolTip = 'Get an overview of demand for your items when planning sales, production, projects, or service management and when they will be available.';
 
                     trigger OnAction()
                     var
@@ -485,18 +485,16 @@ page 6000 "Dispatch Board"
 
     procedure SetDocFilter(var ServHeader: Record "Service Header")
     begin
-        with ServHeader do begin
-            FilterGroup(2);
-            case DocFilter of
-                DocFilter::Order:
-                    SetRange("Document Type", "Document Type"::Order);
-                DocFilter::Quote:
-                    SetRange("Document Type", "Document Type"::Quote);
-                DocFilter::All:
-                    SetFilter("Document Type", '%1|%2', "Document Type"::Order, "Document Type"::Quote);
-            end;
-            FilterGroup(0);
+        ServHeader.FilterGroup(2);
+        case DocFilter of
+            DocFilter::Order:
+                ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
+            DocFilter::Quote:
+                ServHeader.SetRange("Document Type", ServHeader."Document Type"::Quote);
+            DocFilter::All:
+                ServHeader.SetFilter("Document Type", '%1|%2', ServHeader."Document Type"::Order, ServHeader."Document Type"::Quote);
         end;
+        ServHeader.FilterGroup(0);
     end;
 
     procedure SetStatusFilter()

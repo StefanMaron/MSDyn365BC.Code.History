@@ -5,7 +5,7 @@ codeunit 132565 "Read Master Data from Cache"
     var
         FileName: Text;
     begin
-        FileName := IdentifyCacheLocation;
+        FileName := IdentifyCacheLocation();
         ReadFileFromCache(TempBlob, FileName);
     end;
 
@@ -30,12 +30,12 @@ codeunit 132565 "Read Master Data from Cache"
         ReadFileInBase64Encoding: Codeunit "Read File in Base64 Encoding";
         FileNotFoundException: DotNet FileNotFoundException;
     begin
-        FileNotFoundException := FileNotFoundException.FileNotFoundException;
+        FileNotFoundException := FileNotFoundException.FileNotFoundException();
 
         ReadFileInBase64Encoding.SetFileName(FileName);
 
-        if not ReadFileInBase64Encoding.Run then begin
-            DotNetExceptionHandler.Catch(FileNotFoundException, FileNotFoundException.GetType);
+        if not ReadFileInBase64Encoding.Run() then begin
+            DotNetExceptionHandler.Catch(FileNotFoundException, FileNotFoundException.GetType());
             ReadFileInBase64Encoding.GetTempBlob(TempBlob2);
             UploadFileToServer(TempBlob2);
         end else

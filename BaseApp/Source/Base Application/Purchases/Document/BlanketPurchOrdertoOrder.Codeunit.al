@@ -225,37 +225,35 @@ codeunit 97 "Blanket Purch. Order to Order"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            PurchOrderHeader := PurchHeader;
-            PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
-            PurchOrderHeader."No. Printed" := 0;
-            PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
-            PurchOrderHeader."No." := '';
-            OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.InitRecord();
-            PurchOrderLine.LockTable();
-            OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
-            StandardCodesMgt.SetSkipRecurringLines(true);
-            PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
-            PurchOrderHeader.Insert(true);
-            OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchHeader, PurchOrderHeader);
+        PurchOrderHeader := PurchHeader;
+        PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
+        PurchOrderHeader."No. Printed" := 0;
+        PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
+        PurchOrderHeader."No." := '';
+        OnCreatePurchHeaderOnBeforePurchOrderHeaderInitRecord(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.InitRecord();
+        PurchOrderLine.LockTable();
+        OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+        StandardCodesMgt.SetSkipRecurringLines(true);
+        PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
+        PurchOrderHeader.Insert(true);
+        OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchHeader, PurchOrderHeader);
 
-            if "Order Date" = 0D then
-                PurchOrderHeader."Order Date" := WorkDate()
-            else
-                PurchOrderHeader."Order Date" := "Order Date";
-            if "Posting Date" <> 0D then
-                PurchOrderHeader."Posting Date" := "Posting Date";
-            if PurchOrderHeader."Posting Date" = 0D then
-                PurchOrderHeader."Posting Date" := WorkDate();
+        if PurchHeader."Order Date" = 0D then
+            PurchOrderHeader."Order Date" := WorkDate()
+        else
+            PurchOrderHeader."Order Date" := PurchHeader."Order Date";
+        if PurchHeader."Posting Date" <> 0D then
+            PurchOrderHeader."Posting Date" := PurchHeader."Posting Date";
+        if PurchOrderHeader."Posting Date" = 0D then
+            PurchOrderHeader."Posting Date" := WorkDate();
 
-            PurchOrderHeader.InitFromPurchHeader(PurchHeader);
-            PurchOrderHeader.Validate("Posting Date");
+        PurchOrderHeader.InitFromPurchHeader(PurchHeader);
+        PurchOrderHeader.Validate("Posting Date");
 
-            PurchOrderHeader."Prepayment %" := PrepmtPercent;
-            OnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Modify();
-        end;
+        PurchOrderHeader."Prepayment %" := PrepmtPercent;
+        OnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.Modify();
     end;
 
     local procedure PurchOrderLineValidateQuantity(var PurchaseOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line")

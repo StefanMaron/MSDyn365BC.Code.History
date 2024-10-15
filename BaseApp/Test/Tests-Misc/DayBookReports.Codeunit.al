@@ -40,7 +40,7 @@ codeunit 139351 "Day Book Reports"
 
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
         LibraryVariableStorage.Enqueue(true); // Print details
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
 
         // [WHEN] Run "Day Book Cust. Ledger Entry" report for customer "C"
         REPORT.Run(REPORT::"Day Book Cust. Ledger Entry");
@@ -51,7 +51,7 @@ codeunit 139351 "Day Book Reports"
         ExpectedValueAmount :=
           LibraryReportValidation.FormatDecimalValue(CustLedgerEntry."Amount (LCY)" + CustLedgerEntry."Pmt. Disc. Given (LCY)");
 
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         // [THEN] "Discount Given" = 50 and "Actual Amount" = 950 in totals by document type
         LibraryReportValidation.VerifyCellValueOnWorksheet(18, 8, ExpectedValueDiscount, '1');
@@ -65,7 +65,7 @@ codeunit 139351 "Day Book Reports"
         LibraryReportValidation.VerifyCellValueOnWorksheet(21, 8, ExpectedValueDiscount, '1');
         LibraryReportValidation.VerifyCellValueOnWorksheet(21, 9, ExpectedValueAmount, '1');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -93,7 +93,7 @@ codeunit 139351 "Day Book Reports"
 
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Vendor No.");
         LibraryVariableStorage.Enqueue(true); // Print details
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
 
         // [WHEN] Run "Day Book Vendor Ledger Entry" report for vendor "V"
         REPORT.Run(REPORT::"Day Book Vendor Ledger Entry");
@@ -104,7 +104,7 @@ codeunit 139351 "Day Book Reports"
         ExpectedValueAmount :=
           LibraryReportValidation.FormatDecimalValue(VendorLedgerEntry."Amount (LCY)" + VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)");
 
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         // [THEN] "Discount Rcd." = 50 and "Actual Amount" = 950 in totals by document type
         LibraryReportValidation.VerifyCellValueOnWorksheet(20, 8, ExpectedValueDiscount, '1');
@@ -118,7 +118,7 @@ codeunit 139351 "Day Book Reports"
         LibraryReportValidation.VerifyCellValueOnWorksheet(24, 8, ExpectedValueDiscount, '1');
         LibraryReportValidation.VerifyCellValueOnWorksheet(24, 9, ExpectedValueAmount, '1');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -138,7 +138,7 @@ codeunit 139351 "Day Book Reports"
             Insert();
 
             "Document Type" := "Document Type"::Invoice;
-            "Customer No." := MockCustomer;
+            "Customer No." := MockCustomer();
             Open := true;
             Positive := true;
             "Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
@@ -190,7 +190,7 @@ codeunit 139351 "Day Book Reports"
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             Insert();
 
-            "Vendor No." := MockVendor;
+            "Vendor No." := MockVendor();
             "Posting Date" := WorkDate();
             "Remaining Pmt. Disc. Possible" := LibraryRandom.RandDecInRange(10, 20, 2);
             "Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDecInRange(10, 20, 2);
@@ -239,9 +239,9 @@ codeunit 139351 "Day Book Reports"
         with GLEntry do begin
             Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := LibraryUTUtility.GetNewCode;
-            "Document No." := LibraryUTUtility.GetNewCode;
-            "Transaction No." := LibraryUtility.GetLastTransactionNo + 1;
+            "G/L Account No." := LibraryUTUtility.GetNewCode();
+            "Document No." := LibraryUTUtility.GetNewCode();
+            "Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
             Insert();
         end;
     end;
@@ -271,7 +271,7 @@ codeunit 139351 "Day Book Reports"
         DayBookCustLedgerEntry.PrintGLEntryDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Customer No.", CustomerNo);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
-        DayBookCustLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        DayBookCustLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
@@ -287,7 +287,7 @@ codeunit 139351 "Day Book Reports"
         DayBookVendorLedgerEntry.PrintGLEntryDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Vendor No.", VendorNo);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
-        DayBookVendorLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        DayBookVendorLedgerEntry.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 }
 

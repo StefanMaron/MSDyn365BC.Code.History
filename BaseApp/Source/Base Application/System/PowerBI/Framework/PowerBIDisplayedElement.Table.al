@@ -8,6 +8,7 @@ table 6312 "Power BI Displayed Element"
     Caption = 'Power BI Displayed Element';
     ReplicateData = false;
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -62,7 +62,7 @@ codeunit 132800 "Upgrade Test Data Setup Mgt."
                 if Format(TargetFieldRef.Class()) <> 'Normal' then
                     Error(OnlyNormalFieldsAreSupportedErr);
                 SourceFieldRef := SourceRecordRef.Field(TargetFieldRef.Number);
-                TargetFieldRef.Value := SourceFieldRef.Value;
+                TargetFieldRef.Value := SourceFieldRef.Value();
             end;
 
             TargetRecordRef.Insert();

@@ -412,14 +412,14 @@ page 1314 "AccountantPortal Activity Cues"
         if GeneralLedgerSetup.Get() then
             CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
 
-        Rec."Overdue Purch. Invoice Amount" := ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(true);
+        Rec."Overdue Purch. Invoice Amount" := ActivitiesMgt.OverduePurchaseInvoiceAmount(true, false);
         OverduePurchInvoiceAmountDecimal := Rec."Overdue Purch. Invoice Amount";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString(Rec."Overdue Purch. Invoice Amount");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         OverduePurchInvoiceAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Overdue Purch. Invoice Amount"), Rec."Overdue Purch. Invoice Amount", OverduePurchInvoiceStyle);
 
-        Rec."Overdue Sales Invoice Amount" := ActivitiesMgt.CalcOverdueSalesInvoiceAmount(true);
+        Rec."Overdue Sales Invoice Amount" := ActivitiesMgt.OverdueSalesInvoiceAmount(true, false);
         OverdueSalesInvoiceAmountDecimal := Rec."Overdue Sales Invoice Amount";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString(Rec."Overdue Sales Invoice Amount");
         TempString := CopyStr(UnlimitedTempString, 1, 250);

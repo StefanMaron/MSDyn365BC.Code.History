@@ -11,19 +11,20 @@ table 7338 "Bin Creation Worksheet Line"
 {
     Caption = 'Bin Creation Worksheet Line';
     LookupPageID = "Bin Creation Worksheet";
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Worksheet Template Name"; Code[10])
         {
             Caption = 'Worksheet Template Name';
-            TableRelation = "Bin Creation Wksh. Template".Name WHERE(Type = FIELD(Type));
+            TableRelation = "Bin Creation Wksh. Template".Name where(Type = field(Type));
             ValidateTableRelation = false;
         }
         field(2; Name; Code[10])
         {
             Caption = 'Name';
-            TableRelation = "Bin Creation Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"));
+            TableRelation = "Bin Creation Wksh. Name".Name where("Worksheet Template Name" = field("Worksheet Template Name"));
         }
         field(3; "Line No."; Integer)
         {
@@ -54,12 +55,12 @@ table 7338 "Bin Creation Worksheet Line"
         {
             Caption = 'Location Code';
             NotBlank = true;
-            TableRelation = Location WHERE("Bin Mandatory" = CONST(true));
+            TableRelation = Location where("Bin Mandatory" = const(true));
         }
         field(6; "Zone Code"; Code[10])
         {
             Caption = 'Zone Code';
-            TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Zone.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
             begin
@@ -76,7 +77,7 @@ table 7338 "Bin Creation Worksheet Line"
         {
             Caption = 'Bin Code';
             NotBlank = true;
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Location Code"));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -241,7 +242,7 @@ table 7338 "Bin Creation Worksheet Line"
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             var
@@ -264,7 +265,7 @@ table 7338 "Bin Creation Worksheet Line"
         {
             Caption = 'Unit of Measure Code';
             NotBlank = true;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -292,6 +293,8 @@ table 7338 "Bin Creation Worksheet Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "Location Code", "Bin Code", "Zone Code", "Item No.", Description)
+        { }
     }
 
     trigger OnInsert()

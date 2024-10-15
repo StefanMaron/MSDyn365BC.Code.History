@@ -3,6 +3,7 @@ namespace Microsoft.Finance.Dimension;
 table 481 "Dimension Set Tree Node"
 {
     Caption = 'Dimension Set Tree Node';
+    DataClassification = CustomerContent;
 
     fields
     {

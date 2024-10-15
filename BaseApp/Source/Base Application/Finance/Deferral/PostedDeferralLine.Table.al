@@ -5,6 +5,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 table 1705 "Posted Deferral Line"
 {
     Caption = 'Posted Deferral Line';
+    DataClassification = CustomerContent;
 
     fields
     {

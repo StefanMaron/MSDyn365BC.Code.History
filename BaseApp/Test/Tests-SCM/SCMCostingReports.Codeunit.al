@@ -9,7 +9,6 @@ codeunit 137306 "SCM Costing Reports"
     end;
 
     var
-        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
@@ -64,7 +63,7 @@ codeunit 137306 "SCM Costing Reports"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
 
-        // [GIVEN] Post item inventory on workdate with cost amount = "C1", another entry on workdate + 1 month, cost amount = "C2"
+        // [GIVEN] Post item inventory on workdate with cost amount = "C1", another entry on WorkDate() + 1 month, cost amount = "C2"
         UnitCost[1] := LibraryRandom.RandDecInRange(100, 500, 2);
         UnitCost[2] := LibraryRandom.RandDecInRange(100, 500, 2);
         PostItemJournalLine(
@@ -78,7 +77,7 @@ codeunit 137306 "SCM Costing Reports"
         RunItemAgeCompositionReport(WorkDate(), '1M', Item."No.");
 
         // [THEN] Inventory value on workdate is "C1", inventory value in the period after workdate is "C2"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemAgeComposition(Item."No.", UnitCost[1], UnitCost[2]);
     end;
 
@@ -125,7 +124,7 @@ codeunit 137306 "SCM Costing Reports"
         RunItemAgeCompositionReport(WorkDate(), '1M', Item."No.");
 
         // [THEN] Inventory value on workdate is ("C1" + "C2") / 2
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemAgeComposition(Item."No.", (UnitCost[1] + UnitCost[2]) / 2, 0);
     end;
 
@@ -178,7 +177,7 @@ codeunit 137306 "SCM Costing Reports"
         RunItemAgeCompositionReport(WorkDate(), '1M', StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."));
 
         // [THEN] The report shows that the invt. value of "A" = "ResA", invt. value of "F" = "ResF".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ItemInvtValue[1] := UnitCost[1] [1] + UnitCost[1] [2] - (UnitCost[1] [1] + UnitCost[1] [2]) / 2;
         ItemInvtValue[2] := UnitCost[2] [2];
         VerifyItemAgeComposition(Item[1]."No.", ItemInvtValue[1], 0);
@@ -200,8 +199,7 @@ codeunit 137306 "SCM Costing Reports"
         TempInventoryReportHeader: Record "Inventory Report Header" temporary;
         TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
         GetInventoryReport: Codeunit "Get Inventory Report";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        CalculatePer: Option "Item Ledger Entry",Item;
+        NoSeries: Codeunit "No. Series";
         NewDate: Date;
         Qty: Decimal;
         UnitCost: Decimal;
@@ -240,8 +238,8 @@ codeunit 137306 "SCM Costing Reports"
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, NewDate, NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", WorkDate(), false),
-          CalculatePer::Item, false, false, true, 0, false);
+          ItemJournalLine, Item, NewDate, NoSeries.PeekNextNo(ItemJournalBatch."No. Series"),
+          "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ", false);
         ItemJournalLine.SetRange("Item No.", Item."No.");
         ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCost);
@@ -366,8 +364,8 @@ codeunit 137306 "SCM Costing Reports"
 
     local procedure NoSeriesSetup()
     begin
-        LibrarySales.SetOrderNoSeriesInSetup;
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
         LibraryService.SetupServiceMgtNoSeries();
     end;
 
@@ -404,7 +402,7 @@ codeunit 137306 "SCM Costing Reports"
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceItem);
         ServiceHeader.Validate("Posting Date", PostingDate);
@@ -412,7 +410,7 @@ codeunit 137306 "SCM Costing Reports"
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem."No.", ItemNo, Quantity);
 
         ServiceMgtSetup.Get();
-        ServiceInvoiceNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Posted Service Invoice Nos.", WorkDate(), false);
+        ServiceInvoiceNo := NoSeries.PeekNextNo(ServiceMgtSetup."Posted Service Invoice Nos.");
         LibraryService.PostServiceOrder(ServiceHeader, Ship, false, Invoice);
     end;
 
@@ -438,7 +436,7 @@ codeunit 137306 "SCM Costing Reports"
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentDate);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);  // creating a single item charge.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);  // creating a single item charge.
         PurchaseLine.Validate("Direct Unit Cost", ItemChargeUnitCost);
         PurchaseLine.Modify(true);
         CreateItemChargeAssignment(PurchaseLine, PurchaseOdrerNo, ItemNo);
@@ -558,7 +556,7 @@ codeunit 137306 "SCM Costing Reports"
     local procedure VerifyItemAgeComposition(ItemNo: Code[20]; CurrPeriodPerItem: Decimal; NextPeriodPerItem: Decimal)
     begin
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtValue4_Item', CurrPeriodPerItem);
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtValue5_Item', NextPeriodPerItem);
@@ -568,7 +566,7 @@ codeunit 137306 "SCM Costing Reports"
     local procedure VerifyItemAgeCompositionTotals(ItemNo: Code[20]; CurrPeriodTotal: Decimal; NextPeriodTotal: Decimal)
     begin
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtValueRTC4', CurrPeriodTotal);
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtValueRTC5', NextPeriodTotal);
@@ -606,9 +604,9 @@ codeunit 137306 "SCM Costing Reports"
     [Scope('OnPrem')]
     procedure ItemAgeCompositionValueRequestPageHandler(var ItemAgeCompositionValue: TestRequestPage "Item Age Composition - Value")
     begin
-        ItemAgeCompositionValue.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        ItemAgeCompositionValue.PeriodLength.SetValue(LibraryVariableStorage.DequeueText);
-        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemAgeCompositionValue.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ItemAgeCompositionValue.PeriodLength.SetValue(LibraryVariableStorage.DequeueText());
+        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

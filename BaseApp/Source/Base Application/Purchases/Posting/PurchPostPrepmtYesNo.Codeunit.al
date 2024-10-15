@@ -27,22 +27,20 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         PurchHeader.Copy(PurchHeader2);
-        with PurchHeader do begin
-            OnPostPrepmtInvoiceYNOnBeforeConfirmPostInvoice(PurchHeader);
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, "Document Type", "No."), true) then
-                exit;
+        OnPostPrepmtInvoiceYNOnBeforeConfirmPostInvoice(PurchHeader);
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, PurchHeader."Document Type", PurchHeader."No."), true) then
+            exit;
 
-            PostPrepmtDocument(PurchHeader, "Document Type"::Invoice);
+        PostPrepmtDocument(PurchHeader, PurchHeader."Document Type"::Invoice);
 
-            if Print then begin
-                Commit();
-                GetReport(PurchHeader, 0);
-            end;
-
-            OnAfterPostPrepmtInvoiceYN(PurchHeader);
-
-            PurchHeader2 := PurchHeader;
+        if Print then begin
+            Commit();
+            GetReport(PurchHeader, 0);
         end;
+
+        OnAfterPostPrepmtInvoiceYN(PurchHeader);
+
+        PurchHeader2 := PurchHeader;
     end;
 
     procedure PostPrepmtCrMemoYN(var PurchHeader2: Record "Purchase Header"; Print: Boolean)
@@ -51,20 +49,18 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         PurchHeader.Copy(PurchHeader2);
-        with PurchHeader do begin
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, "Document Type", "No."), true) then
-                exit;
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, PurchHeader."Document Type", PurchHeader."No."), true) then
+            exit;
 
-            PostPrepmtDocument(PurchHeader, "Document Type"::"Credit Memo");
+        PostPrepmtDocument(PurchHeader, PurchHeader."Document Type"::"Credit Memo");
 
-            if Print then
-                GetReport(PurchHeader, 1);
+        if Print then
+            GetReport(PurchHeader, 1);
 
-            Commit();
-            OnAfterPostPrepmtCrMemoYN(PurchHeader);
+        Commit();
+        OnAfterPostPrepmtCrMemoYN(PurchHeader);
 
-            PurchHeader2 := PurchHeader;
-        end;
+        PurchHeader2 := PurchHeader;
     end;
 
     local procedure PostPrepmtDocument(var PurchHeader: Record "Purchase Header"; PrepmtDocumentType: Enum "Purchase Document Type")
@@ -103,21 +99,20 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            case DocumentType of
-                DocumentType::Invoice:
-                    begin
-                        PurchInvHeader."No." := "Last Prepayment No.";
-                        PurchInvHeader.SetRecFilter();
-                        PurchInvHeader.PrintRecords(false);
-                    end;
-                DocumentType::"Credit Memo":
-                    begin
-                        PurchCrMemoHeader."No." := "Last Prepmt. Cr. Memo No.";
-                        PurchCrMemoHeader.SetRecFilter();
-                        PurchCrMemoHeader.PrintRecords(false);
-                    end;
-            end;
+        case DocumentType of
+            DocumentType::Invoice:
+                begin
+                    PurchInvHeader."No." := PurchHeader."Last Prepayment No.";
+                    PurchInvHeader.SetRecFilter();
+                    PurchInvHeader.PrintRecords(false);
+                end;
+            DocumentType::"Credit Memo":
+                begin
+                    PurchCrMemoHeader."No." := PurchHeader."Last Prepmt. Cr. Memo No.";
+                    PurchCrMemoHeader.SetRecFilter();
+                    PurchCrMemoHeader.PrintRecords(false);
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -142,15 +137,13 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         PurchaseHeader: Record "Purchase Header";
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
-        with PurchaseHeader do begin
-            Copy(RecVar);
-            Invoice := true;
+        PurchaseHeader.Copy(RecVar);
+        PurchaseHeader.Invoice := true;
 
-            if PrepmtDocumentType in [PrepmtDocumentType::Invoice, PrepmtDocumentType::"Credit Memo"] then
-                PurchasePostPrepayments.SetDocumentType(PrepmtDocumentType)
-            else
-                Error(UnsupportedDocTypeErr);
-        end;
+        if PrepmtDocumentType in [PrepmtDocumentType::Invoice, PrepmtDocumentType::"Credit Memo"] then
+            PurchasePostPrepayments.SetDocumentType(PrepmtDocumentType)
+        else
+            Error(UnsupportedDocTypeErr);
 
         PurchasePostPrepayments.SetPreviewMode(true);
         Result := PurchasePostPrepayments.Run(PurchaseHeader);

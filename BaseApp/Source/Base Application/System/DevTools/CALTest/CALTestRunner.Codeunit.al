@@ -57,40 +57,38 @@ codeunit 130400 "CAL Test Runner"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
         OnBeforeRunTests(CALTestLine);
-        with CALTestLine do begin
-            OpenWindow();
-            ModifyAll(Result, Result::" ");
-            ModifyAll("First Error", '');
-            Commit();
-            TestRunNo := CALTestResult.LastTestRunNo() + 1;
-            CompanyWorkDate := WorkDate();
-            Filter := GetView();
-            WindowNoOfTestCodeunitTotal := CountTestCodeunitsToRun(CALTestLine);
-            SetRange("Line Type", "Line Type"::Codeunit);
-            if Find('-') then
-                repeat
-                    if UpdateTCM() then
-                        CodeCoverageMgt.Start(true);
+        OpenWindow();
+        CALTestLine.ModifyAll(Result, CALTestLine.Result::" ");
+        CALTestLine.ModifyAll("First Error", '');
+        Commit();
+        TestRunNo := CALTestResult.LastTestRunNo() + 1;
+        CompanyWorkDate := WorkDate();
+        Filter := CALTestLine.GetView();
+        WindowNoOfTestCodeunitTotal := CountTestCodeunitsToRun(CALTestLine);
+        CALTestLine.SetRange("Line Type", CALTestLine."Line Type"::Codeunit);
+        if CALTestLine.Find('-') then
+            repeat
+                if UpdateTCM() then
+                    CodeCoverageMgt.Start(true);
 
-                    MinLineNo := "Line No.";
-                    MaxLineNo := GetMaxCodeunitLineNo(WindowNoOfFunctionTotal);
-                    if Run then
-                        WindowNoOfTestCodeunit += 1;
-                    WindowNoOfFunction := 0;
+                MinLineNo := CALTestLine."Line No.";
+                MaxLineNo := CALTestLine.GetMaxCodeunitLineNo(WindowNoOfFunctionTotal);
+                if CALTestLine.Run then
+                    WindowNoOfTestCodeunit += 1;
+                WindowNoOfFunction := 0;
 
-                    if CALTestMgt.ISPUBLISHMODE() then
-                        DeleteChildren();
+                if CALTestMgt.ISPUBLISHMODE() then
+                    CALTestLine.DeleteChildren();
 
-                    CODEUNIT.Run("Test Codeunit");
+                CODEUNIT.Run(CALTestLine."Test Codeunit");
 
-                    if UpdateTCM() then begin
-                        CodeCoverageMgt.Stop();
-                        CALTestMgt.ExtendTestCoverage("Test Codeunit");
-                    end;
-                until Next() = 0;
+                if UpdateTCM() then begin
+                    CodeCoverageMgt.Stop();
+                    CALTestMgt.ExtendTestCoverage(CALTestLine."Test Codeunit");
+                end;
+            until CALTestLine.Next() = 0;
 
-            CloseWindow();
-        end;
+        CloseWindow();
     end;
 
     trigger OnBeforeTestRun(CodeunitID: Integer; CodeunitName: Text; FunctionName: Text; FunctionTestPermissions: TestPermissions): Boolean
@@ -164,56 +162,48 @@ codeunit 130400 "CAL Test Runner"
 
     procedure AddTestMethod(FunctionName: Text[128])
     begin
-        with CALTestLineFunction do begin
-            CALTestLineFunction := CALTestLine;
-            "Line No." := MaxLineNo + 1;
-            "Line Type" := "Line Type"::"Function";
-            Validate("Function", FunctionName);
-            Run := CALTestLine.Run;
-            "Start Time" := CurrentDateTime;
-            "Finish Time" := CurrentDateTime;
-            Insert(true);
-        end;
+        CALTestLineFunction := CALTestLine;
+        CALTestLineFunction."Line No." := MaxLineNo + 1;
+        CALTestLineFunction."Line Type" := CALTestLineFunction."Line Type"::"Function";
+        CALTestLineFunction.Validate("Function", FunctionName);
+        CALTestLineFunction.Run := CALTestLine.Run;
+        CALTestLineFunction."Start Time" := CurrentDateTime;
+        CALTestLineFunction."Finish Time" := CurrentDateTime;
+        CALTestLineFunction.Insert(true);
         MaxLineNo := MaxLineNo + 1;
     end;
 
     procedure InitCodeunitLine()
     begin
-        with CALTestLine do begin
-            if CALTestMgt.ISTESTMODE() and (Result = Result::" ") then
-                Result := Result::Skipped;
-            "Finish Time" := CurrentDateTime;
-            Modify();
-        end;
+        if CALTestMgt.ISTESTMODE() and (CALTestLine.Result = CALTestLine.Result::" ") then
+            CALTestLine.Result := CALTestLine.Result::Skipped;
+        CALTestLine."Finish Time" := CurrentDateTime;
+        CALTestLine.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure UpdateCodeunitLine(IsSuccess: Boolean)
     begin
-        with CALTestLine do begin
-            if CALTestMgt.ISPUBLISHMODE() and IsSuccess then
-                Result := Result::" "
-            else
-                if Result <> Result::Failure then
-                    if IsSuccess then
-                        Result := Result::Success
-                    else begin
-                        "First Error" := CopyStr(GetLastErrorText, 1, MaxStrLen("First Error"));
-                        Result := Result::Failure
-                    end;
-            "Finish Time" := CurrentDateTime;
-            Modify();
-        end;
+        if CALTestMgt.ISPUBLISHMODE() and IsSuccess then
+            CALTestLine.Result := CALTestLine.Result::" "
+        else
+            if CALTestLine.Result <> CALTestLine.Result::Failure then
+                if IsSuccess then
+                    CALTestLine.Result := CALTestLine.Result::Success
+                else begin
+                    CALTestLine."First Error" := CopyStr(GetLastErrorText, 1, MaxStrLen(CALTestLine."First Error"));
+                    CALTestLine.Result := CALTestLine.Result::Failure
+                end;
+        CALTestLine."Finish Time" := CurrentDateTime;
+        CALTestLine.Modify();
     end;
 
     procedure InitTestFunctionLine()
     begin
-        with CALTestLineFunction do begin
-            "Start Time" := CurrentDateTime;
-            "Finish Time" := "Start Time";
-            Result := Result::Skipped;
-            Modify();
-        end;
+        CALTestLineFunction."Start Time" := CurrentDateTime;
+        CALTestLineFunction."Finish Time" := CALTestLineFunction."Start Time";
+        CALTestLineFunction.Result := CALTestLineFunction.Result::Skipped;
+        CALTestLineFunction.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -221,35 +211,31 @@ codeunit 130400 "CAL Test Runner"
     var
         CALTestResult: Record "CAL Test Result";
     begin
-        with CALTestLineFunction do begin
-            if IsSuccess then
-                Result := CALTestLine.Result::Success
-            else begin
-                "First Error" := CopyStr(GetLastErrorText, 1, MaxStrLen("First Error"));
-                Result := Result::Failure
-            end;
-            "Finish Time" := CurrentDateTime;
-            Modify();
-
-            CALTestResult.Add(CALTestLineFunction, TestRunNo);
+        if IsSuccess then
+            CALTestLineFunction.Result := CALTestLine.Result::Success
+        else begin
+            CALTestLineFunction."First Error" := CopyStr(GetLastErrorText, 1, MaxStrLen(CALTestLineFunction."First Error"));
+            CALTestLineFunction.Result := CALTestLineFunction.Result::Failure
         end;
+        CALTestLineFunction."Finish Time" := CurrentDateTime;
+        CALTestLineFunction.Modify();
+
+        CALTestResult.Add(CALTestLineFunction, TestRunNo);
     end;
 
     procedure TryFindTestFunctionInGroup(FunctionName: Text[128]): Boolean
     begin
-        with CALTestLineFunction do begin
-            Reset();
-            SetView(Filter);
-            SetRange("Test Suite", CALTestLine."Test Suite");
-            SetRange("Test Codeunit", CALTestLine."Test Codeunit");
-            SetRange("Function", FunctionName);
-            if Find('-') then
-                repeat
-                    if "Line No." in [MinLineNo .. MaxLineNo] then
-                        exit(true);
-                until Next() = 0;
-            exit(false);
-        end;
+        CALTestLineFunction.Reset();
+        CALTestLineFunction.SetView(Filter);
+        CALTestLineFunction.SetRange("Test Suite", CALTestLine."Test Suite");
+        CALTestLineFunction.SetRange("Test Codeunit", CALTestLine."Test Codeunit");
+        CALTestLineFunction.SetRange("Function", FunctionName);
+        if CALTestLineFunction.Find('-') then
+            repeat
+                if CALTestLineFunction."Line No." in [MinLineNo .. MaxLineNo] then
+                    exit(true);
+            until CALTestLineFunction.Next() = 0;
+        exit(false);
     end;
 
     procedure CountTestCodeunitsToRun(var CALTestLine: Record "CAL Test Line") NoOfTestCodeunits: Integer
@@ -257,11 +243,9 @@ codeunit 130400 "CAL Test Runner"
         if not CALTestMgt.ISTESTMODE() then
             exit;
 
-        with CALTestLine do begin
-            SetRange("Line Type", "Line Type"::Codeunit);
-            SetRange(Run, true);
-            NoOfTestCodeunits := Count;
-        end;
+        CALTestLine.SetRange("Line Type", CALTestLine."Line Type"::Codeunit);
+        CALTestLine.SetRange(Run, true);
+        NoOfTestCodeunits := CALTestLine.Count;
     end;
 
     procedure UpdateTCM(): Boolean

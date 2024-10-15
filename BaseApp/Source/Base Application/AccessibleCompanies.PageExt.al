@@ -13,7 +13,7 @@ pageextension 9177 "Accessible Companies" extends "Accessible Companies"
             StyleExpr = NameStyleExpr;
             ToolTip = 'Specifies the display name that is defined for the company. If a display name is not defined, then the company name is used.';
         }
-        addAfter("Evaluation Company")
+        addafter("Evaluation Company")
         {
             field(SetupStatus; CompanySetupStatuses.Get(Rec.Name))
             {

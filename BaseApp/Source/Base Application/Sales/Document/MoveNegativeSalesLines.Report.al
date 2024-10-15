@@ -73,37 +73,36 @@ report 6699 "Move Negative Sales Lines"
 
         trigger OnOpenPage()
         begin
-            with FromSalesHeader do
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            ToDocType := ToDocType::"Return Order";
-                            ToDocType2 := ToDocType2::Order;
-                            FromDocType := FromDocType::Order;
-                            DropDownForRetOrderAndCrMemoEd := false;
-                        end;
-                    "Document Type"::Invoice:
-                        begin
-                            ToDocType := ToDocType::"Credit Memo";
-                            ToDocType2 := ToDocType2::Invoice;
-                            FromDocType := FromDocType::Invoice;
-                            DropDownForRetOrderAndCrMemoEd := false;
-                        end;
-                    "Document Type"::"Return Order":
-                        begin
-                            ToDocType2 := ToDocType2::Order;
-                            ToDocType := ToDocType::"Return Order";
-                            FromDocType := FromDocType::"Return Order";
-                            DropDownForOrderAndInvoiceEdit := false;
-                        end;
-                    "Document Type"::"Credit Memo":
-                        begin
-                            ToDocType2 := ToDocType2::Invoice;
-                            ToDocType := ToDocType::"Credit Memo";
-                            FromDocType := FromDocType::"Credit Memo";
-                            DropDownForOrderAndInvoiceEdit := false;
-                        end;
-                end;
+            case FromSalesHeader."Document Type" of
+                FromSalesHeader."Document Type"::Order:
+                    begin
+                        ToDocType := ToDocType::"Return Order";
+                        ToDocType2 := ToDocType2::Order;
+                        FromDocType := FromDocType::Order;
+                        DropDownForRetOrderAndCrMemoEd := false;
+                    end;
+                FromSalesHeader."Document Type"::Invoice:
+                    begin
+                        ToDocType := ToDocType::"Credit Memo";
+                        ToDocType2 := ToDocType2::Invoice;
+                        FromDocType := FromDocType::Invoice;
+                        DropDownForRetOrderAndCrMemoEd := false;
+                    end;
+                FromSalesHeader."Document Type"::"Return Order":
+                    begin
+                        ToDocType2 := ToDocType2::Order;
+                        ToDocType := ToDocType::"Return Order";
+                        FromDocType := FromDocType::"Return Order";
+                        DropDownForOrderAndInvoiceEdit := false;
+                    end;
+                FromSalesHeader."Document Type"::"Credit Memo":
+                    begin
+                        ToDocType2 := ToDocType2::Invoice;
+                        ToDocType := ToDocType::"Credit Memo";
+                        FromDocType := FromDocType::"Credit Memo";
+                        DropDownForOrderAndInvoiceEdit := false;
+                    end;
+            end;
         end;
     }
 

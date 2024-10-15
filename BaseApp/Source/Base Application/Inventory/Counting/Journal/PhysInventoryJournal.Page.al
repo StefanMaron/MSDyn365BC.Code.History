@@ -761,15 +761,6 @@ page 392 "Phys. Inventory Journal"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN21
-                actionref("Bin Contents_Promoted"; "Bin Contents")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {

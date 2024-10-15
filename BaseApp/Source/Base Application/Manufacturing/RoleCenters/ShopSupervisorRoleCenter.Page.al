@@ -32,8 +32,12 @@ page 9012 "Shop Supervisor Role Center"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1905423708; "Shop Supervisor Activities")
                 {
@@ -50,6 +54,9 @@ page 9012 "Shop Supervisor Role Center"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1; "My Job Queue")
                 {
@@ -65,6 +72,33 @@ page 9012 "Shop Supervisor Role Center"
                     ApplicationArea = Manufacturing;
                 }
             }
+#else
+            part(Control1905423708; "Shop Supervisor Activities")
+            {
+                ApplicationArea = Manufacturing;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control1905989608; "My Items")
+            {
+                ApplicationArea = Manufacturing;
+            }
+            part(Control1; "My Job Queue")
+            {
+                ApplicationArea = Manufacturing;
+                Visible = false;
+            }
+            part(Control3; "Report Inbox Part")
+            {
+                ApplicationArea = Manufacturing;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Manufacturing;
+            }
+#endif
         }
     }
 

@@ -198,6 +198,12 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that you must fill in the Salesperson Code field on the headers of service orders, invoices, credit memos, and service contracts.';
                 }
+                field("Ext. Doc. No. Mandatory"; Rec."Ext. Doc. No. Mandatory")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if it is mandatory to enter an external document number in the External Document No. field on a service header.';
+                }
             }
             group(Defaults)
             {

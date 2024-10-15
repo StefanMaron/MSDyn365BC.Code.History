@@ -14,7 +14,7 @@ page 1309 "O365 Getting Started"
                 group(Control4)
                 {
                     ShowCaption = false;
-                    usercontrol(WelcomeWizard; "Microsoft.Dynamics.Nav.Client.WelcomeWizard")
+                    usercontrol(WelcomeWizard; WelcomeWizard)
                     {
                         ApplicationArea = Basic, Suite;
 
@@ -82,7 +82,6 @@ page 1309 "O365 Getting Started"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get Started';
                 InFooterBar = true;
-                Promoted = true;
 
                 trigger OnAction()
                 var
@@ -101,16 +100,14 @@ page 1309 "O365 Getting Started"
                         ConfPersonalizationMgt.SetCurrentProfile(AllProfile);
                         UserPersonalization.Get(UserSecurityId());
 
-                        with SessionSet do begin
-                            Init();
-                            ProfileId := CurrAllProfile."Profile ID";
-                            ProfileAppId := CurrAllProfile."App ID";
-                            ProfileSystemScope := CurrAllProfile.Scope = CurrAllProfile.Scope::System;
-                            LanguageId := UserPersonalization."Language ID";
-                            LocaleId := UserPersonalization."Locale ID";
-                            Timezone := UserPersonalization."Time Zone";
-                            RequestSessionUpdate(true);
-                        end;
+                        SessionSet.Init();
+                        SessionSet.ProfileId := CurrAllProfile."Profile ID";
+                        SessionSet.ProfileAppId := CurrAllProfile."App ID";
+                        SessionSet.ProfileSystemScope := CurrAllProfile.Scope = CurrAllProfile.Scope::System;
+                        SessionSet.LanguageId := UserPersonalization."Language ID";
+                        SessionSet.LocaleId := UserPersonalization."Locale ID";
+                        SessionSet.Timezone := UserPersonalization."Time Zone";
+                        SessionSet.RequestSessionUpdate(true);
                     end;
 
                     CurrPage.Close();

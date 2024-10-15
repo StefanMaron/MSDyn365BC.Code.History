@@ -9,6 +9,7 @@ table 5956 "Resource Skill"
 {
     Caption = 'Resource Skill';
     LookupPageID = "Resource Skills";
+    DataClassification = CustomerContent;
 
     fields
     {

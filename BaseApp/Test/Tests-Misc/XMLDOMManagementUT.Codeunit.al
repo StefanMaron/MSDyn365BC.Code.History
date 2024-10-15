@@ -211,7 +211,7 @@ codeunit 132563 "XML DOM Management UT"
         XMLDOMMgt.LoadXMLNodeFromText('<root />', RootXmlNode);
 
         // Exercise
-        ActualNodeText := XMLDOMMgt.FindNodeTextWithNamespace(RootXmlNode, '/root/' + LibraryUtility.GenerateGUID, 'Prefix', '');
+        ActualNodeText := XMLDOMMgt.FindNodeTextWithNamespace(RootXmlNode, '/root/' + LibraryUtility.GenerateGUID(), 'Prefix', '');
 
         // Verify
         Assert.AreEqual('', ActualNodeText, StrSubstNo(NodeContentNotFoundErr, ''));

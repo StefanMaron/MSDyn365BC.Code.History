@@ -70,7 +70,7 @@ page 1505 "Workflow Templates"
             {
                 ApplicationArea = Suite;
                 Caption = 'New Workflow from Template';
-                Enabled = NOT IsLookupMode;
+                Enabled = not IsLookupMode;
                 Image = NewDocument;
                 ToolTip = 'Create a new workflow template using an existing workflow template.';
 
@@ -83,7 +83,7 @@ page 1505 "Workflow Templates"
             {
                 ApplicationArea = Suite;
                 Caption = 'Reset Microsoft Templates';
-                Visible = NOT IsLookupMode;
+                Visible = not IsLookupMode;
                 Image = ResetStatus;
                 ToolTip = 'Recreate all Microsoft templates';
 

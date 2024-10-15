@@ -5,6 +5,7 @@ table 1300 "Mini Customer Template"
     ObsoleteReason = 'Deprecate mini templates. Use table "Customer Templ." instead and for extensions.';
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

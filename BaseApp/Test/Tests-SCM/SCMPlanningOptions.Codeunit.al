@@ -20,7 +20,9 @@ codeunit 137008 "SCM Planning Options"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         Initialized: Boolean;
         WrongFieldValueErr: Label '%1 is incorrect in %2', Comment = '%1: Field name; %2: Table name. Example: "Direct Unit Cost is incorrect in Requisition Line"';
 
@@ -530,7 +532,7 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionLineValidateDueDateUpdatesUnitCost()
@@ -556,10 +558,10 @@ codeunit 137008 "SCM Planning Options"
         Item.Validate("Reorder Quantity", 100);
         Item.Modify(true);
 
-        // [GIVEN] Item Purchase Price: Starting Date = WORKDATE - 1, Ending Date = WORKDATE, Unit Cost = "X"
+        // [GIVEN] Item Purchase Price: Starting Date = WorkDate() - 1, Ending Date = WorkDate(), Unit Cost = "X"
         UnitCost := LibraryRandom.RandDec(100, 2);
         CreateItemPurchasePrice(Item."No.", Vendor."No.", CalcDate('<-1D>', WorkDate()), WorkDate(), UnitCost);
-        // [GIVEN] Item Purchase Price: Starting Date = WORKDATE + 1, Ending Date = WORKDATE + 2, Unit Cost = 2 * "X"
+        // [GIVEN] Item Purchase Price: Starting Date = WorkDate() + 1, Ending Date = WorkDate() + 2, Unit Cost = 2 * "X"
         UnitCost := UnitCost * LibraryRandom.RandIntInRange(2, 5);
         CreateItemPurchasePrice(Item."No.", Vendor."No.", CalcDate('<1D>', WorkDate()), CalcDate('<2D>', WorkDate()), UnitCost);
         CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
@@ -567,7 +569,7 @@ codeunit 137008 "SCM Planning Options"
         // [GIVEN] Calculate regenerative plan on WORKDATE
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
-        // [WHEN] Update "Due Date" on requisiton line, set new value = WORKDATE + 2
+        // [WHEN] Update "Due Date" on requisiton line, set new value = WorkDate() + 2
         FindRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.SetCurrFieldNo(RequisitionLine.FieldNo("Due Date"));
         RequisitionLine.Validate("Due Date", CalcDate('<2D>', WorkDate()));
@@ -998,7 +1000,7 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateItemPurchasePrice(ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date; UnitCost: Decimal)
     var
         PurchPrice: Record "Purchase Price";

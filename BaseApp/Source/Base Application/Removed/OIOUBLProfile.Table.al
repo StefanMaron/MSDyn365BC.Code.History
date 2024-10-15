@@ -5,7 +5,8 @@ table 13600 "OIOUBL Profile"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
-    
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "Code"; Code[10])
@@ -34,13 +35,6 @@ table 13600 "OIOUBL Profile"
             ObsoleteReason = 'Moved to OIOUBL extension, new table OIOUBL-Profile.';
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
-        }
-    }
-
-    fieldgroups
-    {
-        fieldgroup(AllFields; "Code", "Profile ID")
-        {
         }
     }
 }

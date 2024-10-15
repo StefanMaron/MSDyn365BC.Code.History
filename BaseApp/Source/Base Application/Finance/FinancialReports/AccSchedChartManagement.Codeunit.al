@@ -43,34 +43,32 @@ codeunit 762 "Acc. Sched. Chart Management"
     var
         Found: Boolean;
     begin
-        with AccountSchedulesChartSetup do begin
-            SetFilter("User ID", '%1|%2', UserId, '');
+        AccountSchedulesChartSetup.SetFilter("User ID", '%1|%2', UserId, '');
 
-            if Get(UserId, ChartName) or Get('', ChartName) then begin
-                SetLastViewed();
-                exit;
-            end;
-
-            SetRange("Last Viewed", true);
-            Found := FindLast();
-            SetRange("Last Viewed");
-            if Found then
-                exit;
-
-            if FindFirst() then begin
-                SetLastViewed();
-                exit;
-            end;
-
-            Init();
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            Name := DefaultAccSchedTok;
-            "Base X-Axis on" := "Base X-Axis on"::Period;
-            "Start Date" := WorkDate();
-            "Period Length" := "Period Length"::Day;
-            "Last Viewed" := true;
-            Insert();
+        if AccountSchedulesChartSetup.Get(UserId, ChartName) or AccountSchedulesChartSetup.Get('', ChartName) then begin
+            AccountSchedulesChartSetup.SetLastViewed();
+            exit;
         end;
+
+        AccountSchedulesChartSetup.SetRange("Last Viewed", true);
+        Found := AccountSchedulesChartSetup.FindLast();
+        AccountSchedulesChartSetup.SetRange("Last Viewed");
+        if Found then
+            exit;
+
+        if AccountSchedulesChartSetup.FindFirst() then begin
+            AccountSchedulesChartSetup.SetLastViewed();
+            exit;
+        end;
+
+        AccountSchedulesChartSetup.Init();
+        AccountSchedulesChartSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(AccountSchedulesChartSetup."User ID"));
+        AccountSchedulesChartSetup.Name := DefaultAccSchedTok;
+        AccountSchedulesChartSetup."Base X-Axis on" := AccountSchedulesChartSetup."Base X-Axis on"::Period;
+        AccountSchedulesChartSetup."Start Date" := WorkDate();
+        AccountSchedulesChartSetup."Period Length" := AccountSchedulesChartSetup."Period Length"::Day;
+        AccountSchedulesChartSetup."Last Viewed" := true;
+        AccountSchedulesChartSetup.Insert();
     end;
 
     procedure DrillDown(var BusChartBuf: Record "Business Chart Buffer"; AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
@@ -132,119 +130,117 @@ codeunit 762 "Acc. Sched. Chart Management"
         CheckDuplicateAccScheduleLineDescription(AccountSchedulesChartSetup."Account Schedule Name");
         CheckDuplicateColumnLayoutColumnHeader(AccountSchedulesChartSetup."Column Layout Name");
 
-        with BusChartBuf do begin
-            "Period Length" := AccountSchedulesChartSetup."Period Length";
+        BusChartBuf."Period Length" := AccountSchedulesChartSetup."Period Length";
 
-            case AccountSchedulesChartSetup."Base X-Axis on" of
-                AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                    if Period = Period::" " then begin
-                        FromDate := 0D;
-                        ToDate := 0D;
-                    end else
-                        if FindMidColumn(BusChartMapColumn) then
-                            GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                    if ("Period Filter Start Date" = 0D) and (AccountSchedulesChartSetup."Start Date" <> 0D) then
-                        InitializePeriodFilter(AccountSchedulesChartSetup."Start Date", AccountSchedulesChartSetup."End Date")
-                    else
-                        RecalculatePeriodFilter("Period Filter Start Date", "Period Filter End Date", Period);
-            end;
+        case AccountSchedulesChartSetup."Base X-Axis on" of
+            AccountSchedulesChartSetup."Base X-Axis on"::Period:
+                if Period = Period::" " then begin
+                    FromDate := 0D;
+                    ToDate := 0D;
+                end else
+                    if BusChartBuf.FindMidColumn(BusChartMapColumn) then
+                        BusChartBuf.GetPeriodFromMapColumn(BusChartMapColumn.Index, FromDate, ToDate);
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
+                if (BusChartBuf."Period Filter Start Date" = 0D) and (AccountSchedulesChartSetup."Start Date" <> 0D) then
+                    BusChartBuf.InitializePeriodFilter(AccountSchedulesChartSetup."Start Date", AccountSchedulesChartSetup."End Date")
+                else
+                    BusChartBuf.RecalculatePeriodFilter(BusChartBuf."Period Filter Start Date", BusChartBuf."Period Filter End Date", Period);
+        end;
 
-            Initialize();
-            case AccountSchedulesChartSetup."Base X-Axis on" of
-                AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                    begin
-                        SetPeriodXAxis();
-                        NoOfPeriods := AccountSchedulesChartSetup."No. of Periods";
-                        CalcAndInsertPeriodAxis(BusChartBuf, AccountSchedulesChartSetup, Period, NoOfPeriods, FromDate, ToDate);
-                    end;
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
-                    SetXAxis(AccScheduleLine.FieldCaption(Description), "Data Type"::String);
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                    SetXAxis(ColumnLayout.FieldCaption("Column Header"), "Data Type"::String);
-            end;
+        BusChartBuf.Initialize();
+        case AccountSchedulesChartSetup."Base X-Axis on" of
+            AccountSchedulesChartSetup."Base X-Axis on"::Period:
+                begin
+                    BusChartBuf.SetPeriodXAxis();
+                    NoOfPeriods := AccountSchedulesChartSetup."No. of Periods";
+                    CalcAndInsertPeriodAxis(BusChartBuf, AccountSchedulesChartSetup, Period, NoOfPeriods, FromDate, ToDate);
+                end;
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
+                BusChartBuf.SetXAxis(AccScheduleLine.FieldCaption(Description), BusChartBuf."Data Type"::String);
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
+                BusChartBuf.SetXAxis(ColumnLayout.FieldCaption("Column Header"), BusChartBuf."Data Type"::String);
+        end;
 
-            AddMeasures(BusChartBuf, AccountSchedulesChartSetup);
+        AddMeasures(BusChartBuf, AccountSchedulesChartSetup);
 
-            case AccountSchedulesChartSetup."Base X-Axis on" of
-                AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                    begin
-                        FindFirstColumn(BusChartMapColumn);
-                        for PeriodCounter := 1 to NoOfPeriods do begin
-                            AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
-                            AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
-                            if AccSchedChartSetupLine.FindSet() then
-                                repeat
-                                    GetPeriodFromMapColumn(PeriodCounter - 1, FromDate, ToDate);
-                                    AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
-                                    if (not AccScheduleLine.Get(
-                                          AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")) or
-                                       (not ColumnLayout.Get(
-                                          AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No."))
-                                    then
-                                        Error(DefinitionsModifiedMsg);
-                                    SetValue(
-                                      AccSchedChartSetupLine."Measure Name", PeriodCounter - 1,
-                                      RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                until AccSchedChartSetupLine.Next() = 0;
-                        end;
-                    end;
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
-                    begin
-                        AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
+        case AccountSchedulesChartSetup."Base X-Axis on" of
+            AccountSchedulesChartSetup."Base X-Axis on"::Period:
+                begin
+                    BusChartBuf.FindFirstColumn(BusChartMapColumn);
+                    for PeriodCounter := 1 to NoOfPeriods do begin
+                        AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
                         AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
-                        AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine2);
-                        AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
-                        XCounter := 0;
-                        AccScheduleLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
                         if AccSchedChartSetupLine.FindSet() then
                             repeat
-                                AddColumn(AccSchedChartSetupLine."Measure Name");
-                                if not AccScheduleLine.Get(
-                                     AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")
+                                BusChartBuf.GetPeriodFromMapColumn(PeriodCounter - 1, FromDate, ToDate);
+                                AccScheduleLine.SetRange("Date Filter", FromDate, ToDate);
+                                if (not AccScheduleLine.Get(
+                                      AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")) or
+                                   (not ColumnLayout.Get(
+                                      AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No."))
                                 then
                                     Error(DefinitionsModifiedMsg);
-                                if AccSchedChartSetupLine2.FindSet() then
-                                    repeat
-                                        if not ColumnLayout.Get(
-                                             AccSchedChartSetupLine2."Column Layout Name", AccSchedChartSetupLine2."Column Layout Line No.")
-                                        then
-                                            Error(DefinitionsModifiedMsg);
-                                        SetValue(
-                                          AccSchedChartSetupLine2."Measure Name", XCounter,
-                                          RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                    until AccSchedChartSetupLine2.Next() = 0;
-                                XCounter += 1;
+                                BusChartBuf.SetValue(
+                                  AccSchedChartSetupLine."Measure Name", PeriodCounter - 1,
+                                  RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
                             until AccSchedChartSetupLine.Next() = 0;
                     end;
-                AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
-                    begin
-                        AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
-                        AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
-                        AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine2);
-                        AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
-                        AccScheduleLine.SetRange("Date Filter", "Period Filter Start Date", "Period Filter End Date");
-                        XCounter := 0;
-                        if AccSchedChartSetupLine.FindSet() then
-                            repeat
-                                AddColumn(AccSchedChartSetupLine."Measure Name");
-                                if not ColumnLayout.Get(AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No.") then
-                                    Error(DefinitionsModifiedMsg);
-                                if AccSchedChartSetupLine2.FindSet() then
-                                    repeat
-                                        if not AccScheduleLine.Get(
-                                             AccSchedChartSetupLine2."Account Schedule Name", AccSchedChartSetupLine2."Account Schedule Line No.")
-                                        then
-                                            Error(DefinitionsModifiedMsg);
-                                        SetValue(
-                                          AccSchedChartSetupLine2."Measure Name", XCounter,
-                                          RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                    until AccSchedChartSetupLine2.Next() = 0;
-                                XCounter += 1;
-                            until AccSchedChartSetupLine.Next() = 0;
-                    end;
-            end;
+                end;
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
+                begin
+                    AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
+                    AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
+                    AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine2);
+                    AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
+                    XCounter := 0;
+                    AccScheduleLine.SetRange("Date Filter", BusChartBuf."Period Filter Start Date", BusChartBuf."Period Filter End Date");
+                    if AccSchedChartSetupLine.FindSet() then
+                        repeat
+                            BusChartBuf.AddColumn(AccSchedChartSetupLine."Measure Name");
+                            if not AccScheduleLine.Get(
+                                 AccSchedChartSetupLine."Account Schedule Name", AccSchedChartSetupLine."Account Schedule Line No.")
+                            then
+                                Error(DefinitionsModifiedMsg);
+                            if AccSchedChartSetupLine2.FindSet() then
+                                repeat
+                                    if not ColumnLayout.Get(
+                                         AccSchedChartSetupLine2."Column Layout Name", AccSchedChartSetupLine2."Column Layout Line No.")
+                                    then
+                                        Error(DefinitionsModifiedMsg);
+                                    BusChartBuf.SetValue(
+                                      AccSchedChartSetupLine2."Measure Name", XCounter,
+                                      RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
+                                until AccSchedChartSetupLine2.Next() = 0;
+                            XCounter += 1;
+                        until AccSchedChartSetupLine.Next() = 0;
+                end;
+            AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
+                begin
+                    AccountSchedulesChartSetup.SetLinkToDimensionLines(AccSchedChartSetupLine);
+                    AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
+                    AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine2);
+                    AccSchedChartSetupLine2.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine2."Chart Type"::" ");
+                    AccScheduleLine.SetRange("Date Filter", BusChartBuf."Period Filter Start Date", BusChartBuf."Period Filter End Date");
+                    XCounter := 0;
+                    if AccSchedChartSetupLine.FindSet() then
+                        repeat
+                            BusChartBuf.AddColumn(AccSchedChartSetupLine."Measure Name");
+                            if not ColumnLayout.Get(AccSchedChartSetupLine."Column Layout Name", AccSchedChartSetupLine."Column Layout Line No.") then
+                                Error(DefinitionsModifiedMsg);
+                            if AccSchedChartSetupLine2.FindSet() then
+                                repeat
+                                    if not AccScheduleLine.Get(
+                                         AccSchedChartSetupLine2."Account Schedule Name", AccSchedChartSetupLine2."Account Schedule Line No.")
+                                    then
+                                        Error(DefinitionsModifiedMsg);
+                                    BusChartBuf.SetValue(
+                                      AccSchedChartSetupLine2."Measure Name", XCounter,
+                                      RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
+                                until AccSchedChartSetupLine2.Next() = 0;
+                            XCounter += 1;
+                        until AccSchedChartSetupLine.Next() = 0;
+                end;
         end;
     end;
 
@@ -253,24 +249,22 @@ codeunit 762 "Acc. Sched. Chart Management"
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
         BusChartType: Enum "Business Chart Type";
     begin
-        with AccSchedChartSetupLine do begin
-            AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
-            SetFilter("Chart Type", '<>%1', "Chart Type"::" ");
-            if FindSet() then
-                repeat
-                    case "Chart Type" of
-                        "Chart Type"::Line:
-                            BusChartType := BusChartBuf."Chart Type"::Line;
-                        "Chart Type"::StepLine:
-                            BusChartType := BusChartBuf."Chart Type"::StepLine;
-                        "Chart Type"::Column:
-                            BusChartType := BusChartBuf."Chart Type"::Column;
-                        "Chart Type"::StackedColumn:
-                            BusChartType := BusChartBuf."Chart Type"::StackedColumn;
-                    end;
-                    BusChartBuf.AddDecimalMeasure("Measure Name", "Measure Value", BusChartType);
-                until Next() = 0;
-        end;
+        AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
+        AccSchedChartSetupLine.SetFilter("Chart Type", '<>%1', AccSchedChartSetupLine."Chart Type"::" ");
+        if AccSchedChartSetupLine.FindSet() then
+            repeat
+                case AccSchedChartSetupLine."Chart Type" of
+                    AccSchedChartSetupLine."Chart Type"::Line:
+                        BusChartType := BusChartBuf."Chart Type"::Line;
+                    AccSchedChartSetupLine."Chart Type"::StepLine:
+                        BusChartType := BusChartBuf."Chart Type"::StepLine;
+                    AccSchedChartSetupLine."Chart Type"::Column:
+                        BusChartType := BusChartBuf."Chart Type"::Column;
+                    AccSchedChartSetupLine."Chart Type"::StackedColumn:
+                        BusChartType := BusChartBuf."Chart Type"::StackedColumn;
+                end;
+                BusChartBuf.AddDecimalMeasure(AccSchedChartSetupLine."Measure Name", AccSchedChartSetupLine."Measure Value", BusChartType);
+            until AccSchedChartSetupLine.Next() = 0;
     end;
 
     local procedure CalcAndInsertPeriodAxis(var BusChartBuf: Record "Business Chart Buffer"; AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; Period: Option ,Next,Previous; MaxPeriodNo: Integer; StartDate: Date; EndDate: Date)

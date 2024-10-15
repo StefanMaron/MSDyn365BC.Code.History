@@ -155,7 +155,7 @@ codeunit 148016 "Digital Vouchers Tests DK"
         DigitalVoucherEntrySetupPage.OpenEdit();
         DigitalVoucherEntrySetupPage.Filter.SetFilter("Entry Type", Format(DigitalVoucherEntrySetup."Entry Type"::"Purchase Journal"));
         DigitalVoucherEntrySetupPage."Check Type".SetValue(Format(DigitalVoucherEntrySetup."Check Type"::"No Check"));
-        DigitalVoucherEntrySetupPage.Close();
+        asserterror DigitalVoucherEntrySetupPage.Close();
         Assert.ExpectedError(NotAllowedToChangeWhenEnforcedErr);
         UnbindSubscription(DigVouchersEnableEnforce);
     end;
@@ -174,7 +174,7 @@ codeunit 148016 "Digital Vouchers Tests DK"
         DigitalVoucherEntrySetupPage.OpenEdit();
         DigitalVoucherEntrySetupPage.Filter.SetFilter("Entry Type", Format(DigitalVoucherEntrySetup."Entry Type"::"Purchase Document"));
         DigitalVoucherEntrySetupPage."Check Type".SetValue(Format(DigitalVoucherEntrySetup."Check Type"::"No Check"));
-        DigitalVoucherEntrySetupPage.Close();
+        asserterror DigitalVoucherEntrySetupPage.Close();
         Assert.ExpectedError(NotAllowedToChangeWhenEnforcedErr);
         UnbindSubscription(DigVouchersEnableEnforce);
     end;
@@ -193,7 +193,7 @@ codeunit 148016 "Digital Vouchers Tests DK"
         DigitalVoucherEntrySetupPage.OpenEdit();
         DigitalVoucherEntrySetupPage.Filter.SetFilter("Entry Type", Format(DigitalVoucherEntrySetup."Entry Type"::"Sales Document"));
         DigitalVoucherEntrySetupPage."Check Type".SetValue(Format(DigitalVoucherEntrySetup."Check Type"::"No Check"));
-        DigitalVoucherEntrySetupPage.Close();
+        asserterror DigitalVoucherEntrySetupPage.Close();
         Assert.ExpectedError(NotAllowedToChangeWhenEnforcedErr);
         UnbindSubscription(DigVouchersEnableEnforce);
     end;
@@ -212,7 +212,7 @@ codeunit 148016 "Digital Vouchers Tests DK"
         DigitalVoucherEntrySetupPage.OpenEdit();
         DigitalVoucherEntrySetupPage.Filter.SetFilter("Entry Type", Format(DigitalVoucherEntrySetup."Entry Type"::"Purchase Journal"));
         DigitalVoucherEntrySetupPage."Generate Automatically".SetValue(true);
-        DigitalVoucherEntrySetupPage.Close();
+        asserterror DigitalVoucherEntrySetupPage.Close();
         Assert.ExpectedError(NotAllowedToChangeWhenEnforcedErr);
         UnbindSubscription(DigVouchersEnableEnforce);
     end;
@@ -231,7 +231,7 @@ codeunit 148016 "Digital Vouchers Tests DK"
         DigitalVoucherEntrySetupPage.OpenEdit();
         DigitalVoucherEntrySetupPage.Filter.SetFilter("Entry Type", Format(DigitalVoucherEntrySetup."Entry Type"::"Purchase Document"));
         DigitalVoucherEntrySetupPage."Generate Automatically".SetValue(true);
-        DigitalVoucherEntrySetupPage.Close();
+        asserterror DigitalVoucherEntrySetupPage.Close();
         Assert.ExpectedError(NotAllowedToChangeWhenEnforcedErr);
         UnbindSubscription(DigVouchersEnableEnforce);
     end;

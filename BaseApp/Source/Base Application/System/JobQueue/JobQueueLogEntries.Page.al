@@ -9,7 +9,7 @@ page 674 "Job Queue Log Entries"
     PageType = List;
     SourceTable = "Job Queue Log Entry";
     SourceTableView = sorting("Start Date/Time", ID)
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout

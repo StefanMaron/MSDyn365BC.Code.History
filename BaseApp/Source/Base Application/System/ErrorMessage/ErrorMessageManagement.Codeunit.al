@@ -393,6 +393,18 @@ codeunit 28 "Error Message Management"
             FldRef.FieldError(ErrorMessage);
     end;
 
+    procedure InsertTempLineErrorMessage(var TempLineErrorMessage: Record "Error Message" temporary; RecordId: RecordId; TableNo: Integer; FieldNo: Integer; Description: Text; CallStack: Text)
+    begin
+        TempLineErrorMessage.Init();
+        TempLineErrorMessage.ID := TempLineErrorMessage.FindLastID() + 1;
+        TempLineErrorMessage.Validate("Context Record ID", RecordId);
+        TempLineErrorMessage."Context Field Number" := FieldNo;
+        TempLineErrorMessage."Context Table Number" := TableNo;
+        TempLineErrorMessage."Message" := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage."Message"));
+        TempLineErrorMessage.SetErrorCallStack(CallStack);
+        TempLineErrorMessage.Insert();
+    end;
+
     procedure CollectErrors(var TempLineErrorMessage: Record "Error Message" temporary)
     var
         ErrorList: list of [ErrorInfo];
@@ -472,26 +484,26 @@ codeunit 28 "Error Message Management"
     begin
         case FldRef.Type of
             FieldType::Boolean:
-                HasValue := FldRef.Value;
+                HasValue := FldRef.Value();
             FieldType::Option,
             FieldType::Integer:
                 begin
-                    Int := FldRef.Value;
+                    Int := FldRef.Value();
                     HasValue := Int <> 0;
                 end;
             FieldType::Decimal:
                 begin
-                    Dec := FldRef.Value;
+                    Dec := FldRef.Value();
                     HasValue := Dec <> 0;
                 end;
             FieldType::Date:
                 begin
-                    D := FldRef.Value;
+                    D := FldRef.Value();
                     HasValue := D <> 0D;
                 end;
             FieldType::Time:
                 begin
-                    T := FldRef.Value;
+                    T := FldRef.Value();
                     HasValue := T <> 0T;
                 end;
             FieldType::BLOB:
@@ -679,6 +691,25 @@ codeunit 28 "Error Message Management"
     begin
         LastErrorContextElement.GetErrorMessage(ErrorMessage);
         exit(ErrorMessage.ID > 0);
+    end;
+
+    procedure BuildActionableErrorInfo(ErrorTitle: Text; ErrorMessage: Text; RecId: RecordId; ActionMessage: Text; ActionCodeunuitId: Integer; ActionName: Text): ErrorInfo
+    begin
+        exit(BuildActionableErrorInfo(ErrorTitle, ErrorMessage, RecId, ActionMessage, ActionCodeunuitId, ActionName, ''));
+    end;
+
+    procedure BuildActionableErrorInfo(ErrorTitle: Text; ErrorMessage: Text; RecId: RecordId; ActionMessage: Text; ActionCodeunuitId: Integer; ActionName: Text; ActionDescription: Text): ErrorInfo
+    var
+        ReturnErrorInfo: ErrorInfo;
+    begin
+        ReturnErrorInfo.Title := ErrorTitle;
+        ReturnErrorInfo.Message := ErrorMessage;
+        ReturnErrorInfo.RecordId := RecId;
+        if ActionDescription <> '' then
+            ReturnErrorInfo.AddAction(ActionMessage, ActionCodeunuitId, ActionName, ActionDescription)
+        else
+            ReturnErrorInfo.AddAction(ActionMessage, ActionCodeunuitId, ActionName);
+        exit(ReturnErrorInfo);
     end;
 
     [IntegrationEvent(false, false)]

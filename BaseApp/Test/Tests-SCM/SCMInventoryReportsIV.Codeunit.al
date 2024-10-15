@@ -78,7 +78,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Exercise.
         // Use Random months to change Posting Date.
         CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2),
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), CreateCustomer);  // Use Random value for Quantity.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), CreateCustomer());  // Use Random value for Quantity.
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetRange("No.", Item."No.");
         SalesInvoiceLine.FindFirst();
@@ -106,7 +106,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
-        CreateAndPostSalesOrder(SalesLine, Item."No.", ItemJournalLine.Quantity / 2, WorkDate(), CreateCustomer);  // Post partial Quantity.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", ItemJournalLine.Quantity / 2, WorkDate(), CreateCustomer());  // Post partial Quantity.
 
         // Exercise.
         Commit();
@@ -188,7 +188,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Item with Tracking Code, create Location with Bin, create and receive Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
         Initialize();
         CreateLocationWithBin(Bin);
-        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeSerialSpecific);  // Use blank value for Lot No.
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCodeSerialSpecific());  // Use blank value for Lot No.
         CreateAndModifyPurchaseOrder(PurchaseLine, Item."No.", Bin."Location Code", Bin.Code);
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         PurchaseLine.OpenItemTrackingLines();
@@ -358,7 +358,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Item, Customer, create and post Sales Order.
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         UpdateCustomerDimension(DefaultDimension, CustomerNo);
         CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CustomerNo);  // Use Random value for Quantity.
         SetupDimTotalReportWithAnalysisArea(ItemAnalysisView,
@@ -424,7 +424,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Item, Vendor, create and post Purchase Order.
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        UpdateVendorDimension(DefaultDimension, CreateVendor);
+        UpdateVendorDimension(DefaultDimension, CreateVendor());
         CreatePurchaseOrder(PurchaseLine, Item."No.", DefaultDimension."No.");
         PostPurchaseOrder(PurchaseLine, true, true);
         SetupDimTotalReportWithAnalysisArea(ItemAnalysisView,
@@ -458,7 +458,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
-        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer);  // Use Random value for Quantity.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer());  // Use Random value for Quantity.
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
 
@@ -557,14 +557,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
-        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer);  // Use Random value for Quantity.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer());  // Use Random value for Quantity.
 
         // Post Revaluation Journal.
         AdjustedAmount := CreateAndPostRevaluationJournal(Item."No.");
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         RevaluationCost :=
-          Round(ItemLedgerEntry.Quantity * (AdjustedAmount / ItemJournalLine.Quantity), LibraryERM.GetAmountRoundingPrecision);
+          Round(ItemLedgerEntry.Quantity * (AdjustedAmount / ItemJournalLine.Quantity), LibraryERM.GetAmountRoundingPrecision());
 
         // Exercise.
         Commit();
@@ -680,7 +680,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure ItemDimDetailReportDateFilterError()
     begin
         // Verify error on Item Dimension Detail report for blank Date Filter.
-        ItemDimDetailReportError(CreateItemAnalysisView, DateFilterError);
+        ItemDimDetailReportError(CreateItemAnalysisView(), DateFilterError);
     end;
 
     local procedure ItemDimDetailReportError(ItemAnalysisViewCode: Code[10]; Error: Text[50])
@@ -719,7 +719,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Item, Customer, create and post Sales Order.
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        UpdateCustomerDimension(DefaultDimension, CreateCustomer);
+        UpdateCustomerDimension(DefaultDimension, CreateCustomer());
         CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), DefaultDimension."No.");  // Use Random value for Quantity.
         SetupDimDetailReportWithAnalysisArea(DefaultDimension, ItemAnalysisView."Analysis Area"::Sales);
 
@@ -780,7 +780,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Item, Vendor, create and post Purchase Order.
         Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        UpdateVendorDimension(DefaultDimension, CreateVendor);
+        UpdateVendorDimension(DefaultDimension, CreateVendor());
         CreatePurchaseOrder(PurchaseLine, Item."No.", DefaultDimension."No.");
         PostPurchaseOrder(PurchaseLine, true, true);
         SetupDimDetailReportWithAnalysisArea(DefaultDimension, ItemAnalysisView."Analysis Area"::Purchase);
@@ -907,7 +907,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
             LibraryUtility.GenerateRandomCode(PurchaseLine.FieldNo("Location Code"), DATABASE::"Purchase Line"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Purchase Line", PurchaseLine.FieldNo("Location Code")));
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        CreatePurchaseOrder(PurchaseLine, Item."No.", CreateVendor);
+        CreatePurchaseOrder(PurchaseLine, Item."No.", CreateVendor());
         PostPurchaseOrder(PurchaseLine, true, true);  // Post as Receive and Invoice.
         SetupAnalysisReportWithAnalysisArea(
           ItemAnalysisView."Analysis Area"::Purchase, AnalysisColumn."Value Type"::"Cost Amount", ShowError::None, WorkDate(), Item."No.",
@@ -945,7 +945,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
             LibraryUtility.GenerateRandomCode(SalesLine.FieldNo("Location Code"), DATABASE::"Sales Line"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Sales Line", SalesLine.FieldNo("Location Code")));
         CreateItem(Item, Item."Replenishment System"::Purchase);
-        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer);  // Use Random value for Quantity.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer());  // Use Random value for Quantity.
         SetupAnalysisReportWithAnalysisArea(
           ItemAnalysisView."Analysis Area"::Sales, AnalysisColumn."Value Type"::"Sales Amount", ShowError::None, WorkDate(), Item."No.",
           RowRefNo);
@@ -1023,7 +1023,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisColumnTemplateName :=
           SetupAnalysisReportWithAnalysisArea(
             ItemAnalysisView."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Cost Amount", ShowError::"Division by Zero",
-            WorkDate, Item."No.", RowRefNo);
+            WorkDate(), Item."No.", RowRefNo);
         UpdateAnalysisColumn(ItemAnalysisView."Analysis Area"::Inventory, AnalysisColumnTemplateName);
 
         // Exercise.
@@ -1099,7 +1099,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, ItemAnalysisView."Analysis Area");
         CreateAndModifyAnalysisLine(
-          AnalysisLine, ItemAnalysisView."Analysis Area", AnalysisLineTemplate.Name, Item."No.", GetRndLocationCode, AnalysisLine.Type::Item);
+          AnalysisLine, ItemAnalysisView."Analysis Area", AnalysisLineTemplate.Name, Item."No.", GetRndLocationCode(), AnalysisLine.Type::Item);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(ColumnFormulaMsg, Formula));
         LibraryVariableStorage.Enqueue(StrSubstNo(ColumnFormulaErrorMsg, ErrorTypeRef::"Division by Zero"));
@@ -1135,7 +1135,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           ItemJournalLine, Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, LibraryRandom.RandDec(10, 2));
 
         // Create and Post Sales Order.
-        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer);
+        CreateAndPostSalesOrder(SalesLine, Item."No.", LibraryRandom.RandDec(10, 2), WorkDate(), CreateCustomer());
 
         // Create and post Sales Return Order by Get Posted Document To Reverse.
         DocumentNo := CreateAndPostSalesReturnOrderByGetPostedDocToReverse(SalesLine."Sell-to Customer No.");
@@ -1147,7 +1147,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
         // Verify Quantity and Material Direct Cost for Item Journal.
         Item.Get(Item."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         MaterialDirectCost := (Qty - SalesLine.Quantity) * ItemJournalLine."Unit Cost";
         VerifyCostSharesBreakdownReportForInventory(ItemJournalLine."Document No.", Qty - SalesLine.Quantity, MaterialDirectCost);
 
@@ -1186,7 +1186,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
         // Verify Quantity and Material Direct Cost for Debt Inventory.
         Item.Get(Item."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         MaterialDirectCost :=
           Qty * ItemJournalLine[1]."Unit Cost" + Qty * ItemJournalLine[2]."Unit Cost" - 3 * Qty * Item."Unit Cost";
         VerifyCostSharesBreakdownReportForInventory(ItemJournalLine[3]."Document No.", -Qty, MaterialDirectCost);
@@ -1204,12 +1204,12 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create and Post Purchase Order.
         Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
-        ItemNo := CreateAndPostPurchaseOrder;
+        ItemNo := CreateAndPostPurchaseOrder();
 
         // Exercise: Run Post Inventory Cost To G/L Report.
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
 
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         RunPostInventoryCostToGL(ItemNo);
 
@@ -1320,12 +1320,12 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryInventory.CreateItem(Item);
         AnalysisReportWithAnalysisView(
           AnalysisReportName, AnalysisLineTemplate, AnalysisColumnTemplate, ItemAnalysisView."Analysis Area"::Inventory,
-          AnalysisColumn."Value Type"::"Cost Amount", GetRndLocationCode, Item."No.");
+          AnalysisColumn."Value Type"::"Cost Amount", GetRndLocationCode(), Item."No.");
         CreateAndModifyAnalysisLine(
           AnalysisLine, ItemAnalysisView."Analysis Area"::Inventory, AnalysisLineTemplate.Name, Format(Value),
-          GetRndLocationCode, AnalysisLine.Type::Formula);
+          GetRndLocationCode(), AnalysisLine.Type::Formula);
         LibraryVariableStorage.Enqueue(AnalysisLine."Row Ref. No.");  // Enqueue AnalysisLine."Row Ref. No." value in InventoryAnalysisMatrixRequestPageHandler2.
-        LibraryVariableStorage.Enqueue(Format(Value, 0, LibraryAccountSchedule.GetAutoFormatString));  // Enqueue expected column value in InventoryAnalysisMatrixRequestPageHandler2.
+        LibraryVariableStorage.Enqueue(Format(Value, 0, LibraryAccountSchedule.GetAutoFormatString()));  // Enqueue expected column value in InventoryAnalysisMatrixRequestPageHandler2.
 
         // [WHEN] Open Analysis Matrix.
         OpenAnalysisReportInventory(AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
@@ -1477,7 +1477,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::"Cost Amount", true);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Cost Amount (Actual)".AssertEquals(ItemAnalysisViewEntry."Cost Amount (Actual)");
     end;
@@ -1495,7 +1495,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::"Cost Amount", false);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Cost Amount (Expected)".AssertEquals(ItemAnalysisViewEntry."Cost Amount (Expected)");
     end;
@@ -1513,7 +1513,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::Quantity, true);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Invoiced Quantity".AssertEquals(ItemAnalysisViewEntry."Invoiced Quantity");
     end;
@@ -1531,7 +1531,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::Quantity, false);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries.Quantity.AssertEquals(ItemAnalysisViewEntry.Quantity);
     end;
@@ -1549,7 +1549,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::"Sales Amount", true);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Sales Amount (Actual)".AssertEquals(ItemAnalysisViewEntry."Sales Amount (Actual)");
     end;
@@ -1567,7 +1567,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         CreateAnalysisWithMockEntry(AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::"Sales Amount", false);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Sales Amount (Expected)".AssertEquals(ItemAnalysisViewEntry."Sales Amount (Expected)");
     end;
@@ -1586,7 +1586,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisWithMockEntry(
           AnalysisLine, AnalysisColumn, ItemAnalysisViewEntry, AnalysisColumn."Value Type"::"Non-Invntble Amount", true);
 
-        ItemAnalysisViewEntries.Trap;
+        ItemAnalysisViewEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalysisViewEntries."Cost Amount (Non-Invtbl.)".AssertEquals(ItemAnalysisViewEntry."Cost Amount (Non-Invtbl.)");
     end;
@@ -1663,7 +1663,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           AnalysisLine, AnalysisColumn, ItemBudgetEntry, AnalysisColumn."Analysis Area"::Purchase,
           AnalysisColumn."Value Type"::"Cost Amount");
 
-        ItemBudgetEntries.Trap;
+        ItemBudgetEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemBudgetEntries."Cost Amount".AssertEquals(ItemBudgetEntry."Cost Amount");
     end;
@@ -1683,7 +1683,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           AnalysisLine, AnalysisColumn, ItemBudgetEntry, AnalysisColumn."Analysis Area"::Sales,
           AnalysisColumn."Value Type"::"Sales Amount");
 
-        ItemBudgetEntries.Trap;
+        ItemBudgetEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemBudgetEntries."Sales Amount".AssertEquals(ItemBudgetEntry."Sales Amount");
     end;
@@ -1703,7 +1703,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           AnalysisLine, AnalysisColumn, ItemBudgetEntry, AnalysisColumn."Analysis Area"::Purchase,
           AnalysisColumn."Value Type"::Quantity);
 
-        ItemBudgetEntries.Trap;
+        ItemBudgetEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemBudgetEntries.Quantity.AssertEquals(ItemBudgetEntry.Quantity);
     end;
@@ -1773,7 +1773,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisWithMockAnalysisViewBudgEntry(
           AnalysisLine, AnalysisColumn, ItemAnalysisViewBudgEntry, AnalysisColumn."Value Type"::"Cost Amount");
 
-        ItemAnalyViewBudgEntries.Trap;
+        ItemAnalyViewBudgEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalyViewBudgEntries."Cost Amount".AssertEquals(ItemAnalysisViewBudgEntry."Cost Amount");
     end;
@@ -1792,7 +1792,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisWithMockAnalysisViewBudgEntry(
           AnalysisLine, AnalysisColumn, ItemAnalysisViewBudgEntry, AnalysisColumn."Value Type"::"Sales Amount");
 
-        ItemAnalyViewBudgEntries.Trap;
+        ItemAnalyViewBudgEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalyViewBudgEntries."Sales Amount".AssertEquals(ItemAnalysisViewBudgEntry."Sales Amount");
     end;
@@ -1811,7 +1811,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisWithMockAnalysisViewBudgEntry(
           AnalysisLine, AnalysisColumn, ItemAnalysisViewBudgEntry, AnalysisColumn."Value Type"::Quantity);
 
-        ItemAnalyViewBudgEntries.Trap;
+        ItemAnalyViewBudgEntries.Trap();
         CalcAnalysisReportCell(AnalysisLine, AnalysisColumn, true);
         ItemAnalyViewBudgEntries.Quantity.AssertEquals(ItemAnalysisViewBudgEntry.Quantity);
     end;
@@ -1892,7 +1892,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, ItemAnalysisView."Analysis Area");
         CreateAndModifyAnalysisLine(
           AnalysisLine, ItemAnalysisView."Analysis Area", AnalysisLineTemplate.Name, Item[1]."No.",
-          GetRndLocationCode, AnalysisLine.Type::Item);
+          GetRndLocationCode(), AnalysisLine.Type::Item);
 
         // [GIVEN] Open "Inventory Analysis Report" page, set "Source No. Filter" = "ITEM1|ITEM2". Filter length is 41 characters
         // [WHEN] Invoke "Show Matrix" action
@@ -1982,7 +1982,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         RunItemVendorReport(Item."No.");
 
         // [THEN] Report dataset contains line with data from Price List Line
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemVendorCatalogReportExtPriceCalc(
           Item."No.", Vendor."No.", ItemVendor."Vendor Item No.", Format(ItemVendor."Lead Time Calculation"), PriceListLine."Direct Unit Cost");
 
@@ -2022,7 +2022,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         RunVendorItemCatalogReport(Vendor."No.");
 
         // [THEN] Report dataset contains line with data from Price List Line
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyVendorItemCatalogReportExtPriceCalc(
           Item."No.", Vendor."No.", ItemVendor."Vendor Item No.", Format(ItemVendor."Lead Time Calculation"), PriceListLine."Direct Unit Cost");
 
@@ -2170,7 +2170,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        UpdateInventorySetupCostPosting;
+        UpdateInventorySetupCostPosting();
 
         isInitialized := true;
         Commit();
@@ -2209,7 +2209,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         LibraryReportDataset.FindCurrentRowValue(ElementName, VarDecimal);
         ActValue := VarDecimal;
-        Assert.AreNearlyEqual(ExpectedValue, ActValue, LibraryERM.GetAmountRoundingPrecision, ValueNotMatchedError);
+        Assert.AreNearlyEqual(ExpectedValue, ActValue, LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
     end;
 
     local procedure CalcAnalysisReportCell(AnalysisLine: Record "Analysis Line"; AnalysisColumn: Record "Analysis Column"; DrillDown: Boolean): Decimal
@@ -2280,7 +2280,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     local procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Enum "Analysis Area Type"; AnalysisColumnTemplate: Code[10]; ColumnHeader: Text[50])
     begin
         LibraryERM.CreateAnalysisColumn(AnalysisColumn, AnalysisArea, AnalysisColumnTemplate);
-        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID, 1, AnalysisColumn.FieldNo("Column No.")));
+        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID(), 1, AnalysisColumn.FieldNo("Column No.")));
         AnalysisColumn.Validate("Column Header", ColumnHeader);
         AnalysisColumn.Modify(true);
     end;
@@ -2290,7 +2290,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisArea);
-        CreateAndModifyAnalysisColumn(AnalysisArea, AnalysisColumnTemplate.Name, LibraryUtility.GenerateGUID, ValueType, Invoiced);
+        CreateAndModifyAnalysisColumn(AnalysisArea, AnalysisColumnTemplate.Name, LibraryUtility.GenerateGUID(), ValueType, Invoiced);
         AnalysisColumn.SetRange("Analysis Area", AnalysisArea);
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplate.Name);
         AnalysisColumn.FindFirst();
@@ -2312,7 +2312,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisLineTemplate.Modify(true);
 
         CreateAndModifyAnalysisLine(
-          AnalysisLine, AnalysisArea, AnalysisLineTemplate.Name, ItemNo, GetRndLocationCode, AnalysisLine.Type::Item);
+          AnalysisLine, AnalysisArea, AnalysisLineTemplate.Name, ItemNo, GetRndLocationCode(), AnalysisLine.Type::Item);
     end;
 
     local procedure CreateAnalysisViewWithMockBudgEntry(var ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ItemNo: Code[20]; DimensionCode: Code[20]; DimensionValueCode: Code[20])
@@ -2439,14 +2439,12 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         Item: Record Item;
         ItemJournalTemplate: Record "Item Journal Template";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         Item.SetRange("No.", ItemNo);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", CalculatePer::"Item Ledger Entry", false, false, false,
-          CalcBase::" ", false);
+          ItemJournalBatch, Item, WorkDate(), ItemJournalLine."Document No.", "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false,
+          "Inventory Value Calc. Base"::" ", false);
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -2557,7 +2555,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
         LibraryUtility.GenerateGUID();  // To avoid 'Item Journal Batch already exists' error.
     end;
@@ -2598,7 +2596,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');  // Use blank value for Zone Code and Bin Type Code.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');  // Use blank value for Zone Code and Bin Type Code.
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; VendorNo: Code[20])
@@ -2609,7 +2607,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));  // Use random value for Quantity.
     end;
 
-    local procedure CreateStockkeepingUnit(ItemNo: Code[20]; SKUCreationMethod: Option)
+    local procedure CreateStockkeepingUnit(ItemNo: Code[20]; SKUCreationMethod: Enum "SKU Creation Method")
     var
         Item: Record Item;
     begin
@@ -2726,10 +2724,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         Bin: Record Bin;
         PurchaseLine: Record "Purchase Line";
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         CreateItem(Item, Item."Costing Method"::Average);
-        CreateStockkeepingUnit(Item."No.", SKUCreationMethod::Location);
+        CreateStockkeepingUnit(Item."No.", "SKU Creation Method"::Location);
         CreateLocationWithBin(Bin);
         CreateAndModifyPurchaseOrder(PurchaseLine, Item."No.", Bin."Location Code", Bin.Code);
         PostPurchaseOrder(PurchaseLine, true, true);
@@ -2742,7 +2739,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure MockItemWithLongNo(var Item: Record Item)
     begin
-        Item."No." := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+        Item."No." := LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID();
         Item.Insert();
     end;
 
@@ -2807,11 +2804,11 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         AnalysisReportInventory: TestPage "Analysis Report Inventory";
     begin
-        AnalysisReportInventory.OpenEdit;
+        AnalysisReportInventory.OpenEdit();
         AnalysisReportInventory.FILTER.SetFilter(Name, AnalysisReportName);
         AnalysisReportInventory."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
         AnalysisReportInventory."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        AnalysisReportInventory.EditAnalysisReport.Invoke;  // Edit Analysis Report page Handled by EditAnalysisReportPageHandler.
+        AnalysisReportInventory.EditAnalysisReport.Invoke();  // Edit Analysis Report page Handled by EditAnalysisReportPageHandler.
     end;
 
     local procedure PostPurchaseOrder(PurchaseLine: Record "Purchase Line"; Receive: Boolean; Invoice: Boolean): Code[20]
@@ -3055,7 +3052,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         // Create and post Item Journal Line and Sales Order.
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
-        CreateAndPostSalesOrder(SalesLine, Item."No.", ItemJournalLine.Quantity / 2, WorkDate(), CreateCustomer);  // Post partial Quantity.
+        CreateAndPostSalesOrder(SalesLine, Item."No.", ItemJournalLine.Quantity / 2, WorkDate(), CreateCustomer());  // Post partial Quantity.
 
         // Suggest Standard Cost on Standard Cost Worksheet and update Standard Cost.
         LibraryCosting.SuggestItemStandardCost(Item, StdCostWorksheetName, 1, '');  // StandardCostAdjustmentFactor is 1 and StandardCostRoundingMethod is blank.
@@ -3106,9 +3103,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         ItemAnalysisViewList: TestPage "Item Analysis View List";
     begin
-        ItemAnalysisViewList.OpenEdit;
+        ItemAnalysisViewList.OpenEdit();
         ItemAnalysisViewList.FILTER.SetFilter(Code, Code);
-        ItemAnalysisViewList."&Update".Invoke;
+        ItemAnalysisViewList."&Update".Invoke();
     end;
 
     local procedure UpdateItemDimension(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20])
@@ -3142,26 +3139,26 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure VerifyIAnalysisReport(ItemNo: Code[20]; Quantity: Decimal; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('RowRefNo_AnlysLine', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         AssertReportValue('ColumnValuesAsText1', Quantity);
         AssertReportValue('ColumnValuesAsText2', Amount);
     end;
 
     local procedure VerifyAnalysisReportForShowError(ItemNo: Code[20]; ErrorText: Text[50])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('RowRefNo_AnlysLine', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText1', ErrorText);
     end;
 
     local procedure VerifyCostSharesBreakdownReport(ItemLedgerEntry: Record "Item Ledger Entry"; MaterialDirectCost: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('CostShareBufDocumentNo', ItemLedgerEntry."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostShareBufNewQuantity', ItemLedgerEntry.Quantity);
         AssertReportValue('NewMatrl_PrintInvCstShrBuf', MaterialDirectCost);
     end;
@@ -3169,7 +3166,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     local procedure VerifyCostSharesBreakdownReportForInventory(DocumentNo: Code[20]; Quantity: Decimal; MaterialDirectCost: Decimal)
     begin
         LibraryReportDataset.SetRange('CostShareBufDocumentNo', DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostShareBufNewQuantity', Quantity);
         AssertReportValue('NewMatrl_PrintInvCstShrBuf', MaterialDirectCost);
     end;
@@ -3186,9 +3183,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure VerifyItemAgeCompositionReport(ItemNo: Code[20]; ExpectedValue: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtValue5_Item', ExpectedValue);
     end;
 
@@ -3200,13 +3197,13 @@ codeunit 137351 "SCM Inventory Reports - IV"
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch);
         ItemJournalLine.TestField("Item No.", ItemNo);
         UnitCost := Round(ItemJournalLine."Unit Cost (Revalued)");
-        Assert.AreNearlyEqual(UnitCost, StandardCost, LibraryERM.GetAmountRoundingPrecision, ValueNotMatchedError);
+        Assert.AreNearlyEqual(UnitCost, StandardCost, LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
     end;
 
     local procedure VerifyItemVendorCatalogReport(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text)
     begin
         LibraryReportDataset.SetRange('Purchase_Price__Vendor_No__', VendorNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Item__No__', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Vendor_Item_No__', VendorItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend__Lead_Time_Calculation_', LeadTime);
@@ -3215,7 +3212,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     local procedure VerifyItemVendorCatalogReportExtPriceCalc(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text; UnitCost: Decimal)
     begin
         LibraryReportDataset.SetRange('Price_Vendor_No', VendorNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Item__No__', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend_Vendor_Item_No', VendorItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemVend_Lead_Time_Calculation', LeadTime);
@@ -3225,7 +3222,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     local procedure VerifyVendorItemCatalogReportExtPriceCalc(ItemNo: Code[20]; VendorNo: Code[20]; VendorItemNo: Text[20]; LeadTime: Text; UnitCost: Decimal)
     begin
         LibraryReportDataset.SetRange('No_Vendor', VendorNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemNo', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemVendVendorItemNo', VendorItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Price_ItemVendLeadTimeCal', LeadTime);
@@ -3234,26 +3231,26 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure VerifyItemBudgetReport(ItemNo: Code[20]; CostAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemBudgetedAmount1', CostAmount);
     end;
 
     local procedure VerifyItemDimensionDetailReport(ItemNo: Code[20]; Quantity: Decimal; AmountElementName: Text; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('TempValueEntryItemNo', ItemNo);
         LibraryReportDataset.AssertElementWithValueExists(AmountElementName, Amount);
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             LibraryReportDataset.AssertCurrentRowValueEquals('TempValueEntryValuedQty', Quantity);
     end;
 
     local procedure VerifyItemDimensionTotalReport(DimensionCode: Code[20]; Quantity: Decimal; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DimCode1', DimensionCode);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         AssertReportValue('ColumnValuesAsText11', Quantity);
         AssertReportValue('ColumnValuesAsText21', Amount);
     end;
@@ -3263,17 +3260,17 @@ codeunit 137351 "SCM Inventory Reports - IV"
         StockkeepingUnit: Record "Stockkeeping Unit";
         ItemAverageCost: Decimal;
     begin
-        ItemAverageCost := CalculateItemAverageCost;
+        ItemAverageCost := CalculateItemAverageCost();
         StockkeepingUnit.SetRange("Item No.", ItemNo);
         StockkeepingUnit.FindSet();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         repeat
             LibraryReportDataset.SetRange('LocationCode_StockKeepingUnit', StockkeepingUnit."Location Code");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('No_Item', StockkeepingUnit."Item No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('AverageCost_StockKeepingUnit', ItemAverageCost);
-            Assert.IsFalse(LibraryReportDataset.GetNextRow, 'More than one record found for ' + StockkeepingUnit."Location Code");
+            Assert.IsFalse(LibraryReportDataset.GetNextRow(), 'More than one record found for ' + StockkeepingUnit."Location Code");
         until StockkeepingUnit.Next() = 0;
     end;
 
@@ -3289,9 +3286,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure VerifyStatusReport(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo_ItemLedgerEntry', DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('No_Item', PurchaseLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', PurchaseLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitCost', PurchaseLine."Unit Cost (LCY)");
@@ -3301,9 +3298,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         ValueEntry: Record "Value Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
@@ -3315,7 +3312,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure VerifyFieldsOnCostSharesBreakdownReport(DocumentNo: Code[20]; Quantity: Decimal; MaterialDirectCost: Decimal; Revaluation: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCostSharesBreakdownReportForInventory(DocumentNo, Quantity, MaterialDirectCost);
         AssertReportValue('NewReval_PrintInvCstShrBuf', Revaluation);
         AssertReportValue('TotalPrintInvtCostShareBuf', MaterialDirectCost + Revaluation);
@@ -3343,7 +3340,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisDimSelectionLevel.FILTER.SetFilter(Code, Code);
         AnalysisDimSelectionLevel.Level.SetValue(AnalysisDimSelectionBuffer.Level::"Level 1");
         AnalysisDimSelectionLevel."Dimension Value Filter".SetValue(DimensionValue);
-        AnalysisDimSelectionLevel.OK.Invoke;
+        AnalysisDimSelectionLevel.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3371,14 +3368,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisReport.DateFilter.SetValue(DateFilter);
         AnalysisReport.ShowError.SetValue(ShowError);
 
-        AnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3394,7 +3391,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ImplementStandardCostChange.PostingDate.SetValue(WorkDate());
         ImplementStandardCostChange.ItemJournalTemplate.SetValue(TemplateName);
         ImplementStandardCostChange.ItemJournalBatchName.SetValue(BatchName);
-        ImplementStandardCostChange.OK.Invoke;
+        ImplementStandardCostChange.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3421,7 +3418,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemBudget.ShowValueAs.SetValue(ShowValueAs);
         ItemBudget.StartingDate.SetValue(StartingDate);
         ItemBudget.AmountsInWhole1000s.SetValue(ShowAmount);
-        ItemBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3448,9 +3445,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemDimensionsTotal.DateFilter.SetValue(DateFilter);
         SetValue2 := SetValueVariant;
         if SetValue2 = SetValue::IncludeDimension then
-            ItemDimensionsTotal.IncludeDimensions.AssistEdit;
+            ItemDimensionsTotal.IncludeDimensions.AssistEdit();
 
-        ItemDimensionsTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemDimensionsTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3475,9 +3472,9 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemDimensionsDetail.DateFilterCtrl.SetValue(DateFilter);
         SetValue2 := SetValueVariant;
         if SetValue2 = SetValue::IncludeDimension then
-            ItemDimensionsDetail.IncludeDimensions.AssistEdit;
+            ItemDimensionsDetail.IncludeDimensions.AssistEdit();
 
-        ItemDimensionsDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemDimensionsDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3497,7 +3494,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         ItemDimensionsTotal.AnalysisArea.SetValue(AnalysisArea);
         ItemDimensionsTotal.AnalysisViewCode.SetValue(AnaysisViewCode);
-        ItemDimensionsTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemDimensionsTotal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -3512,11 +3509,11 @@ codeunit 137351 "SCM Inventory Reports - IV"
         TrackingOption := OptionValue;  // To convert Variant into Option.
         case TrackingOption of
             OptionString::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             OptionString::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3530,7 +3527,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         LibraryVariableStorage.Dequeue(Iteration);  // Dequeue variable.
         IterationCount := Iteration;  // To convert Variant into Integer.
-        ItemTrackingSummary.First;
+        ItemTrackingSummary.First();
         for Count := 1 to IterationCount do begin
             LibraryVariableStorage.Dequeue(SerialNo);  // Dequeue variable.
             ItemTrackingSummary."Serial No.".AssertEquals(SerialNo);
@@ -3552,7 +3549,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     [Scope('OnPrem')]
     procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
-        ProductionJournal.Post.Invoke;
+        ProductionJournal.Post.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3579,7 +3576,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.Dequeue(Date);
         LibraryVariableStorage.Dequeue(Name);
         Status.StatusDate.SetValue(Date);
-        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [PageHandler]
@@ -3587,7 +3584,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure EditAnalysisReportRequestPageHandler(var InventoryAnalysisReport: TestPage "Inventory Analysis Report")
     begin
         Commit();  // Due to limitation in Page testability Commit is required for this Test case.
-        InventoryAnalysisReport.ShowMatrix.Invoke;  // Show Matrix page Handled by InventoryAnalysisMatrixRequestPageHandler.
+        InventoryAnalysisReport.ShowMatrix.Invoke();  // Show Matrix page Handled by InventoryAnalysisMatrixRequestPageHandler.
     end;
 
     [PageHandler]
@@ -3596,12 +3593,12 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         SourceNoFilter: Text;
     begin
-        InventoryAnalysisReport.CurrentSourceTypeFilter.SetValue(LibraryVariableStorage.DequeueInteger);
-        SourceNoFilter := LibraryVariableStorage.DequeueText;
+        InventoryAnalysisReport.CurrentSourceTypeFilter.SetValue(LibraryVariableStorage.DequeueInteger());
+        SourceNoFilter := LibraryVariableStorage.DequeueText();
         InventoryAnalysisReport.CurrentSourceTypeNoFilter.SetValue(SourceNoFilter);
 
         LibraryVariableStorage.Enqueue(SourceNoFilter); // Value will be verified in InventoryAnalysisMatrixVerifyFilterPageHandler
-        InventoryAnalysisReport.ShowMatrix.Invoke;
+        InventoryAnalysisReport.ShowMatrix.Invoke();
     end;
 
     [PageHandler]
@@ -3621,7 +3618,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     [Scope('OnPrem')]
     procedure InventoryAnalysisMatrixPageHandler(var InventoryAnalysisMatrix: TestPage "Inventory Analysis Matrix")
     begin
-        InventoryAnalysisMatrix.Field1.DrillDown;
+        InventoryAnalysisMatrix.Field1.DrillDown();
     end;
 
     [PageHandler]
@@ -3629,14 +3626,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure InventoryAnalysisMatrixVerifyFilterPageHandler(var InventoryAnalysisMatrix: TestPage "Inventory Analysis Matrix")
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueText, InventoryAnalysisMatrix.FILTER.GetFilter("Source No. Filter"), WrongSourceFilterErr);
+          LibraryVariableStorage.DequeueText(), InventoryAnalysisMatrix.FILTER.GetFilter("Source No. Filter"), WrongSourceFilterErr);
     end;
 
     [PageHandler]
     procedure InventoryAnalysisMatrixVerifyDateFilterPageHandler(var InventoryAnalysisMatrix: TestPage "Inventory Analysis Matrix")
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText(), InventoryAnalysisMatrix.FILTER.GetFilter("Date Filter"), '');
-        InventoryAnalysisMatrix.OK.Invoke();
+        InventoryAnalysisMatrix.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3646,7 +3643,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         InventoryPeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         InventoryAnalysisReport.PeriodType.SetValue(InventoryPeriodType::Year);
-        InventoryAnalysisReport.ShowMatrix.Invoke;
+        InventoryAnalysisReport.ShowMatrix.Invoke();
     end;
 
     [PageHandler]
@@ -3681,37 +3678,37 @@ codeunit 137351 "SCM Inventory Reports - IV"
           AnalysisColumn."Column Header" = InventoryAnalysisMatrix.Field1.Caption, AnalysisColumn.Show <> AnalysisColumn.Show::Never,
           ColumnVisibilityErr);
 
-        Assert.IsFalse(InventoryAnalysisMatrix.Field2.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field3.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field4.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field5.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field6.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field7.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field8.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field9.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field10.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field11.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field12.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field13.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field14.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field15.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field16.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field17.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field18.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field19.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field20.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field21.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field22.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field23.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field24.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field25.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field26.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field27.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field28.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field29.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field30.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field31.Visible, ColumnDoesNotExistErr);
-        Assert.IsFalse(InventoryAnalysisMatrix.Field32.Visible, ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field2.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field3.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field4.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field5.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field6.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field7.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field8.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field9.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field10.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field11.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field12.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field13.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field14.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field15.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field16.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field17.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field18.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field19.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field20.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field21.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field22.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field23.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field24.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field25.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field26.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field27.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field28.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field29.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field30.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field31.Visible(), ColumnDoesNotExistErr);
+        Assert.IsFalse(InventoryAnalysisMatrix.Field32.Visible(), ColumnDoesNotExistErr);
     end;
 
     [MessageHandler]
@@ -3749,21 +3746,21 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         ItemAgeCompositionValue.EndingDate.SetValue(EndingDate);
         ItemAgeCompositionValue.PeriodLength.SetValue(PeriodLength);
-        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemVendorCatalogRequestPageHandler(var ItemVendorCatalog: TestRequestPage "Item/Vendor Catalog")
     begin
-        ItemVendorCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemVendorCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorItemCatalogRequestPageHandler(var VendorItemCatalog: TestRequestPage "Vendor Item Catalog")
     begin
-        VendorItemCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorItemCatalog.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3784,7 +3781,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CostSharesBreakdown.EndDate.SetValue(EndDate);
         CostSharesBreakdown.CostSharePrint.SetValue(CostSharesPrint);
         CostSharesBreakdown.ShowDetails.SetValue(ShowDetails);
-        CostSharesBreakdown.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostSharesBreakdown.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3796,14 +3793,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.Dequeue(UseStockkeepingUnit);
 
         InventoryCostAndPriceList.UseStockkeepingUnit.SetValue(UseStockkeepingUnit);
-        InventoryCostAndPriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryCostAndPriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3813,7 +3810,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         PostInventoryCostToGL.PostMethod.SetValue(Format(PostInventoryCostToGL.PostMethod.GetOption(2)));
         PostInventoryCostToGL.DocumentNo.SetValue('');
         PostInventoryCostToGL.Post.SetValue(true);
-        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [PageHandler]
@@ -3833,23 +3830,23 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         // Verify no component item expanded.
         BOMCostShares.Expand(true);
-        Assert.IsFalse(BOMCostShares.Next, StrSubstNo(ExpandBOMErr, ItemNo));
-        BOMCostShares.OK.Invoke;
+        Assert.IsFalse(BOMCostShares.Next(), StrSubstNo(ExpandBOMErr, ItemNo));
+        BOMCostShares.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisReportNamesPageHandler(var AnalysisReportNames: TestPage "Analysis Report Names")
     begin
-        AnalysisReportNames.GotoKey(LibraryVariableStorage.DequeueInteger, LibraryVariableStorage.DequeueText);
-        AnalysisReportNames.OK.Invoke;
+        AnalysisReportNames.GotoKey(LibraryVariableStorage.DequeueInteger(), LibraryVariableStorage.DequeueText());
+        AnalysisReportNames.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisLineTemplatesPageHandler(var AnalysisLineTemplates: TestPage "Analysis Line Templates")
     begin
-        AnalysisLineTemplates.OK.Invoke;
+        AnalysisLineTemplates.OK().Invoke();
     end;
 }
 

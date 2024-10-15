@@ -92,7 +92,7 @@ codeunit 136113 "Service Line Update Validation"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
 
         // 2. Exercise: Update fraction Quantity on Service Line.
-        Quantity := LibraryUtility.GenerateRandomFraction;
+        Quantity := LibraryUtility.GenerateRandomFraction();
         UpdateFractionQuantity(ServiceLine, Quantity);
 
         // 3. Verify: Verify that Quantity Successfully updated with Fraction Value on All Service Lines.
@@ -117,7 +117,7 @@ codeunit 136113 "Service Line Update Validation"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
 
         // 2. Exercise: Update fraction Qty. to Ship on Service Line.
-        Quantity := LibraryUtility.GenerateRandomFraction;
+        Quantity := LibraryUtility.GenerateRandomFraction();
         UpdateFractionQtyToShip(ServiceLine, Quantity);
 
         // 3. Verify: Verify that Qty. to Ship Successfully updated with Fraction Value on All Service Lines.
@@ -142,7 +142,7 @@ codeunit 136113 "Service Line Update Validation"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
 
         // 2. Exercise: Update fraction Qty. to Invoice on Service Line.
-        Quantity := LibraryUtility.GenerateRandomFraction;
+        Quantity := LibraryUtility.GenerateRandomFraction();
         UpdateFractionQtyToInvoice(ServiceLine, Quantity);
 
         // 3. Verify: Verify that Qty. to Invoice Successfully updated with Fraction Value on All Service Lines.
@@ -163,7 +163,7 @@ codeunit 136113 "Service Line Update Validation"
         CreateServiceOrder(ServiceHeader);
 
         // 2. Exercise: Update fraction Qty. to Consume on Service Line.
-        Quantity := LibraryUtility.GenerateRandomFraction;
+        Quantity := LibraryUtility.GenerateRandomFraction();
         UpdateFractionQtyToConsume(ServiceHeader, Quantity);
 
         // 3. Verify: Verify that Qty. to Consume Successfully updated with Fraction Value on All Service Lines.
@@ -306,7 +306,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Save Service Line in Temporary Table and Update Qty. to Invoice on Service Line less than Remaining Quantity.
         SaveServiceLineInTempTable(TempServiceLine, ServiceHeader);
-        FractionFactor := LibraryUtility.GenerateRandomFraction;
+        FractionFactor := LibraryUtility.GenerateRandomFraction();
         UpdateLessQtyToInvoice(ServiceHeader, FractionFactor);
 
         // 3. Verify: Verify that Qty. to Invoice Successfully updated with less than Remaining Quantity on All Service Lines.
@@ -695,7 +695,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Save Service Line in Temporary Table and Update Qty. to Ship on Service Line less than Remaining Quantity.
         SaveServiceLineInTempTable(TempServiceLine, ServiceHeader);
-        FractionFactor := LibraryUtility.GenerateRandomFraction;
+        FractionFactor := LibraryUtility.GenerateRandomFraction();
         UpdateLessQtyToShip(ServiceHeader, FractionFactor);
 
         // 3. Verify: Verify that Qty. to Ship Successfully updated with less than Remaining Quantity on All Service Lines.
@@ -763,7 +763,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Save Service Line in Temporary Table and Update Qty. to Invoice on Service Line less than Remaining Quantity.
         SaveServiceLineInTempTable(TempServiceLine, ServiceHeader);
-        FractionFactor := LibraryUtility.GenerateRandomFraction;
+        FractionFactor := LibraryUtility.GenerateRandomFraction();
         UpdateLessQtyToInvoice(ServiceHeader, FractionFactor);
 
         // 3. Verify: Verify that Qty. to Invoice Successfully updated with less than Remaining Quantity on All Service Lines.
@@ -1067,7 +1067,7 @@ codeunit 136113 "Service Line Update Validation"
         CreateServiceOrderWithItem(ServiceHeader);
         UpdatePartQtyToShip(ServiceHeader);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-        UpdateLessQtyToShip(ServiceHeader, LibraryUtility.GenerateRandomFraction);
+        UpdateLessQtyToShip(ServiceHeader, LibraryUtility.GenerateRandomFraction());
         SaveServiceLineInTempTable(TempServiceLine, ServiceHeader);
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -1176,7 +1176,7 @@ codeunit 136113 "Service Line Update Validation"
 
         // 2. Exercise: Create Service Line with Type Item and Resource.
         LibraryResource.FindResource(Resource);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
     end;
 
@@ -1188,7 +1188,7 @@ codeunit 136113 "Service Line Update Validation"
         // 1. Create Service Order - Service Header, Service Item Line and Service Line for Type Item.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         Customer.Modify(true);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         CreateServiceItemLine(ServiceHeader);
@@ -1388,7 +1388,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Validate("Qty. to Invoice", 0);
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
@@ -1402,7 +1402,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.Validate(
-              "Qty. to Consume", (ServiceLine.Quantity - ServiceLine."Quantity Shipped") * LibraryUtility.GenerateRandomFraction);
+              "Qty. to Consume", (ServiceLine.Quantity - ServiceLine."Quantity Shipped") * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1414,7 +1414,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
-            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1453,7 +1453,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
-            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1466,7 +1466,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
-            ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1720,7 +1720,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
-            asserterror ServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
+            asserterror ServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction());
             Assert.AreEqual(
               StrSubstNo(
                 QuantityError, ServiceLine.FieldCaption(Quantity), ServiceLine.FieldCaption("Quantity Shipped"),

@@ -3,7 +3,7 @@ namespace Microsoft.Sales.Reminder;
 page 1052 "Reminder Terms Translation"
 {
     Caption = 'Reminder Terms Translation';
-    DataCaptionExpression = PageCaption;
+    DataCaptionExpression = PageCaptionText;
     SourceTable = "Reminder Terms Translation";
 
     layout
@@ -39,10 +39,10 @@ page 1052 "Reminder Terms Translation"
 
     trigger OnOpenPage()
     begin
-        PageCaption := Rec."Reminder Terms Code";
+        PageCaptionText := Rec."Reminder Terms Code";
     end;
 
     var
-        PageCaption: Text;
+        PageCaptionText: Text;
 }
 

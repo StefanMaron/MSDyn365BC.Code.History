@@ -66,11 +66,11 @@ codeunit 136139 "Service Matrix Management"
         PeriodStart := ContractGainLossEntry."Change Date";
 
         // 2. Exercise: Run Show Matrix from Contract Gain/Loss (Groups) page with Period Start Date and Group filter.
-        ContractGainLossGroups.OpenEdit;
+        ContractGainLossGroups.OpenEdit();
         ContractGainLossGroups.PeriodStart.SetValue(ContractGainLossEntry."Change Date");
         ContractGainLossGroups.GroupFilter.SetValue(ServiceContractHeader."Contract Group Code");
         Commit();
-        ContractGainLossGroups.ShowMatrix.Invoke;
+        ContractGainLossGroups.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Contract Gain/Loss (Groups) Matrix performed on Contract Gain/Loss (Groups) Matrix page handler.
     end;
@@ -107,12 +107,12 @@ codeunit 136139 "Service Matrix Management"
 
         // 2. Exercise: Run Show Matrix from Contract Gain/Loss (Customers) page with Period Start date, Customer No. and Ship to Code
         // filter.
-        ContractGainLossCustomers.OpenEdit;
+        ContractGainLossCustomers.OpenEdit();
         ContractGainLossCustomers.PeriodStart.SetValue(ContractGainLossEntry."Change Date");
         ContractGainLossCustomers.CustomerNo.SetValue(ServiceContractHeader."Customer No.");
         ContractGainLossCustomers.ShipToCodeFilter.SetValue(ShipToAddress.Code);
         Commit();
-        ContractGainLossCustomers.ShowMatrix.Invoke;
+        ContractGainLossCustomers.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Contract Gain/Loss (Customers) Matrix performed on Contract Gain/Loss (Customers) Matrix page handler.
     end;
@@ -141,7 +141,7 @@ codeunit 136139 "Service Matrix Management"
         UpdateCancelReasonCode(ServiceContractHeader, ReasonCode.Code);
         UpdateServiceContractHeader(ServiceContractHeader);
 
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
         ServiceContract.Status.SetValue(ServiceContractHeader.Status::Cancelled);
         FindContractGainLossEntry(ContractGainLossEntry, ServiceContractHeader."Contract No.");
@@ -151,11 +151,11 @@ codeunit 136139 "Service Matrix Management"
         PeriodStart := ContractGainLossEntry."Change Date";
 
         // 2. Exercise: Run Show Matrix from Contract Gain/Loss (Reasons) page with Period Start date and Reason filter.
-        ContractGainLossReasons.OpenEdit;
+        ContractGainLossReasons.OpenEdit();
         ContractGainLossReasons.PeriodStart.SetValue(ContractGainLossEntry."Change Date");
         ContractGainLossReasons.ReasonFilter.SetValue(ReasonCode.Code);
         Commit();
-        ContractGainLossReasons.ShowMatrix.Invoke;
+        ContractGainLossReasons.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Contract Gain/Loss Matrix performed on Contract Gain/Loss Matrix page handler.
     end;
@@ -190,11 +190,11 @@ codeunit 136139 "Service Matrix Management"
 
         // 2. Exercise: Run Show Matrix from Contract Gain/Loss (Responsibility Center) page with Period Start Date and
         // Responsibility Center filter.
-        ContractGainLossRespCtr.OpenEdit;
+        ContractGainLossRespCtr.OpenEdit();
         ContractGainLossRespCtr.PeriodStart.SetValue(ContractGainLossEntry."Change Date");
         ContractGainLossRespCtr.RespCrFilter.SetValue(ResponsibilityCenter.Code);
         Commit();
-        ContractGainLossRespCtr.ShowMatrix.Invoke;
+        ContractGainLossRespCtr.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Contract Gain/Loss (Responsibility Center) Matrix performed on Contract Gain/Loss
         // (Responsibility Center) Matrix page handler.
@@ -225,11 +225,11 @@ codeunit 136139 "Service Matrix Management"
         PeriodStart := ContractGainLossEntry."Change Date";
 
         // 2. Exercise: Run Show Matrix from Contract Gain/Loss (Contracts) page with Period Start date and Contract filter.
-        ContractGainLossContracts.OpenEdit;
+        ContractGainLossContracts.OpenEdit();
         ContractGainLossContracts.PeriodStart.SetValue(ContractGainLossEntry."Change Date");
         ContractGainLossContracts.ContractFilter.SetValue(ServiceContractHeader."Contract No.");
         Commit();
-        ContractGainLossContracts.ShowMatrix.Invoke;
+        ContractGainLossContracts.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Contract Gain/Loss (Contracts) Matrix performed on Contract Gain/Loss (Contracts) Matrix
         // page handler.
@@ -309,7 +309,7 @@ codeunit 136139 "Service Matrix Management"
     [Scope('OnPrem')]
     procedure ContractTemplateListHandler(var ServiceContractTemplateList: TestPage "Service Contract Template List")
     begin
-        ServiceContractTemplateList.OK.Invoke;
+        ServiceContractTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]

@@ -802,7 +802,7 @@ codeunit 134042 "ERM VAT Tolerance"
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomer, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Create Credit Memo for the above Invoice using Apply To Oldest method.
@@ -857,7 +857,7 @@ codeunit 134042 "ERM VAT Tolerance"
         // Need to use the following setups to prevent localization test failures.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -913,7 +913,7 @@ codeunit 134042 "ERM VAT Tolerance"
         ComputeLowVATTolerancePct(VATTolerancePct, DiscountPct);
         UpdateGeneralLedgerSetup(VATTolerancePct);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo); // different from Purch. VAT Acc. Required for BE
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo()); // different from Purch. VAT Acc. Required for BE
         VATPostingSetup.Modify(true);
     end;
 
@@ -950,7 +950,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibrarySales.CreateCustomer(Customer);
-        // Customer.VALIDATE("VAT Bus. Posting Group",FindVATBusPostingGroup);
+        // Customer.VALIDATE("VAT Bus. Posting Group",FindVATBusPostingGroup());
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -968,7 +968,7 @@ codeunit 134042 "ERM VAT Tolerance"
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; PricesIncludingVAT: Boolean)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithPmtTerms);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithPmtTerms());
         PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
         PurchaseHeader.Modify(true);
     end;
@@ -993,7 +993,7 @@ codeunit 134042 "ERM VAT Tolerance"
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; PricesIncludingVAT: Boolean)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPmtTerms);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPmtTerms());
         SalesHeader.Validate("Prices Including VAT", PricesIncludingVAT);
         SalesHeader.Modify(true);
     end;
@@ -1010,7 +1010,7 @@ codeunit 134042 "ERM VAT Tolerance"
         SalesLine: Record "Sales Line";
     begin
         CreateSalesHeader(SalesHeader, PricesIncludingVAT);
-        CreateSalesLine(SalesLine, SalesHeader, CreateItem(FindVATPostingSetupZeroVAT));
+        CreateSalesLine(SalesLine, SalesHeader, CreateItem(FindVATPostingSetupZeroVAT()));
         CopySalesLine(TempSalesLine, SalesLine);
     end;
 
@@ -1026,7 +1026,7 @@ codeunit 134042 "ERM VAT Tolerance"
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, FindItem(PurchaseLine."VAT Prod. Posting Group"));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem(FindVATPostingSetupZeroVAT));
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem(FindVATPostingSetupZeroVAT()));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);
     end;
 
@@ -1042,7 +1042,7 @@ codeunit 134042 "ERM VAT Tolerance"
         CopySalesLine(TempSalesLine, SalesLine);
         CreateSalesLine(SalesLine, SalesHeader, FindItem(SalesLine."VAT Prod. Posting Group"));
         CopySalesLine(TempSalesLine, SalesLine);
-        CreateSalesLine(SalesLine, SalesHeader, CreateItem(FindVATPostingSetupZeroVAT));
+        CreateSalesLine(SalesLine, SalesHeader, CreateItem(FindVATPostingSetupZeroVAT()));
         CopySalesLine(TempSalesLine, SalesLine);
     end;
 
@@ -1054,7 +1054,7 @@ codeunit 134042 "ERM VAT Tolerance"
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
-        // Vendor.VALIDATE("VAT Bus. Posting Group",FindVATBusPostingGroup);
+        // Vendor.VALIDATE("VAT Bus. Posting Group",FindVATBusPostingGroup());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1105,7 +1105,7 @@ codeunit 134042 "ERM VAT Tolerance"
     local procedure CalcVATAmountWithTolerance(Amount: Decimal; VATTolerancePct: Decimal; VATPct: Decimal): Decimal
     begin
         exit(
-          Round(Amount * (1 - VATTolerancePct / 100) * VATPct / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(Amount * (1 - VATTolerancePct / 100) * VATPct / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure SetupAndCreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; VATTolerancePct: Decimal; PaymentDiscountPct: Decimal; PricesIncludingVAT: Boolean)
@@ -1184,10 +1184,10 @@ codeunit 134042 "ERM VAT Tolerance"
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.FindFirst();
         Assert.AreNearlyEqual(
-          VATBaseAmount, PurchInvLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATBaseAmount, PurchInvLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchInvLine.FieldCaption("VAT Base Amount"), VATBaseAmount, PurchInvLine.TableCaption()));
         Assert.AreNearlyEqual(
-          AmountIncludingVAT, PurchInvLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision,
+          AmountIncludingVAT, PurchInvLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchInvLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchInvLine.TableCaption()));
     end;
 
@@ -1219,10 +1219,10 @@ codeunit 134042 "ERM VAT Tolerance"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
-          VATBaseAmount, SalesInvoiceLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATBaseAmount, SalesInvoiceLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("VAT Base Amount"), VATBaseAmount, SalesInvoiceLine.TableCaption()));
         Assert.AreNearlyEqual(
-          AmountIncludingVAT, SalesInvoiceLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision,
+          AmountIncludingVAT, SalesInvoiceLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesInvoiceLine.TableCaption()));
     end;
 
@@ -1337,7 +1337,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         PurchaseLine.Get(TempPurchaseLine."Document Type", TempPurchaseLine."Document No.", TempPurchaseLine."Line No.");
         Assert.AreNearlyEqual(
-          VATBaseAmount, PurchaseLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATBaseAmount, PurchaseLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchaseLine.FieldCaption("VAT Base Amount"), VATBaseAmount, PurchaseLine.TableCaption()));
     end;
 
@@ -1347,7 +1347,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         SalesLine.Get(TempSalesLine."Document Type", TempSalesLine."Document No.", TempSalesLine."Line No.");
         Assert.AreNearlyEqual(
-          VATBaseAmount, SalesLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATBaseAmount, SalesLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Base Amount"), VATBaseAmount, SalesLine.TableCaption()));
     end;
 
@@ -1358,7 +1358,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PurchaseLine.Get(TempPurchaseLine."Document Type", TempPurchaseLine."Document No.", TempPurchaseLine."Line No.");
         VerifyVATBaseAmountOnPurchLine(TempPurchaseLine, VATBaseAmount);
         Assert.AreNearlyEqual(
-          OutstandingAmount, PurchaseLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision,
+          OutstandingAmount, PurchaseLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchaseLine.FieldCaption("Outstanding Amount"), OutstandingAmount, PurchaseLine.TableCaption()));
     end;
 
@@ -1369,7 +1369,7 @@ codeunit 134042 "ERM VAT Tolerance"
         SalesLine.Get(TempSalesLine."Document Type", TempSalesLine."Document No.", TempSalesLine."Line No.");
         VerifyVATBaseAmountOnSalesLine(TempSalesLine, VATBaseAmount);
         Assert.AreNearlyEqual(
-          OutstandingAmount, SalesLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision,
+          OutstandingAmount, SalesLine."Outstanding Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Outstanding Amount"), OutstandingAmount, SalesLine.TableCaption()));
     end;
 
@@ -1380,7 +1380,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATAmountLine.SetRange("VAT Identifier", VATId);
         VATAmountLine.FindFirst();
         Assert.AreNearlyEqual(
-          VATAmount, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption()));
     end;
 }

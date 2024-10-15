@@ -39,22 +39,20 @@ codeunit 7 "GLBudget-Open"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLAccount do begin
-            GlobalDim1Filter := GetFilter("Global Dimension 1 Filter");
-            GlobalDim2Filter := GetFilter("Global Dimension 2 Filter");
-            GLSetup.Get();
-            GlobalDim1FilterEnable :=
-              (GLSetup."Global Dimension 1 Code" <> '') and
-              (GlobalDim1Filter = '');
-            GlobalDim2FilterEnable :=
-              (GLSetup."Global Dimension 2 Code" <> '') and
-              (GlobalDim2Filter = '');
-            PeriodType := PeriodType::Month;
-            DateFilter := GetFilter("Date Filter");
-            if DateFilter = '' then begin
-                DateFilter := Format(CalcDate('<-CY>', Today)) + '..' + Format(CalcDate('<CY>', Today));
-                SetFilter("Date Filter", DateFilter);
-            end;
+        GlobalDim1Filter := GLAccount.GetFilter("Global Dimension 1 Filter");
+        GlobalDim2Filter := GLAccount.GetFilter("Global Dimension 2 Filter");
+        GLSetup.Get();
+        GlobalDim1FilterEnable :=
+          (GLSetup."Global Dimension 1 Code" <> '') and
+          (GlobalDim1Filter = '');
+        GlobalDim2FilterEnable :=
+          (GLSetup."Global Dimension 2 Code" <> '') and
+          (GlobalDim2Filter = '');
+        PeriodType := PeriodType::Month;
+        DateFilter := GLAccount.GetFilter("Date Filter");
+        if DateFilter = '' then begin
+            DateFilter := Format(CalcDate('<-CY>', Today)) + '..' + Format(CalcDate('<CY>', Today));
+            GLAccount.SetFilter("Date Filter", DateFilter);
         end;
     end;
 }

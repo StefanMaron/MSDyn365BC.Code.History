@@ -5,6 +5,7 @@ using System.IO;
 table 1806 "Data Migration Setup"
 {
     Caption = 'Data Migration Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
