@@ -2833,6 +2833,8 @@ codeunit 144060 "ERM Intrastat"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -3403,6 +3405,7 @@ codeunit 144060 "ERM Intrastat"
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
         SalesHeader.Validate("Transport Method", TransportMethod);
         SalesHeader.Validate("Service Tariff No.", ServiceTariffNo);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
     end;
 

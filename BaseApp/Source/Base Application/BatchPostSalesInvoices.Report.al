@@ -125,7 +125,7 @@ report 297 "Batch Post Sales Invoices"
     }
 
     var
-        Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
         PostingDateReq: Date;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;

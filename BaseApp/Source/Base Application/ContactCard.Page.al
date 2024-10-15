@@ -1,4 +1,4 @@
-page 5050 "Contact Card"
+﻿page 5050 "Contact Card"
 {
     Caption = 'Contact Card';
     PageType = ListPlus;
@@ -921,7 +921,7 @@ page 5050 "Contact Card"
                     RunObject = Page "Task List";
                     RunPageLink = "Contact Company No." = FIELD("Company No."),
                                   "Contact No." = FIELD(FILTER("Lookup Contact No.")),
-                                  "System To-do Type" = FILTER("Contact Attendee");
+                                  "System To-do Type" = FILTER(Organizer | "Contact Attendee");
                     RunPageView = SORTING("Contact Company No.", Date, "Contact No.", Closed);
                     ToolTip = 'View all marketing tasks that involve the contact person.';
                 }

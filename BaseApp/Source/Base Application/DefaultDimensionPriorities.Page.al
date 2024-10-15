@@ -88,6 +88,24 @@ page 543 "Default Dimension Priorities"
 
     actions
     {
+        area(Processing)
+        {
+            action(Initialize)
+            {
+                ApplicationArea = All;
+                Caption = 'Initialize Dimension Priorities';
+                ToolTip = 'Initialize Default Dimension Priorities for Source Code.';
+                Image = SetPriorities;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+
+                trigger OnAction()
+                begin
+                    InitializeDefaultDimPrioritiesForSourceCode();
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()

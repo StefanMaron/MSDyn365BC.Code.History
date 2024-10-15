@@ -28,6 +28,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    Editable = false;
                 }
                 field(Description; Description)
                 {

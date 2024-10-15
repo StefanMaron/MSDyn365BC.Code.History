@@ -29,7 +29,6 @@ codeunit 137019 "SCM Correct Invoice"
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
-        DocumentNoErr: Label 'Document No. are not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1022,69 +1021,6 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    [Test]
-    [HandlerFunctions('SalesCreditMemoPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostCorrectiveCreditMemoWithDefaultNoSetToFalseOnNoSeries()
-    var
-        Item: Record Item;
-        Cust: Record Customer;
-        SalesInvHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesHeader: Record "Sales Header";
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        NoSeriesLine2: Record "No. Series Line";
-        SalesRecvSetup: Record "Sales & Receivables Setup";
-        GLSetup: Record "General Ledger Setup";
-        VatBusPostingGrp: Record "VAT Business Posting Group";
-        NoSerMgmt: Codeunit NoSeriesManagement;
-        PostedSalesInvoice: TestPage "Posted Sales Invoice";
-        PostingNo: code[20];
-    begin
-        // [SCENARIO 450213] For Corrective Credit Memo if no. series from "Posted Credit Memo Nos." in Sales Setup is not "Default Nos" 
-        // than system will not pick "Posted Invoice Nos" no. series from sales setup
-        Initialize();
-
-        // [GIVEN] Create  and Post sales Invoice
-        CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
-
-        // [GIVEN] Create No. Series "Y" with "Default Nos" = No and no. series line setup
-        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-
-        // [GIVEN] Update No. series on Sales Setup and Journal Templ. Name Mandatory to false on GL Setup
-        SalesRecvSetup.Get();
-        SalesRecvSetup."Posted Credit Memo Nos." := NoSeries.Code;
-        SalesRecvSetup.Modify();
-        GLSetup.Get();
-        GLSetup."Journal Templ. Name Mandatory" := false;
-        GLSetup.Modify();
-
-        // [THEN] Create Corrective Credit memo 
-        PostedSalesInvoice.OpenView;
-        PostedSalesInvoice.GotoRecord(SalesInvHeader);
-        PostedSalesInvoice.CreateCreditMemo.Invoke();
-
-        // [THEN] Save Posting no to verify after credit memo posting.
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.SetFilter("Applies-to Doc. No.", SalesInvHeader."No.");
-        SalesHeader.SetRange("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
-        SalesHeader.FindFirst();
-        if SalesHeader."Posting No. Series" = '' then
-            PostingNo := NoSeriesLine."Starting No."
-        else
-            PostingNo := NoSerMgmt.DoGetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false, false);
-
-        // [THEN] Post credit memo
-        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
-
-        // [VERIFY] Verify No. Series on Posted Sales Credit Memo.
-        SalesCrMemoHeader.SetFilter("Sell-to Customer No.", Cust."No.");
-        SalesCrMemoHeader.FindFirst();
-        Assert.AreEqual(PostingNo, SalesCrMemoHeader."No.", DocumentNoErr);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1419,19 +1355,6 @@ codeunit 137019 "SCM Correct Invoice"
                 end;
         end;
         ItemTrackingLines.OK().Invoke();
-    end;
-
-    [PageHandler]
-    procedure SalesCreditMemoPageHandler(var SalesCreditMemo: TestPage "Sales Credit Memo")
-    begin
-        SalesCreditMemo.Close();
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 }
 

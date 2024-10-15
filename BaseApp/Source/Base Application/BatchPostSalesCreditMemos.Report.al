@@ -124,7 +124,7 @@ report 298 "Batch Post Sales Credit Memos"
     }
 
     var
-        Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
         CalcInvDisc: Boolean;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;

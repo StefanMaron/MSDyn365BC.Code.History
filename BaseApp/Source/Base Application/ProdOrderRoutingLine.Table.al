@@ -691,7 +691,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(12181; "Qty. WIP on Subcontractors"; Decimal)
         {
-            CalcFormula = Sum ("Capacity Ledger Entry"."WIP Item Qty." WHERE("Order Type" = CONST(Production),
+            CalcFormula = Sum("Capacity Ledger Entry"."WIP Item Qty." WHERE("Order Type" = CONST(Production),
                                                                              "Order No." = FIELD("Prod. Order No."),
                                                                              "Routing Reference No." = FIELD("Routing Reference No."),
                                                                              "Operation No." = FIELD("Operation No."),
@@ -704,7 +704,7 @@ table 5409 "Prod. Order Routing Line"
         }
         field(12182; "Qty. WIP on Transfer Order"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."WIP Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Transfer Line"."WIP Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
                                                                                    "Routing No." = FIELD("Routing No."),
                                                                                    "Routing Reference No." = FIELD("Routing Reference No."),
                                                                                    "Operation No." = FIELD("Operation No."),
@@ -1523,6 +1523,7 @@ table 5409 "Prod. Order Routing Line"
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         if SkipUpdateOfCompBinCodes then
             exit;
@@ -1531,7 +1532,8 @@ table 5409 "Prod. Order Routing Line"
             exit;
 
         PopulateNewRoutingLineSet(TempProdOrderRoutingLine, FromTrigger);
-        ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
+        if ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.") and ProdOrderRoutingLine.Recalculate then
+            ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
 
         OnAfterUpdateComponentsBin(TempProdOrderRoutingLine, FromTrigger);
     end;
