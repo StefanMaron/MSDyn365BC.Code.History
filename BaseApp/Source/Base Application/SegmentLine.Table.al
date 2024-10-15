@@ -48,9 +48,13 @@ table 5077 "Segment Line"
                                 "Correspondence Type" := InteractTmpl."Correspondence Type (Default)"
                             else
                                 "Correspondence Type" := Cont."Correspondence Type";
-                    end else
-                        if not Salesperson.Get(GetFilter("Salesperson Code")) then
-                            "Salesperson Code" := Cont."Salesperson Code";
+                    end else begin
+                        SetDefaultSalesperson();
+                        if "Salesperson Code" = '' then
+                            if not Salesperson.Get(GetFilter("Salesperson Code")) then
+                                "Salesperson Code" := Cont."Salesperson Code";
+                    end;
+
                 end else begin
                     "Contact Company No." := '';
                     "Contact Alt. Address Code" := '';
@@ -242,7 +246,7 @@ table 5077 "Segment Line"
         }
         field(12; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No."),
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No."),
                                                      Type = CONST(Person)));
             Caption = 'Contact Name';
             Editable = false;
@@ -285,7 +289,7 @@ table 5077 "Segment Line"
         }
         field(18; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact Company No."),
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact Company No."),
                                                      Type = CONST(Company)));
             Caption = 'Contact Company Name';
             Editable = false;
@@ -1026,7 +1030,7 @@ table 5077 "Segment Line"
         if IsHandled then
             exit;
 
-            RelationshipPerformanceMgt.SendCreateOpportunityNotification(Rec);
+        RelationshipPerformanceMgt.SendCreateOpportunityNotification(Rec);
     end;
 
     procedure CheckStatus()
@@ -1450,6 +1454,17 @@ table 5077 "Segment Line"
 
         ODataFieldsExport.SetExportData(TenantWebService, RecRef);
         ODataFieldsExport.RunModal;
+    end;
+
+    local procedure SetDefaultSalesperson()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        IF NOT UserSetup.GET(USERID) THEN
+            EXIT;
+
+        IF UserSetup."Salespers./Purch. Code" <> '' THEN
+            VALIDATE("Salesperson Code", UserSetup."Salespers./Purch. Code");
     end;
 
     [IntegrationEvent(false, false)]

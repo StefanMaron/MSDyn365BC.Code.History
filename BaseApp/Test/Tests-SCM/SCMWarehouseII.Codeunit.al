@@ -40,7 +40,6 @@ codeunit 137048 "SCM Warehouse II"
         ErrorText: Label 'You can create a Pick only for the available quantity in Whse. Worksheet Line ';
         ErrorQtyToHandleText: Label 'Qty. to Ship must not be greater than 0 units in Warehouse Shipment Line No.=''%1''';
         ErrorMessage: Label 'Wrong Error Message';
-        QtyErrorText: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         UnexpectedMessageDialog: Label 'Unexpected Message dialog %1.';
         DisregardMessage: Label 'The entered information may be disregarded by warehouse activities.';
         DeletedMessage: Label 'was successfully posted and is now deleted.';
@@ -1270,10 +1269,13 @@ codeunit 137048 "SCM Warehouse II"
         UpdateQuantityOnWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader."No.", QtyToShip);  // Change Quantity To Ship On Warehouse Shipment Line.
 
         // Exercise : Post Ware House Shipment.
-        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
-        // Verify : Check That Error Occurred while Posting Warehouse Shipment with Partial Quantity when Shipping Advice is Set to Complete in Sales Order.
-        Assert.AreEqual(QtyErrorText, GetLastErrorText, ErrorMessage);
+        WarehouseShipmentLine.Find();
+        WarehouseShipmentLine.TestField("Qty. Shipped", 0);
+
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", 0);
     end;
 
     [Test]

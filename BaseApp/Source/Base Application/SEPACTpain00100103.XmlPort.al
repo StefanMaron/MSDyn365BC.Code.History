@@ -337,6 +337,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             }
 
                             trigger OnBeforePassVariable()
+                            var
+                                SeparatorText: Text;
                             begin
                                 RemittanceText := '';
 
@@ -346,8 +348,12 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 RemittanceText := TempPaymentExportRemittanceText.Text;
                                 if TempPaymentExportRemittanceText.Next = 0 then
                                     exit;
+
+                                SeparatorText := '; ';
+                                OnSpecifyRemittanceTextSeparatorText(SeparatorText);
+
                                 RemittanceText := CopyStr(
-                                    StrSubstNo('%1; %2', RemittanceText, TempPaymentExportRemittanceText.Text), 1, 140);
+                                    StrSubstNo('%1%2%3', RemittanceText, SeparatorText, TempPaymentExportRemittanceText.Text), 1, 140);
                             end;
                         }
                     }
@@ -442,6 +448,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
         PaymentExportDataGroup.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
+    begin
     end;
 }
 
