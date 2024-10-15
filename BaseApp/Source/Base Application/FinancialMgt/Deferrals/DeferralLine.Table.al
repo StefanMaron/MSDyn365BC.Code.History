@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Foundation.Period;
+
 table 1702 "Deferral Line"
 {
     Caption = 'Deferral Line';
@@ -65,7 +69,7 @@ table 1702 "Deferral Line"
         }
         field(9; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
 

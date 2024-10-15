@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CostAccounting.Setup;
+
 permissionset 2046 "D365 COSTACC, SETUP"
 {
     Assignable = true;

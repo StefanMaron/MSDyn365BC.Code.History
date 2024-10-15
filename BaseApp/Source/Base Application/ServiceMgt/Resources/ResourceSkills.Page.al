@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Resources;
+
 page 6019 "Resource Skills"
 {
     Caption = 'Resource Skills';
@@ -81,28 +83,25 @@ page 6019 "Resource Skills"
     var
         i: Integer;
     begin
-        SkillCodeVisible := GetFilter("Skill Code") = '';
-        NoVisible := GetFilter("No.") = '';
+        SkillCodeVisible := Rec.GetFilter("Skill Code") = '';
+        NoVisible := Rec.GetFilter("No.") = '';
 
         TypeVisible := true;
 
         for i := 0 to 3 do begin
-            FilterGroup(i);
-            if GetFilter(Type) <> '' then
+            Rec.FilterGroup(i);
+            if Rec.GetFilter(Type) <> '' then
                 TypeVisible := false
         end;
 
-        FilterGroup(0);
+        Rec.FilterGroup(0);
     end;
 
     var
         ResSkill: Record "Resource Skill";
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
-        [InDataSet]
         TypeVisible: Boolean;
-        [InDataSet]
         SkillCodeVisible: Boolean;
-        [InDataSet]
         NoVisible: Boolean;
 }
 

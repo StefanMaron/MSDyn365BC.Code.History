@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Deferral;
+
 page 1704 "Deferral Schedule View"
 {
     Caption = 'Deferral Schedule View';
@@ -18,12 +20,12 @@ page 1704 "Deferral Schedule View"
             part("<Deferral Shedule View Subform>"; "Deferral Schedule View Subform")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
-                              "Gen. Jnl. Document No." = FIELD("Gen. Jnl. Document No."),
-                              "Account No." = FIELD("Account No."),
-                              "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Deferral Doc. Type" = field("Deferral Doc. Type"),
+                              "Gen. Jnl. Document No." = field("Gen. Jnl. Document No."),
+                              "Account No." = field("Account No."),
+                              "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
             }
         }
     }

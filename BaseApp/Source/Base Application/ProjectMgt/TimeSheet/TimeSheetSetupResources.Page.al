@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Projects.Resources.Resource;
+
 page 978 "Time Sheet Setup Resources"
 {
     PageType = ListPart;

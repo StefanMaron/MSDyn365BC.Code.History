@@ -363,7 +363,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField(Message, PostingDateNotAllowedErr);
         // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
         TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("Posting Date"));

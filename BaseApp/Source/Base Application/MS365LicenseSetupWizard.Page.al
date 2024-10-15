@@ -1,3 +1,12 @@
+﻿namespace System.Environment.Configuration;
+
+using Microsoft.Inventory.Item;
+using System.Apps;
+using System.Azure.Identity;
+using System.Environment;
+using System.Reflection;
+using System.Utilities;
+
 page 1978 "MS 365 License Setup Wizard"
 {
     Caption = 'Set up access with Microsoft 365 licenses';
@@ -16,7 +25,7 @@ page 1978 "MS 365 License Setup Wizard"
     UsageCategory = Administration;
     AdditionalSearchTerms = 'Teams, tabs, M365, Microsoft, collaboration, Office, channel, free, access, free access, freemium, Teams setup, teams access';
     AccessByPermission = tabledata "All Profile" = IMD;
-    
+
     layout
     {
         area(Content)
@@ -51,12 +60,12 @@ page 1978 "MS 365 License Setup Wizard"
             {
                 Visible = (WizardStep = WizardStep::Landing) and (WizardLanding = WizardLanding::Saas);
                 ShowCaption = false;
-                group(LandingSaasPara1) 
+                group(LandingSaasPara1)
                 {
                     Caption = 'Set up access to Business Central with Microsoft 365 licenses';
                     InstructionalText = 'To help Business Central users easily share and collaborate on business data with their coworkers, you can enable access with Microsoft 365 licenses.';
                 }
-                group(LandingSaasPara2) 
+                group(LandingSaasPara2)
                 {
                     ShowCaption = false;
                     InstructionalText = 'When enabled, users within the same organization that have an applicable Microsoft 365 license will be able to read (but not write) Business Central data that is shared with them in Microsoft Teams, without needing a Business Central license.';
@@ -72,22 +81,22 @@ page 1978 "MS 365 License Setup Wizard"
                         Hyperlink(AdminAccessM365LicenseFwdLinkTxt);
                     end;
                 }
-                group(LandingOnPremPara3) 
+                group(LandingOnPremPara3)
                 {
                     Caption = 'Let’s go!';
                     InstructionalText = 'Choose Next to get started.';
                 }
             }
-            group(LandingOnPrem) 
+            group(LandingOnPrem)
             {
                 Visible = (WizardStep = WizardStep::Landing) and (WizardLanding = WizardLanding::OnPrem);
                 ShowCaption = false;
-                group(LandingOnPremPara1) 
+                group(LandingOnPremPara1)
                 {
                     Caption = 'This feature is not available';
                     InstructionalText = 'Accessing Business Central data in Microsoft Teams is only available with Business Central online.';
                 }
-                group(LandingOnPremPara2) 
+                group(LandingOnPremPara2)
                 {
                     ShowCaption = false;
                     InstructionalText = 'When enabled, users within the same organization that have an applicable Microsoft 365 license will be able to read (but not write) Business Central data that is shared with them in Microsoft Teams, without needing a Business Central license.';
@@ -104,35 +113,35 @@ page 1978 "MS 365 License Setup Wizard"
                     end;
                 }
             }
-            group(Permissions) 
+            group(Permissions)
             {
                 Visible = (WizardStep = WizardStep::Permissions);
                 ShowCaption = false;
-                group(PermissionsPara1) 
+                group(PermissionsPara1)
                 {
-                    Caption = 'Configure what can be accessed';     
+                    Caption = 'Configure what can be accessed';
                     InstructionalText = 'When people access Business Central with their Microsoft 365 license for the first time, their user record will be created, and object permissions will be automatically assigned.';
                     Visible = WizardPermissions <> WizardPermissions::PermissionsEmptyInConfig;
                 }
-                group(PermissionsEmptyInConfigPara0) 
+                group(PermissionsEmptyInConfigPara0)
                 {
-                    Caption = 'Configure what can be accessed';     
+                    Caption = 'Configure what can be accessed';
                     InstructionalText = 'Admins determine which data is accessible by applying object permissions.';
                     Visible = WizardPermissions = WizardPermissions::PermissionsEmptyInConfig;
                 }
-                group(PermissionsEmptyInConfigPara01) 
+                group(PermissionsEmptyInConfigPara01)
                 {
-                    ShowCaption = false;  
+                    ShowCaption = false;
                     InstructionalText = 'When people access Business Central with their Microsoft 365 license for the first time, their user record will be created, and permissions will be automatically assigned.';
                     Visible = WizardPermissions = WizardPermissions::PermissionsEmptyInConfig;
                 }
-                group(PermissionsEmptyInConfigPara1) 
+                group(PermissionsEmptyInConfigPara1)
                 {
                     ShowCaption = false;
                     InstructionalText = 'You choose which permissions are assigned in the License Configuration page for the Microsoft 365 license. Business Central will not allow these users to edit data, no matter which permissions you configure.';
                     Visible = WizardPermissions <> WizardPermissions::PermissionsEmptyInConfigAndEvalCompany;
                 }
-                group(PermissionsEvalCompanyPara1) 
+                group(PermissionsEvalCompanyPara1)
                 {
                     Caption = '';
                     InstructionalText = 'Since this is an evaluation company, you can make it easier to try out this feature by not restricting access using permissions. You can always change this afterwards from the license configuration page.';
@@ -149,46 +158,46 @@ page 1978 "MS 365 License Setup Wizard"
                         Hyperlink(AssignPermissionsToUsersFwdLinkTxt);
                     end;
                 }
-                group(PermissionsExistInConfigPara1) 
+                group(PermissionsExistInConfigPara1)
                 {
                     Caption = '';
                     InstructionalText = 'You appear to have some permissions configured already. Choose Next to proceed with these permissions.';
                     Visible = WizardPermissions = WizardPermissions::PermissionsExistsInConfig;
                 }
             }
-            group(TAC) 
+            group(TAC)
             {
                 Visible = (WizardStep = WizardStep::TAC);
                 ShowCaption = false;
-                group(TACEnablePara1) 
+                group(TACEnablePara1)
                 {
                     Caption = 'Enable access';
                     InstructionalText = 'Now that you have configured object permissions, you are ready to enable access on this environment from the Business Central admin center.';
                     Visible = WizardTAC = WizardTAC::DisabledInTAC;
                 }
-                group(TACEnablePara2) 
+                group(TACEnablePara2)
                 {
                     ShowCaption = false;
                     InstructionalText = 'Choose ‘Enable’ to continue. You can also turn this off or on at any time from the Business Central admin center.';
                     Visible = WizardTAC = WizardTAC::DisabledInTAC;
                 }
-                group(TACConfigurePara1) 
+                group(TACConfigurePara1)
                 {
                     Caption = 'Enable access';
                     InstructionalText = 'Access is already enabled for this environment in the Business Central admin center.';
                     Visible = WizardTAC = WizardTAC::EnabledInTAC;
                 }
             }
-            group(AccessControl) 
+            group(AccessControl)
             {
                 Visible = (WizardStep = WizardStep::AccessControl);
                 ShowCaption = false;
-                group(AccessControlDynPara1) 
+                group(AccessControlDynPara1)
                 {
                     Caption = 'Choose who gets access';
                     InstructionalText = 'This environment does not have a security group assigned: anyone with a Microsoft 365 license within your organization can access records shared with them.';
                 }
-                group(AccessControlPara2) 
+                group(AccessControlPara2)
                 {
                     ShowCaption = false;
                     InstructionalText = 'To restrict who gets access, you can assign a security group in the Business Central admin center that determines which licensed Business Central users and which Microsoft 365 license-holders can access this environment.';
@@ -205,16 +214,16 @@ page 1978 "MS 365 License Setup Wizard"
                     end;
                 }
             }
-            group(AppDeployment) 
+            group(AppDeployment)
             {
                 Visible = (WizardStep = WizardStep::AppDeployment);
                 ShowCaption = false;
-                group(AppDeploymentPara1) 
+                group(AppDeploymentPara1)
                 {
                     Caption = 'Deploy the Business Central app for Teams';
                     InstructionalText = 'Data can only be shared and read in Microsoft Teams if people have the Business Central app for Teams installed.';
                 }
-                group(AppDeploymentPara2) 
+                group(AppDeploymentPara2)
                 {
                     ShowCaption = false;
                     InstructionalText = 'If you have deployed the app before, or have done this only for licensed Business Central users, consider deploying more broadly to make it available to everyone in your organization.';
@@ -231,32 +240,32 @@ page 1978 "MS 365 License Setup Wizard"
                     end;
                 }
             }
-            group(Success) 
+            group(Success)
             {
                 Visible = (WizardStep = WizardStep::Success);
                 ShowCaption = false;
-                group(SuccessPara1) 
+                group(SuccessPara1)
                 {
                     Caption = 'Success!';
                     InstructionalText = 'You’re all set up so that people in your organization that only have a Microsoft 365 license can access data from this environment.';
                 }
-                group(SuccessPara2) 
+                group(SuccessPara2)
                 {
                     Visible = ShowSwitcherText;
                     ShowCaption = false;
                     InstructionalText = 'To configure other environments, close this setup window, use the switcher (Ctrl+O) to go to another environment, then run this guided setup again.';
                 }
-                group(SuccessPara3) 
+                group(SuccessPara3)
                 {
                     ShowCaption = false;
                     InstructionalText = 'Choose ‘Try it out’ to experience how people will share and read data in Microsoft Teams.';
                 }
             }
-            group(TryItOut) 
+            group(TryItOut)
             {
                 Visible = (WizardStep = WizardStep::TryItOut);
                 ShowCaption = false;
-                group(TryItOutPara1) 
+                group(TryItOutPara1)
                 {
                     Caption = 'Find your buddy';
                     InstructionalText = 'To get started, identify a coworker that has a Microsoft 365 license but does not have a Business Central license';
@@ -273,7 +282,7 @@ page 1978 "MS 365 License Setup Wizard"
                     end;
                 }
 
-                group(TryItOutPara2) 
+                group(TryItOutPara2)
                 {
                     Caption = 'Share something with them';
                     InstructionalText = 'Go to any list or card page and use the Share action to Share to Teams.';
@@ -284,7 +293,7 @@ page 1978 "MS 365 License Setup Wizard"
                     Editable = false;
                     ShowCaption = false;
                     Visible = ShowItemCardLink;
-                    
+
                     trigger OnDrillDown()
                     var
                         SpotlightTour: Codeunit "Spotlight Tour";
@@ -294,7 +303,7 @@ page 1978 "MS 365 License Setup Wizard"
                         SpotlightTour.Start(Page::"Item Card", SpotlightTourType::"Share to Teams", ShareToTeamsStep1TitleTxt, ShareToTeamsStep1TextTxt, ShareToTeamsStep2TileTxt, ShareToTeamsStep2TextTxt);
                     end;
                 }
-                group(TryItOutPara3) 
+                group(TryItOutPara3)
                 {
                     ShowCaption = false;
                     InstructionalText = '💡 Tip: when sharing to Teams, make sure to include the link preview as a card. Your coworker can only access the page or record from the Card details, or from any tabs you add to Teams.';
@@ -302,55 +311,55 @@ page 1978 "MS 365 License Setup Wizard"
             }
         }
     }
-    
+
     actions
     {
         area(Processing)
         {
-            action(ConfigPermissionsDefault) 
+            action(ConfigPermissionsDefault)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Configure permissions';
-                Visible = ConfigPermissionsDefaultActionVisible; 
+                Visible = ConfigPermissionsDefaultActionVisible;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     RunPermissionAction();
                 end;
             }
-            
-            action(ConfigPermissionsSecondary) 
+
+            action(ConfigPermissionsSecondary)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Configure permissions';
-                Visible = ConfigPermissionsSecondaryActionVisible; 
+                Visible = ConfigPermissionsSecondaryActionVisible;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     RunPermissionAction();
                 end;
             }
-            action(GoToAdminCenter) 
+            action(GoToAdminCenter)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Go to admin center';
-                Visible = GoToAdminCenterActionVisible; 
+                Visible = GoToAdminCenterActionVisible;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     Microsoft365License.OpenBCAdminCenter();
                 end;
             }
-            action(AccessControlAdminCenter) 
+            action(AccessControlAdminCenter)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Go to admin center';
                 Visible = AccessControlAdminCenterActionVisible;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     Microsoft365License.OpenBCAdminCenter();
@@ -358,13 +367,13 @@ page 1978 "MS 365 License Setup Wizard"
                     UpdateActionVisibility();
                 end;
             }
-            action(GoToGuidedDevelopment) 
+            action(GoToGuidedDevelopment)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Go to guided deployment';
                 Visible = GoToGuidedDevelopmentActionVisble;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 var
                     TeamCentralizedDeployment: Page "Teams Centralized Deployment";
@@ -375,20 +384,20 @@ page 1978 "MS 365 License Setup Wizard"
                     UpdateActionVisibility();
                 end;
             }
-            action(TryItOutAction) 
+            action(TryItOutAction)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Try It Out';
                 Visible = TryItOutActionVisible;
                 Image = PreviousRecord;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     NextStep();
                 end;
             }
-            action(Back) 
+            action(Back)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Back';
@@ -400,8 +409,8 @@ page 1978 "MS 365 License Setup Wizard"
                 begin
                     PrevStep();
                 end;
-            } 
-            action(Next) 
+            }
+            action(Next)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next';
@@ -415,14 +424,14 @@ page 1978 "MS 365 License Setup Wizard"
                     NextStep();
                 end;
             }
-            action(EnableInAdminCenter) 
+            action(EnableInAdminCenter)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Enable';
                 Visible = EnableInAdminCenterActionVisible;
                 Image = NextRecord;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 var
                     EnvironmentInformation: Codeunit "Environment Information";
@@ -445,27 +454,27 @@ page 1978 "MS 365 License Setup Wizard"
                     CurrPage.Close();
                 end;
             }
-            action(Skip) 
+            action(Skip)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Skip';
-                Visible = SkipActionVisible; 
+                Visible = SkipActionVisible;
                 Image = NextRecord;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
-                   NextStep();
+                    NextStep();
                 end;
             }
-            action(Done) 
+            action(Done)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Done';
-                Visible = DoneActionVisible; 
+                Visible = DoneActionVisible;
                 Image = NextRecord;
                 InFooterBar = true;
-                
+
                 trigger OnAction()
                 begin
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"MS 365 License Setup Wizard");
@@ -488,14 +497,14 @@ page 1978 "MS 365 License Setup Wizard"
             }
         }
     }
-    
+
     trigger OnOpenPage()
     var
         Item: Record Item;
     begin
         M365PlanId := PlanIds.GetMicrosoft365PlanId();
-        ShowSwitcherText := (CurrentClientType <> ClientType::Tablet) and 
-                            (CurrentClientType <> ClientType::Phone) and 
+        ShowSwitcherText := (CurrentClientType <> ClientType::Tablet) and
+                            (CurrentClientType <> ClientType::Phone) and
                             (CurrentClientType <> ClientType::Teams);
         ShowItemCardLink := not Item.IsEmpty();
 
@@ -517,13 +526,19 @@ page 1978 "MS 365 License Setup Wizard"
 
     local procedure NextStep()
     begin
-        case WizardStep of 
-            WizardStep::Landing: ShowPermissionsStep();
-            WizardStep::Permissions: ShowTAC();
-            WizardStep::TAC: ShowAccessControl();
-            WizardStep::AccessControl: ShowAppDeployment();
-            WizardStep::AppDeployment: ShowSuccess();
-            WizardStep::Success: ShowTryItOut();
+        case WizardStep of
+            WizardStep::Landing:
+                ShowPermissionsStep();
+            WizardStep::Permissions:
+                ShowTAC();
+            WizardStep::TAC:
+                ShowAccessControl();
+            WizardStep::AccessControl:
+                ShowAppDeployment();
+            WizardStep::AppDeployment:
+                ShowSuccess();
+            WizardStep::Success:
+                ShowTryItOut();
         end;
         UpdateActionVisibility();
     end;
@@ -531,9 +546,12 @@ page 1978 "MS 365 License Setup Wizard"
     local procedure PrevStep()
     begin
         case WizardStep of
-            WizardStep::Permissions: ShowLandingStep(); 
-            WizardStep::TAC: ShowPermissionsStep();
-            WizardStep::AccessControl: ShowTAC();
+            WizardStep::Permissions:
+                ShowLandingStep();
+            WizardStep::TAC:
+                ShowPermissionsStep();
+            WizardStep::AccessControl:
+                ShowTAC();
         end;
         UpdateActionVisibility();
     end;
@@ -557,10 +575,10 @@ page 1978 "MS 365 License Setup Wizard"
         WizardStep := WizardStep::Permissions;
         if HasLicenseConfiguration() then
             WizardPermissions := WizardPermissions::PermissionsExistsInConfig
-        else 
-            if Company."Evaluation Company" then 
+        else
+            if Company."Evaluation Company" then
                 WizardPermissions := WizardPermissions::PermissionsEmptyInConfigAndEvalCompany
-            else 
+            else
                 WizardPermissions := WizardPermissions::PermissionsEmptyInConfig;
     end;
 
@@ -568,9 +586,9 @@ page 1978 "MS 365 License Setup Wizard"
     local procedure ShowTAC()
     begin
         WizardStep := WizardStep::TAC;
-        if AzureADGraph.IsM365CollaborationEnabled() then 
+        if AzureADGraph.IsM365CollaborationEnabled() then
             WizardTAC := WizardTAC::EnabledInTAC
-        else 
+        else
             WizardTAC := WizardTAC::DisabledInTAC;
     end;
 
@@ -579,7 +597,7 @@ page 1978 "MS 365 License Setup Wizard"
     begin
         WizardStep := WizardStep::AccessControl;
         WizardNextSkip := WizardNextSkip::Skip;
-        
+
         if AzureADGraph.IsEnvironmentSecurityGroupDefined() then
             ShowAppDeployment();
     end;
@@ -594,6 +612,7 @@ page 1978 "MS 365 License Setup Wizard"
     begin
         WizardStep := WizardStep::Success;
     end;
+
     local procedure ShowTryItOut()
     begin
         WizardStep := WizardStep::TryItOut;
@@ -606,34 +625,34 @@ page 1978 "MS 365 License Setup Wizard"
         TryItOutActionVisible := WizardStep = WizardStep::Success;
         GoToGuidedDevelopmentActionVisble := WizardStep = WizardStep::AppDeployment;
         AccessControlAdminCenterActionVisible := WizardStep = WizardStep::AccessControl;
-        EnableInAdminCenterActionVisible := ((WizardStep = WizardStep::TAC) and (WizardTAC = WizardTAC::DisabledInTAC)); 
-    	GoToAdminCenterActionVisible := (WizardStep = WizardStep::TAC);
+        EnableInAdminCenterActionVisible := ((WizardStep = WizardStep::TAC) and (WizardTAC = WizardTAC::DisabledInTAC));
+        GoToAdminCenterActionVisible := (WizardStep = WizardStep::TAC);
         ConfigPermissionsDefaultActionVisible := (WizardStep = WizardStep::Permissions) and (WizardPermissions = WizardPermissions::PermissionsEmptyInConfig);
         ConfigPermissionsSecondaryActionVisible := (WizardStep = WizardStep::Permissions) and (WizardPermissions <> WizardPermissions::PermissionsEmptyInConfig);
 
         NextActionVisible :=
-            ((WizardStep = WizardStep::Landing) and (WizardLanding = WizardLanding::Saas)) or 
-            ((WizardStep = WizardStep::Permissions) and (WizardPermissions <> WizardPermissions::PermissionsEmptyInConfigAndEvalCompany)) or 
+            ((WizardStep = WizardStep::Landing) and (WizardLanding = WizardLanding::Saas)) or
+            ((WizardStep = WizardStep::Permissions) and (WizardPermissions <> WizardPermissions::PermissionsEmptyInConfigAndEvalCompany)) or
             ((WizardStep = WizardStep::TAC) and (WizardTAC = WizardTAC::EnabledInTAC)) or
             ((WizardStep = WizardStep::AccessControl) and (WizardNextSkip = WizardNextSkip::Next)) or
             ((WizardStep = WizardStep::AppDeployment) and (WizardNextSkip = WizardNextSkip::Next));
-        
-        NextActionEnabled := 
+
+        NextActionEnabled :=
             not ((WizardStep = WizardStep::Permissions) and (WizardPermissions = WizardPermissions::PermissionsEmptyInConfig));
 
-        BackActionVisible := 
+        BackActionVisible :=
             (WizardStep = WizardStep::Permissions) or
-            (WizardStep = WizardStep::TAC) or 
+            (WizardStep = WizardStep::TAC) or
             (WizardStep = WizardStep::AccessControl);
 
-        CloseActionVisible := 
+        CloseActionVisible :=
             ((WizardStep = WizardStep::Landing) and (WizardLanding = WizardLanding::OnPrem)) or
             (WizardStep = WizardStep::TryItOut);
 
-        SkipActionVisible := 
-            (((WizardStep = WizardStep::AccessControl) and (WizardNextSkip = WizardNextSkip::Skip)) or 
+        SkipActionVisible :=
+            (((WizardStep = WizardStep::AccessControl) and (WizardNextSkip = WizardNextSkip::Skip)) or
             ((WizardStep = WizardStep::AppDeployment) and (WizardNextSkip = WizardNextSkip::Skip)));
-        
+
         CurrPage.Update(true);
     end;
 
@@ -646,13 +665,13 @@ page 1978 "MS 365 License Setup Wizard"
 
     local procedure OpenPlanConfigurationForM365()
     var
-        PlanConfigurationCard: Page "Plan Configuration Card"; 
+        PlanConfigurationCard: Page "Plan Configuration Card";
     begin
         PlanConfigurationCard.SetPlan(M365PlanId);
         PlanConfigurationCard.RunModal();
     end;
 
-    local procedure HasLicenseConfiguration() : Boolean
+    local procedure HasLicenseConfiguration(): Boolean
     var
         PermissionSetInPlanBuffer: Record "Permission Set In Plan Buffer";
         PlanConfiguration: Codeunit "Plan Configuration";
@@ -674,13 +693,13 @@ page 1978 "MS 365 License Setup Wizard"
         PlanIds: Codeunit "Plan Ids";
         GuidedExperience: Codeunit "Guided Experience";
         M365PlanId: Guid;
-        TopBannerVisible,NextActionVisible,NextActionEnabled,BackActionVisible,CloseActionVisible,SkipActionVisible,ShowSwitcherText,ShowItemCardLink: Boolean;
-        DontRestrictActionVisible, DoneActionVisible, TryItOutActionVisible, GoToGuidedDevelopmentActionVisble: Boolean;
-        AccessControlAdminCenterActionVisible, GoToAdminCenterActionVisible, EnableInAdminCenterActionVisible, ConfigPermissionsDefaultActionVisible, ConfigPermissionsSecondaryActionVisible: Boolean;
+        TopBannerVisible, NextActionVisible, NextActionEnabled, BackActionVisible, CloseActionVisible, SkipActionVisible, ShowSwitcherText, ShowItemCardLink : Boolean;
+        DontRestrictActionVisible, DoneActionVisible, TryItOutActionVisible, GoToGuidedDevelopmentActionVisble : Boolean;
+        AccessControlAdminCenterActionVisible, GoToAdminCenterActionVisible, EnableInAdminCenterActionVisible, ConfigPermissionsDefaultActionVisible, ConfigPermissionsSecondaryActionVisible : Boolean;
         WizardStep: Option Landing,Permissions,TAC,AccessControl,AppDeployment,Success,TryItOut;
         WizardLanding: Option Saas,OnPrem;
         WizardPermissions: Option PermissionsExistsInConfig,PermissionsEmptyInConfig,PermissionsEmptyInConfigAndEvalCompany;
-        WizardTAC: Option EnabledInTAC, DisabledInTAC;
+        WizardTAC: Option EnabledInTAC,DisabledInTAC;
         WizardNextSkip: Option Skip,Next;
         LandingOnPremLinkTxt: Label 'Learn about minimum requirements for Teams integration';
         LandingSaasLinkLinkTxt: Label 'Learn more';

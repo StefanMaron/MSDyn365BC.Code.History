@@ -649,6 +649,7 @@ codeunit 134219 "WFWH General Journal Batch"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     procedure EnsureGeneralJournalBatchApprovalWorkflowFunctionsCorrectlyWhenGeneralJournalBatchIsDeleted()
     var
         ApproverUserSetup: Record "User Setup";
@@ -918,9 +919,9 @@ codeunit 134219 "WFWH General Journal Batch"
         GeneralJournal.CurrentJnlBatchName.Lookup;
 
         // [THEN] Approval actions are correctly enabled/disabled
-        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'Send Batch must be enabled');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'Send Batch must be disabled');
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled, 'Cancel Batch must be disabled');
-        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be disnabled');
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
 
         GeneralJournal.Close();
@@ -1227,6 +1228,12 @@ codeunit 134219 "WFWH General Journal Batch"
     begin
         GeneralJournalBatches.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
         GeneralJournalBatches.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

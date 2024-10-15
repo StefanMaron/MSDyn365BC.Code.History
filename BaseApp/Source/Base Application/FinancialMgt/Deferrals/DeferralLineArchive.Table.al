@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Deferral;
+
 table 5128 "Deferral Line Archive"
 {
     Caption = 'Deferral Line Archive';
@@ -34,7 +36,7 @@ table 5128 "Deferral Line Archive"
         }
         field(9; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }

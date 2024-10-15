@@ -1,3 +1,19 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Sales.Document;
+using Microsoft.Manufacturing.WorkCenter;
+
 permissionset 413 "Manufacturing Planning - View"
 {
     Access = Public;

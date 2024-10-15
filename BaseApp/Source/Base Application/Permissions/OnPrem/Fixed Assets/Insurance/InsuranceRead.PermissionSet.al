@@ -1,3 +1,13 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.Structure;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.Inventory.Location;
+using Microsoft.Purchases.Vendor;
+
 permissionset 6895 "Insurance - Read"
 {
     Access = Public;

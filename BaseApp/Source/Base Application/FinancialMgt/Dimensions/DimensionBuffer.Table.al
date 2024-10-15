@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using System.Reflection;
+
 table 360 "Dimension Buffer"
 {
     Caption = 'Dimension Buffer';
@@ -9,7 +13,7 @@ table 360 "Dimension Buffer"
         {
             Caption = 'Table ID';
             DataClassification = SystemMetadata;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(2; "Entry No."; Integer)
         {
@@ -34,7 +38,7 @@ table 360 "Dimension Buffer"
             Caption = 'Dimension Value Code';
             DataClassification = SystemMetadata;
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"), Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -46,7 +50,7 @@ table 360 "Dimension Buffer"
         {
             Caption = 'New Dimension Value Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"), Blocked = const(false));
 
             trigger OnValidate()
             begin

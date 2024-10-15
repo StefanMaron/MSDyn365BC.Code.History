@@ -31,7 +31,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         ErrorValidationErr: Label 'Error must be same.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.';
         StringLengthExceededErr: Label 'StringLengthExceeded';
-        DateFilterTok: Label '%1..%2';
+        DateFilterTok: Label '%1..%2', Locked = true;
         JournalLineErr: Label 'You are not allowed to apply and post an entry to an entry with an earlier posting date.';
         FieldValueErr: Label 'Wrong %1 in %2';
         SalesDocumentTestReportDimErr: Label 'Sales Document Test Report has dimension errors';

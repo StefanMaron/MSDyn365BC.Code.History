@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using System.Reflection;
+
 table 5300 "Outlook Synch. Entity"
 {
     Caption = 'Outlook Synch. Entity';
@@ -24,12 +28,12 @@ table 5300 "Outlook Synch. Entity"
         {
             BlankZero = true;
             Caption = 'Table No.';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(4; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
-                                                                           "Object ID" = FIELD("Table No.")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+                                                                           "Object ID" = field("Table No.")));
             Caption = 'Table Caption';
             Editable = false;
             FieldClass = FlowField;

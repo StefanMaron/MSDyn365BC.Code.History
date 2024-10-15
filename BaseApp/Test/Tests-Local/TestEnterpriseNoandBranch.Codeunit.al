@@ -1539,17 +1539,6 @@ codeunit 144025 "Test Enterprise No and Branch"
         IssuedFinanceChargeMemoLine.Insert();
     end;
 
-    local procedure PEPPOLXMLExport(SalesInvoiceHeader: Record "Sales Invoice Header"; FormatCode: Code[20]): Text
-    var
-        ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
-        ClientFileName: Text[250];
-    begin
-        SalesInvoiceHeader.SetRecFilter();
-        ElectronicDocumentFormat.SendElectronically(ServerFileName, ClientFileName, SalesInvoiceHeader, FormatCode);
-        exit(ServerFileName);
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoicePrintRequestHandler(var RequestPage: TestRequestPage "Service - Invoice")

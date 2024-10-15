@@ -1,4 +1,17 @@
-﻿report 6032 "Post Prepaid Contract Entries"
+﻿namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Reports;
+using Microsoft.Service.Setup;
+
+report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';
@@ -10,7 +23,7 @@
     {
         dataitem("Service Ledger Entry"; "Service Ledger Entry")
         {
-            DataItemTableView = SORTING("Service Contract No.") WHERE(Type = CONST("Service Contract"), "Moved from Prepaid Acc." = CONST(false), Open = CONST(false));
+            DataItemTableView = sorting("Service Contract No.") where(Type = const("Service Contract"), "Moved from Prepaid Acc." = const(false), Open = const(false));
             RequestFilterFields = "Service Contract No.";
 
             trigger OnAfterGetRecord()
@@ -177,29 +190,6 @@
                             end;
                         end;
                     }
-#if not CLEAN20
-                    field("GenJnlLine2.""Journal Template Name"""; GenJnlLineReq."Journal Template Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Journal Template Name';
-                        TableRelation = "Gen. Journal Template";
-                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
-                        Visible = false;
-                        ObsoleteReason = 'Replaced by control JournalTemplateName';
-                        ObsoleteState = Pending;
-                        Obsoletetag = '20.0';
-                    }
-                    field("GenJnlLine2.""Journal Batch Name"""; GenJnlLineReq."Journal Batch Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Journal Batch Name';
-                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
-                        Visible = false;
-                        ObsoleteReason = 'Replaced by control JournalBatchName';
-                        ObsoleteState = Pending;
-                        Obsoletetag = '20.0';
-                    }
-#endif
                     field(PostPrepaidContracts; PostPrepaidContracts)
                     {
                         ApplicationArea = Service;
@@ -384,18 +374,6 @@
     begin
         GenJnlBatch := NewGenJnlBatch;
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by W1 InitializeRequest()', '20.0')]
-    procedure InitializeRequest(UntilDateFrom: Date; PostingDateFrom: Date; PostPrepaidContractsFrom: Option "Post Prepaid Transactions","Print Only"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
-    begin
-        UntilDate := UntilDateFrom;
-        PostingDate := PostingDateFrom;
-        PostPrepaidContracts := PostPrepaidContractsFrom;
-        GenJnlLineReq."Journal Template Name" := JournalTemplateName;
-        GenJnlLineReq."Journal Batch Name" := JournalBatchName;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostNonPrepaidAccount(var GenJnlLine: Record "Gen. Journal Line"; var TempServLedgEntry: Record "Service Ledger Entry"; var IsNonPrepaidAccountPostingHandled: Boolean)

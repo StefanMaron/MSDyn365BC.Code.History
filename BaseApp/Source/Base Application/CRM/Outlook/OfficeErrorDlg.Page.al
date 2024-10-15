@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 page 1608 "Office Error Dlg"
 {
     Caption = 'Something went wrong';

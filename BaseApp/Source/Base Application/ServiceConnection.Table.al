@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 #pragma warning disable AS0109
 table 1400 "Service Connection"
 #pragma warning restore AS0109

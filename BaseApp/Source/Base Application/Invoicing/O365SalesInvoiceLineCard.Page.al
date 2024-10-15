@@ -59,7 +59,7 @@ page 2157 "O365 Sales Invoice Line Card"
                 group(grpEnterQuantity)
                 {
                     Caption = 'Quantity & Price';
-                    Visible = Description <> '';
+                    Visible = Rec.Description <> '';
                     field(EnterQuantity; EnterQuantity)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
@@ -70,7 +70,7 @@ page 2157 "O365 Sales Invoice Line Card"
                 group(grpQuantity)
                 {
                     Caption = '';
-                    Visible = (Description <> '') AND EnterQuantity;
+                    Visible = (Rec.Description <> '') AND EnterQuantity;
                     field(LineQuantity; LineQuantity)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
@@ -81,7 +81,7 @@ page 2157 "O365 Sales Invoice Line Card"
 
                         trigger OnValidate()
                         begin
-                            Validate(Quantity, LineQuantity);
+                            Rec.Validate(Quantity, LineQuantity);
                             RedistributeTotalsOnAfterValidate();
                             ShowInvoiceDiscountNotification();
                         end;
@@ -110,7 +110,7 @@ page 2157 "O365 Sales Invoice Line Card"
                 group(grpGiveDiscount)
                 {
                     Caption = 'Discount';
-                    Visible = Description <> '';
+                    Visible = Rec.Description <> '';
                     field(EnterDiscount; EnterDiscount)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
@@ -120,14 +120,14 @@ page 2157 "O365 Sales Invoice Line Card"
                         trigger OnValidate()
                         begin
                             if not EnterDiscount then
-                                Validate("Line Discount %", 0);
+                                Rec.Validate("Line Discount %", 0);
                         end;
                     }
                 }
                 group(grpDiscount)
                 {
                     Caption = '';
-                    Visible = (Description <> '') AND EnterDiscount;
+                    Visible = (Rec.Description <> '') AND EnterDiscount;
                     field("Line Discount %"; Rec."Line Discount %")
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
@@ -150,9 +150,9 @@ page 2157 "O365 Sales Invoice Line Card"
                             GetTotalSalesHeader();
                             LineDiscountAmount :=
                               O365SalesInvoiceMgmt.GetValueWithinBounds(
-                                "Line Discount Amount", 0, "Unit Price" * Quantity, AmountOutsideOfBoundsNotificationSend, TotalSalesHeader.RecordId);
-                            if LineDiscountAmount <> "Line Discount Amount" then
-                                Validate("Line Discount Amount", LineDiscountAmount);
+                                Rec."Line Discount Amount", 0, Rec."Unit Price" * Rec.Quantity, AmountOutsideOfBoundsNotificationSend, TotalSalesHeader.RecordId);
+                            if LineDiscountAmount <> Rec."Line Discount Amount" then
+                                Rec.Validate("Line Discount Amount", LineDiscountAmount);
                             RedistributeTotalsOnAfterValidate();
                             if HasShownInvoiceDiscountNotification then
                                 InvoiceDiscountNotification.Recall();
@@ -163,7 +163,7 @@ page 2157 "O365 Sales Invoice Line Card"
             group(Control19)
             {
                 ShowCaption = false;
-                Visible = Description <> '';
+                Visible = Rec.Description <> '';
                 group(grpEnterTax)
                 {
                     Caption = 'Tax';
@@ -201,11 +201,11 @@ page 2157 "O365 Sales Invoice Line Card"
                             TaxArea: Record "Tax Area";
                             SalesHeader: Record "Sales Header";
                         begin
-                            CalcFields("Posting Date");
+                            Rec.CalcFields("Posting Date");
                             if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
-                                if SalesHeader.Get("Document Type", "Document No.") then
+                                if SalesHeader.Get(Rec."Document Type", Rec."Document No.") then
                                     SalesHeader.Validate("Tax Area Code", TaxArea.Code);
-                                TaxRate := TaxDetail.GetSalesTaxRate("Tax Area Code", "Tax Group Code", "Posting Date", "Tax Liable");
+                                TaxRate := TaxDetail.GetSalesTaxRate(Rec."Tax Area Code", Rec."Tax Group Code", Rec."Posting Date", Rec."Tax Liable");
                                 UpdateTaxRateText();
                             end;
                         end;
@@ -235,7 +235,7 @@ page 2157 "O365 Sales Invoice Line Card"
                             VATProductPostingGroup: Record "VAT Product Posting Group";
                         begin
                             if PAGE.RunModal(PAGE::"O365 VAT Product Posting Gr.", VATProductPostingGroup) = ACTION::LookupOK then begin
-                                Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+                                Rec.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                                 VATProductPostingGroupDescription := VATProductPostingGroup.Description;
                                 RedistributeTotalsOnAfterValidate();
                             end;
@@ -251,8 +251,8 @@ page 2157 "O365 Sales Invoice Line Card"
             group(grpTotal)
             {
                 Caption = '';
-                Visible = Description <> '';
-                field(LineAmountExclVAT; GetLineAmountExclVAT())
+                Visible = Rec.Description <> '';
+                field(LineAmountExclVAT; Rec.GetLineAmountExclVAT())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -261,7 +261,7 @@ page 2157 "O365 Sales Invoice Line Card"
                     Editable = false;
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT())
+                field(LineAmountInclVAT; Rec.GetLineAmountInclVAT())
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
@@ -291,12 +291,12 @@ page 2157 "O365 Sales Invoice Line Card"
                 var
                     EnvInfoProxy: Codeunit "Env. Info Proxy";
                 begin
-                    if "No." = '' then
+                    if Rec."No." = '' then
                         exit;
 
                     if not Confirm(DeleteQst, true) then
                         exit;
-                    Delete(true);
+                    Rec.Delete(true);
                     if not EnvInfoProxy.IsInvoicing() then
                         CurrPage.Update();
                 end;
@@ -320,19 +320,19 @@ page 2157 "O365 Sales Invoice Line Card"
         TaxDetail: Record "Tax Detail";
     begin
         UpdatePageCaption();
-        CalcFields("Posting Date");
-        TaxRate := TaxDetail.GetSalesTaxRate("Tax Area Code", "Tax Group Code", "Posting Date", "Tax Liable");
+        Rec.CalcFields("Posting Date");
+        TaxRate := TaxDetail.GetSalesTaxRate(Rec."Tax Area Code", Rec."Tax Group Code", Rec."Posting Date", Rec."Tax Liable");
         UpdateTaxRateText();
         CalculateTotals();
-        DescriptionSelected := Description <> '';
-        LineQuantity := Quantity;
-        TaxRateEditable := DescriptionSelected and (TaxSetup."Non-Taxable Tax Group Code" <> "Tax Group Code");
+        DescriptionSelected := Rec.Description <> '';
+        LineQuantity := Rec.Quantity;
+        TaxRateEditable := DescriptionSelected and (TaxSetup."Non-Taxable Tax Group Code" <> Rec."Tax Group Code");
         UpdateVATPostingGroupDescription();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        UpdatePriceDescription();
+        Rec.UpdatePriceDescription();
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
     end;
 
@@ -351,26 +351,26 @@ page 2157 "O365 Sales Invoice Line Card"
 
     trigger OnModifyRecord(): Boolean
     begin
-        UpdatePriceDescription();
+        Rec.UpdatePriceDescription();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
-        Type := Type::Item;
-        SalesLine.SetRange("Document Type", "Document Type");
-        SalesLine.SetRange("Document No.", "Document No.");
+        Rec.Type := Rec.Type::Item;
+        SalesLine.SetRange("Document Type", Rec."Document Type");
+        SalesLine.SetRange("Document No.", Rec."Document No.");
         if SalesLine.FindLast() then;
-        "Line No." := SalesLine."Line No." + 10000;
+        Rec."Line No." := SalesLine."Line No." + 10000;
         TaxRate := 0;
         Clear(VATProductPostingGroupDescription);
     end;
 
     trigger OnOpenPage()
     begin
-        EnterQuantity := Quantity > 1;
-        EnterDiscount := ("Line Discount %" > 0) or ("Line Discount Amount" > 0);
+        EnterQuantity := Rec.Quantity > 1;
+        EnterDiscount := (Rec."Line Discount %" > 0) or (Rec."Line Discount Amount" > 0);
     end;
 
     var
@@ -403,7 +403,7 @@ page 2157 "O365 Sales Invoice Line Card"
     local procedure CalculateTotals()
     begin
         GetTotalSalesHeader();
-        if SalesSetup."Calc. Inv. Discount" and ("Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
+        if SalesSetup."Calc. Inv. Discount" and (Rec."Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", Rec);
 
         DocumentTotals.CalculateSalesTotals(TotalSalesLine, VATAmount, Rec);
@@ -413,14 +413,14 @@ page 2157 "O365 Sales Invoice Line Card"
     begin
         CurrPage.SaveRecord();
 
-        TotalSalesHeader.Get("Document Type", "Document No.");
+        TotalSalesHeader.Get(Rec."Document Type", Rec."Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
         CurrPage.Update();
     end;
 
     local procedure GetTotalSalesHeader()
     begin
-        if not TotalSalesHeader.Get("Document Type", "Document No.") then
+        if not TotalSalesHeader.Get(Rec."Document Type", Rec."Document No.") then
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
@@ -436,7 +436,7 @@ page 2157 "O365 Sales Invoice Line Card"
     begin
         if HasShownInvoiceDiscountNotification then
             exit;
-        if "Line Discount %" = xRec."Line Discount %" then
+        if Rec."Line Discount %" = xRec."Line Discount %" then
             exit;
         GetTotalSalesHeader();
         O365SalesInvoiceMgmt.ShowInvoiceDiscountNotification(InvoiceDiscountNotification, TotalSalesHeader.RecordId);
@@ -445,10 +445,10 @@ page 2157 "O365 Sales Invoice Line Card"
 
     local procedure UpdatePageCaption()
     begin
-        if "Document Type" = "Document Type"::Invoice then
+        if Rec."Document Type" = Rec."Document Type"::Invoice then
             CurrPage.Caption := InvoiceCaptionTxt
         else
-            if "Document Type" = "Document Type"::Quote then
+            if Rec."Document Type" = Rec."Document Type"::Quote then
                 CurrPage.Caption := EstimateCaptionTxt;
     end;
 
@@ -456,7 +456,7 @@ page 2157 "O365 Sales Invoice Line Card"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
+        if VATProductPostingGroup.Get(Rec."VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
         else
             Clear(VATProductPostingGroup);

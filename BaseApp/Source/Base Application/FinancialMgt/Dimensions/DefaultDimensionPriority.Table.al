@@ -1,3 +1,9 @@
+﻿namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Service.Contract;
+using System.Reflection;
+
 table 354 "Default Dimension Priority"
 {
     Caption = 'Default Dimension Priority';
@@ -13,7 +19,7 @@ table 354 "Default Dimension Priority"
         {
             Caption = 'Table ID';
             NotBlank = true;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnLookup()
             var
@@ -38,8 +44,8 @@ table 354 "Default Dimension Priority"
         }
         field(3; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
-                                                                           "Object ID" = FIELD("Table ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+                                                                           "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
             FieldClass = FlowField;
@@ -73,12 +79,12 @@ table 354 "Default Dimension Priority"
     end;
 
     var
-        DimMgt: Codeunit DimensionManagement;
+        DimensionManagement: Codeunit DimensionManagement;
 
     local procedure GetDefaultDimTableList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
-        DimMgt.DefaultDimObjectNoList(TempAllObjWithCaption);
-        DimMgt.InsertObject(TempAllObjWithCaption, DATABASE::"Service Contract Header");
+        DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
+        DimensionManagement.InsertObject(TempAllObjWithCaption, Database::"Service Contract Header");
     end;
 
     procedure InitializeDefaultDimPrioritiesForSourceCode()

@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using Microsoft.Inventory.Item;
+
 table 7704 "Item Identifier"
 {
     Caption = 'Item Identifier';
@@ -25,7 +29,7 @@ table 7704 "Item Identifier"
         field(3; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             var
@@ -38,7 +42,7 @@ table 7704 "Item Identifier"
         field(4; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin

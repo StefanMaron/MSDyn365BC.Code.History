@@ -96,6 +96,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
         end;
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure GLEntryApplicationBufferDescriptionLength()
@@ -112,5 +113,6 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             GLEntry,
             GLEntry.FieldNo("Description"));
     end;
+#endif
 }
 

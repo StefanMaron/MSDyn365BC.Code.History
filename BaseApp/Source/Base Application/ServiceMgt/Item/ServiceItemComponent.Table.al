@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Service.Document;
+using System.Utilities;
+
 table 5941 "Service Item Component"
 {
     Caption = 'Service Item Component';
@@ -32,9 +39,9 @@ table 5941 "Service Item Component"
         field(6; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST("Service Item")) "Service Item"
-            ELSE
-            IF (Type = CONST(Item)) Item;
+            TableRelation = if (Type = const("Service Item")) "Service Item"
+            else
+            if (Type = const(Item)) Item;
 
             trigger OnLookup()
             begin
@@ -106,7 +113,7 @@ table 5941 "Service Item Component"
         field(8; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnLookup()
             var
@@ -173,8 +180,6 @@ table 5941 "Service Item Component"
         field(15; "Service Order No."; Code[20])
         {
             Caption = 'Service Order No.';
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
 

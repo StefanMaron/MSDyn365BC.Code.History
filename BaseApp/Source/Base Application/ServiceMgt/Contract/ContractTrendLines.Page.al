@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Period;
+using Microsoft.Service.Ledger;
+using System.Utilities;
+
 page 6061 "Contract Trend Lines"
 {
     Caption = 'Lines';
@@ -105,14 +112,14 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field(ProfitAmount; Profit)
+                field(ProfitAmount; Rec.Profit)
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Profit';
                     ToolTip = 'Specifies the profit (posted incom0e minus posted cost in LCY) for the service contract in the periods specified in the Period Start field.';
                 }
-                field(ProfitPct; "Profit %")
+                field(ProfitPct; Rec."Profit %")
                 {
                     ApplicationArea = Service;
                     Caption = 'Profit %';
@@ -128,7 +135,7 @@ page 6061 "Contract Trend Lines"
 
     trigger OnAfterGetRecord()
     begin
-        if DateRec.Get("Period Type", "Period Start") then;
+        if DateRec.Get(Rec."Period Type", Rec."Period Start") then;
         CalcLine();
     end;
 
@@ -152,7 +159,7 @@ page 6061 "Contract Trend Lines"
 
     trigger OnOpenPage()
     begin
-        Reset();
+        Rec.Reset();
     end;
 
     var
@@ -177,9 +184,9 @@ page 6061 "Contract Trend Lines"
     local procedure SetDateFilter()
     begin
         if AmountType = AmountType::"Net Change" then
-            ServContract.SetRange("Date Filter", "Period Start", "Period End")
+            ServContract.SetRange("Date Filter", Rec."Period Start", Rec."Period End")
         else
-            ServContract.SetRange("Date Filter", 0D, "Period End");
+            ServContract.SetRange("Date Filter", 0D, Rec."Period End");
     end;
 
     local procedure CalcLine()
@@ -191,16 +198,16 @@ page 6061 "Contract Trend Lines"
           "Contract Cost Amount",
           "Contract Prepaid Amount");
 
-        "Prepaid Income" := ServContract."Contract Prepaid Amount";
-        "Posted Income" := ServContract."Contract Invoice Amount";
-        "Posted Cost" := ServContract."Contract Cost Amount";
-        "Discount Amount" := ServContract."Contract Discount Amount";
+        Rec."Prepaid Income" := ServContract."Contract Prepaid Amount";
+        Rec."Posted Income" := ServContract."Contract Invoice Amount";
+        Rec."Posted Cost" := ServContract."Contract Cost Amount";
+        Rec."Discount Amount" := ServContract."Contract Discount Amount";
 
-        Profit := ServContract."Contract Invoice Amount" - ServContract."Contract Cost Amount";
+        Rec.Profit := ServContract."Contract Invoice Amount" - ServContract."Contract Cost Amount";
         if ServContract."Contract Invoice Amount" <> 0 then
-            "Profit %" := Round((Profit / ServContract."Contract Invoice Amount") * 100, 0.01)
+            Rec."Profit %" := Round((Rec.Profit / ServContract."Contract Invoice Amount") * 100, 0.01)
         else
-            "Profit %" := 0;
+            Rec."Profit %" := 0;
 
         OnAfterCalcLine(ServContract, Rec);
     end;

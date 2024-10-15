@@ -1,3 +1,32 @@
+﻿namespace Microsoft.Foundation.Navigate;
+
+using Microsoft.Bank.Check;
+using Microsoft.Bank.Ledger;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Reminder;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.Ledger;
+using System.Utilities;
+
 report 35 "Document Entries"
 {
     DefaultLayout = RDLC;
@@ -9,7 +38,7 @@ report 35 "Document Entries"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+            DataItemTableView = sorting(Number) where(Number = filter(1 ..));
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -51,7 +80,7 @@ report 35 "Document Entries"
             }
             dataitem("Service Ledger Entry"; "Service Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostDate_ServiceLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -91,7 +120,7 @@ report 35 "Document Entries"
             }
             dataitem("Warranty Ledger Entry"; "Warranty Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_WarrantyLedgEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -127,7 +156,7 @@ report 35 "Document Entries"
             }
             dataitem("Service Shipment Header"; "Service Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(CurrencyCaption; CurrencyCaption)
                 {
                 }
@@ -161,7 +190,7 @@ report 35 "Document Entries"
             }
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(SalesShipmentHdrCurryCaption; CurrencyCaption)
                 {
                 }
@@ -203,7 +232,7 @@ report 35 "Document Entries"
             }
             dataitem("Sales Invoice Header"; "Sales Invoice Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(SalesInvHdrCurryCaption; CurrencyCaption)
                 {
                 }
@@ -263,7 +292,7 @@ report 35 "Document Entries"
             }
             dataitem("Return Receipt Header"; "Return Receipt Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(ReturnRcptHdrCurryCaption; CurrencyCaption)
                 {
                 }
@@ -305,7 +334,7 @@ report 35 "Document Entries"
             }
             dataitem("Sales Cr.Memo Header"; "Sales Cr.Memo Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(SalesCrMemoHdrCurrCaption; CurrencyCaption)
                 {
                 }
@@ -365,7 +394,7 @@ report 35 "Document Entries"
             }
             dataitem("Issued Reminder Header"; "Issued Reminder Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(IssuedRemHdrCurCaption; CurrencyCaption)
                 {
                 }
@@ -428,7 +457,7 @@ report 35 "Document Entries"
             }
             dataitem("Issued Fin. Charge Memo Header"; "Issued Fin. Charge Memo Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(IssuedFinChrgeCurrCaption; CurrencyCaption)
                 {
                 }
@@ -493,7 +522,7 @@ report 35 "Document Entries"
             }
             dataitem("Purch. Rcpt. Header"; "Purch. Rcpt. Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PurchRcptHdrCurrCaption; CurrencyCaption)
                 {
                 }
@@ -534,7 +563,7 @@ report 35 "Document Entries"
             }
             dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PurchInvHdrCurrCaption; CurrencyCaption)
                 {
                 }
@@ -594,7 +623,7 @@ report 35 "Document Entries"
             }
             dataitem("Return Shipment Header"; "Return Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(RtrnShpmntHdrCurrCaption; CurrencyCaption)
                 {
                 }
@@ -636,7 +665,7 @@ report 35 "Document Entries"
             }
             dataitem("Purch. Cr. Memo Hdr."; "Purch. Cr. Memo Hdr.")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PurchCrMemoHdrCurrCaption; CurrencyCaption)
                 {
                 }
@@ -696,7 +725,7 @@ report 35 "Document Entries"
             }
             dataitem("Production Order"; "Production Order")
             {
-                DataItemTableView = SORTING(Status, "No.");
+                DataItemTableView = sorting(Status, "No.");
                 column(No_ProdOrder; "No.")
                 {
                     IncludeCaption = true;
@@ -741,7 +770,7 @@ report 35 "Document Entries"
             }
             dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PstDate_TransShptHeader; Format("Posting Date"))
                 {
                 }
@@ -781,7 +810,7 @@ report 35 "Document Entries"
             }
             dataitem("Transfer Receipt Header"; "Transfer Receipt Header")
             {
-                DataItemTableView = SORTING("No.");
+                DataItemTableView = sorting("No.");
                 column(PstDate_TransRcptHeader; Format("Posting Date"))
                 {
                 }
@@ -821,7 +850,7 @@ report 35 "Document Entries"
             }
             dataitem("Posted Whse. Shipment Line"; "Posted Whse. Shipment Line")
             {
-                DataItemTableView = SORTING("Posted Source No.", "Posting Date");
+                DataItemTableView = sorting("Posted Source No.", "Posting Date");
                 column(PstDate_PostedWhseShptLine; Format("Posting Date"))
                 {
                 }
@@ -873,7 +902,7 @@ report 35 "Document Entries"
             }
             dataitem("Posted Whse. Receipt Line"; "Posted Whse. Receipt Line")
             {
-                DataItemTableView = SORTING("Posted Source No.", "Posting Date");
+                DataItemTableView = sorting("Posted Source No.", "Posting Date");
                 column(PstDate_PostedWhseRcptLine; Format("Posting Date"))
                 {
                 }
@@ -925,7 +954,7 @@ report 35 "Document Entries"
             }
             dataitem("G/L Entry"; "G/L Entry")
             {
-                DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+                DataItemTableView = sorting("G/L Account No.", "Posting Date");
                 column(PostingDate_GLEntry; Format("Posting Date"))
                 {
                 }
@@ -977,7 +1006,7 @@ report 35 "Document Entries"
             }
             dataitem("VAT Entry"; "VAT Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PostDate_VATEntry; Format("Posting Date"))
                 {
                 }
@@ -1009,7 +1038,7 @@ report 35 "Document Entries"
             }
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(CustLedgEntryCurrCaption; CurrencyCaption)
                 {
                 }
@@ -1068,7 +1097,7 @@ report 35 "Document Entries"
             }
             dataitem("Detailed Cust. Ledg. Entry"; "Detailed Cust. Ledg. Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(DtldCustLedgEntryCurrCaption; CurrencyCaption)
                 {
                 }
@@ -1122,7 +1151,7 @@ report 35 "Document Entries"
             }
             dataitem("Reminder/Fin. Charge Entry"; "Reminder/Fin. Charge Entry")
             {
-                DataItemTableView = SORTING(Type, "No.");
+                DataItemTableView = sorting(Type, "No.");
                 column(EntryNo_ReminderEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -1162,7 +1191,7 @@ report 35 "Document Entries"
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(VendLedgEntryCurrCaption; CurrencyCaption)
                 {
                 }
@@ -1216,7 +1245,7 @@ report 35 "Document Entries"
             }
             dataitem("Detailed Vendor Ledg. Entry"; "Detailed Vendor Ledg. Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(DtldVendLedgEntryCurrCaption; CurrencyCaption)
                 {
                 }
@@ -1270,7 +1299,7 @@ report 35 "Document Entries"
             }
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(EntryNo_ItemLedgEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -1316,7 +1345,7 @@ report 35 "Document Entries"
             }
             dataitem("Value Entry"; "Value Entry")
             {
-                DataItemTableView = SORTING("Document No.");
+                DataItemTableView = sorting("Document No.");
                 column(PstDate_ValueEntry; Format("Posting Date"))
                 {
                 }
@@ -1356,7 +1385,7 @@ report 35 "Document Entries"
             }
             dataitem("Phys. Inventory Ledger Entry"; "Phys. Inventory Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_PhysInvtLedgEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -1404,7 +1433,7 @@ report 35 "Document Entries"
             }
             dataitem("Res. Ledger Entry"; "Res. Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PstDate_ResLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1448,7 +1477,7 @@ report 35 "Document Entries"
             }
             dataitem("Job Ledger Entry"; "Job Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PstDate_JobLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1492,7 +1521,7 @@ report 35 "Document Entries"
             }
             dataitem("Bank Account Ledger Entry"; "Bank Account Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(BankAccLedgEntryCurrCaption; CurrencyCaption)
                 {
                 }
@@ -1547,7 +1576,7 @@ report 35 "Document Entries"
             }
             dataitem("Check Ledger Entry"; "Check Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(DocNo_CheckLedgEntry; "Document No.")
                 {
                     IncludeCaption = true;
@@ -1604,7 +1633,7 @@ report 35 "Document Entries"
             }
             dataitem("FA Ledger Entry"; "FA Ledger Entry")
             {
-                DataItemTableView = SORTING("Document Type", "Document No.");
+                DataItemTableView = sorting("Document Type", "Document No.");
                 column(PstDate_FALedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1644,7 +1673,7 @@ report 35 "Document Entries"
             }
             dataitem("Maintenance Ledger Entry"; "Maintenance Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_MaintLedgEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -1684,7 +1713,7 @@ report 35 "Document Entries"
             }
             dataitem("Ins. Coverage Ledger Entry"; "Ins. Coverage Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(PstDate_InsCoverageLedgEntry; Format("Posting Date"))
                 {
                 }
@@ -1724,7 +1753,7 @@ report 35 "Document Entries"
             }
             dataitem("Capacity Ledger Entry"; "Capacity Ledger Entry")
             {
-                DataItemTableView = SORTING("Document No.", "Posting Date");
+                DataItemTableView = sorting("Document No.", "Posting Date");
                 column(EntryNo_CapLedgEntry; "Entry No.")
                 {
                     IncludeCaption = true;
@@ -1760,7 +1789,7 @@ report 35 "Document Entries"
             }
             dataitem("Warehouse Entry"; "Warehouse Entry")
             {
-                DataItemTableView = SORTING("Reference No.", "Registering Date");
+                DataItemTableView = sorting("Reference No.", "Registering Date");
                 column(EntryNo_WhseEntry; "Entry No.")
                 {
                     IncludeCaption = true;

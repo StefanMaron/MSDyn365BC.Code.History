@@ -151,11 +151,11 @@
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 3220810991" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.]]></Val>
+      <Val><![CDATA[You must register an Microsoft Entra application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 1090853174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

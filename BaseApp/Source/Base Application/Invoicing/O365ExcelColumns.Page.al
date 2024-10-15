@@ -16,7 +16,7 @@ page 2182 "O365 Excel Columns"
         {
             repeater(Group)
             {
-                field(ID; ID)
+                field(ID; Rec.ID)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Column Number';
@@ -38,9 +38,9 @@ page 2182 "O365 Excel Columns"
 
     procedure SetStartRowCellBuffer(var TempStarRowCellNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
-        Reset();
-        DeleteAll();
-        Copy(TempStarRowCellNameValueBuffer, true);
+        Rec.Reset();
+        Rec.DeleteAll();
+        Rec.Copy(TempStarRowCellNameValueBuffer, true);
     end;
 }
 #endif

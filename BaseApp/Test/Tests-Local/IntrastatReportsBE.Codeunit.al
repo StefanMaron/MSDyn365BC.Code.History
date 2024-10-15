@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144011 "Intrastat Reports BE"
 {
     Subtype = Test;
@@ -17,31 +18,6 @@ codeunit 144011 "Intrastat Reports BE"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,ReportHandlerIntrastatForm')]
-    [Scope('OnPrem')]
-    procedure IntrastatFormOnMoreThanHundredRecords()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        i: Integer;
-    begin
-        // [SCENARIO 272795] When Stan runs "Intrastat - Forms" report on more than 100 "Intrastat Jnl Line" records, the report is successfully executed.
-        Initialize();
-
-        // [GIVEN] 100 or more Intrastat Jnl Lines.
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        for i := 1 to LibraryRandom.RandIntInRange(100, 200) do
-            MockIntrastatJnlLine(
-              IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Shipment,
-              LibraryRandom.RandIntInRange(1, 100), LibraryRandom.RandDecInRange(1, 100, 2));
-
-        // [WHEN] Run "Intrastat - Forms" report on these Intrastat Jnl Lines.
-        RunIntrastatForm(IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Shipment);
-
-        // [THEN] The report is successfully executed.
-    end;
 
     local procedure Initialize()
     begin
@@ -164,4 +140,4 @@ codeunit 144011 "Intrastat Reports BE"
         Reply := true;
     end;
 }
-
+#endif

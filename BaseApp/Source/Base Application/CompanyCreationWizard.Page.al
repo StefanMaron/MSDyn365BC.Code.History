@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using System.Globalization;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Security.AccessControl;
+using System.Security.User;
+using System.Utilities;
+
 page 9192 "Company Creation Wizard"
 {
     Caption = 'Create New Company';
@@ -171,7 +184,7 @@ page 9192 "Company Creation Wizard"
                             begin
                                 Clear(Rec);
                                 UserSelection.Open(Rec);
-                                ContainUsers := not IsEmpty();
+                                ContainUsers := not Rec.IsEmpty();
                                 CurrPage.Update(false);
                             end;
                         }
@@ -387,10 +400,10 @@ page 9192 "Company Creation Wizard"
 
         AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData.AsInteger(), InstallAdditionalDemoData);
 
-        if FindSet() then
+        if Rec.FindSet() then
             repeat
-                PermissionManager.AssignDefaultPermissionsToUser("User Security ID", NewCompanyName);
-            until Next() = 0;
+                PermissionManager.AssignDefaultPermissionsToUser(Rec."User Security ID", NewCompanyName);
+            until Rec.Next() = 0;
 
         CompanyCreated := true;
         OnFinishActionOnBeforeCurrPageClose(NewCompanyData.AsInteger(), NewCompanyName);

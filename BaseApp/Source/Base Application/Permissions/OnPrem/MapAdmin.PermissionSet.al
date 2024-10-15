@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.Security.User;
+using Microsoft.EServices.OnlineMap;
+
 permissionset 2406 "Map - Admin"
 {
     Access = Public;

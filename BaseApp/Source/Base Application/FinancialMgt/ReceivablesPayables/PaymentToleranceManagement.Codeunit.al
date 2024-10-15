@@ -1,4 +1,17 @@
-﻿codeunit 426 "Payment Tolerance Management"
+﻿namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
+using System.Utilities;
+
+codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -406,7 +419,6 @@
 
     local procedure CalcCustApplnAmount(CustledgEntry: Record "Cust. Ledger Entry"; GLSetup: Record "General Ledger Setup"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var AmounttoApply: Decimal; var PmtDiscAmount: Decimal; var MaxPmtTolAmount: Decimal; CustEntryApplID: Code[50]; var ApplnRoundingPrecision: Decimal)
     var
-        CurrExchRate: Record "Currency Exchange Rate";
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         CustLedgEntry2: Record "Cust. Ledger Entry";
@@ -478,20 +490,8 @@
                         repeat
                             CalcFields("Remaining Amount");
                             TempAppliedCustLedgerEntry := AppliedCustLedgEntry;
-                            if "Currency Code" <> ApplnCurrencyCode then begin
-                                "Remaining Amount" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-                                "Remaining Pmt. Disc. Possible" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
-                                "Max. Payment Tolerance" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Max. Payment Tolerance");
-                                "Amount to Apply" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
-                            end;
+                            if "Currency Code" <> ApplnCurrencyCode then
+                                UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
                             // Check Payment Discount
                             UseDisc := false;
                             if CheckCalcPmtDiscCust(
@@ -499,11 +499,11 @@
                                (((CustledgEntry.Amount > 0) and (i = 1)) or
                                 (("Remaining Amount" < 0) and (i = 1)) or
                                 (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs("Remaining Pmt. Disc. Possible" + "Max. Payment Tolerance")) or
+                                   Abs("Remaining Amount")) >= Abs(GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + "Max. Payment Tolerance")) or
                                 (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs("Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
+                                   Abs("Remaining Amount")) <= Abs(GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + MaxPmtTolAmount)))
                             then begin
-                                PmtDiscAmount := PmtDiscAmount + "Remaining Pmt. Disc. Possible";
+                                PmtDiscAmount := PmtDiscAmount + GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date");
                                 UseDisc := true;
                             end;
 
@@ -600,7 +600,6 @@
 
     local procedure CalcVendApplnAmount(VendledgEntry: Record "Vendor Ledger Entry"; GLSetup: Record "General Ledger Setup"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var AmounttoApply: Decimal; var PmtDiscAmount: Decimal; var MaxPmtTolAmount: Decimal; VendEntryApplID: Code[50]; var ApplnRoundingPrecision: Decimal)
     var
-        CurrExchRate: Record "Currency Exchange Rate";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
         TempAppliedVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         VendLedgEntry2: Record "Vendor Ledger Entry";
@@ -669,20 +668,8 @@
                         repeat
                             CalcFields("Remaining Amount");
                             TempAppliedVendorLedgerEntry := AppliedVendLedgEntry;
-                            if "Currency Code" <> ApplnCurrencyCode then begin
-                                "Remaining Amount" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-                                "Remaining Pmt. Disc. Possible" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
-                                "Max. Payment Tolerance" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Max. Payment Tolerance");
-                                "Amount to Apply" :=
-                                  CurrExchRate.ExchangeAmtFCYToFCY(
-                                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
-                            end;
+                            if "Currency Code" <> ApplnCurrencyCode then
+                                UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
                             // Check Payment Discount
                             UseDisc := false;
                             if CheckCalcPmtDiscVend(
@@ -690,11 +677,11 @@
                                (((VendledgEntry.Amount < 0) and (i = 1)) or
                                 (("Remaining Amount" > 0) and (i = 1)) or
                                 (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs("Remaining Pmt. Disc. Possible" + "Max. Payment Tolerance")) or
+                                   Abs("Remaining Amount")) >= Abs(GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + "Max. Payment Tolerance")) or
                                 (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs("Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
+                                   Abs("Remaining Amount")) <= Abs(GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + MaxPmtTolAmount)))
                             then begin
-                                PmtDiscAmount := PmtDiscAmount + "Remaining Pmt. Disc. Possible";
+                                PmtDiscAmount := PmtDiscAmount + GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date");
                                 UseDisc := true;
                             end;
 
@@ -1214,6 +1201,7 @@
                                       CustLedgEntry."Pmt. Discount Date";
                             end else
                                 CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
+                            OnCalcGracePeriodCVLedgEntryOnBeforeCustLedgEntryModify(CustLedgEntry, PmtTolGracePeriode);
                             CustLedgEntry.Modify();
                         until CustLedgEntry.Next() = 0;
                 end;
@@ -1245,6 +1233,7 @@
                                       VendLedgEntry."Pmt. Discount Date";
                             end else
                                 VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
+                            OnCalcGracePeriodCVLedgEntryOnBeforeVendLedgEntryModify(VendLedgEntry, PmtTolGracePeriode);
                             VendLedgEntry.Modify();
                         until VendLedgEntry.Next() = 0;
                 end;
@@ -1332,6 +1321,7 @@
         repeat
             CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
             CustLedgEntry."Max. Payment Tolerance" := 0;
+            OnDelTolCustLedgEntryOnBeforeModify(CustLedgEntry);
             CustLedgEntry.Modify();
         until CustLedgEntry.Next() = 0;
     end;
@@ -1412,6 +1402,7 @@
         repeat
             VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
             VendLedgEntry."Max. Payment Tolerance" := 0;
+            OnDelTolVendLedgEntryOnBeforeModify(VendLedgEntry);
             VendLedgEntry.Modify();
         until VendLedgEntry.Next() = 0;
     end;
@@ -1565,54 +1556,16 @@
     begin
         AppliedCustLedgEntry.CalcFields("Remaining Amount");
         TempAppliedCustLedgEntry := AppliedCustLedgEntry;
-        if CustLedgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then begin
-            AppliedCustLedgEntry."Remaining Amount" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedCustLedgEntry."Remaining Amount", AppliedCustLedgEntry."Currency Code",
-                CustLedgEntry."Currency Code", CustLedgEntry."Posting Date");
-            AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedCustLedgEntry."Remaining Pmt. Disc. Possible",
-                AppliedCustLedgEntry."Currency Code",
-                CustLedgEntry."Currency Code", CustLedgEntry."Posting Date");
-            AppliedCustLedgEntry."Max. Payment Tolerance" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedCustLedgEntry."Max. Payment Tolerance",
-                AppliedCustLedgEntry."Currency Code",
-                CustLedgEntry."Currency Code", CustLedgEntry."Posting Date");
-            AppliedCustLedgEntry."Amount to Apply" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedCustLedgEntry."Amount to Apply",
-                AppliedCustLedgEntry."Currency Code",
-                CustLedgEntry."Currency Code", CustLedgEntry."Posting Date");
-        end;
+        if CustLedgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
+            AppliedCustLedgEntry.UpdateAmountsForApplication(CustLedgEntry."Posting Date", CustLedgEntry."Currency Code", true, true);
     end;
 
     local procedure UpdateVendAmountsForApplication(var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary)
     begin
         AppliedVendLedgEntry.CalcFields("Remaining Amount");
         TempAppliedVendLedgEntry := AppliedVendLedgEntry;
-        if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then begin
-            AppliedVendLedgEntry."Remaining Amount" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedVendLedgEntry."Remaining Amount", AppliedVendLedgEntry."Currency Code",
-                VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-            AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedVendLedgEntry."Remaining Pmt. Disc. Possible",
-                AppliedVendLedgEntry."Currency Code",
-                VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-            AppliedVendLedgEntry."Max. Payment Tolerance" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedVendLedgEntry."Max. Payment Tolerance",
-                AppliedVendLedgEntry."Currency Code",
-                VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-            AppliedVendLedgEntry."Amount to Apply" :=
-              CurrExchRate.ExchangeAmount(
-                AppliedVendLedgEntry."Amount to Apply",
-                AppliedVendLedgEntry."Currency Code",
-                VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
-        end;
+        if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
+            AppliedVendLedgEntry.UpdateAmountsForApplication(VendLedgEntry."Posting Date", VendLedgEntry."Currency Code", true, true);
     end;
 
     local procedure GetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
@@ -1622,6 +1575,7 @@
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
+
         exit(PositiveFilter);
     end;
 
@@ -1632,6 +1586,7 @@
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
+
         exit(PositiveFilter);
     end;
 
@@ -1644,7 +1599,7 @@
         // Check Payment Discount
         if CheckCalcPmtDiscCust(CustLedgEntry, AppliedCustLedgEntry, 0, false, false) then
             AppliedCustLedgEntry."Remaining Amount" :=
-              AppliedCustLedgEntry."Remaining Amount" - AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+              AppliedCustLedgEntry."Remaining Amount" - AppliedCustLedgEntry.GetRemainingPmtDiscPossible(CustLedgEntry."Posting Date");
 
         // Check Payment Discount Tolerance
         if AppliedCustLedgEntry."Amount to Apply" = AppliedCustLedgEntry."Remaining Amount" then
@@ -1683,7 +1638,7 @@
         // Check Payment Discount
         if CheckCalcPmtDiscVend(VendLedgEntry, AppliedVendLedgEntry, 0, false, false) then
             AppliedVendLedgEntry."Remaining Amount" :=
-              AppliedVendLedgEntry."Remaining Amount" - AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+              AppliedVendLedgEntry."Remaining Amount" - AppliedVendLedgEntry.GetRemainingPmtDiscPossible(VendLedgEntry."Posting Date");
 
         // Check Payment Discount Tolerance
         if AppliedVendLedgEntry."Amount to Apply" = AppliedVendLedgEntry."Remaining Amount" then
@@ -1724,7 +1679,7 @@
         if CheckCalcPmtDiscCust(CustLedgEntry, AppliedCustLedgEntry, 0, false, false) and
            CheckCustLedgAmt(CustLedgEntry, AppliedCustLedgEntry, MaxPmtTolAmount, ApplnRoundingPrecision)
         then
-            PmtDiscAmount := PmtDiscAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+            PmtDiscAmount := PmtDiscAmount + AppliedCustLedgEntry.GetRemainingPmtDiscPossible(CustLedgEntry."Posting Date");
 
         // Check Payment Discount Tolerance
         if CheckPmtDiscTolCust(
@@ -1759,7 +1714,7 @@
              VendLedgEntry, AppliedVendLedgEntry, 0, false, false) and
            CheckVendLedgAmt(VendLedgEntry, AppliedVendLedgEntry, MaxPmtTolAmount, ApplnRoundingPrecision)
         then
-            PmtDiscAmount := PmtDiscAmount + AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+            PmtDiscAmount := PmtDiscAmount + AppliedVendLedgEntry.GetRemainingPmtDiscPossible(VendLedgEntry."Posting Date");
 
         // Check Payment Discount Tolerance
         if CheckPmtDiscTolVend(
@@ -1928,17 +1883,17 @@
         if ((NewCVLedgEntryBuf."Document Type" in [NewCVLedgEntryBuf."Document Type"::Refund,
                                                    NewCVLedgEntryBuf."Document Type"::Payment]) and
             (((OldCVLedgEntryBuf2."Document Type" = OldCVLedgEntryBuf2."Document Type"::"Credit Memo") and
-              (OldCVLedgEntryBuf2."Remaining Pmt. Disc. Possible" <> 0) and
+              (OldCVLedgEntryBuf2.GetRemainingPmtDiscPossible(NewCVLedgEntryBuf."Posting Date") <> 0) and
               (NewCVLedgEntryBuf."Posting Date" <= OldCVLedgEntryBuf2."Pmt. Discount Date")) or
              ((OldCVLedgEntryBuf2."Document Type" = OldCVLedgEntryBuf2."Document Type"::Invoice) and
-              (OldCVLedgEntryBuf2."Remaining Pmt. Disc. Possible" <> 0) and
+              (OldCVLedgEntryBuf2.GetRemainingPmtDiscPossible(NewCVLedgEntryBuf."Posting Date") <> 0) and
               (NewCVLedgEntryBuf."Posting Date" <= OldCVLedgEntryBuf2."Pmt. Discount Date"))))
         then begin
             if CheckFilter then begin
                 if CheckAmount then begin
                     if (OldCVLedgEntryBuf2.GetFilter(Positive) <> '') or
                        (Abs(NewCVLedgEntryBuf."Remaining Amount") + ApplnRoundingPrecision >=
-                        Abs(OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf2."Remaining Pmt. Disc. Possible"))
+                        Abs(OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf2.GetRemainingPmtDiscPossible(NewCVLedgEntryBuf."Posting Date")))
                     then
                         exit(true);
 
@@ -2209,9 +2164,9 @@
                 if Vendor.Get(AccountNo) then
                     exit(Vendor.Name);
             else begin
-                    OnGetAccountNameOnCaseElse(AccountType, AccountNo, Result);
-                    exit(Result);
-                end;
+                OnGetAccountNameOnCaseElse(AccountType, AccountNo, Result);
+                exit(Result);
+            end;
         end;
     end;
 
@@ -2340,6 +2295,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGracePeriodCVLedgEntryOnBeforeCustLedgEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry"; PmtTolGracePeriode: DateFormula);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGracePeriodCVLedgEntryOnBeforeVendLedgEntryModify(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PmtTolGracePeriode: DateFormula);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDelTolCustLedgEntryOnBeforeModify(var CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDelTolVendLedgEntryOnBeforeModify(var VendorLedgerEntry: Record "Vendor Ledger Entry");
     begin
     end;
 

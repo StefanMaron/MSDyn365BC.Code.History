@@ -1,3 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Integration;
+using System.Privacy;
+using System.Security.Encryption;
+using System.Telemetry;
+using System.Threading;
+
 table 1275 "Doc. Exch. Service Setup"
 {
     Caption = 'Doc. Exch. Service Setup';
@@ -50,42 +62,67 @@ table 1275 "Doc. Exch. Service Setup"
         field(7; "Consumer Key"; Guid)
         {
             Caption = 'Consumer Key';
-            ObsoleteState = Pending;
             ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '19.0';
+#endif
         }
         field(8; "Consumer Secret"; Guid)
         {
             Caption = 'Consumer Secret';
             Editable = false;
-            ObsoleteState = Pending;
             ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '19.0';
+#endif
         }
         field(9; Token; Guid)
         {
             Caption = 'Token';
             Editable = false;
-            ObsoleteState = Pending;
             ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '19.0';
+#endif
         }
         field(10; "Token Secret"; Guid)
         {
             Caption = 'Token Secret';
             Editable = false;
-            ObsoleteState = Pending;
             ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '19.0';
+#endif
         }
         field(11; "Doc. Exch. Tenant ID"; Guid)
         {
             Caption = 'Doc. Exch. Tenant ID';
             DataClassification = OrganizationIdentifiableInformation;
             Editable = false;
-            ObsoleteState = Pending;
             ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '19.0';
+#endif
         }
         field(12; "User Agent"; Text[30])
         {

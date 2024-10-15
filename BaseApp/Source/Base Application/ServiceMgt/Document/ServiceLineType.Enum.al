@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Document;
+
 enum 5902 "Service Line Type"
 {
     Extensible = true;

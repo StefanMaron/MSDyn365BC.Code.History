@@ -1,5 +1,12 @@
+namespace System.Environment.Configuration;
+
+using Microsoft.Foundation.Company;
+
 codeunit 9275 "My Settings"
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
     procedure SetExperienceToEssential(SelectedProfileID: Text[30])
     var
         ExperienceTierSetup: Record "Experience Tier Setup";

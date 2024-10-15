@@ -1,4 +1,15 @@
-﻿report 92 "Import Consolidation from File"
+﻿namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
+using System.IO;
+using System.Utilities;
+
+report 92 "Import Consolidation from File"
 {
     Caption = 'Import Consolidation from File';
     ProcessingOnly = true;
@@ -7,7 +18,7 @@
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
 
             trigger OnAfterGetRecord()
             begin
@@ -262,7 +273,8 @@
         GLDocNo := NewGLDocNo;
     end;
 
-#if not CLEAN20
+#if not CLEAN23
+    [Obsolete('Replaced with InitializeRequest with 3 parameters', '23.0')]
     procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
     begin
         FileFormat := NewFileFormat;

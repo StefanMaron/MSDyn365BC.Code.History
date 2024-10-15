@@ -1,3 +1,9 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using System.Security.AccessControl;
+
 table 1232 "Positive Pay Entry Detail"
 {
     Caption = 'Positive Pay Entry Detail';
@@ -12,7 +18,7 @@ table 1232 "Positive Pay Entry Detail"
         field(2; "Upload Date-Time"; DateTime)
         {
             Caption = 'Upload Date-Time';
-            TableRelation = "Positive Pay Entry"."Upload Date-Time" WHERE("Bank Account No." = FIELD("Bank Account No."));
+            TableRelation = "Positive Pay Entry"."Upload Date-Time" where("Bank Account No." = field("Bank Account No."));
         }
         field(3; "No."; Integer)
         {
@@ -39,7 +45,7 @@ table 1232 "Positive Pay Entry Detail"
         }
         field(9; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
@@ -52,8 +58,6 @@ table 1232 "Positive Pay Entry Detail"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(12; "Update Date"; Date)
         {

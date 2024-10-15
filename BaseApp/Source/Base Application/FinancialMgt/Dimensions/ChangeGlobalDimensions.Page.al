@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
 page 577 "Change Global Dimensions"
 {
     Caption = 'Change Global Dimensions';
@@ -98,7 +104,7 @@ page 577 "Change Global Dimensions"
                     AccessByPermission = TableData "Change Global Dim. Log Entry" = IMD;
                     ApplicationArea = Dimensions;
                     Caption = 'Start';
-                    Enabled = IsPrepareEnabledFlag AND NOT "Parallel Processing";
+                    Enabled = IsPrepareEnabledFlag AND NOT Rec."Parallel Processing";
                     Image = Start;
                     ToolTip = 'Start the process that implements the specified dimension change(s) in the affected tables within the current session. Other users cannot change the affected tables while the process is running.';
 
@@ -116,7 +122,7 @@ page 577 "Change Global Dimensions"
                     AccessByPermission = TableData "Change Global Dim. Log Entry" = IM;
                     ApplicationArea = Dimensions;
                     Caption = 'Prepare';
-                    Enabled = IsPrepareEnabledFlag AND "Parallel Processing";
+                    Enabled = IsPrepareEnabledFlag AND Rec."Parallel Processing";
                     Image = ChangeBatch;
                     ToolTip = 'Fill the Log Entries FastTab with the list of tables that will be affected by the specified dimension change. Here you can also follow the progress of the background job that performs the change. Note: Before you can start the job, you must sign out and in to ensure that the current user cannot modify the tables that are being updated.';
 
@@ -130,7 +136,7 @@ page 577 "Change Global Dimensions"
                     AccessByPermission = TableData "Change Global Dim. Log Entry" = D;
                     ApplicationArea = Dimensions;
                     Caption = 'Reset';
-                    Enabled = IsStartEnabled AND "Parallel Processing";
+                    Enabled = IsStartEnabled and Rec."Parallel Processing";
                     Image = Cancel;
                     ToolTip = 'Cancel the change.';
 
@@ -144,7 +150,7 @@ page 577 "Change Global Dimensions"
                     AccessByPermission = TableData "Change Global Dim. Log Entry" = MD;
                     ApplicationArea = Dimensions;
                     Caption = 'Start';
-                    Enabled = IsStartEnabled AND "Parallel Processing";
+                    Enabled = IsStartEnabled and Rec."Parallel Processing";
                     Image = Start;
                     ToolTip = 'Start a background job that implements the specified dimension change(s) in the affected tables. Other users cannot change the affected global dimensions while the job is running. Note: Before you can start the job, you must choose the Prepare action, and then sign out and in.';
 
@@ -188,7 +194,7 @@ page 577 "Change Global Dimensions"
 
     trigger OnAfterGetCurrRecord()
     begin
-        RefreshCurrentDimCodes();
+        Rec.RefreshCurrentDimCodes();
         ChangeGlobalDimensions.FillBuffer();
         IsGlobalDimCodeEnabled := ChangeGlobalDimensions.IsDimCodeEnabled();
         IsPrepareEnabledFlag := ChangeGlobalDimensions.IsPrepareEnabled(Rec);
@@ -209,9 +215,7 @@ page 577 "Change Global Dimensions"
 
     var
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
-        [InDataSet]
         CurrGlobalDimCodeStyle1: Text;
-        [InDataSet]
         CurrGlobalDimCodeStyle2: Text;
         IsGlobalDimCodeEnabled: Boolean;
         IsPrepareEnabledFlag: Boolean;
@@ -220,8 +224,8 @@ page 577 "Change Global Dimensions"
 
     local procedure SetStyle()
     begin
-        SetAmbiguousStyle(CurrGlobalDimCodeStyle1, "Old Global Dimension 1 Code" <> "Global Dimension 1 Code");
-        SetAmbiguousStyle(CurrGlobalDimCodeStyle2, "Old Global Dimension 2 Code" <> "Global Dimension 2 Code");
+        SetAmbiguousStyle(CurrGlobalDimCodeStyle1, Rec."Old Global Dimension 1 Code" <> Rec."Global Dimension 1 Code");
+        SetAmbiguousStyle(CurrGlobalDimCodeStyle2, Rec."Old Global Dimension 2 Code" <> Rec."Global Dimension 2 Code");
     end;
 
     local procedure SetAmbiguousStyle(var Style: Text; Modified: Boolean)

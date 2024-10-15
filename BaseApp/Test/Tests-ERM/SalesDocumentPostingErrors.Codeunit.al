@@ -363,7 +363,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField(Message, PostingDateNotAllowedErr);
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));

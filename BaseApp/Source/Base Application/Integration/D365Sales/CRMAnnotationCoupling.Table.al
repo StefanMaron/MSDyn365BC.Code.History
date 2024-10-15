@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using System;
+using System.Environment.Configuration;
+
 table 5392 "CRM Annotation Coupling"
 {
     Caption = 'CRM Annotation Coupling';

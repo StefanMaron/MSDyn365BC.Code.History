@@ -2432,7 +2432,7 @@
         AdjustAddReportingCurrency.Run();
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     // Old Adjust Exchange Rates
     procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
     begin

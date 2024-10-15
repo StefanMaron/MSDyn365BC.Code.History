@@ -1,3 +1,12 @@
+namespace System.Email;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Purchases.Vendor;
+using Microsoft.CRM.Contact;
+using Microsoft.HumanResources.Employee;
+using System.Security.AccessControl;
+using System.Security.User;
+
 codeunit 8899 "Email Address Lookup Subs"
 {
     Access = Internal;

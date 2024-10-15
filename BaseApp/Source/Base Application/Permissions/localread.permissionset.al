@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.CODA;
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.GeneralLedger.Review;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

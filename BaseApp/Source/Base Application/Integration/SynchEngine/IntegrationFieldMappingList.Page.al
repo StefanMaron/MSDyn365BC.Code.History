@@ -1,7 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
+
+using System.Reflection;
+
 page 5361 "Integration Field Mapping List"
 {
     Caption = 'Integration Field Mapping List';
-    DataCaptionExpression = "Integration Table Mapping Name";
+    DataCaptionExpression = Rec."Integration Table Mapping Name";
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -46,7 +54,7 @@ page 5361 "Integration Field Mapping List"
                     Editable = false;
                     ToolTip = 'Specifies the name of the field in Dynamics 365 Sales.';
                 }
-                field(Direction; Direction)
+                field(Direction; Rec.Direction)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the direction of the synchronization.';
@@ -65,7 +73,7 @@ page 5361 "Integration Field Mapping List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direction of the transformation.';
-                    Editable = "Direction" = "Direction"::Bidirectional;
+                    Editable = Rec."Direction" = Rec."Direction"::Bidirectional;
                 }
                 field("Validate Field"; Rec."Validate Field")
                 {
@@ -127,9 +135,9 @@ page 5361 "Integration Field Mapping List"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        IntegrationTableMapping.Get("Integration Table Mapping Name");
-        NAVFieldName := GetFieldCaption(IntegrationTableMapping."Table ID", "Field No.");
-        CRMFieldName := GetFieldCaption(IntegrationTableMapping."Integration Table ID", "Integration Table Field No.");
+        IntegrationTableMapping.Get(Rec."Integration Table Mapping Name");
+        NAVFieldName := GetFieldCaption(IntegrationTableMapping."Table ID", Rec."Field No.");
+        CRMFieldName := GetFieldCaption(IntegrationTableMapping."Integration Table ID", Rec."Integration Table Field No.");
     end;
 
     local procedure GetFieldCaption(TableID: Integer; FieldID: Integer): Text

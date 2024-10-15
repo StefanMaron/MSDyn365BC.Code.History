@@ -367,7 +367,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200040000                                                     6' +
           '1744                        000000000000000                  100');
         tempFile.Write('2300040000390041400059                         AIR COMPACT BELGI' +
-          'UM NV    BRUSSELSESTWG 427         9050 LEDEBERG (GENT       000');
+          'UM NV    BRUSSelseSTWG 427         9050 LEDEBERG (GENT       000');
         tempFile.Write('2100050000KHMC01795 TBOINDNLOON100000000011173009010700101000009' +
           '0059 2000 06006310                                 0901070050100');
         tempFile.Write('2200050000                                                     6' +
@@ -457,7 +457,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200190000                                                     6' +
           '1731885                     000000000000000                  100');
         tempFile.Write('2300190000419706600164                         ECOMAL           ' +
-          '         BATTELSESTWG 455E         2800 MECHELEN             000');
+          '         BATTelseSTWG 455E         2800 MECHELEN             000');
         tempFile.Write('2100200000KHMC01810 TBOINDNLOON1000000002447810090107001010000FA' +
           'CT504658                                           0901070050100');
         tempFile.Write('2200200000                                                     6' +
@@ -1317,7 +1317,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200030000                                                     7' +
           '0014                        000000000000000                  100');
         tempFile.Write('2300030000444564625163                         ALLCOMM          ' +
-          '         BRUSSELSESTEENWEG 424-426 9050 LEDEBERG (GENT       000');
+          '         BRUSSelseSTEENWEG 424-426 9050 LEDEBERG (GENT       000');
         tempFile.Write('2100040000TEBF03363 TBOINDNLOON1000000002074860310107001010000FA' +
           'CT2500281402 1403 86009 86010                      3101070200100');
         tempFile.Write('2200040000                                                     6' +
@@ -1917,7 +1917,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200240000                                                     7' +
           '0021                        000000000000000                  100');
         tempFile.Write('2300240000419706600164                         ECOMAL           ' +
-          '         BATTELSESTWG 455E         2800 MECHELEN             000');
+          '         BATTelseSTWG 455E         2800 MECHELEN             000');
         tempFile.Write('2100250000ZFFP02114 TBOINDNLOON1000000000320650140207001010000FA' +
           'CT 23830                                           1402070300100');
         tempFile.Write('2200250000                                                     6' +
@@ -2270,7 +2270,7 @@ codeunit 144016 "Library CODA Data Provider"
           '                                                             0 1');
         tempFile.Write('3100070036MTWT00018 TBOGOVOVERS501070001001CARGLASS             ' +
           '                                                             1 0');
-        tempFile.Write('3200070036MECHELSESTEENWEG 289 TOTAA         1800   VILVOORDE   ' +
+        tempFile.Write('3200070036MECHelseSTEENWEG 289 TOTAA         1800   VILVOORDE   ' +
           '                                                             0 0');
         tempFile.Write('2100070037MTWT00019 TBOGOVOVERS100000000037740016040950107000090' +
           '1711 901966                                        16040907001 0');
@@ -2320,7 +2320,7 @@ codeunit 144016 "Library CODA Data Provider"
           '                                                             0 1');
         tempFile.Write('3100070048MTWT00024 TBOGOVOVERS501070001001VAN MARCKE           ' +
           '                                                             1 0');
-        tempFile.Write('3200070048MECHELSESTEENWEG 287               1800   VILVOORDE   ' +
+        tempFile.Write('3200070048MECHelseSTEENWEG 287               1800   VILVOORDE   ' +
           '                                                             0 0');
         tempFile.Write('2100070049MTWT00025 TBOGOVOVERS100000000004334016040950107000020' +
           '09475430 2009483363                                16040907001 0');
@@ -2600,7 +2600,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200040000                                                     6' +
           '1744                        000000000000000                  100');
         tempFile.Write('2300040000390041400059                         AIR COMPACT BELGI' +
-          'UM NV    BRUSSELSESTWG 427         9050 LEDEBERG (GENT       000');
+          'UM NV    BRUSSelseSTWG 427         9050 LEDEBERG (GENT       000');
         tempFile.Write('2100050000KHMC01795 TBOINDNLOON100000000011173009010700101000009' +
           '0059 2000 06006310                                 0901070050100');
         tempFile.Write('2200050000                                                     6' +
@@ -2690,7 +2690,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200190000                                                     6' +
           '1731885                     000000000000000                  100');
         tempFile.Write('2300190000419706600164                         ECOMAL           ' +
-          '         BATTELSESTWG 455E         2800 MECHELEN             000');
+          '         BATTelseSTWG 455E         2800 MECHELEN             000');
         tempFile.Write('2100200000KHMC01810 TBOINDNLOON1000000002447810090107001010000FA' +
           'CT504658                                           0901070050100');
         tempFile.Write('2200200000                                                     6' +
@@ -3550,7 +3550,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200030000                                                     7' +
           '0014                        000000000000000                  100');
         tempFile.Write('2300030000444564625163                         ALLCOMM          ' +
-          '         BRUSSELSESTEENWEG 424-426 9050 LEDEBERG (GENT       000');
+          '         BRUSSelseSTEENWEG 424-426 9050 LEDEBERG (GENT       000');
         tempFile.Write('2100040000TEBF03363 TBOINDNLOON1000000002074860310107001010000FA' +
           'CT2500281402 1403 86009 86010                      3101070200100');
         tempFile.Write('2200040000                                                     6' +
@@ -4150,7 +4150,7 @@ codeunit 144016 "Library CODA Data Provider"
         tempFile.Write('2200240000                                                     7' +
           '0021                        000000000000000                  100');
         tempFile.Write('2300240000419706600164                         ECOMAL           ' +
-          '         BATTELSESTWG 455E         2800 MECHELEN             000');
+          '         BATTelseSTWG 455E         2800 MECHELEN             000');
         tempFile.Write('2100250000ZFFP02114 TBOINDNLOON1000000000320650140207001010000FA' +
           'CT 23830                                           1402070300100');
         tempFile.Write('2200250000                                                     6' +

@@ -7,7 +7,7 @@ page 2124 "O365 Item Basket Part"
     PageType = List;
     SourceTable = "O365 Item Basket Entry";
     SourceTableTemporary = true;
-    SourceTableView = SORTING(Description);
+    SourceTableView = sorting(Description);
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -34,7 +34,7 @@ page 2124 "O365 Item Basket Part"
 
                     trigger OnValidate()
                     begin
-                        ChangeBasket(Quantity - xRec.Quantity);
+                        ChangeBasket(Rec.Quantity - xRec.Quantity);
                     end;
                 }
                 field("Item No."; Rec."Item No.")
@@ -63,7 +63,7 @@ page 2124 "O365 Item Basket Part"
                     Editable = false;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field(Picture; Picture)
+                field(Picture; Rec.Picture)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a picture of the item.';
@@ -123,7 +123,7 @@ page 2124 "O365 Item Basket Part"
                 var
                     Item: Record Item;
                 begin
-                    if not Item.Get("Item No.") then
+                    if not Item.Get(Rec."Item No.") then
                         exit;
                     PAGE.RunModal(PAGE::"O365 Item Card", Item);
                 end;
@@ -147,14 +147,14 @@ page 2124 "O365 Item Basket Part"
 
     trigger OnAfterGetRecord()
     begin
-        "Brick Text 2" := '';
-        Quantity := 0;
-        if TempO365ItemBasketEntry.Get("Item No.") then begin
+        Rec."Brick Text 2" := '';
+        Rec.Quantity := 0;
+        if TempO365ItemBasketEntry.Get(Rec."Item No.") then begin
             if TempO365ItemBasketEntry."Line Total" <> 0 then
-                "Brick Text 2" := Format(TempO365ItemBasketEntry."Line Total", 0, '<Precision,2><Standard Format,0>');
-            Quantity := TempO365ItemBasketEntry.Quantity;
-            "Unit Price" := TempO365ItemBasketEntry."Unit Price";
-            Description := TempO365ItemBasketEntry.Description;
+                Rec."Brick Text 2" := Format(TempO365ItemBasketEntry."Line Total", 0, '<Precision,2><Standard Format,0>');
+            Rec.Quantity := TempO365ItemBasketEntry.Quantity;
+            Rec."Unit Price" := TempO365ItemBasketEntry."Unit Price";
+            Rec.Description := TempO365ItemBasketEntry.Description;
         end;
     end;
 
@@ -196,25 +196,25 @@ page 2124 "O365 Item Basket Part"
 
     local procedure CopyFiltersToItem(var Item: Record Item)
     begin
-        FilterGroup(-1);
+        Rec.FilterGroup(-1);
         Item.FilterGroup(-1);
-        CopyFilter(Description, Item.Description);
-        CopyFilter("Item No.", Item."No.");
-        CopyFilter("Unit Price", Item."Unit Price");
-        CopyFilter("Base Unit of Measure", Item."Base Unit of Measure");
-        FilterGroup(0);
+        Rec.CopyFilter(Description, Item.Description);
+        Rec.CopyFilter("Item No.", Item."No.");
+        Rec.CopyFilter("Unit Price", Item."Unit Price");
+        Rec.CopyFilter("Base Unit of Measure", Item."Base Unit of Measure");
+        Rec.FilterGroup(0);
         Item.FilterGroup(0);
         Item.SetCurrentKey(Description);
-        if Item.Get("Item No.") then;
+        if Item.Get(Rec."Item No.") then;
     end;
 
     local procedure GetBasketEntry(var O365ItemBasketEntry: Record "O365 Item Basket Entry")
     begin
-        if O365ItemBasketEntry.Get("Item No.") then
+        if O365ItemBasketEntry.Get(Rec."Item No.") then
             exit;
         O365ItemBasketEntry.Init();
-        O365ItemBasketEntry."Item No." := "Item No.";
-        O365ItemBasketEntry.Description := Description;
+        O365ItemBasketEntry."Item No." := Rec."Item No.";
+        O365ItemBasketEntry.Description := Rec.Description;
         O365ItemBasketEntry.Insert();
     end;
 
@@ -235,7 +235,7 @@ page 2124 "O365 Item Basket Part"
         if TempO365ItemBasketEntry.Quantity <= 0 then
             TempO365ItemBasketEntry.Delete()
         else begin
-            TempO365ItemBasketEntry."Unit Price" := "Unit Price";
+            TempO365ItemBasketEntry."Unit Price" := Rec."Unit Price";
             TempO365ItemBasketEntry."Line Total" := Round(TempO365ItemBasketEntry.Quantity * TempO365ItemBasketEntry."Unit Price");
             TempO365ItemBasketEntry.Modify();
         end;
@@ -244,16 +244,16 @@ page 2124 "O365 Item Basket Part"
 
     local procedure CopyFromItem(var Item: Record Item)
     begin
-        if not Get(Item."No.") then begin
-            Init();
-            "Item No." := Item."No.";
-            "Unit Price" := Item."Unit Price";
-            Description := Item.Description;
-            "Base Unit of Measure" := Item."Base Unit of Measure";
-            Picture := Item.Picture;
-            Insert();
+        if not Rec.Get(Item."No.") then begin
+            Rec.Init();
+            Rec."Item No." := Item."No.";
+            Rec."Unit Price" := Item."Unit Price";
+            Rec.Description := Item.Description;
+            Rec."Base Unit of Measure" := Item."Base Unit of Measure";
+            Rec.Picture := Item.Picture;
+            Rec.Insert();
         end else
-            Modify();
+            Rec.Modify();
     end;
 
     procedure SetSalesLines(var OrgSalesLine: Record "Sales Line")

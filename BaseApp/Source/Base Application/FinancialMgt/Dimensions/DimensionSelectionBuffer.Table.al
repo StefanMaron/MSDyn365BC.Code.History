@@ -1,3 +1,11 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.GeneralLedger.Account;
+
 table 368 "Dimension Selection Buffer"
 {
     Caption = 'Dimension Selection Buffer';
@@ -31,11 +39,11 @@ table 368 "Dimension Selection Buffer"
         {
             Caption = 'New Dimension Value Code';
             DataClassification = SystemMetadata;
-            TableRelation = IF (Code = CONST('G/L Account')) "G/L Account"."No."
-            ELSE
-            IF (Code = CONST('Business Unit')) "Business Unit".Code
-            ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code), Blocked = CONST(false));
+            TableRelation = if (Code = const('G/L Account')) "G/L Account"."No."
+            else
+            if (Code = const('Business Unit')) "Business Unit".Code
+            else
+            "Dimension Value".Code where("Dimension Code" = field(Code), Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -46,15 +54,15 @@ table 368 "Dimension Selection Buffer"
         {
             Caption = 'Dimension Value Filter';
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Filter Lookup Table No." = CONST(15)) "G/L Account"."No."
-            ELSE
-            IF ("Filter Lookup Table No." = CONST(220)) "Business Unit".Code
-            ELSE
-            IF ("Filter Lookup Table No." = CONST(841)) "Cash Flow Account"."No."
-            ELSE
-            IF ("Filter Lookup Table No." = CONST(840)) "Cash Flow Forecast"."No."
-            ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code), Blocked = CONST(false));
+            TableRelation = if ("Filter Lookup Table No." = const(15)) "G/L Account"."No."
+            else
+            if ("Filter Lookup Table No." = const(220)) "Business Unit".Code
+            else
+            if ("Filter Lookup Table No." = const(841)) "Cash Flow Account"."No."
+            else
+            if ("Filter Lookup Table No." = const(840)) "Cash Flow Forecast"."No."
+            else
+            "Dimension Value".Code where("Dimension Code" = field(Code), Blocked = const(false));
             ValidateTableRelation = false;
 
             trigger OnValidate()

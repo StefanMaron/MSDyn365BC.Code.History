@@ -1,4 +1,10 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
 page 327 "Intrastat Jnl. Batches"
 {
     Caption = 'Intrastat Jnl. Batches';
@@ -102,7 +108,7 @@ page 327 "Intrastat Jnl. Batches"
 
     trigger OnInit()
     begin
-        SetRange("Journal Template Name");
+        Rec.SetRange("Journal Template Name");
     end;
 
     trigger OnOpenPage()
@@ -118,9 +124,9 @@ page 327 "Intrastat Jnl. Batches"
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
     begin
         if not CurrPage.LookupMode then
-            if (GetFilter("Journal Template Name") <> '') and (GetFilter("Journal Template Name") <> '''''') then
-                if GetRangeMin("Journal Template Name") = GetRangeMax("Journal Template Name") then
-                    if IntraJnlTemplate.Get(GetRangeMin("Journal Template Name")) then
+            if (Rec.GetFilter("Journal Template Name") <> '') and (Rec.GetFilter("Journal Template Name") <> '''''') then
+                if Rec.GetRangeMin("Journal Template Name") = Rec.GetRangeMax("Journal Template Name") then
+                    if IntraJnlTemplate.Get(Rec.GetRangeMin("Journal Template Name")) then
                         exit(IntraJnlTemplate.Name + ' ' + IntraJnlTemplate.Description);
     end;
 }

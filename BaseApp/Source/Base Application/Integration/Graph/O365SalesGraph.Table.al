@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+#if not CLEAN21
+using System.Azure.Identity;
+#endif
+
 table 2190 "O365 Sales Graph"
 {
     Caption = 'O365 Sales Graph';

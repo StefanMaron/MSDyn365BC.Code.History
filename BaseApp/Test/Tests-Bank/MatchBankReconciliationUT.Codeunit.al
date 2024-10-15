@@ -229,7 +229,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     end;
 
     [Test]
-    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure OneBankEntryMoreRecLinesDateRange()
     var
@@ -271,7 +271,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     end;
 
     [Test]
-    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure OneBankEntryMoreRecLinesDateVsRange()
     var
@@ -1248,7 +1248,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     end;
 
     [Test]
-    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure VerifyBankEntryMatchToExactBankAccReconciliationLine()
     var
@@ -1290,7 +1290,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     end;
 
     [Test]
-    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler')]
     procedure MatchToSimilarLinesShouldBeKept()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -1417,10 +1417,15 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
     local procedure Initialize()
     var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
         LibraryApplicationArea.EnableFoundationSetup();
+        BankAccReconciliationLine.DeleteAll();
+        BankAccReconciliation.DeleteAll();
+
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Match Bank Reconciliation - UT");

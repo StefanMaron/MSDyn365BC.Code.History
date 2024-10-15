@@ -21,9 +21,6 @@ codeunit 136316 "Job Jnl. Error Handling"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
-#if not CLEAN20
-        FeatureManagement: Codeunit "Feature Management Facade";
-#endif
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
         SkipCheckText: Label 'SkipCheckCustomerAssosEntriesExist';
         IsInitialized: Boolean;

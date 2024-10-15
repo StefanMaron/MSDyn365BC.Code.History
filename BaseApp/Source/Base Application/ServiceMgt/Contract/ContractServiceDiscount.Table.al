@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Item;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+
 table 5972 "Contract/Service Discount"
 {
     Caption = 'Contract/Service Discount';
@@ -13,26 +20,24 @@ table 5972 "Contract/Service Discount"
         field(2; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = IF ("Contract Type" = CONST(Template)) "Service Contract Template"."No."
-            ELSE
-            IF ("Contract Type" = CONST(Contract)) "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract))
-            ELSE
-            IF ("Contract Type" = CONST(Quote)) "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Quote));
+            TableRelation = if ("Contract Type" = const(Template)) "Service Contract Template"."No."
+            else
+            if ("Contract Type" = const(Contract)) "Service Contract Header"."Contract No." where("Contract Type" = const(Contract))
+            else
+            if ("Contract Type" = const(Quote)) "Service Contract Header"."Contract No." where("Contract Type" = const(Quote));
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Service Contract Discount Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Service Item Group,Resource Group,Cost';
-            OptionMembers = "Service Item Group","Resource Group",Cost;
         }
         field(5; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST("Service Item Group")) "Service Item Group".Code
-            ELSE
-            IF (Type = CONST("Resource Group")) "Resource Group"."No."
-            ELSE
-            IF (Type = CONST(Cost)) "Service Cost".Code;
+            TableRelation = if (Type = const("Service Item Group")) "Service Item Group".Code
+            else
+            if (Type = const("Resource Group")) "Resource Group"."No."
+            else
+            if (Type = const(Cost)) "Service Cost".Code;
             //This property is currently not supported
             //TestTableRelation = true;
         }

@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Resources;
+
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Document;
+
 page 6023 "Skilled Resource List"
 {
     Caption = 'Skilled Resource List';
@@ -55,7 +60,7 @@ page 6023 "Skilled Resource List"
     trigger OnAfterGetRecord()
     begin
         Clear(ServOrderAllocMgt);
-        Qualified := ServOrderAllocMgt.ResourceQualified("No.", ResourceSkillType, ResourceSkillNo);
+        Qualified := ServOrderAllocMgt.ResourceQualified(Rec."No.", ResourceSkillType, ResourceSkillNo);
     end;
 
     var

@@ -22,9 +22,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        ErrMessageNotFoundZeroAmt: Label 'The sum of amounts must be zero.';
-        ErrMessageAmountDoNotMatch: Label 'The WIP amount totals must be equal.';
-        FlushingMethod: Enum "Flushing Method";
+        NotFoundZeroAmtErr: Label 'The sum of amounts must be zero.';
+        AmountDoNotMatchErr: Label 'The WIP amount totals must be equal.';
         SubcontractFlushingMethod: Enum "Flushing Method";
         UnitCostCalculation: Option Time,Units;
 
@@ -446,7 +445,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ChildItem."No.", ParentItem."No."), '');
 
         // [THEN] Cost of work in process is 0
-        Assert.AreEqual(0, CalcProdOrderWIPAmount(ProductionOrder."No."), ErrMessageNotFoundZeroAmt);
+        Assert.AreEqual(0, CalcProdOrderWIPAmount(ProductionOrder."No."), NotFoundZeroAmtErr);
     end;
 
     [Test]
@@ -477,8 +476,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         // [GIVEN] Post output of the same item "I" in the production order "I" on 05.01.2020
         PostOutput(ProductionOrder."No.", ProdOrderLine[1]."Line No.", WorkDate(), Item."No.", Qty);
-        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate + 1, Item."No.", Qty);
-        PostOutput(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate + 1, Item."No.", Qty);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate() + 1, Item."No.", Qty);
+        PostOutput(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate() + 1, Item."No.", Qty);
 
         // [GIVEN] Change status of the production order to "Finished"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
@@ -488,7 +487,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         // [THEN] Valuation date of the consumption entry is 10.10.2020
         VerifyValueEntryValuationDate(
-          ProdOrderLine[2], Item."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate + 1, WorkDate + 1);
+          ProdOrderLine[2], Item."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate() + 1, WorkDate() + 1);
 
         // [THEN] Valuation date of the output entry is 05.10.2020
         VerifyValueEntryValuationDate(ProdOrderLine[1], Item."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate());
@@ -523,12 +522,12 @@ codeunit 137004 "SCM WIP Costing Production-II"
         PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate(), Item[2]."No.", Qty);
 
         // [WHEN] Post consumption of the component "CI" on 10.01.2020
-        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate + 1, Item[1]."No.", Qty);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 1, Item[1]."No.", Qty);
 
         // [THEN] Valuation date of the output is updated to match the date of the consumption. Both entries have valuation date = 10.01.2020
         VerifyValueEntryValuationDate(
-          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate + 1, WorkDate + 1);
-        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate + 1);
+          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate() + 1, WorkDate() + 1);
+        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate() + 1);
     end;
 
     [Test]
@@ -558,15 +557,15 @@ codeunit 137004 "SCM WIP Costing Production-II"
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
 
         // [GIVEN] Post consumption of the component "CI" on 10.01.2020
-        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate + 1, Item[1]."No.", Qty);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 1, Item[1]."No.", Qty);
 
         // [WHEN] Post output of the item "PI" on 05.01.2020
         PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate(), Item[2]."No.", Qty);
 
         // [THEN] Output is posted with valuation date 10.01.2020
         VerifyValueEntryValuationDate(
-          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate + 1, WorkDate + 1);
-        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate + 1);
+          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate() + 1, WorkDate() + 1);
+        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate() + 1);
     end;
 
     [Test]
@@ -600,24 +599,24 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [GIVEN] Post output of item "CI" on 01.01.2020
         PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate(), Item[2]."No.", 1);
         // [GIVEN] Post output of item "CI" on 02.01.2020
-        PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate + 1, Item[2]."No.", 1);
+        PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 1, Item[2]."No.", 1);
         // [GIVEN] Post output of item "CI" on 04.01.2020
-        PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate + 3, Item[2]."No.", 1);
+        PostOutput(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 3, Item[2]."No.", 1);
 
         // [WHEN] Post consumption of item "CI" on 03.01.2020
-        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate + 2, Item[1]."No.", Qty mod 2);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine."Line No.", WorkDate() + 2, Item[1]."No.", Qty mod 2);
 
         // [THEN] Consumption entries are valued on the dates they were posted (01.01.2020 and 03.01.2020)
         VerifyValueEntryValuationDate(ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate(), WorkDate());
         VerifyValueEntryValuationDate(
-          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate + 2, WorkDate + 2);
+          ProdOrderLine, Item[1]."No.", ValueEntry."Item Ledger Entry Type"::Consumption, WorkDate() + 2, WorkDate() + 2);
 
         // [THEN] Output entries posted before the latest consumption (03.01.2020) are moved to match the consumption valuation date
-        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate + 2);
-        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate + 1, WorkDate + 2);
+        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate(), WorkDate() + 2);
+        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate() + 1, WorkDate() + 2);
 
         // [THEN] Output entry posted after consumption (04.01.2020) has not changed
-        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate + 3, WorkDate + 3);
+        VerifyValueEntryValuationDate(ProdOrderLine, Item[2]."No.", ValueEntry."Item Ledger Entry Type"::Output, WorkDate() + 3, WorkDate() + 3);
     end;
 
     [Test]
@@ -651,16 +650,16 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryManufacturing.CreateProdOrderLine(ProdOrderLine[2], ProductionOrder.Status, ProductionOrder."No.", Item[2]."No.", '', '', 1);
 
         // [GIVEN] Post consumption: Prod. order line 1, Item "I2", quantity = 1, posting date 02.01.2020
-        PostConsumption(ProductionOrder."No.", ProdOrderLine[1]."Line No.", WorkDate + 1, Item[2]."No.", 1);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine[1]."Line No.", WorkDate() + 1, Item[2]."No.", 1);
 
         // [GIVEN] Post output: Prod. order line 1, Item "I3", quantity = 1, posting date 03.01.2020
-        PostOutput(ProductionOrder."No.", ProdOrderLine[1]."Line No.", WorkDate + 2, Item[3]."No.", 1);
+        PostOutput(ProductionOrder."No.", ProdOrderLine[1]."Line No.", WorkDate() + 2, Item[3]."No.", 1);
 
         // [GIVEN] Post consumption: Prod. order line 2, Item "I3", quantity = 1, posting date 04.01.2020
-        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate + 3, Item[3]."No.", 1);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate() + 3, Item[3]."No.", 1);
 
         // [GIVEN] Post consumption: Prod. order line 2, Item "I1", quantity = 10, posting date 02.01.2020. This entry brings additional cost into production cycle.
-        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate + 1, Item[1]."No.", 10);
+        PostConsumption(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate() + 1, Item[1]."No.", 10);
 
         // [GIVEN] Post output: Prod. order line 2, Item "I2", quantity = 1, posting date 01.01.2020
         PostOutput(ProductionOrder."No.", ProdOrderLine[2]."Line No.", WorkDate(), Item[2]."No.", 1);
@@ -672,11 +671,11 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', Item[2]."No.", Item[3]."No."), '');
 
         // [THEN] Cost amount of the consumption of item "I2" on 02.01.2020 is -15
-        VerifyItemLedgerEntry(Item[2]."No.", ItemLedgerEntry."Entry Type"::Consumption, WorkDate + 1, -15);
+        VerifyItemLedgerEntry(Item[2]."No.", ItemLedgerEntry."Entry Type"::Consumption, WorkDate() + 1, -15);
         // [THEN] Cost amount of the output of item "I3" on 03.01.2020 is 15
-        VerifyItemLedgerEntry(Item[3]."No.", ItemLedgerEntry."Entry Type"::Output, WorkDate + 2, 15);
+        VerifyItemLedgerEntry(Item[3]."No.", ItemLedgerEntry."Entry Type"::Output, WorkDate() + 2, 15);
         // [THEN] Cost amount of the consumption of item "I3" on 04.01.2020 is -15
-        VerifyItemLedgerEntry(Item[3]."No.", ItemLedgerEntry."Entry Type"::Consumption, WorkDate + 3, -15);
+        VerifyItemLedgerEntry(Item[3]."No.", ItemLedgerEntry."Entry Type"::Consumption, WorkDate() + 3, -15);
         // [THEN] Cost amount of the output of item "I2" on 01.01.2020 is 35
         VerifyItemLedgerEntry(Item[2]."No.", ItemLedgerEntry."Entry Type"::Output, WorkDate(), 35);
     end;
@@ -709,13 +708,10 @@ codeunit 137004 "SCM WIP Costing Production-II"
         InventorySetup: Record "Inventory Setup";
         ItemJournalBatch: Record "Item Journal Batch";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         TempPurchaseLine: Record "Purchase Line" temporary;
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -728,9 +724,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ParentItemNo: Code[20];
+        ComponentItemNos: array[3] of Code[20];
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
         AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type";
@@ -743,15 +738,14 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // 1. Create required WIP setups with Flushing method as Manual with Subcontract.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        RaiseConfirmHandler;
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
+        RaiseConfirmHandler();
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
         if AdditionalCurrencyExist then
-            CurrencyCode := UpdateAddnlReportingCurrency
+            CurrencyCode := UpdateAddnlReportingCurrency()
         else
             LibraryERM.SetAddReportingCurrency('');
 
@@ -771,51 +765,46 @@ codeunit 137004 "SCM WIP Costing Production-II"
         CreateRouting(RoutingNo, MachineCenterNo, MachineCenterNo2, WorkCenterNo, WorkCenterNo2);
 
         // Create Items with Flushing method - Manual with the Parent Item containing Routing No. and Production BOM No.
-        CreateItem(Item, CostingMethod, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        CreateItem(Item, CostingMethod, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        if UpdateProductionComponent then begin
-            CreateItem(Item, Item."Costing Method"::Standard, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
-            ItemNo3 := Item."No.";
-            Clear(Item);
-        end;
+        ComponentItemNos[1] := CreateItem(CostingMethod, Enum::"Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
+        ComponentItemNos[2] := CreateItem(CostingMethod, Enum::"Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
+
+        if UpdateProductionComponent then
+            ComponentItemNos[3] := CreateItem(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", FlushingMethod, '', '');
+
         ProductionBOMNo :=
           LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, 1); // value imporatant.
-        CreateItem(Item, CostingMethod, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod, RoutingNo, ProductionBOMNo);
+            ProductionBOMHeader, ComponentItemNos[1], ComponentItemNos[2], 1); // value important.
+        ParentItemNo := CreateItem(CostingMethod, Enum::"Reordering Policy"::"Lot-for-Lot", FlushingMethod, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for Parent Item, if Costing Method is Standard.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
-        if Item."Costing Method" = Item."Costing Method"::Standard then
-            CalculateStandardCost.CalcItem(Item."No.", false);
+        if CostingMethod = Enum::"Costing Method"::Standard then
+            CalculateStandardCost.CalcItem(ParentItemNo, false);
         CalculateCalendar(MachineCenterNo, MachineCenterNo2, WorkCenterNo, WorkCenterNo2);
         if not AdditionalCurrencyExist then
             CreatePurchaseOrder(
-              PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, ItemNo3, LibraryRandom.RandInt(100) + 10,
-              LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 50, UpdateProductionComponent)
+              PurchaseHeader, ComponentItemNos[1], ComponentItemNos[2], ComponentItemNos[3], LibraryRandom.RandIntInRange(10, 100) + 10,
+              LibraryRandom.RandIntInRange(10, 100) + 10, LibraryRandom.RandIntInRange(10, 100) + 50, UpdateProductionComponent)
         else
-            CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, ItemNo3,
-              LibraryRandom.RandInt(100) + 10, UpdateProductionComponent);
+            CreatePurchaseOrderAddnlCurr(PurchaseHeader, CurrencyCode, ComponentItemNos[1], ComponentItemNos[2], ComponentItemNos[3],
+              LibraryRandom.RandIntInRange(10, 100) + 10, UpdateProductionComponent);
 
         if AdjustExchangeRatesGLSetup then begin
             UpdateExchangeRate(CurrencyCode);
-#if not CLEAN20
+#if not CLEAN23
             LibraryERM.RunAdjustExchangeRates(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID, true);
+              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
 #else
             LibraryERM.RunExchRateAdjustment(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID, true);
+              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
 #endif
         end;
 
         // Create and Refresh Production Order.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryManufacturing.CreateAndRefreshProductionOrder(
-          ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
+          ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ParentItemNo, LibraryRandom.RandInt(10) + 5);
         if UpdateProdOrderRouting then begin
             MachineCenter.Get(MachineCenterNo3);
             LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
@@ -832,18 +821,18 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
         // Remove one component from Production Order and Replace it with a New Component.
         if UpdateProductionComponent then
-            ReplaceProdOrderComponent(ProductionOrder."No.", ItemNo2, Item."No.", ItemNo3);
+            ReplaceProdOrderComponent(ProductionOrder."No.", ComponentItemNos[2], ParentItemNo, ComponentItemNos[3]);
 
         // Create, Calculate and Post Consumption Journal, Explode Routing and Post Output Journal.
-        if Item."Flushing Method" = Item."Flushing Method"::Manual then begin
+        if FlushingMethod = Enum::"Flushing Method"::Manual then begin
             LibraryInventory.CreateItemJournal(
-              ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Consumption, ProductionOrder."No.");
+              ItemJournalBatch, ComponentItemNos[1], ItemJournalBatch."Template Type"::Consumption, ProductionOrder."No.");
             if DeleteConsumptionJrnl then
-                RemoveProdOrderComponent(ProductionOrder."No.", ItemNo);
+                RemoveProdOrderComponent(ProductionOrder."No.", ComponentItemNos[1]);
             if ConsumptionCostDiff then
-                UpdateQtyConsumptionJournal(ProductionOrder."No.", ItemNo2);
+                UpdateQtyConsumptionJournal(ProductionOrder."No.", ComponentItemNos[2]);
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-            LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo3, ItemJournalBatch."Template Type"::Output, ProductionOrder."No.");
+            LibraryInventory.CreateItemJournal(ItemJournalBatch, ComponentItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrder."No.");
             if OutputCostDiff then
                 UpdateLessQtyOutputJournal(ProductionOrder."No.", ProductionOrder.Quantity);
             if RunSetupTimeCostDiff then begin
@@ -869,11 +858,11 @@ codeunit 137004 "SCM WIP Costing Production-II"
         else
             ProductionOrder.SetRange("No.", ProductionOrder."No.");
         ProductionOrder.FindFirst();
-        AdjustCostPostInventoryCostGL(ItemNo + '..' + ItemNo3);
+        AdjustCostPostInventoryCostGL(ComponentItemNos[1] + '..' + ComponentItemNos[3]);
 
         // 3. Verify GL Entry : Total amount and Positive amount entries for WIP Account.
         VerifyGLEntryForWIPAccounts(
-          TempPurchaseLine, ItemNo, ProductionOrder."No.", CurrencyCode, SetupTime, RunTime, AdditionalCurrencyExist);
+          TempPurchaseLine, ComponentItemNos[1], ProductionOrder."No.", CurrencyCode, SetupTime, RunTime, AdditionalCurrencyExist);
     end;
 
     local procedure CalcItemStandardCost(ItemNo: Code[20])
@@ -1019,7 +1008,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenterNo);
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo);
         RoutingLine.Validate("Run Time", RunTime);
         RoutingLine.Modify(true);
 
@@ -1028,7 +1017,11 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
+    local procedure CreateItem(
+        ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method";
+        RoutingNo: Code[20]; ProductionBOMNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
     begin
         // Create Item with required fields where random values not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1036,6 +1029,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Item.Validate("Overhead Rate", LibraryRandom.RandDec(5, 2));
         Item.Validate("Indirect Cost %", LibraryRandom.RandDec(5, 2));
         Item.Modify(true);
+
+        exit(Item."No.");
     end;
 
     local procedure CreateItemNoIndirectCost(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoundingPrecision: Decimal; RoutingNo: Code[20]; ProdBOMNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System")
@@ -1057,7 +1052,9 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure CreatePurchaseOrderAddnlCurr(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Qty: Decimal; UpdateProductionComponent: Boolean)
+    local procedure CreatePurchaseOrderAddnlCurr(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Qty: Decimal; UpdateProductionComponent: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseHeaderAddnlCurr(PurchaseHeader, CurrencyCode);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, ItemNo, Qty);
@@ -1159,7 +1156,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Create new Currency code and set Residual Gains Account and Residual Losses Account for Currency.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Commit();
 
         // Update Additional Reporting Currency on G/L setup to execute Adjust Additional Reporting Currency report.
@@ -1168,7 +1165,9 @@ codeunit 137004 "SCM WIP Costing Production-II"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Quantity: Decimal; Quantity2: Decimal; Quantity3: Decimal; UpdateProductionComponent: Boolean)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Quantity: Decimal; Quantity2: Decimal; Quantity3: Decimal; UpdateProductionComponent: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo, Quantity);
@@ -1715,7 +1714,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         until GLEntry.Next() = 0;
 
         // Verify total WIP Account amount is Zero.
-        Assert.AreEqual(TotalAmount, 0, ErrMessageNotFoundZeroAmt);
+        Assert.AreEqual(TotalAmount, 0, NotFoundZeroAmtErr);
     end;
 
     local procedure VerifyValueEntryValuationDate(ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ExpectedValuationDate: Date)
@@ -1778,7 +1777,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         if not AdditionalCurrencyExist then
             Assert.AreNearlyEqual(
               Round(CalculatedWIPAmount, GeneralLedgerSetup."Amount Rounding Precision"), TotalAmount,
-              2 * GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch)
+              2 * GeneralLedgerSetup."Amount Rounding Precision", AmountDoNotMatchErr)
         else
             VerifyWIPAmountsAddCurr(CurrencyCode, TotalAmount, CalculatedWIPAmount);
     end;
@@ -1794,7 +1793,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Assert.AreNearlyEqual(
           Round(
             CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount" * CalculatedWIPAmount,
-            Currency."Amount Rounding Precision"), TotalAmount, 2 * Currency."Invoice Rounding Precision", ErrMessageAmountDoNotMatch);
+            Currency."Amount Rounding Precision"), TotalAmount, 2 * Currency."Invoice Rounding Precision", AmountDoNotMatchErr);
     end;
 
     [Normal]

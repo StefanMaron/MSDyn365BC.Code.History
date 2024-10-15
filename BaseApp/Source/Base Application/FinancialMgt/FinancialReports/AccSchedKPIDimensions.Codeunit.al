@@ -1,3 +1,15 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CostAccounting.Account;
+using Microsoft.CostAccounting.Budget;
+using Microsoft.CostAccounting.Ledger;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Ledger;
+
 codeunit 9 "Acc. Sched. KPI Dimensions"
 {
     TableNo = "Acc. Schedule Line";
@@ -839,19 +851,18 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
 
     procedure PassToResult(AccSchedLineShow: Enum "Acc. Schedule Line Show"; Balance: Decimal) BalanceIsOK: Boolean
     begin
+        BalanceIsOK := true;
         case AccSchedLineShow of
-            "Acc. Schedule Line Show"::"When Positive Balance":
+            AccSchedLineShow::"When Positive Balance":
                 if Balance > 0 then
                     BalanceIsOK := true
                 else
                     BalanceIsOK := false;
-            "Acc. Schedule Line Show"::"When Negative Balance":
+            AccSchedLineShow::"When Negative Balance":
                 if Balance < 0 then
                     BalanceIsOK := true
                 else
                     BalanceIsOK := false;
-            else
-                BalanceIsOK := true;
         end;
         exit(BalanceIsOK);
     end;

@@ -1,3 +1,14 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.Assembly.Document;
+using Microsoft.HumanResources.Absence;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Service.Document;
+
 page 971 "Activity Details FactBox"
 {
     Caption = 'Activity Details';
@@ -8,7 +19,7 @@ page 971 "Activity Details FactBox"
     {
         area(content)
         {
-            field(Comment; Comment)
+            field(Comment; Rec.Comment)
             {
                 ApplicationArea = Comments;
                 Caption = 'Line Comment';
@@ -80,38 +91,38 @@ page 971 "Activity Details FactBox"
         ServiceOrders: Page "Service Orders";
         AssemblyOrders: Page "Assembly Orders";
     begin
-        case Type of
-            Type::Job:
+        case Rec.Type of
+            Rec.Type::Job:
                 begin
                     Clear(JobList);
-                    if "Job No." <> '' then begin
-                        Job.Get("Job No.");
+                    if Rec."Job No." <> '' then begin
+                        Job.Get(Rec."Job No.");
                         JobList.SetRecord(Job);
                     end;
                     JobList.RunModal();
                 end;
-            Type::Absence:
+            Rec.Type::Absence:
                 begin
                     Clear(CausesOfAbsence);
-                    if "Cause of Absence Code" <> '' then begin
-                        CauseOfAbsence.Get("Cause of Absence Code");
+                    if Rec."Cause of Absence Code" <> '' then begin
+                        CauseOfAbsence.Get(Rec."Cause of Absence Code");
                         CausesOfAbsence.SetRecord(CauseOfAbsence);
                     end;
                     CausesOfAbsence.RunModal();
                 end;
-            Type::Service:
+            Rec.Type::Service:
                 begin
                     Clear(ServiceOrders);
-                    if "Service Order No." <> '' then
-                        if ServiceHeader.Get(ServiceHeader."Document Type"::Order, "Service Order No.") then
+                    if Rec."Service Order No." <> '' then
+                        if ServiceHeader.Get(ServiceHeader."Document Type"::Order, Rec."Service Order No.") then
                             ServiceOrders.SetRecord(ServiceHeader);
                     ServiceOrders.RunModal();
                 end;
-            Type::"Assembly Order":
+            Rec.Type::"Assembly Order":
                 begin
                     Clear(AssemblyOrders);
-                    if "Assembly Order No." <> '' then
-                        if AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Assembly Order No.") then
+                    if Rec."Assembly Order No." <> '' then
+                        if AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, Rec."Assembly Order No.") then
                             AssemblyOrders.SetRecord(AssemblyHeader);
                     AssemblyOrders.RunModal();
                 end;
@@ -128,10 +139,10 @@ page 971 "Activity Details FactBox"
         if IsHandled then
             exit;
 
-        if Type = Type::Job then begin
+        if Rec.Type = Rec.Type::Job then begin
             Clear(JobTaskList);
-            if "Job Task No." <> '' then begin
-                JobTask.Get("Job No.", "Job Task No.");
+            if Rec."Job Task No." <> '' then begin
+                JobTask.Get(Rec."Job No.", Rec."Job Task No.");
                 JobTaskList.SetRecord(JobTask);
             end;
             JobTaskList.RunModal();

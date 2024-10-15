@@ -1,4 +1,16 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
+using System.Environment;
+using System.Utilities;
+
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
@@ -14,7 +26,7 @@ report 502 "Intrastat - Checklist"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             column(IntrastatJnlBatJnlTemName; "Journal Template Name")
             {
@@ -24,8 +36,8 @@ report 502 "Intrastat - Checklist"
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", Area);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", Area);
                 RequestFilterFields = Type;
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
@@ -209,7 +221,7 @@ report 502 "Intrastat - Checklist"
                 }
                 dataitem(Errorloop; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
                     column(ErrortextNumber; Errortext[Number])
                     {
                     }

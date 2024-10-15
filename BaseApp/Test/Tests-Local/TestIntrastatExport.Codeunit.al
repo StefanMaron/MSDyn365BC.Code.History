@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 144052 "Test Intrastat Export"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072    
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072    
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -309,28 +315,6 @@ codeunit 144052 "Test Intrastat Export"
           'http://www.nbb.be/doc/DQ/f_pdf_ex/declarationReport%20-%20Domain%20SXX.XSD');
         */
 
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnEmptyMandatoryField()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [SCENARIO 120548] Export Intrastat with empty Transaction Type
-
-        // [GIVEN] Intrastat Journal Line with empty Transaction Type
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Intrastat exported to file
-        asserterror CreateFile(IntrastatJnlBatch, IntrastatJnlLine, KBONumberTxt, false, false);
-
-        // [THEN] Error message appears
-        Assert.ExpectedError(ReqFieldValMissingErr);
     end;
 
     [Test]
@@ -1287,3 +1271,4 @@ codeunit 144052 "Test Intrastat Export"
     end;
 }
 
+#endif

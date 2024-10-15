@@ -41,6 +41,7 @@ codeunit 144051 TELEBANK
         GLAccount: Record "G/L Account";
         CustomerBankAccount: Record "Customer Bank Account";
         VendorBankAccount: Record "Vendor Bank Account";
+        FileInternationalPayments: Report "File International Payments";
         StringObject: DotNet String;
         FileObject: DotNet File;
         ServerFilename: Text;
@@ -93,7 +94,6 @@ codeunit 144051 TELEBANK
         ServerFilename := FileManagement.ServerTempFileName('txt');
         FileManagement.DeleteServerFile(ServerFilename);
         Assert.IsFalse(FileManagement.ServerFileExists(ServerFilename), 'Expected the Server file to be deleted');
-        LibraryVariableStorage.Enqueue(ServerFilename);
 
         // Update the electronic banking setup
         LibraryUtility.CreateNoSeries(UploadNoSeries, true, true, false);
@@ -156,7 +156,9 @@ codeunit 144051 TELEBANK
 
         // Exersice
         Commit();
-        REPORT.Run(REPORT::"File International Payments");
+        FileInternationalPayments.SetFileName(ServerFilename);
+        FileInternationalPayments.UseRequestPage(true);
+        FileInternationalPayments.Run();
 
         // Validate
         Assert.IsTrue(FileManagement.ServerFileExists(ServerFilename), 'Expected the report to generate a Server file');
@@ -192,11 +194,7 @@ codeunit 144051 TELEBANK
             LibraryVariableStorage.Dequeue(VariantValue);
             InscriptionNo.SetValue(VariantValue); // Inscription No.
 
-            LibraryVariableStorage.Dequeue(VariantValue);
-            FileName.SetValue(VariantValue); // File Name
-
             SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
         end;
     end;
 }
-

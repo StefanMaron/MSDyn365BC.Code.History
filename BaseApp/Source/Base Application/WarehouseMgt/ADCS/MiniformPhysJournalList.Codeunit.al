@@ -1,3 +1,9 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using Microsoft.Warehouse.Journal;
+using System;
+using System.Xml;
+
 codeunit 7712 "Miniform Phys. Journal List"
 {
     TableNo = "Miniform Header";
@@ -11,7 +17,7 @@ codeunit 7712 "Miniform Phys. Journal List"
           RootNode, XMLDOMMgt, ADCSCommunication, ADCSUserId,
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
-        if Code <> CurrentCode then
+        if Rec.Code <> CurrentCode then
             PrepareData()
         else
             ProcessSelection();

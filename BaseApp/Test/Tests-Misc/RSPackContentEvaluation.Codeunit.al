@@ -672,17 +672,17 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
         Initialize();
 
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
     end;
 
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
     var
-        ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])

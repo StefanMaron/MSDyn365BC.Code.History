@@ -420,7 +420,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // 1. Setup: Create and modify Location and Items.Post Item Journal.Create and Refresh Prod. Order.
         Initialize(false);
-        LocationCode := CreateAndModifyLocationCode;
+        LocationCode := CreateAndModifyLocationCode();
         CreateAndModifyItem(Item, Item."Replenishment System"::"Prod. Order", '', '', '');
         CreateAndModifyItem(
           Item2, Item."Replenishment System"::Purchase, CreateAndModifyItemTrackingCode, LibraryUtility.GetGlobalNoSeriesCode, '');
@@ -1209,7 +1209,10 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
+        Location.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
         Location.Modify(true);
         exit(Location.Code);
     end;

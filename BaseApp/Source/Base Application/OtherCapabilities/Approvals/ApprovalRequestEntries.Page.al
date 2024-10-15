@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Automation;
+
+using System.Security.User;
+
 page 662 "Approval Request Entries"
 {
     ApplicationArea = Suite;
@@ -59,7 +67,7 @@ page 662 "Approval Request Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("Sender ID");
+                        UserMgt.DisplayUserInformation(Rec."Sender ID");
                     end;
                 }
                 field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
@@ -76,7 +84,7 @@ page 662 "Approval Request Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("Approver ID");
+                        UserMgt.DisplayUserInformation(Rec."Approver ID");
                     end;
                 }
                 field(Status; Rec.Status)
@@ -103,10 +111,10 @@ page 662 "Approval Request Entries"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("Last Modified By User ID");
+                        UserMgt.DisplayUserInformation(Rec."Last Modified By User ID");
                     end;
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether there are comments relating to the approval of the record. If you want to read the comments, choose the field to open the Approval Comment Sheet window.';
@@ -170,7 +178,7 @@ page 662 "Approval Request Entries"
 
                     trigger OnAction()
                     begin
-                        ShowRecord();
+                        Rec.ShowRecord();
                     end;
                 }
                 action(Comments)
@@ -186,9 +194,9 @@ page 662 "Approval Request Entries"
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                         RecRef: RecordRef;
                     begin
-                        RecRef.Get("Record ID to Approve");
+                        RecRef.Get(Rec."Record ID to Approve");
                         Clear(ApprovalsMgmt);
-                        ApprovalsMgmt.GetApprovalCommentForWorkflowStepInstanceID(RecRef, "Workflow Step Instance ID");
+                        ApprovalsMgmt.GetApprovalCommentForWorkflowStepInstanceID(RecRef, Rec."Workflow Step Instance ID");
                     end;
                 }
                 action("O&verdue Entries")
@@ -200,8 +208,8 @@ page 662 "Approval Request Entries"
 
                     trigger OnAction()
                     begin
-                        SetFilter(Status, '%1|%2', Status::Created, Status::Open);
-                        SetFilter("Due Date", '<%1', Today);
+                        Rec.SetFilter(Status, '%1|%2', Rec.Status::Created, Rec.Status::Open);
+                        Rec.SetFilter("Due Date", '<%1', Today);
                     end;
                 }
                 action("All Entries")
@@ -213,8 +221,8 @@ page 662 "Approval Request Entries"
 
                     trigger OnAction()
                     begin
-                        SetRange(Status);
-                        SetRange("Due Date");
+                        Rec.SetRange(Status);
+                        Rec.SetRange("Due Date");
                     end;
                 }
             }
@@ -272,7 +280,7 @@ page 662 "Approval Request Entries"
     var
         RecRef: RecordRef;
     begin
-        ShowRecCommentsEnabled := RecRef.Get("Record ID to Approve");
+        ShowRecCommentsEnabled := RecRef.Get(Rec."Record ID to Approve");
     end;
 
     trigger OnAfterGetRecord()
@@ -281,21 +289,21 @@ page 662 "Approval Request Entries"
         if FormatField(Rec) then
             Overdue := Overdue::Yes;
 
-        RecordIDText := Format("Record ID to Approve", 0, 1);
+        RecordIDText := Format(Rec."Record ID to Approve", 0, 1);
     end;
 
     trigger OnOpenPage()
     begin
         if Usersetup.Get(UserId) then
             if not Usersetup."Approval Administrator" then begin
-                FilterGroup(2);
-                SetCurrentKey("Sender ID");
-                SetFilter("Sender ID", '=%1', Usersetup."User ID");
-                FilterGroup(0);
+                Rec.FilterGroup(2);
+                Rec.SetCurrentKey("Sender ID");
+                Rec.SetFilter("Sender ID", '=%1', Usersetup."User ID");
+                Rec.FilterGroup(0);
             end;
 
-        SetRange(Status);
-        SetRange("Due Date");
+        Rec.SetRange(Status);
+        Rec.SetRange("Due Date");
     end;
 
     var
@@ -306,7 +314,7 @@ page 662 "Approval Request Entries"
 
     local procedure FormatField(Rec: Record "Approval Entry"): Boolean
     begin
-        if Status in [Status::Created, Status::Open] then begin
+        if Rec.Status in [Rec.Status::Created, Rec.Status::Open] then begin
             if Rec."Due Date" < Today then
                 exit(true);
 

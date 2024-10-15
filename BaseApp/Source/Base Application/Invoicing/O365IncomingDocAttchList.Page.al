@@ -84,7 +84,7 @@ page 2122 "O365 Incoming Doc. Attch. List"
 
                 trigger OnAction()
                 begin
-                    Delete();
+                    Rec.Delete();
                     CurrPage.Update();
                 end;
             }

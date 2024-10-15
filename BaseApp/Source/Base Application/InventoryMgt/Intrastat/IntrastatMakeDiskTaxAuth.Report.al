@@ -1,4 +1,18 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
+using System;
+using System.Xml;
+
 report 593 "Intrastat - Make Disk Tax Auth"
 {
     Caption = 'Intrastat - Make Disk Tax Auth';
@@ -11,12 +25,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
     {
         dataitem(IntrastatJnlBatch; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", Area);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", Area);
                 RequestFilterFields = Type;
 
                 trigger OnAfterGetRecord()
@@ -410,18 +424,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Evaluate(Month, CopyStr(Period, 3, 2));
         exit(DMY2Date(1, Month, Year));
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    [Scope('OnPrem')]
-    procedure InitializeRequest(NewClientFileName: Text; NewThirdPartyVatRegNo: Text[30]; NewNihil: Boolean; NewCounterparty: Boolean)
-    begin
-        IntrastatFileWriter.SetServerFileName(NewClientFileName);
-        ThirdPartyVatRegNo := NewThirdPartyVatRegNo;
-        Nihil := NewNihil;
-        CounterpartyInfo := NewCounterparty;
-    end;
-#endif
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream; NewThirdPartyVatRegNo: Text[30]; NewNihil: Boolean; NewCounterparty: Boolean)
     begin

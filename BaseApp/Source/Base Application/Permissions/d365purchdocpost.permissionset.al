@@ -1,3 +1,36 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Check;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Costing;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Sales.History;
+using System.Environment.Configuration;
+using Microsoft.Warehouse.Request;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 2909 "D365 PURCH DOC, POST"
 {
     Assignable = true;

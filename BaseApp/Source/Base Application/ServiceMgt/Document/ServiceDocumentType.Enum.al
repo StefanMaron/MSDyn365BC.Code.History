@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Document;
+
 enum 5900 "Service Document Type"
 {
     Extensible = true;

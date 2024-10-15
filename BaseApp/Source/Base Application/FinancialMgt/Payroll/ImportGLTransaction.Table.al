@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Payroll;
+
+using Microsoft.Finance.GeneralLedger.Account;
+
 table 1661 "Import G/L Transaction"
 {
     Caption = 'Import G/L Transaction';
@@ -28,13 +36,13 @@ table 1661 "Import G/L Transaction"
         field(3; "G/L Account"; Code[20])
         {
             Caption = 'G/L Account';
-            TableRelation = "G/L Account" WHERE(Blocked = CONST(false),
-                                                 "Direct Posting" = CONST(true),
-                                                 "Account Type" = CONST(Posting));
+            TableRelation = "G/L Account" where(Blocked = const(false),
+                                                 "Direct Posting" = const(true),
+                                                 "Account Type" = const(Posting));
         }
         field(4; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("G/L Account")));
+            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account")));
             Caption = 'G/L Account Name';
             Editable = false;
             FieldClass = FlowField;

@@ -1,3 +1,5 @@
+namespace System.Security.AccessControl;
+
 permissionset 2918 "D365 SALES"
 {
     Assignable = true;

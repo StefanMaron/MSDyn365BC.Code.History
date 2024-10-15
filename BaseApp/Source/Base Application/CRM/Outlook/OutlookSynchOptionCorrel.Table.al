@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using System.Reflection;
+
 table 5307 "Outlook Synch. Option Correl."
 {
     Caption = 'Outlook Synch. Option Correl.';
@@ -40,12 +44,12 @@ table 5307 "Outlook Synch. Option Correl."
         field(8; "Table No."; Integer)
         {
             Caption = 'Table No.';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(9; "Field No."; Integer)
         {
             Caption = 'Field No.';
-            TableRelation = Field."No." WHERE(TableNo = FIELD("Table No."));
+            TableRelation = Field."No." where(TableNo = field("Table No."));
         }
         field(11; "Option No."; Integer)
         {

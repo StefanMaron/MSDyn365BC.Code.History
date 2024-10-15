@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Dimension;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Intercompany.Partner;
+
 table 423 "IC Inbox/Outbox Jnl. Line Dim."
 {
     Caption = 'IC Inbox/Outbox Jnl. Line Dim.';
@@ -36,7 +45,7 @@ table 423 "IC Inbox/Outbox Jnl. Line Dim."
         field(6; "Dimension Value Code"; Code[20])
         {
             Caption = 'Dimension Value Code';
-            TableRelation = "IC Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "IC Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
 
             trigger OnValidate()
             begin
