@@ -262,7 +262,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitCost(Rec, xRec, CurrFieldNo, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if IsNonInventoriableType() then
                     exit;
 
@@ -289,10 +296,8 @@
                     exit;
 
                 if ("Costing Method" = "Costing Method"::Standard) and (CurrFieldNo <> 0) then
-                    if not GuiAllowed then begin
-                        "Standard Cost" := xRec."Standard Cost";
-                        exit;
-                    end else
+                    // Show confirmation dialog only for standard web client.
+                    if GuiAllowed() then
                         if not
                            Confirm(
                              Text020 +
@@ -1353,7 +1358,12 @@
                                 error(ReplenishmentSystemTransferErr);
                         end;
                     "Replenishment System"::Assembly:
-                        TestField(Type, Type::Inventory);
+                        begin
+                            IsHandled := false;
+                            OnValidateReplenishmentSystemCaseAssemblyr(Rec, IsHandled);
+                            if not IsHandled then
+                                TestField(Type, Type::Inventory);
+                        end;
                     else
                         OnValidateReplenishmentSystemCaseElse(Rec);
                 end;
@@ -3478,6 +3488,7 @@
             if not GuiAllowed then
                 Error(SelectItemErr);
 
+            OnTryGetItemNoOpenCardWithViewOnBeforeShowCreateItemOption(Rec);
             if Item.WritePermission then
                 if ShowCreateItemOption then
                     case StrMenu(
@@ -3959,5 +3970,19 @@
     local procedure OnBeforeUpdateReplenishmentSystem(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReplenishmentSystemCaseAssemblyr(var Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitCost(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryGetItemNoOpenCardWithViewOnBeforeShowCreateItemOption(var Item: Record Item)
+    begin
+    end;
+}

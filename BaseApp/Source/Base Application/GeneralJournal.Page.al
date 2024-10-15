@@ -2274,6 +2274,9 @@ page 39 "General Journal"
     end;
 
     local procedure SetDataForSimpleModeOnNewRecord()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccount: Record "Bank Account";
     begin
         // No lines shown
         if Count = 0 then
@@ -2281,9 +2284,14 @@ page 39 "General Journal"
             // In this case we want to assign current doc no. to the document no. of the record
             // But if user changes the doc no. then we want to use whatever value they enter for
             // current doc no.
-            if ((xRec."Document No." = '') or (xRec."Journal Batch Name" <> "Journal Batch Name")) and (not IsChangingDocNo) then
-                CurrentDocNo := "Document No."
-            else begin
+            if ((xRec."Document No." = '') or (xRec."Journal Batch Name" <> "Journal Batch Name")) and (not IsChangingDocNo) then begin
+                CurrentDocNo := "Document No.";
+                IF xRec."Journal Batch Name" = '' THEN
+                    IF GenJournalBatch.GET("Journal Template Name", "Journal Batch Name") THEN
+                        IF GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" THEN
+                            IF BankAccount.GET(GenJournalBatch."Bal. Account No.") THEN
+                                CurrentCurrencyCode := BankAccount."Currency Code";
+            end else begin
                 "Document No." := CurrentDocNo;
                 // Clear out credit / debit for empty page since these
                 // might have been set if suggest balance amount is checked on the batch

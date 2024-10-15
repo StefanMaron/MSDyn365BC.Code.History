@@ -342,13 +342,11 @@ page 9037 "Accountant Activities"
 
     trigger OnAfterGetCurrRecord()
     var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         ReplayGettingStartedVisible := false;
         if EnvironmentInfo.IsSaaS() then
             ReplayGettingStartedVisible := true;
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial();
     end;
 
     trigger OnAfterGetRecord()

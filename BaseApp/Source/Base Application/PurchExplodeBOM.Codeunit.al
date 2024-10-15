@@ -46,6 +46,8 @@ codeunit 73 "Purch.-Explode BOM"
             TransferExtendedText.InsertPurchExtText(ToPurchLine);
 
         ExplodeBOMCompLines(Rec);
+
+        OnAfterOnRun(ToPurchLine, Rec);
     end;
 
     var
@@ -158,6 +160,7 @@ codeunit 73 "Purch.-Explode BOM"
 
                     OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
                     ToPurchLine.Insert();
+                    OnAfterInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
 
                     if Selection = 1 then begin
                         ToPurchLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
@@ -180,7 +183,17 @@ codeunit 73 "Purch.-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(ToPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertExplodedPurchLine(var ToPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; FromBOMComp: Record "BOM Component")
     begin
     end;
 

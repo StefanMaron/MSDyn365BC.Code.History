@@ -311,6 +311,10 @@ table 337 "Reservation Entry"
         {
             SumIndexFields = "Quantity (Base)";
         }
+        key(Key11; "Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line")
+        {
+            SumIndexFields = "Quantity (Base)";
+        }
     }
 
     fieldgroups
@@ -1082,13 +1086,13 @@ table 337 "Reservation Entry"
                     FieldValue := "Serial No.";
                 end;
             else begin
-                    IsHandled := false;
-                    OnFieldFilterNeededOnItemTrackingTypeElseCase(Rec, ItemTrackingCode, ItemTrackingType, FieldValue, IsSpecificTracking, IsHandled);
-                    if IsHandled and not IsSpecificTracking then
-                        exit(false);
-                    if not IsHandled then
-                        Error(Text004);
-                end;
+                IsHandled := false;
+                OnFieldFilterNeededOnItemTrackingTypeElseCase(Rec, ItemTrackingCode, ItemTrackingType, FieldValue, IsSpecificTracking, IsHandled);
+                if IsHandled and not IsSpecificTracking then
+                    exit(false);
+                if not IsHandled then
+                    Error(Text004);
+            end;
         end;
 
         // The field "Lot No." is used a foundation for building up the filter:

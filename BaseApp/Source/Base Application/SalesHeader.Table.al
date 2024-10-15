@@ -112,7 +112,10 @@
                 "Send IC Document" := ("Sell-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
                 UpdateShipToCodeFromCust();
-                LocationCode := "Location Code";
+                IsHandled := false;
+                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Cust, IsHandled);
+                if not IsHandled then
+                    LocationCode := "Location Code";
 
                 SetBillToCustomerNo(Cust);
 
@@ -6091,7 +6094,7 @@
         if TempSalesLine.FindSet() then
             repeat
                 InitSalesLineDefaultDimSource(DefaultDimSource, TempSalesLine);
-                SalesLine.CreateDim(DefaultDimSource);
+                TempSalesLine.CreateDim(DefaultDimSource);
             until TempSalesLine.Next() = 0;
     end;
 
@@ -6129,6 +6132,8 @@
     local procedure InsertTempSalesLineInBuffer(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line"; AccountNo: Code[20]; DefaultDimensionsNotExist: Boolean)
     begin
         TempSalesLine.Init();
+        TempSalesLine."Document Type" := SalesLine."Document Type";
+        TempSalesLine."Document No." := SalesLine."Document No.";
         TempSalesLine."Line No." := SalesLine."Line No.";
         TempSalesLine."No." := AccountNo;
         TempSalesLine."Job No." := SalesLine."Job No.";
@@ -9550,6 +9555,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitRecordOnBeforeAssignResponsibilityCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

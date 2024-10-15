@@ -1,12 +1,10 @@
-codeunit 6648 "Purch.-Get Return Shipments"
+﻿codeunit 6648 "Purch.-Get Return Shipments"
 {
     TableNo = "Purchase Line";
 
     trigger OnRun()
     begin
-        PurchHeader.Get("Document Type", "Document No.");
-        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
-        PurchHeader.TestField(Status, PurchHeader.Status::Open);
+        CheckHeader(Rec);
 
         ReturnShptLine.SetCurrentKey("Pay-to Vendor No.");
         ReturnShptLine.SetRange("Pay-to Vendor No.", PurchHeader."Pay-to Vendor No.");
@@ -62,6 +60,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                     OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnShptHeader, ReturnShptLine2, PurchHeader, ShouldInsertReturnRcptLine, PurchLine);
                     if ShouldInsertReturnRcptLine then begin
                         ReturnShptLine := ReturnShptLine2;
+                        CheckReturnShipmentLineVATBusPostingGroup(ReturnShptLine, PurchHeader);
                         ReturnShptLine.InsertInvLineFromRetShptLine(PurchLine);
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(ReturnShptLine2, PurchLine."Qty. to Invoice");
@@ -72,6 +71,32 @@ codeunit 6648 "Purch.-Get Return Shipments"
         end;
 
         OnAfterCreateInvLines(PurchHeader);
+    end;
+
+    local procedure CheckHeader(PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckHeader(PurchHeader, PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
+        PurchHeader.TestField(Status, PurchHeader.Status::Open);
+    end;
+
+    local procedure CheckReturnShipmentLineVATBusPostingGroup(ReturnShipmentLine: Record "Return Shipment Line"; PurchaseHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReturnShipmentLineVATBusPostingGroup(ReturnShipmentLine, PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnShipmentLine.TestField("VAT Bus. Posting Group", PurchaseHeader."VAT Bus. Posting Group");
     end;
 
     local procedure CheckReturnShptPayToVendorNo(ReturnShptHeader: Record "Return Shipment Header"; PurchHeader: Record "Purchase Header"; ReturnShptLine: Record "Return Shipment Line")
@@ -169,9 +194,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
                                     PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::"Credit Memo");
                                     PurchLine2.SetRange("Return Shipment No.", ReturnShptLine2."Document No.");
                                     PurchLine2.SetRange("Return Shipment Line No.", ReturnShptLine2."Line No.");
-                                    if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then
+                                    OnCopyItemChargeAssgntOnBeforeFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
+                                    if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then begin
+                                        OnCopyItemChargeAssgntOnAfterFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
                                         ItemChargeAssgntPurch2."Applies-to Doc. Line No." := PurchLine2."Line No."
-                                    else
+                                    end else
                                         InsertChargeAssgnt := false;
                                 end else
                                     InsertChargeAssgnt := false;
@@ -189,6 +216,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInvLines(PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckHeader(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -219,6 +251,21 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSetReturnShptLineFilters(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReturnShipmentLineVATBusPostingGroup(ReturnShipmentLine: Record "Return Shipment Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemChargeAssgntOnAfterFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyItemChargeAssgntOnBeforeFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)");
     begin
     end;
 }
