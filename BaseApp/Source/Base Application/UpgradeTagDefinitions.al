@@ -1,4 +1,4 @@
-﻿//r01
+//r01
 codeunit 9998 "Upgrade Tag Definitions"
 {
     // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
@@ -86,6 +86,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCustomerTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
+        PerCompanyUpgradeTags.Add(GetDataExchOCRVendorNoTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -746,6 +747,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetAzureADSetupFixTag(): Code[250];
     begin
         exit('MS-408786-FixAzureAdSetup-20210826');
+    end;
+
+    procedure GetDataExchOCRVendorNoTag(): Code[250]
+    begin
+        exit('MS-415627-DataExchOCRVendorNo-20211111');
     end;
 }
 

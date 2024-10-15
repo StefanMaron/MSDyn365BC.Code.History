@@ -437,6 +437,20 @@
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '15.0';
         }
+        field(10023; "RFC No."; Code[13])
+        {
+            Caption = 'RFC No.';
+
+            trigger OnValidate()
+            begin
+                if StrLen("RFC No.") <> 13 then
+                    Error(NotValidRFCNoErr, "RFC No.");
+            end;
+        }
+        field(10025; "License No."; Code[20])
+        {
+            Caption = 'License No.';
+        }
     }
 
     keys
@@ -568,6 +582,7 @@
         BlockedEmplForJnrlErr: Label 'You cannot create this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         BlockedEmplForJnrlPostingErr: Label 'You cannot post this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
+        NotValidRFCNoErr: Label '%1 is not a valid RFC No.', Comment = '%1 - RFC Number';
 
     procedure AssistEdit() Result: Boolean
     var

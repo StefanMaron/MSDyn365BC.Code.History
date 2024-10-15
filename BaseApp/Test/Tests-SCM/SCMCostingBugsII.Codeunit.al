@@ -2098,6 +2098,54 @@ codeunit 137621 "SCM Costing Bugs II"
         VerifyValuedByAverageCostValueEntry(NegativeItemLedgerEntry."Entry No.", true);
     end;
 
+    [Test]
+    [HandlerFunctions('AdjustCostItemEntriesRequestPageHandler')]
+    procedure UpdateAnalysisViewOnAdjustCostWithAutomaticCostPosting()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        AnalysisView: Record "Analysis View";
+        Qty: Decimal;
+        LastEntryNo: Integer;
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Post Inventory to G/L] [Analysis View]
+        // [SCENARIO 415686] Analysis view is updated on running cost adjustment with automatic cost posting to G/L.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Enable "Automatic Cost Posting" in inventory setup.
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Post positive inventory adjustment with "Unit Amount" > 0.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post negative inventory adjustment with "Unit Amount" = 0.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -Qty);
+        ItemJournalLine.Validate("Unit Amount", 0);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create analysis view, set "Update on Posting" = TRUE.
+        // [GIVEN] Update the analysis view, note the "Last Entry No." = "N".
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        AnalysisView.Validate("Update on Posting", true);
+        AnalysisView.Modify(true);
+        LibraryERM.UpdateAnalysisView(AnalysisView);
+        AnalysisView.Find();
+        LastEntryNo := AnalysisView."Last Entry No.";
+
+        // [WHEN] Run the cost adjustment.
+        RunCostAdjustment(Item."No.");
+
+        // [THEN] "Last Entry No." on the analysis view is updated to "N" + 2 (the cost adjustment posts 1 value entry and 2 g/l entries).
+        AnalysisView.Find();
+        AnalysisView.TestField("Last Entry No.", LastEntryNo + 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2609,6 +2657,16 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', Item."No.", ComponentItem."No."), '');
     end;
 
+    local procedure RunCostAdjustment(ItemNo: Code[20])
+    var
+        AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
+    begin
+        Commit();
+        AdjustCostItemEntries.InitializeRequest(ItemNo, '');
+        AdjustCostItemEntries.UseRequestPage(true);
+        AdjustCostItemEntries.RunModal();
+    end;
+
     local procedure UpdateQtyToInvoiceAndUnitCostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal; DirectUnitCost: Decimal)
     begin
         PurchaseLine.Find;
@@ -2972,6 +3030,12 @@ codeunit 137621 "SCM Costing Bugs II"
         ViewAppliedEntries.First;
         ViewAppliedEntries.Next;
         ViewAppliedEntries.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure AdjustCostItemEntriesRequestPageHandler(var AdjustCostItemEntries: TestRequestPage "Adjust Cost - Item Entries")
+    begin
+        AdjustCostItemEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
