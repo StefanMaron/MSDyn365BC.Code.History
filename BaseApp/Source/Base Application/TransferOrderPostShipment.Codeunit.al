@@ -55,6 +55,8 @@
             if HasLinesToShip then
                 CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
+            CheckTransferLines(true);            
+
             if GuiAllowed then begin
                 Window.Open(
                   '#1#################################\\' +
