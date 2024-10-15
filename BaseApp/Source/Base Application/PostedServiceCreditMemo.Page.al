@@ -415,6 +415,10 @@ page 5972 "Posted Service Credit Memo"
             group("Electronic Invoice")
             {
                 Caption = 'Electronic Invoice';
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
                 field("Electronic Document Status"; "Electronic Document Status")
                 {
                     ToolTip = 'Specifies the status of the document.';

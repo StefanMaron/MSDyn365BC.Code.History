@@ -674,8 +674,8 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryMarketing.CreatePersonContact(PersonContact);
         PersonContact."Correspondence Type" := CompanyContact."Correspondence Type"::" ";
         PersonContact."Company No." := CompanyContact."No.";
-        PersonContact."Phone No." := LibraryUtility.GenerateGUID;
-        PersonContact."Mobile Phone No." := LibraryUtility.GenerateGUID;
+        PersonContact."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
+        PersonContact."Mobile Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         PersonContact."Salesperson Code" := SalespersonPurchaser.Code;
         PersonContact.Modify();
     end;

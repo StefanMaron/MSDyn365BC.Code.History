@@ -168,6 +168,16 @@ page 21 "Customer Card"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the customer is typically used for exports to other countries.';
+                }
+                field("SAT Tax Regime Classification"; "SAT Tax Regime Classification")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the tax scheme required for reporting to the Mexican tax authorities (SAT).';
+                }
                 field("Last Date Modified"; "Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
