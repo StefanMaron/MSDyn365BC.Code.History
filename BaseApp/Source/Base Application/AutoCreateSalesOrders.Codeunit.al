@@ -9,6 +9,12 @@ codeunit 5349 "Auto Create Sales Orders"
         CreateNAVSalesOrdersFromSubmittedCRMSalesorders;
     end;
 
+    var
+        CRMProductName: Codeunit "CRM Product Name";
+        CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
+        StartingToCreateSalesOrderTelemetryMsg: Label 'Job queue entry starting to create sales order from %1 order %2.', Locked = true;
+        CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Job queue entry committing after processing %1 order %2.', Locked = true;
+
     local procedure CreateNAVSalesOrdersFromSubmittedCRMSalesorders()
     var
         CRMSalesorder: Record "CRM Salesorder";
@@ -17,8 +23,13 @@ codeunit 5349 "Auto Create Sales Orders"
         CRMSalesorder.SetRange(LastBackofficeSubmit, 0D);
         if CRMSalesorder.FindSet(true) then
             repeat
-                if CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesorder) then
+                SendTraceTag('0000DET', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                    StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+                if CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesorder) then begin
+                    SendTraceTag('0000DEU', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                        StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
                     Commit();
+                end;
             until CRMSalesorder.Next = 0;
     end;
 }

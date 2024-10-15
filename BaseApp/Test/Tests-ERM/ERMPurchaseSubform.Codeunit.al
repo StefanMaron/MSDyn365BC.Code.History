@@ -36,6 +36,7 @@ codeunit 134394 "ERM Purchase Subform"
         EditableErr: Label '%1 should be editable';
         NotEditableErr: Label '%1 should NOT be editable';
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.';
+        ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
@@ -3693,6 +3694,55 @@ codeunit 134394 "ERM Purchase Subform"
         Assert.AreEqual(ResourceUnitofMeasure.Code, PurchaseLine."Unit of Measure Code", 'Wrong unit of measure code in the purchase line after lookup');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DrillingDownQtyToAssignFieldOnWrongTypeDoesNotRollbackPrevChanges()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        Qty: Decimal;
+        QtyToReceive: Decimal;
+    begin
+        // [SCENARIO 366876] Drilling down "Qty. to Assign" field on purchase line of wrong type shows a warning message and does not rollback previous changes.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+        QtyToReceive := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Purchase order with Item-type line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open purchase order page, set "No." = some item, "Quantity" = 20 and go to a next line to save the record.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        PurchaseOrder.PurchLines.Quantity.SetValue(Qty);
+        PurchaseOrder.PurchLines.Next();
+        Commit();
+
+        // [GIVEN] Go back to the purchase line and update "Qty. to Receive" = 10.
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."Qty. to Receive".SetValue(QtyToReceive);
+
+        // [WHEN] Staying on the line, drill down "Qty. to Assign" field.
+        LibraryVariableStorage.Enqueue(ItemChargeAssignmentErr);
+        PurchaseOrder.PurchLines."Qty. to Assign".DrillDown();
+        PurchaseOrder.PurchLines.Next();
+
+        // [THEN] A message is shown that we are capable of drilling down "Qty. to Assign" only on line of Item Charge type.
+        // [THEN] The update of "Qty. to Receive" on the purchase line is 10 and saved to database.
+        PurchaseLine.Find();
+        PurchaseLine.TestField(Quantity, Qty);
+        PurchaseLine.TestField("Qty. to Receive", QtyToReceive);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -4634,6 +4684,13 @@ codeunit 134394 "ERM Purchase Subform"
     procedure BlanketOrderMessageHandler(Msg: Text)
     begin
         Assert.IsTrue(StrPos(Msg, BlanketMsg) > 0, Msg);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Msg: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Msg);
     end;
 }
 

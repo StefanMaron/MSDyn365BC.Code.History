@@ -1495,8 +1495,6 @@ page 22 "Customer List"
 
     trigger OnInit()
     begin
-        SetCustomerNoVisibilityOnFactBoxes;
-
         CaptionTxt := CurrPage.Caption;
         SetCaption(CaptionTxt);
         CurrPage.Caption(CaptionTxt);
@@ -1544,14 +1542,6 @@ page 22 "Customer List"
     procedure SetSelection(var Cust: Record Customer)
     begin
         CurrPage.SetSelectionFilter(Cust);
-    end;
-
-    local procedure SetCustomerNoVisibilityOnFactBoxes()
-    begin
-        CurrPage.SalesHistSelltoFactBox.PAGE.SetCustomerNoVisibility(false);
-        CurrPage.SalesHistBilltoFactBox.PAGE.SetCustomerNoVisibility(false);
-        CurrPage.CustomerDetailsFactBox.PAGE.SetCustomerNoVisibility(false);
-        CurrPage.CustomerStatisticsFactBox.PAGE.SetCustomerNoVisibility(false);
     end;
 
     local procedure SetWorkflowManagementEnabledState()

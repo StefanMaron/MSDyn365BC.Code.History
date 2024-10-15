@@ -1,4 +1,4 @@
-table 5740 "Transfer Header"
+﻿table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -868,6 +868,7 @@ table 5740 "Transfer Header"
     procedure UpdateTransLines(TransferHeader: Record "Transfer Header"; FieldID: Integer)
     var
         TransferLine: Record "Transfer Line";
+        TempTransferLine: Record "Transfer Line" temporary;
     begin
         TransferLine.SetRange("Document No.", "No.");
         TransferLine.SetFilter("Item No.", '<>%1', '');
@@ -942,7 +943,9 @@ table 5740 "Transfer Header"
                     FieldNo("Direct Transfer"):
                         begin
                             TransferLine.Validate("In-Transit Code", TransferHeader."In-Transit Code");
-                            TransferLine.Validate("Item No.", TransferLine."Item No.");
+                            TempTransferLine := TransferLine;
+                            TransferLine.Validate("Item No.", TempTransferLine."Item No.");
+                            TransferLine.Validate("Variant Code", TempTransferLine."Variant Code");
                         end;
                     else
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
@@ -983,7 +986,13 @@ table 5740 "Transfer Header"
         WhseRequest: Record "Warehouse Request";
         InvtCommentLine: Record "Inventory Comment Line";
         No: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteOneTransferOrder(TransHeader2, TransLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         No := TransHeader2."No.";
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
@@ -1400,6 +1409,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnInitInsertOnBeforeInitRecord(var xTransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteOneTransferOrder(var TransHeader2: Record "Transfer Header"; var TransLine2: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 }

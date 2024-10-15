@@ -477,7 +477,7 @@
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
                 if "Incoming Document Entry No." = 0 then
-                    Validate("Document Date", "Posting Date");
+                    ValidateDocumentDateWithPostingDate();
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -3503,6 +3503,18 @@
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    local procedure ValidateDocumentDateWithPostingDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateDocumentDateWithPostingDate(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Document Date", "Posting Date");
+    end;
+
     procedure ReceivedPurchLinesExist(): Boolean
     begin
         PurchLine.Reset();
@@ -3764,7 +3776,7 @@
                 SkipBuyFromContact := false;
             end;
         end else
-            Error(Text039, Cont."No.", Cont.Name);
+            ContactIsNotRelatedToVendorError(Cont, ContactNo);
 
         if ("Buy-from Vendor No." = "Pay-to Vendor No.") or
            ("Pay-to Vendor No." = '')
@@ -3803,9 +3815,20 @@
                 if "Pay-to Vendor No." <> ContBusinessRelation."No." then
                     Error(Text037, Cont."No.", Cont.Name, "Pay-to Vendor No.");
         end else
-            Error(Text039, Cont."No.", Cont.Name);
-
+            ContactIsNotRelatedToVendorError(Cont, ContactNo);
         OnAfterUpdatePayToVend(Rec, Cont);
+    end;
+
+    local procedure ContactIsNotRelatedToVendorError(Cont: Record Contact; ContactNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeContactIsNotRelatedToVendorError(Cont, ContactNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text039, Cont."No.", Cont.Name);
     end;
 
     procedure CreateInvtPutAwayPick()
@@ -3873,6 +3896,7 @@
         PurchLine.LockTable();
         if PurchLine.Find('-') then
             repeat
+                OnUpdateAllLineDimOnBeforeGetPurchLineNewDimsetID(PurchLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PurchLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if PurchLine."Dimension Set ID" <> NewDimSetID then begin
                     PurchLine."Dimension Set ID" := NewDimSetID;
@@ -4034,7 +4058,7 @@
             end;
         end;
 
-        OnAfterAddShipToAddress(Rec, SalesHeader);
+        OnAfterAddShipToAddress(Rec, SalesHeader, ShowError);
     end;
 
     local procedure CopyAddressInfoFromOrderAddress()
@@ -4570,8 +4594,15 @@
                 exit(GetRangeMax("Buy-from Vendor No."));
     end;
 
-    procedure HasBuyFromAddress(): Boolean
+    procedure HasBuyFromAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasBuyFromAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Buy-from Address" <> '':
                 exit(true);
@@ -4592,8 +4623,15 @@
         exit(false);
     end;
 
-    procedure HasShipToAddress(): Boolean
+    procedure HasShipToAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasShipToAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Ship-to Address" <> '':
                 exit(true);
@@ -4614,8 +4652,15 @@
         exit(false);
     end;
 
-    procedure HasPayToAddress(): Boolean
+    procedure HasPayToAddress() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasPayToAddress(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case true of
             "Pay-to Address" <> '':
                 exit(true);
@@ -5506,7 +5551,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAddShipToAddress(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    local procedure OnAfterAddShipToAddress(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; ShowError: Boolean)
     begin
     end;
 
@@ -5720,6 +5765,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeContactIsNotRelatedToVendorError(Contact: Record Contact; ContactNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
@@ -5747,6 +5797,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsTotalValid(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasBuyFromAddress(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasShipToAddress(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasPayToAddress(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -5847,6 +5912,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentDateWithPostingDate(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6028,6 +6098,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforeTempPurchLineFindSet(var TempPurchLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetPurchLineNewDimsetID(var PurchLine: Record "Purchase Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     begin
     end;
 

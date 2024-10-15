@@ -589,5 +589,13 @@ table 28074 "Sales Tax Cr.Memo Line"
         exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Cr.Memo Line",
             0, "Document No.", '', 0, "Line No."));
     end;
+
+    procedure TransferFieldsFrom(SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        SalesCrMemoLine.Description :=
+            CopyStr(SalesCrMemoLine.Description, 1, MaxStrLen(Description));
+        TransferFields(SalesCrMemoLine);
+    end;
 }
 

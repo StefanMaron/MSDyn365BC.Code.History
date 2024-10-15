@@ -632,5 +632,25 @@ table 28076 "Purch. Tax Inv. Line"
         if PurchInvHeader.FindFirst then
             PAGE.RunModal(PAGE::"Posted Purchase Invoice", PurchInvHeader);
     end;
+
+    procedure TransferFieldsFrom(PurchInvLine: Record "Purch. Inv. Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        PurchInvLine.Description :=
+            CopyStr(PurchInvLine.Description, 1, MaxStrLen(Description));
+        PurchInvLine."Vendor Item No." :=
+            CopyStr(PurchInvLine."Vendor Item No.", 1, MaxStrLen("Vendor Item No."));
+        TransferFields(PurchInvLine);
+    end;
+
+    procedure TransferFieldsFrom(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        PurchCrMemoLine.Description :=
+            CopyStr(PurchCrMemoLine.Description, 1, MaxStrLen(Description));
+        PurchCrMemoLine."Vendor Item No." :=
+            CopyStr(PurchCrMemoLine."Vendor Item No.", 1, MaxStrLen("Vendor Item No."));
+        TransferFields(PurchCrMemoLine);
+    end;
 }
 

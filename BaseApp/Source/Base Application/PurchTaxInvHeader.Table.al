@@ -177,7 +177,7 @@ table 28075 "Purch. Tax Inv. Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
                                                              "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -216,7 +216,7 @@ table 28075 "Purch. Tax Inv. Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Tax Inv. Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Tax Inv. Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -225,7 +225,7 @@ table 28075 "Purch. Tax Inv. Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Tax Inv. Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Tax Inv. Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -469,21 +469,21 @@ table 28075 "Purch. Tax Inv. Header"
         }
         field(28041; "Rem. WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry"."Remaining Unrealized Amount" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Sum("WHT Entry"."Remaining Unrealized Amount" WHERE("Document Type" = CONST(Invoice),
                                                                                "Document No." = FIELD("No.")));
             Caption = 'Rem. WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
         }
         field(28042; "Paid WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry".Amount WHERE("Document Type" = CONST(Payment),
+            CalcFormula = Sum("WHT Entry".Amount WHERE("Document Type" = CONST(Payment),
                                                         "Document No." = FIELD("No.")));
             Caption = 'Paid WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
         }
         field(28043; "Total WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry"."Unrealized Amount" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Sum("WHT Entry"."Unrealized Amount" WHERE("Document Type" = CONST(Invoice),
                                                                      "Document No." = FIELD("No.")));
             Caption = 'Total WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
@@ -614,6 +614,16 @@ table 28075 "Purch. Tax Inv. Header"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+    end;
+
+    procedure TransferFieldsFrom(PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+        // cut values to avoid overflow in TransferFields
+        PurchInvHeader."Vendor Order No." :=
+            CopyStr(PurchInvHeader."Vendor Order No.", 1, MaxStrLen("Vendor Order No."));
+        PurchInvHeader."Vendor Invoice No." :=
+            CopyStr(PurchInvHeader."Vendor Invoice No.", 1, MaxStrLen("Vendor Invoice No."));
+        TransferFields(PurchInvHeader);
     end;
 }
 

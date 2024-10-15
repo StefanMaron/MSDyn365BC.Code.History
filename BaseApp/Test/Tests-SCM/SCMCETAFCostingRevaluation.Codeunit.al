@@ -614,7 +614,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         NewCost: Decimal;
     begin
         // [FEATURE] [Average Cost] [Transfer] [Item Reclassification]
-        // [SCENARIO 345543] Value entries for revaluation are excluded from average cost calculation.
+        // [SCENARIO 345543] Value entries for revaluation are excluded from average cost calculation when the cost of inbound entry is inherited from outbound entry.
         Initialize();
 
         Qty := LibraryRandom.RandInt(10);
@@ -653,6 +653,91 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         // [THEN] The revaluation does not affect average cost.
         ItemLedgerEntry[2].CalcFields("Cost Amount (Actual)");
         ItemLedgerEntry[2].TestField("Cost Amount (Actual)", Cost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PartialRevaluationEntriesExcludedFromAvgCostCalc()
+    var
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        OldCost: Decimal;
+        NewCost: Decimal;
+    begin
+        // [FEATURE] [Average Cost] [Calculate Inventory Value]
+        // [SCENARIO 368884] A revaluation of remaining quantity of an inbound entry does not affect cost of posted applied outbound entries.
+        Initialize();
+        OldCost := LibraryRandom.RandDec(100, 2);
+        NewCost := 2 * OldCost;
+
+        // [GIVEN] Item with Costing Method = "Average".
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+
+        // [GIVEN] Post positive adjustment for 2 pcs, unit cost = 10 LCY.
+        // [GIVEN] Post negative adjustment for 1 pc.
+        ItemLedgerEntry[1].Get(CreateAndPostItemJnlLine(Item."No.", '', 2, OldCost));
+        ItemLedgerEntry[2].Get(CreateAndPostItemJnlLine(Item."No.", '', -1, 0));
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Open revaluation journal and calculate inventory value.
+        // [GIVEN] Revalue the remaining 1 pc of the positive entry, set new unit cost = 20 LCY.
+        LibraryPatterns.CalculateInventoryValueRun(
+          ItemJournalBatch, Item, WorkDate, CalculatePer::Item,
+          false, false, false, CalculationBase::" ", false, '', '');
+        LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, NewCost / OldCost);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The cost of the revalued entry = 30 LCY (1 pc for 10 LCY + 1 pc for 20 LCY).
+        ItemLedgerEntry[1].CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry[1].TestField("Cost Amount (Actual)", 1 * OldCost + 1 * NewCost);
+
+        // [THEN] The cost of the outbound entry = 10 LCY (not changed).
+        ItemLedgerEntry[2].CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry[2].TestField("Cost Amount (Actual)", -OldCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RevaluationOfItemEntryNotAppliedFromOutbndIncludedToAvgCostCalc()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        NewCost: Decimal;
+    begin
+        // [FEATURE] [Average Cost]
+        // [SCENARIO 368884] Value entries for revaluation are included in average cost calculation when the cost of inbound entry is not inherited from outbound entry.
+        Initialize();
+        NewCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Item with Costing Method = "Average".
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+
+        // [GIVEN] Post positive adjustment for 1 pc, unit cost = 0.
+        // [GIVEN] Post negative adjustment for 1 pc.
+        ItemLedgerEntry[1].Get(CreateAndPostItemJnlLine(Item."No.", '', 1, 0));
+        ItemLedgerEntry[2].Get(CreateAndPostItemJnlLine(Item."No.", '', -1, 0));
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Revalue the positive adjustment entry, new unit cost = 10 LCY.
+        CreateAndPostRevaluationJnlLine(Item."No.", ItemLedgerEntry[1]."Entry No.", NewCost);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The cost of inbound entry = 10 LCY.
+        ItemLedgerEntry[1].CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry[1].TestField("Cost Amount (Actual)", NewCost);
+
+        // [THEN] The cost of outbound entry = 10 LCY.
+        ItemLedgerEntry[2].CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry[2].TestField("Cost Amount (Actual)", -NewCost);
     end;
 
     local procedure TestRevalueExistingInv(CostingMethod: Option; StandardCost: Decimal; CalcPer: Option; FilterByLocation: Boolean)
@@ -1108,14 +1193,18 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         TempItemLedgerEntry.Insert();
     end;
 
-    local procedure CreateAndPostItemJnlLine(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; UnitAmount: Decimal)
+    local procedure CreateAndPostItemJnlLine(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; UnitAmount: Decimal): Integer
     var
         ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
         ItemJournalLine.Validate("Unit Amount", UnitAmount);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        FindItemLedgerEntry(ItemLedgerEntry, ItemJournalLine."Entry Type", ItemNo, LocationCode);
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure CreateAndPostReclassJnlLine(ItemNo: Code[20]; LocationCode: Code[10]; NewLocationCode: Code[10]; Qty: Decimal): Integer
