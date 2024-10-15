@@ -358,15 +358,12 @@ page 9300 "Sales Quotes"
                     begin
                         IsHandled := false;
                         OnBeforeStatisticsAction(Rec, IsHandled);
-                        if not IsHandled then begin
-                            CalcInvDiscForHeader();
-                            Commit();
-                            OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                            if "Tax Area Code" = '' then
-                                PAGE.RunModal(PAGE::"Sales Statistics", Rec)
-                            else
-                                PAGE.RunModal(PAGE::"Sales Stats.", Rec);
-                        end;
+                        if IsHandled then
+                            exit;
+
+                        PrepareOpeningDocumentStatistics();
+                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action("Co&mments")

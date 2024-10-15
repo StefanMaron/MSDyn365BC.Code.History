@@ -1,4 +1,4 @@
-table 221 "Gen. Jnl. Allocation"
+﻿table 221 "Gen. Jnl. Allocation"
 {
     Caption = 'Gen. Jnl. Allocation';
 
@@ -374,6 +374,7 @@ table 221 "Gen. Jnl. Allocation"
                     end;
                     GenJnlAlloc.UpdateVAT(GenJnlLine);
                     GenJnlAlloc.Modify();
+                    OnUpdateAllocationsOnAfterGenJnlAllocModify(GenJnlAlloc);
                 end;
             until GenJnlAlloc.Next() = 0;
 
@@ -439,6 +440,7 @@ table 221 "Gen. Jnl. Allocation"
                           TotalAmountAddCurrRnded + GenJnlAlloc."Additional-Currency Amount";
                     end;
                     GenJnlAlloc.Modify();
+                    OnUpdateAllocationsAddCurrOnAfterGenJnlAllocModify(GenJnlAlloc);
                 end;
             until GenJnlAlloc.Next() = 0;
         end;
@@ -492,15 +494,21 @@ table 221 "Gen. Jnl. Allocation"
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
         TableID[1] := Type1;
         No[1] := No1;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        IsHandled := false;
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No, IsHandled);
+        if IsHandled then
+            exit;
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -529,10 +537,22 @@ table 221 "Gen. Jnl. Allocation"
           DimMgt.EditDimensionSet("Dimension Set ID",
             StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Journal Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    local procedure OnAfterCreateDimTableIDs(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var GenJnlAlloc: Record "Gen. Jnl. Allocation"; CurrentFieldNo: Integer; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 
@@ -543,6 +563,16 @@ table 221 "Gen. Jnl. Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var xGenJnlAllocation: Record "Gen. Jnl. Allocation"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllocationsOnAfterGenJnlAllocModify(var GenJnlAlloc: Record "Gen. Jnl. Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllocationsAddCurrOnAfterGenJnlAllocModify(var GenJnlAlloc: Record "Gen. Jnl. Allocation")
     begin
     end;
 }

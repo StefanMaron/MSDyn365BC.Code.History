@@ -233,6 +233,18 @@ page 404 "Check Preview"
         if CheckAmount < 0 then
             CheckAmount := 0;
 
+        FormatTextFieldsForCheck();
+    end;
+
+    local procedure FormatTextFieldsForCheck()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatTextFieldsForCheck(CheckToAddr, CheckAmount, GenJnlLine, Cust, BankAcc, Employee, Vend, Rec, IsHandled, BankAcc2, CheckDateFormat, DateSeparator, CheckLanguage, CheckStyle, CheckDateText);
+        if IsHandled then
+            exit;
+
         case GenJnlLine."Account Type" of
             GenJnlLine."Account Type"::"G/L Account":
                 begin
@@ -319,6 +331,8 @@ page 404 "Check Preview"
         if not ChkTransMgt.FormatNoText(NumberText, CheckAmount, CheckLanguage, GenJnlLine."Currency Code") then
             Error(NumberText[1]);
         CheckDateText := ChkTransMgt.FormatDate("Document Date", CheckDateFormat, DateSeparator, CheckLanguage, DateIndicator);
+
+        OnAfterFormatTextFieldsForCheck(CheckToAddr);
     end;
 
     local procedure ConcAddr(Addr: array[8] of Text[100]) Str: Text
@@ -329,6 +343,16 @@ page 404 "Check Preview"
             if Addr[i] <> '' then
                 Str := Str + Addr[i] + ', ';
         Str := DelChr(Str, '<>', ', ');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100]; CheckAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; var BankAccount: Record "Bank Account"; Employee: Record Employee; var Vendor: Record Vendor; Rec: Record "Gen. Journal Line"; var IsHandled: Boolean; var BankAccount2: Record "Bank Account"; CheckDateFormat: Option; DateSeparator: Option; CheckLanguage: Integer; CheckStyle: Option; CheckDateText: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100])
+    begin
     end;
 }
 

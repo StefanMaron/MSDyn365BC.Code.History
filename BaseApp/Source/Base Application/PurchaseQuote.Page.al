@@ -793,13 +793,7 @@ page 49 "Purchase Quote"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Stats.", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action(Vendor)
@@ -1054,6 +1048,7 @@ page 49 "Purchase Quote"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1072,6 +1067,7 @@ page 49 "Purchase Quote"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

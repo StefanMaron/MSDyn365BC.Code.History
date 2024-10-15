@@ -315,13 +315,9 @@ page 9301 "Sales Invoice List"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
+                        PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Sales Order Stats.", Rec)
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action("Co&mments")

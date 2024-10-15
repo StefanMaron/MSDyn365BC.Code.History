@@ -1109,12 +1109,14 @@ page 42 "Sales Order"
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                            OpenSalesOrderStatistics;
-                            SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        PrepareOpeningDocumentStatistics();
+                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action(Customer)
@@ -1450,6 +1452,7 @@ page 42 "Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1468,6 +1471,7 @@ page 42 "Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }
@@ -2221,6 +2225,7 @@ page 42 "Sales Order"
             CallNotificationCheck := false;
         end;
         StatusStyleTxt := GetStatusStyleText();
+        SetControlVisibility();
     end;
 
     trigger OnAfterGetRecord()

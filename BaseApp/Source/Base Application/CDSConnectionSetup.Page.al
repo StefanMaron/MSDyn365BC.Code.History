@@ -342,7 +342,7 @@ page 7200 "CDS Connection Setup"
             action("Use Certificate Authentication")
             {
                 ApplicationArea = Suite;
-                Caption = 'Use Cerificate Authentication';
+                Caption = 'Use Certificate Authentication';
                 Image = Certificate;
                 Visible = SoftwareAsAService;
                 Promoted = true;

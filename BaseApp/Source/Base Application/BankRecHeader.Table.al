@@ -315,7 +315,13 @@ table 10120 "Bank Rec. Header"
     var
         GLEntry: Record "G/L Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateBalance(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SetFilter("Date Filter", '%1..%2', 0D, "Statement Date");
         CalcFields("G/L Balance (LCY)");
         if "Currency Code" = '' then
@@ -404,6 +410,7 @@ table 10120 "Bank Rec. Header"
                     BankRecLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       BankRecLine."Dimension Set ID", BankRecLine."Shortcut Dimension 1 Code", BankRecLine."Shortcut Dimension 2 Code");
+                    OnUpdateAllLineDimOnBeforeBankRecLineModify(BankRecLine);
                     BankRecLine.Modify();
                 end;
             until BankRecLine.Next() = 0;
@@ -416,10 +423,32 @@ table 10120 "Bank Rec. Header"
         Insert(true);
     end;
 
-    procedure CalculateEndingBalance(): Decimal
+    procedure CalculateEndingBalance() Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateEndingBalance(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Outstanding Deposits", "Outstanding Checks");
         exit(("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateBalance(var BankRecHeader: Record "Bank Rec. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateEndingBalance(var BankRecHeader: Record "Bank Rec. Header"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeBankRecLineModify(var BankRecLine: Record "Bank Rec. Line")
+    begin
     end;
 }
 

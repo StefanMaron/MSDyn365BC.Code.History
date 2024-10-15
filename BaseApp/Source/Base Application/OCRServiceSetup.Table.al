@@ -105,8 +105,12 @@ table 1270 "OCR Service Setup"
                 CompanyInformation: Record "Company Information";
                 OCRServiceMgt: Codeunit "OCR Service Mgt.";
                 OCRMasterDataMgt: Codeunit "OCR Master Data Mgt.";
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
             begin
-                if Enabled then begin
+                if not xRec."Enabled" and Rec."Enabled" then
+                    Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
+
+                if Rec.Enabled then begin
                     OCRServiceMgt.SetupConnection(Rec);
                     if "Default OCR Doc. Template" = '' then
                         if CompanyInformation.Get then
@@ -189,6 +193,7 @@ table 1270 "OCR Service Setup"
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(var PasswordKey: Guid; PasswordText: Text)
     begin
@@ -200,6 +205,7 @@ table 1270 "OCR Service Setup"
         IsolatedStorageManagement.Set(PasswordKey, PasswordText, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(PasswordKey: Guid): Text
     var
@@ -215,6 +221,7 @@ table 1270 "OCR Service Setup"
         IsolatedStorageManagement.Delete(PasswordKey, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasPassword(PasswordKey: Guid): Boolean
     var

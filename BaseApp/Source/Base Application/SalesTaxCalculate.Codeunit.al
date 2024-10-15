@@ -415,7 +415,7 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine);
+        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine, TotalForAllocation);
         if IsHandled then
             exit;
 
@@ -1262,8 +1262,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Tax Amount" := "Tax Amount" + AddedTaxAmount;
                         TotalTaxAmount := TotalTaxAmount + AddedTaxAmount;
                     end;
-                    "Tax Amount" := "Tax Amount" + "Tax Difference";
-                    TotalTaxAmount := TotalTaxAmount + "Tax Difference";
+                    ApplyTaxDifference(TempSalesTaxAmountLine, TotalTaxAmount);
                     "Amount Including Tax" := "Tax Amount" + "Tax Base Amount";
                     if TaxOnTaxCalculated and CalculationOrderViolation then
                         Error(
@@ -1294,6 +1293,19 @@ codeunit 398 "Sales Tax Calculate"
                     Insert;
                 until SalesTaxAmountLine2.Next() = 0;
         end;
+    end;
+
+    local procedure ApplyTaxDifference(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line"; var TotalTaxAmount: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeApplyTaxDifference(TempSalesTaxAmountLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempSalesTaxAmountLine."Tax Amount" := TempSalesTaxAmountLine."Tax Amount" + TempSalesTaxAmountLine."Tax Difference";
+        TotalTaxAmount := TotalTaxAmount + TempSalesTaxAmountLine."Tax Difference";
     end;
 
     procedure GetSummarizedSalesTaxTable(var SummarizedSalesTaxAmtLine: Record "Sales Tax Amount Line")
@@ -2190,7 +2202,7 @@ codeunit 398 "Sales Tax Calculate"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitSalesTaxLines(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean)
+    local procedure OnBeforeInitSalesTaxLines(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean; var TotalForAllocation: Decimal)
     begin
     end;
 
@@ -2231,6 +2243,11 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPostedSummarizedSalesTaxTable(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var TempSalesTaxAmountDifference: Record "Sales Tax Amount Difference" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyTaxDifference(var TempSalesTaxAmountLine: Record "Sales Tax Amount Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2290,7 +2307,7 @@ codeunit 398 "Sales Tax Calculate"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnEndSalesTaxCalculationOnAfterCalculateMaxAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; TaxDetail: Record "Tax Detail"; var MaxAmount : Decimal; var AddedTaxAmount : Decimal; TaxBaseAmt : Decimal);
+    local procedure OnEndSalesTaxCalculationOnAfterCalculateMaxAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; TaxDetail: Record "Tax Detail"; var MaxAmount: Decimal; var AddedTaxAmount: Decimal; TaxBaseAmt: Decimal);
     begin
     end;
 

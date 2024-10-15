@@ -946,7 +946,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterExportData(varTempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
+    local procedure OnAfterExportData(var varTempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
     begin
     end;
 
@@ -961,7 +961,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnExportDataOnAfterCloseBook(TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    local procedure OnExportDataOnAfterCloseBook(var TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     begin
     end;
 }
