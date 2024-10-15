@@ -1114,7 +1114,7 @@
   </Item>
   <Item ItemId=";Codeunit 2882671476 - NamedType 3386467460" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The target email address has not been specified in]]></Val>
+      <Val><![CDATA[The target email address has not been specified on the document layout for %1, %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
