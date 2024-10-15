@@ -744,6 +744,7 @@ table 295 "Reminder Header"
         if ReminderLevel.FindLast then begin
             CalcFields("Remaining Amount");
             AdditionalFee := ReminderLevel.GetAdditionalFee("Remaining Amount", "Currency Code", false, "Posting Date");
+            OnInsertLinesOnAfterCalcAdditionalFee(Rec, ReminderLevel, AdditionalFee);
 
             if AdditionalFee > 0 then begin
                 ReminderLine.Reset();
@@ -780,6 +781,7 @@ table 295 "Reminder Header"
                 ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
+                OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine);
                 ReminderLine.Insert();
                 if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
                     TransferExtendedText.InsertReminderExtText(ReminderLine);
@@ -953,6 +955,7 @@ table 295 "Reminder Header"
                     ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
+                OnInsertTextLinesOnBeforeReminderLineInsert(ReminderLine, ReminderText, ReminderHeader);
                 ReminderLine.Insert();
             until ReminderText.Next() = 0;
             if ReminderText.Position = ReminderText.Position::Beginning then
@@ -967,6 +970,7 @@ table 295 "Reminder Header"
         ReminderLine."Line No." := NextLineNo;
         ReminderLine."Line Type" := LineType;
         OnBeforeInsertReminderLine(ReminderLine);
+        OnInsertBlankLineOnBeforeReminderLineInsert(ReminderLine);
         ReminderLine.Insert();
     end;
 
@@ -1036,7 +1040,7 @@ table 295 "Reminder Header"
     var
         TotalAmountInclVAT: Decimal;
     begin
-        GetCurrency(ReminderHeader);
+        GetCurrency();
         if Currency."Invoice Rounding Precision" = 0 then
             exit(0);
 
@@ -1088,15 +1092,14 @@ table 295 "Reminder Header"
         end;
     end;
 
-    local procedure GetCurrency(ReminderHeader: Record "Reminder Header")
+    local procedure GetCurrency()
     begin
-        with ReminderHeader do
-            if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
-            else begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
+        if "Currency Code" = '' then
+            Currency.InitRoundingPrecision
+        else begin
+            Currency.Get("Currency Code");
+            Currency.TestField("Amount Rounding Precision");
+        end;
     end;
 
     procedure UpdateReminderRounding(ReminderHeader: Record "Reminder Header")
@@ -1295,13 +1298,30 @@ table 295 "Reminder Header"
     begin
     end;
 
+    [Obsolete('Replaced with OnInsertLinesOnBeforeReminderLineInsert', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertReminderLine(var ReminderLine: Record "Reminder Line")
     begin
     end;
 
+    [Obsolete('Replaced with OnInsertTextLinesOnBeforeReminderLineInsert', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLinesOnBeforeReminderLineInsert(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBlankLineOnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTextLinesOnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 
@@ -1352,6 +1372,11 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertEndTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLinesOnAfterCalcAdditionalFee(var ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; var AdditionalFee: Decimal)
     begin
     end;
 

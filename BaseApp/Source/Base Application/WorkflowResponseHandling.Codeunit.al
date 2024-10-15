@@ -257,7 +257,13 @@ codeunit 1521 "Workflow Response Handling"
         WorkflowManagement: Codeunit "Workflow Management";
         ResponseExecuted: Boolean;
         TelemetryDimensions: Dictionary of [Text, Text];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExecuteResponse(Variant, ResponseWorkflowStepInstance, xVariant, IsHandled);
+        if IsHandled then
+            exit;
+
         WorkflowManagement.GetTelemetryDimensions(ResponseWorkflowStepInstance."Function Name", ResponseWorkflowStepInstance.ToString(), TelemetryDimensions);
 
         if not WorkflowResponse.Get(ResponseWorkflowStepInstance."Function Name") then begin
@@ -524,7 +530,13 @@ codeunit 1521 "Workflow Response Handling"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateNotificationEntry(WorkflowStepInstance, ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             NotificationEntry.CreateNotificationEntry(
                 WorkflowStepArgument."Notification Entry Type",
@@ -1060,7 +1072,12 @@ codeunit 1521 "Workflow Response Handling"
     procedure IsArgumentMandatory(ResponseFunctionName: Code[128]): Boolean
     var
         ArgumentMandatory: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsArgumentMandatory(ResponseFunctionName, ArgumentMandatory, IsHandled);
+        if IsHandled then
+            exit(ArgumentMandatory);
         if ResponseFunctionName in
            [CreateNotificationEntryCode, CreatePmtLineForPostedPurchaseDocAsyncCode, CreateApprovalRequestsCode,
             CreatePmtLineForPostedPurchaseDocCode]
@@ -1237,6 +1254,21 @@ codeunit 1521 "Workflow Response Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowRecordUsageDefault(var Variant: Variant; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNotificationEntry(WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExecuteResponse(var Variant: Variant; ResponseWorkflowStepInstance: Record "Workflow Step Instance"; xVariant: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsArgumentMandatory(ResponseFunctionName: Code[128]; var ArgumentMandatory: Boolean; var IsHandled: Boolean)
     begin
     end;
 

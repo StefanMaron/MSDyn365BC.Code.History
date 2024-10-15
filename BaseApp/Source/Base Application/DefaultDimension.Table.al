@@ -357,7 +357,13 @@
     trigger OnDelete()
     var
         DimValuePerAccount: Record "Dim. Value per Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, DimMgt, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", '');
@@ -372,7 +378,14 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, DimMgt, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", "Dimension Value Code");
@@ -384,7 +397,14 @@
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, DimMgt, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         if "Dimension Code" = GLSetup."Global Dimension 1 Code" then
             UpdateGlobalDimCode(1, "Table ID", "No.", "Dimension Value Code");
@@ -897,6 +917,7 @@
         DimValuePerAccount."Dimension Value Code" := DimValue.Code;
         DimValuePerAccount."Table ID" := "Table ID";
         DimValuePerAccount."No." := "No.";
+        DimValuePerAccount.Allowed := false;
         DimValuePerAccount.Insert();
     end;
 
@@ -1323,6 +1344,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var DefaultDimension: Record "Default Dimension"; var DimensionManagement: Codeunit DimensionManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var DefaultDimension: Record "Default Dimension"; var DimensionManagement: Codeunit DimensionManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var DefaultDimension: Record "Default Dimension"; var DimensionManagement: Codeunit DimensionManagement; var IsHandled: Boolean)
     begin
     end;
 

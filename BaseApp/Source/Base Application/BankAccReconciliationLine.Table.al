@@ -705,6 +705,7 @@
                     if "Statement Amount" = 0 then
                         Error(TransactionAmountMustNotBeZeroErr);
                     PaymentApplication.SetBankAccReconcLine(Rec);
+                    OnDisplayApplicationOnAfterSetBankAccReconcLine(PaymentApplication);
                     PaymentApplication.RunModal;
                 end;
         end;
@@ -792,6 +793,8 @@
         "Transaction Date" := WorkDate;
         "Match Confidence" := "Match Confidence"::None;
         "Document No." := '';
+
+        OnAfterSetUpNewLine(Rec, xRec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1653,6 +1656,7 @@
         "Posting Group" := TempGenJnlLine."Posting Group";
         Validate("Applied Amount", -TempGenJnlLine.Amount);
         Validate("Applied Amount (LCY)", -GetAppliedAmtFromAdvLetters(true));
+        OnLinkWholeLettersOnBeforeModify(Rec);
         Modify;
 
         CreateAppliedPaymentEntryForLetter;
@@ -2045,6 +2049,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountName(AccountType: Option; AccountNo: Code[20]; var Name: Text)
     begin
     end;
@@ -2085,6 +2094,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterSetBankAccReconcLine(var PaymentApplication: Page "Payment Application");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
@@ -2096,6 +2110,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkWholeLettersOnBeforeModify(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
     begin
     end;
 }

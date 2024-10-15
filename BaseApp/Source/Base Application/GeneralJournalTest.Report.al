@@ -911,7 +911,6 @@ report 2 "General Journal - Test"
         AllocationDimText: Text[75];
         ShowDim: Boolean;
         Continue: Boolean;
-        Text063: Label 'Document,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
         Text064: Label '%1 %2 is already used in line %3 (%4 %5).';
         Text065: Label '%1 must not be blocked with type %2 when %3 is %4.';
         CurrentICPartner: Code[20];
@@ -1104,15 +1103,9 @@ report 2 "General Journal - Test"
                 if GenJnlTemplate."Force Doc. Balance" then begin
                     case true of
                         DocBalance <> 0:
-                            AddError(
-                              StrSubstNo(
-                                Text025,
-                                SelectStr(LastDocType.AsInteger() + 1, Text063), LastDocNo, DocBalance));
+                            AddError(StrSubstNo(Text025, LastDocType, LastDocNo, DocBalance));
                         DocBalanceReverse <> 0:
-                            AddError(
-                              StrSubstNo(
-                                Text026,
-                                SelectStr(LastDocType.AsInteger() + 1, Text063), LastDocNo, DocBalanceReverse));
+                            AddError(StrSubstNo(Text026, LastDocType, LastDocNo, DocBalanceReverse));
                     end;
                     DocBalanceReverse := 0;
                 end;

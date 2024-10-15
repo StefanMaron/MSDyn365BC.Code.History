@@ -1,4 +1,4 @@
-codeunit 1020 JobJnlManagement
+﻿codeunit 1020 JobJnlManagement
 {
     Permissions = TableData "Job Journal Template" = imd,
                   TableData "Job Journal Batch" = imd,
@@ -27,7 +27,7 @@ codeunit 1020 JobJnlManagement
         JobJnlTemplate.Reset();
         JobJnlTemplate.SetRange("Page ID", PageID);
         JobJnlTemplate.SetRange(Recurring, RecurringJnl);
-
+        OnTemplateSelectionOnAfterJobJnlTemplateSetFilters(PageID, RecurringJnl, JobJnlLine, JobJnlTemplate);
         case JobJnlTemplate.Count of
             0:
                 begin
@@ -64,7 +64,13 @@ codeunit 1020 JobJnlManagement
     var
         JobJnlLine: Record "Job Journal Line";
         JobJnlTemplate: Record "Job Journal Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTemplateSelectionFromBatch(JobJnlBatch, OpenFromBatch, IsHandled);
+        if IsHandled then
+            exit;
+
         OpenFromBatch := true;
         JobJnlTemplate.Get(JobJnlBatch."Journal Template Name");
         JobJnlTemplate.TestField("Page ID");
@@ -81,7 +87,9 @@ codeunit 1020 JobJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var JobJnlLine: Record "Job Journal Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, JobJnlLine);
         JobJnlLine.CheckJobJournalLineUserRestriction; // NAVCZ
+
         CheckTemplateName(JobJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         JobJnlLine.FilterGroup := 2;
         JobJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -188,18 +196,11 @@ codeunit 1020 JobJnlManagement
 
     procedure GetNames(var JobJnlLine: Record "Job Journal Line"; var JobDescription: Text[100]; var AccName: Text[100])
     var
-        Job: Record Job;
         Res: Record Resource;
         Item: Record Item;
         GLAcc: Record "G/L Account";
     begin
-        if (JobJnlLine."Job No." = '') or
-           (JobJnlLine."Job No." <> LastJobJnlLine."Job No.")
-        then begin
-            JobDescription := '';
-            if Job.Get(JobJnlLine."Job No.") then
-                JobDescription := Job.Description;
-        end;
+        JobDescription := GetJobDescription(JobJnlLine);
 
         if (JobJnlLine.Type <> LastJobJnlLine.Type) or
            (JobJnlLine."No." <> LastJobJnlLine."No.")
@@ -222,6 +223,25 @@ codeunit 1020 JobJnlManagement
         LastJobJnlLine := JobJnlLine;
     end;
 
+    local procedure GetJobDescription(JobJnlLine: Record "Job Journal Line") JobDescription: Text[100]
+    var
+        Job: Record Job;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetJobDescription(JobJnlLine, LastJobJnlLine, JobDescription, IsHandled);
+        if IsHandled then
+            exit(JobDescription);
+
+        if (JobJnlLine."Job No." = '') or
+           (JobJnlLine."Job No." <> LastJobJnlLine."Job No.")
+        then begin
+            JobDescription := '';
+            if Job.Get(JobJnlLine."Job No.") then
+                JobDescription := Job.Description;
+        end;
+    end;
+
     procedure GetNextEntryNo(): Integer
     var
         JobEntryNo: Record "Job Entry No.";
@@ -238,6 +258,26 @@ codeunit 1020 JobJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupNameOnAfterSetFilters(var JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJobDescription(JobJnlLine: Record "Job Journal Line"; LastJobJnlLine: Record "Job Journal Line"; var JobDescription: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelectionFromBatch(var JobJnlBatch: Record "Job Journal Batch"; var OpenFromBatch: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTemplateSelectionOnAfterJobJnlTemplateSetFilters(PageID: Integer; RecurringJnl: Boolean; var JobJnlLine: Record "Job Journal Line"; var JobJournalTemplate: Record "Job Journal Template")
     begin
     end;
 }

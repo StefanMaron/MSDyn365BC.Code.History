@@ -22,7 +22,7 @@ codeunit 1330 "Instruction Mgt."
         AutomaticLineItemsDialogNotificationTxt: Label 'Discover line items in Outlook add-in';
         AutomaticLineItemsDialogNotificationDescriptionTxt: Label 'Scan the email body for potential line items when you create documents in the Outlook add-in.';
         ClosingUnreleasedOrdersNotificationTxt: Label 'Warn about unreleased orders.';
-        ClosingUnreleasedOrdersNotificationDescriptionTxt: Label 'Show warning when you close an order that you have not released.';
+        ClosingUnreleasedOrdersNotificationDescriptionTxt: Label 'Show a warning when you close an order that requires warehouse handling but has not been released.';
         ClosingUnreleasedOrdersConfirmQst: Label 'The document has not been released.\Are you sure you want to exit?';
 
     procedure ShowConfirm(ConfirmQst: Text; InstructionType: Code[50]): Boolean

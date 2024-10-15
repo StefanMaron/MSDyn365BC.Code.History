@@ -296,6 +296,8 @@ codeunit 1720 "Deferral Utilities"
                 end else
                     EndDate := (TempDate + NumberOfDaysIntoCurrentPeriod);
         end;
+        OnCalculateDaysPerPeriodOnAfterCalcEndDate(DeferralHeader, DeferralLine, DeferralTemplate, EndDate);
+
         NumberOfDaysInSchedule := (EndDate - DeferralHeader."Start Date");
         DailyDeferralAmount := (DeferralHeader."Amount to Defer" / NumberOfDaysInSchedule);
 
@@ -998,6 +1000,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnBeforeDeferralLineInsert(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDaysPerPeriodOnAfterCalcEndDate(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template"; var EndDate: Date)
     begin
     end;
 

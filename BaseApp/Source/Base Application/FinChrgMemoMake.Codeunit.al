@@ -24,6 +24,8 @@ codeunit 394 "FinChrgMemo-Make"
         OverDue: Boolean;
 
     procedure "Code"(): Boolean
+    var
+        CustIsBlocked: Boolean;
     begin
         with FinChrgMemoHeader do
             if "No." <> '' then begin
@@ -48,7 +50,9 @@ codeunit 394 "FinChrgMemo-Make"
             if HeaderExists then
                 FinChrgMemoCheck(FinChrgMemoHeader."Currency Code")
             else begin
-                if Blocked = Blocked::All then
+                CustIsBlocked := Blocked = Blocked::All;
+                OnCodeOnAfterCalcCustIsBlocked(Cust, CustIsBlocked);
+                if CustIsBlocked then
                     exit(false);
                 Currency.DeleteAll();
                 TempCurrency.DeleteAll();
@@ -272,6 +276,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcCustIsBlocked(Customer: Record Customer; var CustIsBlocked: Boolean)
     begin
     end;
 

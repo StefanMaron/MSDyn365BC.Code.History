@@ -330,10 +330,8 @@ codeunit 418 "User Management"
         MyNotifications: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS() then
-            exit;
         MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, true);
+          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]

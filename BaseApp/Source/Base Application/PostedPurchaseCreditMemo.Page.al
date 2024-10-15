@@ -910,7 +910,7 @@ page 140 "Posted Purchase Credit Memo"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Open the posted sales invoice that was created when you canceled the posted sales credit memo. If the posted sales credit memo is the result of a canceled sales invoice, then canceled invoice will open.';
+                    ToolTip = 'Open the posted purchase invoice that was created when you canceled the posted purchase credit memo. If the posted purchase credit memo is the result of a canceled purchase invoice, then canceled invoice will open.';
                     Visible = Cancelled OR Corrective;
 
                     trigger OnAction()

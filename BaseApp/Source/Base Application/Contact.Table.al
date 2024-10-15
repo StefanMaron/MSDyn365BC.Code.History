@@ -1,4 +1,4 @@
-table 5050 Contact
+﻿table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
@@ -1084,7 +1084,7 @@ table 5050 Contact
         SetLastDateTimeModified;
 
         if "No." <> '' then
-            if IsUpdateNeeded then
+            if IsUpdateNeeded(ContactBeforeModify) then
                 UpdateCustVendBank.Run(Rec);
 
         if Type = Type::Company then begin
@@ -1478,7 +1478,7 @@ table 5050 Contact
 
         if CustomerTemplateCode <> '' then
             CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustTemplate);
-        OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate);
+        OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate, Rec);
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
 
@@ -3210,36 +3210,36 @@ table 5050 Contact
         Contact.MarkedOnly(true);
     end;
 
-    local procedure IsUpdateNeeded(): Boolean
+    local procedure IsUpdateNeeded(ContactBeforeModify: Record Contact): Boolean
     var
         UpdateNeeded: Boolean;
     begin
         UpdateNeeded :=
-          (Name <> xRec.Name) or
-          ("Search Name" <> xRec."Search Name") or
-          ("Name 2" <> xRec."Name 2") or
-          (Address <> xRec.Address) or
-          ("Address 2" <> xRec."Address 2") or
-          (City <> xRec.City) or
-          ("Phone No." <> xRec."Phone No.") or
-          ("Telex No." <> xRec."Telex No.") or
-          ("Territory Code" <> xRec."Territory Code") or
-          ("Currency Code" <> xRec."Currency Code") or
-          ("Language Code" <> xRec."Language Code") or
-          ("Salesperson Code" <> xRec."Salesperson Code") or
-          ("Country/Region Code" <> xRec."Country/Region Code") or
-          ("Fax No." <> xRec."Fax No.") or
-          ("Telex Answer Back" <> xRec."Telex Answer Back") or
-          ("VAT Registration No." <> xRec."VAT Registration No.") or
-          ("Post Code" <> xRec."Post Code") or
-          (County <> xRec.County) or
-          ("E-Mail" <> xRec."E-Mail") or
-          ("Home Page" <> xRec."Home Page") or
-          (Type <> xRec.Type) or
-          ("Registration No." <> xRec."Registration No.") or
-          ("Tax Registration No." <> xRec."Tax Registration No.");
+          (Name <> ContactBeforeModify.Name) or
+          ("Search Name" <> ContactBeforeModify."Search Name") or
+          ("Name 2" <> ContactBeforeModify."Name 2") or
+          (Address <> ContactBeforeModify.Address) or
+          ("Address 2" <> ContactBeforeModify."Address 2") or
+          (City <> ContactBeforeModify.City) or
+          ("Phone No." <> ContactBeforeModify."Phone No.") or
+          ("Telex No." <> ContactBeforeModify."Telex No.") or
+          ("Territory Code" <> ContactBeforeModify."Territory Code") or
+          ("Currency Code" <> ContactBeforeModify."Currency Code") or
+          ("Language Code" <> ContactBeforeModify."Language Code") or
+          ("Salesperson Code" <> ContactBeforeModify."Salesperson Code") or
+          ("Country/Region Code" <> ContactBeforeModify."Country/Region Code") or
+          ("Fax No." <> ContactBeforeModify."Fax No.") or
+          ("Telex Answer Back" <> ContactBeforeModify."Telex Answer Back") or
+          ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
+          ("Post Code" <> ContactBeforeModify."Post Code") or
+          (County <> ContactBeforeModify.County) or
+          ("E-Mail" <> ContactBeforeModify."E-Mail") or
+          ("Home Page" <> ContactBeforeModify."Home Page") or
+          (Type <> ContactBeforeModify.Type) or
+          ("Registration No." <> ContactBeforeModify."Registration No.") or
+          ("Tax Registration No." <> ContactBeforeModify."Tax Registration No.");
 
-        OnBeforeIsUpdateNeeded(Rec, xRec, UpdateNeeded);
+        OnBeforeIsUpdateNeeded(Rec, ContactBeforeModify, UpdateNeeded);
         exit(UpdateNeeded);
     end;
 
@@ -3476,7 +3476,7 @@ table 5050 Contact
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
+    local procedure OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ."; var Contact: Record Contact)
     begin
     end;
 

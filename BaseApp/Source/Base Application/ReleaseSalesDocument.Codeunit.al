@@ -56,7 +56,7 @@
                     else
                         exit;
 
-            TestField("Sell-to Customer No.");
+            TestSellToCustomerNo(SalesHeader);
 
             IsHandled := false;
             OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled);
@@ -155,6 +155,18 @@
         end;
     end;
 
+    local procedure TestSellToCustomerNo(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestSellToCustomerNo(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeader.TestField("Sell-to Customer No.");
+    end;
+
     procedure Reopen(var SalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -182,16 +194,26 @@
     end;
 
     procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
-    var
-        PrepaymentMgt: Codeunit "Prepayment Mgt.";
     begin
-        OnPerformManualReleaseOnBeforeTestSalesPrepayment(SalesHeader, PreviewMode);
-        if PrepaymentMgt.TestSalesPrepayment(SalesHeader) then
-            Error(UnpostedPrepaymentAmountsErr, SalesHeader."Document Type", SalesHeader."No.");
+        CheckPrepaymentsForManualRelease(SalesHeader);
 
         OnBeforeManualReleaseSalesDoc(SalesHeader, PreviewMode);
         PerformManualCheckAndRelease(SalesHeader);
         OnAfterManualReleaseSalesDoc(SalesHeader, PreviewMode);
+    end;
+
+    local procedure CheckPrepaymentsForManualRelease(var SalesHeader: Record "Sales Header")
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnPerformManualReleaseOnBeforeTestSalesPrepayment(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PrepaymentMgt.TestSalesPrepayment(SalesHeader) then
+            Error(UnpostedPrepaymentAmountsErr, SalesHeader."Document Type", SalesHeader."No.");
     end;
 
     procedure PerformManualCheckAndRelease(var SalesHeader: Record "Sales Header")
@@ -242,12 +264,24 @@
 
     procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
     begin
-        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
-            Error(Text003);
+        CheckReopenStatus(SalesHeader);
 
         OnBeforeManualReOpenSalesDoc(SalesHeader, PreviewMode);
         Reopen(SalesHeader);
         OnAfterManualReOpenSalesDoc(SalesHeader, PreviewMode);
+    end;
+
+    local procedure CheckReopenStatus(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReopenStatus(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
+            Error(Text003);
     end;
 
     local procedure ReleaseATOs(SalesHeader: Record "Sales Header")
@@ -313,6 +347,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeManualReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSellToCustomerNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -407,6 +446,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReopenStatus(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualCheckAndRelease(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -417,7 +461,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -494,13 +494,17 @@
 
     procedure CheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean)
     var
-        ValueEntry: Record "Value Entry";
         ItemRec: Record Item;
         PostedATOLink: Record "Posted Assemble-to-Order Link";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemLedgEntries(TempItemLedgEntry, LineRef, InvoicedEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempItemLedgEntry do begin
             Find('-'); // Assertion: will fail if not found.
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.");
             ItemRec.Get("Item No.");
             if ItemRec.IsNonInventoriableType then
                 exit;
@@ -526,19 +530,33 @@
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
 
-                ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                if ValueEntry.Find('-') then
-                    repeat
-                        if ValueEntry."Item Charge No." <> '' then
-                            Error(Text012, LineRef);
-                        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
-                            Error(Text014, LineRef);
-                    until ValueEntry.Next() = 0;
+                CheckValueEntries(TempItemLedgEntry, LineRef, InvoicedEntry);
 
                 if ItemRec."Costing Method" = ItemRec."Costing Method"::Specific then
                     TestField("Serial No.");
             until Next() = 0;
         end; // WITH
+    end;
+
+    local procedure CheckValueEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean)
+    var
+        ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckValueEntries(TempItemLedgEntry, LineRef, InvoicedEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgEntry."Entry No.");
+        if ValueEntry.FindSet() then
+            repeat
+                if ValueEntry."Item Charge No." <> '' then
+                    Error(Text012, LineRef);
+                if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
+                    Error(Text014, LineRef);
+            until ValueEntry.Next() = 0;
     end;
 
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -1323,6 +1341,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckMissingItemLedgers(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckValueEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean; var IsHandled: Boolean)
     begin
     end;
 

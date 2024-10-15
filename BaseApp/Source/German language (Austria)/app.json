@@ -2,7 +2,7 @@
     "id":  "3a66faf9-4111-4ec3-be7e-7ca33e9421a0",
     "name":  "German language (Austria)",
     "publisher":  "Microsoft",
-    "version":  "18.5.29545.0",
+    "version":  "18.6.30510.0",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "18.5.0.0"
+    "application":  "18.6.0.0"
 }

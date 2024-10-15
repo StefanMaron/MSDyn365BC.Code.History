@@ -1585,7 +1585,7 @@ codeunit 31000 "Sales-Post Advances"
         GenJournalLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
         GenJournalLine."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
 
-        OnBeforePostVATCorrectionToGL(GenJournalLine, SalesAdvanceLetterLine);
+        OnBeforePostVATCorrectionToGL(GenJournalLine, SalesAdvanceLetterLine, VATAmtToDeduct, BaseToDeduct);
         if BaseToDeductLCY <> 0 then
             GenJnlPostLine.RunWithCheck(GenJournalLine);
 
@@ -1609,6 +1609,7 @@ codeunit 31000 "Sales-Post Advances"
            SalesAdvanceLetterLine."VAT Calculation Type"::"Reverse Charge VAT"
         then begin
             GenJournalLine."Account No." := GetSalesAdvanceOffsetVATAccount(SalesAdvanceLetterLine."VAT Bus. Posting Group", SalesAdvanceLetterLine."VAT Prod. Posting Group");
+            OnPostVATCorrectionToGLOnAfterVATOffsetAccount(SalesAdvanceLetterLine, GenJournalLine."Account No.");
             GenJournalLine."Advance VAT Base Amount" := 0;
             SetPostingGroups(GenJournalLine, SalesAdvanceLetterLine, true);
             GenJournalLine.Validate(Amount, -VATAmountLCY);
@@ -1640,6 +1641,7 @@ codeunit 31000 "Sales-Post Advances"
                 GenJnlPostLine.RunWithCheck(GenJournalLine);
 
                 GenJournalLine."Account No." := GetSalesAdvanceOffsetVATAccount(SalesAdvanceLetterLine."VAT Bus. Posting Group", SalesAdvanceLetterLine."VAT Prod. Posting Group");
+                OnPostVATCorrectionToGLOnAfterGainLossVATOffsetAccount(SalesAdvanceLetterLine, GenJournalLine."Account No.");
                 GenJournalLine.Validate(Amount, -GenJournalLine."Advance Exch. Rate Difference");
                 GenJournalLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
                 GenJournalLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
@@ -2542,6 +2544,8 @@ codeunit 31000 "Sales-Post Advances"
                         RunGenJnlPostLine(GenJnlLine);
 
                         GenJnlLine."Account No." := GetSalesAdvanceOffsetVATAccount(TempPrepmtInvLineBuf."VAT Bus. Posting Group", TempPrepmtInvLineBuf."VAT Prod. Posting Group");
+                        OnAfterPostVATCreditMemoGetSalesAdvanceOffsetVATAccount(
+                          TempPrepmtInvLineBuf."VAT Bus. Posting Group", TempPrepmtInvLineBuf."VAT Prod. Posting Group", SalesAdvanceLetterHeader."Customer Posting Group", GenJnlLine."Account No.");
                         GenJnlLine.Validate(Amount, -VATAmountLCYDif);
                         RunGenJnlPostLine(GenJnlLine);
                     end;
@@ -3359,6 +3363,7 @@ codeunit 31000 "Sales-Post Advances"
                             then begin
                                 GenJnlLine."Account No." := GetSalesAdvanceOffsetVATAccount(
                                     SalesAdvanceLetterLine2."VAT Bus. Posting Group", SalesAdvanceLetterLine2."VAT Prod. Posting Group");
+                                OnUnPostInvoiceCorrectionOnAfterVATDeductionVATOffsetAccount(SalesAdvanceLetterLine2, GenJnlLine."Account No.");
                                 GenJnlLine."Advance VAT Base Amount" := 0;
                                 SetPostingGroups(GenJnlLine, SalesAdvanceLetterLine2, true);
                                 GenJnlLine.Validate(Amount, SalesAdvanceLetterEntry."VAT Amount (LCY)");
@@ -3388,6 +3393,7 @@ codeunit 31000 "Sales-Post Advances"
                                 UnPostInvCorrGL(SalesInvHeader, GenJnlLine);
                                 GenJnlLine."Account No." := GetSalesAdvanceOffsetVATAccount(
                                     SalesAdvanceLetterLine2."VAT Bus. Posting Group", SalesAdvanceLetterLine2."VAT Prod. Posting Group");
+                                OnUnPostInvoiceCorrectionOnAfterVATRateVATOffsetAccount(SalesAdvanceLetterLine2, GenJnlLine."Account No.");
                                 GenJnlLine.Validate(Amount, -GenJnlLine."Advance Exch. Rate Difference");
                                 UnPostInvCorrGL(SalesInvHeader, GenJnlLine);
                             end;
@@ -5479,7 +5485,7 @@ codeunit 31000 "Sales-Post Advances"
         end;
     end;
 
-    local procedure GetInvCurrFactor(LetterNo: Code[20]): Decimal
+    procedure GetInvCurrFactor(LetterNo: Code[20]): Decimal
     var
         AdvanceLink: Record "Advance Link";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -5533,7 +5539,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostVATCorrectionToGL(var GenJournalLine: Record "Gen. Journal Line"; SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
+    local procedure OnBeforePostVATCorrectionToGL(var GenJournalLine: Record "Gen. Journal Line"; SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; VATAmtToDeduct: Decimal; BaseToDeduct: Decimal)
     begin
     end;
 
@@ -5864,6 +5870,31 @@ codeunit 31000 "Sales-Post Advances"
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveLinksOnBeforeUpdInvAmountToLineRelations(AdvanceLink: record "Advance Link")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVATCorrectionToGLOnAfterVATOffsetAccount(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var SalesAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVATCorrectionToGLOnAfterGainLossVATOffsetAccount(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var SalesAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnAfterVATDeductionVATOffsetAccount(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var SalesAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnAfterVATRateVATOffsetAccount(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var SalesAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostVATCreditMemoGetSalesAdvanceOffsetVATAccount(VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; CustomerPostingGroup: Code[20]; var SalesAdvanceOffsetVATAccount: Code[20]);
     begin
     end;
 }

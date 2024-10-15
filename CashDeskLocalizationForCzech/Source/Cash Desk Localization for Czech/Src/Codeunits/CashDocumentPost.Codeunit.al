@@ -23,10 +23,12 @@ codeunit 11729 "Cash Document-Post CZP"
         if GenJnlCheckLine.DateNotAllowed(CashDocumentHeaderCZP."Posting Date") then
             CashDocumentHeaderCZP.FieldError(CashDocumentHeaderCZP."Posting Date", PostingDateOutRangeErr);
 
+        OnRunOnBeforeDocumentRelease(CashDocumentHeaderCZP);
         if CashDocumentHeaderCZP.Status <> CashDocumentHeaderCZP.Status::Released then begin
             Codeunit.Run(Codeunit::"Cash Document-Release CZP", CashDocumentHeaderCZP);
             NoCheckCashDocument := true;
         end;
+        OnRunOnAfterDocumentRelease(CashDocumentHeaderCZP);
         // test cash desk
         CashDeskCZP.Get(CashDocumentHeaderCZP."Cash Desk No.");
         CashDeskCZP.TestField(Blocked, false);
@@ -36,8 +38,10 @@ codeunit 11729 "Cash Document-Post CZP"
 
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Cash Desk CZP");
+        OnRunOnBeforeCheckCashDocument(CashDocumentHeaderCZP, NoCheckCashDocument);
         if not NoCheckCashDocument then
             CashDocumentReleaseCZP.CheckCashDocument(Rec);
+        OnRunOnAfterCheckCashDocument(CashDocumentHeaderCZP, NoCheckCashDocument);
 
         if CashDocumentHeaderCZP.RecordLevelLocking then begin
             CashDocumentLineCZP.LockTable();
@@ -447,6 +451,26 @@ codeunit 11729 "Cash Document-Post CZP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedCashDocLineInsert(var PostedCashDocumentLineCZP: Record "Posted Cash Document Line CZP"; var PostedCashDocumentHdrCZP: Record "Posted Cash Document Hdr. CZP"; var CashDocumentLineCZP: Record "Cash Document Line CZP")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeDocumentRelease(CashDocumentHeaderCZP: Record "Cash Document Header CZP")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterDocumentRelease(CashDocumentHeaderCZP: Record "Cash Document Header CZP")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckCashDocument(CashDocumentHeaderCZP: Record "Cash Document Header CZP"; var NoCheckCashDocument: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCheckCashDocument(CashDocumentHeaderCZP: Record "Cash Document Header CZP"; NoCheckCashDocument: Boolean)
     begin
     end;
 }

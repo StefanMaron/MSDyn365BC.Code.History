@@ -271,8 +271,14 @@ table 454 "Approval Entry"
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         RecRef: RecordRef;
         ChangeRecordDetails: Text;
+        IsHandled: Boolean;
     begin
-        if not RecRef.Get("Record ID to Approve") then
+        IsHandled := false;
+        OnBeforeRecordDetails(Rec, Details, IsHandled);
+        if IsHandled then
+            exit(Details);
+
+        if not GetRecordToApprove(RecRef) then
             exit(RecNotExistTxt);
 
         ChangeRecordDetails := GetChangeRecordDetails;
@@ -338,6 +344,12 @@ table 454 "Approval Entry"
         end;
 
         OnAfterGetRecordDetails(RecRef, ChangeRecordDetails, Details);
+    end;
+
+    local procedure GetRecordToApprove(var RecRef: RecordRef) Result: Boolean
+    begin
+        Result := RecRef.Get("Record ID to Approve");
+        OnAfterGetRecordToApprove(Rec, RecRef, Result);
     end;
 
     procedure IsOverdue(): Boolean
@@ -438,6 +450,11 @@ table 454 "Approval Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordToApprove(ApprovalEntry: Record "Approval Entry"; var RecRef: RecordRef; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustVendorDetails(var ApprovalEntry: Record "Approval Entry"; var CustVendorNo: Code[20]; var CustVendorName: Text[100])
     begin
     end;
@@ -449,6 +466,11 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowRecord(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecordDetails(var ApprovalEntry: Record "Approval Entry"; var Details: Text; var IsHandled: Boolean)
     begin
     end;
 
