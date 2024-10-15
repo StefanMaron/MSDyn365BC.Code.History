@@ -9,7 +9,7 @@ report 11000002 "Payment History Overview"
         dataitem("Bank Account"; "Bank Account")
         {
             PrintOnlyIfDetail = true;
-            column(CreditLimit_BankAcc; "Bank Account"."Credit limit")
+            column(CreditLimit_BankAcc; "Bank Account".GetCreditLimit())
             {
             }
             column(IBAN_BankAcc; IBAN)

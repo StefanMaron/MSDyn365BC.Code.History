@@ -28,24 +28,24 @@ page 11000001 "Telebank Proposal"
                         BankAccFilterOnAfterValidate();
                     end;
                 }
-                field("Bnk.""Currency Code"""; Bnk."Currency Code")
+                field("Bnk.""Currency Code"""; BankAccount."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies the currency code for the amounts on the proposal line.';
                 }
-                field(BankAccountNo; Bnk."Bank Account No.")
+                field(BankAccountNo; BankAccount."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Account No.';
                     Editable = false;
                     ToolTip = 'Specifies the number of the customer or vendor bank account that the proposal is made for. ';
                 }
-                field(BankAccountBalance; Bnk.Balance)
+                field(BankAccountBalance; BankAccount.Balance)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = Bnk."Currency Code";
+                    AutoFormatExpression = BankAccount."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Balance';
                     Editable = false;
@@ -442,10 +442,10 @@ page 11000001 "Telebank Proposal"
                     Enabled = MessageEnable;
                     ToolTip = 'Specifies the text of any warning or error message concerning the proposal line.';
                 }
-                field("Bnk.""Credit limit"""; Bnk."Credit limit")
+                field("Bnk.""Credit limit"""; BankAccount.GetCreditLimit())
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = Bnk."Currency Code";
+                    AutoFormatExpression = BankAccount."Currency Code";
                     AutoFormatType = 1;
                     BlankZero = true;
                     Caption = 'Credit Limit';
@@ -455,7 +455,7 @@ page 11000001 "Telebank Proposal"
                 field(TotalAmount; TotAmount)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = Bnk."Currency Code";
+                    AutoFormatExpression = BankAccount."Currency Code";
                     AutoFormatType = 1;
                     BlankZero = true;
                     Caption = 'Total Amount';
@@ -834,11 +834,11 @@ page 11000001 "Telebank Proposal"
 
     trigger OnOpenPage()
     begin
-        if GetFilter("Our Bank No.") = '' then begin
-            Clear(Bnk);
-            Bnk.FindFirst;
-            SetRange("Our Bank No.", Bnk."No.");
-            BankAccFilter := Bnk."No."
+        if Rec.GetFilter("Our Bank No.") = '' then begin
+            Clear(BankAccount);
+            BankAccount.FindFirst();
+            Rec.SetRange("Our Bank No.", BankAccount."No.");
+            BankAccFilter := BankAccount."No.";
         end;
 
         BankAccFilterOnFormat();
@@ -850,7 +850,7 @@ page 11000001 "Telebank Proposal"
         Text1000002: Label 'Moving %1 from %2 to %3';
         Text1000003: Label 'Error Message';
         Text1000004: Label 'Warning';
-        Bnk: Record "Bank Account";
+        BankAccount: Record "Bank Account";
         ProcessingLines: Codeunit "Process Proposal Lines";
         Text1000005: Label 'Current Line,All Lines';
         ShortcutDimCode: array[8] of Code[20];
@@ -936,13 +936,13 @@ page 11000001 "Telebank Proposal"
 
     local procedure BankAccFilterOnFormat()
     begin
-        if (BankAccFilter <> '') and (BankAccFilter = Bnk."No.") then
+        if (BankAccFilter <> '') and (BankAccFilter = BankAccount."No.") then
             exit;
 
-        Clear(Bnk);
-        Bnk.Get(GetFilter("Our Bank No."));
-        Bnk.CalcFields(Balance);
-        BankAccFilter := Bnk."No.";
+        Clear(BankAccount);
+        BankAccount.Get(GetFilter("Our Bank No."));
+        BankAccount.CalcFields(Balance);
+        BankAccFilter := BankAccount."No.";
     end;
 }
 

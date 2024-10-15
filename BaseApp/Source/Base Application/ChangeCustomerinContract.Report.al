@@ -114,12 +114,9 @@ report 6037 "Change Customer in Contract"
 
         trigger OnOpenPage()
         begin
-            ServContractMgt.GetAffectedItemsOnCustChange(
-              ContractNo,
-              TempServContract,
-              TempServItem,
-              false,
-              ServContractLine."Contract Type"::Contract);
+            ServContractMgt.GetAffectedItemsOnContractChange(
+                ContractNo, TempServContract, TempServItem,
+                false, ServContractLine."Contract Type"::Contract);
 
             if TempServContract.Count > 1 then
                 ContractNoText := Text004
@@ -151,12 +148,8 @@ report 6037 "Change Customer in Contract"
         ServContract.LockTable();
         Clear(TempServContract);
         Clear(TempServItem);
-        ServContractMgt.GetAffectedItemsOnCustChange(
-          ContractNo,
-          TempServContract,
-          TempServItem,
-          false,
-          ServContractLine."Contract Type"::Contract);
+        ServContractMgt.GetAffectedItemsOnContractChange(
+          ContractNo, TempServContract, TempServItem, false, ServContractLine."Contract Type"::Contract);
 
         Window.Open(
           Text005 +

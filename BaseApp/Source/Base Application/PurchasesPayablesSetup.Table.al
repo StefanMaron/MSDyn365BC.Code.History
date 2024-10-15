@@ -1,4 +1,4 @@
-table 312 "Purchases & Payables Setup"
+﻿table 312 "Purchases & Payables Setup"
 {
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
@@ -245,6 +245,10 @@ table 312 "Purchases & Payables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Purchase Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -333,6 +337,22 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
+        }
+        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Purchase Header");
+                end;
+            end;
         }
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
@@ -424,45 +444,45 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Show Totals on Purch. Inv./CM.';
             ObsoleteReason = 'Duplicate to W1 document totals';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11313; "Insert Std. Vend. Purch. Lines"; Option)
         {
             Caption = 'Insert Std. Vend. Purch. Lines';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(11314; Quotes; Boolean)
         {
             Caption = 'Quotes';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11319; "Credit Memos"; Boolean)
         {
             Caption = 'Credit Memos';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {

@@ -10,7 +10,6 @@
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         DimMgt: Codeunit DimensionManagement;
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         GLSetupFound: Boolean;
         CompanyInfoFound: Boolean;
         Text000: Label 'Do you want to re-create the transaction?';
@@ -241,9 +240,6 @@
         ICOutBoxSalesHeader: Record "IC Outbox Sales Header";
         ICOutBoxSalesLine: Record "IC Outbox Sales Line";
         ICDocDim: Record "IC Document Dimension";
-#if not CLEAN17                            
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         ItemReference: Record "Item Reference";
         Item: Record Item;
         TransactionNo: Integer;
@@ -325,23 +321,11 @@
                                 ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
                                     begin
                                         Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                                        if ItemReferenceMgt.IsEnabled() then begin
-                                            ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
-                                            ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
-                                            ItemReference.SetRange("Item No.", SalesInvLine."No.");
-                                            if ItemReference.FindFirst() then
-                                                "IC Item Reference No." := ItemReference."Reference No.";
-                                        end;
-#if not CLEAN17
-                                        if not ItemReferenceMgt.IsEnabled() then begin
-                                            ItemCrossReference.SetRange("Cross-Reference Type",
-                                            ItemCrossReference."Cross-Reference Type"::Customer);
-                                            ItemCrossReference.SetRange("Cross-Reference Type No.", SalesInvLine."Bill-to Customer No.");
-                                            ItemCrossReference.SetRange("Item No.", SalesInvLine."No.");
-                                            if ItemCrossReference.FindFirst then
-                                                "IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
-                                        end;
-#endif
+                                        ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
+                                        ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
+                                        ItemReference.SetRange("Item No.", SalesInvLine."No.");
+                                        if ItemReference.FindFirst() then
+                                            "IC Item Reference No." := ItemReference."Reference No.";
                                     end;
                                 ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
                                     begin
@@ -830,9 +814,6 @@
     var
         SalesLine: Record "Sales Line";
         ICDocDim: Record "IC Document Dimension";
-#if not CLEAN17
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         Currency: Record Currency;
         Precision: Decimal;
         DimensionSetIDArr: array[10] of Integer;
@@ -858,30 +839,29 @@
                 "IC Partner Ref. Type"::"Cross reference":
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
-                        if ItemReferenceMgt.IsEnabled() then
-                            SalesLine.Validate("Item Reference No.", "IC Item Reference No.");
-#if not CLEAN16                            
-                        if not ItemReferenceMgt.IsEnabled() then
-                            SalesLine.Validate("Cross-Reference No.", "IC Partner Reference");
-#endif                            
+                        SalesLine.Validate("Item Reference No.", "IC Item Reference No.");
                     end;
-                "IC Partner Ref. Type"::Item, "IC Partner Ref. Type"::"Vendor Item No.":
+                "IC Partner Ref. Type"::Item:
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
-                        if ItemReferenceMgt.IsEnabled() then
-                            SalesLine."No." :=
-                                GetItemFromItemRef(
-                                    "IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
-#if not CLEAN17
-                        if not ItemReferenceMgt.IsEnabled() then
-                            SalesLine."No." :=
-                                GetItemFromRef(
-                                    "IC Partner Reference", ItemCrossReference."Cross-Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
-#endif
+                        SalesLine."No." :=
+                            GetItemFromItemRef(
+                                "IC Partner Reference", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
                             SalesLine."No." := "IC Partner Reference";
+                    end;
+                "IC Partner Ref. Type"::"Vendor Item No.":
+                    begin
+                        SalesLine.Validate(Type, SalesLine.Type::Item);
+                        SalesLine."No." :=
+                            GetItemFromItemRef(
+                                "IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                        if SalesLine."No." <> '' then
+                            SalesLine.Validate("No.", SalesLine."No.")
+                        else
+                            SalesLine."No." := CopyStr("IC Item Reference No.", 1, MaxStrLen(SalesLine."No."));
                     end;
                 "IC Partner Ref. Type"::"G/L Account":
                     begin
@@ -1061,9 +1041,6 @@
     var
         PurchLine: Record "Purchase Line";
         ICDocDim: Record "IC Document Dimension";
-#if not CLEAN17
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         Currency: Record Currency;
         Precision: Decimal;
         Precision2: Decimal;
@@ -1095,16 +1072,9 @@
                 "IC Partner Ref. Type"::Item:
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::Item);
-                        if ItemReferenceMgt.IsEnabled() then
-                            PurchLine."No." :=
-                                GetItemFromItemRef(
-                                    "IC Item Reference No.", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
-#if not CLEAN17
-                        if not ItemReferenceMgt.IsEnabled() then
-                            PurchLine."No." :=
-                                GetItemFromRef(
-                                    "IC Partner Reference", ItemCrossReference."Cross-Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
-#endif
+                        PurchLine."No." :=
+                            GetItemFromItemRef(
+                                "IC Partner Reference", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("No.", PurchLine."No.")
                         else
@@ -1123,12 +1093,7 @@
                 "IC Partner Ref. Type"::"Cross reference":
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::Item);
-                        if ItemReferenceMgt.IsEnabled() then
-                            PurchLine.Validate("Item Reference No.", "IC Item Reference No.");
-#if not CLEAN16                            
-                        if not ItemReferenceMgt.IsEnabled() then
-                            PurchLine.Validate("Cross-Reference No.", "IC Partner Reference");
-#endif                            
+                        PurchLine.Validate("Item Reference No.", "IC Item Reference No.");
                     end;
                 else
                     OnCreatePurchLinesOnICPartnerRefTypeCaseElse(PurchLine, PurchHeader, ICInboxPurchLine);
@@ -2426,9 +2391,6 @@
     local procedure UpdateSalesLineICPartnerReference(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
     var
         ICPartner: Record "IC Partner";
-#if not CLEAN16
-        ItemCrossReference: Record "Item Cross Reference";
-#endif        
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
     begin
@@ -2450,22 +2412,11 @@
                     ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
                         begin
                             SalesLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                            if ItemReferenceMgt.IsEnabled() then begin
-                                ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
-                                ItemReference.SetRange("Reference Type No.", SalesHeader."Sell-to Customer No.");
-                                ItemReference.SetRange("Item No.", "IC Partner Reference");
-                                if ItemReference.FindFirst then
-                                    SalesLine."IC Item Reference No." := ItemReference."Reference No.";
-                            end;
-#if not CLEAN16                            
-                            if not ItemReferenceMgt.IsEnabled() then begin
-                                ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
-                                ItemCrossReference.SetRange("Cross-Reference Type No.", SalesHeader."Sell-to Customer No.");
-                                ItemCrossReference.SetRange("Item No.", "IC Partner Reference");
-                                if ItemCrossReference.FindFirst then
-                                    SalesLine."IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
-                            end;
-#endif                            
+                            ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
+                            ItemReference.SetRange("Reference Type No.", SalesHeader."Sell-to Customer No.");
+                            ItemReference.SetRange("Item No.", "IC Item Reference No.");
+                            if ItemReference.FindFirst() then
+                                SalesLine."IC Item Reference No." := ItemReference."Reference No.";
                         end;
                 end;
             end else begin
@@ -2482,9 +2433,6 @@
     local procedure UpdatePurchLineICPartnerReference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
     var
         ICPartner: Record "IC Partner";
-#if not CLEAN17                            
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
         IsHandled: Boolean;
@@ -2512,22 +2460,11 @@
                     ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
                         begin
                             PurchaseLine.Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                            if ItemReferenceMgt.IsEnabled() then begin
-                                ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
-                                ItemReference.SetRange("Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
-                                ItemReference.SetRange("Item No.", "IC Partner Reference");
-                                if ItemReference.FindFirst() then
-                                    PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
-                            end;
-#if not CLEAN17                            
-                            if not ItemReferenceMgt.IsEnabled() then begin
-                                ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-                                ItemCrossReference.SetRange("Cross-Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
-                                ItemCrossReference.SetRange("Item No.", "IC Partner Reference");
-                                if ItemCrossReference.FindFirst then
-                                    PurchaseLine."IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
-                            end;
-#endif
+                            ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
+                            ItemReference.SetRange("Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
+                            ItemReference.SetRange("Item No.", "IC Item Reference No.");
+                            if ItemReference.FindFirst() then
+                                PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
                         end;
                     ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
                         begin

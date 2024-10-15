@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5508 "Sales Credit Memo Line Entity"
 {
     Caption = 'Sales Credit Memo Line Entity';
@@ -508,4 +509,4 @@ page 5508 "Sales Credit Memo Line Entity"
             Description := Item.Description;
     end;
 }
-
+#endif

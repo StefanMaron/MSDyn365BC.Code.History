@@ -2162,7 +2162,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         SalesLine.SetRange(Reserve, SalesLine.Reserve::Optional, SalesLine.Reserve::Always);
         if SalesLine.FindSet() then
             repeat
-                ReservMgt.SetSalesLine(SalesLine);
+                ReservMgt.SetReservSource(SalesLine);
                 SalesLine.TestField("Shipment Date");
                 SalesLine.CalcFields("Reserved Qty. (Base)");
                 ReservMgt.AutoReserveToShip(

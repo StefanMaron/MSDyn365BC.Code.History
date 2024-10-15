@@ -14,85 +14,85 @@ page 11000000 "Telebank - Bank Overview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the bank account.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the amounts.';
                 }
-                field(IBAN; IBAN)
+                field(IBAN; Rec.IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field(Control6; Balance)
+                field(Control6; Rec.Balance)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     BlankZero = true;
                     ToolTip = 'Specifies the bank account''s current balance denominated in the applicable foreign currency.';
                 }
-                field("Min. Balance"; "Min. Balance")
+                field("Min. Balance"; Rec."Min. Balance")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     ToolTip = 'Specifies a minimum balance for the bank account.';
                     Visible = false;
                 }
-                field(Proposal; Proposal)
+                field(Proposal; Rec.Proposal)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     BlankZero = true;
                     ToolTip = 'Specifies the total amount of proposed and to be processed payments/collections for this bank account.';
 
                     trigger OnDrillDown()
                     begin
-                        OpenProposal;
+                        OpenProposal();
                     end;
                 }
-                field("Payment History"; "Payment History")
+                field("Payment History"; Rec."Payment History")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     BlankZero = true;
                     ToolTip = 'Specifies the total amount of payment history entries for this bank account that have not been posted yet.';
 
                     trigger OnDrillDown()
                     begin
-                        OpenPayment;
+                        OpenPayment();
                     end;
                 }
-                field("Credit limit"; "Credit limit")
+                field("Credit limit"; Rec.GetCreditLimit())
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Credit Limit';
                     ToolTip = 'Specifies the remaining amount available to use for payments.';
@@ -261,7 +261,7 @@ page 11000000 "Telebank - Bank Overview"
 
                     trigger OnAction()
                     begin
-                        OpenProposal;
+                        OpenProposal();
                     end;
                 }
                 action(GetProposalEntries)
@@ -397,10 +397,10 @@ page 11000000 "Telebank - Bank Overview"
         PaymHist: Record "Payment History";
     begin
         PaymHist.FilterGroup(10);
-        PaymHist.SetRange("Our Bank", "No.");
+        PaymHist.SetRange("Our Bank", Rec."No.");
         PaymHist.FilterGroup(0);
         PaymentHistory.SetTableView(PaymHist);
-        PaymentHistory.Run;
+        PaymentHistory.Run();
     end;
 
     [Scope('OnPrem')]
@@ -409,10 +409,10 @@ page 11000000 "Telebank - Bank Overview"
         ProposalWindow: Page "Telebank Proposal";
         Prop: Record "Proposal Line";
     begin
-        Prop.SetRange("Our Bank No.", "No.");
+        Prop.SetRange("Our Bank No.", Rec."No.");
         ProposalWindow.SetTableView(Prop);
         ProposalWindow.SetRecord(Prop);
-        ProposalWindow.Run;
+        ProposalWindow.Run();
     end;
 }
 

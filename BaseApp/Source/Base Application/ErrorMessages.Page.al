@@ -1,4 +1,4 @@
-﻿page 700 "Error Messages"
+page 700 "Error Messages"
 {
     Caption = 'Error Messages';
     DeleteAllowed = false;
@@ -78,6 +78,17 @@
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL of an external web site that offers additional support.';
                 }
+                field(CallStack; CallStack)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Error Call Stack';
+                    ToolTip = 'Specifies the call stack where the error occurred.';
+
+                    trigger OnDrillDown()
+                    begin
+                        ShowErrorCallStack();
+                    end;
+                }
             }
         }
     }
@@ -117,12 +128,14 @@
     trigger OnAfterGetRecord()
     begin
         SetStyle;
+        CallStack := Rec.GetErrorCallStack();
     end;
 
     var
         PageManagement: Codeunit "Page Management";
         [InDataSet]
         StyleText: Text[20];
+        CallStack: Text;
         EnableOpenRelatedEntity: Boolean;
 
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)

@@ -243,6 +243,11 @@ table 137 "Inc. Doc. Attachment Overview"
         TempIncDocAttachmentOverview."Sorting Order" := SortingOrder;
     end;
 
+    procedure IsGroupOrLink(): Boolean
+    begin
+        exit(("Attachment Type" = "Attachment Type"::Group) or ("Attachment Type" = "Attachment Type"::Link));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertFromIncomingDocument(IncomingDocument: Record "Incoming Document"; var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; var SortingOrder: Integer)
     begin

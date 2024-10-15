@@ -610,7 +610,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
 
         if QtyToReserve > 0 then begin
             FullReservation := (Qty = QtyToReserve);
-            ReservationManagement.SetSalesLine(SalesLine);
+            ReservationManagement.SetReservSource(SalesLine);
             ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
               Round(QtyToReserve / SalesLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         end;
@@ -644,7 +644,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
 
         if QtyToReserve > 0 then begin
             FullReservation := (Qty = QtyToReserve);
-            ReservationManagement.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
+            ReservationManagement.SetReservSource(TransferLine, "Transfer Direction"::Outbound);
             ReservationManagement.AutoReserve(FullReservation, '', TransferLine."Shipment Date",
               Round(QtyToReserve / TransferLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         end;
@@ -691,15 +691,15 @@ codeunit 137016 "SCM Create Pick Data Driven"
             FullReservation := (Qty = QtyToReserve);
             ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
             ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-            ProdOrderComponent.FindFirst;
-            ReservationManagement.SetProdOrderComponent(ProdOrderComponent);
+            ProdOrderComponent.FindFirst();
+            ReservationManagement.SetReservSource(ProdOrderComponent);
             ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComponent."Due Date",
               Round(QtyToReserve / ProdOrderComponent."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         end;
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
+    local procedure RegisterWhseActivity(ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Enum "Warehouse Activity Document Type"; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
@@ -769,7 +769,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
     end;
 
     [Normal]
-    local procedure CheckPick(LineType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceDocNo: Code[20]; WhseDocNo: Code[20]; ExpectedQty: Decimal)
+    local procedure CheckPick(LineType: Enum "Warehouse Action Type"; SourceDoc: Enum "Warehouse Activity Source Document"; WhseDocType: Enum "Warehouse Activity Document Type"; SourceDocNo: Code[20]; WhseDocNo: Code[20]; ExpectedQty: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         ActualQty: Decimal;

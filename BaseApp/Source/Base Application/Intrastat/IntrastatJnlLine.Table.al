@@ -58,12 +58,11 @@
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
-        field(11; "Source Type"; Option)
+        field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             BlankZero = true;
             Caption = 'Source Type';
-            OptionCaption = ',Item Entry,Job Entry';
-            OptionMembers = ,"Item Entry","Job Entry";
+
             trigger OnValidate()
             begin
                 "Country/Region of Origin Code" := GetCountryOfOriginCode();
@@ -219,7 +218,7 @@
         {
             Caption = 'Partner VAT ID';
         }
-        field(31;"Location Code";Code[10])
+        field(31; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
@@ -294,7 +293,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetItemDescription(IsHandled);
+        OnBeforeGetItemDescription(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -375,7 +374,7 @@
         Customer: Record Customer;
         Vendor: Record Vendor;
     begin
-        if not ItemLedgerEntry.Get("Source Entry No.") then 
+        if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
@@ -472,9 +471,9 @@
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
     begin
-        if not JobLedgerEntry.Get("Source Entry No.") then 
+        if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
-        if not Job.Get(JobLedgerEntry."Job No.") then 
+        if not Job.Get(JobLedgerEntry."Job No.") then
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
@@ -494,7 +493,7 @@
         if IsThirdPartyTrade then
             exit('QV999999999999999');
 
-        if (CountryRegionCode <> '') and CountryRegion.Get(CountryRegionCode) then
+        if CountryRegion.Get(CountryRegionCode) then
             if CountryRegion.IsEUCountry(CountryRegionCode) then
                 if VATRegistrationNo <> '' then
                     exit(VATRegistrationNo);
@@ -526,7 +525,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
 }

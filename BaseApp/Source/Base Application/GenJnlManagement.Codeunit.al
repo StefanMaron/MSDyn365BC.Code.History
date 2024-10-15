@@ -1,4 +1,4 @@
-﻿codeunit 230 GenJnlManagement
+codeunit 230 GenJnlManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;

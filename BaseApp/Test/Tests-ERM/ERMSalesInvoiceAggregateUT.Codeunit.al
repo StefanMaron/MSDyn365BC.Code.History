@@ -2039,6 +2039,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
           DummySalesInvoiceEntityAggregate.FieldNo("Posting Date"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo(IsTest), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo("Shortcut Dimension 1 Code"), Database::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo("Shortcut Dimension 2 Code"), Database::"Sales Invoice Entity Aggregate", TempField);
     end;
 
     local procedure GetFieldsThatMustMatchWithSalesLine(var TempField: Record "Field" temporary)

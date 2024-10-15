@@ -17,7 +17,6 @@ page 9658 "Vendor Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usage';
-                    OptionCaption = 'Purchase Order,Vendor Remittance,Vendor Remittance - Posted Entries,Posted Return Shipment';
                     ToolTip = 'Specifies which type of document the report is used for.';
 
                     trigger OnValidate()
@@ -191,7 +190,7 @@ page 9658 "Vendor Report Selections"
     end;
 
     var
-        Usage2: Option "Purchase Order","Vendor Remittance","Vendor Remittance - Posted Entries","Posted Return Shipment";
+        Usage2: Enum "Report Selection Usage Vendor";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
 
     local procedure MapTableUsageValueToPageValue()

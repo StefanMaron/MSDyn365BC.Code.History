@@ -196,9 +196,9 @@ page 8632 "Config. Worksheet"
                 action("Users Personalization")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Users Personalization';
+                    Caption = 'Users Settings';
                     Image = UserSetup;
-                    RunObject = Page "User Personalization List";
+                    RunObject = Page "User Settings List";
                     ToolTip = 'View or edit UI changes that will be configured in the database.';
                 }
             }

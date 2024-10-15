@@ -1,4 +1,4 @@
-#if not CLEAN16
+#if not CLEAN17
 page 5721 "Item Cross Reference Entries"
 {
     Caption = 'Item Cross Reference Entries';

@@ -514,6 +514,7 @@ page 233 "Apply Vendor Entries"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Process;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()

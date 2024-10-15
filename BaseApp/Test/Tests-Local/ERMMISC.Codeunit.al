@@ -1,4 +1,4 @@
-﻿codeunit 144018 "ERM MISC"
+codeunit 144018 "ERM MISC"
 {
     // 1. Verify Transaction Mode Code and Bank Account Code after Posting Service Order.
     // 2. Verify Transaction Mode Code and Bank Account Code after Posting Service Invoice.

@@ -21,7 +21,7 @@ report 11000001 "Proposal Overview"
             column(PaymentHistory_BankAcc; "Payment History")
             {
             }
-            column(CreditLimit_BankAcc; "Bank Account"."Credit limit")
+            column(CreditLimit_BankAcc; "Bank Account".GetCreditLimit())
             {
             }
             column(Balance_BankAcc; Balance)

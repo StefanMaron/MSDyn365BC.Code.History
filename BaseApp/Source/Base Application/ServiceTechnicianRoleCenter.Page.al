@@ -1,6 +1,6 @@
 page 9017 "Service Technician Role Center"
 {
-    Caption = 'Outbound Technician - Customer Service', Comment = '{Dependency=Match,"ProfileDescription_OUTBOUNDTECHNICIAN"}';
+    Caption = 'Outbound Technician - Customer Service';
     PageType = RoleCenter;
 
     layout

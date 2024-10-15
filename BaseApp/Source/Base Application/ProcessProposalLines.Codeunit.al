@@ -344,7 +344,7 @@ codeunit 11000000 "Process Proposal Lines"
             exit(false);
         end;
 
-        if BankAccount."Credit limit" < 0 then begin
+        if BankAccount.GetCreditLimit() < 0 then begin
             Errortext := StrSubstNo(Text1000021, ProposalLine."Our Bank No.");
             exit(false);
         end;

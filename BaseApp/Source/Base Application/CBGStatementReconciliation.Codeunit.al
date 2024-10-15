@@ -55,7 +55,6 @@ codeunit 11000006 "CBG Statement Reconciliation"
         HideMessages: Boolean;
         BankAccountCharsToKeep: Text[250];
 
-    [Scope('OnPrem')]
     procedure MatchCBGStatement(CBGStatement: Record "CBG Statement")
     var
         CBGStatementLine: Record "CBG Statement Line";
@@ -518,7 +517,6 @@ codeunit 11000006 "CBG Statement Reconciliation"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetHideMessages(HideMessages2: Boolean)
     begin
         HideMessages := HideMessages2;

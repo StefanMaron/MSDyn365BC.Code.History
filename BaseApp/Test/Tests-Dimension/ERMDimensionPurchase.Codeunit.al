@@ -1039,6 +1039,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
@@ -1078,11 +1079,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
-
-        VerifyVATEntriesAmountAndAmountACY(
-            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        PurchSetup.Get();
+        if PurchSetup."Invoice Posting Setup" = "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+            InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
+            InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+            VerifyVATEntriesAmountAndAmountACY(
+                VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        end;
     end;
 
     [Test]
@@ -1094,6 +1097,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
@@ -1133,11 +1137,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.94, 5.93, 5.94, 5.93);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
-
-        VerifyVATEntriesAmountAndAmountACY(
-            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        PurchSetup.Get();
+        if PurchSetup."Invoice Posting Setup" = "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+            InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.94, 5.93, 5.94, 5.93);
+            InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+            VerifyVATEntriesAmountAndAmountACY(
+                VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        end;
     end;
 
     [Test]
@@ -1151,6 +1157,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         ExchangeRate: Decimal;
         Index: Integer;
@@ -1199,11 +1206,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 153, 112.7, 112.9, 112.7, 112.9);
-
-        VerifyVATEntriesAmountAndAmountACY(
-            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        PurchSetup.Get();
+        if PurchSetup."Invoice Posting Setup" = "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+            InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
+            InitializeExpectedVATAmounts(ExpectedVATAmountACY, 153, 112.7, 112.9, 112.7, 112.9);
+            VerifyVATEntriesAmountAndAmountACY(
+                VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        end;
     end;
 
     [Test]
@@ -1217,6 +1226,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         Index: Integer;
@@ -1267,11 +1277,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 8.1, 5.9, 5.9, 6, 5.9);
-
-        VerifyVATEntriesAmountAndAmountACY(
-            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        PurchSetup.Get();
+        if PurchSetup."Invoice Posting Setup" = "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+            InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
+            InitializeExpectedVATAmounts(ExpectedVATAmountACY, 8.1, 5.9, 5.9, 6, 5.9);
+            VerifyVATEntriesAmountAndAmountACY(
+                VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        end;
     end;
 
     [Test]
@@ -1286,6 +1298,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         ExchangeRateACY: Decimal;
@@ -1343,11 +1356,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 1988.4, 1465.8, 1465.6, 1465.8, 1465.6);
-
-        VerifyVATEntriesAmountAndAmountACY(
-            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        PurchSetup.Get();
+        if PurchSetup."Invoice Posting Setup" = "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+            InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
+            InitializeExpectedVATAmounts(ExpectedVATAmountACY, 1988.4, 1465.8, 1465.6, 1465.8, 1465.6);
+            VerifyVATEntriesAmountAndAmountACY(
+                VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+        end;
     end;
 
     local procedure Initialize()

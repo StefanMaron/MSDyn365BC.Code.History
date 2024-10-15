@@ -597,6 +597,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Close;
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('PaymentHistoryListPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -616,6 +617,7 @@ codeunit 144036 "UT PAG Telebank"
         // Verify: Verification done by PaymentHistoryListPageHandler, Payment History List page open successfully.
         TelebankBankOverview.Close;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ContactListPageHandler')]
@@ -674,6 +676,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Close;
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('PaymentHistoryListPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -693,6 +696,7 @@ codeunit 144036 "UT PAG Telebank"
         // Verify: Verification done by PaymentHistoryListPageHandler, Payment HistoryList page open successfully.
         TelebankBankOverview.Close;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ProposalOverviewRequestPageHandler')]
@@ -944,6 +948,7 @@ codeunit 144036 "UT PAG Telebank"
         ProposalDetailLine.Close;
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('PaymentHistoryCardModalPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1159,6 +1164,7 @@ codeunit 144036 "UT PAG Telebank"
         // Verify: Verification done by CustomerCardPageHandler, Customer Card page open successfully.
         PaymentHistoryCard.Close;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('DimensionSetEntriesPageHandler')]
@@ -1321,10 +1327,11 @@ codeunit 144036 "UT PAG Telebank"
         TelebankProposal.Close;
 
         Assert.AreEqual(
-          1, CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Page, PAGE::"Telebank Proposal", 'Bnk.GET'),
-          'Unnecessary Bnk.GET found');
+          1, CodeCoverageMgt.GetNoOfHitsCoverageForObject(
+              CodeCoverage."Object Type"::Page, PAGE::"Telebank Proposal", 'BankAccount.GET'), 'Unnecessary BankAccount.GET found');
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1380,6 +1387,7 @@ codeunit 144036 "UT PAG Telebank"
         // [THEN] Checksum field in the Payment History is populated
         LibraryNLLocalization.VerifyPaymentHistoryChecksum(PaymentHistory."Our Bank", true, ExportProtocol.Code);
     end;
+#endif
 
     local procedure CreateBankAccount(): Code[20]
     var
@@ -1466,6 +1474,7 @@ codeunit 144036 "UT PAG Telebank"
         exit(DefaultDimension."Dimension Code");
     end;
 
+#if not CLEAN17
     local procedure CreateExportProtocol(ExportObjectType: Option): Code[20]
     var
         ExportProtocol: Record "Export Protocol";
@@ -1485,6 +1494,7 @@ codeunit 144036 "UT PAG Telebank"
             exit(Code);
         end;
     end;
+#endif
 
     local procedure CreateImportProtocol(): Code[20]
     var
@@ -1495,6 +1505,7 @@ codeunit 144036 "UT PAG Telebank"
         exit(ImportProtocol.Code);
     end;
 
+#if not CLEAN17
     local procedure CreatePaymentHistory(ExportObjectType: Option): Code[20]
     var
         PaymentHistory: Record "Payment History";
@@ -1506,6 +1517,7 @@ codeunit 144036 "UT PAG Telebank"
         PaymentHistory.Insert();
         exit(PaymentHistory."Our Bank");
     end;
+#endif
 
     local procedure CreatePaymentTerms(): Code[10]
     var
@@ -1657,6 +1669,7 @@ codeunit 144036 "UT PAG Telebank"
         exit(EmployeeLedgerEntry."Document No.");
     end;
 
+#if not CLEAN17
     local procedure OpenPaymentHistoryList(PaymentHistoryList: TestPage "Payment History List"; ExportObjectType: Option)
     begin
         PaymentHistoryList.OpenEdit;
@@ -1668,6 +1681,7 @@ codeunit 144036 "UT PAG Telebank"
         PaymentHistoryCard.OpenEdit;
         PaymentHistoryCard.FILTER.SetFilter("Our Bank", CreatePaymentHistory(ExportObjectType));
     end;
+#endif
 
     local procedure OpenProposalDetailLine(var ProposalDetailLine: TestPage "Proposal Detail Line"; AccountType: Option; AccountNo: Code[20]; TransactionMode: Code[20])
     begin

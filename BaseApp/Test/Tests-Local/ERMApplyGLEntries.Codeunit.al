@@ -163,19 +163,21 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply GL Entries");
         LibraryVariableStorage.Clear;
+#if not CLEAN19
         EnableNewPage();
+#endif
     end;
 
-    local procedure EnableNewPage()
 #if not CLEAN19
+    local procedure EnableNewPage()
     var
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
         GLSetup."Use New Apply G/L Entries Page" := true;
         GLSetup.Modify();
-#endif
     end;
+#endif
 
     local procedure GLEntryApplication(Amount: Decimal; AppliedAmount: Decimal)
     var

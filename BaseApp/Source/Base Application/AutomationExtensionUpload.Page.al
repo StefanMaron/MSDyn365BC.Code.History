@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5447 "Automation Extension Upload"
 {
     APIGroup = 'automation';
@@ -11,6 +12,9 @@ page 5447 "Automation Extension Upload"
     PageType = API;
     SourceTable = "API Extension Upload"; // table with a BLOB field
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -61,4 +65,4 @@ page 5447 "Automation Extension Upload"
         DotNetALPackageDeploymentSchedule: DotNet ALPackageDeploymentSchedule;
         loaded: Boolean;
 }
-
+#endif

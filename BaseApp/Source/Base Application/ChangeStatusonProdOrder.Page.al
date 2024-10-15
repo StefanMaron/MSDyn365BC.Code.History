@@ -1,4 +1,4 @@
-﻿page 99000882 "Change Status on Prod. Order"
+page 99000882 "Change Status on Prod. Order"
 {
     Caption = 'Change Status on Prod. Order';
     DataCaptionExpression = '';

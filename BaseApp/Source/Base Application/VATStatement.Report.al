@@ -395,7 +395,7 @@ report 12 "VAT Statement"
             exit(Amount + AmountToAdd);
     end;
 
-    local procedure GetCurrency(): Code[10]
+    protected procedure GetCurrency(): Code[10]
     begin
         if UseAmtsInAddCurr then
             exit(GLSetup."Additional Reporting Currency")

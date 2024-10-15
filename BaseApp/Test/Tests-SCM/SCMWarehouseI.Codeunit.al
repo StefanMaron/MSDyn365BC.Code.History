@@ -1618,7 +1618,7 @@ codeunit 137047 "SCM Warehouse I"
         SalesLine: Record "Sales Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         StockQty: Integer;
     begin
         // [FEATURE] [Item Tracking] [Bin Content]
@@ -1686,7 +1686,7 @@ codeunit 137047 "SCM Warehouse I"
         SalesLine: array[2] of Record "Sales Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Bin Content]
         // [SCENARIO 269846] Serial No. tracked item and item without tracking can be picked in one warehouse pick
@@ -2183,7 +2183,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
     end;
 
-    local procedure AssignLotNoToItemJournalLine(ItemJournalLine: Record "Item Journal Line"; LotNo: Code[20]; Qty: Decimal)
+    local procedure AssignLotNoToItemJournalLine(ItemJournalLine: Record "Item Journal Line"; LotNo: Code[50]; Qty: Decimal)
     begin
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
@@ -2347,7 +2347,7 @@ codeunit 137047 "SCM Warehouse I"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateItemStockWithLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure CreateItemStockWithLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2754,7 +2754,7 @@ codeunit 137047 "SCM Warehouse I"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure SetQtyToHandleOnWhseActivityLine(SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    local procedure SetQtyToHandleOnWhseActivityLine(SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; LotNo: Code[50]; QtyToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -2866,7 +2866,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, ItemNo, Qty, true);
     end;
 
-    local procedure UpdateItemTrackingOnWarehouseActivityLines(ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[20])
+    local procedure UpdateItemTrackingOnWarehouseActivityLines(ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[50])
     var
         WarehouseActivityLineTake: Record "Warehouse Activity Line";
         WarehouseActivityLinePlace: Record "Warehouse Activity Line";
@@ -2984,7 +2984,7 @@ codeunit 137047 "SCM Warehouse I"
         Assert.AreEqual(0, PostedWhseReceiptLine.Count, ErrNoRecord);
     end;
 
-    local procedure VerifyReservedLotNo(ItemNo: Code[20]; LotNo: Code[20])
+    local procedure VerifyReservedLotNo(ItemNo: Code[20]; LotNo: Code[50])
     var
         ReservEntry: Record "Reservation Entry";
     begin
@@ -2996,7 +2996,7 @@ codeunit 137047 "SCM Warehouse I"
         end;
     end;
 
-    local procedure VerifyReservationEntryLotQty(SourceType: Integer; LotNo: Code[20]; Qty: Decimal)
+    local procedure VerifyReservationEntryLotQty(SourceType: Integer; LotNo: Code[50]; Qty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -3006,7 +3006,7 @@ codeunit 137047 "SCM Warehouse I"
         ReservationEntry.TestField(Quantity, Qty);
     end;
 
-    local procedure VerifySalesReservationFromInventory(SalesLine: Record "Sales Line"; LotNo: Code[20])
+    local procedure VerifySalesReservationFromInventory(SalesLine: Record "Sales Line"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -3024,7 +3024,7 @@ codeunit 137047 "SCM Warehouse I"
         end;
     end;
 
-    local procedure VerifyPurchaseSurplusReservEntry(PurchaseLine: Record "Purchase Line"; LotNo: Code[20])
+    local procedure VerifyPurchaseSurplusReservEntry(PurchaseLine: Record "Purchase Line"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin

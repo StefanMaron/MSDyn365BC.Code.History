@@ -284,6 +284,9 @@ table 287 "Customer Bank Account"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }

@@ -392,6 +392,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Commit;
 
         VATStatementNames.OpenView;
+        Commit();
         VATStatementNames."&Print".Invoke; // Print
         VATStatementNames.Close;
 

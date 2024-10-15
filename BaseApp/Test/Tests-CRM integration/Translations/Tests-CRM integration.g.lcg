@@ -266,6 +266,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = system user ID]D;]A;(LookupHint=Codeunit CDS Integration Mgt Test - NamedType UserNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3981235901 - NamedType 1846235690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are about to couple Business Central records to Dataverse entities from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CDS Match Based Coupling - NamedType ConfirmCouplingInBackgroundTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3981235901 - NamedType 1361647408" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Match-based coupling is scheduled. \Details are available on the Integration Synchronization Jobs page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = mapping name]D;]A;(LookupHint=Codeunit CDS Match Based Coupling - NamedType CouplingScheduledTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2848412310 - NamedType 2697970647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?]]></Val>
@@ -790,7 +808,7 @@
   </Item>
   <Item ItemId=";Codeunit 882869326 - NamedType 2838944305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The synchronization has been scheduled for 2 of 2 records. 0 records failed. 0 records were skipped.]]></Val>
+      <Val><![CDATA[The synchronization has been scheduled for %1 of %2 records. %3 records failed. %4 records were skipped.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -826,7 +844,7 @@
   </Item>
   <Item ItemId=";Codeunit 882869326 - NamedType 3586624132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The synchronization has been skipped. The Customer record is already coupled.]]></Val>
+      <Val><![CDATA[The synchronization has been skipped. The record is already coupled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1312,7 +1330,7 @@
   </Item>
   <Item ItemId=";Codeunit 1002680501 - NamedType 3586624132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The synchronization has been skipped. The Customer record was marked as skipped before.]]></Val>
+      <Val><![CDATA[The synchronization has been skipped. The Customer record is marked as skipped.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

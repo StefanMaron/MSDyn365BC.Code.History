@@ -553,11 +553,27 @@ table 112 "Sales Invoice Header"
         field(176; "Payment Instructions"; BLOB)
         {
             Caption = 'Payment Instructions';
+            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(177; "Payment Instructions Name"; Text[20])
         {
             Caption = 'Payment Instructions Name';
             DataClassification = CustomerContent;
+            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(180; "Payment Reference"; Code[50])
         {
@@ -597,6 +613,7 @@ table 112 "Sales Invoice Header"
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
@@ -1004,10 +1021,17 @@ table 112 "Sales Invoice Header"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+		if IsHandled then
+			exit;
+
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -1177,6 +1201,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCancelledCreditMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

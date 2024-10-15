@@ -17,7 +17,7 @@ table 5387 "CRM Post Buffer"
         field(3; RecId; RecordID)
         {
             Caption = 'RecId';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; ChangeType; Option)
         {

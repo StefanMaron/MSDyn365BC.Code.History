@@ -1,4 +1,4 @@
-﻿codeunit 570 "G/L Account Category Mgt."
+codeunit 570 "G/L Account Category Mgt."
 {
 
     trigger OnRun()
@@ -619,19 +619,19 @@
         exit(JobSalesContraTxt);
     end;
 
-    procedure GetAccountCategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option)
+    procedure GetAccountCategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option): Boolean
     begin
         GLAccountCategory.SetRange("Account Category", Category);
         GLAccountCategory.SetRange("Parent Entry No.", 0);
-        if GLAccountCategory.FindFirst then;
+        exit(GLAccountCategory.FindFirst());
     end;
 
-    procedure GetAccountSubcategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option; Description: Text)
+    procedure GetAccountSubcategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option; Description: Text): Boolean
     begin
         GLAccountCategory.SetRange("Account Category", Category);
         GLAccountCategory.SetFilter("Parent Entry No.", '<>%1', 0);
         GLAccountCategory.SetRange(Description, Description);
-        if GLAccountCategory.FindFirst then;
+        exit(GLAccountCategory.FindFirst());
     end;
 
     procedure GetSubcategoryEntryNo(Category: Option; SubcategoryDescription: Text): Integer
@@ -645,9 +645,20 @@
     end;
 
     procedure CheckGLAccount(AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
+    begin
+        CheckGLAccount(0, 0, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory);
+    end;
+
+    procedure CheckGLAccount(TableNo: Integer; FieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckGLAccount(TableNo, FieldNo, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory, IsHandled);
+        if IsHandled then
+            exit;
+
         if AccNo = '' then
             exit;
 
@@ -674,12 +685,23 @@
     end;
 
     procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        LookupGLAccount(0, 0, AccountNo, AccountCategory, AccountSubcategoryFilter);
+    end;
+
+    procedure LookupGLAccount(TableNo: Integer; FieldNo: Integer; var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
     var
         GLAccount: Record "G/L Account";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountList: Page "G/L Account List";
         EntryNoFilter: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupGLAccount(TableNo, FieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAccount.Reset();
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountCategory.SetRange("Account Category", AccountCategory);
@@ -744,6 +766,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitializeAccountCategories(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccount(TableNo: Integer; FieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; var AccountCategory: Option; var AccountSubcategory: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupGLAccount(TableNo: Integer; FieldNo: Integer; var AccountNo: Code[20]; var AccountCategory: Option; var AccountSubcategoryFilter: Text; var IsHandled: Boolean)
     begin
     end;
 

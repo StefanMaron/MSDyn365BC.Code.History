@@ -515,7 +515,7 @@ table 270 "Bank Account"
         field(121; "Bank Stmt. Service Record ID"; RecordID)
         {
             Caption = 'Bank Stmt. Service Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -688,7 +688,7 @@ table 270 "Bank Account"
         }
         field(11000005; Proposal; Decimal)
         {
-            CalcFormula = Sum ("Proposal Line".Amount WHERE("Our Bank No." = FIELD("No."),
+            CalcFormula = Sum("Proposal Line".Amount WHERE("Our Bank No." = FIELD("No."),
                                                             Process = CONST(true)));
             Caption = 'Proposal';
             Editable = false;
@@ -696,7 +696,7 @@ table 270 "Bank Account"
         }
         field(11000006; "Payment History"; Decimal)
         {
-            CalcFormula = Sum ("Payment History Line".Amount WHERE("Our Bank" = FIELD("No."),
+            CalcFormula = Sum("Payment History Line".Amount WHERE("Our Bank" = FIELD("No."),
                                                                    Status = FILTER(New | Transmitted | "Request for Cancellation")));
             Caption = 'Payment History';
             Editable = false;
@@ -957,8 +957,16 @@ table 270 "Bank Account"
             Message(Text004);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by GetCreditLimit()', '19.0')]
     [Scope('OnPrem')]
     procedure "Credit limit"(): Decimal
+    begin
+        exit(GetCreditLimit());
+    end;
+#endif
+
+    procedure GetCreditLimit(): Decimal
     begin
         CalcFields(Balance, Proposal, "Payment History");
         exit(Balance - "Min. Balance" - Proposal - "Payment History");
@@ -1196,6 +1204,8 @@ table 270 "Bank Account"
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 4;
+        JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;

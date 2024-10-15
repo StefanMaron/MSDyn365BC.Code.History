@@ -53,6 +53,8 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine."Variant Code" := "Variant Code";
             WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
             WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+            WhseWkshLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            WhseWkshLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             WhseWkshLine.Description := Description;
             WhseWkshLine."Description 2" := "Description 2";
             WhseWkshLine."Due Date" := "Due Date";
@@ -306,6 +308,8 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine."Shelf No." := "Shelf No.";
             WhseWkshLine."From Unit of Measure Code" := "Unit of Measure Code";
             WhseWkshLine."Qty. per From Unit of Measure" := "Qty. per Unit of Measure";
+            WhseWkshLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            WhseWkshLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Receipt;
             WhseWkshLine."Whse. Document No." := "No.";
             WhseWkshLine."Whse. Document Line No." := "Line No.";

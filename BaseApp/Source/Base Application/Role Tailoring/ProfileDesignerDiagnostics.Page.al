@@ -51,7 +51,7 @@ page 9197 "Profile Designer Diagnostics"
 
     trigger OnAfterGetRecord()
     begin
-        ApplicationName := ConfPersonalizationMgt.ResolveAppNameFromAppId("Profile App ID");
+        ApplicationName := ExtensionManagement.GetAppName("Profile App ID");
     end;
 
     procedure SetRecords(ImportID: Guid)
@@ -102,7 +102,7 @@ page 9197 "Profile Designer Diagnostics"
     end;
 
     var
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        ExtensionManagement: Codeunit "Extension Management";
         ApplicationName: Text;
         ImportSuccessTxt: Label 'Successfully imported';
         ImportSuccessWithWarningsTxt: Label 'Successfully imported with warnings';
