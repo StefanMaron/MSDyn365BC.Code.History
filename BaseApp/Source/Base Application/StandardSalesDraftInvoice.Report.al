@@ -697,7 +697,7 @@ report 1303 "Standard Sales - Draft Invoice"
                         CurrReport.Skip;
                     if not VATClause.Get("VAT Clause Code") then
                         CurrReport.Skip;
-                    VATClause.TranslateDescription(Header."Language Code");
+                    VATClause.GetDescription(Header);
                 end;
 
                 trigger OnPreDataItem()

@@ -148,7 +148,7 @@ page 118 "General Ledger Setup"
                 }
                 field("VAT Rounding Type"; "VAT Rounding Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the program will round VAT when calculated for the local currency. When you enter an Amount Including VAT in a document, the system first calculates and rounds the Amount Excluding VAT, and then calculates by subtraction the VAT Amount because the total amount has to match the Amount Including VAT entered manually. In that case, the VAT Rounding Type does not apply as the Amount Excluding VAT is already rounded using the Amount Rounding Precision.';
                 }
                 field("VAT Tolerance %"; "VAT Tolerance %")
@@ -569,7 +569,7 @@ page 118 "General Ledger Setup"
                 Caption = 'VAT Posting';
                 action("VAT Posting Setup")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Posting Setup';
                     Image = VATPostingSetup;
                     Promoted = true;
@@ -580,7 +580,7 @@ page 118 "General Ledger Setup"
                 }
                 action("VAT Business Posting Groups")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Business Posting Groups';
                     Image = VATPostingSetup;
                     Promoted = true;
@@ -591,7 +591,7 @@ page 118 "General Ledger Setup"
                 }
                 action("VAT Product Posting Groups")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Product Posting Groups';
                     Image = VATPostingSetup;
                     Promoted = true;

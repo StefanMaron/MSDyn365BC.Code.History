@@ -22,6 +22,18 @@ codeunit 148080 "Library - Making Tax Digital"
         InvokeRequestLbl: Label 'Invoke %1 request.', Locked = true;
 
     [Scope('OnPrem')]
+    procedure DisableFraudPreventionHeaders(DisableFPHeaders: Boolean)
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        with VATReportSetup do begin
+            Get();
+            "MTD Disable FraudPrev. Headers" := DisableFPHeaders;
+            Modify();
+        end;
+    end;
+
+    [Scope('OnPrem')]
     procedure SetupOAuthAndVATRegNo(EnabledOAuth: Boolean; URL: Text; VATRegNo: Text)
     var
         OAuth20Setup: Record "OAuth 2.0 Setup";
@@ -30,13 +42,13 @@ codeunit 148080 "Library - Making Tax Digital"
             OAuth20Setup.Status := OAuth20Setup.Status::Enabled
         else
             OAuth20Setup.Status := OAuth20Setup.Status::Disabled;
-        CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status, URL);
+        CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status, URL, 0DT);
         if VATRegNo <> '' then
             UpdateCompanyInformation(VATRegNo);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateOAuthSetup(var OAuth20Setup: Record "OAuth 2.0 Setup"; NewStatus: Option; URLPath: Text)
+    procedure CreateOAuthSetup(var OAuth20Setup: Record "OAuth 2.0 Setup"; NewStatus: Option; URLPath: Text; AccessTokenDueDateTime: DateTime)
     begin
         with OAuth20Setup do begin
             if not Get(OAuthSandboxSetupLbl) then begin
@@ -58,6 +70,7 @@ codeunit 148080 "Library - Making Tax Digital"
             "Token DataScope" := "Token DataScope"::Company;
             SetOAuthSetupTestTokens(OAuth20Setup);
             "Daily Limit" := 1000;
+            "Access Token Due DateTime" := AccessTokenDueDateTime;
             Modify(true);
         end;
     end;

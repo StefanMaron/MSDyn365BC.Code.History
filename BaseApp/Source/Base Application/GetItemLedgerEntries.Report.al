@@ -746,6 +746,8 @@ report 594 "Get Item Ledger Entries"
                     TotalAmt := TotalAmt + Quantity * Item."Unit Price";
             end;
         end;
+
+        OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
 
     [Scope('OnPrem')]
@@ -824,6 +826,11 @@ report 594 "Get Item Ledger Entries"
                 else
                     Type := Type::Receipt;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

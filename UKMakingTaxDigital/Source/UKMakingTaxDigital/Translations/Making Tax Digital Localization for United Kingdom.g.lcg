@@ -1499,4 +1499,58 @@
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD Disable FraudPrev. Headers - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 343078785 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP WinClient Due DateTime]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP WinClient Due DateTime - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 2580648929 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP WebClient Due DateTime]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP WebClient Due DateTime - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 3423376878 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP Batch Due DateTime]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP Batch Due DateTime - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 3096414478 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP WinClient Json]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP WinClient Json - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 693085422 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP WebClient Json]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP WebClient Json - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";TableExtension 2246652568 - Field 1157416033 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MTD FP Batch Json]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 456029390)(LookupHint=TableExtension MTD Report Setup - Field MTD FP Batch Json - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

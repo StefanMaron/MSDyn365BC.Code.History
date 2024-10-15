@@ -16,12 +16,6 @@ codeunit 5813 "Undo Purchase Receipt Line"
         if IsHandled then
             exit;
 
-        if not SkipTypeCheck then begin
-            SetRange(Type, Type::Item);
-            if not Find('-') then
-                Error(Text005);
-        end;
-
         if not HideDialog then
             if not Confirm(Text000) then
                 exit;
@@ -68,10 +62,12 @@ codeunit 5813 "Undo Purchase Receipt Line"
         PostedWhseRcptLineFound: Boolean;
     begin
         with PurchRcptLine do begin
+            SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
             if IsEmpty then
                 Error(AllLinesCorrectedErr);
 
+            FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
@@ -90,17 +86,20 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 if not HideDialog then
                     Window.Open(Text001);
 
-                PostedWhseRcptLineFound :=
-                  WhseUndoQty.FindPostedWhseRcptLine(
-                    PostedWhseRcptLine,
-                    DATABASE::"Purch. Rcpt. Line",
-                    "Document No.",
-                    DATABASE::"Purchase Line",
-                    PurchLine."Document Type"::Order,
-                    "Order No.",
-                    "Order Line No.");
+                if Type = Type::Item then begin
+                    PostedWhseRcptLineFound :=
+                    WhseUndoQty.FindPostedWhseRcptLine(
+                        PostedWhseRcptLine,
+                        DATABASE::"Purch. Rcpt. Line",
+                        "Document No.",
+                        DATABASE::"Purchase Line",
+                        PurchLine."Document Type"::Order,
+                        "Order No.",
+                        "Order Line No.");
 
-                ItemRcptEntryNo := PostItemJnlLine(PurchRcptLine, DocLineNo);
+                    ItemRcptEntryNo := PostItemJnlLine(PurchRcptLine, DocLineNo);
+                end else
+                    DocLineNo := GetCorrectionLineNo(PurchRcptLine);
 
                 InsertNewReceiptLine(PurchRcptLine, ItemRcptEntryNo, DocLineNo);
                 OnAfterInsertNewReceiptLine(PurchRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo);
@@ -154,42 +153,28 @@ codeunit 5813 "Undo Purchase Receipt Line"
             exit;
 
         with PurchRcptLine do begin
-            TestField(Type, Type::Item);
             if Correction then
                 Error(AlreadyReversedErr);
             if "Qty. Rcd. Not Invoiced" <> Quantity then
                 Error(Text004);
-            TestField("Prod. Order No.", '');
-            TestField("Sales Order No.", '');
-            TestField("Sales Order Line No.", 0);
+            if Type = Type::Item then begin
+                TestField("Prod. Order No.", '');
+                TestField("Sales Order No.", '');
+                TestField("Sales Order Line No.", 0);
 
-            UndoPostingMgt.TestPurchRcptLine(PurchRcptLine);
-            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Purch. Rcpt. Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
-            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                UndoPostingMgt.TestPurchRcptLine(PurchRcptLine);
+                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Purch. Rcpt. Line",
+                  "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            end;
         end;
     end;
 
-    local procedure PostItemJnlLine(PurchRcptLine: Record "Purch. Rcpt. Line"; var DocLineNo: Integer): Integer
+    local procedure GetCorrectionLineNo(PurchRcptLine: Record "Purch. Rcpt. Line"): Integer
     var
-        ItemJnlLine: Record "Item Journal Line";
-        PurchLine: Record "Purchase Line";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchRcptLine2: Record "Purch. Rcpt. Line";
-        SourceCodeSetup: Record "Source Code Setup";
-        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
-        ItemApplicationEntry: Record "Item Application Entry";
-        Item: Record Item;
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         LineSpacing: Integer;
-        ItemLedgEntryNo: Integer;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforePostItemJnlLine(PurchRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
-        if IsHandled then
-            exit(ItemLedgEntryNo);
-
         with PurchRcptLine do begin
             PurchRcptLine2.SetRange("Document No.", "Document No.");
             PurchRcptLine2."Document No." := "Document No.";
@@ -202,7 +187,30 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     Error(Text002);
             end else
                 LineSpacing := 10000;
-            DocLineNo := "Line No." + LineSpacing;
+            exit("Line No." + LineSpacing);
+        end;
+    end;
+
+    local procedure PostItemJnlLine(PurchRcptLine: Record "Purch. Rcpt. Line"; var DocLineNo: Integer): Integer
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        PurchLine: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        SourceCodeSetup: Record "Source Code Setup";
+        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
+        ItemApplicationEntry: Record "Item Application Entry";
+        Item: Record Item;
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemLedgEntryNo: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(PurchRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
+
+        with PurchRcptLine do begin
+            DocLineNo := GetCorrectionLineNo(PurchRcptLine);
 
             SourceCodeSetup.Get;
             PurchRcptHeader.Get("Document No.");

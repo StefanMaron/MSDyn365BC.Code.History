@@ -95,7 +95,8 @@ codeunit 144501 "Test UK Postcode Config"
         asserterror PostcodeServiceConfig.Insert;
 
         // [THEN] he should get an error
-        Assert.ExpectedError('You do not have the following permissions on TableData 9091: Insert');
+        Assert.ExpectedError(
+            StrSubstno('You do not have the following permissions on TableData %1: Insert',PostcodeServiceConfig.TableCaption));
     end;
 
     [Test]

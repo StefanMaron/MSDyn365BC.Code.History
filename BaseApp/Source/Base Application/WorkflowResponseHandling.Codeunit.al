@@ -252,7 +252,7 @@ codeunit 1521 "Workflow Response Handling"
                 DoNothingCode:
                     DoNothing;
                 CreateNotificationEntryCode:
-                    CreateNotificationEntry(Variant, ResponseWorkflowStepInstance);
+                    CreateNotificationEntry(Variant, ResponseWorkflowStepInstance, xVariant);
                 ReleaseDocumentCode:
                     ReleaseDocument(Variant);
                 OpenDocumentCode:
@@ -497,14 +497,14 @@ codeunit 1521 "Workflow Response Handling"
     begin
     end;
 
-    local procedure CreateNotificationEntry(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
+    local procedure CreateNotificationEntry(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance"; ApprovalEntry: Record "Approval Entry")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
     begin
         if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-            NotificationEntry.CreateNew(NotificationEntry.Type::"New Record",
-              WorkflowStepArgument."Notification User ID", Variant, WorkflowStepArgument."Link Target Page",
+            NotificationEntry.CreateNew(WorkflowStepArgument."Notification Entry Type",
+              WorkflowStepArgument.GetNotificationUserID(ApprovalEntry), Variant, WorkflowStepArgument."Link Target Page",
               WorkflowStepArgument."Custom Link");
     end;
 
@@ -895,7 +895,7 @@ codeunit 1521 "Workflow Response Handling"
 
         WorkflowResponse.SetRange(Description, Description);
         if not WorkflowResponse.IsEmpty then begin
-            if SystemInitialization.IsInProgress then
+            if SystemInitialization.IsInProgress or (GetExecutionContext <> ExecutionContext::Normal) then
                 exit;
             Error(ResponseAlreadyExistErr, Description);
         end;
@@ -931,7 +931,7 @@ codeunit 1521 "Workflow Response Handling"
         case WorkflowResponse."Function Name" of
             CreateNotificationEntryCode:
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
-                      GetTokenValue(UserIDTok, WorkflowStepArgument."Notification User ID")), 1, 250));
+                      GetTokenValue(UserIDTok, WorkflowStepArgument.GetNotificationUserName)), 1, 250));
             ShowMessageCode:
                 exit(CopyStr(StrSubstNo(WorkflowResponse.Description,
                       GetTokenValue(MessageTok, WorkflowStepArgument.Message)), 1, 250));
@@ -1013,7 +1013,7 @@ codeunit 1521 "Workflow Response Handling"
                         end;
                 end;
             CreateNotificationEntryCode:
-                if WorkflowStepArgument."Notification User ID" = '' then
+                if (WorkflowStepArgument."Notification User ID" = '') and not WorkflowStepArgument."Notify Sender" then
                     exit(false);
         end;
 

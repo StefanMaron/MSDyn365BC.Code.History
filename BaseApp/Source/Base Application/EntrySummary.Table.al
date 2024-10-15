@@ -83,10 +83,13 @@ table 338 "Entry Summary"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                AvailableToSelect: Decimal;
             begin
                 if "Bin Active" and ("Total Available Quantity" > "Bin Content") then begin
-                    if "Selected Quantity" > "Bin Content" then
-                        Error(Text001, "Bin Content");
+                    AvailableToSelect := QtyAvailableToSelectFromBin;
+                    if "Selected Quantity" > AvailableToSelect then
+                        Error(Text001, AvailableToSelect);
                 end else
                     if "Selected Quantity" > "Total Available Quantity" then
                         Error(Text001, "Total Available Quantity");
@@ -162,6 +165,14 @@ table 338 "Entry Summary"
           ("Total Requested Quantity" <> 0) or
           ("Current Pending Quantity" <> 0) or
           ("Double-entry Adjustment" <> 0));
+    end;
+
+    procedure QtyAvailableToSelectFromBin() AvailQty: Decimal
+    begin
+        AvailQty := "Bin Content" - "Current Pending Quantity" - "Current Requested Quantity";
+        if AvailQty < 0 then
+            AvailQty := 0;
+        exit(AvailQty);
     end;
 
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])

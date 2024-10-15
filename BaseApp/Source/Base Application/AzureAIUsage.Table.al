@@ -54,8 +54,8 @@ table 2004 "Azure AI Usage"
 
     var
         ProcessingTimeLessThanZeroErr: Label 'The available Azure Machine Learning processing time is less than or equal to zero.';
-        AzureMLCategoryTxt: Label 'AzureMLCategory', Comment = 'Locked';
-        AzureMLLimitReachedTxt: Label 'The Azure ML usage limit has been reached', Comment = 'Locked';
+        AzureMLCategoryTxt: Label 'AzureMLCategory', Locked = true;
+        AzureMLLimitReachedTxt: Label 'The Azure ML usage limit has been reached', Locked = true;
         TestMode: Boolean;
         TestTime: Time;
         TestDate: Date;

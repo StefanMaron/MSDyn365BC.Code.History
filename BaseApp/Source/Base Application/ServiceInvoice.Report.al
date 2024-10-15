@@ -557,7 +557,7 @@ report 5911 "Service - Invoice"
                             VATAmountLine.GetLine(Number);
                             if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                                 CurrReport.Skip;
-                            VATClause.TranslateDescription("Service Invoice Header"."Language Code");
+                            VATClause.GetDescription("Service Invoice Header");
                         end;
 
                         trigger OnPreDataItem()

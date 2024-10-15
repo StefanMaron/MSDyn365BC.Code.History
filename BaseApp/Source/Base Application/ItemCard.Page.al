@@ -103,6 +103,12 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
                 }
+                field("Purchasing Code"; "Purchasing Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
+                }
             }
             group(InventoryGrp)
             {
@@ -362,7 +368,7 @@
                     }
                     field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                     {
-                        ApplicationArea = VAT;
+                        ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -393,7 +399,7 @@
                     Caption = 'Foreign Trade';
                     field("Tariff No."; "Tariff No.")
                     {
-                        ApplicationArea = BasicEU;
+                        ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a code for the item''s tariff number.';
                     }
                     field("Country/Region of Origin Code"; "Country/Region of Origin Code")

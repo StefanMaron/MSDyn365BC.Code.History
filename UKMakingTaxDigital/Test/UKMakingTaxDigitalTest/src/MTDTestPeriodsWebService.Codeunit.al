@@ -420,6 +420,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
         IsInitialized := true;
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
+        LibraryMakingTaxDigital.DisableFraudPreventionHeaders(true);
     end;
 
     local procedure ClearRecords()

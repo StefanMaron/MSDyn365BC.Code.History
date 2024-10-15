@@ -262,7 +262,7 @@ codeunit 148086 "MTDTestOAuth"
         MTDConnection: Codeunit "MTD Connection";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 313380] COD 10537 "MTD Connection".IsError408Timeout()
+        // [SCENARIO 312780] COD 10537 "MTD Connection".IsError408Timeout()
         Assert.IsFalse(MTDConnection.IsError408Timeout(''), '');
         Assert.IsFalse(MTDConnection.IsError408Timeout('{"Error":{"code":"401"}}'), '');
         Assert.IsTrue(MTDConnection.IsError408Timeout('{"Error":{"code":"408"}}'), '');
@@ -279,7 +279,7 @@ codeunit 148086 "MTDTestOAuth"
     begin
         // [SCENARIO 316966] OAuth 2.0 Setup is checked for consistency each http request (Service URL field)
         Initialize();
-        LibraryMakingTaxDigital.CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status::Enabled, '');
+        LibraryMakingTaxDigital.CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status::Enabled, '', 0DT);
 
         OAuth20Setup."Service URL" := 'test';
         OAuth20Setup.Modify();
@@ -301,7 +301,7 @@ codeunit 148086 "MTDTestOAuth"
     begin
         // [SCENARIO 316966] OAuth 2.0 Setup is checked for consistency each http request (Daily Limit field)
         Initialize();
-        LibraryMakingTaxDigital.CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status::Enabled, '');
+        LibraryMakingTaxDigital.CreateOAuthSetup(OAuth20Setup, OAuth20Setup.Status::Enabled, '', 0DT);
 
         OAuth20Setup."Daily Limit" := 0;
         OAuth20Setup.Modify();

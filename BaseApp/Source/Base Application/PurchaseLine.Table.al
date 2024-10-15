@@ -221,6 +221,11 @@ table 39 "Purchase Line"
 
                 OnAfterAssignFieldsForNo(Rec, xRec, PurchHeader);
 
+                if Type <> Type::" " then begin
+                    PostingSetupMgt.CheckGenPostingSetupPurchAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                    PostingSetupMgt.CheckVATPostingSetupPurchAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                end;
+
                 if HasTypeToFillMandatoryFields and not (Type = Type::"Fixed Asset") then
                     Validate("VAT Prod. Posting Group");
 
@@ -255,7 +260,7 @@ table 39 "Purchase Line"
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Work Center", "Work Center No.");
 
-                PurchHeader.Get("Document Type", "Document No.");
+                GetPurchHeader;
                 UpdateItemReference;
 
                 GetDefaultBin;
@@ -264,11 +269,6 @@ table 39 "Purchase Line"
                     CreateTempJobJnlLine(true);
                     UpdateJobPrices;
                     UpdateDimensionsFromJobTask;
-                end;
-
-                if Type <> Type::" " then begin
-                    PostingSetupMgt.CheckGenPostingSetupPurchAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                    PostingSetupMgt.CheckVATPostingSetupPurchAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 end;
             end;
         }
@@ -281,6 +281,7 @@ table 39 "Purchase Line"
             var
                 Item: Record Item;
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
 
@@ -305,23 +306,25 @@ table 39 "Purchase Line"
                     TestField("Return Shipment No.", '');
                 end;
 
-                if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption("Location Code"), "Sales Order No.");
-                if "Special Order" then
-                    Error(
-                      Text001,
-                      FieldCaption("Location Code"), "Special Order Sales No.");
+                IsHandled := false;
+                OnValidateLocationCodeOnBeforeDropShipmentError(Rec, IsHandled);
+                if not IsHandled then
+                    if "Drop Shipment" then
+                        Error(Text001, FieldCaption("Location Code"), "Sales Order No.");
 
-                if "Location Code" <> xRec."Location Code" then
+                if "Special Order" then
+                    Error(Text001, FieldCaption("Location Code"), "Special Order Sales No.");
+
+                if "Location Code" <> xRec."Location Code" then begin
                     InitItemAppl;
+                    if IsInventoriableItem then
+                        PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
+                end;
 
                 if (xRec."Location Code" <> "Location Code") and (Quantity <> 0) then begin
                     ReservePurchLine.VerifyChange(Rec, xRec);
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
                     UpdateWithWarehouseReceive;
-                    PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
                 end;
                 "Bin Code" := '';
 
@@ -407,66 +410,53 @@ table 39 "Purchase Line"
                 Item: Record Item;
                 ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                 FindRecordMgt: Codeunit "Find Record Management";
-                ConfirmManagement: Codeunit "Confirm Management";
                 ReturnValue: Text[50];
                 DescriptionIsNo: Boolean;
             begin
                 if Type = Type::" " then
                     exit;
 
-                if ("No." <> '') and (Type in [Type::Item, Type::"Charge (Item)"]) then begin
-                    case Type of
-                        Type::Item:
-                            begin
-                                if (StrLen(Description) <= MaxStrLen(Item."No.")) and ("No." <> '') then
-                                    DescriptionIsNo := Item.Get(Description)
-                                else
-                                    DescriptionIsNo := false;
+                if "No." <> '' then
+                    exit;
 
-                                if not DescriptionIsNo then begin
-                                    Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
-                                    if not Item.FindFirst then
-                                        exit;
-                                    if Item."No." = "No." then
-                                        exit;
-                                    if IsReceivedFromOcr then
-                                        exit;
-                                    if ConfirmManagement.GetResponseOrDefault(
-                                         StrSubstNo(AnotherItemWithSameDescrQst, Item."No.", Item.Description), true)
-                                    then
-                                        Validate("No.", Item."No.");
+                case Type of
+                    Type::Item:
+                        begin
+                            if IsReceivedFromOcr then
+                                exit;
+
+                            if StrLen(Description) <= MaxStrLen(Item."No.") then
+                                DescriptionIsNo := Item.Get(Description)
+                            else
+                                DescriptionIsNo := false;
+
+                            if not DescriptionIsNo then begin
+                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
+                                Item.SetRange(Blocked, false);
+                                if not IsCreditDocType() then
+                                    Item.SetRange("Purchasing Blocked", false);
+                                if Item.FindFirst then begin
+                                    Validate("No.", Item."No.");
                                     exit;
                                 end;
+                            end;
 
-                                if Item.TryGetItemNoOpenCard(ReturnValue, Description, false, false, false) then
-                                    case ReturnValue of
-                                        '', "No.":
-                                            Description := xRec.Description;
-                                        else
-                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                                    end;
-                            end;
-                        Type::"Charge (Item)":
-                            begin
-                                ItemCharge.SetFilter(Description, '@%1', ConvertStr(Description, '''', '?'));
-                                if not ItemCharge.FindFirst then
-                                    exit;
-                                if ItemCharge."No." = "No." then
-                                    exit;
-                                if ConfirmManagement.GetResponseOrDefault(
-                                     StrSubstNo(AnotherChargeItemWithSameDescQst, ItemCharge."No.", ItemCharge.Description), true)
-                                then
-                                    Validate("No.", ItemCharge."No.");
-                            end;
-                    end;
-                end else
-                    if "No." = '' then begin
-                        ReturnValue := FindRecordMgt.FindNoByDescription(Type, Description, true);
-                        if ReturnValue <> '' then begin
-                            CurrFieldNo := FieldNo("No.");
-                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
+                            if Item.TryGetItemNoOpenCard(ReturnValue, Description, false, false, false) then
+                                case ReturnValue of
+                                    '', "No.":
+                                        Description := xRec.Description;
+                                    else
+                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                end;
                         end;
-                    end;
+                    else begin
+                            ReturnValue := FindRecordMgt.FindNoByDescription(Type, Description, true);
+                            if ReturnValue <> '' then begin
+                                CurrFieldNo := FieldNo("No.");
+                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
+                            end;
+                        end;
+                end;
 
                 if ("No." = '') and GuiAllowed and ApplicationAreaMgmtFacade.IsFoundationEnabled then
                     if "Document Type" in ["Document Type"::Order] then
@@ -620,6 +610,8 @@ table 39 "Purchase Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 GetLocation("Location Code");
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
@@ -636,22 +628,20 @@ table 39 "Purchase Line"
                     InitQtyToInvoice;
                 end;
 
-                OnValidateQtyToReceiveOnAfterInitQty(Rec, xRec, CurrFieldNo);
-
-                if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
-                   (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
-                   (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
-                then
-                    Error(
-                      Text008,
-                      "Outstanding Quantity");
-                if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
-                   (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
-                   ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
-                then
-                    Error(
-                      Text009,
-                      "Outstanding Qty. (Base)");
+                IsHandled := false;
+                OnValidateQtyToReceiveOnAfterInitQty(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin
+                    if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
+                       (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
+                       (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
+                    then
+                        Error(Text008, "Outstanding Quantity");
+                    if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
+                       (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
+                       ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
+                    then
+                        Error(Text009, "Outstanding Qty. (Base)");
+                end;
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Qty. to Receive" < 0) then
                     CheckApplToItemLedgEntry;
@@ -711,8 +701,9 @@ table 39 "Purchase Line"
                           GetDate, "Currency Code",
                           "Unit Cost (LCY)", PurchHeader."Currency Factor"),
                         GLSetup."Unit-Amount Rounding Precision");
-                    OnValidateUnitCostLCYOnAfterUpdateUnitCostCurrency(Rec, UnitCostCurrency);
                 end;
+
+                OnValidateUnitCostLCYOnAfterUpdateUnitCostCurrency(Rec, UnitCostCurrency);
 
                 "Indirect Cost %" := 0;
                 if ("Direct Unit Cost" <> 0) and
@@ -2225,6 +2216,8 @@ table 39 "Purchase Line"
             TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Variant Code" <> '' then
                     TestField(Type, Type::Item);
@@ -2237,8 +2230,11 @@ table 39 "Purchase Line"
                     TestField("Return Shipment No.", '');
                 end;
 
-                if "Drop Shipment" then
-                    Error(Text001, FieldCaption("Variant Code"), "Sales Order No.");
+                IsHandled := false;
+                OnValidateVariantCodeOnBeforeDropShipmentError(Rec, IsHandled);
+                if not IsHandled then
+                    if "Drop Shipment" then
+                        Error(Text001, FieldCaption("Variant Code"), "Sales Order No.");
 
                 OnValidateVariantCodeOnAfterValidationChecks(Rec, xRec, CurrFieldNo);
 
@@ -2337,6 +2333,7 @@ table 39 "Purchase Line"
             var
                 Item: Record Item;
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
                 TestField("Quantity Received", 0);
@@ -2348,10 +2345,13 @@ table 39 "Purchase Line"
                     TestField("Receipt No.", '');
                     TestField("Return Shipment No.", '');
                 end;
-                if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption("Unit of Measure Code"), "Sales Order No.");
+
+                IsHandled := false;
+                OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(Rec, IsHandled);
+                if not IsHandled then
+                    if "Drop Shipment" then
+                        Error(Text001, FieldCaption("Unit of Measure Code"), "Sales Order No.");
+
                 if (xRec."Unit of Measure Code" <> "Unit of Measure Code") and (Quantity <> 0) then
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
                 UpdateDirectUnitCost(FieldNo("Unit of Measure Code"));
@@ -2885,6 +2885,8 @@ table 39 "Purchase Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if (CurrFieldNo <> 0) and
                    (Type = Type::Item) and
@@ -2902,22 +2904,20 @@ table 39 "Purchase Line"
                     InitQtyToInvoice;
                 end;
 
-                OnValidateReturnQtyToShipOnAfterInitQty(Rec, xRec, CurrFieldNo);
-
-                if ("Return Qty. to Ship" * Quantity < 0) or
-                   (Abs("Return Qty. to Ship") > Abs("Outstanding Quantity")) or
-                   (Quantity * "Outstanding Quantity" < 0)
-                then
-                    Error(
-                      Text020,
-                      "Outstanding Quantity");
-                if ("Return Qty. to Ship (Base)" * "Quantity (Base)" < 0) or
-                   (Abs("Return Qty. to Ship (Base)") > Abs("Outstanding Qty. (Base)")) or
-                   ("Quantity (Base)" * "Outstanding Qty. (Base)" < 0)
-                then
-                    Error(
-                      Text021,
-                      "Outstanding Qty. (Base)");
+                IsHandled := false;
+                OnValidateReturnQtyToShipOnAfterInitQty(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin
+                    if ("Return Qty. to Ship" * Quantity < 0) or
+                       (Abs("Return Qty. to Ship") > Abs("Outstanding Quantity")) or
+                       (Quantity * "Outstanding Quantity" < 0)
+                    then
+                        Error(Text020, "Outstanding Quantity");
+                    if ("Return Qty. to Ship (Base)" * "Quantity (Base)" < 0) or
+                       (Abs("Return Qty. to Ship (Base)") > Abs("Outstanding Qty. (Base)")) or
+                       ("Quantity (Base)" * "Outstanding Qty. (Base)" < 0)
+                    then
+                        Error(Text021, "Outstanding Qty. (Base)");
+                end;
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Return Qty. to Ship" > 0) then
                     CheckApplToItemLedgEntry;
@@ -3462,8 +3462,6 @@ table 39 "Purchase Line"
         Text1041000: Label 'Warning: You have selected an item that is subject to Reverse Charge VAT. Please check that the VAT Code %1 in the %2 field is correct. If necessary, update this field before posting. ';
         Text1041002: Label 'cannot be %1. %1 can only be used for domestic customers and vendors. ';
         Text1041003: Label 'cannot be %1. %1 can only be used for reverse charge items. ';
-        AnotherItemWithSameDescrQst: Label 'Item No. %1 also has the description "%2".\Do you want to change the current item no. to %1?', Comment = '%1=Item no., %2=item description';
-        AnotherChargeItemWithSameDescQst: Label 'Item charge No. %1 also has the description "%2".\Do you want to change the current item charge no. to %1?', Comment = '%1=Item charge no., %2=item charge description';
         PurchSetupRead: Boolean;
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
         CommentLbl: Label 'Comment';
@@ -3747,7 +3745,7 @@ table 39 "Purchase Line"
         "Allow Item Charge Assignment" := true;
         PrepaymentMgt.SetPurchPrepaymentPct(Rec, PurchHeader."Posting Date");
         "Reverse Charge Item" := Item."Reverse Charge Applies";
-        if Item.Type = Item.Type::Inventory then
+        if IsInventoriableItem then
             PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
 
         if Item."Price Includes VAT" then begin
@@ -3933,7 +3931,7 @@ table 39 "Purchase Line"
                   ("Direct Unit Cost" - DiscountAmountPerQty) * (1 + "Indirect Cost %" / 100) +
                   GetOverheadRateFCY;
 
-        OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(Rec, xRec, PurchHeader, CurrFieldNo);
+        OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(Rec, xRec, PurchHeader, CurrFieldNo, Item, SKU, Currency, GLSetup);
 
         if PurchHeader."Currency Code" <> '' then begin
             PurchHeader.TestField("Currency Factor");
@@ -3975,9 +3973,16 @@ table 39 "Purchase Line"
         RemLineAmountToInvoice: Decimal;
         VATBaseAmount: Decimal;
         LineAmountChanged: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmounts(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::" " then
             exit;
+
         GetPurchHeader;
 
         VATBaseAmount := "VAT Base Amount";
@@ -4088,7 +4093,8 @@ table 39 "Purchase Line"
             if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
                (("VAT Calculation Type" in
                  ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
-            then
+            then begin
+                PurchLine2.SetFilter("VAT %", '<>0');
                 if not PurchLine2.IsEmpty then begin
                     PurchLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)");
                     TotalLineAmount := PurchLine2."Line Amount";
@@ -4098,6 +4104,7 @@ table 39 "Purchase Line"
                     TotalQuantityBase := PurchLine2."Quantity (Base)";
                     OnAfterUpdateTotalAmounts(Rec, PurchLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                 end;
+            end;
 
             if PurchHeader."Prices Including VAT" then
                 case "VAT Calculation Type" of
@@ -4272,7 +4279,13 @@ table 39 "Purchase Line"
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         FASetup: Record "FA Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFAPostingGroup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Type <> Type::"Fixed Asset") or ("No." = '') then
             exit;
         if "Depreciation Book Code" = '' then begin
@@ -4303,6 +4316,8 @@ table 39 "Purchase Line"
         "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
         "Tax Group Code" := LocalGLAcc."Tax Group Code";
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
+
+        OnAfterGetFAPostingGroup(Rec);
     end;
 
     procedure UpdateUOMQtyPerStockQty()
@@ -4476,6 +4491,8 @@ table 39 "Purchase Line"
         VerifyItemLineDim;
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         IsChanged := OldDimSetID <> "Dimension Set ID";
+
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure OpenItemTrackingLines()
@@ -4759,7 +4776,14 @@ table 39 "Purchase Line"
     end;
 
     procedure UpdateLeadTimeFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateLeadTimeFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then begin
             GetPurchHeader;
 
@@ -4783,7 +4807,14 @@ table 39 "Purchase Line"
     end;
 
     procedure UpdateDates()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Promised Receipt Date" <> 0D then
             Validate("Promised Receipt Date")
         else
@@ -4791,6 +4822,8 @@ table 39 "Purchase Line"
                 Validate("Requested Receipt Date")
             else
                 GetUpdateBasicDates;
+
+        OnAfterUpdateDates(Rec);
     end;
 
     procedure InternalLeadTimeDays(PurchDate: Date): Text[30]
@@ -4842,6 +4875,7 @@ table 39 "Purchase Line"
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
+            OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
             LockTable;
             if FindSet then
                 repeat
@@ -4988,6 +5022,7 @@ table 39 "Purchase Line"
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
+            OnCalcVATAmountLinesOnAfterSetFilters(PurchLine, PurchHeader);
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
@@ -5111,7 +5146,14 @@ table 39 "Purchase Line"
     end;
 
     procedure UpdateWithWarehouseReceive()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWithWarehouseReceive(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
@@ -5148,9 +5190,16 @@ table 39 "Purchase Line"
         WhseSetup: Record "Warehouse Setup";
         ShowDialog: Option " ",Message,Error;
         DialogText: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouse(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Prod. Order No." <> '' then
             exit;
+
         GetLocation("Location Code");
         if "Location Code" = '' then begin
             WhseSetup.Get;
@@ -5260,7 +5309,13 @@ table 39 "Purchase Line"
     procedure GetItemTranslation()
     var
         ItemTranslation: Record "Item Translation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemTranslation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchHeader;
         if ItemTranslation.Get("No.", "Variant Code", PurchHeader."Language Code") then begin
             Description := ItemTranslation.Description;
@@ -5281,6 +5336,8 @@ table 39 "Purchase Line"
         if not PurchSetupRead then
             PurchSetup.Get;
         PurchSetupRead := true;
+
+        OnAfterGetPurchSetup(Rec, PurchSetup);
     end;
 
     procedure AdjustDateFormula(DateFormulatoAdjust: DateFormula): Text[30]
@@ -5367,6 +5424,7 @@ table 39 "Purchase Line"
               ItemCrossReference."Cross-Reference Type"::Vendor,
               ItemCrossReference."Cross-Reference Type"::" ");
             ItemCrossReference.SetFilter("Cross-Reference Type No.", '%1|%2', PurchHeader."Buy-from Vendor No.", '');
+            OnCrossReferenceNoLookUpOnAfterSetFilters(ItemCrossReference, Rec);
             if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then begin
                 "Cross-Reference No." := ItemCrossReference."Cross-Reference No.";
                 ValidateCrossReferenceNo(ItemCrossReference, false);
@@ -5663,9 +5721,13 @@ table 39 "Purchase Line"
         "Qty. to Receive" := "Outstanding Quantity";
         "Qty. to Receive (Base)" := "Outstanding Qty. (Base)";
 
+        OnAfterInitQtyToReceive2(Rec, CurrFieldNo);
+
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
+
+        OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(Rec, xRec);
 
         CalcInvDiscToInvoice;
 
@@ -5857,6 +5919,8 @@ table 39 "Purchase Line"
             FieldError("Qty. to Invoice", Text051);
         if Abs(Quantity) > Abs(PurchRcptLine."Qty. Rcd. Not Invoiced") then
             Error(Text052, PurchRcptLine."Document No.");
+
+        OnAfterCheckReceiptRelation(Rec, PurchRcptLine);
     end;
 
     local procedure CheckRetShptRelation()
@@ -5868,6 +5932,8 @@ table 39 "Purchase Line"
             FieldError("Qty. to Invoice", Text053);
         if Abs(Quantity) > Abs(ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced") then
             Error(Text054, ReturnShptLine."Document No.");
+
+        OnAfterCheckRetShptRelation(Rec, ReturnShptLine);
     end;
 
     local procedure VerifyItemLineDim()
@@ -5916,6 +5982,8 @@ table 39 "Purchase Line"
             else
                 Type := xRec.Type;
         end;
+
+        OnAfterInitType(rec, xRec);
     end;
 
     local procedure CheckWMS()
@@ -6156,9 +6224,11 @@ table 39 "Purchase Line"
         TotalAmtToAssign := Round(TotalAmtToAssign, Currency."Amount Rounding Precision");
     end;
 
-    procedure HasTypeToFillMandatoryFields(): Boolean
+    procedure HasTypeToFillMandatoryFields() ReturnValue: Boolean
     begin
-        exit(Type <> Type::" ");
+        ReturnValue := Type <> Type::" ";
+
+        OnAfterHasTypeToFillMandatoryFields(Rec, ReturnValue);
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal
@@ -6194,7 +6264,15 @@ table 39 "Purchase Line"
 
     [Scope('OnPrem')]
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         exit(DeferralUtilities.OpenLineScheduleEdit(
             "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
             "Document Type", "Document No.", "Line No.",
@@ -6336,7 +6414,13 @@ table 39 "Purchase Line"
     local procedure UpdateLineDiscPct()
     var
         LineDiscountPct: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateLineDiscPct(Rec, Currency, IsHandled);
+        if IsHandled then
+            exit;
+
         if Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") <> 0 then begin
             LineDiscountPct := Round(
                 "Line Discount Amount" / Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") * 100,
@@ -6357,6 +6441,8 @@ table 39 "Purchase Line"
             "Prepmt. Line Amount" := Amount;
         if PurchHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
             "Prepmt. Line Amount" := "Amount Including VAT";
+
+        OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
     end;
 
     local procedure IsCalcVATAmountLinesHandled(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line") IsHandled: Boolean
@@ -6437,7 +6523,27 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPurchSetup(var PurchaseLine: Record "Purchase Line"; var PurchSetup: Record "Purchases & Payables Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFAPostingGroup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var PurchaseLine: Record "Purchase Line"; var Item: Record Item; DocumentType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasTypeToFillMandatoryFields(var PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -6487,6 +6593,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToReceive2(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetDefaultQuantity(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line")
     begin
     end;
@@ -6498,6 +6609,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATAmountLines(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckReceiptRelation(PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckRetShptRelation(var PurchaseLine: Record "Purchase Line"; ReturnShipmentLine: Record "Return Shipment Line")
     begin
     end;
 
@@ -6522,7 +6643,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDates(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -6533,6 +6664,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAmountsDone(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBaseAmounts(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
     end;
 
@@ -6587,6 +6723,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouse(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
     begin
     end;
@@ -6617,6 +6758,16 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemTranslation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFAPostingGroup(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobSetCurrencyFactor(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6642,6 +6793,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReservation(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6657,12 +6813,32 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDates(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLeadTimeFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLineDiscPct(var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePrepmtAmounts(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePrepmtSetupFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6678,6 +6854,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitCost(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithWarehouseReceive(var PurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
     begin
     end;
 
@@ -6702,7 +6883,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterCheck(PurchaseLine: Record "Purchase Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCrossReferenceNoLookUpOnAfterSetFilters(var ItemCrossReference: Record "Item Cross Reference"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -6712,12 +6903,22 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateDirectUnitCostOnBeforeFindPrice(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
+    local procedure OnUpdateUnitCostOnBeforeUpdateUnitCostLCY(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; Item: Record Item; SKU: Record "Stockkeeping Unit"; Currency: Record Currency; GLSetup: Record "General Ledger Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6728,6 +6929,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateExpectedReceiptDateOnBeforeCheckDateConflict(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6777,7 +6983,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQtyToReceiveOnAfterInitQty(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
+    local procedure OnValidateQtyToReceiveOnAfterInitQty(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6792,7 +6998,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateReturnQtyToShipOnAfterInitQty(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    local procedure OnValidateReturnQtyToShipOnAfterInitQty(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6802,7 +7008,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAfterValidationChecks(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6821,7 +7037,7 @@ table 39 "Purchase Line"
         exit((Type = Type::"Charge (Item)") and ("No." <> '') and ("Qty. to Assign" < Quantity));
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ShowDeferralSchedule()
     var
         PurchaseHeader: Record "Purchase Header";

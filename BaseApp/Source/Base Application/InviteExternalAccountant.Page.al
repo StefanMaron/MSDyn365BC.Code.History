@@ -56,25 +56,26 @@ page 9033 "Invite External Accountant"
                 Visible = DefineInformationStepVisible;
                 group(Control20)
                 {
-                    InstructionalText = 'Please enter the email address of the accountant.';
                     ShowCaption = false;
                     Visible = DefineInformationStepVisible;
                     field(NewUserEmailAddress; NewUserEmailAddress)
                     {
                         ApplicationArea = Basic, Suite;
-                        ShowCaption = false;
+                        Caption = 'Email Address';
+                        ShowCaption = true;
                         ShowMandatory = true;
+                        ToolTip = 'AAD email address of accountant.';
                     }
                 }
                 group(Control25)
                 {
-                    InstructionalText = 'Please enter the first name.';
                     ShowCaption = false;
                     Visible = DefineInformationStepVisible;
                     field(NewFirstName; NewFirstName)
                     {
                         ApplicationArea = Basic, Suite;
-                        ShowCaption = false;
+                        Caption = 'First Name';
+                        ShowCaption = true;
                         ShowMandatory = true;
 
                         trigger OnValidate()
@@ -85,13 +86,13 @@ page 9033 "Invite External Accountant"
                 }
                 group(Control15)
                 {
-                    InstructionalText = 'Please enter the last name.';
                     ShowCaption = false;
                     Visible = DefineInformationStepVisible;
                     field(NewLastName; NewLastName)
                     {
                         ApplicationArea = Basic, Suite;
-                        ShowCaption = false;
+                        Caption = 'Last Name';
+                        ShowCaption = true;
                         ShowMandatory = true;
                     }
                 }
@@ -104,6 +105,7 @@ page 9033 "Invite External Accountant"
                         ApplicationArea = Basic, Suite;
                         MultiLine = true;
                         ShowCaption = false;
+                        RowSpan = 8;
                     }
                 }
             }
@@ -163,12 +165,9 @@ page 9033 "Invite External Accountant"
                 begin
                     if Step = Step::DefineInformation then begin
                         if (NewUserEmailAddress <> '') and (NewFirstName <> '') and (NewLastName <> '') and (NewUserWelcomeEmail <> '') then begin
-                            if InviteExternalAccountant.InvokeEmailAddressIsAADAccount(NewUserEmailAddress, ErrorMessage) then begin
-                                Invite;
-                                OnInvitationEnd(WasInvitationSuccessful, InvitationResult, TargetLicense);
-                                NextStep(false);
-                            end else
-                                Error(ErrorMessage);
+                            Invite;
+                            OnInvitationEnd(WasInvitationSuccessful, InvitationResult, TargetLicense);
+                            NextStep(false);
                         end else
                             Error(NotAllFieldsEnteredErrorErr);
                     end else

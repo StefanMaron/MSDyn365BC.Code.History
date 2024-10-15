@@ -1238,17 +1238,71 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.RecordIsNotEmpty(CreditTransferEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SEPAExportGenJnlLineTotalExportedAmountIsEqualtToAmount()
+    var
+        GenJnlLine: array[2] of Record "Gen. Journal Line";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
+    begin
+        // [SCENARIO 329011]  When creating SEPA Export File with multiple Gen. Journal Lines applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
+        Init;
+
+        // [GIVEN] Two Gen. Journal Line applied to Vendor Ledger Entries.
+        CreateGenJnlLineWithVendLedgerEntry(GenJnlLine[1]);
+        CreateGenJnlLineWithVendLedgerEntry(GenJnlLine[2]);
+
+        // [WHEN] SEPA Export File is run
+        GenJnlLine[1].SetFilter("Line No.", '%1|%2', GenJnlLine[1]."Line No.", GenJnlLine[2]."Line No.");
+        SEPACTExportFile.EnableExportToServerFile;
+        SEPACTExportFile.Run(GenJnlLine[1]);
+
+        // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
+        Assert.AreEqual(GenJnlLine[1].Amount, GenJnlLine[1].TotalExportedAmount, '');
+        Assert.AreEqual(GenJnlLine[2].Amount, GenJnlLine[2].TotalExportedAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SEPAExportNotAppliedGenJnlLineTotalExportedAmountIsEqualtToAmount()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
+    begin
+        // [SCENARIO 329011]  When creating SEPA Export File with Gen. Journal Lines not applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
+        Init;
+        CreditTransferEntry.SetRange("Account No.", Vendor."No.");
+        CreditTransferEntry.DeleteAll;
+
+        // [GIVEN] Gen. Journal Line not applied to Ledger Entries.
+        CreateGenJnlLine(GenJnlLine);
+
+        // [WHEN] SEPA Export File is run
+        GenJnlLine.SetRange("Line No.", GenJnlLine."Line No.");
+        SEPACTExportFile.EnableExportToServerFile;
+        SEPACTExportFile.Run(GenJnlLine);
+
+        // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
+        Assert.AreEqual(GenJnlLine.Amount, GenJnlLine.TotalExportedAmount, '');
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
+        GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
         LibrarySetupStorage.Restore;
 
-        if Initialized then
+        if Initialized then begin
+            GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+            GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+            GenJournalLine.DeleteAll;
             exit;
+        end;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
 
         EURCode := LibraryERM.GetCurrencyCode('EUR');
@@ -1322,7 +1376,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         with GenJnlLine do begin
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
-            DeleteAll;
 
             Init;
             LibraryERM.CreateGeneralJnlLine(
@@ -1355,6 +1408,19 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         end;
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+    end;
+
+    local procedure CreateGenJnlLineWithVendLedgerEntry(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        CreateGenJnlLine(GenJnlLine);
+        GenJnlLine.Validate("Applies-to Doc. No.", GenJnlLine."Document No.");
+        GenJnlLine.Modify;
+        CreateVendorLedgerEntry(VendorLedgerEntry, 0);
+        VendorLedgerEntry."Document No." := GenJnlLine."Applies-to Doc. No.";
+        VendorLedgerEntry."Document Type" := GenJnlLine."Applies-to Doc. Type";
+        VendorLedgerEntry.Modify;
     end;
 
     local procedure CreateBankExpSetup()

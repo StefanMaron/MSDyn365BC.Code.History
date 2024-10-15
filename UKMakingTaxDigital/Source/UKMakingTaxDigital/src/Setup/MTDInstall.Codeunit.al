@@ -116,6 +116,12 @@ codeunit 10539 "MTD Install"
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD OAuth Setup Option"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD Gov Test Scenario"));
         DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD Disable FraudPrev. Headers"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP WinClient Due DateTime"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP WebClient Due DateTime"));
+        DataClassificationMgt.SetFieldToNormal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP Batch Due DateTime"));
+        DataClassificationMgt.SetFieldToPersonal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP WinClient Json"));
+        DataClassificationMgt.SetFieldToPersonal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP WebClient Json"));
+        DataClassificationMgt.SetFieldToPersonal(Database::"VAT Report Setup", VATReportSetup.FieldNo("MTD FP Batch Json"));
     end;
 
     local procedure MoveTableMTDLiability();

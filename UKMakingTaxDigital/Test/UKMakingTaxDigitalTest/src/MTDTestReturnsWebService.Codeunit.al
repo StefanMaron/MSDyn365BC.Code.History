@@ -595,6 +595,7 @@ codeunit 148085 "MTDTestReturnsWebService"
         IsInitialized := true;
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
+        LibraryMakingTaxDigital.DisableFraudPreventionHeaders(true);
     end;
 
     local procedure ClearRecords()

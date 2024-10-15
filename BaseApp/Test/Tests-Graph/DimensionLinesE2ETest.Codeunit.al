@@ -505,7 +505,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        exit(GenJournalLine.Id);
+        exit(GenJournalLine.SystemId);
     end;
 
     local procedure CreateJournalLine(JournalName: Code[10]): Guid
@@ -518,7 +518,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        exit(GenJournalLine.Id);
+        exit(GenJournalLine.SystemId);
     end;
 
     local procedure CreateDimensionLinesURLWithFilter(ParentIDFilter: Guid): Text

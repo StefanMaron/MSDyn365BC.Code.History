@@ -222,6 +222,7 @@ codeunit 5407 "Prod. Order Status Management"
                     end;
                     OnCopyFromProdOrderRoutingLine(ToProdOrderRtngLine, FromProdOrderRtngLine);
                     ToProdOrderRtngLine.Insert;
+                    OnAfterToProdOrderRtngLineInsert(ToProdOrderRtngLine, FromProdOrderRtngLine);
                 until Next = 0;
                 DeleteAll;
             end;
@@ -658,6 +659,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Type, Type::Item);
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Outstanding Quantity", '<>%1', 0);
+            OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(ProdOrderComp);
             if FindFirst then
                 Error(Text008, ProdOrder.TableCaption, ProdOrder."No.", "Document No.");
         end;
@@ -892,6 +894,11 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterToProdOrderRtngLineInsert(var ToProdOrderRoutingLine: Record "Prod. Order Routing Line"; var FromProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQtyToPost(ProdOrderComponent: Record "Prod. Order Component"; var QtyToPost: Decimal)
     begin
     end;
@@ -923,6 +930,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMissingOutput(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBeforeFinishProdOrderOnAfterSetProdOrderCompFilters(var ProdOrderComp: Record "Prod. Order Component");
     begin
     end;
 

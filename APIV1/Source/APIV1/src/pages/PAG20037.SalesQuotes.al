@@ -62,6 +62,19 @@ page 20037 "APIV1 - Sales Quotes"
                         RegisterFieldSet(FIELDNO("Document Date"));
                     end;
                 }
+                field(postingDate; "Posting Date")
+                {
+                    ApplicationArea = All;
+                    Caption = 'postingDate', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        PostingDateVar := "Posting Date";
+                        PostingDateSet := TRUE;
+
+                        RegisterFieldSet(FIELDNO("Posting Date"));
+                    end;
+                }
                 field(dueDate; "Due Date")
                 {
                     ApplicationArea = All;
@@ -84,8 +97,7 @@ page 20037 "APIV1 - Sales Quotes"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        SellToCustomer.SETRANGE(Id, "Customer Id");
-                        IF NOT SellToCustomer.FINDFIRST() THEN
+                        IF NOT SellToCustomer.GetBySystemId("Customer Id") THEN
                             ERROR(CouldNotFindSellToCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(SellToCustomer);
@@ -145,7 +157,7 @@ page 20037 "APIV1 - Sales Quotes"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(SellToCustomer);
 
-                        "Customer Id" := SellToCustomer.Id;
+                        "Customer Id" := SellToCustomer.SystemId;
                         RegisterFieldSet(FIELDNO("Customer Id"));
                         RegisterFieldSet(FIELDNO("Sell-to Customer No."));
                     end;
@@ -171,8 +183,7 @@ page 20037 "APIV1 - Sales Quotes"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        BillToCustomer.SETRANGE(Id, "Bill-to Customer Id");
-                        IF NOT BillToCustomer.FINDFIRST() THEN
+                        IF NOT BillToCustomer.GetBySystemId("Bill-to Customer Id") THEN
                             ERROR(CouldNotFindBillToCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(BillToCustomer);
@@ -202,7 +213,7 @@ page 20037 "APIV1 - Sales Quotes"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(BillToCustomer);
 
-                        "Bill-to Customer Id" := BillToCustomer.Id;
+                        "Bill-to Customer Id" := BillToCustomer.SystemId;
                         RegisterFieldSet(FIELDNO("Bill-to Customer Id"));
                         RegisterFieldSet(FIELDNO("Bill-to Customer No."));
                     end;
@@ -281,8 +292,7 @@ page 20037 "APIV1 - Sales Quotes"
                         IF "Currency Id" = BlankGUID THEN
                             "Currency Code" := ''
                         ELSE BEGIN
-                            Currency.SETRANGE(Id, "Currency Id");
-                            IF NOT Currency.FINDFIRST() THEN
+                            IF NOT Currency.GetBySystemId("Currency Id") THEN
                                 ERROR(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -315,7 +325,7 @@ page 20037 "APIV1 - Sales Quotes"
                             IF NOT Currency.GET("Currency Code") THEN
                                 ERROR(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Currency Id"));
@@ -332,8 +342,7 @@ page 20037 "APIV1 - Sales Quotes"
                         IF "Payment Terms Id" = BlankGUID THEN
                             "Payment Terms Code" := ''
                         ELSE BEGIN
-                            PaymentTerms.SETRANGE(Id, "Payment Terms Id");
-                            IF NOT PaymentTerms.FINDFIRST() THEN
+                            IF NOT PaymentTerms.GetBySystemId("Payment Terms Id") THEN
                                 ERROR(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -353,8 +362,7 @@ page 20037 "APIV1 - Sales Quotes"
                         IF "Shipment Method Id" = BlankGUID THEN
                             "Shipment Method Code" := ''
                         ELSE BEGIN
-                            ShipmentMethod.SETRANGE(Id, "Shipment Method Id");
-                            IF NOT ShipmentMethod.FINDFIRST() THEN
+                            IF NOT ShipmentMethod.GetBySystemId("Shipment Method Id") THEN
                                 ERROR(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -602,6 +610,8 @@ page 20037 "APIV1 - Sales Quotes"
         BlankGUID: Guid;
         DocumentDateSet: Boolean;
         DocumentDateVar: Date;
+        PostingDateSet: Boolean;
+        PostingDateVar: Date;
         DueDateSet: Boolean;
         DueDateVar: Date;
         CannotFindQuoteErr: Label 'The quote cannot be found.', Locked = true;
@@ -820,7 +830,7 @@ page 20037 "APIV1 - Sales Quotes"
         END;
 
         IF UpdateCustomer THEN BEGIN
-            VALIDATE("Customer Id", Customer.Id);
+            VALIDATE("Customer Id", Customer.SystemId);
             VALIDATE("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FIELDNO("Customer Id"));
             RegisterFieldSet(FIELDNO("Sell-to Customer No."));
@@ -859,7 +869,7 @@ page 20037 "APIV1 - Sales Quotes"
     var
         GraphMgtSalesQuoteBuffer: Codeunit "Graph Mgt - Sales Quote Buffer";
     begin
-        IF NOT (DueDateSet OR DocumentDateSet) THEN
+        IF NOT (DueDateSet OR DocumentDateSet OR PostingDateSet) THEN
             EXIT;
 
         TempFieldBuffer.RESET();
@@ -868,6 +878,11 @@ page 20037 "APIV1 - Sales Quotes"
         IF DocumentDateSet THEN BEGIN
             "Document Date" := DocumentDateVar;
             RegisterFieldSet(FIELDNO("Document Date"));
+        END;
+
+        IF PostingDateSet THEN BEGIN
+            "Posting Date" := PostingDateVar;
+            RegisterFieldSet(FIELDNO("Posting Date"));
         END;
 
         IF DueDateSet THEN BEGIN
@@ -881,13 +896,11 @@ page 20037 "APIV1 - Sales Quotes"
 
     local procedure GetQuote(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SETRANGE(Id, Id);
-        IF NOT SalesHeader.FINDFIRST() THEN
+        IF NOT SalesHeader.GetBySystemId(Id) THEN
             ERROR(CannotFindQuoteErr);
     end;
 
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; var SalesHeader: Record "Sales Header")
-    var
     begin
         ActionContext.SetObjectType(ObjectType::Page);
         case SalesHeader."Document Type" of
@@ -898,7 +911,7 @@ page 20037 "APIV1 - Sales Quotes"
             SalesHeader."Document Type"::Quote:
                 ActionContext.SetObjectId(Page::"APIV1 - Sales Quotes");
         end;
-        ActionContext.AddEntityKey(FieldNo(Id), SalesHeader.Id);
+        ActionContext.AddEntityKey(FieldNo(Id), SalesHeader.SystemId);
         ActionContext.SetResultCode(WebServiceActionResultCode::Deleted);
     end;
 

@@ -199,9 +199,12 @@ codeunit 10538 "MTD OAuth 2.0 Mgt"
     end;
 
     local procedure SaveTokens(var OAuth20Setup: Record "OAuth 2.0 Setup"; TokenDataScope: DataScope; AccessToken: Text; RefreshToken: Text)
+    var
+        TypeHelper: Codeunit "Type Helper";
     begin
         SetToken(OAuth20Setup."Access Token", AccessToken, TokenDataScope);
         SetToken(OAuth20Setup."Refresh Token", RefreshToken, TokenDataScope);
+        OAuth20Setup."Access Token Due DateTime" := TypeHelper.AddHoursToDateTime(CurrentDateTime(), 2);
         OAuth20Setup.Modify();
         Commit(); // need to prevent rollback to save new keys
     end;

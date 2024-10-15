@@ -144,7 +144,7 @@
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
                 }
@@ -167,7 +167,7 @@
                 }
                 field("Tariff No."; "Tariff No.")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the item''s tariff number.';
                     Visible = false;
                 }
@@ -434,7 +434,8 @@
                             ClearAttributesFilter;
                             exit;
                         end;
-
+                        TempItemFilteredFromAttributes.Reset;
+                        TempItemFilteredFromAttributes.DeleteAll;
                         ItemAttributeManagement.FindItemsByAttributes(TempFilterItemAttributesBuffer, TempItemFilteredFromAttributes);
                         FilterText := ItemAttributeManagement.GetItemNoFilterText(TempItemFilteredFromAttributes, ParameterCount);
 
@@ -714,7 +715,7 @@
                 }
                 action(PricesDiscountsOverview)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Special Prices & Discounts Overview';
                     Image = PriceWorksheet;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
@@ -1738,7 +1739,7 @@
                 Image = Sales;
                 action(Sales_Prices)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Prices';
                     Image = Price;
                     RunObject = Page "Sales Prices";
@@ -1748,7 +1749,7 @@
                 }
                 action(Sales_LineDiscounts)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     RunObject = Page "Sales Line Discounts";
@@ -2029,6 +2030,8 @@
     trigger OnAfterGetRecord()
     begin
         EnableControls;
+        if IsNonInventoriable then
+            Inventory := 0;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean

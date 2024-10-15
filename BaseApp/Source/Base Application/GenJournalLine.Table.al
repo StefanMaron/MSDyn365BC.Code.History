@@ -4229,9 +4229,9 @@ table 81 "Gen. Journal Line"
                 Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
             end else
                 Validate(Amount);
-        end;
 
-        OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+            OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+        end;
     end;
 
     local procedure UpdateCurrencyCode(NewCurrencyCode: Code[10])
@@ -6621,7 +6621,7 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetFAVATSetupOnBeforeCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account")
+    local procedure OnGetFAVATSetupOnBeforeCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
 
@@ -6981,7 +6981,7 @@ table 81 "Gen. Journal Line"
           (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor)));
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ShowDeferralSchedule()
     begin
         if "Account Type" = "Account Type"::"Fixed Asset" then

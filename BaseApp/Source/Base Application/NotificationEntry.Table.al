@@ -106,31 +106,32 @@ table 1511 "Notification Entry"
         DataTypeManagement: Codeunit "Data Type Management";
 
     procedure CreateNew(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250])
+    begin
+        CreateNewEntry(NewType, NewUserID, NewRecord, NewLinkTargetPage, NewCustomLink, '');
+    end;
+
+    procedure CreateNewEntry(NewType: Option "New Record",Approval,Overdue; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
     var
         NotificationSchedule: Record "Notification Schedule";
+        UserSetup: Record "User Setup";
         NewRecRef: RecordRef;
     begin
+        if RecipientUserID = '' then
+            exit;
+        if not UserSetup.Get(RecipientUserID) then
+            exit;
         if not DataTypeManagement.GetRecordRef(NewRecord, NewRecRef) then
             exit;
 
-        InsertRec(NewType, NewUserID, NewRecRef.RecordId, NewLinkTargetPage, NewCustomLink, '');
-        NotificationSchedule.ScheduleNotification(Rec);
+        if InsertRec(NewType, RecipientUserID, NewRecRef.RecordId, NewLinkTargetPage, NewCustomLink, NewSenderUserID) then
+            NotificationSchedule.ScheduleNotification(Rec);
     end;
 
-    procedure CreateNewEntry(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
-    var
-        NotificationSchedule: Record "Notification Schedule";
-        NewRecRef: RecordRef;
+    local procedure InsertRec(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecordID: RecordID; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50]): Boolean;
     begin
-        if not DataTypeManagement.GetRecordRef(NewRecord, NewRecRef) then
-            exit;
+        if not DoesTableMatchType(NewType, NewRecordID.TableNo) then
+            exit(false);
 
-        InsertRec(NewType, NewUserID, NewRecRef.RecordId, NewLinkTargetPage, NewCustomLink, NewSenderUserID);
-        NotificationSchedule.ScheduleNotification(Rec);
-    end;
-
-    local procedure InsertRec(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecordID: RecordID; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
-    begin
         Clear(Rec);
         Type := NewType;
         "Recipient User ID" := NewUserID;
@@ -138,7 +139,18 @@ table 1511 "Notification Entry"
         "Link Target Page" := NewLinkTargetPage;
         "Custom Link" := NewCustomLink;
         "Sender User ID" := NewSenderUserID;
-        Insert(true);
+        exit(Insert(true));
+    end;
+
+    local procedure DoesTableMatchType(NewType: Option; TableNo: Integer): Boolean;
+    begin
+        case NewType of
+            type::Approval:
+                exit(TableNo = Database::"Approval Entry");
+            type::Overdue:
+                exit(TableNo = Database::"Overdue Approval Entry");
+        end;
+        exit(true);
     end;
 }
 

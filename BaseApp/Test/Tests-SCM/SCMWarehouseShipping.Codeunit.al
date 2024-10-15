@@ -2373,6 +2373,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // Exercise: Undo purchase recept line.
         PurchRcptLine.SetRange("Document No.", PostedReceiptNo);
+        PurchRcptLine.FindFirst();
         asserterror LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // Verify: Verifying remaining quanitity error.

@@ -508,6 +508,28 @@ codeunit 134827 "UT Item Table"
         TransferLine.TestField("Item No.", ItemNoNew);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetItemNoGetItemByName_CaseSensitive_Blocked()
+    var
+        Item: array[4] of Record Item;
+        RandomText1: Text[100];
+        RandomText2: Text[100];
+    begin
+        Initialize;
+
+        RandomText1 := 'aaa';
+        RandomText2 := 'AAA';
+
+        CreateItemFromNameAndBlocked(Item[1], RandomText1, true);
+        CreateItemFromNameAndBlocked(Item[2], RandomText1, false);
+        CreateItemFromNameAndBlocked(Item[3], RandomText2, true);
+        CreateItemFromNameAndBlocked(Item[4], RandomText2, false);
+
+        Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText1), '');
+        Assert.AreEqual(Item[4]."No.", Item[1].GetItemNo(RandomText2), '');
+    end;
+
     local procedure Initialize()
     var
         Item: Record Item;
@@ -543,6 +565,14 @@ codeunit 134827 "UT Item Table"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate(Description, CopyStr(Description, 1, MaxStrLen(Item.Description)));
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemFromNameAndBlocked(var Item: Record Item; Description: Text; ItemBlocked: Boolean)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Description, CopyStr(Description, 1, MaxStrLen(Item.Description)));
+        Item.Validate(Blocked, ItemBlocked);
         Item.Modify(true);
     end;
 
