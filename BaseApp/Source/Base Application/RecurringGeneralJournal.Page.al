@@ -1,5 +1,6 @@
 page 283 "Recurring General Journal"
 {
+    AdditionalSearchTerms = 'accruals';
     ApplicationArea = Suite, FixedAssets;
     AutoSplitKey = true;
     Caption = 'Recurring General Journals';
@@ -77,6 +78,7 @@ page 283 "Recurring General Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -88,6 +90,7 @@ page 283 "Recurring General Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Depreciation Book Code"; "Depreciation Book Code")
@@ -410,6 +413,12 @@ page 283 "Recurring General Journal"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+                field("Reverse Date Calculation"; "Reverse Date Calculation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies posting date calculation formula for reverse recurring methods.';
+                    Visible = false;
+                }
             }
             group(Control28)
             {
@@ -420,12 +429,26 @@ page 283 "Recurring General Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Suite;
                             Editable = false;
                             ShowCaption = false;
                             ToolTip = 'Specifies the name of the account.';
+                        }
+                    }
+                    group("Number of Lines")
+                    {
+                        Caption = 'Number of Lines';
+                        field(NumberOfJournalRecords; NumberOfRecords)
+                        {
+                            ApplicationArea = All;
+                            AutoFormatType = 1;
+                            Caption = 'Number of Lines';
+                            ShowCaption = false;
+                            Editable = false;
+                            ToolTip = 'Specifies the number of lines in the current journal batch.';
                         }
                     }
                     group(Control1903866901)
@@ -459,6 +482,13 @@ page 283 "Recurring General Journal"
         }
         area(factboxes)
         {
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -506,7 +536,7 @@ page 283 "Recurring General Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -673,7 +703,7 @@ page 283 "Recurring General Journal"
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Recurring General Journal", 0, true, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Recurring General Journal", "Gen. Journal Template Type"::General, true, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
@@ -690,9 +720,9 @@ page 283 "Recurring General Journal"
         BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
+        NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
@@ -701,6 +731,9 @@ page 283 "Recurring General Journal"
         DebitCreditVisible: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -716,6 +749,8 @@ page 283 "Recurring General Journal"
           Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
+        if ShowTotalBalance then
+            NumberOfRecords := Count();
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()

@@ -15,6 +15,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTemplates: Codeunit "Library - Templates";
         LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
         WrongAccountBalanceErr: Label 'The account balance is wrong.';
@@ -525,6 +526,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 

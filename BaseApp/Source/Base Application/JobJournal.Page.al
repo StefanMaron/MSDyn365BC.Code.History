@@ -42,7 +42,7 @@ page 201 "Job Journal"
                 field("Line Type"; "Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line type of a job planning line in the context of posting of a job ledger entry. The options are described in the following table.';
+                    ToolTip = 'Specifies the type of planning line to create when a job ledger entry is posted. If the field is empty, no planning lines are created.';
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -500,7 +500,7 @@ page 201 "Job Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -757,8 +757,10 @@ page 201 "Job Journal"
         AccName: Text[100];
         NumberOfRecords: Integer;
         CurrentJnlBatchName: Code[10];
-        ShortcutDimCode: array[8] of Code[20];
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

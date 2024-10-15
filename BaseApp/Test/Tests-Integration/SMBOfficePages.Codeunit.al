@@ -1944,7 +1944,7 @@ codeunit 139048 "SMB Office Pages"
     end;
 
     [Scope('OnPrem')]
-    procedure UpdateContactEmail(BusinessRelationCode: Code[10]; LinkToTable: Option; LinkNo: Code[20]; Email: Text[80]; SetPerson: Boolean) ContactNo: Code[20]
+    procedure UpdateContactEmail(BusinessRelationCode: Code[10]; LinkToTable: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]; Email: Text[80]; SetPerson: Boolean) ContactNo: Code[20]
     var
         Contact: Record Contact;
     begin
@@ -1961,7 +1961,7 @@ codeunit 139048 "SMB Office Pages"
     end;
 
     [Scope('OnPrem')]
-    procedure FindContactNo(BusinessRelationCode: Code[10]; LinkToTable: Option; LinkNo: Code[20]): Code[20]
+    procedure FindContactNo(BusinessRelationCode: Code[10]; LinkToTable: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20]): Code[20]
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -2065,7 +2065,7 @@ codeunit 139048 "SMB Office Pages"
         exit(StrSubstNo('%1@%2', CreateGuid, 'example.com'));
     end;
 
-    local procedure CreateContact(var Contact: Record Contact; Type: Option Company,Person): Text[80]
+    local procedure CreateContact(var Contact: Record Contact; Type: Enum "Contact Type"): Text[80]
     var
         MarketingSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";

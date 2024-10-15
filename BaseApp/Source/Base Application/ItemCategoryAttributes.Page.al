@@ -121,6 +121,7 @@ page 5734 "Item Category Attributes"
             ItemAttributeValueMapping."No." := ItemCategoryCode;
             ItemAttributeValueMapping."Item Attribute ID" := "Attribute ID";
             ItemAttributeValueMapping."Item Attribute Value ID" := GetAttributeValueID(TempItemAttributeValueToInsert);
+            OnInsertRecordOnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempItemAttributeValueToInsert, Rec);
             ItemAttributeValueMapping.Insert();
             ItemAttributeManagement.InsertCategoryItemsBufferedAttributeValueMapping(
               TempItemAttributeValueToInsert, TempRecentlyItemAttributeValueMapping, ItemCategoryCode);
@@ -206,16 +207,17 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping.SetRange("No.", CategoryCode);
         ItemAttributeValueMapping.DeleteAll();
 
-        if TempNewItemAttributeValue.FindSet then
+        if TempNewItemAttributeValue.FindSet() then
             repeat
                 ItemAttributeValueMapping."Table ID" := DATABASE::"Item Category";
                 ItemAttributeValueMapping."No." := CategoryCode;
                 ItemAttributeValueMapping."Item Attribute ID" := TempNewItemAttributeValue."Attribute ID";
                 ItemAttributeValueMapping."Item Attribute Value ID" := TempNewItemAttributeValue.ID;
+                OnSaveAttributesOnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempNewItemAttributeValue);
                 ItemAttributeValueMapping.Insert();
                 ItemAttribute.Get(ItemAttributeValueMapping."Item Attribute ID");
-                ItemAttribute.RemoveUnusedArbitraryValues;
-            until TempNewItemAttributeValue.Next = 0;
+                ItemAttribute.RemoveUnusedArbitraryValues();
+            until TempNewItemAttributeValue.Next() = 0;
 
         TempNewCategItemAttributeValue.LoadCategoryAttributesFactBoxData(CategoryCode);
         ItemAttributeManagement.UpdateCategoryItemsAttributeValueMapping(
@@ -312,8 +314,23 @@ page 5734 "Item Category Attributes"
         TempRecentlyItemAttributeValueMapping.DeleteAll();
     end;
 
+    procedure GetItemCategoryCode(): Code[20];
+    begin
+        Exit(ItemCategoryCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRecordOnBeforeItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var ItemAttributeValue: Record "Item Attribute Value"; ItemAttributeValueSelection: Record "Item Attribute Value Selection")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnLoadAttributesOnBeforeTempItemAttributeValueInsert(ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempItemAttributeValue: Record "Item Attribute Value" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAttributesOnBeforeItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; ItemAttributeValue: Record "Item Attribute Value")
     begin
     end;
 }

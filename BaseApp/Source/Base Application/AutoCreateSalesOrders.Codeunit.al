@@ -23,11 +23,9 @@ codeunit 5349 "Auto Create Sales Orders"
         CRMSalesorder.SetRange(LastBackofficeSubmit, 0D);
         if CRMSalesorder.FindSet(true) then
             repeat
-                SendTraceTag('0000DET', CrmTelemetryCategoryTok, VERBOSITY::Normal,
-                    StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000DET', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                 if CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesorder) then begin
-                    SendTraceTag('0000DEU', CrmTelemetryCategoryTok, VERBOSITY::Normal,
-                        StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('0000DEU', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                     Commit();
                 end;
             until CRMSalesorder.Next = 0;

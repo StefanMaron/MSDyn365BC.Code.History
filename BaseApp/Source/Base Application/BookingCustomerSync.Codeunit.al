@@ -64,7 +64,7 @@ codeunit 6704 "Booking Customer Sync."
     begin
         ExchangeSync.Get(UserId);
         O365ContactSyncHelper.GetO365Contacts(ExchangeSync, TempContact);
-        SendTraceTag('0000ACH', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(BookingsCountTelemetryTxt, TempContact.Count()), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACH', StrSubstNo(BookingsCountTelemetryTxt, TempContact.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
 
         O365SyncManagement.ShowProgress(ProcessNavContactsMsg);
         ProcessNavContacts(BookingSync);

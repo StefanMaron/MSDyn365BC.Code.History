@@ -11,6 +11,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         MissingPermissionsErr: Label 'You do not have the following permissions on TableData';
 
@@ -33,6 +34,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;

@@ -301,9 +301,11 @@ table 8622 "Config. Line"
         Text002: Label 'The status %1 is not supported.';
         Text003: Label 'The table you are trying to rename is linked to a package. Do you want to remove the link?';
         Text004: Label 'You cannot process line for table %1 and package code %2 because it is blocked.';
-        HideValidationDialog: Boolean;
         NoDuplicateLinesMsg: Label 'There are no duplicate lines.';
         NoOfDuplicateLinesDeletedMsg: Label '%1 line(s) were deleted.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure CheckBlocked()
     begin

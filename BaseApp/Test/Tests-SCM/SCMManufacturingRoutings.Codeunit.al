@@ -880,7 +880,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderLine.FindFirst;
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(ProdOrderLine."Quantity (Base)");
-        ProdOrderLine.OpenItemTrackingLines;
+        ProdOrderLine.OpenItemTrackingLines();
 
         // [WHEN] Change Order Status to Released
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
@@ -1276,7 +1276,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
             RoutingLine[I].Find;
     end;
 
-    local procedure ChangeRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Option)
+    local procedure ChangeRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, NewStatus);
         RoutingHeader.Modify(true);
@@ -1354,7 +1354,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         end;
     end;
 
-    local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Init();
         RoutingHeader."No." := LibraryUtility.GenerateGUID;
@@ -1362,7 +1362,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         RoutingHeader.Insert();
     end;
 
-    local procedure MockRoutingVersion(var RoutingVersion: Record "Routing Version"; RoutingNo: Code[20]; Status: Option)
+    local procedure MockRoutingVersion(var RoutingVersion: Record "Routing Version"; RoutingNo: Code[20]; Status: Enum "Routing Status")
     begin
         RoutingVersion.Init();
         RoutingVersion."Routing No." := RoutingNo;
@@ -1371,7 +1371,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         RoutingVersion.Insert();
     end;
 
-    local procedure MockRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; Type: Option; No: Code[20])
+    local procedure MockRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; VersionCode: Code[20]; Type: Enum "Capacity Type Routing"; No: Code[20])
     begin
         RoutingLine.Init();
         RoutingLine."Routing No." := RoutingNo;

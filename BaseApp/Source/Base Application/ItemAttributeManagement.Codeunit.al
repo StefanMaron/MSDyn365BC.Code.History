@@ -1,4 +1,4 @@
-﻿codeunit 7500 "Item Attribute Management"
+codeunit 7500 "Item Attribute Management"
 {
 
     trigger OnRun()

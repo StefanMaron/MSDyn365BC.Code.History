@@ -669,7 +669,7 @@ codeunit 905 "Assembly Line Management"
                           "Document No.",
                           "Line No.",
                           DATABASE::"Assembly Line",
-                          "Document Type",
+                          "Document Type".AsInteger(),
                           "Document No.",
                           "Line No.",
                           0);

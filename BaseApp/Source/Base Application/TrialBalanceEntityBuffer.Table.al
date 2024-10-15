@@ -61,7 +61,7 @@ table 5488 "Trial Balance Entity Buffer"
         {
             Caption = 'Account Id';
             DataClassification = SystemMetadata;
-            TableRelation = "G/L Account".Id;
+            TableRelation = "G/L Account".SystemId;
         }
     }
 

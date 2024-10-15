@@ -265,6 +265,23 @@ page 672 "Job Queue Entries"
                         RemoveFailedJobs;
                     end;
                 }
+                action(RunNow)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Run the current Job Queue Entry now';
+                    Image = Delete;
+                    ToolTip = 'Schedules the current Job Queue Entry for immediate execution.';
+
+                    trigger OnAction()
+                    var
+                        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
+                    begin
+                        Rec.Status := Rec.Status::Ready;
+                        Rec.Modify(false);
+                        Commit(); // Commit() is needed because the dispatcher calls SelectLatestVersion;
+                        JobQueueDispatcher.Run(Rec);
+                    end;
+                }
             }
         }
     }

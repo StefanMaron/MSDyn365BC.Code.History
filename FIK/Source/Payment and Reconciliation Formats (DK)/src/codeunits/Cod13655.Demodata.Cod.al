@@ -46,17 +46,15 @@ codeunit 13655 "FIK Demodata"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure CompanyInitialize()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         DataMigration: Codeunit "FIK Data Migration";
     begin
         DataMigration.Run();
         ImportFIKDataExchDef();
         InsertPaymentMethods();
-        GeneralLedgerSetup.Get();
         SetFIKImportFormat();
         CreateBankExportImportSetup();
     end;
-	
+
     local procedure SetFIKImportFormat()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

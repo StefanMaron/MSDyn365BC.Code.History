@@ -5,6 +5,7 @@ codeunit 5487 "Graph Mgt - Dimension"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         Dimension: Record Dimension;

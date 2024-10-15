@@ -229,7 +229,7 @@ page 841 "Cash Flow Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -388,11 +388,13 @@ page 841 "Cash Flow Worksheet"
     var
         SuggestWkshLines: Report "Suggest Worksheet Lines";
         CashFlowManagement: Codeunit "Cash Flow Management";
-        ShortcutDimCode: array[8] of Code[20];
         CFName: Text[100];
         CFAccName: Text[100];
         SourceNumEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure ShowErrors()
     var

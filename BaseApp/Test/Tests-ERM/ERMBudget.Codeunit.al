@@ -2037,11 +2037,8 @@ codeunit 134922 "ERM Budget"
 
         // [GIVEN] Budget exported to Excel File
         SetupDimensionExportToExcel(DimensionValue);
-        LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
         Commit();
-        GLBudgetEntry[1].SetRange("Budget Name", GLBudgetName.Name);
-        RunExportBudgetToExcelWithRequestPage(GLBudgetEntry[1], FileName);
+        ExportBudgetToExcel(GLBudgetName.Name, FileName);
 
         // [GIVEN] Budget Entry's Amounts "100"/"200" modified to "150"/"250" to later make sure import works.
         for i := 1 to ArrayLen(GLBudgetEntry) do begin
@@ -2228,6 +2225,62 @@ codeunit 134922 "ERM Budget"
         Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,ExportBudgetToExcelWithDimRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBudgetImportToExcelWithBudgetEntriesDifferingInDimensionAndDinensionCodeEvaluatableToDate()
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+        GLBudgetName: Record "G/L Budget Name";
+        GLBudgetEntry: array[2] of Record "G/L Budget Entry";
+        SelectedDimension: Record "Selected Dimension";
+        DimensionCode: Code[20];
+        GLAccountNo: Code[20];
+        FileName: Text;
+        EntryAmount: array[2] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [G/L Budget Entries]
+        // [SCENARIO 367238] It is possible to Import Budget with two lines differing only in Dimension Values for Dimension with Code that can be evaluated to Date.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Dimension "D" with Code = "10".
+        DimensionCode := Format(LibraryRandom.RandInt(28));
+        CreateDimensionWithCode(DimensionCode);
+
+        // [GIVEN] Budget with Budget Dimension equal to "D".
+        CreateGLBudgetWithDimensionCode(GLBudgetName, DimensionCode);
+
+        // [GIVEN] Budget having two Budget Entries with Amount "100"/"200" and Dimension Values "DV1"/"DV2" of Dimension "D".
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        for i := 1 to ArrayLen(GLBudgetEntry) do begin
+            EntryAmount[i] := LibraryRandom.RandInt(10);
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], DimensionCode);
+            CreateGLBudgetEntryWithDimensionValue(
+                GLBudgetEntry[i], GLAccountNo, GLBudgetName.Name, EntryAmount[i], DimensionValue[i].Code);
+        end;
+
+        // [GIVEN] Budget exported to Excel File with Dimension "D".
+        LibraryVariableStorage.Enqueue(DimensionCode);
+        LibraryDimension.CreateSelectedDimension(SelectedDimension, 3, REPORT::"Export Budget to Excel", '', DimensionCode);
+        Commit();
+        ExportBudgetToExcel(GLBudgetName.Name, FileName);
+
+        // [GIVEN] Budget Entry's Amounts "100"/"200" modified to "150"/"250" to later make sure import works.
+        for i := 1 to ArrayLen(GLBudgetEntry) do begin
+            GLBudgetEntry[i].Validate(Amount, EntryAmount[i] + LibraryRandom.RandInt(10));
+            GLBudgetEntry[i].Modify(true);
+        end;
+
+        // [WHEN] Budget is imported back from File.
+        RunImportBudgetFromExcel(GLBudgetName.Name, 0, FileName, false);
+
+        // [THEN] Budget Entries Amount is equal to "100"/"150" and has Dimension Values equal to "DV1"/"DV2".
+        for i := 2 to ArrayLen(GLBudgetEntry) do
+            VerifyGLBudgetEntryWithDimensionValue(GLBudgetName.Name, DimensionValue[i].Code, EntryAmount[i]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2312,6 +2365,15 @@ codeunit 134922 "ERM Budget"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure CreateDimensionWithCode(DimensionCode: Code[20])
+    var
+        Dimension: Record Dimension;
+    begin
+        Dimension.Init();
+        Dimension.Validate(Code, DimensionCode);
+        Dimension.Insert(true);
+    end;
+
     local procedure CreateGlobalAndBudgetDimensionsWithDimensionsValues(var DimensionValue: array[6] of Record "Dimension Value")
     var
         Dimension: Record Dimension;
@@ -2319,7 +2381,7 @@ codeunit 134922 "ERM Budget"
     begin
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
-        for i := 3 to 6 do begin
+        for i := 3 to ArrayLen(DimensionValue) do begin
             LibraryDimension.CreateDimension(Dimension);
             LibraryDimension.CreateDimensionValue(DimensionValue[i], Dimension.Code);
         end;
@@ -2369,6 +2431,14 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry.Modify(true);
     end;
 
+    local procedure CreateGLBudgetEntryWithDimensionValue(var GLBudgetEntry: Record "G/L Budget Entry"; GLAccountNo: Code[20]; GLBudgetName: Code[10]; EntryAmount: Integer; DimensionValueCode: Code[20])
+    begin
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, GLAccountNo, GLBudgetName);
+        GLBudgetEntry.Validate(Amount, EntryAmount);
+        GLBudgetEntry.Validate("Budget Dimension 1 Code", DimensionValueCode);
+        GLBudgetEntry.Modify(true);
+    end;
+
     local procedure CreateBudgetWithDimension(var GLBudgetName: Record "G/L Budget Name")
     var
         Dimension: Record Dimension;
@@ -2412,6 +2482,16 @@ codeunit 134922 "ERM Budget"
             Insert;
             exit(Amount);
         end;
+    end;
+
+    local procedure ExportBudgetToExcel(GLBudgetName: Code[10]; var FileName: Text)
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
+    begin
+        LibraryReportValidation.SetFileName(GLBudgetName);
+        FileName := LibraryReportValidation.GetFileName();
+        GLBudgetEntry.SetRange("Budget Name", GLBudgetName);
+        RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
     end;
 
     local procedure FindDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
@@ -2530,6 +2610,16 @@ codeunit 134922 "ERM Budget"
         CheckStringInTextIgnoreCase(GLBudgetEntriesPage."Budget Dimension 2 Code".Caption, GLBudgetName."Budget Dimension 2 Code");
         CheckStringInTextIgnoreCase(GLBudgetEntriesPage."Budget Dimension 3 Code".Caption, GLBudgetName."Budget Dimension 3 Code");
         CheckStringInTextIgnoreCase(GLBudgetEntriesPage."Budget Dimension 4 Code".Caption, GLBudgetName."Budget Dimension 4 Code");
+    end;
+
+    local procedure VerifyGLBudgetEntryWithDimensionValue(GLBudgetName: Code[10]; DimensionValueCode: Code[20]; EntryAmount: Integer)
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
+    begin
+        GLBudgetEntry.SetRange("Budget Name", GLBudgetName);
+        GLBudgetEntry.SetRange("Budget Dimension 1 Code", DimensionValueCode);
+        GLBudgetEntry.FindFirst();
+        GLBudgetEntry.TestField(Amount, EntryAmount);
     end;
 
     local procedure CheckStringInTextIgnoreCase(String: Text; SubString: Text)

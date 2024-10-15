@@ -60,28 +60,24 @@ page 6059 "Contract Statistics"
                             ApplicationArea = Prepayments;
                             Caption = 'Prepaid Amount';
                             ToolTip = 'Specifies the sum of all amounts that have been prepaid.';
-
                         }
                         field("Total Amount"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Total Amount';
                             ToolTip = 'Specifies the sum of the invoiced amount and the prepaid amount.';
-
                         }
                         field("Profit Amount"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit Amount';
                             ToolTip = 'Specifies the amount of profit, after the cost amount has been subtracted from the total amount.';
-
                         }
                         field("Profit %"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit %';
                             ToolTip = 'Specifies the amount of profit as a percentage of the total amount.';
-
                         }
                     }
                     group(Items)

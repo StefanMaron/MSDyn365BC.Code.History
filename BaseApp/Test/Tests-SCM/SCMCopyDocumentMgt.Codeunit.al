@@ -25,13 +25,11 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
         WrongDimensionsCopiedErr: Label 'Wrong dimensions in copied document';
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         ItemTrackingMode: Option "Assign Lot No.","Select Entries","Assign Serial Nos.";
 
-    local procedure CopyDocument(SourceType: Option; SourceUnpostedType: Option; DestType: Option)
+    local procedure CopyDocument(SourceType: Enum "Sales Document Type From"; SourceUnpostedType: Enum "Sales Document Type"; DestType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SourceNo: Code[20];
@@ -50,7 +48,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         SalesHeader: Record "Sales Header";
     begin
-        CopyDocument(SalesDocType::Order, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Order);
+        CopyDocument("Sales Document Type From"::Order, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Order);
     end;
 
     [Test]
@@ -59,7 +57,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         SalesHeader: Record "Sales Header";
     begin
-        CopyDocument(SalesDocType::Quote, SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order);
+        CopyDocument("Sales Document Type From"::Quote, SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order);
     end;
 
     [Test]
@@ -68,7 +66,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         SalesHeader: Record "Sales Header";
     begin
-        CopyDocument(SalesDocType::"Posted Invoice", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Return Order");
+        CopyDocument("Sales Document Type From"::"Posted Invoice", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Return Order");
     end;
 
     [Test]
@@ -77,7 +75,8 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         SalesHeader: Record "Sales Header";
     begin
-        CopyDocument(SalesDocType::"Posted Shipment", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Quote);
+        CopyDocument(
+            "Sales Document Type From"::"Posted Shipment", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Quote);
     end;
 
     [Test]
@@ -87,7 +86,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader: Record "Sales Header";
     begin
         CopyDocument(
-          SalesDocType::"Return Order", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo");
+            "Sales Document Type From"::"Return Order", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -99,7 +98,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         ExecuteConfirmHandler;
         CopyDocument(
-          SalesDocType::"Posted Credit Memo", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::Invoice);
+            "Sales Document Type From"::"Posted Credit Memo", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::Invoice);
     end;
 
     [Test]
@@ -110,8 +109,9 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader: Record "Sales Header";
     begin
         ExecuteConfirmHandler;
-        CopyDocument(SalesDocType::"Posted Return Receipt",
-          SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Blanket Order");
+        CopyDocument(
+            "Sales Document Type From"::"Posted Return Receipt",
+            SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -129,7 +129,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [FEATURE] [Item Charge]
         Initialize;
 
-        SourceNo := CreateSourceDocument(SalesDocType::"Posted Shipment", SalesHeader."Document Type"::Order);
+        SourceNo := CreateSourceDocument("Sales Document Type From"::"Posted Shipment", SalesHeader."Document Type"::Order);
         SalesShipmentHeader.Get(SourceNo);
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
@@ -146,8 +146,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibrarySales.CreateSalesHeader(SalesHeader2,
           SalesHeader2."Document Type"::Order, SalesShipmentHeader."Sell-to Customer No.");
 
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Order,
-          SalesHeader."No.", SalesHeader2);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Order, SalesHeader."No.", SalesHeader2);
 
         VerifyShipmntItemChargeAssngmt(SalesHeader2, SalesShipmentLine."No.");
     end;
@@ -157,27 +156,27 @@ codeunit 137212 "SCM Copy Document Mgt."
     procedure TestOverwriteHeader()
     var
         SalesHeader: Record "Sales Header";
-        SourceType: Option;
-        DestType: Option;
+        SourceType: Enum "Sales Document Type From";
+        DestType: Enum "Sales Document Type";
         SourceNo: Code[20];
         DestNo: Code[20];
         ExpectedErrorMsg: Text[50];
     begin
         Initialize;
 
-        SourceType := SalesDocType::Order;
+        SourceType := "Sales Document Type From"::Order;
         DestType := SalesHeader."Document Type"::Order;
         SourceNo := CreateSourceDocument(SourceType, SalesHeader."Document Type"::Order);
 
         LibrarySales.CreateSalesHeader(SalesHeader,
-          CopyDocumentMgt.SalesHeaderDocType(SourceType), CreateCustomer);
+          CopyDocumentMgt.GetSalesDocumentType(SourceType), CreateCustomer);
         DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
         VerifyCopy(SourceType, SourceNo, DestType, DestNo);
 
         CopyDocumentMgt.SetProperties(false, true, false, false, true, false, false);
         Clear(SalesHeader);
         LibrarySales.CreateSalesHeader(SalesHeader,
-          CopyDocumentMgt.SalesHeaderDocType(SourceType), CreateCustomer);
+          CopyDocumentMgt.GetSalesDocumentType(SourceType), CreateCustomer);
 
         DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
 
@@ -204,7 +203,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         CreateEmptySalesHeader(SalesHeader2, SalesHeader2."Document Type"::Quote);
 
         // [WHEN] Create a Sales Quote with Copy Document.
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Quote, SalesHeader."No.", SalesHeader2);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Quote, SalesHeader."No.", SalesHeader2);
 
         // [THEN] Sales Quote Created With Copy Document.
         ValidateCopiedSalesHeaderAndSalesLines(SalesHeader2, SalesHeader2."Document Type", SalesHeader."No.");
@@ -258,7 +257,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine."Bill-to Customer No.");
 
         // [WHEN] Copy Sales Document with "Recalculate Lines" = Yes
-        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", PostedDocNo, SalesHeader);
+        CopyToDestinationSalesDocument("Sales Document Type From"::"Posted Invoice", PostedDocNo, SalesHeader);
 
         // [THEN] Dimension Set ID of copied Sales Line = "X"
         FindSalesLine(SalesHeader, SalesLine);
@@ -285,7 +284,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine."Bill-to Customer No.");
 
         // [WHEN] Copy Sales Document with "Recalculate Lines" = No
-        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", PostedDocNo, SalesHeader);
+        CopyToDestinationSalesDocument("Sales Document Type From"::"Posted Invoice", PostedDocNo, SalesHeader);
 
         // [THEN] Dimension Set ID of copied Sales Line = "Y"
         FindSalesLine(SalesHeader, SalesLine);
@@ -312,7 +311,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           PurchHeader, PurchHeader."Document Type"::Order, PurchLine."Pay-to Vendor No.");
 
         // [WHEN] Copy Purch. Document with "Recalculate Lines" = Yes
-        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", PostedDocNo, PurchHeader);
+        CopyToDestinationPurchaseDocument("Sales Document Type From"::"Posted Invoice", PostedDocNo, PurchHeader);
 
         // [THEN] Dimension Set ID of copied Purch. Line = "X"
         FindPurchLine(PurchHeader, PurchLine);
@@ -339,7 +338,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           PurchHeader, PurchHeader."Document Type"::Order, PurchLine."Pay-to Vendor No.");
 
         // [WHEN] Copy Purch. Document with "Recalculate Lines" = No
-        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", PostedDocNo, PurchHeader);
+        CopyToDestinationPurchaseDocument("Sales Document Type From"::"Posted Invoice", PostedDocNo, PurchHeader);
 
         // [THEN] Dimension Set ID of copied Purch. Line = "Y"
         FindPurchLine(PurchHeader, PurchLine);
@@ -558,7 +557,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         CreateAndPostSalesOrderWithTracking(ItemNo, Quantity);
 
         // [WHEN] Create new Purchase Order by copying the posted invoice of the Purchase "P".
-        CopyPurchDocument(PurchaseHeader, PurchDocType::"Posted Invoice", PurchInvoiceNo);
+        CopyPurchDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PurchInvoiceNo);
 
         // [THEN] No Item Tracking for "I" is created.
         ReservationEntry.Init();
@@ -816,7 +815,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         // [WHEN] Copy sales return order "SR" to sales order "SO".
         CopyDocumentMgt.CopySalesDoc(
-          SalesDocType::"Return Order", SalesHeaderReturn."No.", SalesHeaderOrder);
+          "Sales Document Type From"::"Return Order", SalesHeaderReturn."No.", SalesHeaderOrder);
 
         // [THEN] "SO"."Ship-to Address" = "A".
         // [THEN] "SO"."Ship-to Address 2" = "A2".
@@ -872,11 +871,8 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         // [THEN] Sales Lines created for Sales Credit Memo
         VerifyCopySalesLinesNos(
-          SalesHeader."Document Type"::"Credit Memo",
-          SalesHeader."No.",
-          SalesLine[1].Type::Item,
-          SalesLine[1]."No.",
-          SalesLine[2]."No.");
+          SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.",
+          SalesLine[1].Type::Item, SalesLine[1]."No.", SalesLine[2]."No.");
     end;
 
     [Test]
@@ -927,11 +923,148 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         // [THEN] Purchase Lines created for Purchase Credit Memo
         VerifyCopyPurchLinesNos(
-          PurchaseHeader."Document Type"::"Credit Memo",
-          PurchaseHeader."No.",
-          PurchaseLine[1].Type::Item,
-          PurchaseLine[1]."No.",
-          PurchaseLine[2]."No.");
+          PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."No.",
+          PurchaseLine[1].Type::Item, PurchaseLine[1]."No.", PurchaseLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CorrectPostedSalesOrderLinkedWithTwoShipmentsAndAssemblyOrder()
+    var
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentNo: Code[20];
+
+    begin
+        // [SCENARIO 342934] Correct posted sales order that is linked to two shiments and assembly to order
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(AssemblyItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        AssemblyItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item.
+        AssemblyItem.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
+        AssemblyItem.Modify(true);
+
+        // [Give] Make sure we have enough inventory
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Order, Vendor."No.", Item."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Order, Vendor."No.", AssemblyItem."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create sales order with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", 2, '', WorkDate);
+
+        SalesLine.Validate("Qty. to Assemble to Order", 2);
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify(true);
+
+        // [Then] Post sales document in 2 seperate shipments.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+
+        // [Then] Correct the posted sales invoice.
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader);
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
+
+        // [THEN] System succesfully created new invoice with the lines copied from posted invoice with 2 seperate shipments.
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Assert.RecordCount(SalesLine, 1);
+
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmAllHandler')]
+    [Scope('OnPrem')]
+    procedure CopyPostedSalesOrderLinkedWithTwoShipmentsAndAssemblyOrder()
+    var
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentNo: Code[20];
+
+    begin
+        // [SCENARIO 342934] copy posted sales order that is linked to two shiments and assembly to order
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(AssemblyItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        AssemblyItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item.
+        AssemblyItem.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
+        AssemblyItem.Modify(true);
+
+        // [Give] Make sure we have enough inventory
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Order, Vendor."No.", Item."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Order, Vendor."No.", AssemblyItem."No.", 1000, '', 0D);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create sales order with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", 2, '', WorkDate);
+
+        SalesLine.Validate("Qty. to Assemble to Order", 2);
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify(true);
+
+        // [Then] Post sales document in 2 seperate shipments.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [Then] Copy Document from the posted sales invoice throw error
+        // The posted sales invoice XXXX covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        ASSERTERROR LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
+
+        IF NOT GETLASTERRORTEXT.Contains('covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.') THEN
+            ERROR('Unexpected error: %1', GETLASTERRORTEXT);
     end;
 
     [Test]
@@ -980,7 +1113,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [WHEN] Copy "SO-SOURCE" to new sales order "SO-TARGET".
         LibrarySales.CreateSalesHeader(
           TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(TargetSalesHeader, 2, SourceSalesHeader."No.", true, false);
+        LibrarySales.CopySalesDocument(TargetSalesHeader, "Sales Document Type From"::Order, SourceSalesHeader."No.", true, false);
 
         // [THEN] Copy is successful. No error message is thrown.
         // [THEN] "Unit Cost" of assembly component "C" in the assembly order linked to "SO-TARGET" is equal to "X".
@@ -1034,7 +1167,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         // [WHEN] Copy "SO-SOURCE" to new sales order "SO-TARGET".
         LibrarySales.CreateSalesHeader(
           TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(TargetSalesHeader, 2, SourceSalesHeader."No.", true, true);
+        LibrarySales.CopySalesDocument(TargetSalesHeader, "Sales Document Type From"::Order, SourceSalesHeader."No.", true, true);
 
         // [THEN] Copy is successful. No error message is thrown.
         // [THEN] "Unit Cost" of assembly component "C" in the assembly order linked to "SO-TARGET" is equal to "2X".
@@ -1058,6 +1191,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibrarySales.SetCreditWarningsToNoWarnings;
 
@@ -1068,7 +1202,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Copy Document Mgt.");
     end;
 
-    local procedure CreateSourceDocument(Type: Option; TypeBeforePosting: Option) DocNo: Code[20]
+    local procedure CreateSourceDocument(Type: Enum "Sales Document Type From"; TypeBeforePosting: Enum "Sales Document Type") DocNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -1079,10 +1213,10 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocNo := CreateSalesOrder(SalesHeader, TypeBeforePosting, CreateCustomer);
 
         case Type of
-            SalesDocType::"Posted Shipment",
-            SalesDocType::"Posted Invoice",
-            SalesDocType::"Posted Return Receipt",
-            SalesDocType::"Posted Credit Memo":
+            "Sales Document Type From"::"Posted Shipment",
+            "Sales Document Type From"::"Posted Invoice",
+            "Sales Document Type From"::"Posted Return Receipt",
+            "Sales Document Type From"::"Posted Credit Memo":
                 begin
                     CreateItemChargeAssignment(SalesHeader);
                     LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1090,25 +1224,25 @@ codeunit 137212 "SCM Copy Document Mgt."
         end;
 
         case Type of
-            SalesDocType::"Posted Credit Memo":
+            "Sales Document Type From"::"Posted Credit Memo":
                 begin
                     SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
                     SalesCrMemoHeader.FindFirst;
                     DocNo := SalesCrMemoHeader."No.";
                 end;
-            SalesDocType::"Posted Shipment":
+            "Sales Document Type From"::"Posted Shipment":
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
                     SalesShipmentHeader.FindFirst;
                     DocNo := SalesShipmentHeader."No.";
                 end;
-            SalesDocType::"Posted Invoice":
+            "Sales Document Type From"::"Posted Invoice":
                 begin
                     SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
                     SalesInvoiceHeader.FindFirst;
                     DocNo := SalesInvoiceHeader."No.";
                 end;
-            SalesDocType::"Posted Return Receipt":
+            "Sales Document Type From"::"Posted Return Receipt":
                 begin
                     ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
                     ReturnReceiptHeader.FindFirst;
@@ -1119,19 +1253,19 @@ codeunit 137212 "SCM Copy Document Mgt."
         exit(DocNo);
     end;
 
-    local procedure CopyToDestinationSalesDocument(SourceType: Option; SourceNo: Code[20]; var SalesHeader: Record "Sales Header"): Code[20]
+    local procedure CopyToDestinationSalesDocument(SourceType: Enum "Sales Document Type From"; SourceNo: Code[20]; var SalesHeader: Record "Sales Header"): Code[20]
     begin
         CopyDocumentMgt.CopySalesDoc(SourceType, SourceNo, SalesHeader);
         exit(SalesHeader."No.");
     end;
 
-    local procedure CopyToDestinationPurchaseDocument(SourceType: Option; SourceNo: Code[20]; var PurchaseHeader: Record "Purchase Header"): Code[20]
+    local procedure CopyToDestinationPurchaseDocument(SourceType: Enum "Purchase Document Type From"; SourceNo: Code[20]; var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
         CopyDocumentMgt.CopyPurchDoc(SourceType, SourceNo, PurchaseHeader);
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CopyPurchDocument(var PurchaseHeader: Record "Purchase Header"; SourceType: Option; SourceNo: Code[20])
+    local procedure CopyPurchDocument(var PurchaseHeader: Record "Purchase Header"; SourceType: Enum "Purchase Document Type From"; SourceNo: Code[20])
     begin
         CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
@@ -1156,7 +1290,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
-        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", DocNo, SalesHeader);
+        CopyToDestinationSalesDocument("Sales Document Type From"::"Posted Invoice", DocNo, SalesHeader);
 
         VerifySalesDocumentDimension(SalesHeader, DimensionSetID);
     end;
@@ -1178,7 +1312,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", DocNo, PurchaseHeader);
+        CopyToDestinationPurchaseDocument("Purchase Document Type From"::"Posted Invoice", DocNo, PurchaseHeader);
 
         VerifyPurchaseDocumentDimension(PurchaseHeader, DimensionSetID);
     end;
@@ -1235,11 +1369,11 @@ codeunit 137212 "SCM Copy Document Mgt."
         CreateBlankSalesLine(SalesHeader, SalesLine, SalesHeader."Document Type");
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; Type: Option; CustomerNo: Code[20]): Code[20]
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, Type, CustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount, 1);
@@ -1251,29 +1385,29 @@ codeunit 137212 "SCM Copy Document Mgt."
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; Type: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, VendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount, 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateEmptySalesHeader(var SalesHeader: Record "Sales Header"; Type: Option): Code[20]
+    local procedure CreateEmptySalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     begin
         SalesHeader.Init();
-        SalesHeader.Validate("Document Type", Type);
+        SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreateEmptyPurchHeader(var PurchaseHeader: Record "Purchase Header"; Type: Option): Code[20]
+    local procedure CreateEmptyPurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
     begin
         PurchaseHeader.Init();
-        PurchaseHeader.Validate("Document Type", Type);
+        PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true);
         exit(PurchaseHeader."No.");
     end;
@@ -1394,7 +1528,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         exit(Customer."No.");
     end;
 
-    local procedure CreateBlankSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateBlankSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         RecRef: RecordRef;
     begin
@@ -1416,7 +1550,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -1428,7 +1562,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
@@ -1442,7 +1576,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, Qty, '', WorkDate);
         LibraryAssembly.FindLinkedAssemblyOrder(AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         LibraryVariableStorage.Enqueue(ItemTracking);
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -1720,7 +1854,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         end;
     end;
 
-    local procedure VerifyCopy(SourceType: Option; SourceNo: Code[20]; DestType: Option; DestNo: Code[20])
+    local procedure VerifyCopy(SourceType: Enum "Sales Document Type From"; SourceNo: Code[20]; DestType: Enum "Sales Document Type"; DestNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1732,16 +1866,20 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.FindSet;
 
         case SourceType of
-            SalesDocType::Order, SalesDocType::"Return Order", SalesDocType::"Credit Memo",
-          SalesDocType::Quote, SalesDocType::Invoice, SalesDocType::"Blanket Order":
+            "Sales Document Type From"::Order,
+            "Sales Document Type From"::"Return Order",
+            "Sales Document Type From"::"Credit Memo",
+            "Sales Document Type From"::Quote,
+            "Sales Document Type From"::Invoice,
+            "Sales Document Type From"::"Blanket Order":
                 ValidateCopiedSalesHeader(SalesHeader, SalesLine, SourceType, SourceNo);
-            SalesDocType::"Posted Credit Memo":
+            "Sales Document Type From"::"Posted Credit Memo":
                 ValidateCopiedCrMemoHeader(SalesHeader, SalesLine, SourceNo);
-            SalesDocType::"Posted Shipment":
+            "Sales Document Type From"::"Posted Shipment":
                 ValidateCopiedShipmentHeader(SalesHeader, SalesLine, SourceNo);
-            SalesDocType::"Posted Invoice":
+            "Sales Document Type From"::"Posted Invoice":
                 ValidateCopiedInvoiceHeader(SalesHeader, SalesLine, SourceNo);
-            SalesDocType::"Posted Return Receipt":
+            "Sales Document Type From"::"Posted Return Receipt":
                 ValidateCopiedReceiptHeader(SalesHeader, SalesLine, SourceNo);
         end;
 
@@ -1749,7 +1887,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           'Unexpected remaining data in destination document');
     end;
 
-    local procedure VerifyItemChargeAssignmentPurchCopied(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    local procedure VerifyItemChargeAssignmentPurchCopied(FromDocType: Enum "Purchase Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Purchase Document Type"; ToDocNo: Code[20])
     var
         FromItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
@@ -1766,7 +1904,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         until FromItemChargeAssignmentPurch.Next = 0;
     end;
 
-    local procedure VerifyItemChargeAssignmentSalesCopied(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    local procedure VerifyItemChargeAssignmentSalesCopied(FromDocType: Enum "Sales Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Sales Document Type"; ToDocNo: Code[20])
     var
         FromItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
@@ -1805,15 +1943,15 @@ codeunit 137212 "SCM Copy Document Mgt."
           'Unexpected data in item charge assignment');
     end;
 
-    local procedure ValidateCopiedSalesHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceType: Option; SourceNo: Code[20])
+    local procedure ValidateCopiedSalesHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceType: Enum "Sales Document Type From"; SourceNo: Code[20])
     var
         SalesHeader2: Record "Sales Header";
         SalesLine2: Record "Sales Line";
     begin
-        SalesHeader2.Get(CopyDocumentMgt.SalesHeaderDocType(SourceType), SourceNo);
+        SalesHeader2.Get(CopyDocumentMgt.GetSalesDocumentType(SourceType), SourceNo);
         SalesHeader.TestField("Sell-to Customer No.", SalesHeader2."Sell-to Customer No.");
         SalesLine2.SetRange("Document No.", SourceNo);
-        SalesLine2.SetRange("Document Type", CopyDocumentMgt.SalesHeaderDocType(SourceType));
+        SalesLine2.SetRange("Document Type", CopyDocumentMgt.GetSalesDocumentType(SourceType));
         SalesLine2.SetFilter(Type, '<>%1', SalesLine2.Type::" ");
         SalesLine2.FindSet;
         repeat
@@ -1916,7 +2054,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           'Unexpected remaining data in source document');
     end;
 
-    local procedure ValidateCopiedSalesHeaderAndSalesLines(var SalesHeader: Record "Sales Header"; FromType: Option; FromDocNo: Code[20])
+    local procedure ValidateCopiedSalesHeaderAndSalesLines(var SalesHeader: Record "Sales Header"; FromType: Enum "Sales Document Type"; FromDocNo: Code[20])
     var
         FromSalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1951,7 +2089,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         Assert.AreEqual(ExpectedDimensionSetID, PurchaseHeader."Dimension Set ID", WrongDimensionsCopiedErr);
     end;
 
-    local procedure VerifyCopySalesLinesNos(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; ItemNo1: Code[20]; ItemNo2: Code[20])
+    local procedure VerifyCopySalesLinesNos(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineType: Enum "Sales Line Type"; ItemNo1: Code[20]; ItemNo2: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1965,7 +2103,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         Assert.AreEqual(0, SalesLine.Next, 'Unexpected remaining data in source document');
     end;
 
-    local procedure VerifyCopyPurchLinesNos(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; ItemNo1: Code[20]; ItemNo2: Code[20])
+    local procedure VerifyCopyPurchLinesNos(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineType: Enum "Purchase Line Type"; ItemNo1: Code[20]; ItemNo2: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2068,6 +2206,13 @@ codeunit 137212 "SCM Copy Document Mgt."
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(StrPos(Question, MsgCorrectedInvoiceNo) > 0, Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmAllHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

@@ -228,10 +228,10 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo[1]);
         LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
-        WhseWorksheetLine.OpenItemTrackingLines;
+        WhseWorksheetLine.OpenItemTrackingLines();
 
         // [GIVEN] Created Movement from Worksheet
-        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [GIVEN] Warehouse Movement Worksheet Line with 10 PCS of the Item with From-Bin = "B"
         // [GIVEN] Warehouse Item Tracking was specified as follows: 4 PCS with Lot "L1" and 6 PCS with Lot "L2"
@@ -241,10 +241,10 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(QtyLot[Index]);
         end;
-        WhseWorksheetLine.OpenItemTrackingLines;
+        WhseWorksheetLine.OpenItemTrackingLines();
 
         // [WHEN] Create Movement from Worksheet
-        asserterror LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+        asserterror LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [THEN] Error 'Item tracking defined for line 10000, lot number L1, serial number cannot be applied.'
         Assert.ExpectedError(StrSubstNo(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", LotNo[1], ''));
@@ -299,10 +299,10 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo[1]);
         LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
-        WhseWorksheetLine.OpenItemTrackingLines;
+        WhseWorksheetLine.OpenItemTrackingLines();
 
         // [GIVEN] Created Movement from Worksheet
-        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [GIVEN] Warehouse Movement Worksheet Line with 9 PCS of the Item with From-Bin = "B"
         // [GIVEN] Warehouse Item Tracking was specified as follows: 3 PCS with Lot "L1" and 6 PCS with Lot "L2"
@@ -313,10 +313,10 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(QtyLot[Index]);
         end;
-        WhseWorksheetLine.OpenItemTrackingLines;
+        WhseWorksheetLine.OpenItemTrackingLines();
 
         // [WHEN] Create Movement from Worksheet
-        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [THEN] Movement is created
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
@@ -434,7 +434,7 @@ codeunit 137931 "SCM - Movement"
         end;
 
         // [WHEN] Create movement from the movement worksheet.
-        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [THEN] A new warehouse movement from bins "B1" and "B2" has been created.
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
@@ -495,7 +495,7 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(LotNo[Index]);
             LibraryVariableStorage.Enqueue(Qty[Index]);
         end;
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryVariableStorage.AssertEmpty;
 
         for Index := 1 to ArrayLen(LotNo) do begin
@@ -520,7 +520,7 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -599,7 +599,7 @@ codeunit 137931 "SCM - Movement"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
@@ -611,13 +611,14 @@ codeunit 137931 "SCM - Movement"
     begin
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesLine."Line No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 

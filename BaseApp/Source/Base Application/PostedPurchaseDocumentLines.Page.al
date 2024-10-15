@@ -198,7 +198,6 @@ page 5855 "Posted Purchase Document Lines"
         FromPurchInvLine: Record "Purch. Inv. Line";
         FromPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         FromReturnShptLine: Record "Return Shipment Line";
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         OnBeforeCopyLineToDoc(CopyDocMgt);
         ToPurchHeader.TestField(Status, ToPurchHeader.Status::Open);
@@ -209,7 +208,7 @@ page 5855 "Posted Purchase Document Lines"
                     CurrPage.PostedRcpts.PAGE.GetSelectedLine(FromPurchRcptLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopyPurchaseLinesToDoc(
-                      PurchDocType::"Posted Receipt", ToPurchHeader,
+                      "Purchase Document Type From"::"Posted Receipt".AsInteger(), ToPurchHeader,
                       FromPurchRcptLine, FromPurchInvLine, FromReturnShptLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             1:
@@ -217,7 +216,7 @@ page 5855 "Posted Purchase Document Lines"
                     CurrPage.PostedInvoices.PAGE.GetSelectedLine(FromPurchInvLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopyPurchaseLinesToDoc(
-                      PurchDocType::"Posted Invoice", ToPurchHeader,
+                      "Purchase Document Type From"::"Posted Invoice".AsInteger(), ToPurchHeader,
                       FromPurchRcptLine, FromPurchInvLine, FromReturnShptLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             2:
@@ -225,7 +224,7 @@ page 5855 "Posted Purchase Document Lines"
                     CurrPage.PostedReturnShpts.PAGE.GetSelectedLine(FromReturnShptLine);
                     CopyDocMgt.SetProperties(false, true, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopyPurchaseLinesToDoc(
-                      PurchDocType::"Posted Return Shipment", ToPurchHeader,
+                      "Purchase Document Type From"::"Posted Return Shipment".AsInteger(), ToPurchHeader,
                       FromPurchRcptLine, FromPurchInvLine, FromReturnShptLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
             3:
@@ -233,7 +232,7 @@ page 5855 "Posted Purchase Document Lines"
                     CurrPage.PostedCrMemos.PAGE.GetSelectedLine(FromPurchCrMemoLine);
                     CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopyPurchaseLinesToDoc(
-                      PurchDocType::"Posted Credit Memo", ToPurchHeader,
+                      "Purchase Document Type From"::"Posted Credit Memo".AsInteger(), ToPurchHeader,
                       FromPurchRcptLine, FromPurchInvLine, FromReturnShptLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
                 end;
         end;

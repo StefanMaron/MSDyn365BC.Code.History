@@ -1,8 +1,8 @@
+/// <summary>
+/// Allows users to upload report files to Business Central, which will automatically deploy them to Power BI.
+/// </summary>
 page 6320 "Upload Power BI Report"
 {
-    // // Test page for manually importing PBIX blobs into database.
-    // // TODO: Remove before check-in.
-
     Caption = 'Upload Power BI Report';
     PageType = NavigatePage;
     SourceTable = "Power BI Customer Reports";
@@ -69,45 +69,39 @@ page 6320 "Upload Power BI Report"
 
                 trigger OnAction()
                 var
+                    PowerBICustomerReports: Record "Power BI Customer Reports";
                     RecordRef: RecordRef;
                 begin
-                    UploadedReportCount := Count;
-
                     if FileName = '' then
                         Error(FileNameErr);
 
                     if ReportName = '' then
                         Error(ReportNameErr);
 
-                    Reset;
-                    SetFilter(Id, ReportID);
-                    if not IsEmpty then
-                        Error(BlobIdErr);
-
-                    Reset;
-                    SetFilter(Name, ReportName);
-                    if not IsEmpty then
+                    PowerBICustomerReports.SetFilter(Name, ReportName);
+                    if not PowerBICustomerReports.IsEmpty() then
                         Error(BlobNameErr);
 
-                    Reset;
+                    PowerBICustomerReports.Reset();
+                    if PowerBICustomerReports.Count() >= MaxReportLimit then
+                        Error(TableLimitMsg);
 
-                    if UploadedReportCount < MaxReportLimit then begin
+                    with PowerBICustomerReports do begin
                         Init;
-                        Id := ReportID;
+                        Id := CreateGuid();
                         Name := ReportName;
-                        RecordRef.GetTable(Rec);
+                        RecordRef.GetTable(PowerBICustomerReports);
                         TempBlob.ToRecordRef(RecordRef, FieldNo("Blob File"));
-                        RecordRef.SetTable(Rec);
+                        RecordRef.SetTable(PowerBICustomerReports);
                         Version := 1;
-                        Insert
-                    end else
-                        Message(TableLimitMsg);
+                        Insert;
+                    end;
+
                     Commit();
 
                     FileName := '';
                     ReportName := '';
 
-                    ReportID := CreateGuid;
                     IsFileLoaded := false;
                     CurrPage.Update(false);
                     Message(UploadMsg);
@@ -123,35 +117,29 @@ page 6320 "Upload Power BI Report"
 
     trigger OnOpenPage()
     begin
-        if not UserPermissions.IsSuper(UserSecurityId) then
+        if not PowerBIServiceMgt.IsUserAdminForPowerBI(UserSecurityId()) then
             Error(PermissionErr);
 
         if not PowerBIServiceMgt.IsUserReadyForPowerBI then
             Error(NotReadyErr);
-
-        ReportID := CreateGuid;
     end;
 
     var
         ReportNameErr: Label 'You must enter a report name.';
         FileNameErr: Label 'You must enter a file name.';
         NotReadyErr: Label 'The Power BI Service is currently unavailable.';
-        FileExistErr: Label 'The file %1 does not exist.', Comment = 'asdf';
-        BlobIdErr: Label 'A blob with this ID already exists.';
+        FileExistErr: Label 'The file ''%1'' does not exist.', Comment = '%1 = a file path, for example C:\temp\MyFile.pbix';
         TempBlob: Codeunit "Temp Blob";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
-        UserPermissions: Codeunit "User Permissions";
         FileManagement: Codeunit "File Management";
         FileDialogTxt: Label 'Select a PBIX report file.';
         FileFilterTxt: Label 'Power BI Files(*.pbix)|*.pbix';
         ExtFilterTxt: Label 'pbix';
-        ReportID: Guid;
         FileName: Text;
         ReportName: Text[200];
         PermissionErr: Label 'User does not have permissions to operate this page.';
         IsFileLoaded: Boolean;
         MaxReportLimit: Integer;
-        UploadedReportCount: Integer;
         TableLimitMsg: Label 'The Customer Report table is full. Remove a report and try again.';
         BlobNameErr: Label 'A blob with this name already exists.';
         UploadMsg: Label 'The report has been added for deployment. Once deployed, it will appear in the select reports list.';

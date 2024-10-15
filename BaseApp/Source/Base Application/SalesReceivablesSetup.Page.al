@@ -134,8 +134,7 @@ page 459 "Sales & Receivables Setup"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
                 }
@@ -320,6 +319,7 @@ page 459 "Sales & Receivables Setup"
                 }
                 field("Price List Nos."; "Price List Nos.")
                 {
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to sales price lists.';
                 }
@@ -528,12 +528,18 @@ page 459 "Sales & Receivables Setup"
     }
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset;
+        if not Rec.Get then begin
+            Rec.Init;
+            Rec.Insert;
         end;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 }
 

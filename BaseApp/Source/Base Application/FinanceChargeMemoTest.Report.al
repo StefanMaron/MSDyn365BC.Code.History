@@ -240,7 +240,7 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(Finance_Charge_Memo_Line_Amount; Amount)
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(Finance_Charge_Memo_Line__Due_Date_; Format("Due Date"))
@@ -251,7 +251,7 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(Finance_Charge_Memo_Line_Amount_Control61; Amount)
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(FinChMemo_Line___Line_No__; "Line No.")
@@ -259,7 +259,7 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(Finance_Charge_Memo_Line_Amount_Control29; Amount)
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(TotalText; TotalText)
@@ -267,7 +267,7 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(Finance_Charge_Memo_Line__VAT_Amount_; "VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(TotalInclVATText; TotalInclVATText)
@@ -275,7 +275,7 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(Amount____VAT_Amount_; Amount + "VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(Finance_Charge_Memo_Line_DescriptionCaption; FieldCaption(Description))
@@ -400,27 +400,27 @@ report 123 "Finance Charge Memo - Test"
                     DataItemTableView = SORTING(Number);
                     column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__Amount_Including_VAT_; VATAmountLine."Amount Including VAT")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Amount__Control55; VATAmountLine."VAT Amount")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Base__Control56; VATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT___; VATAmountLine."VAT %")
@@ -428,22 +428,22 @@ report 123 "Finance Charge Memo - Test"
                     }
                     column(VATAmountLine__Amount_Including_VAT__Control73; VATAmountLine."Amount Including VAT")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Amount__Control45; VATAmountLine."VAT Amount")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Base__Control49; VATAmountLine."VAT Base")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__Amount_Including_VAT__Control80; VATAmountLine."Amount Including VAT")
                     {
-                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode;
+                        AutoFormatExpression = "Finance Charge Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(VATAmountLine__VAT_Amount__Control55Caption; VATAmountLine__VAT_Amount__Control55CaptionLbl)

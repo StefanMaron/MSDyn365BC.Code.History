@@ -88,9 +88,8 @@ codeunit 5771 "Whse.-Sales Release"
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             if IsHandled then
                 WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
-            WhseRqst.LockTable();
             if not WhseRqst.IsEmpty then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
         end;
@@ -104,7 +103,7 @@ codeunit 5771 "Whse.-Sales Release"
         with SalesHeader do begin
             WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
+            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
             if not WhseRqst.IsEmpty then
                 WhseRqst.ModifyAll("External Document No.", "External Document No.");
@@ -130,12 +129,12 @@ codeunit 5771 "Whse.-Sales Release"
 
             WhseRqst.Type := WhseType;
             WhseRqst."Source Type" := DATABASE::"Sales Line";
-            WhseRqst."Source Subtype" := SalesHeader."Document Type";
+            WhseRqst."Source Subtype" := SalesHeader."Document Type".AsInteger();
             WhseRqst."Source No." := SalesHeader."No.";
             WhseRqst."Shipment Method Code" := SalesHeader."Shipment Method Code";
             WhseRqst."Shipping Agent Code" := SalesHeader."Shipping Agent Code";
             WhseRqst."Shipping Advice" := SalesHeader."Shipping Advice";
-            WhseRqst."Document Status" := SalesHeader.Status::Released;
+            WhseRqst."Document Status" := SalesHeader.Status::Released.AsInteger();
             WhseRqst."Location Code" := SalesLine."Location Code";
             WhseRqst."Destination Type" := WhseRqst."Destination Type"::Customer;
             WhseRqst."Destination No." := SalesHeader."Sell-to Customer No.";

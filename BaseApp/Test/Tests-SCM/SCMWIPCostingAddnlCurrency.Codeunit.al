@@ -92,13 +92,12 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     end;
 
     [Normal]
-    local procedure CreateItem(ItemCostingMethod: Option): Code[20]
+    local procedure CreateItem(ItemCostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
-        FlushingMethod: Option Manual,Forward,Backward;
     begin
         LibraryManufacturing.CreateItemManufacturing(
-          Item, ItemCostingMethod, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod::Manual, '', '');
+          Item, ItemCostingMethod, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Manual, '', '');
         exit(Item."No.");
     end;
 
@@ -148,7 +147,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     end;
 
     [Normal]
-    local procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; PurchaseLine: Record "Purchase Line"; ItemJournalTemplateType: Option; ProductionOrderNo: Code[20])
+    local procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; PurchaseLine: Record "Purchase Line"; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";

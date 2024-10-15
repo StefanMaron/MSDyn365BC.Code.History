@@ -777,7 +777,7 @@ codeunit 136200 "Marketing Campaign Segments"
         // [GIVEN] Interaction Log Entry with "Document Type" = "Sales Order Confirmation", "Document No." = "Y"
         // Interaction Log Entry with type "Sales Order Confirmation" inserts when print "Sales Order Confirmation" report
         MockInteractionLogEntry(
-          SegManagement.SalesInvoiceInterDocType, SalesHeader."No.",
+          "Interaction Log Entry Document Type".FromInteger(SegManagement.SalesInvoiceInterDocType), SalesHeader."No.",
           GetContactBusinessRelation(ContactBusinessRelation."Link to Table"::Customer, SalesHeader."Bill-to Customer No."));
 
         // [WHEN] Post Sales Order
@@ -1407,7 +1407,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine.Modify(true);
     end;
 
-    local procedure CreateSegmentWithCampaign(CampaignNo: Code[20]; LinkToTable: Option; AccountNo: Code[20])
+    local procedure CreateSegmentWithCampaign(CampaignNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20])
     var
         SegmentHeader: Record "Segment Header";
         Contact: Record Contact;
@@ -1523,7 +1523,7 @@ codeunit 136200 "Marketing Campaign Segments"
         RemoveContactsReduce.RunModal;
     end;
 
-    local procedure GetContactBusinessRelation(LinkToTable: Option; AccountNo: Code[20]): Code[20]
+    local procedure GetContactBusinessRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20]): Code[20]
     var
         ContBusRelation: Record "Contact Business Relation";
     begin
@@ -1569,7 +1569,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesOrder.OK.Invoke;
     end;
 
-    local procedure MockInteractionLogEntry(DocType: Option; DocNo: Code[20]; ContactNo: Code[20])
+    local procedure MockInteractionLogEntry(DocType: Enum "Interaction Log Entry Document Type"; DocNo: Code[20]; ContactNo: Code[20])
     var
         InteractionLogEntry: Record "Interaction Log Entry";
         InteractionTemplate: Record "Interaction Template";
@@ -1581,7 +1581,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionLogEntry."Contact No." := ContactNo;
         InteractionLogEntry."Document Type" := DocType;
         InteractionLogEntry."Document No." := DocNo;
-        InteractionTemplate.Get(SegManagement.FindInteractTmplCode(DocType));
+        InteractionTemplate.Get(SegManagement.FindInteractTmplCode(DocType.AsInteger()));
         InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
         InteractionLogEntry."Interaction Group Code" := InteractionTemplate."Interaction Group Code";
         InteractionLogEntry.Insert();

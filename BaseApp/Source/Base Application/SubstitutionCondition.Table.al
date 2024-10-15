@@ -38,17 +38,13 @@ table 5716 "Substitution Condition"
         {
             Caption = 'Condition';
         }
-        field(100; Type; Option)
+        field(100; Type; Enum "Item Substitution Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Catalog Item';
-            OptionMembers = Item,"Nonstock Item";
         }
-        field(101; "Substitute Type"; Option)
+        field(101; "Substitute Type"; Enum "Item Substitute Type")
         {
             Caption = 'Substitute Type';
-            OptionCaption = 'Item,Catalog Item';
-            OptionMembers = Item,"Nonstock Item";
         }
     }
 

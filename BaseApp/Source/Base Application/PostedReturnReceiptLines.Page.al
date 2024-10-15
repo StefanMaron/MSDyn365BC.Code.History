@@ -146,7 +146,7 @@ page 6663 "Posted Return Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

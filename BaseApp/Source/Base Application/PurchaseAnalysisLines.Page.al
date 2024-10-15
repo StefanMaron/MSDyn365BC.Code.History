@@ -44,7 +44,7 @@ page 7121 "Purchase Analysis Lines"
 
                     trigger OnValidate()
                     begin
-                        RowRefNoOnAfterValidate;
+                        RowRefNoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)

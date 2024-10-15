@@ -69,6 +69,42 @@ report 405 "Order"
             column(AllowInvoiceDiscCaption; AllowInvoiceDiscCaptionLbl)
             {
             }
+            column(BuyFromContactPhoneNoLbl; BuyFromContactPhoneNoLbl)
+            {
+            }
+            column(BuyFromContactMobilePhoneNoLbl; BuyFromContactMobilePhoneNoLbl)
+            {
+            }
+            column(BuyFromContactEmailLbl; BuyFromContactEmailLbl)
+            {
+            }
+            column(PayToContactPhoneNoLbl; PayToContactPhoneNoLbl)
+            {
+            }
+            column(PayToContactMobilePhoneNoLbl; PayToContactMobilePhoneNoLbl)
+            {
+            }
+            column(PayToContactEmailLbl; PayToContactEmailLbl)
+            {
+            }
+            column(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+            {
+            }
+            column(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+            {
+            }
+            column(BuyFromContactEmail; BuyFromContact."E-Mail")
+            {
+            }
+            column(PayToContactPhoneNo; PayToContact."Phone No.")
+            {
+            }
+            column(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+            {
+            }
+            column(PayToContactEmail; PayToContact."E-Mail")
+            {
+            }
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -906,6 +942,8 @@ report 405 "Order"
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");
+                if BuyFromContact.Get("Buy-from Contact No.") then;
+                if PayToContact.Get("Pay-to Contact No.") then;
                 PricesInclVATtxt := Format("Prices Including VAT");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -1042,6 +1080,8 @@ report 405 "Order"
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         PurchSetup: Record "Purchases & Payables Setup";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -1131,6 +1171,12 @@ report 405 "Order"
         HomePageCaptionLbl: Label 'Home Page';
         EmailIDCaptionLbl: Label 'Email';
         AllowInvoiceDiscCaptionLbl: Label 'Allow Invoice Discount';
+        BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
+        BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
+        BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
+        PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
+        PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
+        PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
         PrepmtLoopLineNo: Integer;
         TotalPrepmtLineAmount: Decimal;
 

@@ -1363,7 +1363,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         end;
     end;
 
-    local procedure PreparePaymentLine(var PmtGenJnlLine: Record "Gen. Journal Line"; AccountType: Option; CVNo: Code[20])
+    local procedure PreparePaymentLine(var PmtGenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1381,7 +1381,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         end;
     end;
 
-    local procedure CreatePmtLineAppliedToDoc(PmtGenJnlLine: Record "Gen. Journal Line"; DocType: Option; AppliesToDocType: Option; AppliesToDocNo: Code[20]; PmtAmount: Decimal)
+    local procedure CreatePmtLineAppliedToDoc(PmtGenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PmtAmount: Decimal)
     var
         BankAccount: Record "Bank Account";
     begin
@@ -1391,7 +1391,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
           BankAccount."No.", AppliesToDocType, AppliesToDocNo, PmtAmount);
     end;
 
-    local procedure CreatePmtLine(PmtGenJnlLine: Record "Gen. Journal Line"; DocType: Option; BalAccountType: Option; BalAccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; PmtAmount: Decimal)
+    local procedure CreatePmtLine(PmtGenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PmtAmount: Decimal)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1408,7 +1408,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         end;
     end;
 
-    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1421,7 +1421,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostPairedInvoiceAndCrMemo(AccountType: Option; CVNo: Code[20]; Amount: Decimal; var InvNo: Code[20]; var CrMemoNo: Code[20])
+    local procedure CreatePostPairedInvoiceAndCrMemo(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; Amount: Decimal; var InvNo: Code[20]; var CrMemoNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -1434,7 +1434,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         PostGenJnlLineFromBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
     end;
 
-    local procedure CreateGenJnlLineWithBalAcc(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; CVNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateGenJnlLineWithBalAcc(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1465,7 +1465,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         end;
     end;
 
-    local procedure GetGenPostingType(AccountType: Option): Integer
+    local procedure GetGenPostingType(AccountType: Enum "Gen. Journal Account Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1586,7 +1586,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         exit(GenJournalBatch.Name);
     end;
 
-    local procedure CreateGeneralJournalDocument(var GenJournalLine: Record "Gen. Journal Line"; Type: Option)
+    local procedure CreateGeneralJournalDocument(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1630,12 +1630,12 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         for i := 1 to 2 do
             CreatePmtLine(
-              GenJournalLine, GenJournalLine."Document Type"::Payment, 0, '',
+              GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '',
               GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceDocNo[i], PaymentAmt[i]);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
         GenJournalLine."Account No." := LibraryERM.CreateGLAccountNo;
         CreatePmtLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, 0, '', 0, '', -(PaymentAmt[1] + PaymentAmt[2]));
+          GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '', "Gen. Journal Account Type"::"G/L Account", '', -(PaymentAmt[1] + PaymentAmt[2]));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1728,7 +1728,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         GLAccount.Modify(true);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1736,7 +1736,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
-    local procedure UnapplyVendLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1754,7 +1754,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         exit(CountryRegion.Name);
     end;
 
-    local procedure FindTemplateName(Type: Option): Code[10]
+    local procedure FindTemplateName(Type: Enum "Gen. Journal Template Type"): Code[10]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1789,7 +1789,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
@@ -1797,7 +1797,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         DetailedCustLedgEntry.FindSet;
     end;
 
-    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure FindDetailedVendLedgerEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option)
     begin
         DetailedVendLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendLedgEntry.SetRange("Document No.", DocumentNo);
@@ -2035,7 +2035,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
           StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Credit Amount"), GLEntry."Credit Amount", GLEntry.TableCaption))
     end;
 
-    local procedure VerifyUnappliedDtldCustLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyUnappliedDtldCustLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2047,7 +2047,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         until DetailedCustLedgEntry.Next = 0;
     end;
 
-    local procedure VerifyCustLedgerEntryForRemAmt(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyCustLedgerEntryForRemAmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2067,7 +2067,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         PaymentTerms.TestField("Discount %", DiscountPct);
     end;
 
-    local procedure VerifyUnappliedDtldVendLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyUnappliedDtldVendLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -2078,7 +2078,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         until DetailedVendLedgEntry.Next = 0;
     end;
 
-    local procedure VerifyVendLedgerEntryForRemAmt(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyVendLedgerEntryForRemAmt(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2105,7 +2105,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         Assert.AreEqual(AddrArray[4], Vendor.County, StrSubstNo(ExpectedValueErr, Vendor.County));
     end;
 
-    local procedure VerifyGLEntryGenPostingType(DocumentNo: Code[20]; GLAccountNo: Code[20]; IsPositiveAmount: Boolean; ExpectedGenPostingType: Option)
+    local procedure VerifyGLEntryGenPostingType(DocumentNo: Code[20]; GLAccountNo: Code[20]; IsPositiveAmount: Boolean; ExpectedGenPostingType: Enum "General Posting Type")
     var
         DummyGLEntry: Record "G/L Entry";
     begin

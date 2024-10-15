@@ -79,6 +79,7 @@ codeunit 7042 "Price Asset - Item Disc. Group" implements "Price Asset"
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset.Description := ItemDiscountGroup.Description;
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
     end;

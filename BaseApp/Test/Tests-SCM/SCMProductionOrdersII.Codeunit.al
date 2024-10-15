@@ -114,7 +114,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
-        ProdOrderComponent.ShowReservation;  // Invokes ReservationHandler.
+        ProdOrderComponent.ShowReservation();  // Invokes ReservationHandler.
 
         // Exercise: Create and post the Output Journal with Tracking.
         CreateAndPostOutputJournalWithItemTracking(ProductionOrder."No.", true, Quantity);
@@ -142,7 +142,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Exercise: Reserve Production Order Component.
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
-        ProdOrderComponent.ShowReservation;  // Invokes ReservationHandler.
+        ProdOrderComponent.ShowReservation();  // Invokes ReservationHandler.
 
         // Verify: Verify the Reserved Quantity on Production Order Component.
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status::Released, Item."No.", Quantity);
@@ -253,7 +253,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Exercise: Reserve Components on Planned Production Order.
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
-        ProdOrderComponent.ShowReservation;  // Invokes ReservationHandler.
+        ProdOrderComponent.ShowReservation();  // Invokes ReservationHandler.
 
         // Verify: Verify that Quantity is not reserved.
         VerifyProdOrderComponent(ProductionOrder."No.", ProductionOrder.Status::Planned, Item2."No.", 0);
@@ -1170,7 +1170,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Exercise: Reserve Production Order Line created.
         FindProductionOrderLine(ProdOrderLine, Item."No.");
-        ProdOrderLine.ShowReservation;  // Invokes ReservationHandler.
+        ProdOrderLine.ShowReservation();  // Invokes ReservationHandler.
 
         // Verify: Verify the Reservation Entry after Reservation On Production Order Line.
         VerifyReservationEntry(Item."No.", Quantity, ReservationEntry."Reservation Status"::Reservation, false, true);  // Positive Reservation Entry TRUE.
@@ -1198,7 +1198,7 @@ codeunit 137072 "SCM Production Orders II"
         // Exercise: Assign Lot Tracking on Production Order created.
         FindProductionOrderLine(ProdOrderLine, Item."No.");
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");  // Assign Lot No.
-        ProdOrderLine.OpenItemTrackingLines;  // Invokes ItemTrackingPageHandler.
+        ProdOrderLine.OpenItemTrackingLines();  // Invokes ItemTrackingPageHandler.
 
         // Verify: Verify the Reservation Entry after assign Lot Tracking on Production Order Line.
         VerifyReservationEntry(Item."No.", Quantity, ReservationEntry."Reservation Status"::Tracking, true, true);  // Positive Reservation Entry and Tracking TRUE.
@@ -1728,7 +1728,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Quantity "q" is reserved from Prod. Order Line for "I2" by a Sales Line.
         SalesQty := LibraryRandom.RandInt(10);
         CreateSalesOrder(SalesHeader, SalesLine, ItemNo[2], SalesQty, '');
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         // [WHEN] Replan the Production Order "PO" for all levels of manufacturing.
         LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All levels");
@@ -2709,7 +2709,7 @@ codeunit 137072 "SCM Production Orders II"
         // [THEN] "Shipment Date" on reservation entries between output of semi-production item and its consumption are moved 10 days forward.
         ProdOrderLine.Find;
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, false);
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, false);
         ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
         ReservationEntry.FindFirst;
         ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
@@ -2763,7 +2763,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [WHEN] Auto-reserve Inbound Transfer for the Prod. Order Component (done in ReservationHandler and AllLevelsStrMenuHandler)
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
 
         // [THEN] Both Reservation Entries for Item X have Shipment Date = 27/1/2020
         ReservationEntry.SetRange("Item No.", ChildItem."No.");
@@ -3415,7 +3415,7 @@ codeunit 137072 "SCM Production Orders II"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateCertifiedProductionBOMWithQtyPer(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasureCode: Code[10]; Type: Option; No: Code[20]; QtyPer: Decimal)
+    local procedure CreateCertifiedProductionBOMWithQtyPer(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasureCode: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QtyPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -3468,7 +3468,7 @@ codeunit 137072 "SCM Production Orders II"
         end;
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -3616,7 +3616,7 @@ codeunit 137072 "SCM Production Orders II"
         SalesLine: Record "Sales Line";
     begin
         CreateSalesOrder(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
-        SalesLine.ShowReservation;  // Invokes ReservationHandler.
+        SalesLine.ShowReservation();  // Invokes ReservationHandler.
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -3909,7 +3909,7 @@ codeunit 137072 "SCM Production Orders II"
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, WorkDate);
     end;
 
-    local procedure CreateManufacturingItem(var Item: Record Item; ReorderingPolicy: Option; ReplenishmentSystem: Option)
+    local procedure CreateManufacturingItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -3946,7 +3946,7 @@ codeunit 137072 "SCM Production Orders II"
         // Assign Item Tracking On Production Order Line
         FindProductionOrderLine(ProdOrderLine, ItemNo);
         LibraryVariableStorage.Enqueue(ItemTrackingMode);
-        ProdOrderLine.OpenItemTrackingLines;
+        ProdOrderLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateReleasedProdOrderWithManuallyScheduledRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
@@ -4011,7 +4011,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
     end;
 
-    local procedure CreateStockkkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ManufacturingPolicy: Option)
+    local procedure CreateStockkkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ManufacturingPolicy: Enum "Manufacturing Policy")
     begin
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ItemNo, '');
         StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::"Prod. Order");
@@ -4104,7 +4104,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -4117,7 +4117,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Option; ActionType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4125,7 +4125,7 @@ codeunit 137072 "SCM Production Orders II"
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Option; ActionType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
@@ -4142,7 +4142,7 @@ codeunit 137072 "SCM Production Orders II"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindRegisteredWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindRegisteredWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Option)
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -4177,7 +4177,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
         PlanningComponent.SetRange("Item No.", ItemNo);
-        PlanningComponent.FindFirst();
+        PlanningComponent.FindFirst;
     end;
 
     local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
@@ -4212,7 +4212,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Option; ActionType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -4244,7 +4244,7 @@ codeunit 137072 "SCM Production Orders II"
         ReqWkshTemplate.FindFirst;
     end;
 
-    local procedure UpdateFlushingMethodOnProdComp(ProductionOrderNo: Code[20]; FlushingMethod: Option)
+    local procedure UpdateFlushingMethodOnProdComp(ProductionOrderNo: Code[20]; FlushingMethod: Enum "Flushing Method")
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -4332,7 +4332,7 @@ codeunit 137072 "SCM Production Orders II"
         Item.Modify(true);
     end;
 
-    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);
@@ -4387,7 +4387,7 @@ codeunit 137072 "SCM Production Orders II"
         Item.Modify(true);
     end;
 
-    local procedure UpdateItemParametersForPlanningWorksheet(var Item: Record Item; ManufacturingPolicy: Option; ReorderingPolicy: Option; ReplenishmentSystem: Option)
+    local procedure UpdateItemParametersForPlanningWorksheet(var Item: Record Item; ManufacturingPolicy: Enum "Manufacturing Policy"; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         with Item do begin
             Validate("Manufacturing Policy", ManufacturingPolicy);
@@ -4403,7 +4403,7 @@ codeunit 137072 "SCM Production Orders II"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure UpdateOrderTrackingPolicyOnItem(var Item: Record Item; OrderTrackingPolicy: Option)
+    local procedure UpdateOrderTrackingPolicyOnItem(var Item: Record Item; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         LibraryVariableStorage.Enqueue(TrackingMessage);  // Enqueue variable for use in MessageHandler.
         Item.Validate("Order Tracking Policy", OrderTrackingPolicy);
@@ -4450,7 +4450,7 @@ codeunit 137072 "SCM Production Orders II"
         UpdateUOMOnProdBOMLine(Item."Production BOM No.", CompItemNo, QtyPerUoM);
     end;
 
-    local procedure VerifyItemLedgerEntryCostAmountActual(EntryType: Option; ItemNo: Code[20]; CostAmountActual: Decimal; LocationCode: Code[10])
+    local procedure VerifyItemLedgerEntryCostAmountActual(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; CostAmountActual: Decimal; LocationCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4462,7 +4462,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemLedgerEntry.TestField("Location Code", LocationCode);
     end;
 
-    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Option; ItemNo: Code[20]; ReservedQuantity: Decimal)
+    local procedure VerifyProdOrderComponent(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20]; ReservedQuantity: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -4474,7 +4474,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponent.TestField("Reserved Quantity", ReservedQuantity);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; Tracking: Boolean)
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; Tracking: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4487,7 +4487,7 @@ codeunit 137072 "SCM Production Orders II"
         until ItemLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyProductionOrder(ProductionOrder: Record "Production Order"; Status: Option; Quantity: Decimal; DueDate: Date)
+    local procedure VerifyProductionOrder(ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; Quantity: Decimal; DueDate: Date)
     begin
         ProductionOrder.Get(Status, ProductionOrder."No.");
         ProductionOrder.TestField(Quantity, Quantity);
@@ -4505,7 +4505,7 @@ codeunit 137072 "SCM Production Orders II"
         SalesLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
 
-    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Option; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4531,7 +4531,7 @@ codeunit 137072 "SCM Production Orders II"
         PostedInvtPickLine.TestField("Lot No.", ItemLedgerEntry."Lot No.");
     end;
 
-    local procedure VerifyRegisteredWarehouseActivityLine(SourceDocument: Option; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyRegisteredWarehouseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -4564,7 +4564,7 @@ codeunit 137072 "SCM Production Orders II"
         ProductionOrderStatistics.MaterialCost_ActualCost.AssertEquals(ActualCost);
     end;
 
-    local procedure VerifyRemainingQuantityOnProdOrderComponents(ProdOrderNo: Code[20]; Status: Option; ItemNo: Code[20]; RemainingQuantity: Decimal)
+    local procedure VerifyRemainingQuantityOnProdOrderComponents(ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20]; RemainingQuantity: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";
         TotalRemainingQuantity: Decimal;
@@ -4618,7 +4618,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningRoutingLine.TestField("Input Quantity", RequisitionLine.Quantity);
     end;
 
-    local procedure VerifyReservationEntry(ItemNo: Code[20]; Quantity: Decimal; ReservationStatus: Option; Tracking: Boolean; Positive: Boolean)
+    local procedure VerifyReservationEntry(ItemNo: Code[20]; Quantity: Decimal; ReservationStatus: Enum "Reservation Status"; Tracking: Boolean; Positive: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -4645,7 +4645,7 @@ codeunit 137072 "SCM Production Orders II"
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Option; Quantity: Decimal; LocationCode: Code[10])
+    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; LocationCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4669,7 +4669,7 @@ codeunit 137072 "SCM Production Orders II"
         OrderTracking2.Quantity.AssertEquals(Quantity);
     end;
 
-    local procedure VerifyProdOrderLine(ItemNo: Code[20]; Status: Option; Quantity: Decimal; FinishedQuantity: Decimal)
+    local procedure VerifyProdOrderLine(ItemNo: Code[20]; Status: Enum "Production Order Status"; Quantity: Decimal; FinishedQuantity: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin

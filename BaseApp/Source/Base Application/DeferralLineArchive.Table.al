@@ -4,11 +4,9 @@ table 5128 "Deferral Line Archive"
 
     fields
     {
-        field(1; "Deferral Doc. Type"; Option)
+        field(1; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
             TableRelation = "Deferral Header Archive"."Deferral Doc. Type";
         }
         field(4; "Document Type"; Integer)

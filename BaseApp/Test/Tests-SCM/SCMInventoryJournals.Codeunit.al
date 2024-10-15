@@ -824,7 +824,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Created Item Journal Line with dimension set to "D"
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch, Item."No.");
         LibraryVariableStorage.Enqueue(DefaultDimension);
-        ItemJournalLine.ShowDimensions;
+        ItemJournalLine.ShowDimensions();
     end;
 
     [Test]
@@ -853,7 +853,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Created Item Journal Line has dimension "D" = "X"
         FindItemJournalLine(ItemJournalLine, ItemJournalBatch, Item."No.");
         LibraryVariableStorage.Enqueue(DefaultDimension);
-        ItemJournalLine.ShowDimensions;
+        ItemJournalLine.ShowDimensions();
     end;
 
     [Test]
@@ -1293,7 +1293,7 @@ codeunit 137275 "SCM Inventory Journals"
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJournal(EntryType: Option; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1301,7 +1301,7 @@ codeunit 137275 "SCM Inventory Journals"
         PostItemJournalLine(ItemJournalLine, VariantCode, LocationCode, BinCode, Qty);
     end;
 
-    local procedure CreateAndPostItemJournalWithDimension(var DimSetID: Integer; DimensionCode: Code[20]; EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournalWithDimension(var DimSetID: Integer; DimensionCode: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1341,7 +1341,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine.Modify();
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1359,7 +1359,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalBatch.Modify(true);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; PostingDate: Date; UnitAmount: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; PostingDate: Date; UnitAmount: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1489,7 +1489,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntryWithLocation(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure FindItemLedgerEntryWithLocation(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with ItemLedgerEntry do begin
             SetRange("Entry Type", EntryType);
@@ -1550,7 +1550,7 @@ codeunit 137275 "SCM Inventory Journals"
         CreatePurchaseOrder(PurchaseHeader, GlobalItemNo, '', GlobalOriginalQuantity);
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
         GlobalItemTrackingAction := ItemTrackingAction2;
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -1620,7 +1620,7 @@ codeunit 137275 "SCM Inventory Journals"
         CalculateInventory.RunModal;
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1705,7 +1705,7 @@ codeunit 137275 "SCM Inventory Journals"
           DefaultDimension, ItemNo, GeneralLedgerSetup."Global Dimension 1 Code", DimensionValue.Code);
     end;
 
-    local procedure UpdateItemInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal; EntryType: Option; UnitAmount: Decimal)
+    local procedure UpdateItemInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal; EntryType: Enum "Item Ledger Document Type"; UnitAmount: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin

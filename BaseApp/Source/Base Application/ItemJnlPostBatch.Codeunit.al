@@ -1,4 +1,4 @@
-﻿codeunit 23 "Item Jnl.-Post Batch"
+codeunit 23 "Item Jnl.-Post Batch"
 {
     Permissions = TableData "Item Journal Batch" = imd,
                   TableData "Warehouse Register" = r;
@@ -66,7 +66,7 @@
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
-        OldEntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
+        OldEntryType: Enum "Item Ledger Entry Type";
         RaiseError: Boolean;
     begin
         OnBeforeCode(ItemJnlLine);
@@ -327,7 +327,7 @@
         until ItemJnlLine2.Next = 0;
     end;
 
-    local procedure HandleNonRecurringLine(var ItemJnlLine: Record "Item Journal Line"; OldEntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output")
+    local procedure HandleNonRecurringLine(var ItemJnlLine: Record "Item Journal Line"; OldEntryType: Enum "Item Ledger Entry Type")
     var
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
@@ -646,22 +646,22 @@
             Quantity := OriginalQuantity;
             "Quantity (Base)" := OriginalQuantityBase;
             GetLocation("Location Code");
-            ItemJnlTemplateType := ItemJnlTemplate.Type;
+            ItemJnlTemplateType := ItemJnlTemplate.Type.AsInteger();
             IsHandled := false;
             OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJnlLine, ItemJnlTemplateType, IsHandled);
             if IsHandled then
                 exit;
             if not ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) then
-                PostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, ItemJnlTemplateType, false);
+                PostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, "Item Journal Template Type".FromInteger(ItemJnlTemplateType), false);
 
             if "Entry Type" = "Entry Type"::Transfer then begin
                 GetLocation("New Location Code");
-                PostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, ItemJnlTemplateType, true);
+                PostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, "Item Journal Template Type".FromInteger(ItemJnlTemplateType), true);
             end;
         end;
     end;
 
-    local procedure PostWhseJnlLines(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlTemplateType: Option; ToTransfer: Boolean)
+    local procedure PostWhseJnlLines(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlTemplateType: Enum "Item Journal Template Type"; ToTransfer: Boolean)
     var
         WhseJnlLine: Record "Warehouse Journal Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
@@ -675,7 +675,7 @@
 
         with ItemJnlLine do
             if Location."Bin Mandatory" then
-                if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, ItemJnlTemplateType, WhseJnlLine, ToTransfer) then begin
+                if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, ItemJnlTemplateType.AsInteger(), WhseJnlLine, ToTransfer) then begin
                     ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine, TempTrackingSpecification, ToTransfer);
                     if TempWhseJnlLine.FindSet then
                         repeat
@@ -809,10 +809,11 @@
         QtyinItemJnlLine: Decimal;
     begin
         QtyinItemJnlLine := 0;
+        ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Item No.", "Location Code", "Variant Code");
         ItemJnlLine.SetRange("Item No.", TempSKU."Item No.");
         ItemJnlLine.SetRange("Location Code", TempSKU."Location Code");
         ItemJnlLine.SetRange("Variant Code", TempSKU."Variant Code");
-        ItemJnlLine.FindSet;
+        ItemJnlLine.FindSet();
         repeat
             if (ItemJnlLine."Entry Type" in
                 [ItemJnlLine."Entry Type"::Sale,
@@ -824,7 +825,7 @@
             else
                 SignFactor := 1;
             QtyinItemJnlLine += ItemJnlLine."Quantity (Base)" * SignFactor;
-        until ItemJnlLine.Next = 0;
+        until ItemJnlLine.Next() = 0;
         exit(QtyinItemJnlLine);
     end;
 

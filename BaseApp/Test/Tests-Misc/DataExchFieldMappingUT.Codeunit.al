@@ -332,7 +332,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         BankAccount.TestField(Name, CopyStr(DataExchField.Value, 1, MaxStrLen(BankAccount.Name)));
     end;
 
-    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option)
+    local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Enum "Data Exchange Definition Type")
     begin
         DataExchDef.Init();
         DataExchDef.Code :=

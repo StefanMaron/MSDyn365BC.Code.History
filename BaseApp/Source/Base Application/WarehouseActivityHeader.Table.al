@@ -97,7 +97,7 @@ table 5766 "Warehouse Activity Header"
         }
         field(10; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Activity Header"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Activity Header"),
                                                                 Type = FIELD(Type),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -111,7 +111,7 @@ table 5766 "Warehouse Activity Header"
         }
         field(13; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Warehouse Activity Line" WHERE("Activity Type" = FIELD(Type),
+            CalcFormula = Count("Warehouse Activity Line" WHERE("Activity Type" = FIELD(Type),
                                                                  "No." = FIELD("No."),
                                                                  "Source Type" = FIELD("Source Type Filter"),
                                                                  "Source Subtype" = FIELD("Source Subtype Filter"),
@@ -256,12 +256,10 @@ table 5766 "Warehouse Activity Header"
                 end;
             end;
         }
-        field(7307; "Source Document"; Option)
+        field(7307; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ' ,Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,Prod. Output,,,,,,,,Assembly Consumption,Assembly Order';
-            OptionMembers = " ","Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output",,,,,,,,"Assembly Consumption","Assembly Order";
 
             trigger OnValidate()
             var
@@ -323,11 +321,11 @@ table 5766 "Warehouse Activity Header"
                     "Source Document"::"Assembly Consumption":
                         begin
                             "Source Type" := DATABASE::"Assembly Line";
-                            "Source Subtype" := AssemblyLine."Document Type"::Order;
+                            "Source Subtype" := AssemblyLine."Document Type"::Order.AsInteger();
                         end;
                 end;
 
-                if "Source Document" = 0 then begin
+                if "Source Document" = "Source Document"::" " then begin
                     "Source Type" := 0;
                     "Source Subtype" := 0;
                 end;

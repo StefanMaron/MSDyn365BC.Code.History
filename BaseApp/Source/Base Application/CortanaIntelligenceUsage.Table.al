@@ -4,7 +4,6 @@ table 2003 "Cortana Intelligence Usage"
     // // these features in total does not exceed the limit defined by Azure ML.The table is singleton and used only in SaaS.
 
     Caption = 'Cortana Intelligence Usage';
-    Permissions = TableData "Cortana Intelligence Usage" = rimd;
     ObsoleteState = Removed;
     ObsoleteReason = 'Renamed to Azure AI Usage';
     ObsoleteTag = '15.0';
@@ -80,7 +79,7 @@ table 2003 "Cortana Intelligence Usage"
     begin
         if GetSingleInstance(ServiceOption) then
             if GetTotalProcessingTime(ServiceOption) >= AzureMLUsageLimit then begin
-                SendTraceTag('00001T1', AzureMLCategoryTxt, VERBOSITY::Normal, AzureMLLimitReachedTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001T1', AzureMLLimitReachedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AzureMLCategoryTxt);
                 exit(true);
             end;
         exit(false);

@@ -8,17 +8,17 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.', Locked = true;
-        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.', Locked = true;
-        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.', Locked = true;
-        CannotModifyPostedInvioceErr: Label 'The invoice has been posted and can no longer be modified.', Locked = true;
-        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line with a duplicate sequence number.', Locked = true;
-        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.', Locked = true;
-        CannotInsertPostedInvoiceErr: Label 'Invoices created through the API must be in Draft state.', Locked = true;
-        CanOnlySetUOMForTypeItemErr: Label 'Unit of Measure can be set only for lines with type Item.', Locked = true;
-        InvoiceIdIsNotSpecifiedErr: Label 'Invoice ID is not specified.', Locked = true;
-        EntityIsNotFoundErr: Label 'Purchase Invoice Entity is not found.', Locked = true;
-        AggregatorCategoryLbl: Label 'Purchase Invoice Aggregator', Locked = true;
+        DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
+        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
+        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        CannotModifyPostedInvioceErr: Label 'The invoice has been posted and can no longer be modified.';
+        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line with a duplicate sequence number.';
+        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
+        CannotInsertPostedInvoiceErr: Label 'Invoices created through the API must be in Draft state.';
+        CanOnlySetUOMForTypeItemErr: Label 'Unit of Measure can be set only for lines with type Item.';
+        InvoiceIdIsNotSpecifiedErr: Label 'Invoice ID is not specified.';
+        EntityIsNotFoundErr: Label 'Purchase Invoice Entity is not found.';
+        AggregatorCategoryLbl: Label 'Purchase Invoice Aggregator';
 
     [EventSubscriber(ObjectType::Table, 38, 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertPurchaseHeader(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
@@ -243,8 +243,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             exit;
 
         if IsNullGuid(PurchHeader.SystemId) then begin
-            SendTraceTag('00006TQ', AggregatorCategoryLbl, VERBOSITY::Error, InvoiceIdIsNotSpecifiedErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TQ', InvoiceIdIsNotSpecifiedErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
@@ -252,8 +251,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             exit;
 
         if not PurchInvEntityAggregate.Get(PurchHeader."No.", false) then begin
-            SendTraceTag('00006TR', AggregatorCategoryLbl, VERBOSITY::Error, EntityIsNotFoundErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00006TR', EntityIsNotFoundErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregatorCategoryLbl);
             exit;
         end;
 
@@ -432,12 +430,8 @@ codeunit 5529 "Purch. Inv. Aggregator"
             exit(true);
 
         PurchInvHeader.SetRange("Draft Invoice SystemId");
-        PurchInvHeader.SetFilter(Id, Id);
 
-        IF PurchInvHeader.FindFirst() then
-            exit(true);
-
-        exit(false);
+        exit(PurchInvHeader.GetBySystemId(Id));
     end;
 
     local procedure InsertOrModifyFromPurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header")
@@ -780,6 +774,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
                 PurchInvLineAggregate.TransferFields(PurchInvLine, true);
                 PurchInvLineAggregate.Id :=
                   SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(PurchInvEntityAggregate.Id, PurchInvLine."Line No.");
+                PurchInvLineAggregate.SystemId := PurchInvLine.SystemId;
                 PurchInvLineAggregate."Document Id" := PurchInvEntityAggregate.Id;
                 if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Sales Tax" then
                     PurchInvLineAggregate."Tax Code" := PurchInvLine."Tax Group Code"
@@ -788,7 +783,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
                 PurchInvLineAggregate."VAT %" := PurchInvLine."VAT %";
                 PurchInvLineAggregate."Tax Amount" := PurchInvLine."Amount Including VAT" - PurchInvLine."VAT Base Amount";
-                PurchInvLineAggregate."Currency Code" := PurchInvLine.GetCurrencyCode;
+                PurchInvLineAggregate."Currency Code" := PurchInvLine.GetCurrencyCode();
                 PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
                 PurchInvLineAggregate.UpdateReferencedRecordIds;
                 UpdateLineAmountsFromPurchaseInvoiceLine(PurchInvLineAggregate);
@@ -820,6 +815,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvLineAggregate."Document Id" := PurchInvEntityAggregate.Id;
         PurchInvLineAggregate.Id :=
           SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(PurchInvEntityAggregate.Id, PurchaseLine."Line No.");
+        PurchInvLineAggregate.SystemId := PurchaseLine.SystemId;
         if PurchaseLine."VAT Calculation Type" = PurchaseLine."VAT Calculation Type"::"Sales Tax" then
             PurchInvLineAggregate."Tax Code" := PurchaseLine."Tax Group Code"
         else
@@ -909,11 +905,13 @@ codeunit 5529 "Purch. Inv. Aggregator"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedErr);
             PurchInvEntityAggregate.SetFilter(Id, DocumentIDFilter);
-        end else
+            if not PurchInvEntityAggregate.FindFirst then
+                Error(DocumentDoesNotExistErr);
+        end else begin
             PurchInvEntityAggregate.SetRange(Id, PurchInvLineAggregate."Document Id");
-
-        if not PurchInvEntityAggregate.FindFirst then
-            Error(DocumentDoesNotExistErr);
+            if not PurchInvEntityAggregate.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end;
 
         SearchPurchInvEntityAggregate.Copy(PurchInvEntityAggregate);
         if SearchPurchInvEntityAggregate.Next <> 0 then

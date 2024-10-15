@@ -482,7 +482,7 @@ table 5992 "Service Invoice Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(710; "Document Exchange Identifier"; Text[50])
@@ -897,7 +897,7 @@ table 5992 "Service Invoice Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -909,7 +909,7 @@ table 5992 "Service Invoice Header"
     begin
         DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, "No.", "Bill-to Customer No.",
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, "No.", "Bill-to Customer No.",
           DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -925,7 +925,7 @@ table 5992 "Service Invoice Header"
             exit;
 
         DocumentSendingProfile.TrySendToPrinter(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+          DummyReportSelections.Usage::"SM.Invoice".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure LookupAdjmtValueEntries()

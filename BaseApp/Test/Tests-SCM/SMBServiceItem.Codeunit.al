@@ -176,6 +176,105 @@ codeunit 137510 "SMB Service Item"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestCanChangeUnitCostForNonInvItemsAndStockkeeping()
+    var
+        NonInventoryItem: Record Item;
+        Cust: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NonInvStockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        Initialize;
+
+        CreateNonInvItem(NonInventoryItem);
+        NonInventoryItem.Validate("Unit Cost", 10.0);
+
+        LibrarySales.CreateCustomer(Cust);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, NonInventoryItem);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        NonInventoryItem.Validate("Unit Cost", 5.0);
+
+        CreateStockkeepingUnit(NonInvStockkeepingUnit, NonInventoryItem);
+        NonInvStockkeepingUnit.Validate(NonInvStockkeepingUnit."Unit Cost", 5.0);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, NonInventoryItem);
+        SalesLine.Validate("Variant Code", NonInvStockkeepingUnit."Variant Code");
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        NonInvStockkeepingUnit.Validate(NonInvStockkeepingUnit."Unit Cost", 1.0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCanChangeUnitCostForServiceItemsAndStockkeeping()
+    var
+        ServiceItem: Record Item;
+        Cust: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ServiceStockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        Initialize;
+
+        CreateServItem(ServiceItem);
+        ServiceItem.Validate("Unit Cost", 10.0);
+
+        LibrarySales.CreateCustomer(Cust);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, ServiceItem);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        ServiceItem.Validate("Unit Cost", 5.0);
+
+        CreateStockkeepingUnit(ServiceStockkeepingUnit, ServiceItem);
+        ServiceStockkeepingUnit.Validate(ServiceStockkeepingUnit."Unit Cost", 5.0);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, ServiceItem);
+        SalesLine.Validate("Variant Code", ServiceStockkeepingUnit."Variant Code");
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        ServiceStockkeepingUnit.Validate(ServiceStockkeepingUnit."Unit Cost", 1.0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCannotChangeUnitCostForInvItemsAndStockkeeping()
+    var
+        InventoryItem: Record Item;
+        Cust: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InvStockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        Initialize;
+
+        CreateInvtItem(InventoryItem);
+        InventoryItem.Validate("Unit Cost", 10.0);
+
+        LibrarySales.CreateCustomer(Cust);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, InventoryItem);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        asserterror InventoryItem.Validate("Unit Cost", 5.0);
+
+        CreateStockkeepingUnit(InvStockkeepingUnit, InventoryItem);
+        InvStockkeepingUnit.Validate(InvStockkeepingUnit."Unit Cost", 5.0);
+
+        CreateSalesOrder(Cust, SalesHeader, SalesLine, InventoryItem);
+        SalesLine.Validate("Variant Code", InvStockkeepingUnit."Variant Code");
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        asserterror InvStockkeepingUnit.Validate(InvStockkeepingUnit."Unit Cost", 1.0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestItem_CostingMethod()
     var
         Item: Record Item;
@@ -2149,6 +2248,38 @@ codeunit 137510 "SMB Service Item"
         Item.Validate(Type, Item.Type::Service);
         Item.Modify(true);
         Commit();
+    end;
+
+    local procedure CreateNonInvItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::"Non-Inventory");
+        Item.Modify(true);
+        Commit();
+    end;
+
+    local procedure CreateStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
+    var
+        ItemVariant: Record "Item Variant";
+        Variant: Code[10];
+        VArCost: Decimal;
+    begin
+        Variant := '1';
+        VArCost := 20;
+
+        ItemVariant.Init();
+        ItemVariant."Item No." := Item."No.";
+        ItemVariant.Code := Variant;
+
+        if not ItemVariant.Insert() then
+            ItemVariant.Modify();
+
+        StockkeepingUnit.Init();
+        StockkeepingUnit."Item No." := Item."No.";
+        StockkeepingUnit."Variant Code" := Variant;
+
+        if not StockkeepingUnit.Insert() then
+            StockkeepingUnit.Modify();
     end;
 
     local procedure CreateSalesOrder(Cust: Record Customer; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item)

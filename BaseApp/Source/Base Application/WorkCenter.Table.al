@@ -258,7 +258,7 @@ table 99000754 "Work Center"
         }
         field(27; Comment; Boolean)
         {
-            CalcFormula = Exist ("Manufacturing Comment Line" WHERE("Table Name" = CONST("Work Center"),
+            CalcFormula = Exist("Manufacturing Comment Line" WHERE("Table Name" = CONST("Work Center"),
                                                                     "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -371,7 +371,7 @@ table 99000754 "Work Center"
         }
         field(41; "Capacity (Total)"; Decimal)
         {
-            CalcFormula = Sum ("Calendar Entry"."Capacity (Total)" WHERE("Capacity Type" = CONST("Work Center"),
+            CalcFormula = Sum("Calendar Entry"."Capacity (Total)" WHERE("Capacity Type" = CONST("Work Center"),
                                                                          "No." = FIELD("No."),
                                                                          "Work Shift Code" = FIELD("Work Shift Filter"),
                                                                          Date = FIELD("Date Filter")));
@@ -382,7 +382,7 @@ table 99000754 "Work Center"
         }
         field(42; "Capacity (Effective)"; Decimal)
         {
-            CalcFormula = Sum ("Calendar Entry"."Capacity (Effective)" WHERE("Capacity Type" = CONST("Work Center"),
+            CalcFormula = Sum("Calendar Entry"."Capacity (Effective)" WHERE("Capacity Type" = CONST("Work Center"),
                                                                              "No." = FIELD("No."),
                                                                              "Work Shift Code" = FIELD("Work Shift Filter"),
                                                                              Date = FIELD("Date Filter")));
@@ -393,7 +393,7 @@ table 99000754 "Work Center"
         }
         field(44; "Prod. Order Need (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Capacity Need"."Allocated Time" WHERE("Work Center No." = FIELD("No."),
+            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" WHERE("Work Center No." = FIELD("No."),
                                                                                   Status = FIELD("Prod. Order Status Filter"),
                                                                                   Date = FIELD("Date Filter"),
                                                                                   "Requested Only" = CONST(false)));
@@ -405,18 +405,16 @@ table 99000754 "Work Center"
         field(45; "Prod. Order Need Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE("Work Center No." = FIELD("No."),
+            CalcFormula = Sum("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE("Work Center No." = FIELD("No."),
                                                                                                Status = FIELD("Prod. Order Status Filter")));
             Caption = 'Prod. Order Need Amount';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(47; "Prod. Order Status Filter"; Option)
+        field(47; "Prod. Order Status Filter"; Enum "Production Order Status")
         {
             Caption = 'Prod. Order Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(50; "Unit Cost Calculation"; Option)
         {
@@ -432,12 +430,9 @@ table 99000754 "Work Center"
         {
             Caption = 'Consolidated Calendar';
         }
-        field(53; "Flushing Method"; Option)
+        field(53; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
-            InitValue = Manual;
-            OptionCaption = 'Manual,Forward,Backward';
-            OptionMembers = Manual,Forward,Backward;
         }
         field(80; "No. Series"; Code[20])
         {
@@ -732,7 +727,7 @@ table 99000754 "Work Center"
             DimMgt.SaveDefaultDim(DATABASE::"Work Center", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

@@ -210,7 +210,7 @@ codeunit 134030 "ERM VAT 2010"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT 2010");
     end;
 
-    local procedure CreateAndUpdateServiceLine(var ServiceHeader: Record "Service Header"; Type: Option; ServiceItemLineNo: Integer; No: Code[20])
+    local procedure CreateAndUpdateServiceLine(var ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; ServiceItemLineNo: Integer; No: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -232,7 +232,7 @@ codeunit 134030 "ERM VAT 2010"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BalGenPostingType: Option; EUService: Boolean) EUServiceOld: Boolean
+    local procedure CreateGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BalGenPostingType: Enum "General Posting Type"; EUService: Boolean) EUServiceOld: Boolean
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -263,7 +263,7 @@ codeunit 134030 "ERM VAT 2010"
         exit(Item."No.");
     end;
 
-    local procedure CreatePostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BalGenPostingType: Option; EUService: Boolean) EUServiceOld: Boolean
+    local procedure CreatePostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BalGenPostingType: Enum "General Posting Type"; EUService: Boolean) EUServiceOld: Boolean
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -312,7 +312,7 @@ codeunit 134030 "ERM VAT 2010"
         ValidateVATEntry(PostedDocumentNo, EUService);
     end;
 
-    local procedure SetupAndCreateServiceHeader(var ServiceHeader: Record "Service Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option) EUService: Boolean
+    local procedure SetupAndCreateServiceHeader(var ServiceHeader: Record "Service Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Service Document Type") EUService: Boolean
     begin
         EUService := UpdateVATPostSetup(VATPostingSetup, true);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));

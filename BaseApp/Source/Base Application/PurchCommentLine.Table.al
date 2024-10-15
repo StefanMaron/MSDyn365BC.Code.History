@@ -78,9 +78,9 @@ table 43 "Purch. Comment Line"
         if PurchCommentLine.FindSet() then
             repeat
                 PurchCommentLine2 := PurchCommentLine;
-                PurchCommentLine2."Document Type" := ToDocumentType;
+                PurchCommentLine2."Document Type" := "Purchase Comment Document Type".FromInteger(ToDocumentType);
                 PurchCommentLine2."No." := ToNumber;
-                PurchCommentLine2.Insert(); 
+                PurchCommentLine2.Insert();
             until PurchCommentLine.Next() = 0;
     end;
 
@@ -102,10 +102,10 @@ table 43 "Purch. Comment Line"
         if PurchCommentLineSource.FindSet() then
             repeat
                 PurchCommentLineTarget := PurchCommentLineSource;
-                PurchCommentLineTarget."Document Type" := ToDocumentType;
+                PurchCommentLineTarget."Document Type" := "Purchase Comment Document Type".FromInteger(ToDocumentType);
                 PurchCommentLineTarget."No." := ToNumber;
                 PurchCommentLineTarget."Document Line No." := ToDocumentLineNo;
-                PurchCommentLineTarget.Insert(); 
+                PurchCommentLineTarget.Insert();
             until PurchCommentLineSource.Next() = 0;
     end;
 
@@ -137,7 +137,7 @@ table 43 "Purch. Comment Line"
                 if PurchCommentLineSource.FindSet() then
                     repeat
                         PurchCommentLineTarget := PurchCommentLineSource;
-                        PurchCommentLineTarget."Document Type" := ToDocumentType;
+                        PurchCommentLineTarget."Document Type" := "Purchase Comment Document Type".FromInteger(ToDocumentType);
                         PurchCommentLineTarget."No." := ToNumber;
                         PurchCommentLineTarget."Document Line No." := 0;
                         PurchCommentLineTarget."Line No." := NextLineNo;
@@ -164,9 +164,9 @@ table 43 "Purch. Comment Line"
         if PurchCommentLineSource.FindSet() then
             repeat
                 PurchCommentLineTarget := PurchCommentLineSource;
-                PurchCommentLineTarget."Document Type" := ToDocumentType;
+                PurchCommentLineTarget."Document Type" := "Purchase Comment Document Type".FromInteger(ToDocumentType);
                 PurchCommentLineTarget."No." := ToNumber;
-                PurchCommentLineTarget.Insert(); 
+                PurchCommentLineTarget.Insert();
             until PurchCommentLineSource.Next() = 0;
     end;
 

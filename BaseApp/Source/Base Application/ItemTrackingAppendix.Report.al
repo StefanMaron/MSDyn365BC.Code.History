@@ -335,7 +335,7 @@ report 6521 "Item Tracking Appendix"
         AddressSalesHdr(SalesHeader);
         TrackingSpecCount :=
           ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, SalesHeader."No.",
-            DATABASE::"Sales Header", SalesHeader."Document Type");
+            DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger());
     end;
 
     local procedure HandlePurchase()
@@ -343,7 +343,7 @@ report 6521 "Item Tracking Appendix"
         AddressPurchaseHdr(PurchaseHeader);
         TrackingSpecCount :=
           ItemTrackingDocMgt.RetrieveDocumentItemTracking(TrackingSpecBuffer, PurchaseHeader."No.",
-            DATABASE::"Purchase Header", PurchaseHeader."Document Type");
+            DATABASE::"Purchase Header", PurchaseHeader."Document Type".AsInteger());
     end;
 
     local procedure HandleShipment()

@@ -909,7 +909,7 @@ codeunit 134099 "Purchase Documents"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        DocType: Option;
+        DocType: Enum "Purchase Document Type";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 327504] Order Date on purchase documents is initialized with WORKDATE. This is required to pick the current purchase price.
@@ -1039,7 +1039,7 @@ codeunit 134099 "Purchase Documents"
         MyNotifications.DeleteAll();
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Integer; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1058,24 +1058,24 @@ codeunit 134099 "Purchase Documents"
           LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePostPurchDocWithExternalDocNo(var ExternalDocumentNo: Code[35]; var VendorNo: Code[20]; DocumentType: Integer; var PurchaseHeader: Record "Purchase Header")
+    local procedure CreatePostPurchDocWithExternalDocNo(var ExternalDocumentNo: Code[35]; var VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
     begin
         ExternalDocumentNo := LibraryUtility.GenerateGUID;
         VendorNo := LibraryPurchase.CreateVendorNo;
         CreatePurchaseDocument(PurchaseHeader, DocumentType, VendorNo);
         case DocumentType of
             PurchaseHeader."Document Type"::Invoice,
-          PurchaseHeader."Document Type"::Order:
+            PurchaseHeader."Document Type"::Order:
                 PurchaseHeader."Vendor Invoice No." := ExternalDocumentNo;
             PurchaseHeader."Document Type"::"Credit Memo",
-          PurchaseHeader."Document Type"::"Return Order":
+            PurchaseHeader."Document Type"::"Return Order":
                 PurchaseHeader."Vendor Cr. Memo No." := ExternalDocumentNo;
         end;
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1118,7 +1118,7 @@ codeunit 134099 "Purchase Documents"
         PurchasesPayablesSetup.Modify();
     end;
 
-    local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Option)
+    local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1135,7 +1135,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader.TestField("Transaction Type", '');
     end;
 
-    local procedure VerifyNotificationData(ExternalDocumentNo: Code[35]; VendorLedgerEntryNo: Integer; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund)
+    local procedure VerifyNotificationData(ExternalDocumentNo: Code[35]; VendorLedgerEntryNo: Integer; DocumentType: Enum "Gen. Journal Document Type")
     begin
         Assert.AreEqual(VendorLedgerEntryNo, LibraryVariableStorage.DequeueInteger, 'Unexpected vendor ledger entry no.');
         Assert.AreEqual(
