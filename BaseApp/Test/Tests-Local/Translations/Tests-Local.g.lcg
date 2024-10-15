@@ -1058,6 +1058,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report - NamedType PaymentNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4100550298 - NamedType 1967402081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GetAmtMISC07MISC15B]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report - NamedType GetAmtMisc07Misc15BTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4283228154 - NamedType 1999027700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[AmountToPrint]]></Val>
@@ -4629,6 +4638,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Purchase Process Misc - NamedType DefaultTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3678599278 - NamedType 4161624070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AmountDue_2_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Purchase Process Misc - NamedType AmountDue2)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3678599278 - NamedType 3523927453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AmountDue_3_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Purchase Process Misc - NamedType AmountDue3)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 740962073 - NamedType 1321660180" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

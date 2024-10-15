@@ -1545,6 +1545,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
         DeferralSchedule.CalculateSchedule.Invoke;
+        DeferralSchedule.OK.Invoke;
     end;
 
     [ModalPageHandler]

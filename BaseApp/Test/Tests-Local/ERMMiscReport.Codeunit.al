@@ -112,6 +112,7 @@ codeunit 142060 "ERM Misc. Report"
         IRS1099CodeMiscLbl: Label 'MISC-07';
         IncorrectPaymentCountErr: Label 'Applied payment list contains incorrect entries';
         PaymentNotFoundErr: Label 'Payment %1 was not found';
+        GetAmtMisc07Misc15BTxt: Label 'GetAmtMISC07MISC15B';
 
     [Test]
     [HandlerFunctions('WhereUsedListRequestPageHandler')]
@@ -130,7 +131,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryInventory.CreateItem(Item);
         CreateAndUpdateBOMComponent(BOMComponent, ParentItem."No.", Item."No.");
         LibraryVariableStorage.Enqueue(Item."No.");
-        Commit;  // Commit required.
+        Commit();  // Commit required.
 
         // Exercise: Run Where-Used List Report.
         REPORT.Run(REPORT::"Where-Used List");
@@ -293,7 +294,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndPostSalesOrder(
           SalesLine, CreateAndUpdateTaxGroupOnItem, '', CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Added random days to Workdate
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for BackOrderFillByItemHandler.
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Back Order Fill by Item");
@@ -321,7 +322,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndPostSalesOrder(
           SalesLine, CreateAndUpdateTaxGroupOnItem, '', CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Added random days to Workdate
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for BackOrderFillbyCustomerHandler.
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Back Order Fill by Customer");
@@ -408,7 +409,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndModifySalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, LibraryERM.CreateCurrencyWithRandomExchRates);
         LibraryVariableStorage.Enqueue(Item."No.");  // Enqueue for SalesPromotionRequestPageHandler.
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Promotion");
@@ -446,7 +447,7 @@ codeunit 142060 "ERM Misc. Report"
         Initialize;
         CreateAndPostSalesOrder(SalesLine, CreateAndUpdateTaxGroupOnItem, CurrencyCode, WorkDate);
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for SalesOrderStatusRequestPageHandler
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Order Status");
@@ -475,7 +476,7 @@ codeunit 142060 "ERM Misc. Report"
         Initialize;
         CreateAndPostSalesOrder(SalesLine, CreateAndUpdateTaxGroupOnItem, '', WorkDate);
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for ItemsBySalesTaxGroupRequestPageHandler.
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Items by Sales Tax Group");
@@ -523,7 +524,7 @@ codeunit 142060 "ERM Misc. Report"
         // Setup.
         Initialize;
         EnqueueValuesForListPriceSheetReport(SalesType, '', '');
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"List Price Sheet");
@@ -549,7 +550,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndModifySalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, LibraryERM.CreateCurrencyWithRandomExchRates);
         EnqueueValuesForListPriceSheetReport(SalesType::Customer, SalesPrice."Sales Code", Item."No.");
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"List Price Sheet");
@@ -584,7 +585,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndModifySalesDocument(
           SalesLine, SalesLine."Document Type"::Order, Item."No.", '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
         LibraryVariableStorage.Enqueue(Item."No.");
-        Commit;  // COMMIT required to run the report.
+        Commit();  // COMMIT required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Availability Status");
@@ -655,7 +656,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // Verify Picking List by Item Report with Sales Line Document No. filter.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         DocumentNo := NoSeriesManagement.GetNextNo(SalesReceivablesSetup."Order Nos.", WorkDate, false);
         PickingListByItemReport(
           CreateAndUpdateTaxGroupOnItem, '', LibrarySales.CreateCustomerNo, DocumentNo, '', '', SalesLineFilterLbl, StrSubstNo(
@@ -672,7 +673,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryVariableStorage.Enqueue(LocationCode);
         LibraryVariableStorage.Enqueue(SellToCusomerNoFilter);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for PickingListByItemRequestPageHandler.
-        Commit;  // COMMIT required for running report.
+        Commit();  // COMMIT required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Picking List by Item");
@@ -721,7 +722,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // [GIVEN] Sales order "X".
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        Commit;
+        Commit();
 
         // [WHEN] Invoke "Picking List by Order" on the sales order page for "X".
         SalesOrder.OpenView;
@@ -897,7 +898,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Exercise.
         REPORT.Run(REPORT::"Item Sales Statistics");
-        Commit;
+        Commit();
 
         // Verify: Verify Variant code, Item description and Quantity on Item Sales Statistics Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -948,7 +949,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Cr. Memo Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseCrMemoReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -969,7 +970,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Cr. Memo Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseCrMemoReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1015,7 +1016,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Invoice Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseInvoiceReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -1036,7 +1037,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Invoice Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseInvoiceReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1079,7 +1080,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Order Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseOrderReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -1092,7 +1093,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // Verify Purchase Order Report without Print Company and with Log Interaction option.
         // With the new default 1322 Report there is NO option to generate report without Print Company.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseOrderReport(false, true, false, CompanyInformation.Name);
     end;
 
@@ -1104,7 +1105,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Order Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseOrderReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1121,7 +1122,7 @@ codeunit 142060 "ERM Misc. Report"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         PurchaseOrder.OpenView;
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        Commit;  // Commit required for Run Purchase Order Report.
+        Commit();  // Commit required for Run Purchase Order Report.
         EnqueueValuesforPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PrintCompanyAddress, LogInteraction);  // Enqueue values for PurchOrderRequestPageHandler.
 
         // Exercise.
@@ -1162,7 +1163,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
         PurchaseHeader.Validate("Vendor Order No.", VendorOrderNo);
         PurchaseHeader.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] REP10122 "Purchase Order" is invoked to print "PO".
         REPORT.Run(REPORT::"Purchase Order", true, false, PurchaseHeader);
@@ -1181,7 +1182,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Quote Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseQuoteReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -1202,7 +1203,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Quote Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseQuoteReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1219,7 +1220,7 @@ codeunit 142060 "ERM Misc. Report"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Quote);
         PurchaseQuote.OpenView;
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        Commit;  // Commit required for Run Purchase Quote Report.
+        Commit();  // Commit required for Run Purchase Quote Report.
         EnqueueValuesforPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PrintCompanyAddress, LogInteraction);  // Enqueue values for PurchQuoteRequestPageHandler.
 
         // Exercise.
@@ -1245,7 +1246,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Receipt Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseReceiptReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -1266,7 +1267,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Receipt Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseReceiptReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1308,7 +1309,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Purch. Return Order Confirm Report with Print Company and without Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseRetOrderReport(true, false, true, CompanyInformation.Name);
     end;
 
@@ -1329,7 +1330,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Purchase Purch. Return Order Confirm  Report with Print Company and Log Interaction option.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PurchaseRetOrderReport(true, true, false, CompanyInformation.Name);
     end;
 
@@ -1346,7 +1347,7 @@ codeunit 142060 "ERM Misc. Report"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::"Return Order");
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        Commit;  // Commit required for Run Purchase Order Report.
+        Commit();  // Commit required for Run Purchase Order Report.
         EnqueueValuesforPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PrintCompanyAddress, LogInteraction);  // Enqueue values for PurchRetOrderRequestPageHandler.
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");    // Enqueue value for PurchRetOrderRequestPageHandler.
 
@@ -1403,7 +1404,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Using random value for Direct Unit Cost.
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");    // Enqueue values for PurchDocTestRepRequestPageHandler.
-        Commit;
+        Commit();
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Document - Test");
@@ -1761,7 +1762,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndModifyItem(Item);
         CreateAndModifySalesPrice(SalesPrice, Item, SalesPrice."Sales Type"::"All Customers", '', '');
         EnqueueValuesForListPriceSheetReport(SalesPrice."Sales Type"::"All Customers", '', Item."No.");
-        Commit;
+        Commit();
 
         // Exercise: Run report List Price Sheet.
         REPORT.Run(REPORT::"List Price Sheet");
@@ -1792,7 +1793,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify: Verify Misc 07 Amount on Report.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
-          'GetAmtMISC07MISC15B', PurchaseLine."Line Amount" - (PurchaseLine."Line Amount" * PurchaseHeader."Payment Discount %" / 100));
+          GetAmtMISC07MISC15BTxt, PurchaseLine."Line Amount" - (PurchaseLine."Line Amount" * PurchaseHeader."Payment Discount %" / 100));
     end;
 
     [Test]
@@ -1816,7 +1817,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Verify: Verify Misc 07 Amount on Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('GetAmtMISC07MISC15B', PurchaseLine."Line Amount");
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC07MISC15BTxt, PurchaseLine."Line Amount");
     end;
 
     [Test]
@@ -2046,7 +2047,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // [WHEN] Run Picking List by Order report
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Picking List by Order", true, false, SalesHeader);
 
         // [THEN] Description from Sales Line with Type=" " is displayed in 'Sales_Line_Comment' report field
@@ -2085,6 +2086,46 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.AssertElementTagWithValueExists('Column', DimensionValue."Dimension Code");
         LibraryReportDataset.AssertElementTagWithValueExists('Column', DimensionValue.Code);
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,Vendor1099MiscRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MiscReportWithPaymentMadeAfterDiscountDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Payment Discount]
+        // [SCENARIO 345272] Report "Vendor 1099 Misc" is showing Amount without discount applied when payment was made after Payment Discount Date.
+        Initialize;
+
+        // [GIVEN] Vendor with "IRS 1099 Code" = "MISC-07".
+        VendorNo := CreateVendorWithPaymentTerms();
+
+        // [GIVEN] Posted Purchase Invoice with Payment Discount and Payment Discount Date = "01.01.20".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Pmt. Discount Date", LibraryRandom.RandDate(10));
+        PurchaseHeader.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate(),11,20));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 15000));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Payment for posted Invoice, posted after Payment Discount Date on "10.01.20".
+        PostGenJournalLineAfterSuggestVendorPaymentMsg(VendorNo, PurchaseHeader."Due Date");
+
+        // [WHEN] Report "Vendor 1099 Misc" is run for Vendor.
+        REPORT.Run(REPORT::"Vendor 1099 Misc");
+
+        // [THEN] In resulting dataset 'GetAmtMisc07Misc15B' is equal to Purchase Invoice Amount withoud discount.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMisc07Misc15BTxt, PurchaseLine."Line Amount");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -2129,7 +2170,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateItemWithLeadTimeCalculation(Item);
         CreateItemWithStockkeepingUnit(StockkeepingUnit, Item."No.", '');
         EnqueueValuesForAssemblyBOMHandlers(Item."No.", StockKeepingExist);
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         REPORT.Run(REPORT::"Assembly BOM - Raw Materials");
     end;
 
@@ -2141,7 +2182,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateMultipleBOMComponent(Item);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, CreateLocation, Item."No.", '');
         EnqueueValuesForAssemblyBOMHandlers(Item."No.", StockKeepingExist);
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         REPORT.Run(REPORT::"Assembly BOM - Subassemblies");
     end;
 
@@ -2322,8 +2363,7 @@ codeunit 142060 "ERM Misc. Report"
                 UpdateVendorLedgerEntryWithAppliesToId(GenJournalLine."Document No.", DocumentNo, AmountToApply);
                 GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
                 GenJournalLine.Modify(true);
-            end
-            ;
+            end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -2441,7 +2481,7 @@ codeunit 142060 "ERM Misc. Report"
         CreateAndPostPurchaseDocument(ItemNo, PurchaseHeader."Document Type"::Order, true);
         LibraryVariableStorage.Enqueue(ItemNo);
         LibraryVariableStorage.Enqueue(true);  // Enqueue for ItemCostAndPriceListReportHandler.
-        Commit;  // COMMIT is required to run the report.
+        Commit();  // COMMIT is required to run the report.
     end;
 
     local procedure EnqueueValuesForAssemblyBOMHandlers(ItemNo: Code[20]; StockKeepingExist: Boolean)
@@ -2668,7 +2708,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        Commit;
+        Commit();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.Run;
     end;

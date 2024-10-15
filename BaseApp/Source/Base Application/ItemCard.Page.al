@@ -1073,9 +1073,15 @@
                     Promoted = true;
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Set up different prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        SalesPrice: Record "Sales Price";
+                    begin
+                        SalesPrice.SetRange("Item No.", "No.");
+                        Page.Run(Page::"Sales Prices", SalesPrice);
+                    end;
                 }
                 action("Set Special Discounts")
                 {
@@ -1085,11 +1091,17 @@
                     Promoted = true;
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = Type = CONST(Item),
-                                  Code = FIELD("No.");
-                    RunPageView = SORTING(Type, Code);
                     ToolTip = 'Set up different discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        SalesLineDiscount: Record "Sales Line Discount";
+                    begin
+                        SalesLineDiscount.SetCurrentKey(Type, Code);
+                        SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
+                        SalesLineDiscount.SetRange(Code, "No.");
+                        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                    end;
                 }
                 action(PricesDiscountsOverview)
                 {

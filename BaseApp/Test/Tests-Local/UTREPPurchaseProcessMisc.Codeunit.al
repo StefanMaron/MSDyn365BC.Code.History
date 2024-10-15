@@ -23,6 +23,8 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         IsInitialized: Boolean;
         DefaultTxt: Label 'LCY';
+        AmountDue2: label 'AmountDue_2_';
+        AmountDue3: label 'AmountDue_3_';
 
     [Test]
     [HandlerFunctions('ReconcileAPToGLRequestPageHandler')]
@@ -139,6 +141,51 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           VendTotalLabelCap, 'Total for ' + Vendor.TableCaption + ' ' + Vendor."No." + ' (' + Vendor."Currency Code" + ')');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProjectedCashPaymentsWithStartDateRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ProjectedCashPaymentsOnAfterGetRecordAmountDueCleaned()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ProjectedCashPayments: Report "Projected Cash Payments";
+    begin
+        // [SCENARIO] Test to verify the that global value AmountDue was being cleared after each line.
+
+        // [GIVEN] Vendor
+        Initialize();
+        CreateVendor(Vendor);
+        // [GIVEN] Creating 2 Vendor Ledger Entries or the specified Vendor
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');
+        VendorLedgerEntry.Validate(Amount, -1000);
+        VendorLedgerEntry.Modify(true);
+        // [GIVEN] Difference between Posting Date and Due Date for created Ledger Entries is more than month but less then 2 months
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');
+        VendorLedgerEntry.Validate("Posting Date", LibraryRandom.RandDateFromInRange(WorkDate(), 40, 60));
+        VendorLedgerEntry.Validate("Due Date", VendorLedgerEntry."Posting Date");
+        VendorLedgerEntry.Validate(Amount, -2000);
+        VendorLedgerEntry.Modify(true);
+
+        // [WHEN] Running ProjectedCashPayments Report for the specified Vendor
+        // [WHEN] BeginProjectionDate is setted as the Due Date of the first Ledger Entry
+        LibraryVariableStorage.Enqueue(WorkDate());
+        ProjectedCashPayments.SetTableView(Vendor);
+        LibraryLowerPermissions.SetAccountPayables;
+        ProjectedCashPayments.Run; // Invokes ProjectedCashPaymentsWithStartDateRequestPageHandler.
+
+        // [THEN] For each month only 1 AmountDue have to be specified
+        LibraryReportDataset.LoadDataSetFile;
+        // [THEN] Only AmountDue2 should be presented for the first month
+        LibraryReportDataset.AssertElementWithValueExists(AmountDue2, 1000);
+        LibraryReportDataset.AssertElementWithValueExists(AmountDue3, 0);
+        // [THEN] Only AmountDue3 should be presented for the second month
+        LibraryReportDataset.AssertElementWithValueExists(AmountDue2, 0);
+        LibraryReportDataset.AssertElementWithValueExists(AmountDue3, 2000);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -889,6 +936,15 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         LibraryVariableStorage.Dequeue(PrintTotalsInVendorCurrency);
         ProjectedCashPayments.PrintTotalsInVendorsCurrency.SetValue(PrintTotalsInVendorCurrency);
+        ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ProjectedCashPaymentsWithStartDateRequestPageHandler(var ProjectedCashPayments: TestRequestPage "Projected Cash Payments")
+    begin
+        ProjectedCashPayments.BeginProjectionDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ProjectedCashPayments.PrintDetail.SetValue(true);
         ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

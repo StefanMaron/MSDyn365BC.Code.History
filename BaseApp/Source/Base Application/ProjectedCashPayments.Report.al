@@ -375,6 +375,9 @@ report 10098 "Projected Cash Payments"
 
                     trigger OnAfterGetRecord()
                     begin
+                        for i := 1 to 5 do
+                            AmountDue[i] := 0;
+
                         CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
                         if TakeAllDiscounts and
                            ("Original Pmt. Disc. Possible" < 0) and

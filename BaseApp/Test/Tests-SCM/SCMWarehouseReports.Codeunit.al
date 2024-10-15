@@ -1466,6 +1466,103 @@ codeunit 137305 "SCM Warehouse Reports"
         VerifySalesInvoice(CustomerBill."No.", CustomerBill."No.", 2);
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShptRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPickFromShipment()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Pick] [Warehouse Shipment]
+        // [SCENARIO 346629] A report from Report Selection is used when you choose to print pick being created from warehouse shipment.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to a location with directed put-away and pick.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create and release sales order.
+        // [GIVEN] Create warehouse shipment from the sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create pick from the warehouse shipment with "Print Pick" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        LibraryVariableStorage.Enqueue('Pick activity');
+        CreateAndPrintWhsePickFromShipment(SalesHeader);
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
+        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPickFromPickWorksheet()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Pick] [Pick Worksheet]
+        // [SCENARIO 346629] A report from Report Selection is used when you choose to print pick being created from pick worksheet.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to a location with directed put-away and pick.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create and release sales order.
+        // [GIVEN] Create warehouse shipment from the sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Open pick worksheet and pull the warehouse shipment to generate a worksheet line.
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+        CreateWhsePickWorksheetLine(WhseWorksheetLine, Location.Code);
+
+        // [WHEN] Create pick from the pick worksheet with "Print Pick" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, true);
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
+        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1655,6 +1752,21 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
+    local procedure CreateWhsePickWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+        WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
+        WhsePickRequest.SetRange("Completely Picked", false);
+        WhsePickRequest.SetRange("Location Code", LocationCode);
+        LibraryWarehouse.GetOutboundSourceDocuments(WhsePickRequest, WhseWorksheetName, LocationCode);
+        FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
+    end;
+
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1802,6 +1914,22 @@ codeunit 137305 "SCM Warehouse Reports"
         FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
         WhseWorksheetLine.Validate("To Bin Code", Bin.Code);
         WhseWorksheetLine.Modify(true);
+    end;
+
+    local procedure CreateAndPrintWhsePickFromShipment(SalesHeader: Record "Sales Header")
+    var
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange(
+          "No.",
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        WarehouseShipmentLine.FindFirst();
+        WhseShptLine.Copy(WarehouseShipmentLine);
+        WhseShptHeader.Get(WhseShptLine."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WhseShptHeader);
+        WarehouseShipmentLine.CreatePickDoc(WhseShptLine, WhseShptHeader);
     end;
 
     local procedure FindItemLedgerEntryNo(ItemNo: Code[20]) EntryNo: Integer
@@ -2478,6 +2606,14 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseCalculateInventoryPage.WhseDocumentNo.SetValue(LibraryVariableStorage.DequeueText);
         WhseCalculateInventoryPage.ZeroQty.SetValue(LibraryVariableStorage.DequeueBoolean);
         WhseCalculateInventoryPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickFromWhseShptRequestPageHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        WhseShipmentCreatePick.PrintDoc.SetValue(true);
+        WhseShipmentCreatePick.OK.Invoke;
     end;
 }
 

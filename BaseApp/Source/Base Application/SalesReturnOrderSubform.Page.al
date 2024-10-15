@@ -522,6 +522,8 @@
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord();
+                        Commit();
                         ShowDeferralSchedule;
                     end;
                 }

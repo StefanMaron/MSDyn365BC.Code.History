@@ -324,6 +324,7 @@ table 167 Job
             var
                 JobTask: Record "Job Task";
                 JobWIPMethod: Record "Job WIP Method";
+                NewWIPMethod: Code[20];
             begin
                 if "WIP Posting Method" = "WIP Posting Method"::"Per Job Ledger Entry" then begin
                     JobWIPMethod.Get("WIP Method");
@@ -336,8 +337,13 @@ table 167 Job
                 JobTask.SetRange("Job No.", "No.");
                 JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
                 if JobTask.FindFirst() then
-                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then
+                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption, JobTask."WIP-Total") then begin
                         JobTask.ModifyAll("WIP Method", "WIP Method", true);
+                        // An additional FIND call requires since JobTask.MODIFYALL changes the Job's information
+                        NewWIPMethod := "WIP Method";
+                        Find();
+                        "WIP Method" := NewWIPMethod;
+                    end;
             end;
         }
         field(1001; "Currency Code"; Code[10])

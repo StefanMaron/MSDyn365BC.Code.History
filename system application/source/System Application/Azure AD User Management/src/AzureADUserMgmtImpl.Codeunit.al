@@ -52,6 +52,9 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         if not UserLoginTimeTracker.IsFirstLogin(ForUserSecurityId) then
             exit;
 
+        if AzureADPlan.DoesUserHavePlans(ForUserSecurityId) then
+            exit;
+
         if AzureADGraphUser.GetUserAuthenticationObjectId(ForUserSecurityId) = '' then
             exit;
 

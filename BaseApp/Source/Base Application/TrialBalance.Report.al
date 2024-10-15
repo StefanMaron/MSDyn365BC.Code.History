@@ -468,6 +468,7 @@ report 10022 "Trial Balance"
 
     trigger OnPreReport()
     begin
+        "G/L Account".SecurityFiltering(SecurityFilter::Filtered);
         CompanyInformation.Get;
         /* Set up format-dependent variables */
         case NumColumns of

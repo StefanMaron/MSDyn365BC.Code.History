@@ -220,7 +220,7 @@ codeunit 10145 "E-Invoice Mgt."
                     CheckSalesDocument(
                       SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesInvoiceHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesInv(SalesInvoiceHeader);
-                    CalcSalesInvLineTotal(SubTotal, RetainAmt, TempDocumentHeader."No.", AdvanceSettle);
+                    CalcDocumentTotal(TempDocumentLine, SubTotal, RetainAmt);
                     SalesInvoiceHeader.CalcFields("Amount Including VAT");
                     TempDocumentHeader."Amount Including VAT" := SalesInvoiceHeader."Amount Including VAT";
                 end;
@@ -232,7 +232,7 @@ codeunit 10145 "E-Invoice Mgt."
                     CheckSalesDocument(
                       SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesCr(SalesCrMemoHeader);
-                    CalcSalesCrMemoLineTotal(SubTotal, RetainAmt, TempDocumentHeader."No.");
+                    CalcDocumentTotal(TempDocumentLine, SubTotal, RetainAmt);
                     SalesCrMemoHeader.CalcFields("Amount Including VAT");
                     TempDocumentHeader."Amount Including VAT" := SalesCrMemoHeader."Amount Including VAT";
                 end;
@@ -245,8 +245,10 @@ codeunit 10145 "E-Invoice Mgt."
                     CheckSalesDocument(
                       ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceInvoiceHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServInv(ServiceInvoiceHeader);
-                    CalcServiceInvLineTotal(SubTotal, RetainAmt, AmountInclVAT, TempDocumentHeader."No.");
-                    TempDocumentHeader."Amount Including VAT" := AmountInclVAT;
+                    CalcDocumentTotal(TempDocumentLine, SubTotal, RetainAmt);
+                    ServiceInvoiceHeader.CalcFields("Amount Including VAT");
+                    TempDocumentHeader."Amount Including VAT" := ServiceInvoiceHeader."Amount Including VAT";
+                    AmountInclVAT := ServiceInvoiceHeader."Amount Including VAT";
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
@@ -256,8 +258,10 @@ codeunit 10145 "E-Invoice Mgt."
                     CheckSalesDocument(
                       ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServCr(ServiceCrMemoHeader);
-                    CalcServiceCrMemoLineTotal(SubTotal, RetainAmt, AmountInclVAT, TempDocumentHeader."No.");
-                    TempDocumentHeader."Amount Including VAT" := AmountInclVAT;
+                    CalcDocumentTotal(TempDocumentLine, SubTotal, RetainAmt);
+                    ServiceCrMemoHeader.CalcFields("Amount Including VAT");
+                    TempDocumentHeader."Amount Including VAT" := ServiceCrMemoHeader."Amount Including VAT";
+                    AmountInclVAT := ServiceCrMemoHeader."Amount Including VAT";
                 end;
         end;
 
@@ -2831,68 +2835,13 @@ codeunit 10145 "E-Invoice Mgt."
         exit(VATPostingSetup."CFDI VAT Exemption");
     end;
 
-    local procedure CalcSalesInvLineTotal(var SubTotal: Decimal; var RetainAmt: Decimal; DocumentNo: Code[20]; AdvanceSettle: Boolean)
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
+    local procedure CalcDocumentTotal(var DocumentLine: Record "Document Line"; var SubTotal: Decimal; var RetainAmt: Decimal)
     begin
-        SalesInvoiceLine.Reset;
-        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
-        if AdvanceSettle then
-            SalesInvoiceLine.SetFilter("Prepayment Line", '=0');
-        if SalesInvoiceLine.FindSet then
+        if DocumentLine.FindSet then
             repeat
-                SalesInvoiceLine.TestField(Description);
-                SubTotal := SubTotal + (SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Price");
-                RetainAmt := RetainAmt + (SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount);
-            until SalesInvoiceLine.Next = 0;
-    end;
-
-    local procedure CalcSalesCrMemoLineTotal(var SubTotal: Decimal; var RetainAmt: Decimal; DocumentNo: Code[20])
-    var
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-    begin
-        SalesCrMemoLine.Reset;
-        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-        SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
-        if SalesCrMemoLine.FindSet then
-            repeat
-                SalesCrMemoLine.TestField(Description);
-                SubTotal := SubTotal + (SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Price");
-                RetainAmt := RetainAmt + (SalesCrMemoLine."Amount Including VAT" - SalesCrMemoLine.Amount);
-            until SalesCrMemoLine.Next = 0;
-    end;
-
-    local procedure CalcServiceInvLineTotal(var SubTotal: Decimal; var RetainAmt: Decimal; var AmontInclVAT: Decimal; DocumentNo: Code[20])
-    var
-        ServiceInvoiceLine: Record "Service Invoice Line";
-    begin
-        ServiceInvoiceLine.Reset;
-        ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
-        ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
-        if ServiceInvoiceLine.FindSet then
-            repeat
-                ServiceInvoiceLine.TestField(Description);
-                SubTotal := SubTotal + (ServiceInvoiceLine.Quantity * ServiceInvoiceLine."Unit Price");
-                RetainAmt := RetainAmt + (ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount);
-                AmontInclVAT := AmontInclVAT + ServiceInvoiceLine."Amount Including VAT";
-            until ServiceInvoiceLine.Next = 0;
-    end;
-
-    local procedure CalcServiceCrMemoLineTotal(var SubTotal: Decimal; var RetainAmt: Decimal; var AmontInclVAT: Decimal; DocumentNo: Code[20])
-    var
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
-    begin
-        ServiceCrMemoLine.Reset;
-        ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
-        ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
-        if ServiceCrMemoLine.FindSet then
-            repeat
-                ServiceCrMemoLine.TestField(Description);
-                SubTotal := SubTotal + (ServiceCrMemoLine.Quantity * ServiceCrMemoLine."Unit Price");
-                RetainAmt := RetainAmt + (ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount);
-                AmontInclVAT := AmontInclVAT + ServiceCrMemoLine."Amount Including VAT";
-            until ServiceCrMemoLine.Next = 0;
+                SubTotal := SubTotal + (DocumentLine.Quantity * DocumentLine."Unit Price/Direct Unit Cost");
+                RetainAmt := RetainAmt + (DocumentLine."Amount Including VAT" - DocumentLine.Amount);
+            until DocumentLine.Next = 0;
     end;
 
     local procedure RemoveExtraWhiteSpaces(StrParam: Text) StrReturn: Text
@@ -3115,6 +3064,8 @@ codeunit 10145 "E-Invoice Mgt."
                     if SalesInvoiceLine.FindSet then
                         repeat
                             TempDocumentLine.TransferFields(SalesInvoiceLine);
+                            if SalesInvoiceHeader."Prices Including VAT" then
+                                CalcDocumentLineForPricesInclVAT(TempDocumentLine, SalesInvoiceHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesInvoiceLine."Inv. Discount Amount";
                             TempDocumentLine.Insert;
@@ -3136,6 +3087,8 @@ codeunit 10145 "E-Invoice Mgt."
                     if SalesCrMemoLine.FindSet then
                         repeat
                             TempDocumentLine.TransferFields(SalesCrMemoLine);
+                            if SalesCrMemoHeader."Prices Including VAT" then
+                                CalcDocumentLineForPricesInclVAT(TempDocumentLine, SalesCrMemoHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesCrMemoLine."Inv. Discount Amount";
                             TempDocumentLine.Insert;
@@ -3161,6 +3114,8 @@ codeunit 10145 "E-Invoice Mgt."
                             LineVatPercent :=
                               ((ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount) / ServiceInvoiceLine.Amount);
                             TempDocumentLine."VAT %" := (LineVatPercent * 100);
+                            if ServiceInvoiceHeader."Prices Including VAT" then
+                                CalcDocumentLineForPricesInclVAT(TempDocumentLine, ServiceInvoiceHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceInvoiceLine."Inv. Discount Amount";
                             TempDocumentLine.Insert;
@@ -3186,6 +3141,8 @@ codeunit 10145 "E-Invoice Mgt."
                             LineVatPercent :=
                               ((ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount) / ServiceCrMemoLine.Amount);
                             TempDocumentLine."VAT %" := (LineVatPercent * 100);
+                            if ServiceCrMemoHeader."Prices Including VAT" then
+                                CalcDocumentLineForPricesInclVAT(TempDocumentLine, ServiceCrMemoHeader."Currency Code");
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceCrMemoLine."Inv. Discount Amount";
                             TempDocumentLine.Insert;
@@ -3194,82 +3151,22 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    [Scope('OnPrem')]
-    procedure ValidateSalesInvoiceValues(SalesInvoiceNumber: Code[20]): Boolean
+    local procedure CalcDocumentLineForPricesInclVAT(var DocumentLine: Record "Document Line"; CurrencyCode: Code[10])
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceLine: Record "Sales Invoice Line";
-        SATUtilities: Codeunit "SAT Utilities";
-        SubTotal: Decimal;
-        RetainAmt: Decimal;
-        Passed: Boolean;
+        Currency: Record Currency;
     begin
-        Passed := false;
-        SalesInvoiceHeader.Get(SalesInvoiceNumber);
-        // Comprobante
-        CalcSalesInvLineTotal(SubTotal, RetainAmt, SalesInvoiceNumber, false);
-        if SubTotal = 0 then
-            exit(Passed);
+        if DocumentLine."VAT %" = 0 then
+            exit;
 
-        if SalesInvoiceHeader."Currency Code" = '' then
-            exit(Passed);
-
-        SalesInvoiceHeader.CalcFields("Amount Including VAT");
-        if SalesInvoiceHeader."Amount Including VAT" = 0 then
-            exit(Passed);
-
-        if SalesInvoiceHeader."Amount Including VAT" = 0 then
-            exit(Passed);
-
-        GetCompanyInfo;
-        if CompanyInfo."SAT Postal Code" = '' then
-            exit(Passed);
-
-        // CFDIRelacionados
-        if SalesInvoiceHeader."CFDI Relation" = '' then
-            exit(Passed);
-
-        // Emisor
-        if (CompanyInfo."RFC No." = '') or (CompanyInfo."SAT Tax Regime Classification" = '') then
-            exit(Passed);
-
-        GetCustomer(SalesInvoiceHeader."Bill-to Customer No.");
-
-        // Receptor
-        if Customer."RFC No." = '' then
-            exit(Passed);
-        if SalesInvoiceHeader."CFDI Purpose" = '' then
-            exit(Passed);
-
-        SalesInvoiceLine.Reset;
-        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
-        if SalesInvoiceLine.FindSet then
-            repeat
-                if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then
-                    if SATUtilities.GetSATItemClassification(SalesInvoiceLine.Type, SalesInvoiceLine."No.") = '' then // ClaveProdServ
-                        exit(Passed);
-                if SalesInvoiceLine.Quantity = 0 then // Cantidad
-                    exit(Passed);
-                if SATUtilities.GetSATUnitofMeasure(SalesInvoiceLine."Unit of Measure Code") = '' then // Unidad
-                    exit(Passed);
-                if SalesInvoiceLine.Description = '' then // Descripcion
-                    exit(Passed);
-                if SalesInvoiceLine."Unit Price" = 0 then // ValorUnitario
-                    exit(Passed);
-                if (SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Price") = 0 then  // Importe
-                    exit(Passed);
-
-                // Impuestos
-                if SalesInvoiceLine.Amount = 0 then
-                    exit(Passed);
-
-            // NumeroPedimento for InformacionAduanera element?
-            // Numero for CuentaPredial element?
-
-            // All of the required fields in the Parte section have been valided in other sections already
-            until SalesInvoiceLine.Next = 0;
-        exit(true);
+        if not Currency.Get(CurrencyCode) then
+            Currency.Init;
+        Currency.InitRoundingPrecision;
+        DocumentLine."Unit Price/Direct Unit Cost" :=
+          Round(DocumentLine."Unit Price/Direct Unit Cost" / (1 + DocumentLine."VAT %" / 100), Currency."Unit-Amount Rounding Precision");
+        DocumentLine.Amount := DocumentLine.Quantity * DocumentLine."Unit Price/Direct Unit Cost";
+        DocumentLine."Line Discount Amount" :=
+          Round(DocumentLine.Amount * DocumentLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
+        DocumentLine.Amount -= DocumentLine."Line Discount Amount";
     end;
 
     local procedure GetCertificateSerialNo(): Text

@@ -965,6 +965,7 @@
             CustLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             CustLedgEntry."Amount to Apply" := 0;
             CustLedgEntry."Applies-to Doc. No." := '';
+            CustLedgEntry."Applies-to ID" := '';
             if SalesSetup."Copy Customer Name to Entries" then
                 CustLedgEntry."Customer Name" := Cust.Name;
             OnBeforeCustLedgEntryInsert(CustLedgEntry, GenJnlLine, GLReg);
@@ -1061,6 +1062,7 @@
             VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             VendLedgEntry."Amount to Apply" := 0;
             VendLedgEntry."Applies-to Doc. No." := '';
+            VendLedgEntry."Applies-to ID" := '';
             if PurchSetup."Copy Vendor Name to Entries" then
                 VendLedgEntry."Vendor Name" := Vend.Name;
             OnBeforeVendLedgEntryInsert(VendLedgEntry, GenJnlLine, GLReg);
@@ -1122,6 +1124,7 @@
             EmployeeLedgerEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             EmployeeLedgerEntry."Amount to Apply" := 0;
             EmployeeLedgerEntry."Applies-to Doc. No." := '';
+            EmployeeLedgerEntry."Applies-to ID" := '';
             EmployeeLedgerEntry.Insert(true);
 
             // Post detailed employee entries
@@ -2200,6 +2203,8 @@
                     VATAmount :=
                       Round((VATEntry2.Amount + VATEntry2."Unrealized Amount") * PmtDiscFactorLCY);
                     VATAmountAddCurr := Round(CalcLCYToAddCurr(VATAmount), AddCurrency."Amount Rounding Precision");
+                    if PmtDiscLCY2 = 0 then
+                        PmtDiscAddCurr2 := 0
                 end;
             VATEntry2."VAT Calculation Type"::"Sales Tax":
                 if (VATEntry2.Type = VATEntry2.Type::Purchase) and VATEntry2."Use Tax" then begin

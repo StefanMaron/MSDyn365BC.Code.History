@@ -270,7 +270,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
 
         // [GIVEN] Purchase Invoice with "Direct Unit Cost" = 1000
-        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [WHEN] Perform manual release
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -299,7 +299,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
 
         // [GIVEN] Purchase Invoice with "Direct Unit Cost" = 1000
-        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [WHEN] Perform manual release
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -329,7 +329,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
 
         // [GIVEN] Purchase Invoice with "Direct Unit Cost" = 1000
-        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [GIVEN] Perform manual release
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -362,7 +362,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
 
         // [GIVEN] Purchase Invoice with "Direct Unit Cost" = 1000
-        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [GIVEN] Perform manual release
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -396,7 +396,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
 
         // [GIVEN] Purchase Invoice of one line with "Direct Unit Cost" = 1000
-        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code);
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
 
         // [GIVEN] "Tax To Be Expensed" is equal to 100
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -418,6 +418,33 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         PurchaseLine.TestField("Tax To Be Expensed", -TaxToBeExpenced);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPurchaseDocumentWithExpenseWithoutTaxLiable()
+    var
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 348878] It is possible to post Purchase document with "Expense/Capitalize" = TRUE, non-zero "Tax Below Maximum", "Tax Liable" = FALSE.
+        Initialize();
+
+        // [GIVEN] Sales Tax setup with "Tax Below Maximum" = 10, "Expense/Capitalize" = TRUE.
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
+
+        // [GIVEN] Purchase Document of one line with "Direct Unit Cost" = 1000, "Tax Liable" = FALSE.
+        CreatePurchaseInvoice(PurchaseHeader, TaxArea.Code, TaxGroup.Code, false);
+
+        // [WHEN] Purchase Document is posted.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Posting is successful.
+        GLEntry.SetRange("External Document No.", PurchaseHeader."Vendor Invoice No.");
+        Assert.RecordCount(GLEntry, 2);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -431,7 +458,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Test", REPORT::"Purchase Document - Test");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesTaxVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -614,8 +641,9 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
+        GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseLine: Record "Purchase Line";
     begin
@@ -624,13 +652,14 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchaseHeader.Validate("Tax Liable", true);
+        PurchaseHeader.Validate("Tax Liable", TaxLiable);
         PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
         PurchaseHeader.Modify(true);
 
+        CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountNo, 1);
+          GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
         PurchaseLine.Modify(true);
@@ -647,7 +676,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
     var
         TestReportPrint: Codeunit "Test Report-Print";
     begin
-        Commit;
+        Commit();
         TestReportPrint.PrintSalesHeader(SalesHeader);
     end;
 
@@ -655,7 +684,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
     var
         TestReportPrint: Codeunit "Test Report-Print";
     begin
-        Commit;
+        Commit();
         TestReportPrint.PrintPurchHeader(PurchaseHeader);
     end;
 

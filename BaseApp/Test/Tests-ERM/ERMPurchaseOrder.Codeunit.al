@@ -5370,6 +5370,29 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 351187] The Purch. Comment Lines must be copied after Purchase Lines have been recreated
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, PurchaseHeader."Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
+        Assert.RecordCount(PurchCommentLine, 1);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
