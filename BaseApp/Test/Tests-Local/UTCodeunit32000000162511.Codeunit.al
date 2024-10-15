@@ -1,0 +1,428 @@
+codeunit 144008 "UT Codeunit32000000 162511"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        BankAccount: Record "Bank Account";
+        Assert: Codeunit Assert;
+        ExpectedANSITxt: Label 'ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÖÜáíóúñÑÁÀÊËÈÍÎÏÌÓßÔÒõ';
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
+        RefPmtMgt: Codeunit "Ref. Payment Management";
+        LibraryUtility: Codeunit "Library - Utility";
+        IsInitialized: Boolean;
+        PaymentType: Option Domestic,Foreign,SEPA;
+        PaymentMethodeCode: Code[1];
+        ServiceFeeCode: Code[1];
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateRefPaymentManagementOEM2ANSI()
+    var
+        RefPaymentManagement: Codeunit "Ref. Payment Management";
+        OEMString: Text;
+        ANSIString: Text;
+        Char: Text;
+        i: Integer;
+        OEMVal: Integer;
+        ExpectedVal: Integer;
+        ANSIVal: Integer;
+        ExpectedANSI: Text;
+        t: Integer;
+    begin
+        // Purpose of the test is to validate Method OEM2ANSI
+
+        // Setup
+        for i := 5 to 253 do begin
+            Char[1] := i;
+            OEMString += Char;
+        end;
+
+        // Exercise
+        ANSIString := RefPaymentManagement.OEM2ANSI(OEMString);
+
+        // Verify
+        ExpectedANSI := ExpectedANSITxt;
+        t := 1;
+        for i := 1 to StrLen(ANSIString) do
+            if OEMString[i] <> ANSIString[i] then begin
+                OEMVal := OEMString[i];
+                ExpectedVal := ExpectedANSI[t];
+                ANSIVal := ANSIString[i];
+                Assert.AreEqual(Format(ExpectedANSI[t]), Format(ANSIString[i]), StrSubstNo(
+                    'Wrong char convert at pos %1 OEM=%2 ,OEMVal=%3,ExpectedVal=%4,ANSIVal=%5', t, OEMString[i], OEMVal, ExpectedVal, ANSIVal));
+                t += 1;
+            end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateCombineLineSEPA()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        AnyDate: Date;
+        Amount1: Decimal;
+        Amount2: Decimal;
+        VendorBankAlt: Code[10];
+    begin
+        Initialize;
+
+        // Setup
+        CreateVendor(Vendor);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        LibraryERM.FindCurrency(Currency);
+        Amount1 := LibraryRandom.RandDec(100, 2);
+        VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
+        Amount2 := LibraryRandom.RandDec(100, 2);
+
+        CreateRefPmtExpLineBank(PaymentType::SEPA, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount1, VendorBankAlt);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount2);
+
+        // Execercise
+        RefPmtMgt.CombineVendPmt(PaymentType::SEPA);
+        Commit;
+
+        // Verify combined line
+        VerifyCombinedLine(BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateCombineLineForeign()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        AnyDate: Date;
+        Amount1: Decimal;
+        Amount2: Decimal;
+        VendorBankAlt: Code[10];
+    begin
+        Initialize;
+
+        // Setup
+        CreateVendor(Vendor);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        LibraryERM.FindCurrency(Currency);
+        Amount1 := LibraryRandom.RandDec(100, 2);
+        VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
+        Amount2 := LibraryRandom.RandDec(100, 2);
+
+        CreateRefPmtExpLineBank(PaymentType::Foreign, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount1, VendorBankAlt);
+        CreateRefPmtExpLine(PaymentType::Foreign, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount2);
+
+        // Execercise
+        RefPmtMgt.CombineVendPmt(PaymentType::Foreign);
+        Commit;
+
+        // Verify combined line
+        VerifyCombinedLine(BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateCombineLineDomestic()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        AnyDate: Date;
+        Amount1: Decimal;
+        Amount2: Decimal;
+        VendorBankAlt: Code[10];
+    begin
+        Initialize;
+
+        // Setup
+        CreateVendor(Vendor);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        LibraryERM.FindCurrency(Currency);
+        Amount1 := LibraryRandom.RandDec(100, 2);
+        VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
+        Amount2 := LibraryRandom.RandDec(100, 2);
+
+        CreateRefPmtExpLineBank(PaymentType::Domestic, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount1, VendorBankAlt);
+        CreateRefPmtExpLine(PaymentType::Domestic, BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, Amount2);
+
+        // Execercise
+        RefPmtMgt.CombineVendPmt(PaymentType::Domestic);
+        Commit;
+
+        // Verify combined line
+        VerifyCombinedLine(BankAccount."No.", Vendor."No.", AnyDate, Currency.Code, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateAllowCombineLines()
+    var
+        Vendor: Record Vendor;
+        RefPmtExported: Record "Ref. Payment - Exported";
+        Currency: Record Currency;
+        BankAccountNoComb: Record "Bank Account";
+        AnyDate: Date;
+        Amount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccountNoComb);
+        CreateBankAccountReferenceFileSetup(BankAccountNoComb."No.", false);
+        CreateVendor(Vendor);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        LibraryERM.FindCurrency(Currency);
+        Amount := LibraryRandom.RandDec(100, 2);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::Foreign, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::Foreign, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::Domestic, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::Domestic, BankAccountNoComb."No.", Vendor."No.", AnyDate, Currency.Code, Amount);
+        Commit;
+
+        // Execercise
+        asserterror RefPmtMgt.CombineVendPmt(PaymentType::SEPA);
+        asserterror RefPmtMgt.CombineVendPmt(PaymentType::Foreign);
+        asserterror RefPmtMgt.CombineVendPmt(PaymentType::Domestic);
+
+        // Verify no lines are combined
+        RefPmtExported.SetRange("Applied Payments", true);
+        Assert.AreEqual(0, RefPmtExported.Count, 'No Payments should be applied');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateMultipleCombinedLines()
+    var
+        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
+        Currency: Record Currency;
+        Currency2: Record Currency;
+        BankAccount2: Record "Bank Account";
+        RefPmtExported: Record "Ref. Payment - Exported";
+        PostingDate: Date;
+        PostingDate2: Date;
+        Amount: Decimal;
+    begin
+        Initialize;
+
+        // Setup
+        LibraryERM.CreateBankAccount(BankAccount2);
+        CreateBankAccountReferenceFileSetup(BankAccount2."No.", true);
+        CreateVendor(Vendor);
+        CreateVendor(Vendor2);
+        PostingDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        PostingDate2 := PostingDate + 1;
+        LibraryERM.FindCurrency(Currency);
+        LibraryERM.FindCurrency(Currency2);
+        Currency2.Next;
+        Amount := LibraryRandom.RandDec(100, 2);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate, Currency.Code, Amount);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount2."No.", Vendor."No.", PostingDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount2."No.", Vendor."No.", PostingDate, Currency.Code, Amount);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor2."No.", PostingDate, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor2."No.", PostingDate, Currency.Code, Amount);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate2, Currency.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate2, Currency.Code, Amount);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate, Currency2.Code, Amount);
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount."No.", Vendor."No.", PostingDate, Currency2.Code, Amount);
+
+        CreateRefPmtExpLine(PaymentType::SEPA, BankAccount2."No.", Vendor2."No.", PostingDate2, Currency2.Code, Amount);
+
+        // Execercise
+        RefPmtMgt.CombineVendPmt(PaymentType::SEPA);
+        Commit;
+
+        // Verify no of combined lines
+        RefPmtExported.SetRange("Applied Payments", false);
+        Assert.AreEqual(6, RefPmtExported.Count, 'Wrong number of combined lines');
+
+        // Verify line Affiliation
+        RefPmtExported.SetRange("Applied Payments");
+
+        RefPmtExported.SetRange("Affiliated to Line", 0);
+        // BUG: Line 1 and 2 should have the same line Affiliation as Line 0. 0 is used for
+        asserterror Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "0"');
+
+        RefPmtExported.SetRange("Affiliated to Line", 2);
+        Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "2"');
+
+        RefPmtExported.SetRange("Affiliated to Line", 4);
+        Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "4"');
+
+        RefPmtExported.SetRange("Affiliated to Line", 6);
+        Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "6"');
+
+        RefPmtExported.SetRange("Affiliated to Line", 8);
+        Assert.AreEqual(3, RefPmtExported.Count, 'Wrong number of Line Affiliations to "8"');
+    end;
+
+    local procedure CreateBankAccountReferenceFileSetup(BankAccountNo: Code[20]; Allow: Boolean)
+    var
+        ReferenceFileSetup: Record "Reference File Setup";
+    begin
+        with ReferenceFileSetup do begin
+            Init;
+            Validate("No.", BankAccountNo);
+            Validate("Allow Comb. SEPA Pmts.", Allow);
+            Validate("Allow Comb. Domestic Pmts.", Allow);
+            Validate("Allow Comb. Foreign Pmts.", Allow);
+            Insert;
+        end;
+    end;
+
+    local procedure Initialize()
+    var
+        RefPmtExported: Record "Ref. Payment - Exported";
+        ForeignPaymentTypes: Record "Foreign Payment Types";
+    begin
+        RefPmtExported.DeleteAll;
+        Commit;
+        if IsInitialized then
+            exit;
+        IsInitialized := true;
+
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankAccountReferenceFileSetup(BankAccount."No.", true);
+        ForeignPaymentTypes.Init;
+        ForeignPaymentTypes.Validate(
+          Code, LibraryUtility.GenerateRandomCode(ForeignPaymentTypes.FieldNo(Code), DATABASE::"Foreign Payment Types"));
+        ForeignPaymentTypes.Validate("Code Type", ForeignPaymentTypes."Code Type"::"Payment Method");
+        ForeignPaymentTypes.Insert(true);
+        PaymentMethodeCode := ForeignPaymentTypes.Code;
+
+        ForeignPaymentTypes.Init;
+        ForeignPaymentTypes.Validate(
+          Code, LibraryUtility.GenerateRandomCode(ForeignPaymentTypes.FieldNo(Code), DATABASE::"Foreign Payment Types"));
+        ForeignPaymentTypes.Validate("Code Type", ForeignPaymentTypes."Code Type"::"Service Fee");
+        ForeignPaymentTypes.Insert(true);
+        ServiceFeeCode := ForeignPaymentTypes.Code;
+    end;
+
+    local procedure CreateVendorBankAccount(VendorNo: Code[20]): Code[10]
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        exit(VendorBankAccount.Code);
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor): Code[20]
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        with Vendor do begin
+            Validate("Preferred Bank Account Code", CreateVendorBankAccount("No."));
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateRefPmtExpLineBank(PaymentType: Option Domestic,Foreign,SEPA; PaymentAccount: Code[20]; VendorNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]; PaymentAmount: Decimal; VendorBankNo: Code[20])
+    var
+        RefPmtExported: Record "Ref. Payment - Exported";
+        Vendor: Record Vendor;
+        AnyDate: Date;
+        NextNo: Integer;
+    begin
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + 1000);
+        Vendor.Get(VendorNo);
+
+        with RefPmtExported do begin
+            if FindLast then
+                NextNo := "No." + 1;
+            Init;
+            Validate("No.", NextNo);
+            Validate("Vendor No.", VendorNo);
+            Validate(Description, LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"Ref. Payment - Exported"));
+            Validate("Payment Account", PaymentAccount);
+            Validate("Due Date", AnyDate);
+            Validate("Payment Date", PostingDate);
+            Validate("Document Type", "Document Type"::"Credit Memo");
+            Validate("Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Ref. Payment - Exported"));
+            Validate("Currency Code", CurrencyCode);
+            Validate(Amount, PaymentAmount);
+            Validate("Vendor Account", VendorBankNo);
+            Validate("External Document No.",
+              LibraryUtility.GenerateRandomCode(FieldNo("External Document No."), DATABASE::"Ref. Payment - Exported"));
+            Validate("Invoice Message", LibraryUtility.GenerateRandomCode(FieldNo("Invoice Message"), DATABASE::"Ref. Payment - Exported"));
+            case PaymentType of
+                PaymentType::Domestic:
+                    Validate("Foreign Payment", false);
+                PaymentType::Foreign:
+                    Validate("Foreign Payment", true);
+                PaymentType::SEPA:
+                    Validate("SEPA Payment", true);
+            end;
+            Validate("Foreign Payment Method", PaymentMethodeCode);
+            Validate("Foreign Banks Service Fee", ServiceFeeCode);
+            Insert(true);
+        end;
+    end;
+
+    local procedure CreateRefPmtExpLine(PaymentType: Option Domestic,Foreign,SEPA; PaymentAccount: Code[20]; VendorNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]; PaymentAmount: Decimal)
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        CreateRefPmtExpLineBank(
+          PaymentType, PaymentAccount, VendorNo, PostingDate, CurrencyCode, PaymentAmount, Vendor."Preferred Bank Account Code");
+    end;
+
+    local procedure VerifyCombinedLine(BankAccountNo: Code[20]; VendorNo: Code[20]; PaymentDate: Date; CurrencyCode: Code[20]; DocumentASSERTERROR: Boolean)
+    var
+        RefPmtExportedLine0: Record "Ref. Payment - Exported";
+        RefPmtExportedLine1: Record "Ref. Payment - Exported";
+        RefPmtExported: Record "Ref. Payment - Exported";
+    begin
+        with RefPmtExported do begin
+            SetRange("Applied Payments", false);
+            Assert.AreEqual(1, Count, 'Wrong number of lines to export');
+
+            FindFirst;
+            // Validate values in common from lines beeing combined
+            Assert.AreEqual(BankAccountNo, "Payment Account", 'Wrong Payment Account');
+            Assert.AreEqual(VendorNo, "Vendor No.", 'Wrong Vendor No.');
+            Assert.AreEqual(PaymentDate, "Payment Date", 'Wrong Payment Date');
+            Assert.AreEqual(CurrencyCode, "Currency Code", 'Wrong Currency Code');
+
+            // Validate ammount
+            RefPmtExportedLine0.Get(0);
+            RefPmtExportedLine1.Get(1);
+            Assert.AreEqual(RefPmtExportedLine0.Amount + RefPmtExportedLine1.Amount, Amount, 'Wrong Amount');
+            Assert.AreEqual(RefPmtExportedLine0."Amount (LCY)" + RefPmtExportedLine1."Amount (LCY)", "Amount (LCY)", 'Wrong Amount (LCY)');
+
+            // Validate values taken from the first line
+            // BUG: Hardcoded to Invoice
+            asserterror Assert.AreEqual(RefPmtExportedLine0."Document Type", "Document Type", 'Wrong Ducument Type');
+            Assert.AreEqual(RefPmtExportedLine0."Vendor Account", "Vendor Account", 'Wrong Vendor Account');
+
+            // Validate values that should be cleared
+            Assert.AreEqual(0D, "Due Date", 'Wrong Due Date');
+            Assert.AreEqual('', "External Document No.", 'Wrong External Document No.');
+            // BUG: Holds the Document No from the last line when combined SEPA
+            if DocumentASSERTERROR then
+                asserterror Assert.AreEqual('', "Document No.", 'Wrong Document No.')
+            else
+                Assert.AreEqual('', "Document No.", 'Wrong Document No.');
+            Assert.AreEqual("Message Type"::Message, "Message Type", 'Wrong Message Type');
+            Assert.AreEqual('', "Invoice Message", 'Wrong Invoice Message');
+            Assert.AreEqual('', "Foreign Payment Method", 'Wrong Foreign Payment Method');
+            Assert.AreEqual('', "Foreign Banks Service Fee", 'Wrong Foreign Banks Service Fee');
+            // BUG: Holds Vendor No
+            asserterror Assert.AreEqual('', Description, 'Wrong Description');
+        end;
+    end;
+}
+
