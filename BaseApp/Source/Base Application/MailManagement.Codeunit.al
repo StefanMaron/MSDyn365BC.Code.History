@@ -22,6 +22,7 @@ codeunit 9520 "Mail Management"
         HideMailDialog: Boolean;
         Cancelled: Boolean;
         MailSent: Boolean;
+        EnqueueMail: Boolean;
         MailingNotSupportedErr: Label 'The required email is not supported.';
         MailWasNotSendErr: Label 'The email was not sent.';
         SaveFileDialogTitleMsg: Label 'Save PDF file';
@@ -95,7 +96,12 @@ codeunit 9520 "Mail Management"
             Cancelled := not MailSent;
         end else begin
             Email.AddDefaultAttachments(Message, CurrentEmailScenario);
-            MailSent := Email.Send(Message, TempEmailModuleAccount);
+            if not EnqueueMail then
+                MailSent := Email.Send(Message, TempEmailModuleAccount)
+            else begin
+                Email.Enqueue(Message, TempEmailModuleAccount);
+                MailSent := true;
+            end;
         end;
 
         OnSendViaEmailModuleOnAfterEmailSend(Message, TempEmailItem, MailSent, Cancelled, HideEmailSendingError);
@@ -242,8 +248,13 @@ codeunit 9520 "Mail Management"
         exit(MailSent);
     end;
 
-    // Email Item needs to be passed by var so the attachments are available
     procedure Send(var ParmEmailItem: Record "Email Item"; EmailScenario: Enum "Email Scenario"): Boolean
+    begin
+        exit(Send(ParmEmailItem, EmailScenario, false));
+    end;
+
+    // Email Item needs to be passed by var so the attachments are available
+    procedure Send(var ParmEmailItem: Record "Email Item"; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
     var
         Attachments: Codeunit "Temp Blob List";
         AttachmentNames: List of [Text];
@@ -259,6 +270,7 @@ codeunit 9520 "Mail Management"
         QualifyFromAddress(EmailScenario);
         CurrentEmailScenario := EmailScenario;
         MailSent := false;
+        EnqueueMail := Enqueue;
         exit(DoSend());
     end;
 
@@ -295,15 +307,20 @@ codeunit 9520 "Mail Management"
         exit;
     end;
 
-    // Email Item needs to be passed by var so the attachments are available
     procedure SendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario")
+    begin
+        SendMailOrDownload(TempEmailItem, HideMailDialog, EmailScenario, false);
+    end;
+
+    // Email Item needs to be passed by var so the attachments are available
+    procedure SendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean)
     var
         MailManagement: Codeunit "Mail Management";
         OfficeMgt: Codeunit "Office Management";
     begin
         MailManagement.InitializeFrom(HideMailDialog, not IsBackground());
         if MailManagement.IsEnabled() then
-            if MailManagement.Send(TempEmailItem, EmailScenario) then begin
+            if MailManagement.Send(TempEmailItem, EmailScenario, Enqueue) then begin
                 OnSendMailOrDownloadOnBeforeMailManagementIsSent(MailManagement, TempEmailItem);
                 MailSent := MailManagement.IsSent();
                 exit;

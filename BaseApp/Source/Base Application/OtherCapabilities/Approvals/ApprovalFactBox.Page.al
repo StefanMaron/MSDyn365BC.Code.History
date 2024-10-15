@@ -55,6 +55,8 @@ page 9092 "Approval FactBox"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
+        OnBeforeOnFindRecord(Rec);
+
         DocumentHeading := '';
         exit(FindLast());
     end;
@@ -78,7 +80,13 @@ page 9092 "Approval FactBox"
     procedure UpdateApprovalEntriesFromSourceRecord(SourceRecordID: RecordID)
     var
         ApprovalEntry: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateApprovalEntriesFromSourceRecord(Rec, SourceRecordID, IsHandled);
+        if IsHandled then
+            exit;
+
         FilterGroup(2);
         SetRange("Record ID to Approve", SourceRecordID);
         ApprovalEntry.Copy(Rec);
@@ -87,6 +95,16 @@ page 9092 "Approval FactBox"
         FilterGroup(0);
         if FindLast() then;
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnFindRecord(var ApprovalEntry: Record "Approval Entry");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateApprovalEntriesFromSourceRecord(var ApprovalEntry: Record "Approval Entry"; SourceRecordID: RecordID; var IsHandled: Boolean);
+    begin
     end;
 }
 

@@ -2268,6 +2268,60 @@ codeunit 137159 "SCM Warehouse VII"
         RequisitionLine.TestField("Bin Code", Bin.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyFromBinHasValueWhenCalculateBinReplenishmentExecutedWithItemTrackingByFEFO()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        FromBin: Record Bin;
+        ToBin: Record Bin;
+        BinContent: Record "Bin Content";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+    begin
+        // [SCENARIO 483448] Calculate Bin Replenishment - clears From Bin/Zone fields for items with expiration date
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithItemTrackingCode(Item, true, false, true, LibraryUtility.GetGlobalNoSeriesCode(), '');
+
+        // [GIVEN] Location set up for FEFO picking.
+        CreateAndUpdateLocation(Location, false, true, false, false, true);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        // [GIVEN] Set the Location as default on Warehouse Employee
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bins "BinA", and "BinB"
+        LibraryWarehouse.CreateBin(ToBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        ToBin.Validate("Bin Ranking", LibraryRandom.RandIntInRange(500, 500));
+        ToBin.Modify(true);
+        LibraryWarehouse.CreateBin(FromBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        FromBin.Validate("Bin Ranking", LibraryRandom.RandIntInRange(100, 100));
+        FromBin.Modify(true);
+
+        // [THEN] Create Bin Content entry for "BinA"
+        CreateBinContent(BinContent, ToBin, Item);
+
+        // [GIVEN] Post inventory to bin "BinB". With Lot No. = "L2", and expiration date = "D2" >= "D1".
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        CreateAndPostItemJournalLine(Location.Code, FromBin.Code, Item."No.", '', LibraryRandom.RandInt(10), true, true);
+
+        // [WHEN] Calculate Bin Replenishment executed
+        CalculateBinReplenishment(BinContent);
+        WhseWorksheetLine.SetRange("Location Code", Location.Code);
+        WhseWorksheetLine.FindFirst();
+
+        // [VERIFY] Verify: From Bin Code filled after Calculate Bin Replenishment executed
+        Assert.AreEqual(FromBin.Code, WhseWorksheetLine."From Bin Code", BlankCodeErr);
+        Assert.AreEqual(ToBin.Code, WhseWorksheetLine."To Bin Code", BlankCodeErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4138,6 +4192,26 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, ItemNo, '', UnitOfMeasure);
         BinContent.Validate(Default, IsDefault);
         BinContent.Modify(true);
+    end;
+
+    local procedure CreateBinContent(var BinContent: Record "Bin Content"; var Bin: Record Bin; Item: Record Item)
+    begin
+        LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate("Bin Ranking", Bin."Bin Ranking");
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate("Min. Qty.", LibraryRandom.RandIntInRange(2, 2));
+        BinContent.Validate("Max. Qty.", LibraryRandom.RandIntInRange(5, 5));
+        BinContent.Modify(true);
+    end;
+
+    local procedure CalculateBinReplenishment(BinContent: Record "Bin Content")
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, BinContent."Location Code");
+        LibraryWarehouse.CalculateBinReplenishment(BinContent, WhseWorksheetName, BinContent."Location Code", false, true, false);
     end;
 
     [ConfirmHandler]
