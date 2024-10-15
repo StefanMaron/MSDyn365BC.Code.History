@@ -5,7 +5,7 @@ page 20013 "APIV1 - Cust. Paym. Journals"
     DelayedInsert = true;
     EntityName = 'customerPaymentJournal';
     EntitySetName = 'customerPaymentJournals';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 232;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20013 "APIV1 - Cust. Paym. Journals"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -56,7 +56,7 @@ page 20013 "APIV1 - Cust. Paym. Journals"
                 Caption = 'customerPayments', Locked = true;
                 EntityName = 'customerPayment';
                 EntitySetName = 'customerPayments';
-                SubPageLink = "Journal Batch Id" = FIELD(Id);
+                SubPageLink = "Journal Batch Id" = FIELD(SystemId);
             }
         }
     }

@@ -681,6 +681,92 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetStatistics.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardChangeFASubclassWithAllowChangesInDeprField()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group shouldn't changed.
+
+        // [GIVEN] 3 different FAPostingGroup were created, 3 different FASubclass were created, FAClass and DepreciationBook were created
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[1]);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[1], FAClass.Code, FAPostingGroup[1].Code);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
+        FixedAsset.Validate("FA Posting Group", FAPostingGroup[1].Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook =TRUE
+        CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, true);
+
+        // [WHEN] FA Subclass change in FixedAssetCard to second variant
+        FixedAssetCard.OpenEdit;
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+        FixedAssetCard.OK.Invoke;
+
+        // [THEN] The FA Subclass Code was changed, FA Posting Group was not changed
+        FixedAsset.Find;
+        FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardChangeFASubclassWithoutAllowChangesInDeprField()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 329116] Create FA document and edit FA Subclass in it. The FA Posting Group shouldn't changed.
+
+        // [GIVEN] 3 different FAPostingGroup were created, 3 different FASubclass were created, FAClass and DepreciationBook were created
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[1]);
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[1], FAClass.Code, FAPostingGroup[1].Code);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+
+        // [GIVEN] FixedAsset was created with "FA Subclass Code" and "FA Posting Group" equal first's variants.
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
+        FixedAsset.Validate("FA Posting Group", FAPostingGroup[1].Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook = FALSE
+        CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, false);
+
+        // [WHEN] FA Subclass change in FixedAssetCard to second variant
+        FixedAssetCard.OpenEdit;
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
+        FixedAssetCard.OK.Invoke;
+
+        // [THEN] The FA Subclass Code was changed, FA Posting Group was not changed
+        FixedAsset.Find;
+        FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";
@@ -788,6 +874,14 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateDepreciationBookWithAllowChangesInDeprField(var DepreciationBook: Record "Depreciation Book"; AllowChangesInDeprFields: Boolean)
+    begin
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        DepreciationBook.Validate("Allow Changes in Depr. Fields", AllowChangesInDeprFields);
+        DepreciationBook.Modify(true);
     end;
 
     [ModalPageHandler]

@@ -326,7 +326,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
@@ -411,9 +411,10 @@
                                 if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                     SetRange("Bill-to Customer No.");
 
+                            CurrPage.SaveRecord;
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                            CurrPage.Update;
+                            CurrPage.Update(false);
                         end;
                     }
                     field("Bill-to Address"; "Bill-to Address")

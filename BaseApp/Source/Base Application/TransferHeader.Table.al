@@ -28,12 +28,16 @@ table 5740 "Transfer Header"
             var
                 Location: Record Location;
                 Confirmed: Boolean;
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
 
-                if ("Transfer-from Code" = "Transfer-to Code") and
-                   ("Transfer-from Code" <> '')
-                then
+                IsHandled := false;
+                OnBeforeValidateTransferFromCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
+                if ("Transfer-from Code" = "Transfer-to Code") and ("Transfer-from Code" <> '') then
                     Error(
                       Text001,
                       FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"),
@@ -438,6 +442,14 @@ table 5740 "Transfer Header"
         field(33; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+
+            trigger OnValidate()
+            var
+                WhseTransferRelease: Codeunit "Whse.-Transfer Release";
+            begin
+                if (xRec."External Document No." <> "External Document No.") and (Status = Status::Released) then
+                    WhseTransferRelease.UpdateExternalDocNoForReleasedOrder(Rec);
+            end;
         }
         field(34; "Shipping Agent Code"; Code[10])
         {
@@ -1149,16 +1161,28 @@ table 5740 "Transfer Header"
     local procedure AddTransferLineFromReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer)
     var
         TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TransferLine."Document No." := "No.";
         TransferLine."Line No." := LineNo;
         TransferLine.Validate("Item No.", PurchRcptLine."No.");
+        TransferLine.Validate("Variant Code", PurchRcptLine."Variant Code");
         TransferLine.Validate(Quantity, PurchRcptLine.Quantity);
-        TransferLine.Validate("Unit of Measure", PurchRcptLine."Unit of Measure");
+        TransferLine.Validate("Unit of Measure Code", PurchRcptLine."Unit of Measure Code");
         TransferLine."Shortcut Dimension 1 Code" := PurchRcptLine."Shortcut Dimension 1 Code";
         TransferLine."Shortcut Dimension 2 Code" := PurchRcptLine."Shortcut Dimension 2 Code";
         TransferLine."Dimension Set ID" := PurchRcptLine."Dimension Set ID";
+        OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(TransferLine, PurchRcptLine);
         TransferLine.Insert(true);
+
+        PurchRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgerEntry);
+        ItemTrackingDocMgt.CopyItemLedgerEntriesToTemp(TempItemLedgerEntry, ItemLedgerEntry);
+        ItemTrackingMgt.CopyItemLedgEntryTrkgToTransferLine(TempItemLedgerEntry, TransferLine);
+
+        OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1186,6 +1210,16 @@ table 5740 "Transfer Header"
 
         Location.TestField("Require Put-away", false);
         Location.TestField("Require Receive", false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddTransferLineFromReceiptLine(var TransferLine: Record "Transfer Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempItemLedgerEntry: Record "Item Ledger Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -1220,6 +1254,16 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferFromCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

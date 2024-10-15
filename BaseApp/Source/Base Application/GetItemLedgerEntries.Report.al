@@ -170,10 +170,10 @@ report 594 "Get Item Ledger Entries"
                         trigger OnValidate()
                         begin
                             if AmountInclItemCharges then
-                                "Cost Regulation %Enable" := true
+                                CostRegulationEnable := true
                             else begin
                                 Clear(IndirectCostPctReq);
-                                "Cost Regulation %Enable" := false;
+                                CostRegulationEnable := false;
                             end;
                         end;
                     }
@@ -182,7 +182,7 @@ report 594 "Get Item Ledger Entries"
                         ApplicationArea = CostAccounting;
                         Caption = 'Cost Regulation %';
                         DecimalPlaces = 0 : 5;
-                        Enabled = "Cost Regulation %Enable";
+                        Enabled = CostRegulationEnable;
                         ToolTip = 'Specifies any indirect costs, as a percentage. Do not enter the percent sign (for example, if the indirect cost % is 10%, enter 10). The indirect cost includes the costs connected with freight and insurance.';
                     }
                 }
@@ -217,7 +217,7 @@ report 594 "Get Item Ledger Entries"
 
         trigger OnInit()
         begin
-            "Cost Regulation %Enable" := true;
+            CostRegulationEnable := true;
         end;
 
         trigger OnOpenPage()
@@ -227,10 +227,10 @@ report 594 "Get Item Ledger Entries"
             StartDate := IntrastatJnlBatch.GetStatisticsStartDate;
             EndDate := CalcDate('<+1M-1D>', StartDate);
             if AmountInclItemCharges then
-                "Cost Regulation %Enable" := true
+                CostRegulationEnable := true
             else begin
                 Clear(IndirectCostPctReq);
-                "Cost Regulation %Enable" := false;
+                CostRegulationEnable := false;
             end;
         end;
     }
@@ -290,7 +290,7 @@ report 594 "Get Item Ledger Entries"
         ShowBlank: Boolean;
         AmountInclItemCharges: Boolean;
         [InDataSet]
-        "Cost Regulation %Enable": Boolean;
+        CostRegulationEnable: Boolean;
         SkipRecalcZeroAmounts: Boolean;
         SkipZeroAmounts: Boolean;
         ShowItemCharges: Boolean;
@@ -629,12 +629,11 @@ report 594 "Get Item Ledger Entries"
                     if ServiceInvLine.Get("Document No.", "Document Line No.") then
                         if VATPostingSetup.Get(ServiceInvLine."VAT Bus. Posting Group", ServiceInvLine."VAT Prod. Posting Group") then;
             end;
-            if VATPostingSetup."EU Service" then
-                CurrReport.Skip;
+            exit(VATPostingSetup."EU Service");
         end;
     end;
 
-    local procedure CalculateTotals(ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure CalculateTotals(ItemLedgEntry: Record "Item Ledger Entry")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         TotalInvoicedQty: Decimal;
@@ -768,6 +767,8 @@ report 594 "Get Item Ledger Entries"
             end else
                 TotalAmt := TotalAmt + ItemLedgEntry.Quantity * Item."Unit Price";
         end;
+
+        OnAfterCalculateTotals(ItemLedgEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
 
     local procedure IsJobService(JobLedgEntry: Record "Job Ledger Entry"): Boolean
@@ -845,6 +846,11 @@ report 594 "Get Item Ledger Entries"
                 else
                     Type := Type::Receipt;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

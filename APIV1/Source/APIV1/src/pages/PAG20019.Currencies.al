@@ -5,7 +5,7 @@ page 20019 "APIV1 - Currencies"
     DelayedInsert = true;
     EntityName = 'currency';
     EntitySetName = 'currencies';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 4;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20019 "APIV1 - Currencies"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -104,12 +104,8 @@ page 20019 "APIV1 - Currencies"
     trigger OnModifyRecord(): Boolean
     var
         Currency: Record "Currency";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-        Currency.SETRANGE(Id, Id);
-        Currency.FINDFIRST();
+        Currency.GetBySystemId(SystemId);
 
         IF Code <> Currency.Code THEN BEGIN
             Currency.TRANSFERFIELDS(Rec, FALSE);

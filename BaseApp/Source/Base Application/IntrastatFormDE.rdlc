@@ -1098,7 +1098,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Last(Fields!Intrastat_Jnl__Line__Total_Weight_.Value)</Value>
+                                  <Value>=Last(Fields!Intrastat_Jnl__Line__Total_Weight_Rounded_.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Intrastat_Jnl__Line__Total_Weight_Format.Value</Format>
@@ -1342,7 +1342,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Last(Fields!SumTotalWeight.Value)</Value>
+                                  <Value>=Last(Fields!SumTotalWeightRounded.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2085,6 +2085,9 @@ End Function
         <Field Name="Intrastat_Jnl__Line__Total_Weight_Format">
           <DataField>Intrastat_Jnl__Line__Total_Weight_Format</DataField>
         </Field>
+        <Field Name="Intrastat_Jnl__Line__Total_Weight_Rounded_">
+          <DataField>Intrastat_Jnl__Line__Total_Weight_Rounded_</DataField>
+        </Field>
         <Field Name="Intrastat_Jnl__Line_Quantity">
           <DataField>Intrastat_Jnl__Line_Quantity</DataField>
         </Field>
@@ -2111,6 +2114,9 @@ End Function
         </Field>
         <Field Name="SumTotalWeightFormat">
           <DataField>SumTotalWeightFormat</DataField>
+        </Field>
+        <Field Name="SumTotalWeightRounded">
+          <DataField>SumTotalWeightRounded</DataField>
         </Field>
         <Field Name="Intrastat_Jnl__Line__Statistical_Value__Control1140038">
           <DataField>Intrastat_Jnl__Line__Statistical_Value__Control1140038</DataField>

@@ -24,8 +24,10 @@ codeunit 142039 "UT REP Intrastat DE"
         IntrastatJnlTemplateName: Code[10];
         IntrastatJnlBatchName: Code[10];
         HeaderText: Label 'All amounts are in %1';
+        IntrastatJnlLineTotalWeightRoundedTxt: Label 'Intrastat_Jnl__Line__Total_Weight_Rounded_';
         SumTotalWeight: Label 'SumTotalWeight';
         IsInitialized: Boolean;
+        SumTotalWeightRoundedTxt: Label 'SumTotalWeightRounded';
         QuantityErr: Label 'Quantity value in created file is wrong.';
 
     [Test]
@@ -751,6 +753,38 @@ codeunit 142039 "UT REP Intrastat DE"
         Assert.AreEqual(CountryRegion.Code, IntrastatExportMgtDACH.GetOriginCountryCode(CountryRegion.Code), '');
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatFormDERequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IntrastatFormDEReportOnAfterGetRecordSumTotalWeightRounded()
+    var
+        Item: Record Item;
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
+        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+        TotalWeight: Decimal;
+    begin
+        // [FEATURE] [Intrastat - Form DE]
+        // [SCENARIO 327050] In REP 11012 "Intrastat - Form DE" SumTotalWeightRounded and SubTotalWeight are rounded.
+
+        // [GIVEN] Two Intrastat Journal Lines with "Total Weight" 0.8.
+        CreateItemWithTariffNumber(Item);
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlTemplate, IntrastatJnlBatch);
+        TotalWeight := LibraryRandom.RandDecInDecimalRange(0.8, 0.9, 1);
+        CreateIntrastatJournalLineWithTotalWeight(Item, IntrastatJnlLine[1], IntrastatJnlLine[1].Type::Receipt, TotalWeight);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine[2], IntrastatJnlTemplateName, IntrastatJnlBatchName);
+        IntrastatJnlLine[2].TransferFields(IntrastatJnlLine[1], false);
+        IntrastatJnlLine[2].Modify;
+
+        // [WHEN] Report "Intrastat - Form DE" is run.
+        Commit;
+        RunIntrastatFormDEReport(IntrastatJnlLine[1], IntrastatJnlLine[1].Type::Receipt);
+
+        // [THEN] Resulting dataset contains SumTotalWeightRounded ROUND(0.8 * 2) = 2 and Intrastat_Jnl__Line__Total_Weight_Rounded ROUND(0.8 * 2) = 2.
+        VerifyIntrastatReport(SumTotalWeightRoundedTxt, Round(TotalWeight * 2, 1));
+        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineTotalWeightRoundedTxt, Round(TotalWeight * 2, 1));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -876,6 +910,25 @@ codeunit 142039 "UT REP Intrastat DE"
         CreateIntrastatJournalLine(Item, IntrastatJnlLine, Type);
         IntrastatJnlLine.Quantity := Quantity;
         IntrastatJnlLine."Supplementary Units" := SupplementaryUnits;
+        IntrastatJnlLine.Modify;
+    end;
+
+    local procedure CreateIntrastatJournalLineWithTotalWeight(var Item: Record Item; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; TotalWeight: Decimal)
+    begin
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplateName, IntrastatJnlBatchName);
+
+        IntrastatJnlLine.Type := Type;
+        IntrastatJnlLine.Area := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Item No." := Item."No.";
+        IntrastatJnlLine.Quantity := 1;
+        IntrastatJnlLine."Transaction Type" := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Transport Method" := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Transaction Specification" := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Tariff No." := Item."Tariff No.";
+        IntrastatJnlLine."Country/Region Code" := CreateCountryRegion;
+        IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegion;
+        IntrastatJnlLine."Total Weight" := TotalWeight;
+        IntrastatJnlLine.Date := WorkDate;
         IntrastatJnlLine.Modify;
     end;
 

@@ -22,10 +22,28 @@ page 762 "Finance Performance"
             {
                 ApplicationArea = Basic, Suite;
 
+                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                    SetDrillDownIndexes(point);
+                    AccSchedChartManagement.DrillDown(Rec, AccountSchedulesChartSetup);
+                end;
+
+                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                end;
+
                 trigger AddInReady()
                 begin
                     IsChartAddInReady := true;
                     UpdateChart(Period::" ");
+                end;
+
+                trigger Refresh()
+                begin
+                    if IsChartAddInReady then begin
+                        InitializePeriodFilter(0D, 0D);
+                        UpdateChart(Period::" ");
+                    end;
                 end;
             }
         }

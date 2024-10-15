@@ -2132,6 +2132,9 @@ page 6510 "Item Tracking Lines"
             if TestTempSpecificationExists then
                 Error('');
             Insert;
+
+            OnAssignSerialNoBatchOnAfterInsert(Rec);
+
             TempItemTrackLineInsert.TransferFields(Rec);
             TempItemTrackLineInsert.Insert;
             if i = QtyToCreate then
@@ -2167,6 +2170,9 @@ page 6510 "Item Tracking Lines"
         "Entry No." := NextEntryNo;
         TestTempSpecificationExists;
         Insert;
+
+        OnAssignLotNoOnAfterInsert(Rec);
+
         TempItemTrackLineInsert.TransferFields(Rec);
         TempItemTrackLineInsert.Insert;
         ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
@@ -2720,6 +2726,7 @@ page 6510 "Item Tracking Lines"
         Location: Record Location;
         WarehouseEntry: Record "Warehouse Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WhseManagement: Codeunit "Whse. Management";
     begin
         if ItemTrackingMgt.ItemTrkgIsManagedByWhse(
              "Source Type", "Source Subtype", "Source ID",
@@ -2727,7 +2734,8 @@ page 6510 "Item Tracking Lines"
         then
             exit;
 
-        WarehouseShipmentLine.SetSourceFilter("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", true);
+        WhseManagement.SetSourceFilterForWhseShptLine(
+          WarehouseShipmentLine, "Source Type", "Source Subtype", "Source ID", "Source Ref. No.", true);
         if WarehouseShipmentLine.IsEmpty then
             exit;
 
@@ -2833,6 +2841,16 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSynchronizeLinkedSources(FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; CurrentSourceType: Integer; CurrentSourceRowID: Text[250]; SecondSourceRowID: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignLotNoOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

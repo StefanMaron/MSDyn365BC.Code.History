@@ -35,9 +35,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         WhseSourceFilterSelection.SetTableView(WhseGetSourceFilterRec);
         WhseSourceFilterSelection.RunModal;
 
-        WhseReceiptHeader.Find;
-        WhseReceiptHeader."Document Status" := WhseReceiptHeader.GetHeaderStatus(0);
-        WhseReceiptHeader.Modify;
+        UpdateReceiptHeaderStatus(WhseReceiptHeader);
 
         OnAfterGetInboundDocs(WhseReceiptHeader);
     end;
@@ -73,9 +71,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.SetTableView(WhseRqst);
         GetSourceDocuments.RunModal;
 
-        WhseReceiptHeader.Find;
-        WhseReceiptHeader."Document Status" := WhseReceiptHeader.GetHeaderStatus(0);
-        WhseReceiptHeader.Modify;
+        UpdateReceiptHeaderStatus(WhseReceiptHeader);
 
         OnAfterGetSingleInboundDoc(WhseReceiptHeader);
     end;
@@ -218,6 +214,15 @@ codeunit 5751 "Get Source Doc. Inbound"
     begin
         GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
         PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
+    end;
+
+    local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+        with WarehouseReceiptHeader do begin
+            Find;
+            "Document Status" := GetHeaderStatus(0);
+            Modify;
+        end;
     end;
 
     local procedure ShowDialog(WhseReceiptCreated: Boolean)

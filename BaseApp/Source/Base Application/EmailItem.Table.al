@@ -190,7 +190,7 @@ table 9500 "Email Item"
         BodyText.Write(DataStream);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure GetBodyText() Value: Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -342,7 +342,7 @@ table 9500 "Email Item"
         ErrorMessageManagement: Codeunit "Error Message Management";
     begin
         if ("Send to" = '') and ("Send CC" = '') and ("Send BCC" = '') then
-          ErrorMessageManagement.LogSimpleErrorMessage(TargetEmailAddressErr);
+            ErrorMessageManagement.LogSimpleErrorMessage(TargetEmailAddressErr);
     end;
 
     [IntegrationEvent(false, false)]

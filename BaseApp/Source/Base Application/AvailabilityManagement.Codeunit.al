@@ -115,7 +115,7 @@ codeunit 99000889 AvailabilityManagement
         end;
     end;
 
-    local procedure CalcAvailableQty(var OrderPromisingLine: Record "Order Promising Line"): Decimal
+    procedure CalcAvailableQty(var OrderPromisingLine: Record "Order Promising Line"): Decimal
     var
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
@@ -264,6 +264,7 @@ codeunit 99000889 AvailabilityManagement
             Item.Get("Item No.");
             Item.SetRange("Variant Filter", "Variant Code");
             Item.SetRange("Location Filter", "Location Code");
+            OnCalcAvailableToPromiseLineOnAfterSetFilters(Item, OrderPromisingLine);
             case "Source Type" of
                 "Source Type"::Sales,
                 "Source Type"::"Service Order",
@@ -278,11 +279,42 @@ codeunit 99000889 AvailabilityManagement
                           AvailToPromise.EarliestAvailabilityDate(
                             Item, Quantity, NeededDate, Quantity, "Requested Shipment Date", AvailQty,
                             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
+
+                        if (FeasibleDate <> 0D) and (FeasibleDate < "Requested Shipment Date") then
+                            if GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine) <> 0D then
+                                FeasibleDate := "Requested Shipment Date";
                         Validate("Earliest Shipment Date", FeasibleDate);
                     end;
             end;
+            OnCalcAvailableToPromiseLineOnBeforeModify(OrderPromisingLine);
             Modify;
         end;
+    end;
+
+    local procedure GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine: Record "Order Promising Line"): Date
+    var
+        SalesLine: Record "Sales Line";
+        ServiceLine: Record "Service Line";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        with OrderPromisingLine do
+            case "Source Type" of
+                "Source Type"::Sales:
+                    if SalesLine.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(SalesLine."Requested Delivery Date");
+                "Source Type"::"Service Order":
+                    if ServiceLine.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(ServiceLine."Requested Delivery Date");
+                "Source Type"::Job:
+                    begin
+                        JobPlanningLine.SetRange(Status, "Source Subtype");
+                        JobPlanningLine.SetRange("Job No.", "Source ID");
+                        JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
+                        if JobPlanningLine.FindFirst then
+                            exit(JobPlanningLine."Requested Delivery Date");
+                    end;
+            end;
+        exit(0D);
     end;
 
     procedure UpdateSource(var OrderPromisingLine: Record "Order Promising Line")
@@ -489,6 +521,16 @@ codeunit 99000889 AvailabilityManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOrderPromisingLineInsert(var OrderPromisingLine: Record "Order Promising Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableToPromiseLineOnAfterSetFilters(var Item: Record Item; var OrderPromisingLine: Record "Order Promising Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableToPromiseLineOnBeforeModify(var OrderPromisingLine: Record "Order Promising Line")
     begin
     end;
 

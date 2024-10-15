@@ -5896,7 +5896,7 @@ Cstr(Fields!DocumentDateCaption.Value)
         <Height>21.61966cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>10.25147cm</Height>
@@ -6959,7 +6959,7 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
             </Rectangle>
@@ -6979,7 +6979,7 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
             </Rectangle>

@@ -8,7 +8,6 @@ codeunit 5456 "Graph Connection Setup"
     var
         PwdConnectionStringTxt: Label '{ENTITYLISTENDPOINT}=%1;{ENTITYENDPOINT}=%2', Locked = true;
         S2SConnectionStringTxt: Label '{ENTITYLISTENDPOINT}=%1;{ENTITYENDPOINT}=%2;{EXORESOURCEURI}=%3;{EXORESOURCEROLE}=%4;', Locked = true;
-        AzureSecretNameTxt: Label 'ExchangeAuthMethod', Locked = true;
         GraphResourceUrlTxt: Label 'https://outlook.office365.com/', Locked = true;
 
     procedure CanRunSync(): Boolean
@@ -90,20 +89,14 @@ codeunit 5456 "Graph Connection Setup"
     [Scope('OnPrem')]
     procedure IsS2SAuthenticationEnabled(): Boolean
     var
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        AzureSecret: Text;
+        EnvironmentInfo: Codeunit "Environment Information";
+        IsHandled: Boolean;
+        IsS2SAuthentication: Boolean;
     begin
-        if not AzureKeyVault.GetAzureKeyVaultSecret(AzureSecretNameTxt, AzureSecret) then
-            exit(false);
-
-        case UpperCase(AzureSecret) of
-            'S2SAUTH':
-                exit(true);
-            'PASSWORDAUTH':
-                exit(false);
-        end;
-
-        exit(false);
+        OnIsS2SAuthenticationEnabled(IsS2SAuthentication, IsHandled);
+        if IsHandled then
+            exit(IsS2SAuthentication);
+        exit(EnvironmentInfo.IsProduction());
     end;
 
     local procedure RegisterConnectionWithName(ConnectionName: Text; ConnectionString: Text)
@@ -152,6 +145,11 @@ codeunit 5456 "Graph Connection Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterConnections()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsS2SAuthenticationEnabled(var IsS2SAuthentication: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

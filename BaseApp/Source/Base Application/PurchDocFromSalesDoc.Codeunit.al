@@ -73,6 +73,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         end;
 
         PurchOrderFromSalesOrder.GetRecord(RequisitionLine);
+        RequisitionLine.SetRange("User ID", UserId);
         RequisitionLine.SetRange("Demand Order No.", SalesHeader."No.");
         RequisitionLine.SetRange("Demand Subtype", SalesHeader."Document Type"::Order);
         RequisitionLine.SetRange(Level);

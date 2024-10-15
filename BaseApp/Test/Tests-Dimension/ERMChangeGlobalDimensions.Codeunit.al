@@ -16,6 +16,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -3370,12 +3373,44 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceOrderCreatedWithSalespersonDimension()
+    var
+        DefaultDimension: Record "Default Dimension";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: Record "Dimension Value";
+        ServiceHeader: Record "Service Header";
+        UserSetup: Record "User Setup";
+    begin
+        // [FEATURE] [Salesperson] [Service] [User]
+        // [SCENARIO 327294] User is able to create Service Order if they are assigned a Salesperson in User Setup linked to a Dimension
+        Initialize;
+
+        // [GIVEN] Created User Setup with assigned Salesperson linked to a Default Dimension
+        LibraryDocumentApprovals.CreateOrFindUserSetup(UserSetup, UserId);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Salesperson/Purchaser", UserSetup."Salespers./Purch. Code",
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [WHEN] Create Service Order
+        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+
+        // [THEN] Generated Dimension Set Entry holds correct values
+        DimensionSetEntry.SetRange("Dimension Set ID", ServiceHeader."Dimension Set ID");
+        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
+    end;
+
     local procedure Initialize()
     var
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
         TableWithDefaultDim: Record "Table With Default Dim";
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
+        UserSetup: Record "User Setup";
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Change Global Dimensions");
@@ -3386,6 +3421,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.DeleteAll;
         TableWithDimensionSetID.DeleteAll;
         DetailedEntryWithGlobalDim.DeleteAll;
+        UserSetup.DeleteAll;
         UnbindSubscription(ChangeGlobalDimLogMgt);
         if IsInitialized then
             exit;
