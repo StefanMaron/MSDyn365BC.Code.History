@@ -644,6 +644,51 @@ codeunit 18193 "Sales Return Tests"
         LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 2);
     end;
 
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler,CustomerLedgerEntries')]
+    procedure PostFromInterStateSalesCreditMemoOfGoodsForRegCustomerToCheckRefernceNoValidation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GSTGroupType: Enum "GST Group Type";
+        GSTCustomerType: Enum "GST Customer Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [SCENARIO] [455069] Field reference invoice no. of table Sales Header contains a value that cannot be found in related table
+        // [GIVEN] Created GST Setup
+        InitializeShareStep(false, false);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Goods, false, false);
+
+        // [WHEN] Create and Post Sales Journal
+        PostedInvoiceNo := CreateAndPostSalesDocument(
+            SalesHeader,
+            SalesLine,
+            LineType::Item,
+            DocumentType::Invoice);
+        Storage.Set(PostedDocumentNoLbl, PostedInvoiceNo);
+        CreateAndPostSalesDocumentFromCopyDocument(
+            SalesHeader,
+            Storage.Get(CustomerNoLbl),
+            DocumentType::"Credit Memo",
+            CopyStr(Storage.Get(LocationCodeLbl), 1, 10));
+
+        // [THEN] Verify Posted Document No in Reference Invoice No Table
+        VerifyPostedNoInReferenceInvoiceNoTable(PostedInvoiceNo);
+    end;
+
+    local procedure VerifyPostedNoInReferenceInvoiceNoTable(PostedInvoiceNo: Code[20])
+    var
+        ReferenceInvNo: Record "Reference Invoice No.";
+        Assert: Codeunit Assert;
+    begin
+        ReferenceInvNo.SetRange("Document Type", ReferenceInvNo."Document Type"::"Credit Memo");
+        ReferenceInvNo.SetRange("Document No.", Storage.Get(ReverseDocumentNoLbl));
+        ReferenceInvNo.FindFirst();
+        Assert.Compare(ReferenceInvNo."Reference Invoice Nos.", PostedInvoiceNo);
+    end;
+
     local procedure CreateAndPostSalesDocumentFromCopyDocument(
         var SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
