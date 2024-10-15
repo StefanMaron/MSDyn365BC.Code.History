@@ -202,7 +202,7 @@ report 11109 "Paragraph 131 Export"
                         Caption = 'File Name';
                         ToolTip = 'Specifies data according to the Paragraph 131 requirements.';
                         Visible = FileNameVisible;
-
+#if not CLEAN17
                         trigger OnAssistEdit()
                         var
                             FileMgt: Codeunit "File Management";
@@ -212,6 +212,7 @@ report 11109 "Paragraph 131 Export"
 
                             Filename := FileMgt.SaveFileDialog(Text008, Filename, '');
                         end;
+#endif
                     }
                 }
             }
@@ -272,7 +273,9 @@ report 11109 "Paragraph 131 Export"
         Text005: Label 'Debit Amount';
         Text006: Label 'Credit Amount';
         Text007: Label 'VAT Amount';
+#if not CLEAN17
         Text008: Label 'Export to Text File';
+#endif
         Text104: Label 'Export';
         Text105: Label 'All Files (*.*)|*.*';
         Text106: Label 'Default.txt';

@@ -166,6 +166,7 @@ codeunit 5005271 "Create Delivery Reminder"
         PurchHeader.SetCurrentKey("Document Type", "Buy-from Vendor No.");
         PurchHeader.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchHeader.SetRange("Buy-from Vendor No.", DeliveryReminderHeader."Vendor No.");
+        OnSuggestLinesOnAfterPurchHeaderSetFilters(PurchHeader);
         if PurchHeader.Find('-') then
             repeat
                 PurchLine.Reset();
@@ -305,6 +306,11 @@ codeunit 5005271 "Create Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestLinesOnAfterPurchHeaderSetFilters(var PurchHeader: Record "Purchase Header")
     begin
     end;
 
