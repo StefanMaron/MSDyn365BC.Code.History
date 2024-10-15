@@ -28,12 +28,15 @@ codeunit 5051 SegManagement
         SegmentNo: Code[20];
         CampaignNo: Code[20];
         NextInteractLogEntryNo: Integer;
+        ShowIsNotEmptyError: Boolean;
     begin
         OnBeforeLogSegment(SegmentHeader, Deliver, Followup);
         LoggedSegment.LockTable();
         LoggedSegment.SetCurrentKey("Segment No.");
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        if not LoggedSegment.IsEmpty() then
+        ShowIsNotEmptyError := not LoggedSegment.IsEmpty();
+        OnLogSegmentOnAfterCalcShowIsNotEmptyError(LoggedSegment, Deliver, ShowIsNotEmptyError);
+        if ShowIsNotEmptyError then
             Error(Text000, LoggedSegment.TableCaption, SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
@@ -742,6 +745,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnAfterCreateInteractionLogEntries(var SegmentHeader: Record "Segment Header"; var LoggedSegment: Record "Logged Segment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnAfterCalcShowIsNotEmptyError(var LoggedSegment: Record "Logged Segment"; Deliver: Boolean; var ShowIsNotEmptyError: Boolean)
     begin
     end;
 

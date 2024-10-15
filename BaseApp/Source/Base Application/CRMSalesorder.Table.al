@@ -128,7 +128,7 @@ table 5353 "CRM Salesorder"
             ExternalName = 'ordernumber';
             ExternalType = 'String';
         }
-        field(15; Name; Text[250])
+        field(15; Name; Text[2048])
         {
             Caption = 'Name';
             Description = 'Type a descriptive name for the order.';

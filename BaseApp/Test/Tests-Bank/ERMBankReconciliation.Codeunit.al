@@ -2546,6 +2546,38 @@ codeunit 134141 "ERM Bank Reconciliation"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankStatementWithCheckLedgerEntryIncludeChecksNo()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        DocumentNo: Code[20];
+        NewStatementNo: Code[20];
+    begin
+        // [FEATURE] [Undo Bank Account Statement]
+        // [SCENARIO 414381] Undo Bank Account statement which was suggested with "Include Checks" = No and with check ledger entry 
+        Initialize();
+
+        // [GIVEN] Create and post check payment
+        DocumentNo := PostCheck(BankAccount, CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Create and post bank reconciliation which was suggested with "Include Checks" = No (Bank Rec Line.Type = Bank Ledger Entry)
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [WHEN] Undo bank statement
+        BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
+        NewStatementNo := UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
+
+        // [THEN] Check account entry has "Statement Status" = "Bank Acc. Entry Applied" 
+        VerifyUndoneCheckLedgerEntry(BankAccount."No.", DocumentNo, NewStatementNo);
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -3176,6 +3208,51 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation.Modify(true);
     end;
 
+    local procedure CreateBankReconciliationManyToOne(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; PaymentAmount: Decimal)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        CreateBankReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
+        BankAccReconciliationLine.Validate("Statement Amount", -PaymentAmount / 2);
+        BankAccReconciliationLine.Modify();
+
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
+        BankAccReconciliationLine.Validate("Statement Amount", -PaymentAmount / 2);
+        BankAccReconciliationLine.Modify();
+
+        BankAccReconciliation.Validate("Statement Ending Balance",
+            BankAccReconciliation."Balance Last Statement" + BankAccRecSum(BankAccReconciliation));
+        BankAccReconciliation.Modify(true);
+    end;
+
+    local procedure MatchBankReconciliationManyToOne(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+    begin
+        BankAccLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccLedgerEntry.FindFirst();
+        TempBankAccLedgerEntry := BankAccLedgerEntry;
+        TempBankAccLedgerEntry.Insert();
+
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.FindSet();
+        repeat
+            TempBankAccReconciliationLine := BankAccReconciliationLine;
+            TempBankAccReconciliationLine.Insert();
+        until BankAccReconciliationLine.Next() = 0;
+
+        MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccLedgerEntry);
+    end;
+
     local procedure CreatePostBankReconciliation(BankAccount: Record "Bank Account"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -3379,20 +3456,48 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", NewStatementNo);
+        BankAccReconciliationLine.FindFirst();
+
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
         CheckLedgerEntry.FindFirst();
-        CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
-        CheckLedgerEntry.TestField(Open, true);
-        CheckLedgerEntry.TestField("Statement No.", NewStatementNo);
+        case BankAccReconciliationLine.Type of
+            BankAccReconciliationLine.Type::"Check Ledger Entry":
+                begin
+                    CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+                    CheckLedgerEntry.TestField(Open, true);
+                    CheckLedgerEntry.TestField("Statement No.", NewStatementNo);
+                    CheckLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+                end;
+            BankAccReconciliationLine.Type::"Bank Account Ledger Entry":
+                begin
+                    CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+                    CheckLedgerEntry.TestField("Statement No.", '');
+                    CheckLedgerEntry.TestField("Statement Line No.", 0);
+                end;
+        end;
 
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.FindFirst();
-        BankAccountLedgerEntry.TestField("Statement Status", BankAccountLedgerEntry."Statement Status"::"Check Entry Applied");
-        BankAccountLedgerEntry.TestField("Statement No.", '');
-        BankAccountLedgerEntry.TestField("Statement Line No.", 0);
+        case BankAccReconciliationLine.Type of
+            BankAccReconciliationLine.Type::"Check Ledger Entry":
+                begin
+                    BankAccountLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+                    BankAccountLedgerEntry.TestField("Statement No.", '');
+                    BankAccountLedgerEntry.TestField("Statement Line No.", 0);
+                end;
+            BankAccReconciliationLine.Type::"Bank Account Ledger Entry":
+                begin
+                    BankAccountLedgerEntry.TestField("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+                    BankAccountLedgerEntry.TestField("Statement No.", NewStatementNo);
+                    BankAccountLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+                end;
+        end;
     end;
 
     local procedure VerifyCustLedgerEntry(CustomerNo: Code[20]; DocumentNo: Code[20]; DimSetID: Integer)

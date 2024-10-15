@@ -62,6 +62,8 @@ table 246 "Requisition Line"
                                               "Journal Batch Name" = CONST('')) Item;
 
             trigger OnValidate()
+            var
+                ShouldValidateUnitofMeasureCode: Boolean;
             begin
                 CheckActionMessageNew;
                 ReserveReqLine.VerifyChange(Rec, xRec);
@@ -88,7 +90,9 @@ table 246 "Requisition Line"
                         CopyFromItem();
                 end;
 
-                if "Planning Line Origin" <> "Planning Line Origin"::"Order Planning" then
+                ShouldValidateUnitofMeasureCode := "Planning Line Origin" <> "Planning Line Origin"::"Order Planning";
+                OnValidateNoOfAfterCalcShouldValidateUnitofMeasureCode(Rec, xRec, Item, ShouldValidateUnitofMeasureCode);
+                if ShouldValidateUnitofMeasureCode then
                     if ("Replenishment System" = "Replenishment System"::Purchase) and
                        (Item."Purch. Unit of Measure" <> '')
                     then
@@ -630,7 +634,7 @@ table 246 "Requisition Line"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateQuantityBase(Rec, IsHandled);
+                OnBeforeValidateQuantityBase(Rec, IsHandled, xRec, CurrFieldNo, CurrentFieldNo);
                 if IsHandled then
                     exit;
 
@@ -1023,6 +1027,7 @@ table 246 "Requisition Line"
                         ProdBOMVersion.FieldCaption("Version Code"), ProdBOMVersion."Version Code"),
                       DATABASE::"Production BOM Version", ProdBOMVersion.GetPosition);
                 ProdBOMVersion.TestField(Status, ProdBOMVersion.Status::Certified);
+                OnAfterValidateProductionBOMVersionCode(Rec, xRec, ProdBOMVersion);
             end;
         }
         field(99000886; "Routing Version Code"; Code[20])
@@ -1223,6 +1228,7 @@ table 246 "Requisition Line"
 
                     ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
                 end;
+                OnAfterValidateProductionBOMNo(Rec, xRec, ProdBOMHeader);
             end;
         }
         field(99000899; "Indirect Cost %"; Decimal)
@@ -2211,7 +2217,7 @@ table 246 "Requisition Line"
         end;
     end;
 
-    local procedure ValidateFields(): Boolean
+    procedure ValidateFields(): Boolean
     begin
         exit((CurrFieldNo <> 0) or (CurrentFieldNo <> 0));
     end;
@@ -3656,6 +3662,16 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateProductionBOMNo(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; ProductionBOMHeader: Record "Production BOM Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateProductionBOMVersionCode(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; ProductionBOMVersion: Record "Production BOM Version")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; xRequisitionLine: Record "Requisition Line"; FieldNo: Integer; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
     begin
     end;
@@ -3736,7 +3752,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateQuantityBase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateQuantityBase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean; xRequisitionLine: Record "Requisition Line"; FieldNo: Integer; FieldNo2: Integer)
     begin
     end;
 
@@ -3762,6 +3778,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSupplyFromOnCaseReplenishmentSystemElse(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOfAfterCalcShouldValidateUnitofMeasureCode(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; Item: Record Item; var ShouldVaidateUnitofMeasureCode: Boolean)
     begin
     end;
 

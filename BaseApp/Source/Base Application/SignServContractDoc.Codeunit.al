@@ -719,8 +719,15 @@ codeunit 5944 SignServContractDoc
               FromServContractLine.FieldCaption("Line Amount"));
     end;
 
-    procedure CheckServContract(var ServContractHeader: Record "Service Contract Header"): Boolean
+    procedure CheckServContract(var ServContractHeader: Record "Service Contract Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckServContract(ServContractHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ServContractHeader.Status = ServContractHeader.Status::Signed then
             exit(true);
         if ServContractHeader.Status = ServContractHeader.Status::Canceled then
@@ -1056,6 +1063,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddendumToContract(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServContract(var ServiceContractHeader: Record "Service Contract Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
