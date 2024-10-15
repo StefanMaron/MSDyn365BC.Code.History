@@ -1025,6 +1025,8 @@ xmlport 11762 "VAT Statement 2011"
                         trigger OnBeforePassVariable()
                         begin
                             GetAmtAndSkipIfEmpty(dano, 'dano');
+                            if (dano <> '') and (DeclarationType <> DeclarationType::Supplementary) then
+                                dano := '';
                         end;
                     }
                     textattribute(odp_zocelk)
@@ -1294,15 +1296,19 @@ xmlport 11762 "VAT Statement 2011"
     local procedure SetDanoDa()
     begin
         dano_no := '';
-        dano_da := GetAmount('dano_da');
-        dano_da := DelChr(dano_da, '=', '-');
+        if DeclarationType <> DeclarationType::Supplementary then begin
+            dano_da := GetAmount('dano_da');
+            dano_da := DelChr(dano_da, '=', '-');
+        end;
     end;
 
     local procedure SetDanoNo()
     begin
         dano_da := '';
-        dano_no := GetAmount('dano_no');
-        dano_no := DelChr(dano_no, '=', '-');
+        if DeclarationType <> DeclarationType::Supplementary then begin
+            dano_no := GetAmount('dano_no');
+            dano_no := DelChr(dano_no, '=', '-');
+        end;
     end;
 
     local procedure GetFormType(): Code[1]

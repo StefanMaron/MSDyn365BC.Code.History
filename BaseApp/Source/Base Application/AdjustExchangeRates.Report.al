@@ -1239,7 +1239,6 @@ report 595 "Adjust Exchange Rates"
         BankAccFilters: Text;
         CustFilters: Text;
         VendFilters: Text;
-        AdvanceEntry: Boolean;
         TextCZ001: Label 'Exchange Rate Adjmt. of %1 %2 %3 %4';
         TextCZ002: Label 'Exch. Rate Adj. of %1 %2';
         TextCZ003: Label 'Gain';
@@ -1256,13 +1255,11 @@ report 595 "Adjust Exchange Rates"
                 Validate("Account No.", GLAccNo);
 
                 // NAVCZ
-                if AdvanceEntry then begin
-                    "Gen. Posting Type" := "Gen. Posting Type"::" ";
-                    "Gen. Bus. Posting Group" := '';
-                    "Gen. Prod. Posting Group" := '';
-                    "VAT Bus. Posting Group" := '';
-                    "VAT Prod. Posting Group" := '';
-                end;
+                "Gen. Posting Type" := "Gen. Posting Type"::" ";
+                "Gen. Bus. Posting Group" := '';
+                "Gen. Prod. Posting Group" := '';
+                "VAT Bus. Posting Group" := '';
+                "VAT Prod. Posting Group" := '';
 
                 // Description := PADSTR(STRSUBSTNO(PostingDescription,CurrencyCode2,AdjBase2),MAXSTRLEN(Description));
                 if SummarizeEntries then
@@ -1469,10 +1466,6 @@ report 595 "Adjust Exchange Rates"
                                         begin
                                             CustPostingGr.Get("Posting Group");
                                             // NAVCZ
-                                            AdvanceEntry := false;
-                                            if AdjExchRateBuffer2.Advance then
-                                                if CustPostingGr."Advance Account" <> "Initial G/L Account No." then
-                                                    AdvanceEntry := true;
                                             TempDtldCVLedgEntryBuf."Transaction No." :=
                                               PostAdjmt(
                                                 "Initial G/L Account No.", AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
@@ -1486,10 +1479,6 @@ report 595 "Adjust Exchange Rates"
                                         begin
                                             VendPostingGr.Get("Posting Group");
                                             // NAVCZ
-                                            AdvanceEntry := false;
-                                            if AdjExchRateBuffer2.Advance then
-                                                if VendPostingGr."Advance Account" <> "Initial G/L Account No." then
-                                                    AdvanceEntry := true;
                                             TempDtldCVLedgEntryBuf."Transaction No." :=
                                               PostAdjmt(
                                                 "Initial G/L Account No.", AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
@@ -1504,7 +1493,6 @@ report 595 "Adjust Exchange Rates"
                     end;
 
                     with AdjExchRateBuffer2 do begin
-                        AdvanceEntry := false; // NAVCZ
                         Currency2.Get("Currency Code");
                         if TotalGainsAmount <> 0 then begin
                             Currency2.TestField("Unrealized Gains Acc.");

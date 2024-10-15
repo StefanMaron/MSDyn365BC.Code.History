@@ -188,7 +188,6 @@ report 31067 "Suggest VIES Declaration Lines"
         TempVIESLine.SetRange("Trade Type", VIESLine."Trade Type");
         TempVIESLine.SetRange("Country/Region Code", VIESLine."Country/Region Code");
         TempVIESLine.SetRange("VAT Registration No.", VIESLine."VAT Registration No.");
-        TempVIESLine.SetRange("Registration No.", VIESLine."Registration No.");
         TempVIESLine.SetRange("Trade Role Type", VIESLine."Trade Role Type");
         TempVIESLine.SetRange("EU 3-Party Trade", VIESLine."EU 3-Party Trade");
         TempVIESLine.SetRange("EU 3-Party Intermediate Role", VIESLine."EU 3-Party Intermediate Role");
@@ -325,7 +324,7 @@ report 31067 "Suggest VIES Declaration Lines"
         end;
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure ExchangeAmount(VATEntry: Record "VAT Entry"; AmountAdd: Decimal): Decimal
     var
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";

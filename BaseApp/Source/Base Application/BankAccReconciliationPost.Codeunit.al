@@ -343,6 +343,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
             Init;
             SetSuppressCommit(true);
+            "Posting Date" := BankAccReconLine."Transaction Date";
+
             // NAVCZ
             "Document Type" := BankAccReconLine."Document Type";
             if "Document Type" = "Document Type"::" " then begin
@@ -360,7 +362,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             "Dimension Set ID" := BankAccReconLine."Dimension Set ID";
             DimensionManagement.UpdateGlobalDimFromDimSetID(
               BankAccReconLine."Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            "Posting Date" := BankAccReconLine."Transaction Date";
             "VAT Date" := BankAccReconLine."Transaction Date"; // NAVCZ
             "Original Document VAT Date" := BankAccReconLine."Transaction Date"; // NAVCZ
             Description := BankAccReconLine.GetDescription;

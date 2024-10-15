@@ -1832,7 +1832,13 @@ report 840 "Suggest Worksheet Lines"
             DATABASE::"VAT Entry":
                 DocumentDate := "VAT Entry"."Document Date";
         end;
-
+        // NAVCZ
+        if GLSetup."Use VAT Date" then
+            case SourceTableNum of
+                DATABASE::"VAT Entry":
+                    DocumentDate := "VAT Entry"."VAT Date";
+            end;
+        // NAVCZ
         exit(CashFlowSetup.GetTaxPaymentDueDate(DocumentDate));
     end;
 
