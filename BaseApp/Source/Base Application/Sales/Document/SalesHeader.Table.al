@@ -2320,6 +2320,19 @@ table 36 "Sales Header"
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
         }
+        field(185; "Last Email Sent Time"; DateTime)
+        {
+            Caption = 'Last Email Sent Time';
+            FieldClass = FlowField;
+            CalcFormula = max("Email Related Record".SystemCreatedAt where("Table Id" = const(Database::"Sales Header"),
+                                                                           "System Id" = field(SystemId)));
+        }
+        field(186; "Last Email Sent Message Id"; Guid)
+        {
+            Caption = 'Last Email Sent Message Id';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Email Related Record"."Email Message Id" where(SystemCreatedAt = field("Last Email Sent Time")));
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4195,7 +4208,7 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if SalesLine."No." <> '' then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
@@ -4817,6 +4830,7 @@ table 36 "Sales Header"
 
     local procedure CheckCustomerContactRelation(Cont: Record Contact; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
     var
+        ContactBusinessRelationLinkType: Enum "Contact Business Relation Link To Table";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4825,7 +4839,8 @@ table 36 "Sales Header"
             exit;
 
         if (CustomerNo <> '') and (CustomerNo <> ContBusinessRelationNo) then
-            Error(Text037, Cont."No.", Cont.Name, CustomerNo);
+            if FindContactBusinessRelation(CustomerNo, Cont."Company No.", ContactBusinessRelationLinkType::Customer) then
+                Error(Text037, Cont."No.", Cont.Name, CustomerNo);
     end;
 
     local procedure UpdateBillToCust(ContactNo: Code[20])
@@ -8174,6 +8189,16 @@ table 36 "Sales Header"
                 GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
         end;
         Validate("VAT Reporting Date");
+    end;
+
+    local procedure FindContactBusinessRelation(CustomerNo: Code[20]; ContactNo: Code[20]; ContactBusinessRelationLinkType: Enum "Contact Business Relation Link To Table"): Boolean
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        ContactBusinessRelation.SetRange("No.", CustomerNo);
+        ContactBusinessRelation.SetRange("Contact No.", ContactNo);
+        ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
+        exit(ContactBusinessRelation.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]
