@@ -9,16 +9,16 @@
   },
   "folders": [
     {
-      "path": "./System Application/Test/System Application Test"
+      "path": "./system application/test/System Application Test"
     },
     {
-      "path": "./System Application/Test/System Application Test Library"
+      "path": "./system application/test/System Application Test Library"
     },
     {
-      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
+      "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
     },
     {
-      "path": "./System Application/Source/System Application/Email/src/Test Email"
+      "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
       "path": "./INTCS/Test/India TCS Tests"
@@ -31,9 +31,6 @@
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
-    },
-    {
-      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
       "path": "./Email - Outlook REST API/Test"
@@ -144,6 +141,12 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
+    },
+    {
       "path": "./INTDS/Test/India TDS Tests"
     },
     {
@@ -151,9 +154,6 @@
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
-    },
-    {
-      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
