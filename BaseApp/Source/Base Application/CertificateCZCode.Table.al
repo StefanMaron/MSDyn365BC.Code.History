@@ -5,6 +5,7 @@ table 31130 "Certificate CZ Code"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

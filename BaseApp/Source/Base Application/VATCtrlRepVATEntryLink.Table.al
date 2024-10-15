@@ -4,6 +4,7 @@ table 31104 "VAT Ctrl.Rep. - VAT Entry Link"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {

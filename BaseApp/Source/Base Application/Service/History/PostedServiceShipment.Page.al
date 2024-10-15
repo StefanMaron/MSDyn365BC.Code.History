@@ -1,4 +1,3 @@
-﻿#if not CLEAN21
 namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
@@ -194,11 +193,24 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the priority of the posted service order.';
                 }
+                field("Quote No."; Rec."Quote No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the service quote document if a quote was used to start the service process.';
+                }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service order from which the shipment was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
@@ -356,15 +368,6 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies a VAT business posting group code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The field won''t be showed anymore.';
-                    ObsoleteTag = '21.0';
-                }
             }
             group(Shipping)
             {
@@ -443,7 +446,6 @@ page 5975 "Posted Service Shipment"
                 field("Ship-to Phone"; Rec."Ship-to Phone")
                 {
                     ApplicationArea = Service;
-                    Caption = 'Ship-to Phone/Phone 2';
                     Editable = false;
                     ToolTip = 'Specifies the customer phone number.';
                 }
@@ -642,11 +644,11 @@ page 5975 "Posted Service Shipment"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Jobs;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Document No." = field("No.");
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
                 action("&Allocations")
                 {
@@ -875,4 +877,3 @@ page 5975 "Posted Service Shipment"
     end;
 }
 
-#endif

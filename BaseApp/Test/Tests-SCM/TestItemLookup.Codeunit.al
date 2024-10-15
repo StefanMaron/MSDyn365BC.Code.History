@@ -42,7 +42,7 @@ codeunit 134835 "Test Item Lookup"
         // Setup
         CreateItem(Item);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -70,7 +70,7 @@ codeunit 134835 "Test Item Lookup"
         // [GIVEN] Item 'B' with Description 'BDescr'
         CreateItem(Item[2]);
         // [GIVEN] Sales Line with "No." = 'A'
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", 0);
 
         SalesLine.TestField("No.", Item[1]."No.");
@@ -106,7 +106,7 @@ codeunit 134835 "Test Item Lookup"
         ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
         SalesLine.Validate(Type, SalesLine.Type::Item);
 
@@ -140,7 +140,7 @@ codeunit 134835 "Test Item Lookup"
         ItemB.Modify();
 
         // [GIVEN] Sales Line with Type = Item and "No." = ''
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
         SalesLine.Validate(Type, SalesLine.Type::Item);
 
@@ -235,7 +235,7 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         RandomItemDescription := CopyStr(Format(CreateGuid()), 1, 50);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -264,7 +264,7 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         CreateItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -291,24 +291,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesQuote.OpenNew();
-        SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
 
         // Excercise
         SalesQuote.SalesLines.New();
-        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesQuote.SalesLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(SalesQuote.SalesLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         SalesQuote.SalesLines.New();
-        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesQuote.SalesLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(SalesQuote.SalesLines."Unit Price".Editable, StrSubstNo(EditableErr, 'Unit Price'));
-        Assert.IsTrue(SalesQuote.SalesLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(SalesQuote.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(SalesQuote.SalesLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(SalesQuote.SalesLines."Unit Price".Editable(), StrSubstNo(EditableErr, 'Unit Price'));
+        Assert.IsTrue(SalesQuote.SalesLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(SalesQuote.SalesLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -319,11 +319,11 @@ codeunit 134835 "Test Item Lookup"
         SalesQuote.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(SalesQuote.SalesLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(SalesQuote.SalesLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(SalesQuote.SalesLines."Unit Price".Editable, StrSubstNo(NotEditableErr, 'Unit Price'));
-        Assert.IsFalse(SalesQuote.SalesLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(SalesQuote.SalesLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(SalesQuote.SalesLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(SalesQuote.SalesLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(SalesQuote.SalesLines."Unit Price".Editable(), StrSubstNo(NotEditableErr, 'Unit Price'));
+        Assert.IsFalse(SalesQuote.SalesLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(SalesQuote.SalesLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -338,24 +338,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesInvoice.OpenNew();
-        SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
 
         // Excercise
         SalesInvoice.SalesLines.New();
-        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesInvoice.SalesLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(SalesInvoice.SalesLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         SalesInvoice.SalesLines.New();
-        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesInvoice.SalesLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(SalesInvoice.SalesLines."Unit Price".Editable, StrSubstNo(EditableErr, 'Unit Price'));
-        Assert.IsTrue(SalesInvoice.SalesLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(SalesInvoice.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(SalesInvoice.SalesLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(SalesInvoice.SalesLines."Unit Price".Editable(), StrSubstNo(EditableErr, 'Unit Price'));
+        Assert.IsTrue(SalesInvoice.SalesLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(SalesInvoice.SalesLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -366,11 +366,11 @@ codeunit 134835 "Test Item Lookup"
         SalesInvoice.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(SalesInvoice.SalesLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(SalesInvoice.SalesLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(SalesInvoice.SalesLines."Unit Price".Editable, StrSubstNo(NotEditableErr, 'Unit Price'));
-        Assert.IsFalse(SalesInvoice.SalesLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(SalesInvoice.SalesLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(SalesInvoice.SalesLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(SalesInvoice.SalesLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(SalesInvoice.SalesLines."Unit Price".Editable(), StrSubstNo(NotEditableErr, 'Unit Price'));
+        Assert.IsFalse(SalesInvoice.SalesLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(SalesInvoice.SalesLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -385,24 +385,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesOrder.OpenNew();
-        SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
 
         // Excercise
         SalesOrder.SalesLines.New();
-        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesOrder.SalesLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(SalesOrder.SalesLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         SalesOrder.SalesLines.New();
-        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesOrder.SalesLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(SalesOrder.SalesLines."Unit Price".Editable, StrSubstNo(EditableErr, 'Unit Price'));
-        Assert.IsTrue(SalesOrder.SalesLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(SalesOrder.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(SalesOrder.SalesLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(SalesOrder.SalesLines."Unit Price".Editable(), StrSubstNo(EditableErr, 'Unit Price'));
+        Assert.IsTrue(SalesOrder.SalesLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(SalesOrder.SalesLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -413,11 +413,11 @@ codeunit 134835 "Test Item Lookup"
         SalesOrder.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(SalesOrder.SalesLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(SalesOrder.SalesLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(SalesOrder.SalesLines."Unit Price".Editable, StrSubstNo(NotEditableErr, 'Unit Price'));
-        Assert.IsFalse(SalesOrder.SalesLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(SalesOrder.SalesLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(SalesOrder.SalesLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(SalesOrder.SalesLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(SalesOrder.SalesLines."Unit Price".Editable(), StrSubstNo(NotEditableErr, 'Unit Price'));
+        Assert.IsFalse(SalesOrder.SalesLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(SalesOrder.SalesLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -432,24 +432,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesCreditMemo.OpenNew();
-        SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
 
         // Excercise
         SalesCreditMemo.SalesLines.New();
-        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesCreditMemo.SalesLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(SalesCreditMemo.SalesLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         SalesCreditMemo.SalesLines.New();
-        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(SalesCreditMemo.SalesLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(SalesCreditMemo.SalesLines."Unit Price".Editable, StrSubstNo(EditableErr, 'Unit Price'));
-        Assert.IsTrue(SalesCreditMemo.SalesLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(SalesCreditMemo.SalesLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(SalesCreditMemo.SalesLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Unit Price".Editable(), StrSubstNo(EditableErr, 'Unit Price'));
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -460,11 +460,11 @@ codeunit 134835 "Test Item Lookup"
         SalesCreditMemo.SalesLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(SalesCreditMemo.SalesLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit Price".Editable, StrSubstNo(NotEditableErr, 'Unit Price'));
-        Assert.IsFalse(SalesCreditMemo.SalesLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(SalesCreditMemo.SalesLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(SalesCreditMemo.SalesLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Unit Price".Editable(), StrSubstNo(NotEditableErr, 'Unit Price'));
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -482,10 +482,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesQuote.OpenNew();
-        SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesQuote."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
         SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.New();
-        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesQuote.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         SalesQuote.SalesLines.Previous();
@@ -512,10 +512,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesInvoice.OpenNew();
-        SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesInvoice."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines.New();
-        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         SalesInvoice.SalesLines.Previous();
@@ -542,10 +542,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesOrder.OpenNew();
-        SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesOrder."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
         SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.New();
-        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesOrder.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         SalesOrder.SalesLines.Previous();
@@ -572,10 +572,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         SalesCreditMemo.OpenNew();
-        SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo);
+        SalesCreditMemo."Sell-to Customer Name".SetValue(LibrarySales.CreateCustomerNo());
         SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.New();
-        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        SalesCreditMemo.SalesLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         SalesCreditMemo.SalesLines.Previous();
@@ -600,7 +600,7 @@ codeunit 134835 "Test Item Lookup"
         // Setup
         CreateItem(Item);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -628,7 +628,7 @@ codeunit 134835 "Test Item Lookup"
         // [GIVEN] Item 'B' with Description 'BDescr'
         CreateItem(Item[2]);
         // [GIVEN] Purchase Line with "No." = 'A'
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
         // [WHEN] Validate description with 'BDescr'; Confirm = True
@@ -652,7 +652,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(Item);
 
         // [GIVEN] Purchase Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -680,24 +680,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // Excercise
         PurchaseInvoice.PurchLines.New();
-        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(PurchaseInvoice.PurchLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(PurchaseInvoice.PurchLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         PurchaseInvoice.PurchLines.New();
-        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(PurchaseInvoice.PurchLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Direct Unit Cost".Editable, StrSubstNo(EditableErr, 'Direct Unit Cost'));
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(PurchaseInvoice.PurchLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Direct Unit Cost".Editable(), StrSubstNo(EditableErr, 'Direct Unit Cost'));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -708,11 +708,11 @@ codeunit 134835 "Test Item Lookup"
         PurchaseInvoice.PurchLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".Editable, StrSubstNo(NotEditableErr, 'Direct Unit Cost'));
-        Assert.IsFalse(PurchaseInvoice.PurchLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(PurchaseInvoice.PurchLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".Editable(), StrSubstNo(NotEditableErr, 'Direct Unit Cost'));
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -727,24 +727,24 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // Excercise
         PurchaseCreditMemo.PurchLines.New();
-        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Quantity.Editable, 'Quantity should be editable');
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Quantity.Editable(), 'Quantity should be editable');
 
         // Excercise
         PurchaseCreditMemo.PurchLines.New();
-        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Verify
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Quantity.Editable, StrSubstNo(EditableErr, 'Quantity'));
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable, StrSubstNo(EditableErr, 'Direct Unit Cost'));
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Line Amount".Editable, StrSubstNo(EditableErr, 'Line Amount'));
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Line Discount %".Editable, StrSubstNo(EditableErr, 'Line Discount %'));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Quantity.Editable(), StrSubstNo(EditableErr, 'Quantity'));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable(), StrSubstNo(EditableErr, 'Direct Unit Cost'));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Line Amount".Editable(), StrSubstNo(EditableErr, 'Line Amount'));
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Line Discount %".Editable(), StrSubstNo(EditableErr, 'Line Discount %'));
 
         // Setup nonexisting Item
         NoneExixtingItemNo := CopyStr(Format(CreateGuid()), 1, 20);
@@ -755,11 +755,11 @@ codeunit 134835 "Test Item Lookup"
         PurchaseCreditMemo.PurchLines.Description.SetValue(NoneExixtingItemNo);
 
         // Verify
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines.Quantity.Editable, StrSubstNo(NotEditableErr, 'Quantity'));
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable, StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable, StrSubstNo(NotEditableErr, 'Direct Unit Cost'));
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Line Amount".Editable, StrSubstNo(NotEditableErr, 'Line Amount'));
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Line Discount %".Editable, StrSubstNo(NotEditableErr, 'Line Discount %'));
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines.Quantity.Editable(), StrSubstNo(NotEditableErr, 'Quantity'));
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable(), StrSubstNo(NotEditableErr, 'Unit of Measure Code'));
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable(), StrSubstNo(NotEditableErr, 'Direct Unit Cost'));
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Line Amount".Editable(), StrSubstNo(NotEditableErr, 'Line Amount'));
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Line Discount %".Editable(), StrSubstNo(NotEditableErr, 'Line Discount %'));
     end;
 
     [Test]
@@ -777,10 +777,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
         PurchaseInvoice.PurchLines.Next();
         PurchaseInvoice.PurchLines.New();
-        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         PurchaseInvoice.PurchLines.Previous();
@@ -807,10 +807,10 @@ codeunit 134835 "Test Item Lookup"
 
         // Setup
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
         PurchaseCreditMemo.PurchLines.Next();
         PurchaseCreditMemo.PurchLines.New();
-        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo);
+        PurchaseCreditMemo.PurchLines.Description.SetValue(LibraryInventory.CreateItemNo());
 
         // Excercise
         PurchaseCreditMemo.PurchLines.Previous();
@@ -899,7 +899,7 @@ codeunit 134835 "Test Item Lookup"
         CreateItem(ItemA);
 
         // [GIVEN] Purchase Invoice with item "A"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemA."No.", 0);
 
         // [GIVEN] Item "B" with Description = 'B123'
@@ -978,10 +978,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibrarySales.SetCreateItemFromItemNo(false);
 
-        CreateItemWithNo(Item, GenerateItemNo);
+        CreateItemWithNo(Item, GenerateItemNo());
         NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -1006,10 +1006,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibrarySales.SetCreateItemFromItemNo(true);
 
-        CreateItemWithNo(Item, GenerateItemNo);
+        CreateItemWithNo(Item, GenerateItemNo());
         NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -1034,10 +1034,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibrarySales.SetCreateItemFromItemNo(false);
 
-        CreateItemWithNo(Item, GenerateItemNo);
-        NewItemNo := GenerateItemNo;
+        CreateItemWithNo(Item, GenerateItemNo());
+        NewItemNo := GenerateItemNo();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -1063,10 +1063,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibrarySales.SetCreateItemFromItemNo(true);
 
-        CreateItemWithNo(Item, GenerateItemNo);
-        NewItemNo := GenerateItemNo;
+        CreateItemWithNo(Item, GenerateItemNo());
+        NewItemNo := GenerateItemNo();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -1079,7 +1079,7 @@ codeunit 134835 "Test Item Lookup"
 
         SalesLine.TestField(Description, NewItemNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1097,10 +1097,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibraryPurchase.SetCreateItemFromItemNo(false);
 
-        CreateItemWithNo(Item, GenerateItemNo);
+        CreateItemWithNo(Item, GenerateItemNo());
         NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -1125,10 +1125,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibraryPurchase.SetCreateItemFromItemNo(true);
 
-        CreateItemWithNo(Item, GenerateItemNo);
+        CreateItemWithNo(Item, GenerateItemNo());
         NewItemNo := CopyStr(Item."No.", 1, StrLen(Item."No.") - 1);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -1153,10 +1153,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibraryPurchase.SetCreateItemFromItemNo(false);
 
-        CreateItemWithNo(Item, GenerateItemNo);
-        NewItemNo := GenerateItemNo;
+        CreateItemWithNo(Item, GenerateItemNo());
+        NewItemNo := GenerateItemNo();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -1182,10 +1182,10 @@ codeunit 134835 "Test Item Lookup"
 
         LibraryPurchase.SetCreateItemFromItemNo(true);
 
-        CreateItemWithNo(Item, GenerateItemNo);
-        NewItemNo := GenerateItemNo;
+        CreateItemWithNo(Item, GenerateItemNo());
+        NewItemNo := GenerateItemNo();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -1198,7 +1198,7 @@ codeunit 134835 "Test Item Lookup"
 
         PurchaseLine.TestField(Description, NewItemNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1207,7 +1207,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
         UnitPrice: Decimal;
         UnitCost: Decimal;
@@ -1243,7 +1242,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
         UnitPrice: Decimal;
         UnitCost: Decimal;
@@ -1279,7 +1277,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
         UnitPrice: Decimal;
         UnitCost: Decimal;
@@ -1315,7 +1312,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
         UnitPrice: Decimal;
     begin
@@ -1347,7 +1343,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
         UnitPrice: Decimal;
     begin
@@ -1379,7 +1374,6 @@ codeunit 134835 "Test Item Lookup"
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
         UnitPrice: Decimal;
     begin
@@ -1516,7 +1510,7 @@ codeunit 134835 "Test Item Lookup"
     procedure ItemCardModalPageHandler(var ItemCard: TestPage "Item Card")
     begin
         ItemCard.Type.SetValue(LibraryVariableStorage.DequeueInteger());
-        ItemCard.OK.Invoke();
+        ItemCard.OK().Invoke();
     end;
 }
 

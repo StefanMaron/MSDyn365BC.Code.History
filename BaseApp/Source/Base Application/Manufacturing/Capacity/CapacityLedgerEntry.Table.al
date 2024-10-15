@@ -18,6 +18,7 @@ table 5832 "Capacity Ledger Entry"
     Caption = 'Capacity Ledger Entry';
     DrillDownPageID = "Capacity Ledger Entries";
     LookupPageID = "Capacity Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

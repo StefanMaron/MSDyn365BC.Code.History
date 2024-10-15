@@ -11,6 +11,7 @@ table 6308 "Power BI Ongoing Deployments"
     ObsoleteReason = 'Functionality has been moved to table 6325 "Power BI User Status" (notice: the new table is per company)';
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

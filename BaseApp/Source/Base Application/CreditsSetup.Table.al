@@ -4,6 +4,7 @@ table 31048 "Credits Setup"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

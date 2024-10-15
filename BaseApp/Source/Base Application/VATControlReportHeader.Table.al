@@ -4,6 +4,7 @@ table 31100 "VAT Control Report Header"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {

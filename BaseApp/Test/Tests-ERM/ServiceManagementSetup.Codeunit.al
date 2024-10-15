@@ -7,7 +7,7 @@ codeunit 136110 "Service Management Setup"
     begin
         // [FEATURE] [Service]
         isInitialized := false;
-        ServiceOrderAllocation.Init
+        ServiceOrderAllocation.Init();
     end;
 
     var
@@ -60,7 +60,7 @@ codeunit 136110 "Service Management Setup"
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryERMCountryData.CreateVATData();
         LibraryService.SetupServiceMgtNoSeries();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
@@ -90,7 +90,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Setup Next Service Calc. Method in Service Management Setup as Planned. Create and sign Service Contract.
         Initialize();
-        SetupModified := SetupServiceMgtSetupPlanned;
+        SetupModified := SetupServiceMgtSetupPlanned();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate(Prepaid, true);
         ServiceContractHeader.Modify(true);
@@ -106,7 +106,7 @@ codeunit 136110 "Service Management Setup"
 
         // Cleanup: If the Next Service Calc. Method in Service Management Setup was changed then cleanup.
         if SetupModified then
-            SetupServiceMgtSetupActual;
+            SetupServiceMgtSetupActual();
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Setup Next Service Calc. Method in Service Management Setup as Actual. Create and sign Service Contract.
         Initialize();
-        SetupModified := SetupServiceMgtSetupActual;
+        SetupModified := SetupServiceMgtSetupActual();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Validate(Prepaid, true);
         ServiceContractHeader.Modify(true);
@@ -147,7 +147,7 @@ codeunit 136110 "Service Management Setup"
 
         // Cleanup: If the Next Service Calc. Method in Service Management Setup was changed then cleanup.
         if SetupModified then
-            SetupServiceMgtSetupPlanned;
+            SetupServiceMgtSetupPlanned();
     end;
 
     [Test]
@@ -168,7 +168,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Setup Service Order Starting Fee of Service Management Setup. Create a new Service Order - Service Header, Service Line.
         Initialize();
-        ExecuteConfirm;
+        ExecuteConfirm();
         SetupServiceMgtStartingFee(ServiceCost);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
 
@@ -199,7 +199,7 @@ codeunit 136110 "Service Management Setup"
 
         // Setup: Setup Service Order Starting Fee of Service Management Setup. Create a new Service Order - Service Header, Service Line.
         Initialize();
-        SetupServiceMgtStartngFeeBlank;
+        SetupServiceMgtStartngFeeBlank();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
 
         // Exercise: Add starting fee to the Service Line by Insert Starting Fee function.
@@ -350,7 +350,7 @@ codeunit 136110 "Service Management Setup"
         ServiceOrderSubform.SetTableView(ServiceItemLine);
         ServiceOrderSubform.SetRecord(ServiceItemLine);
         ServiceOrderSubform.Run();
-        ExecuteConfirm;
+        ExecuteConfirm();
 
         // Verify: Check that the application allows the Resource to be allocated if the Resource is not qualified to carry the Service.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -479,7 +479,7 @@ codeunit 136110 "Service Management Setup"
         // Setup: Input Resource Skills Option as Warning Displayed in Service Management Setup. Create a new Service Order - Service
         // Header, Service Item Line, Service Line having Service Item with Resource Skill assigned. Assign the Skill Code to Resource.
         Initialize();
-        ExecuteConfirm;
+        ExecuteConfirm();
         SetupServiceMgtResSkillServZon(
           ServiceMgtSetup."Resource Skills Option"::"Warning Displayed", ServiceMgtSetup."Service Zones Option"::"Warning Displayed");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
@@ -604,7 +604,7 @@ codeunit 136110 "Service Management Setup"
         // Setup: Input Fault Reporting Level as Fault in Service Management Setup. Insert Fault Code, Service Header, Service Item Line,
         // Service line.
         SetupServiceFaultReporting(ServiceMgtSetup, ServiceMgtSetup."Fault Reporting Level"::Fault);
-        ExecuteConfirm;
+        ExecuteConfirm();
         LibraryService.CreateFaultCode(FaultCode, '', '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLineForFault(ServiceItemLine, ServiceHeader, FaultCode);
@@ -658,7 +658,7 @@ codeunit 136110 "Service Management Setup"
         LibraryService.CreateFaultArea(FaultArea);
         LibraryService.CreateSymptomCode(SymptomCode);
         SetupServiceFaultReporting(ServiceMgtSetup, ServiceMgtSetup."Fault Reporting Level"::"Fault+Symptom+Area (IRIS)");
-        ExecuteConfirm;
+        ExecuteConfirm();
         LibraryService.CreateFaultCode(FaultCode, FaultArea.Code, SymptomCode.Code);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         CreateServiceItemLineForFault(ServiceItemLine, ServiceHeader, FaultCode);
@@ -736,7 +736,7 @@ codeunit 136110 "Service Management Setup"
         // Line.
         Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
-        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetNonWrkngDayFollwdByWrkngDay);
+        CreateServiceHeader(ServiceHeader, ServiceItem."Customer No.", LibraryService.GetNonWrkngDayFollwdByWrkngDay());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // Exercise: Input Response Time (Hours) as 1.
@@ -1319,13 +1319,13 @@ codeunit 136110 "Service Management Setup"
         SetupServiceFaultReporting(ServiceMgtSetup, ServiceMgtSetup."Fault Reporting Level"::Fault);
         LibraryService.CreateFaultCode(FaultCode, '', '');
 
-        No := LibraryService.CreateServiceOrderHeaderUsingPage;
+        No := LibraryService.CreateServiceOrderHeaderUsingPage();
         CreateServiceItemLine(FaultCode, No, ResolutionCode.Code);
         InsertFaultReasonCode(No);
         OpenServiceItemLine(No);
 
         // 2. Exercise: Insert fault / resolution code relationship.
-        InsertFaultResolutionRelation;
+        InsertFaultResolutionRelation();
 
         // 3. Verify: Verify that the Fault Reason Code inserted on Service Item Line matches with value on Service Line.
         // Verify that the values on the fault / resolution code relationship page matches with values inserted.
@@ -1360,13 +1360,13 @@ codeunit 136110 "Service Management Setup"
         SetupServiceFaultReporting(ServiceMgtSetup, ServiceMgtSetup."Fault Reporting Level"::"Fault+Symptom");
         LibraryService.CreateFaultCode(FaultCode, '', SymptomCode.Code);
 
-        No := LibraryService.CreateServiceOrderHeaderUsingPage;
+        No := LibraryService.CreateServiceOrderHeaderUsingPage();
         CreateServiceItemLine(FaultCode, No, ResolutionCode.Code);
         InsertFaultReasonCode(No);
         OpenServiceItemLine(No);
 
         // 2. Exercise: Insert fault / resolution code relationship.
-        InsertFaultResolutionRelation;
+        InsertFaultResolutionRelation();
 
         // 3. Verify: Verify that the Fault Reason Code inserted on Service Item Line matches with value on Service Line.
         // Verify that the values on the fault / resolution relationship page matches with values inserted.
@@ -1403,13 +1403,13 @@ codeunit 136110 "Service Management Setup"
         SetupServiceFaultReporting(ServiceMgtSetup, ServiceMgtSetup."Fault Reporting Level"::"Fault+Symptom+Area (IRIS)");
         LibraryService.CreateFaultCode(FaultCode, FaultArea.Code, SymptomCode.Code);
 
-        No := LibraryService.CreateServiceOrderHeaderUsingPage;
+        No := LibraryService.CreateServiceOrderHeaderUsingPage();
         CreateServiceItemLine(FaultCode, No, ResolutionCode.Code);
         InsertFaultReasonCode(No);
         OpenServiceItemLine(No);
 
         // 2. Exercise: Insert fault / resolution code relationship.
-        InsertFaultResolutionRelation;
+        InsertFaultResolutionRelation();
 
         // 3. Verify: Verify that the Fault Reason Code inserted on Service Item Line matches with value on Service Line.
         // Verify that the values on the fault / resolution relationship page matches with values inserted.
@@ -1469,7 +1469,6 @@ codeunit 136110 "Service Management Setup"
     procedure AssistEditServiceHeaderNo()
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
-        ServiceHeader: Record "Service Header";
         NoSeriesLine: Record "No. Series Line";
         ServiceOrder: TestPage "Service Order";
         NoSeriesCode: Code[20];
@@ -1491,6 +1490,100 @@ codeunit 136110 "Service Management Setup"
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.FindFirst();
         ServiceOrder."No.".AssertEquals(NoSeriesLine."Last No. Used");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowHideDocumentNoOnServiceOrder()
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServiceOrder: TestPage "Service Order";
+        OldServiceOrderNoSeries: Code[20];
+    begin
+        // [SCENARIO 424764] System will hide Document No. field on Service Order page if "Service Order Nos." is default without manual input
+        Initialize();
+
+        // [GIVEN] Number series related to "Service Order Nos." in "Service Mgt. Setup" table
+        ServiceMgtSetup.Get();
+        if ServiceMgtSetup."Service Order Nos." <> '' then
+            OldServiceOrderNoSeries := ServiceMgtSetup."Service Order Nos.";
+
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        ServiceMgtSetup.Validate("Service Order Nos.", NoSeries.Code);
+        ServiceMgtSetup.Modify(true);
+
+        // [WHEN] [THEN] init new service order and check if "No." field is hidden
+        DocumentNoVisibility.ClearState();
+        ServiceOrder.OpenNew();
+        Assert.IsFalse(ServiceOrder."No.".Visible(), 'No. field should be hidden');
+
+        // [WHEN] Service order no series is set to manual nos
+        NoSeries.Get(ServiceMgtSetup."Service Order Nos.");
+        NoSeries."Manual Nos." := true;
+        NoSeries.Modify(true);
+
+        // [THEN] init new service order and check if "No." field is visible
+        DocumentNoVisibility.ClearState();
+        Clear(ServiceOrder);
+        ServiceOrder.OpenNew();
+        Assert.IsTrue(ServiceOrder."No.".Visible(), 'No. field should be visible');
+
+        if OldServiceOrderNoSeries <> '' then begin
+            ServiceMgtSetup.Validate("Service Order Nos.", OldServiceOrderNoSeries);
+            ServiceMgtSetup.Modify(true);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowHideDocumentNoOnServiceContract()
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServiceContract: TestPage "Service Contract";
+        OldServiceContractNoSeries: Code[20];
+    begin
+        // [SCENARIO 424764] System will hide Document No. field on Service Contract page if "Service Contract Nos." is default without manual input
+        Initialize();
+
+        // [GIVEN] Number series related to "Service Contract Nos." in "Service Mgt. Setup" table
+        ServiceMgtSetup.Get();
+        if ServiceMgtSetup."Service Order Nos." <> '' then
+            OldServiceContractNoSeries := ServiceMgtSetup."Service Contract Nos.";
+
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        ServiceMgtSetup.Validate("Service Contract Nos.", NoSeries.Code);
+        ServiceMgtSetup.Modify(true);
+
+        // [WHEN] [THEN] init new service contract and check if "Contract No." field is hidden
+        DocumentNoVisibility.ClearState();
+        ServiceContract.OpenNew();
+        Assert.IsFalse(ServiceContract."Contract No.".Visible(), 'Contract No. field should be hidden');
+
+        // [WHEN] Service contract no series is set to manual nos
+        NoSeries.Get(ServiceMgtSetup."Service Contract Nos.");
+        NoSeries."Manual Nos." := true;
+        NoSeries.Modify(true);
+
+        // [THEN] init new service contract and check if "Contract No." field is visible
+        DocumentNoVisibility.ClearState();
+        Clear(ServiceContract);
+        ServiceContract.OpenNew();
+        Assert.IsTrue(ServiceContract."Contract No.".Visible(), 'Contract No. field should be visible');
+
+        if OldServiceContractNoSeries <> '' then begin
+            ServiceMgtSetup.Validate("Service Contract Nos.", OldServiceContractNoSeries);
+            ServiceMgtSetup.Modify(true);
+        end;
     end;
 
     [Test]
@@ -1587,7 +1680,7 @@ codeunit 136110 "Service Management Setup"
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
         ServiceContractHeader.Validate("Starting Date", ServiceContractHeader."Starting Date");
-        ServiceContractHeader.Validate("Service Zone Code", FindServiceZone);
+        ServiceContractHeader.Validate("Service Zone Code", FindServiceZone());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -1642,8 +1735,8 @@ codeunit 136110 "Service Management Setup"
         ServiceOrder.ServItemLines."Symptom Code".SetValue(FaultCode."Symptom Code");
         ServiceOrder.ServItemLines."Fault Code".SetValue(FaultCode.Code);
         ServiceOrder.ServItemLines."Resolution Code".SetValue(ResolutionCode);
-        ServiceOrder.ServItemLines.New;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.ServItemLines.New();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure CreateServiceItemLinesContract(var ServiceItemLine: Record "Service Item Line"; ServiceContractLine: Record "Service Contract Line"; ServiceHeader: Record "Service Header")
@@ -1757,7 +1850,7 @@ codeunit 136110 "Service Management Setup"
         ServiceOrder: TestPage "Service Order";
     begin
         ServiceOrderPageOpenView(ServiceOrder, No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
     end;
 
     local procedure OpenServiceOrderAndInsertTravelFee(ServiceHeaderNo: Code[20])
@@ -1765,14 +1858,14 @@ codeunit 136110 "Service Management Setup"
         ServiceOrder: TestPage "Service Order";
     begin
         ServiceOrderPageOpenEdit(ServiceOrder, ServiceHeaderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
     end;
 
     local procedure ServiceOrderPageOpenEdit(ServiceOrder: TestPage "Service Order"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Order));
         ServiceOrder.FILTER.SetFilter("No.", No);
     end;
@@ -1781,7 +1874,7 @@ codeunit 136110 "Service Management Setup"
     var
         ServiceHeader: Record "Service Header";
     begin
-        ServiceOrder.OpenView;
+        ServiceOrder.OpenView();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Order));
         ServiceOrder.FILTER.SetFilter("No.", No);
     end;
@@ -1964,9 +2057,9 @@ codeunit 136110 "Service Management Setup"
         ServiceOrder: TestPage "Service Order";
     begin
         ServiceOrderPageOpenView(ServiceOrder, No);
-        FaultResolCodRelationship.OpenView;
+        FaultResolCodRelationship.OpenView();
         FaultResolCodRelationship.FILTER.SetFilter("Fault Code", ServiceOrder.ServItemLines."Fault Code".Value);
-        ServiceOrder.ServItemLines."Fault/Resol. Codes Relations".Invoke;
+        ServiceOrder.ServItemLines."Fault/Resol. Codes Relations".Invoke();
         FaultResolCodRelationship2.TestField("Fault Area Code", FaultCode."Fault Area Code");
         FaultResolCodRelationship2.TestField("Symptom Code", FaultCode."Symptom Code");
     end;
@@ -2108,7 +2201,7 @@ codeunit 136110 "Service Management Setup"
     procedure ServiceOrderSubformFormHandler(var ServiceOrderSubform: Page "Service Order Subform")
     begin
         // Call the function AllocateResource of the Service Order Subform to allocate Resource.
-        ServiceOrderSubform.AllocateResource;
+        ServiceOrderSubform.AllocateResource();
     end;
 
     [PageHandler]
@@ -2140,7 +2233,7 @@ codeunit 136110 "Service Management Setup"
         // Use random value for Quantity as value is not important.
         ServiceLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         // Post the service Order as Ship.
-        ServiceLines.Post.Invoke;
+        ServiceLines.Post.Invoke();
     end;
 
     [StrMenuHandler]
@@ -2171,7 +2264,7 @@ codeunit 136110 "Service Management Setup"
     [Scope('OnPrem')]
     procedure InsertTravelFeePageHandler(var ServiceItemWorksheet: TestPage "Service Item Worksheet")
     begin
-        ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke;
+        ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke();
     end;
 
     [ModalPageHandler]

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Automation;
 using System.Environment.Configuration;
 using System.Threading;
+using Microsoft.Projects.Project.Archive;
 
 #pragma warning disable AA0235
 codeunit 3999 "Reten. Pol. Install - BaseApp"
@@ -24,7 +25,6 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     Permissions = tabledata "Retention Period" = ri, tabledata "Retention Policy Setup" = ri;
 
     trigger OnInstallAppPerCompany()
-    var
     begin
         AddAllowedTables();
     end;
@@ -186,6 +186,7 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         PurchaseHeaderArchive: Record "Purchase Header Archive";
+        JobArchive: Record "Job Archive";
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
         RecRef: RecordRef;
         TableFilters: JsonArray;
@@ -208,6 +209,12 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RecRef.GetTable(PurchaseHeaderArchive);
         RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", PurchaseHeaderArchive.FieldNo("Last Archived Date"), true, false, RecRef); // not locked
         RetenPolAllowedTables.AddAllowedTable(Database::"Purchase Header Archive", PurchaseHeaderArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
+
+        Clear(TableFilters);
+        JobArchive.SetFilter(Status, '<>%1', JobArchive.Status::"Completed");
+        RecRef.GetTable(JobArchive);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", JobArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
+        RetenPolAllowedTables.AddAllowedTable(Database::"Job Archive", JobArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
     end;
 
     local procedure AddDataverseEntityChange(IsInitialSetup: Boolean)

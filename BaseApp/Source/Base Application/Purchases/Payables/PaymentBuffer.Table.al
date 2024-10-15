@@ -8,7 +8,6 @@ using Microsoft.Purchases.Vendor;
 
 #pragma warning disable AS0109
 table 372 "Payment Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
@@ -22,6 +21,7 @@ table 372 "Payment Buffer"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -130,9 +130,9 @@ table 372 "Payment Buffer"
             Caption = 'Vendor Posting Group';
             DataClassification = SystemMetadata;
             TableRelation = "Vendor Posting Group";
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
             ObsoleteTag = '21.0';
@@ -143,21 +143,18 @@ table 372 "Payment Buffer"
 
     keys
     {
-#if CLEAN21
+#if CLEAN22
         key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.")
 #else
         key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.", "Vendor Posting Group")
 #endif
         {
             Clustered = true;
-#if not CLEAN21
+#if not CLEAN22
             ObsoleteState = Pending;
             ObsoleteReason = 'The obsoleted fields will be removed from primary key.';
             ObsoleteTag = '21.0';
 #endif
-        }
-        key(Key2; "Document No.")
-        {
         }
     }
 

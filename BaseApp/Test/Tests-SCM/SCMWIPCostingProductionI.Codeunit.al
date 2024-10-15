@@ -1581,9 +1581,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPlanning.CalculateOrderPlanSales(ReqLine);
         MakeSupplyOrdersActiveOrder(SalesHeader."No.");
         FindProdOrder(ProdOrder, ProdOrder.Status::"Firm Planned", ItemNo[5]);
-        ReleasedProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProdOrder."No.", ProdOrder.Status, ProdOrder.Status::Released);
+        ReleasedProdOrderNo := LibraryManufacturing.ChangeProuctionOrderStatus(ProdOrder."No.", ProdOrder.Status, ProdOrder.Status::Released);
 
         // [GIVEN] Post Production Journal for Production Order Lines: "C2", "C1" and "T" in that sequence, then finish Production Order.
         FindProdOrder(ProdOrder, ProdOrder.Status::Released, ItemNo[5]);
@@ -1778,7 +1776,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         MachineCenter2: Record "Machine Center";
         PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         ItemNo4: Code[20];
         WorkCenterNo: Code[20];
@@ -1806,7 +1804,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
               MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2),
               LibraryRandom.RandDec(5, 2));
-        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate(), true);
+        RoutingNo := NoSeries.GetNextNo(ManufacturingSetup."Routing Nos.");
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
 
         // Create Items with the required Flushing method with the main Item containing Routing No. and Production BOM No.
@@ -1875,7 +1873,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         MachineCenter2: Record "Machine Center";
         PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         WorkCenterNo: Code[20];
         RoutingNo: Code[20];
@@ -1902,7 +1900,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             CreateMachineCenter(
               MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
-        RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate(), true);
+        RoutingNo := NoSeries.GetNextNo(ManufacturingSetup."Routing Nos.");
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
 
         // Create Items with the required Flushing method with the main Item containing Routing No. and Production BOM No.

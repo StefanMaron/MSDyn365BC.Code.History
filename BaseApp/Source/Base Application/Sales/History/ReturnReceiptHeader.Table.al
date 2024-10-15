@@ -38,6 +38,7 @@ table 6660 "Return Receipt Header"
     Caption = 'Return Receipt Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
     LookupPageID = "Posted Return Receipts";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -431,10 +432,22 @@ table 6660 "Return Receipt Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';

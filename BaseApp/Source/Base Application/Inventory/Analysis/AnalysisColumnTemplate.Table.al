@@ -6,6 +6,7 @@ table 7116 "Analysis Column Template"
     DataCaptionFields = Name, Description;
     LookupPageID = "Analysis Column Templates";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

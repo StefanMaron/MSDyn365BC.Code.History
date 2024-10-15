@@ -147,7 +147,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -182,7 +182,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -217,7 +217,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -251,7 +251,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -285,7 +285,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -319,7 +319,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -345,13 +345,13 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Dimensions
         GLBudgetName.FindFirst();
-        DimensionCode := CreateDimensionWithDimValue;
+        DimensionCode := CreateDimensionWithDimValue();
         SetDimSetIDOnGLBudgetEntries(GLBudgetName.Name, DimensionCode);
         SetCADimensions(DimensionCode, LibraryERM.GetGlobalDimensionCode(2));
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -380,7 +380,7 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup Cost Budget
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
         RemoveCostTypeLink(GLBudgetName.Name);
 
         // Exercise:
@@ -506,8 +506,8 @@ codeunit 134814 "ERM CA Budget"
 
         // Setup target budget
         LibraryERM.CreateGLBudgetName(TargetGLBudgetName);
-        SetCADimensions(FindDimensionCode(TargetGLBudgetName), CostObjectDimension);
-        TargetGLBudgetName.Validate("Budget Dimension 1 Code", CostCenterDimension);
+        SetCADimensions(FindDimensionCode(TargetGLBudgetName), CostObjectDimension());
+        TargetGLBudgetName.Validate("Budget Dimension 1 Code", CostCenterDimension());
         TargetGLBudgetName.Modify(true);
 
         // Setup source budget
@@ -930,7 +930,7 @@ codeunit 134814 "ERM CA Budget"
     begin
         Initialize();
 
-        InsertManualCostBudgetEntry;
+        InsertManualCostBudgetEntry();
     end;
 
     [Test]
@@ -945,7 +945,7 @@ codeunit 134814 "ERM CA Budget"
         // Pre-Setup:
         CostBudgetRegister.DeleteAll(true);
 
-        InsertManualCostBudgetEntry;
+        InsertManualCostBudgetEntry();
     end;
 
     [Test]
@@ -1102,10 +1102,10 @@ codeunit 134814 "ERM CA Budget"
         DimensionSetEntry.SetRange("Dimension Set ID", DimSetID);
         if DimensionSetEntry.FindSet() then
             repeat
-                if DimensionSetEntry."Dimension Code" = CostCenterDimension then
+                if DimensionSetEntry."Dimension Code" = CostCenterDimension() then
                     if CostCenter.Get(DimensionSetEntry."Dimension Value Code") then
                         exit(true);
-                if DimensionSetEntry."Dimension Code" = CostObjectDimension then
+                if DimensionSetEntry."Dimension Code" = CostObjectDimension() then
                     if CostObject.Get(DimensionSetEntry."Dimension Value Code") then
                         exit(true);
             until DimensionSetEntry.Next() = 0;
@@ -1165,7 +1165,7 @@ codeunit 134814 "ERM CA Budget"
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
         CostAccountMgt.CreateCostCenters();
-        CostAccountMgt.CreateCostObjects;
+        CostAccountMgt.CreateCostObjects();
     end;
 
     local procedure CreateManualCostBudgetEntry(BudgetName: Code[10]; CostTypeNo: Code[20]; CostCenterCode: Code[20]; Amount: Decimal)
@@ -1177,11 +1177,11 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Enqueue(Amount);
         CostType.Get(CostTypeNo);
 
-        CostBudgetPerPeriodPage.OpenView;
+        CostBudgetPerPeriodPage.OpenView();
         CostBudgetPerPeriodPage.BudgetFilter.SetValue(BudgetName);
         CostBudgetPerPeriodPage.CostCenterFilter.SetValue(CostCenterCode);
         CostBudgetPerPeriodPage.MatrixForm.GotoRecord(CostType);
-        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown
+        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown();
     end;
 
     local procedure DimensionValueExists(DimensionValueCode: Code[20]): Boolean
@@ -1241,8 +1241,8 @@ codeunit 134814 "ERM CA Budget"
         // Count the number of skipped GL Budget Entries during a 'Copy' operation
 
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
-        if not GLBudgetHasCADimension(GLBudgetName, CostCenterDimension) and
-           not GLBudgetHasCADimension(GLBudgetName, CostObjectDimension)
+        if not GLBudgetHasCADimension(GLBudgetName, CostCenterDimension()) and
+           not GLBudgetHasCADimension(GLBudgetName, CostObjectDimension())
         then
             exit(GLBudgetEntry.Count);
 
@@ -1312,13 +1312,13 @@ codeunit 134814 "ERM CA Budget"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM CA Budget");
         LibraryVariableStorage.Clear();
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryCostAccounting.InitializeCASetup();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM CA Budget");
 
-        LibraryERMCountryData.SetupCostAccounting;
+        LibraryERMCountryData.SetupCostAccounting();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA Budget");
@@ -1335,7 +1335,7 @@ codeunit 134814 "ERM CA Budget"
         GLBudgetName.FindFirst();
         SetCADimensions(LibraryERM.GetGlobalDimensionCode(1), LibraryERM.GetGlobalDimensionCode(2));
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        CreateCostCentersAndObjects;
+        CreateCostCentersAndObjects();
 
         // Exercise:
         Commit();
@@ -1442,13 +1442,13 @@ codeunit 134814 "ERM CA Budget"
         end;
     end;
 
-    local procedure SetCADimensions(CostCenterDimension: Code[20]; CostObjectDimension: Code[20])
+    local procedure SetCADimensions(CostCenterDimensionCode: Code[20]; CostObjectDimensionCode: Code[20])
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
         CostAccountingSetup.Get();
-        CostAccountingSetup.Validate("Cost Center Dimension", CostCenterDimension);
-        CostAccountingSetup.Validate("Cost Object Dimension", CostObjectDimension);
+        CostAccountingSetup.Validate("Cost Center Dimension", CostCenterDimensionCode);
+        CostAccountingSetup.Validate("Cost Object Dimension", CostObjectDimensionCode);
         CostAccountingSetup.Modify(true);
     end;
 
@@ -1551,11 +1551,11 @@ codeunit 134814 "ERM CA Budget"
         GLBudgetEntry.TestField(Description, StrSubstNo(CopiedBudgetEntryDescription, SourceBudget));
         GLBudgetEntry.TestField("G/L Account No.", FindGLAccount(CostBudgetEntry."Cost Type No."));
 
-        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostCenterDimension, CostBudgetEntry."Cost Center Code") then
-           Error(GLBudgetDimensionError, CostBudgetEntry."Cost Center Code");
+        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostCenterDimension(), CostBudgetEntry."Cost Center Code") then
+            Error(GLBudgetDimensionError, CostBudgetEntry."Cost Center Code");
 
-        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostObjectDimension, CostBudgetEntry."Cost Object Code") then
-           Error(GLBudgetDimensionError, CostBudgetEntry."Cost Object Code");
+        if not VerifyGLBudgetEntryDimension(GLBudgetEntry, CostObjectDimension(), CostBudgetEntry."Cost Object Code") then
+            Error(GLBudgetDimensionError, CostBudgetEntry."Cost Object Code");
     end;
 
     local procedure VerifyGLBudgetEntryDimension(GLBudgetEntry: Record "G/L Budget Entry"; DimensionCode: Code[20]; DimensionValueCode: Code[20]): Boolean
@@ -1650,10 +1650,10 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetNames: TestPage "Cost Budget Names";
         CostTypeBalanceBudget: TestPage "Cost Type Balance/Budget";
     begin
-        CostBudgetNames.OpenView;
+        CostBudgetNames.OpenView();
         CostBudgetNames.FILTER.SetFilter(Name, CostBudgetName);
-        CostTypeBalanceBudget.Trap;
-        CostBudgetNames."Cost Budget/Movement".Invoke;
+        CostTypeBalanceBudget.Trap();
+        CostBudgetNames."Cost Budget/Movement".Invoke();
         CostTypeBalanceBudget.PeriodType.SetValue(Format(CostTypeBalanceBudget.PeriodType.GetOption(1))); // Take Index as 1 for option View By Day.
         CostTypeBalanceBudget.AmountType.SetValue(Format(CostTypeBalanceBudget.AmountType.GetOption(AmountType)));
         CostTypeBalanceBudget.CostCenterFilter.SetValue('');
@@ -1693,7 +1693,7 @@ codeunit 134814 "ERM CA Budget"
     begin
         LibraryVariableStorage.Dequeue(SourceBudget);
         LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', SourceBudget);
-        AllocCostsReqPage.OK.Invoke;
+        AllocCostsReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1708,7 +1708,7 @@ codeunit 134814 "ERM CA Budget"
     begin
         GetSharedVars(SourceBudget, TargetBudget, DateFormula, AmtMultiplyRatio, NoOfCopies);
         LibraryCostAccounting.CopyCABudgetToCABudget(CopyCAToCARP, SourceBudget, TargetBudget, AmtMultiplyRatio, DateFormula, NoOfCopies);
-        CopyCAToCARP.OK.Invoke;
+        CopyCAToCARP.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1725,7 +1725,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CopyCABudgetToGLBudget(
           CopyCAToGLReqPage, SourceBudget, TargetBudget, AmtMultiplyRatio, DateFormula, NoOfCopies);
 
-        CopyCAToGLReqPage.OK.Invoke;
+        CopyCAToGLReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1738,7 +1738,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Dequeue(SourceBudget);
         LibraryVariableStorage.Dequeue(TargetBudget);
         LibraryCostAccounting.CopyGLBudgetToCABudget(CopyGLToCAReqPage, SourceBudget, TargetBudget);
-        CopyGLToCAReqPage.OK.Invoke;
+        CopyGLToCAReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1754,7 +1754,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Dequeue(DateFormula);
         LibraryCostAccounting.CopyGLBudgetToCABudget(CopyGLToCAReqPage, SourceBudget, TargetBudget);
         CopyGLToCAReqPage."Date Change Formula".SetValue(DateFormula);
-        CopyGLToCAReqPage.OK.Invoke;
+        CopyGLToCAReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1767,7 +1767,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Dequeue(SourceBudget);
         LibraryVariableStorage.Dequeue(DateRange);
         LibraryCostAccounting.TransferBudgetToActual(TransferToActualReqPage, SourceBudget, DateRange);
-        TransferToActualReqPage.OK.Invoke;
+        TransferToActualReqPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1779,7 +1779,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Dequeue(BudgetAmount);
         CostBudgetEntriesPage.Date.SetValue(WorkDate());
         CostBudgetEntriesPage.Amount.SetValue(BudgetAmount);
-        CostBudgetEntriesPage.OK.Invoke;
+        CostBudgetEntriesPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

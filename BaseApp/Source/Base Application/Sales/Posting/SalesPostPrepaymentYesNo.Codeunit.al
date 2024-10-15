@@ -28,24 +28,22 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         IsHandled: Boolean;
     begin
         SalesHeader.Copy(SalesHeader2);
-        with SalesHeader do begin
-            IsHandled := false;
-            OnPostPrepmtInvoiceYNOnBeforeConfirm(SalesHeader, IsHandled);
-            if not IsHandled then
-                if not ConfirmForDocument(SalesHeader, Text000) then
-                    exit;
+        IsHandled := false;
+        OnPostPrepmtInvoiceYNOnBeforeConfirm(SalesHeader, IsHandled);
+        if not IsHandled then
+            if not ConfirmForDocument(SalesHeader, Text000) then
+                exit;
 
-            PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
+        PostPrepmtDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
-            if Print then begin
-                Commit();
-                GetReport(SalesHeader, 0);
-            end;
-
-            OnAfterPostPrepmtInvoiceYN(SalesHeader);
-
-            SalesHeader2 := SalesHeader;
+        if Print then begin
+            Commit();
+            GetReport(SalesHeader, 0);
         end;
+
+        OnAfterPostPrepmtInvoiceYN(SalesHeader);
+
+        SalesHeader2 := SalesHeader;
     end;
 
     procedure PostPrepmtCrMemoYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)
@@ -53,20 +51,18 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.Copy(SalesHeader2);
-        with SalesHeader do begin
-            if not ConfirmForDocument(SalesHeader, Text001) then
-                exit;
+        if not ConfirmForDocument(SalesHeader, Text001) then
+            exit;
 
-            PostPrepmtDocument(SalesHeader, "Document Type"::"Credit Memo");
+        PostPrepmtDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
-            if Print then
-                GetReport(SalesHeader, 1);
+        if Print then
+            GetReport(SalesHeader, 1);
 
-            Commit();
-            OnAfterPostPrepmtCrMemoYN(SalesHeader);
+        Commit();
+        OnAfterPostPrepmtCrMemoYN(SalesHeader);
 
-            SalesHeader2 := SalesHeader;
-        end;
+        SalesHeader2 := SalesHeader;
     end;
 
     local procedure ConfirmForDocument(var SalesHeader: Record "Sales Header"; ConfirmationText: Text) Result: Boolean
@@ -122,21 +118,20 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         if IsHandled then
             exit;
 
-        with SalesHeader do
-            case DocumentType of
-                DocumentType::Invoice:
-                    begin
-                        SalesInvHeader."No." := "Last Prepayment No.";
-                        SalesInvHeader.SetRecFilter();
-                        SalesInvHeader.PrintRecords(false);
-                    end;
-                DocumentType::"Credit Memo":
-                    begin
-                        SalesCrMemoHeader."No." := "Last Prepmt. Cr. Memo No.";
-                        SalesCrMemoHeader.SetRecFilter();
-                        SalesCrMemoHeader.PrintRecords(false);
-                    end;
-            end;
+        case DocumentType of
+            DocumentType::Invoice:
+                begin
+                    SalesInvHeader."No." := SalesHeader."Last Prepayment No.";
+                    SalesInvHeader.SetRecFilter();
+                    SalesInvHeader.PrintRecords(false);
+                end;
+            DocumentType::"Credit Memo":
+                begin
+                    SalesCrMemoHeader."No." := SalesHeader."Last Prepmt. Cr. Memo No.";
+                    SalesCrMemoHeader.SetRecFilter();
+                    SalesCrMemoHeader.PrintRecords(false);
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -161,15 +156,13 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         SalesHeader: Record "Sales Header";
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
     begin
-        with SalesHeader do begin
-            Copy(RecVar);
-            Invoice := true;
+        SalesHeader.Copy(RecVar);
+        SalesHeader.Invoice := true;
 
-            if PrepmtDocumentType in [PrepmtDocumentType::Invoice, PrepmtDocumentType::"Credit Memo"] then
-                SalesPostPrepayments.SetDocumentType(PrepmtDocumentType)
-            else
-                Error(UnsupportedDocTypeErr);
-        end;
+        if PrepmtDocumentType in [PrepmtDocumentType::Invoice, PrepmtDocumentType::"Credit Memo"] then
+            SalesPostPrepayments.SetDocumentType(PrepmtDocumentType)
+        else
+            Error(UnsupportedDocTypeErr);
 
         SalesPostPrepayments.SetPreviewMode(true);
         Result := SalesPostPrepayments.Run(SalesHeader);

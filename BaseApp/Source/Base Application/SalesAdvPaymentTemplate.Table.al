@@ -4,6 +4,7 @@ table 31010 "Sales Adv. Payment Template"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

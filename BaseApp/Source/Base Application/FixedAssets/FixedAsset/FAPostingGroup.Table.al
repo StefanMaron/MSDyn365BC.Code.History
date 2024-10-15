@@ -8,6 +8,7 @@ table 5606 "FA Posting Group"
     Caption = 'FA Posting Group';
     DrillDownPageID = "FA Posting Groups";
     LookupPageID = "FA Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -497,7 +498,7 @@ table 5606 "FA Posting Group"
         if DirectPosting then
             GLAcc.TestField("Direct Posting");
 
-        OnAfterCheckGLAcc(AccNo, DirectPosting, Rec);    
+        OnAfterCheckGLAcc(AccNo, DirectPosting, Rec);
     end;
 
     procedure IsReadyForAcqusition(): Boolean

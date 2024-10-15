@@ -13,6 +13,7 @@ table 1296 "Posted Payment Recon. Line"
 {
     Caption = 'Posted Payment Recon. Line';
     PasteIsValid = false;
+    DataClassification = CustomerContent;
 
     fields
     {

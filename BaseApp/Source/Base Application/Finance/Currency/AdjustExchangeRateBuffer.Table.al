@@ -1,22 +1,18 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Currency;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 331 "Adjust Exchange Rate Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Adjust Exchange Rate Buffer';
     ReplicateData = false;
-#if CLEAN21
     TableType = Temporary;
-#else
-    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -85,13 +81,8 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Initial G/L Account No.';
             DataClassification = SystemMetadata;
-#if CLEAN21
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
             ObsoleteReason = 'The field is not used anymore.';
         }
         field(11761; "Document Type"; Option)
@@ -124,57 +115,21 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Advance';
             DataClassification = SystemMetadata;
-#if CLEAN21
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
             ObsoleteReason = 'The field is not used anymore.';
         }
     }
 
     keys
     {
-#if CLEAN21
         key(Key1; "Currency Code", "Posting Group", "Dimension Entry No.", "Posting Date", "IC Partner Code")
-#else
-        key(Key1; "Currency Code", "Posting Group", "Dimension Entry No.", "Posting Date", "IC Partner Code", Advance, "Initial G/L Account No.")
-#endif
         {
             Clustered = true;
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The obsoleted fields will be removed from primary key.';
-            ObsoleteTag = '21.0';
-#endif
         }
     }
 
     fieldgroups
     {
     }
-
-#if not CLEAN21
-    [Obsolete('Use the Get function without the Advance and "Initial G/L Account No." parameters instead. These fields are obsolete and will be removed from primary key.', '21.0')]
-    procedure Get(CurrencyCode: Code[10]; PostingGroup: Code[20]; DimensionEntryNo: Integer; PostingDate: Date; ICPartnerCode: Code[20]; Advance2: Boolean; InitialGLcAcountNo: Code[20]) Result: Boolean
-    var
-        TempAdjustExchangeRateBuffer: Record "Adjust Exchange Rate Buffer" temporary;
-    begin
-        TempAdjustExchangeRateBuffer.CopyFilters(Rec);
-        Reset();
-        SetRange("Currency Code", CurrencyCode);
-        SetRange("Posting Group", PostingGroup);
-        SetRange("Dimension Entry No.", DimensionEntryNo);
-        SetRange("Posting Date", PostingDate);
-        SetRange("IC Partner Code", ICPartnerCode);
-        if Count() > 1 then begin
-            SetRange(Advance, Advance2);
-            SetRange("Initial G/L Account No.", InitialGLcAcountNo);
-        end;
-        Result := FindFirst();
-        CopyFilters(TempAdjustExchangeRateBuffer);
-    end;
-#endif
 }

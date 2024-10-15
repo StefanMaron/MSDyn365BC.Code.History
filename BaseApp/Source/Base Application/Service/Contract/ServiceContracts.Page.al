@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Contract;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
@@ -50,6 +51,18 @@ page 9321 "Service Contracts"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer in the service contract.';
+                    Visible = false;
+                }
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
+                    Visible = false;
+                }
+                field("Bill-to Name"; Rec."Bill-to Name")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Ship-to Code"; Rec."Ship-to Code")
@@ -125,6 +138,14 @@ page 9321 "Service Contracts"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
+                              "Document Type" = const("Service Contract"),
+                              "No." = field("Contract No.");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -263,7 +284,7 @@ page 9321 "Service Contracts"
                     RunPageLink = "Contract Type Relation" = field("Contract Type"),
                                   "Contract No. Relation" = field("Contract No.");
                     RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View service contracts that are filed.';
                 }
                 group("Ser&vice Overview")
@@ -302,7 +323,7 @@ page 9321 "Service Contracts"
                     RunObject = Page "Contract Change Log";
                     RunPageLink = "Contract No." = field("Contract No.");
                     RunPageView = sorting("Contract No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View all changes that have been made to the service contract.';
                 }
                 action("&Gain/Loss Entries")
@@ -313,7 +334,7 @@ page 9321 "Service Contracts"
                     RunObject = Page "Contract Gain/Loss Entries";
                     RunPageLink = "Contract No." = field("Contract No.");
                     RunPageView = sorting("Contract No.", "Change Date")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the contract number, reason code, contract group code, responsibility center, customer number, ship-to code, customer name, and type of change, as well as the contract gain and loss. You can print all your service contract gain/loss entries.';
                 }
             }
@@ -383,9 +404,27 @@ page 9321 "Service Contracts"
 
                 trigger OnAction()
                 var
-                    DocPrint: Codeunit "Document-Print";
+                    DocumentPrint: Codeunit "Document-Print";
                 begin
-                    DocPrint.PrintServiceContract(Rec);
+                    DocumentPrint.PrintServiceContract(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Ellipsis = true;
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceContractHeader: Record "Service Contract Header";
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    ServiceContractHeader := Rec;
+                    ServiceContractHeader.SetRecFilter();
+                    DocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
                 end;
             }
         }
@@ -433,7 +472,7 @@ page 9321 "Service Contracts"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Contract Invoicing";
-                ToolTip = 'Specifies billable profits for the job task that are related to items.';
+                ToolTip = 'Specifies billable profits for the project task that are related to items.';
             }
             action("Service Contract-Customer")
             {
@@ -486,8 +525,16 @@ page 9321 "Service Contracts"
                 actionref("&Open Contract_Promoted"; "&Open Contract")
                 {
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref("Si&gn Contract_Promoted"; "Si&gn Contract")
                 {

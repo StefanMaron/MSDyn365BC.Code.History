@@ -4,6 +4,7 @@ table 31026 "Advance Letter Line Relation"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,18 +17,10 @@ table 31026 "Advance Letter Line Relation"
         field(2; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            TableRelation = if (Type = const(Sale)) "Sales Header"."No." where("Document Type" = field("Document Type"))
-            else
-            if (Type = const(Purchase)) "Purchase Header"."No." where("Document Type" = field("Document Type"));
         }
         field(3; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
-            TableRelation = if (Type = const(Sale)) "Sales Line"."Line No." where("Document Type" = field("Document Type"),
-                                                                                 "Document No." = field("Document No."))
-            else
-            if (Type = const(Purchase)) "Purchase Line"."Line No." where("Document Type" = field("Document Type"),
-                                                                                                                                                  "Document No." = field("Document No."));
         }
         field(4; "Letter No."; Code[20])
         {

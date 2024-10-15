@@ -5,6 +5,7 @@ table 31080 "Export Acc. Schedule"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'The functionality will be removed and this table should not be used.';
+    DataClassification = CustomerContent;
 
     fields
     {

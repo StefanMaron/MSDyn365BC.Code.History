@@ -664,7 +664,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Initialize();
         WhseWorksheetLine.DeleteAll();
 
-        ResetDefaultSafetyLeadTime;
+        ResetDefaultSafetyLeadTime();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -675,7 +675,7 @@ codeunit 137015 "SCM Pick Worksheet"
         CreatePurchase(Item."No.", Location.Code, PurchaseQty, PurchaseQty);
 
         // [GIVEN] Create a purchase order for 15 pcs of item "I"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Item."No.", PurchaseQty * 1.5, Location.Code);
 
         // [GIVEN] Sales order for 25 pcs item "I". Reserve all 25 pcs, create a warehouse shipment and pick. Do not register.
@@ -690,7 +690,7 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // [WHEN] Calculate available quantity to pic on the pick worksheet line
         // [THEN] Quantity available to pick is 0
-        Assert.AreEqual(0, WhseWorksheetLine.AvailableQtyToPick, ErrorDifferentQty);
+        Assert.AreEqual(0, WhseWorksheetLine.AvailableQtyToPick(), ErrorDifferentQty);
     end;
 
     [Test]
@@ -716,7 +716,7 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // [GIVEN] Post stock of item "I" in two parts: 1 piece and 2 pcs
         BaseQty := LibraryRandom.RandInt(10);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Item."No.", BaseQty, Location.Code);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Item."No.", BaseQty * 2, Location.Code);
 
@@ -729,7 +729,7 @@ codeunit 137015 "SCM Pick Worksheet"
 
         // [GIVEN] Create a sales order for item "I" with two lines: 2 pcs and 1 piece
         // [GIVEN] Reserve both sales lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Item."No.", BaseQty * 2, Location.Code);
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
@@ -784,7 +784,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [THEN] "Qty. to Handle" field value must be equal to assigned Qty; NO error must occur.
         WhseWorksheetLine.TestField("Qty. to Handle", Quantity);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1112,7 +1112,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BQC" and Quantity 2 and second with Bin "BP" and Quantity 3
         // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
         CreateTwoWarehouseJnlLinesWithBinsAndZones(
-          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo(), BinCode, ZoneCode, Qty);
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
         PostWhseAdjustment(WarehouseJournalLine."Item No.");
@@ -1170,7 +1170,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BPW" and Quantity 2 and second with Bin "BP" and Quantity 3
         // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
         CreateTwoWarehouseJnlLinesWithBinsAndZones(
-          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo(), BinCode, ZoneCode, Qty);
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
         PostWhseAdjustment(WarehouseJournalLine."Item No.");
@@ -1254,7 +1254,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BP" and Quantity 2 and second with Bin "BPWMD" and Quantity 3
         // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
         CreateTwoWarehouseJnlLinesWithBinsAndZones(
-          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo(), BinCode, ZoneCode, Qty);
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
         PostWhseAdjustment(WarehouseJournalLine."Item No.");
@@ -1293,7 +1293,6 @@ codeunit 137015 "SCM Pick Worksheet"
         WhsePickRequest: Record "Whse. Pick Request";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WarehouseEmployee: Record "Warehouse Employee";
-        BinContent: Record "Bin Content";
         Item: Record Item;
         BinCode: array[2] of Code[20];
         ZoneCode: array[2] of Code[10];
@@ -1319,7 +1318,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BP" and Quantity 2 and second with Bin "BPWMD" and Quantity 3
         // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
         CreateTwoWarehouseJnlLinesWithBinsAndZones(
-          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo(), BinCode, ZoneCode, Qty);
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
         PostWhseAdjustment(WarehouseJournalLine."Item No.");
@@ -1353,7 +1352,6 @@ codeunit 137015 "SCM Pick Worksheet"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ATOLink: Record "Assemble-to-Order Link";
-        AssemblyLine: Record "Assembly Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WhsePickRequest: Record "Whse. Pick Request";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
@@ -1463,7 +1461,7 @@ codeunit 137015 "SCM Pick Worksheet"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
@@ -1585,7 +1583,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetLine.FindFirst();
         Assert.AreEqual(Qty, WhseWorksheetLine.Quantity, ErrorDifferentQty);
         Assert.AreEqual(QtyToHandle, WhseWorksheetLine."Qty. to Handle", ErrorDifferentQtyToHandle);
-        Assert.AreEqual(QtyAvailToPick, WhseWorksheetLine.AvailableQtyToPick, ErrorDifferentAvailQty);
+        Assert.AreEqual(QtyAvailToPick, WhseWorksheetLine.AvailableQtyToPick(), ErrorDifferentAvailQty);
     end;
 
     local procedure PickWorksheetUpdateQtyToHandle(WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; QtyToHandle: Decimal)
@@ -1852,7 +1850,7 @@ codeunit 137015 "SCM Pick Worksheet"
     var
         WhsePickRequest: Record "Whse. Pick Request";
     begin
-        WhsePickRequest.SetRange("Location Code", LibraryVariableStorage.DequeueText);
+        WhsePickRequest.SetRange("Location Code", LibraryVariableStorage.DequeueText());
         WhsePickRequest.FindFirst();
         PickSelection.SetRecord(WhsePickRequest);
         Response := ACTION::LookupOK;

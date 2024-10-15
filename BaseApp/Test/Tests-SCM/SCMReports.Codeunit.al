@@ -117,7 +117,7 @@ codeunit 137309 "SCM Reports"
         // [GIVEN] Item with 2 Positive Adjustments: Location="A" with Qty="X", Location="B" with Qty="Y"
         ItemNo := LibraryInventory.CreateItemNo();
         for i := 1 to 2 do begin
-            LocationCode[i] := CreateLocation;
+            LocationCode[i] := CreateLocation();
             CreateAndPostItemJournal(ItemNo, 0, LocationCode[i]);
         end;
 
@@ -171,7 +171,7 @@ codeunit 137309 "SCM Reports"
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::"Item Ledger Entry");
 
         // Verify: Verify Error Message.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemLedgEntryErrBuf__Item_No__', Item."No.");
         LibraryReportDataset.AssertElementWithValueExists('ItemLedgEntryErrBuf_Error_Text', Format(AvgCostingMethodErr));
     end;
@@ -198,7 +198,7 @@ codeunit 137309 "SCM Reports"
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify: Verify item info is not present in report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         asserterror
           LibraryReportDataset.AssertElementWithValueExists('ItemLedgEntryErrBuf__Item_No__', Item."No.");
         asserterror
@@ -230,7 +230,7 @@ codeunit 137309 "SCM Reports"
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify: Verify report data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCalculateInventoryValueReport(
           'ProdBOMVersionErrBuf__Production_BOM_No__', Item."Production BOM No.",
           'ProdBOMVersionErrBuf_Status', Format(ProductionBOMHeader.Status::"Under Development"));
@@ -265,7 +265,7 @@ codeunit 137309 "SCM Reports"
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCalculateInventoryValueReport(
           'ProdBOMVersionErrBuf__Production_BOM_No__', Item."Production BOM No.",
           'ProdBOMVersionErrBuf_Status', Format(ProductionBOMHeader.Status::"Under Development"));
@@ -358,7 +358,7 @@ codeunit 137309 "SCM Reports"
           CalculateExpectedValue(Item2."Production BOM No.", Component2);
 
         // Verify: Verify data in the Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCompareListReport(Component, ExpectedValue);
         VerifyCompareListReport(Component2, ExpectedValue2);
     end;
@@ -397,7 +397,7 @@ codeunit 137309 "SCM Reports"
 
         // Setup: Create and Refresh Production Order.
         Initialize();
-        ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder);
+        ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder());
 
         // Exercise: Run Subcontractor Dispatch List report without updating Subcontractor No. on Work Center.
         Commit();
@@ -405,8 +405,8 @@ codeunit 137309 "SCM Reports"
         RunSubcontractorDispatchList(ProdOrderRoutingLine);
 
         // Verify: Verify Report is not generated.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Report should be empty.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), 'Report should be empty.');
     end;
 
     [Test]
@@ -421,7 +421,7 @@ codeunit 137309 "SCM Reports"
 
         // Setup: Create and Refresh Production Order.
         Initialize();
-        ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder);
+        ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder());
 
         // Exercise: Run Subcontractor Dispatch List report with updating Subcontractor No. on Work Center.
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
@@ -451,9 +451,9 @@ codeunit 137309 "SCM Reports"
         RunBinContentCreateWorksheetReport(BinCreationWorksheetLine);
 
         // Verify: Verify that the Bin Code and Location Code exist in the Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('BinCode_BinCreateWkshLine', BinCreationWorksheetLine."Bin Code");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_BinCreateWkshLine',
           BinCreationWorksheetLine."Location Code");
     end;
@@ -504,7 +504,7 @@ codeunit 137309 "SCM Reports"
         // Setup: Create Location, Create and modify Item and Create Warehouse Item Journal line.
         Initialize();
         CreateFullWarehouseSetup(Location);
-        ItemNo := CreateBlockedItem;
+        ItemNo := CreateBlockedItem();
         CreateWarehouseItemJournalLine(Location.Code, ItemNo, WorkDate());
 
         // Exercise: Run Warehouse Inventory Registering Test report.
@@ -512,9 +512,9 @@ codeunit 137309 "SCM Reports"
         RunWarehouseInventoryRegisteringTestReport(ItemNo);
 
         // Verify: Warning for Blocked Item exist on the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Warehouse_Journal_Line__Item_No__', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number_',
           Format(StrSubstNo(BlockedMsg, ItemNo)));
     end;
@@ -544,9 +544,9 @@ codeunit 137309 "SCM Reports"
         RunWarehouseInventoryRegisteringTestReport(Item."No.");
 
         // Verify: Warning for Date range exist on the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Warehouse_Journal_Line__Item_No__', Item."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Warehouse_Journal_Line__Registering_Date_', Format(RegisteringDate));
         LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number_',
           Format(StrSubstNo(DateMsg, RegisteringDate)));
@@ -734,11 +734,11 @@ codeunit 137309 "SCM Reports"
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
         // Verify: Verify Values on Rolled-up Cost Shares Test report values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         SelectProductionBOMLines(ProductionBOMLine, ParentItem."Production BOM No.");
         repeat
             LibraryReportDataset.SetRange('ProdBOMLineIndexNo', ProductionBOMLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('BOMCompQtyBase', ProductionBOMLine.Quantity);
         until ProductionBOMLine.Next() = 0;
     end;
@@ -933,9 +933,9 @@ codeunit 137309 "SCM Reports"
 
         // Verify: Verify values on Detailed Calculation Test report values.
         FindRoutingLine(RoutingLine, RoutingVersion."Routing No.", RoutingVersion."Version Code");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('RtngVersionCode', RoutingVersion."Version Code");
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             LibraryReportDataset.AssertCurrentRowValueEquals('OperationNo_RtngLine', RoutingLine."Operation No.")
         else
             Error(RoutingLineNotExistErr, RoutingLine."Operation No.");
@@ -1014,22 +1014,22 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(WorkDate());
 
         // [WHEN] Run Detailed Calculation Report for the "ParentItem"
-        Commit;
+        Commit();
         Item.SetRecFilter();
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
         ProductionBOMLine.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         // [THEN] Line for "ChildItem" is exported with 'CostTotal' = 30 (10 * 3)
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostTotal', ChildItem."Unit Cost" * ProductionBOMLine.Quantity);
         // [THEN] Line for "ChildBOM" is exported with 'CostTotal' = 0
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostTotal', 0);
         // [THEN] Line for "BOMChildItem" is exported with 'CostTotal' = 70 (7 * 5 * 2)
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'CostTotal', BOMChildItem."Unit Cost" * ProductionBOMLineChild.Quantity * ChildBOMQty);
     end;
@@ -1058,7 +1058,7 @@ codeunit 137309 "SCM Reports"
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
         // Verify: Verify no error message appear after running Quantity Explosion of BOM.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_Item', ParentItem."No.");
     end;
 
@@ -1219,7 +1219,7 @@ codeunit 137309 "SCM Reports"
         Initialize();
         // The error "Posting Date is not within your range of allowed posting dates." occur in CZ
         asserterror InvValuationWIPReportForCostPostedtoGL(
-          WorkDate, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate()));
+          WorkDate(), CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(3, 5)), WorkDate()));
     end;
 
     [Test]
@@ -1356,7 +1356,7 @@ codeunit 137309 "SCM Reports"
         REPORT.Run(REPORT::"Assembly BOMs", true, false, ParentItem);
 
         // [THEN] Field "BOM" in the report line corresponding to item "I1" is "Yes", "BOM" in the line corresponding to "COMP" is "No"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAssemblyBOMComponent(ParentItem."No.", ComponentItem."No.", true);
         VerifyAssemblyBOMComponent(ParentItem."No.", BOMComponent."No.", false);
     end;
@@ -1427,7 +1427,7 @@ codeunit 137309 "SCM Reports"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateInventoryPostingSetup;
+        LibraryERMCountryData.UpdateInventoryPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -1494,7 +1494,7 @@ codeunit 137309 "SCM Reports"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(100)); // Use Random Quantity.
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, PurchaseLine.Quantity);
+          LibraryInventory.CreateItemChargeNo(), PurchaseLine.Quantity);
         PurchaseLine.ShowItemChargeAssgnt();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -1510,7 +1510,7 @@ codeunit 137309 "SCM Reports"
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2)); // Use Random Quantity.
         CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, SalesLine.Quantity);
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), SalesLine.Quantity);
         SalesLine.ShowItemChargeAssgnt();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1585,7 +1585,7 @@ codeunit 137309 "SCM Reports"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2));  // Use random Qunatity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));  // Use random Qunatity.
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1885,7 +1885,7 @@ codeunit 137309 "SCM Reports"
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
         // Verify: Verify Values on Detailed Calculation Test report values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         RoutingHeader.Get(Item."Routing No.");
         FindRoutingLine(RoutingLine, RoutingHeader."No.", RoutingHeader."Version Nos.");
         repeat
@@ -2000,7 +2000,7 @@ codeunit 137309 "SCM Reports"
             FindSet();
             repeat
                 CostPostedtoGL += "Cost Amount (Expected)" + "Cost Posted to G/L";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2050,7 +2050,7 @@ codeunit 137309 "SCM Reports"
 
         // Verify: Verify Cost Posted to GL on Inventory Valuation WIP Test Report.
         CostPostedtoGL := GetCostPostedtoGLFromValueEntry(ValueEntry, ProductionOrderNo, InventoryValuationWIPDate);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ValueEntryCostPostedtoGL', -CostPostedtoGL);
 
         // Teardown.
@@ -2112,14 +2112,12 @@ codeunit 137309 "SCM Reports"
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         LibraryCosting: Codeunit "Library - Costing";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         CreateRevaluationJournal(ItemJournalLine);
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CalculateInventoryValue(
           ItemJournalLine, Item, PostingDate, ItemJournalLine."Document No.",
-          CalculatePer::Item, false, false, true, CalculationBase::" ", false);
+          "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ", false);
         UpdateRevaluedUnitCost(ItemJournalLine."Journal Template Name",
           ItemJournalLine."Journal Batch Name", ItemNo, ItemJournalLine."Unit Cost" + UnitCost);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -2337,31 +2335,31 @@ codeunit 137309 "SCM Reports"
     local procedure VerifyCalculateInventoryValueReport(RowCaption: Text; RowValue: Variant; ColumnCaption: Text; ExpectedValue: Variant)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, ExpectedValue);
     end;
 
     local procedure VerifyCompareListReport(ItemNo: Code[20]; ExpectedValue: Decimal)
     begin
         LibraryReportDataset.SetRange('BOMMatrixListItemNo', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CostDiff', ExpectedValue);
     end;
 
     local procedure VerifyItemAgeCompositionReport(ItemNo: Code[20]; Column1: Text; Column2: Text; ExpectedValueColumn1: Variant; ExpectedValueColumn2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(Column1, ExpectedValueColumn1);
         LibraryReportDataset.AssertCurrentRowValueEquals(Column2, ExpectedValueColumn2);
     end;
 
     local procedure VerifyItemChargesSpecificationReport(SourceNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('SourceNo_ValueEntry', SourceNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ValEntyCostAmtActSalesAct', Amount);
     end;
 
@@ -2371,9 +2369,9 @@ codeunit 137309 "SCM Reports"
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_ValueEntry', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity_ValueEntry', ValueEntry."Invoiced Quantity");
         LibraryReportDataset.AssertCurrentRowValueEquals('CostperUnit_ValueEntry', ValueEntry."Cost per Unit");
@@ -2381,31 +2379,31 @@ codeunit 137309 "SCM Reports"
 
     local procedure VerifyItemNoOnItemAgeCompositionReport(ItemNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_Item', ItemNo);
     end;
 
     local procedure VerifySubcontractorDispatchListReport(ProductionOrder: Record "Production Order"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('PONo_ProdOrderRtngLine', ProductionOrder."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OprtnNo_ProdOrderRtngLine', ProdOrderRoutingLine."Operation No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('RemaingQty_ProdOrderLine', ProductionOrder.Quantity);
     end;
 
     local procedure VerifyWarehousePostedShipmentReport(PurchaseLine: Record "Purchase Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_PostedWhseShptLine', PurchaseLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_PostedWhseShptLine', PurchaseLine.Quantity);
     end;
 
     local procedure VerifyInventoryValuationWIPReport(CostAmountExpected: Decimal; StartingDate: Date)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        if StartingDate = WorkDate then begin
+        LibraryReportDataset.LoadDataSetFile();
+        if StartingDate = WorkDate() then begin
             LibraryReportDataset.AssertElementWithValueExists('LastOutput', CostAmountExpected);
             LibraryReportDataset.AssertElementWithValueExists('AtLastDate', CostAmountExpected);
             LibraryReportDataset.AssertElementWithValueExists('ValueOfWIP', 0);
@@ -2421,9 +2419,9 @@ codeunit 137309 "SCM Reports"
     begin
         ProductionBOMLine.SetRange("No.", ChildItemNo);
         SelectProductionBOMLines(ProductionBOMLine, ParentItemProdBOMNo);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('BomCompLevelNo', ChildItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BOMQty', ProductionBOMLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('BomCompLevelQty', ProductionBOMLine.Quantity);
     end;
@@ -2432,11 +2430,11 @@ codeunit 137309 "SCM Reports"
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ProductionBOMLine.SetRange("No.", ChildItemNo);
         SelectProductionBOMLines(ProductionBOMLine, ParentItemProdBOMNo);
         LibraryReportDataset.SetRange('ProdBOMLineIndexNo', ProductionBOMLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BOMCompQtyBase', ProductionBOMLine.Quantity);
     end;
 
@@ -2445,11 +2443,11 @@ codeunit 137309 "SCM Reports"
         ProductionBOMLine: Record "Production BOM Line";
         Item: Record Item;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ProductionBOMLine.SetRange("No.", ChildItemNo);
         SelectProductionBOMLines(ProductionBOMLine, ParentItemProdBOMNo);
         LibraryReportDataset.SetRange('ProdBOMLineLevelNo', ProductionBOMLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         Item.Get(ProductionBOMLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineLevelDesc', Item.Description);
     end;
@@ -2470,10 +2468,10 @@ codeunit 137309 "SCM Reports"
 
     local procedure CountReportSelections(ReportSelectionSalesPage: TestPage "Report Selection - Sales") Result: Integer
     begin
-        if ReportSelectionSalesPage.Last then
+        if ReportSelectionSalesPage.Last() then
             repeat
                 Result += 1;
-            until not ReportSelectionSalesPage.Previous;
+            until not ReportSelectionSalesPage.Previous();
     end;
 
     local procedure VerifySelectedOptionForReportSelectionSales(UsageOptionForPage: Option; UsageOptionForTable: Enum "Report Selection Usage"; ReportID: Integer)
@@ -2487,7 +2485,7 @@ codeunit 137309 "SCM Reports"
         SelectionsWithFilter := CreateRandNumberRepSelections(UsageOptionForTable, ReportID);
 
         // Exercise: run Report Selection - Sales page and select "Pick Instruction" for Usage.
-        ReportSelectionsSalesPage.Trap;
+        ReportSelectionsSalesPage.Trap();
         PAGE.Run(PAGE::"Report Selection - Sales");
         ReportSelectionsSalesPage.ReportUsage.SetValue(UsageOptionForPage);
 
@@ -2502,23 +2500,23 @@ codeunit 137309 "SCM Reports"
     procedure AdjustCostRequestPageHandler(var AdjustCostItemEntries: TestRequestPage "Adjust Cost - Item Entries")
     begin
         AdjustCostItemEntries.Post.SetValue(true);
-        AdjustCostItemEntries.OK.Invoke;
+        AdjustCostItemEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales."Qty. to Assign".SetValue(ItemChargeAssignmentSales.AssignableQty.AsDEcimal);
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(ItemChargeAssignmentSales.AssignableQty.AsDecimal());
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchaseHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(ItemChargeAssignmentPurch.AssignableQty.AsDEcimal);
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(ItemChargeAssignmentPurch.AssignableQty.AsDecimal());
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -2543,14 +2541,14 @@ codeunit 137309 "SCM Reports"
         CompareList.ItemNo2.SetValue(ItemNo2);
         CompareList.CalculationDt.SetValue(CalcDate);
 
-        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BinContentCreationWkshtRequestPageHandler(var BinContentCreateWkshReport: TestRequestPage "Bin Content Create Wksh Report")
     begin
-        BinContentCreateWkshReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BinContentCreateWkshReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2565,17 +2563,17 @@ codeunit 137309 "SCM Reports"
 
         ItemAgeCompositionValue.EndingDate.SetValue(EndingDate);
         ItemAgeCompositionValue.PeriodLength.SetValue(PeriodLength);
-        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemAgeCompositionValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemAgeCompositionQtyRequestPageHandler(var ItemAgeCompositionQty: TestRequestPage "Item Age Composition - Qty.")
     begin
-        ItemAgeCompositionQty.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        ItemAgeCompositionQty.PeriodLength.SetValue(LibraryVariableStorage.DequeueText);
-        ItemAgeCompositionQty.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText);
-        ItemAgeCompositionQty.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemAgeCompositionQty.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ItemAgeCompositionQty.PeriodLength.SetValue(LibraryVariableStorage.DequeueText());
+        ItemAgeCompositionQty.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText());
+        ItemAgeCompositionQty.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2600,7 +2598,7 @@ codeunit 137309 "SCM Reports"
         CalcInventoryValueTest."By Variant".SetValue(ByVariant);
         CalcInventoryValueTest.CalcBase.SetValue(CalcBase);
 
-        CalcInventoryValueTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcInventoryValueTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2615,35 +2613,35 @@ codeunit 137309 "SCM Reports"
 
         ItemChargesSpecification.PrintDetails.SetValue(PrintDetails);
         ItemChargesSpecification.SourceType.SetValue(SourceType);
-        ItemChargesSpecification.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemChargesSpecification.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemRegisterValueRequestPageHandler(var ItemRegisterValue: TestRequestPage "Item Register - Value")
     begin
-        ItemRegisterValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemRegisterValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SubcontractorDispatchListRequestPageHandler(var SubcontractorDispatchList: TestRequestPage "Subcontractor - Dispatch List")
     begin
-        SubcontractorDispatchList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SubcontractorDispatchList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhsePostedShipmentRequestPageHandler(var WhsePostedShipment: TestRequestPage "Whse. - Posted Shipment")
     begin
-        WhsePostedShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WhsePostedShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseInvtRegisteringTestRequestPageHandler(var WhseInvtRegisteringTest: TestRequestPage "Whse. Invt.-Registering - Test")
     begin
-        WhseInvtRegisteringTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WhseInvtRegisteringTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -2679,7 +2677,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Dequeue(StartingDate);
         InventoryValuationWIP.StartingDate.SetValue(StartingDate);
         InventoryValuationWIP.EndingDate.SetValue(CalcDate('<CM>', StartingDate));
-        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -2697,28 +2695,28 @@ codeunit 137309 "SCM Reports"
     begin
         LibraryVariableStorage.Dequeue(CalcDate);
         DetailedCalculation.CalculationDate.SetValue(CalcDate);
-        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RolledUpCostSharesRequestPageHandler(var RolledUpCostShares: TestRequestPage "Rolled-up Cost Shares")
     begin
-        RolledUpCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RolledUpCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure QuantityExplosionOfBOMRequestPageHandler(var QuantityExplosionOfBOM: TestRequestPage "Quantity Explosion of BOM")
     begin
-        QuantityExplosionOfBOM.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        QuantityExplosionOfBOM.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyBOMsRequestPageHandler(var AssemblyBOMs: TestRequestPage "Assembly BOMs")
     begin
-        AssemblyBOMs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2727,7 +2725,7 @@ codeunit 137309 "SCM Reports"
     begin
         AdjustCostItemEntries.FilterItemNo.SetValue(LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Enqueue(AdjustCostItemEntries.FilterItemNo.Value);
-        AdjustCostItemEntries.Cancel().Invoke;
+        AdjustCostItemEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

@@ -4,6 +4,7 @@ table 31029 "Adv. Letter Line Rel. Buffer"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

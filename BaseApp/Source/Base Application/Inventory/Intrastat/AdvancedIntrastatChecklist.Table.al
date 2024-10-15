@@ -17,6 +17,7 @@ table 8452 "Advanced Intrastat Checklist"
     ObsoleteTag = '25.0';
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -38,7 +39,7 @@ table 8452 "Advanced Intrastat Checklist"
             Caption = 'Object Name';
             FieldClass = FlowField;
             Editable = false;
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type"), "Object ID" = field("Object Id")));
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Object Type"), "Object ID" = field("Object Id")));
         }
         field(4; "Field No."; Integer)
         {
@@ -53,7 +54,7 @@ table 8452 "Advanced Intrastat Checklist"
             Caption = 'Field Name';
             FieldClass = FlowField;
             Editable = false;
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = const(263), "No." = field("Field No.")));
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = const(263), "No." = field("Field No.")));
         }
         field(6; "Filter Expression"; Text[1024])
         {
@@ -141,7 +142,7 @@ table 8452 "Advanced Intrastat Checklist"
         MidPos: Integer;
         FinishPos: Integer;
     begin
-        WHILE FilterString <> '' DO begin
+        while FilterString <> '' do begin
             // Convert "Type: Receipt" to "Type=FILTER(Receipt)"
             MidPos := StrPos(FilterString, ':');
             if MidPos < 2 then

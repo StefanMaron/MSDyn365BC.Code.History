@@ -4,6 +4,7 @@ table 31017 "Advance Link"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

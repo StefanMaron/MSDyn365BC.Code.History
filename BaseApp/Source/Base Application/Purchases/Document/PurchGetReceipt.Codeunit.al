@@ -47,66 +47,65 @@ codeunit 74 "Purch.-Get Receipt"
     begin
         IsHandled := false;
         OnBeforeCreateInvLines(PurchRcptLine2, TransferLine, IsHandled);
-        if not IsHandled then
-            with PurchRcptLine2 do begin
-                SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-                OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
-                if Find('-') then begin
-                    PurchLine.LockTable();
-                    PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-                    PurchLine.SetRange("Document No.", PurchHeader."No.");
-                    PurchLine."Document Type" := PurchHeader."Document Type";
-                    PurchLine."Document No." := PurchHeader."No.";
+        if not IsHandled then begin
+            PurchRcptLine2.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
+            OnCreateInvLinesOnBeforeFind(PurchRcptLine2, PurchHeader);
+            if PurchRcptLine2.Find('-') then begin
+                PurchLine.LockTable();
+                PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+                PurchLine.SetRange("Document No.", PurchHeader."No.");
+                PurchLine."Document Type" := PurchHeader."Document Type";
+                PurchLine."Document No." := PurchHeader."No.";
 
-                    OnBeforeInsertLines(PurchHeader, PurchLine);
+                OnBeforeInsertLines(PurchHeader, PurchLine);
 
-                    repeat
-                        IsHandled := false;
-                        OnCreateInvLinesOnBeforeInsertLineIteration(PurchRcptLine2, PurchRcptHeader, PurchHeader, PurchLine, TransferLine, IsHandled);
-                        if not IsHandled then
-                            if PurchRcptHeader."No." <> "Document No." then begin
-                                PurchRcptHeader.Get("Document No.");
-                                TransferLine := true;
-                                if PurchRcptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
-                                    Message(
-                                      Text000,
-                                      PurchHeader.FieldCaption("Currency Code"),
-                                      PurchHeader.TableCaption(), PurchHeader."No.",
-                                      PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
-                                    TransferLine := false;
-                                end;
-                                ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
-                                OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader, PurchRcptHeader, TransferLine, ShowDifferentPayToVendMsg);
-                                if ShowDifferentPayToVendMsg then begin
-                                    Message(
-                                      Text000,
-                                      PurchHeader.FieldCaption("Pay-to Vendor No."),
-                                      PurchHeader.TableCaption(), PurchHeader."No.",
-                                      PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
-                                    TransferLine := false;
-                                end;
-                                OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
+                repeat
+                    IsHandled := false;
+                    OnCreateInvLinesOnBeforeInsertLineIteration(PurchRcptLine2, PurchRcptHeader, PurchHeader, PurchLine, TransferLine, IsHandled);
+                    if not IsHandled then
+                        if PurchRcptHeader."No." <> PurchRcptLine2."Document No." then begin
+                            PurchRcptHeader.Get(PurchRcptLine2."Document No.");
+                            TransferLine := true;
+                            if PurchRcptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
+                                Message(
+                                  Text000,
+                                  PurchHeader.FieldCaption("Currency Code"),
+                                  PurchHeader.TableCaption(), PurchHeader."No.",
+                                  PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
+                                TransferLine := false;
                             end;
-                        InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
-                        if PurchRcptLine2."Order No." <> '' then
-                            if not OrderNoList.Contains(PurchRcptLine2."Order No.") then
-                                OrderNoList.Add(PurchRcptLine2."Order No.");
-                    until Next() = 0;
+                            ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
+                            OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader, PurchRcptHeader, TransferLine, ShowDifferentPayToVendMsg);
+                            if ShowDifferentPayToVendMsg then begin
+                                Message(
+                                  Text000,
+                                  PurchHeader.FieldCaption("Pay-to Vendor No."),
+                                  PurchHeader.TableCaption(), PurchHeader."No.",
+                                  PurchRcptHeader.TableCaption(), PurchRcptHeader."No.");
+                                TransferLine := false;
+                            end;
+                            OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
+                        end;
+                    InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
+                    if PurchRcptLine2."Order No." <> '' then
+                        if not OrderNoList.Contains(PurchRcptLine2."Order No.") then
+                            OrderNoList.Add(PurchRcptLine2."Order No.");
+                until PurchRcptLine2.Next() = 0;
 
-                    UpdateItemChargeLines();
+                UpdateItemChargeLines();
 
-                    if PurchLine.Find() then;
+                if PurchLine.Find() then;
 
-                    OnAfterInsertLines(PurchHeader);
+                OnAfterInsertLines(PurchHeader);
 
-                    CalcInvoiceDiscount(PurchLine);
-                    OnAfterCalcInvoiceDiscount(PurchHeader);
+                CalcInvoiceDiscount(PurchLine);
+                OnAfterCalcInvoiceDiscount(PurchHeader);
 
-                    if TransferLine then
-                        AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
-                    CopyDocumentAttachments(OrderNoList, PurchHeader);
-                end;
+                if TransferLine then
+                    AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
+                CopyDocumentAttachments(OrderNoList, PurchHeader);
             end;
+        end;
 
         OnAfterCreateInvLines(PurchHeader, PurchLine);
     end;
@@ -214,71 +213,69 @@ codeunit 74 "Purch.-Get Receipt"
         InsertChargeAssgnt: Boolean;
         LineQtyToAssign: Decimal;
     begin
-        with PurchOrderLine do begin
-            ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
-            ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
-            ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
-            if ItemChargeAssgntPurch.Find('-') then
-                repeat
-                    if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then begin
-                        ItemChargeAssgntPurch2 := ItemChargeAssgntPurch;
-                        ItemChargeAssgntPurch2."Qty. to Assign" :=
-                          Round(QtyFactor * ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision());
-                        ItemChargeAssgntPurch2.Validate("Qty. to Handle", ItemChargeAssgntPurch2."Qty. to Assign");
-                        PurchLine2.SetRange("Receipt No.", PurchRcptLine."Document No.");
-                        PurchLine2.SetRange("Receipt Line No.", PurchRcptLine."Line No.");
-                        if PurchLine2.Find('-') then
-                            repeat
-                                PurchLine2.CalcFields("Qty. to Assign");
-                                InsertChargeAssgnt := PurchLine2."Qty. to Assign" <> PurchLine2.Quantity;
-                            until (PurchLine2.Next() = 0) or InsertChargeAssgnt;
+        ItemChargeAssgntPurch.SetRange("Document Type", PurchOrderLine."Document Type");
+        ItemChargeAssgntPurch.SetRange("Document No.", PurchOrderLine."Document No.");
+        ItemChargeAssgntPurch.SetRange("Document Line No.", PurchOrderLine."Line No.");
+        if ItemChargeAssgntPurch.Find('-') then
+            repeat
+                if ItemChargeAssgntPurch."Qty. to Assign" <> 0 then begin
+                    ItemChargeAssgntPurch2 := ItemChargeAssgntPurch;
+                    ItemChargeAssgntPurch2."Qty. to Assign" :=
+                      Round(QtyFactor * ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision());
+                    ItemChargeAssgntPurch2.Validate("Qty. to Handle", ItemChargeAssgntPurch2."Qty. to Assign");
+                    PurchLine2.SetRange("Receipt No.", PurchRcptLine."Document No.");
+                    PurchLine2.SetRange("Receipt Line No.", PurchRcptLine."Line No.");
+                    if PurchLine2.Find('-') then
+                        repeat
+                            PurchLine2.CalcFields("Qty. to Assign");
+                            InsertChargeAssgnt := PurchLine2."Qty. to Assign" <> PurchLine2.Quantity;
+                        until (PurchLine2.Next() = 0) or InsertChargeAssgnt;
 
+                    if InsertChargeAssgnt then begin
+                        ItemChargeAssgntPurch2."Document Type" := PurchLine2."Document Type";
+                        ItemChargeAssgntPurch2."Document No." := PurchLine2."Document No.";
+                        ItemChargeAssgntPurch2."Document Line No." := PurchLine2."Line No.";
+                        ItemChargeAssgntPurch2."Qty. Assigned" := 0;
+                        LineQtyToAssign :=
+                          ItemChargeAssgntPurch2."Qty. to Assign" - GetQtyAssignedInNewLine(ItemChargeAssgntPurch2);
+                        InsertChargeAssgnt := LineQtyToAssign <> 0;
                         if InsertChargeAssgnt then begin
-                            ItemChargeAssgntPurch2."Document Type" := PurchLine2."Document Type";
-                            ItemChargeAssgntPurch2."Document No." := PurchLine2."Document No.";
-                            ItemChargeAssgntPurch2."Document Line No." := PurchLine2."Line No.";
-                            ItemChargeAssgntPurch2."Qty. Assigned" := 0;
-                            LineQtyToAssign :=
-                              ItemChargeAssgntPurch2."Qty. to Assign" - GetQtyAssignedInNewLine(ItemChargeAssgntPurch2);
-                            InsertChargeAssgnt := LineQtyToAssign <> 0;
-                            if InsertChargeAssgnt then begin
-                                if Abs(QtyToAssign) < Abs(LineQtyToAssign) then
-                                    ItemChargeAssgntPurch2."Qty. to Assign" := QtyToAssign;
-                                if Abs(PurchLine2.Quantity - PurchLine2."Qty. to Assign") <
-                                   Abs(LineQtyToAssign)
-                                then
-                                    ItemChargeAssgntPurch2."Qty. to Assign" :=
-                                      PurchLine2.Quantity - PurchLine2."Qty. to Assign";
-                                ItemChargeAssgntPurch2.Validate("Unit Cost");
+                            if Abs(QtyToAssign) < Abs(LineQtyToAssign) then
+                                ItemChargeAssgntPurch2."Qty. to Assign" := QtyToAssign;
+                            if Abs(PurchLine2.Quantity - PurchLine2."Qty. to Assign") <
+                               Abs(LineQtyToAssign)
+                            then
+                                ItemChargeAssgntPurch2."Qty. to Assign" :=
+                                  PurchLine2.Quantity - PurchLine2."Qty. to Assign";
+                            ItemChargeAssgntPurch2.Validate("Unit Cost");
 
-                                if ItemChargeAssgntPurch2."Applies-to Doc. Type" = "Document Type" then begin
-                                    ItemChargeAssgntPurch2."Applies-to Doc. Type" := PurchLine2."Document Type";
-                                    ItemChargeAssgntPurch2."Applies-to Doc. No." := PurchLine2."Document No.";
-                                    SetReceiptPurchLineFilters(PurchRcptLine2, ItemChargeAssgntPurch, PurchLine2);
-                                    if PurchRcptLine2.FindFirst() then begin
-                                        PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
-                                        PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::Invoice);
-                                        PurchLine2.SetRange("Receipt No.", PurchRcptLine2."Document No.");
-                                        PurchLine2.SetRange("Receipt Line No.", PurchRcptLine2."Line No.");
-                                        OnCopyItemChargeAssgntOnBeforeFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2, PurchRcptLine);
-                                        if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then begin
-                                            OnCopyItemChargeAssgntOnAfterFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
-                                            ItemChargeAssgntPurch2."Applies-to Doc. Line No." := PurchLine2."Line No.";
-                                        end else
-                                            InsertChargeAssgnt := false;
+                            if ItemChargeAssgntPurch2."Applies-to Doc. Type" = PurchOrderLine."Document Type" then begin
+                                ItemChargeAssgntPurch2."Applies-to Doc. Type" := PurchLine2."Document Type";
+                                ItemChargeAssgntPurch2."Applies-to Doc. No." := PurchLine2."Document No.";
+                                SetReceiptPurchLineFilters(PurchRcptLine2, ItemChargeAssgntPurch, PurchLine2);
+                                if PurchRcptLine2.FindFirst() then begin
+                                    PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
+                                    PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::Invoice);
+                                    PurchLine2.SetRange("Receipt No.", PurchRcptLine2."Document No.");
+                                    PurchLine2.SetRange("Receipt Line No.", PurchRcptLine2."Line No.");
+                                    OnCopyItemChargeAssgntOnBeforeFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2, PurchRcptLine);
+                                    if PurchLine2.Find('-') and (PurchLine2.Quantity <> 0) then begin
+                                        OnCopyItemChargeAssgntOnAfterFindPurchLine2(PurchLine2, ItemChargeAssgntPurch2);
+                                        ItemChargeAssgntPurch2."Applies-to Doc. Line No." := PurchLine2."Line No.";
                                     end else
                                         InsertChargeAssgnt := false;
-                                end;
+                                end else
+                                    InsertChargeAssgnt := false;
                             end;
                         end;
-
-                        if InsertChargeAssgnt and (ItemChargeAssgntPurch2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntPurch2.Insert();
-                            QtyToAssign := QtyToAssign - ItemChargeAssgntPurch2."Qty. to Assign";
-                        end;
                     end;
-                until ItemChargeAssgntPurch.Next() = 0;
-        end;
+
+                    if InsertChargeAssgnt and (ItemChargeAssgntPurch2."Qty. to Assign" <> 0) then begin
+                        ItemChargeAssgntPurch2.Insert();
+                        QtyToAssign := QtyToAssign - ItemChargeAssgntPurch2."Qty. to Assign";
+                    end;
+                end;
+            until ItemChargeAssgntPurch.Next() = 0;
     end;
 
     local procedure SetReceiptPurchLineFilters(var PurchRcptLine2: Record "Purch. Rcpt. Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var PurchLine2: Record "Purchase Line")
@@ -308,16 +305,14 @@ codeunit 74 "Purch.-Get Receipt"
 
     local procedure GetQtyAssignedInNewLine(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"): Decimal
     begin
-        with ItemChargeAssgntPurch do begin
-            SetRange("Document Type", "Document Type");
-            SetRange("Document No.", "Document No.");
-            SetRange("Document Line No.", "Document Line No.");
-            SetRange("Applies-to Doc. Type", "Applies-to Doc. Type");
-            SetRange("Applies-to Doc. No.", "Applies-to Doc. No.");
-            SetRange("Applies-to Doc. Line No.", "Applies-to Doc. Line No.");
-            CalcSums("Qty. to Assign");
-            exit("Qty. to Assign");
-        end;
+        ItemChargeAssgntPurch.SetRange("Document Type", ItemChargeAssgntPurch."Document Type");
+        ItemChargeAssgntPurch.SetRange("Document No.", ItemChargeAssgntPurch."Document No.");
+        ItemChargeAssgntPurch.SetRange("Document Line No.", ItemChargeAssgntPurch."Document Line No.");
+        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type");
+        ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", ItemChargeAssgntPurch."Applies-to Doc. No.");
+        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+        ItemChargeAssgntPurch.CalcSums("Qty. to Assign");
+        exit(ItemChargeAssgntPurch."Qty. to Assign");
     end;
 
     local procedure CalcInvoiceDiscount(var PurchLine: Record "Purchase Line")
@@ -418,7 +413,7 @@ codeunit 74 "Purch.-Get Receipt"
     begin
         IsHandled := false;
         OnBeforeCopyDocumentAttachments(OrderNoList, PurchaseHeader, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         OrderPurchaseHeader.ReadIsolation := IsolationLevel::ReadCommitted;

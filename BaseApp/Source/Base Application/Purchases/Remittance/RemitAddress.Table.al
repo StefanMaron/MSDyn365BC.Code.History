@@ -12,6 +12,7 @@ table 2224 "Remit Address"
     LookupPageID = "Remit Address List";
     DrillDownPageID = "Remit Address List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -142,11 +143,24 @@ table 2224 "Remit Address"
             end;
 #pragma warning restore AA0139
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
     }
 
     keys

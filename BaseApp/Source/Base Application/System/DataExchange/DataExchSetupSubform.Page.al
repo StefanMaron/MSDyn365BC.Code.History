@@ -66,9 +66,6 @@ page 1265 "Data Exch. Setup Subform"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Data Exchange Definition';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Page "Data Exch Def Card";
                 RunPageLink = Code = field("Data Exchange Def Code");
                 ToolTip = 'Set up a data exchange definition that enables you to exchange data, such as by sending electronic documents or importing bank files.';

@@ -21,6 +21,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -31,7 +32,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ClearType: Option "Posting Group","Location Posting Setup","Posting Group Setup";
         ItemPostGrErr: Label 'Inventory Posting Group must have a value in Item: No.=%1. It cannot be zero or empty.';
         ResPostGrErr: Label 'Gen. Prod. Posting Group must have a value in Resource: No.=%1. It cannot be zero or empty.';
-        NoSeriesErr: Label 'You have insufficient quantity of Item';
         AsmItemPostingErr: Label 'Gen. Prod. Posting Group must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
         isInitialized: Boolean;
         AvailCheckErr: Label 'You have insufficient quantity of Item %1 on inventory.';
@@ -45,6 +45,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         MsgUpdateDim: Label 'Do you want to update the Dimensions on the lines?';
         ErrorSelectDimValue: Label 'The Dimension Value Code must be';
         ErrorInvalidDimensions: Label 'The dimensions that are used in Order ';
+        NoSeriesErr: Label 'You have insufficient quantity of Item';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
@@ -60,7 +61,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ClearLastError();
         LibrarySetupStorage.Restore();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '',
-          AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card", LibraryUtility.GetGlobalNoSeriesCode);
+          AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card", LibraryUtility.GetGlobalNoSeriesCode());
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
@@ -89,7 +90,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     begin
         // Setup.
         Initialize();
-        LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', DimensionsFrom, LibraryUtility.GetGlobalNoSeriesCode);
+        LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', DimensionsFrom, LibraryUtility.GetGlobalNoSeriesCode());
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
@@ -121,10 +122,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         end;
 
         // Tear down.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,NothingPostedMessageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure BlockHeaderDim()
     var
@@ -139,7 +141,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockCompDim()
     var
@@ -154,7 +156,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllDim()
     var
@@ -169,7 +171,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockHeaderDimVal()
     var
@@ -184,7 +186,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockCompDimComb()
     var
@@ -199,7 +201,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockHeaderDimComb()
     var
@@ -214,7 +216,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllCombined1()
     var
@@ -229,7 +231,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllCombined2()
     var
@@ -244,7 +246,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure HeaderDimOverride()
     var
@@ -259,7 +261,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure HeaderDimIncorrectValue()
     var
@@ -274,7 +276,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure CompDimIncorrectValue()
     var
@@ -307,10 +309,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Verify.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(PostingDateErr, AssemblyHeader."No."));
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure BeforePostingAllowed()
     begin
@@ -321,7 +323,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AfterPostingAllowed()
     begin
@@ -332,7 +333,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure BoundaryPostingAllowed()
     var
@@ -354,10 +354,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Verify.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure MissingHeaderPostingGroups(HeaderClearType: Option)
     var
         AssemblyHeader: Record "Assembly Header";
@@ -369,7 +369,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code, AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, Location.Code, true);
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
@@ -385,11 +385,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Tear down.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure HeaderLocationPostingSetup()
     begin
@@ -400,7 +400,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure HeaderPostingGrSetup()
     begin
@@ -411,7 +410,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure MissingCompPostingGrSetup(CompClearType: Option; CompType: Enum "BOM Component Type")
     var
         AssemblyHeader: Record "Assembly Header";
@@ -423,7 +421,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code, AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, Location.Code, true);
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
@@ -444,11 +442,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Tear down.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CompLocationPostingSetup()
     begin
@@ -459,7 +457,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CompPostingGroupSetup()
     begin
@@ -470,7 +467,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure MissingHeaderItemPostingGroups()
     var
@@ -499,10 +495,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, AsmItemPostingErr);
 
         // Tear down.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure MissingCompPostingGroups(Type: Enum "BOM Component Type")
     var
         Item: Record Item;
@@ -546,10 +542,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
                     ClearLastError();
                 end;
         end;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure MissingItemPostingGroups()
     begin
@@ -560,7 +556,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure MissingResourcePostingGroups()
     begin
@@ -571,7 +566,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure MissingPostedDocNoSeries()
     var
@@ -584,7 +578,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Setup.
         Initialize();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
 
@@ -596,7 +590,8 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Tear down.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -633,10 +628,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
               "Shortcut Dimension 2 Code",
               LibraryDimension.FindDifferentDimensionValue(DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
         AssemblyHeader.Modify(true);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvailabilityCheck()
     var
@@ -659,10 +654,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Verify.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(AvailCheckErr, ItemNo[1]));
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; UseBaseUnitOfMeasure: Boolean; UpdateUnitCost: Boolean; HeaderAdjustFactor: Decimal)
     var
         Item: Record Item;
@@ -705,10 +700,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly.VerifyItemRegister(AssemblyHeader);
 
         // Tear down.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ItemQtyPer()
     begin
@@ -720,7 +715,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ResQtyPer()
     begin
@@ -733,7 +727,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure UnitOfMeasure()
     begin
@@ -745,7 +738,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ReplaceItemWItem()
     begin
@@ -757,7 +749,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ReplaceItemWRes()
     begin
@@ -770,7 +761,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddItem()
     begin
@@ -821,7 +811,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddDirectRes()
     begin
@@ -834,7 +823,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddFixedRes()
     begin
@@ -847,7 +835,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteItem()
     begin
@@ -860,7 +847,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteRes()
     begin
@@ -873,7 +859,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure DeleteAllUpdHeader(HeaderAdjFactor: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
@@ -891,10 +876,10 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Verify.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteAll()
     begin
@@ -905,7 +890,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteAllSetQtyToZero()
     begin
@@ -916,7 +900,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure Usage()
     begin
@@ -929,7 +912,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ReplaceItemWItemUpdCost()
     begin
@@ -941,7 +923,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddItemUpdCost()
     begin
@@ -953,7 +934,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddFixedResUpdCost()
     begin
@@ -966,7 +946,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteResUpdCost()
     begin
@@ -979,7 +958,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure HeaderQty()
     begin
@@ -992,7 +970,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure HeaderQtyLineUpdate()
     begin
@@ -1005,7 +982,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure HeaderUnitCost()
     begin
@@ -1018,7 +994,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure NormalPosting(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; ExpectedError: Text[1024]; IndirectCost: Decimal; PostWithoutAdj: Boolean): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
@@ -1074,12 +1049,12 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Tear down.
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         exit(AssemblyHeader."No.");
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure NormalPostGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; PerPostingGroup: Boolean; IndirectCost: Decimal; PostWithoutAdj: Boolean)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
@@ -1113,10 +1088,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Tear down.
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure SunshineSTDAVG()
     begin
@@ -1127,7 +1103,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure PartialSTDFIFO()
     begin
@@ -1138,7 +1114,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure ZeroQtyToAssemble()
     begin
@@ -1149,7 +1125,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure ZeroQtyOnLines()
     begin
@@ -1160,7 +1136,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure IndirectCostSTDSTD()
     begin
@@ -1171,7 +1147,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure SunshineFIFOSTD()
     begin
@@ -1182,7 +1158,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure PartialAVGSTD()
     begin
@@ -1193,7 +1169,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure IndirectCostFIFOAVG()
     begin
@@ -1204,7 +1180,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler')]
+    [HandlerFunctions('StatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure SunshineAVGFIFO()
     begin
@@ -1215,7 +1191,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsPageHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SunshineGL()
     begin
@@ -1226,7 +1202,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsPageHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PartialGL()
     begin
@@ -1237,7 +1213,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsPageHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure IndirectCostGL()
     begin
@@ -1248,7 +1224,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsPageHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PostBeforeAdj()
     begin
@@ -1259,7 +1235,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,StatisticsPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsPageHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PostNoAdjPerPostingGr()
     begin
@@ -1270,7 +1246,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostFromPage()
     var
@@ -1306,10 +1282,11 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Tear down.
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,PostedStatisticsPageHandler')]
+    [HandlerFunctions('PostedStatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure PostedOrderStatistics()
     var
@@ -1327,8 +1304,9 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         // Verify.
-        InitRefPostAsmStatisticsData;
+        InitRefPostAsmStatisticsData();
         CheckPostedStatisticsPage(AssemblyHeader);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -1336,14 +1314,14 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     var
         AssemblyOrder: TestPage "Assembly Order";
     begin
-        AssemblyOrder.OpenEdit;
+        AssemblyOrder.OpenEdit();
         AssemblyOrder.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrder.GotoRecord(AssemblyHeader);
 
         // Open statistics page.
-        AssemblyOrder.Action14.Invoke;
+        AssemblyOrder.Action14.Invoke();
 
-        AssemblyOrder.OK.Invoke;
+        AssemblyOrder.OK().Invoke();
     end;
 
     [Normal]
@@ -1354,14 +1332,14 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     begin
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.FindLast();
-        PostedAssemblyOrder.OpenEdit;
+        PostedAssemblyOrder.OpenEdit();
         PostedAssemblyOrder.FILTER.SetFilter("No.", PostedAssemblyHeader."No.");
         PostedAssemblyOrder.GotoRecord(PostedAssemblyHeader);
 
         // Open statistics page.
-        PostedAssemblyOrder.Statistics.Invoke;
+        PostedAssemblyOrder.Statistics.Invoke();
 
-        PostedAssemblyOrder.OK.Invoke;
+        PostedAssemblyOrder.OK().Invoke();
     end;
 
     local procedure InitPostedStatScenario(var AssemblyHeader: Record "Assembly Header")
@@ -1454,14 +1432,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     [Normal]
     local procedure VerifyStatisticsField(ExpectedValue: Decimal; ActualValue: Decimal; ErrorMessage: Text[1024])
     begin
-        Assert.AreNearlyEqual(ExpectedValue, ActualValue, LibraryERM.GetAmountRoundingPrecision, ErrorMessage);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
+        Assert.AreNearlyEqual(ExpectedValue, ActualValue, LibraryERM.GetAmountRoundingPrecision(), ErrorMessage);
     end;
 
     [PageHandler]
@@ -1470,42 +1441,42 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     begin
         VerifyStatisticsField(
           GlobalMaterialCost,
-          AssemblyOrderStatistics.ExpMatCost.AsDEcimal,
+          AssemblyOrderStatistics.ExpMatCost.AsDecimal(),
           'Wrong Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalResourceCost,
-          AssemblyOrderStatistics.ExpResCost.AsDEcimal,
+          AssemblyOrderStatistics.ExpResCost.AsDecimal(),
           'Wrong Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalResourceOvhd,
-          AssemblyOrderStatistics.ExpResOvhd.AsDEcimal,
+          AssemblyOrderStatistics.ExpResOvhd.AsDecimal(),
           'Wrong Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalMaterialCost + GlobalResourceCost + GlobalResourceOvhd + GlobalAsmOvhd,
-          AssemblyOrderStatistics.ExpTotalCost.AsDEcimal,
+          AssemblyOrderStatistics.ExpTotalCost.AsDecimal(),
           'Wrong Cost Amount on Statistics page');
 
         VerifyStatisticsField(
           GlobalMaterialCost * GlobalPartialPostFactor,
-          AssemblyOrderStatistics.ActMatCost.AsDEcimal,
+          AssemblyOrderStatistics.ActMatCost.AsDecimal(),
           'Wrong Actual Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalResourceCost * GlobalPartialPostFactor,
-          AssemblyOrderStatistics.ActResCost.AsDEcimal,
+          AssemblyOrderStatistics.ActResCost.AsDecimal(),
           'Wrong Actual Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalResourceOvhd * GlobalPartialPostFactor,
-          AssemblyOrderStatistics.ActResOvhd.AsDEcimal,
+          AssemblyOrderStatistics.ActResOvhd.AsDecimal(),
           'Wrong Actual Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           (GlobalMaterialCost + GlobalResourceCost + GlobalResourceOvhd + GlobalAsmOvhd) * GlobalPartialPostFactor,
-          AssemblyOrderStatistics.ActTotalCost.AsDEcimal,
+          AssemblyOrderStatistics.ActTotalCost.AsDecimal(),
           'Wrong Actual cost amount on Statistics page.');
     end;
 
@@ -1519,131 +1490,131 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Standard cost
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::StdCost, RowIdx::MatCost],
-          PostedAsmOrderStatistics.StdMatCost.AsDEcimal,
+          PostedAsmOrderStatistics.StdMatCost.AsDecimal(),
           'Wrong Standard Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::StdCost, RowIdx::ResCost],
-          PostedAsmOrderStatistics.StdResCost.AsDEcimal,
+          PostedAsmOrderStatistics.StdResCost.AsDecimal(),
           'Wrong Standard Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::StdCost, RowIdx::ResOvhd],
-          PostedAsmOrderStatistics.StdResOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.StdResOvhd.AsDecimal(),
           'Wrong Standard Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::StdCost, RowIdx::AsmOvhd],
-          PostedAsmOrderStatistics.StdAsmOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.StdAsmOvhd.AsDecimal(),
           'Wrong Standard Asm. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::StdCost, RowIdx::Total],
-          PostedAsmOrderStatistics.StdTotalCost.AsDEcimal,
+          PostedAsmOrderStatistics.StdTotalCost.AsDecimal(),
           'Wrong Standard Total Cost Amount on Statistics page');
 
         // Expected cost
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ExpCost, RowIdx::MatCost],
-          PostedAsmOrderStatistics.ExpMatCost.AsDEcimal,
+          PostedAsmOrderStatistics.ExpMatCost.AsDecimal(),
           'Wrong Expected Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ExpCost, RowIdx::ResCost],
-          PostedAsmOrderStatistics.ExpResCost.AsDEcimal,
+          PostedAsmOrderStatistics.ExpResCost.AsDecimal(),
           'Wrong Expected Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ExpCost, RowIdx::ResOvhd],
-          PostedAsmOrderStatistics.ExpResOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.ExpResOvhd.AsDecimal(),
           'Wrong Expected Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ExpCost, RowIdx::AsmOvhd],
-          PostedAsmOrderStatistics.ExpAsmOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.ExpAsmOvhd.AsDecimal(),
           'Wrong Expected Asm. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ExpCost, RowIdx::Total],
-          PostedAsmOrderStatistics.ExpTotalCost.AsDEcimal,
+          PostedAsmOrderStatistics.ExpTotalCost.AsDecimal(),
           'Wrong Expected Total Cost Amount on Statistics page');
 
         // Actual cost
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ActCost, RowIdx::MatCost],
-          PostedAsmOrderStatistics.ActMatCost.AsDEcimal,
+          PostedAsmOrderStatistics.ActMatCost.AsDecimal(),
           'Wrong Actual Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ActCost, RowIdx::ResCost],
-          PostedAsmOrderStatistics.ActResCost.AsDEcimal,
+          PostedAsmOrderStatistics.ActResCost.AsDecimal(),
           'Wrong Actual Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ActCost, RowIdx::ResOvhd],
-          PostedAsmOrderStatistics.ActResOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.ActResOvhd.AsDecimal(),
           'Wrong Actual Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ActCost, RowIdx::AsmOvhd],
-          PostedAsmOrderStatistics.ActAsmOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.ActAsmOvhd.AsDecimal(),
           'Wrong Actual Asm. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::ActCost, RowIdx::Total],
-          PostedAsmOrderStatistics.ActTotalCost.AsDEcimal,
+          PostedAsmOrderStatistics.ActTotalCost.AsDecimal(),
           'Wrong Actual Total Cost Amount on Statistics page');
 
         // Dev. %
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::Dev, RowIdx::MatCost],
-          PostedAsmOrderStatistics.DevMatCost.AsDEcimal,
+          PostedAsmOrderStatistics.DevMatCost.AsDecimal(),
           'Wrong Dev. % Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::Dev, RowIdx::ResCost],
-          PostedAsmOrderStatistics.DevResCost.AsDEcimal,
+          PostedAsmOrderStatistics.DevResCost.AsDecimal(),
           'Wrong Dev. % Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::Dev, RowIdx::ResOvhd],
-          PostedAsmOrderStatistics.DevResOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.DevResOvhd.AsDecimal(),
           'Wrong Dev. % Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::Dev, RowIdx::AsmOvhd],
-          PostedAsmOrderStatistics.DevAsmOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.DevAsmOvhd.AsDecimal(),
           'Wrong Dev. % Asm. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::Dev, RowIdx::Total],
-          PostedAsmOrderStatistics.DevTotalCost.AsDEcimal,
+          PostedAsmOrderStatistics.DevTotalCost.AsDecimal(),
           'Wrong Dev. % Total Cost Amount on Statistics page');
 
         // Variance
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::"Var", RowIdx::MatCost],
-          PostedAsmOrderStatistics.VarMatCost.AsDEcimal,
+          PostedAsmOrderStatistics.VarMatCost.AsDecimal(),
           'Wrong Variance Material Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::"Var", RowIdx::ResCost],
-          PostedAsmOrderStatistics.VarResCost.AsDEcimal,
+          PostedAsmOrderStatistics.VarResCost.AsDecimal(),
           'Wrong Variance Resource Cost on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::"Var", RowIdx::ResOvhd],
-          PostedAsmOrderStatistics.VarResOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.VarResOvhd.AsDecimal(),
           'Wrong Variance Res. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::"Var", RowIdx::AsmOvhd],
-          PostedAsmOrderStatistics.VarAsmOvhd.AsDEcimal,
+          PostedAsmOrderStatistics.VarAsmOvhd.AsDecimal(),
           'Wrong Variance Asm. Overhead on Statistics page');
 
         VerifyStatisticsField(
           GlobalPostedAsmStatValue[ColIdx::"Var", RowIdx::Total],
-          PostedAsmOrderStatistics.VarTotalCost.AsDEcimal,
+          PostedAsmOrderStatistics.VarTotalCost.AsDecimal(),
           'Wrong Variance Total Cost Amount on Statistics page');
     end;
 

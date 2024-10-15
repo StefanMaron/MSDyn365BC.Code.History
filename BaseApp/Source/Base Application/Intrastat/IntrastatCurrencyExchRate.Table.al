@@ -4,6 +4,7 @@ table 31061 "Intrastat Currency Exch. Rate"
     ObsoleteState = Removed;
     ObsoleteReason = 'Unsupported functionality';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

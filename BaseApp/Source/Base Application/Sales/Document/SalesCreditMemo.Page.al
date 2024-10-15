@@ -1,5 +1,4 @@
-﻿#if not CLEAN21
-namespace Microsoft.Sales.Document;
+﻿namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -91,10 +90,27 @@ page 44 "Sales Credit Memo"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s registration number.';
+                    Visible = false;
+                }
                 field("Posting Description"; Rec."Posting Description")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite;
                     ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
+                    Visible = false;
                 }
                 group("Sell-to")
                 {
@@ -346,6 +362,18 @@ page 44 "Sales Credit Memo"
                         end;
                     }
                 }
+                field("Language Code"; Rec."Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                }
+                field("Format Region"; Rec."Format Region")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the format to be used on printouts for this document.';
+                    Visible = false;
+                }
             }
             part(SalesLines; "Sales Cr. Memo Subform")
             {
@@ -380,7 +408,6 @@ page 44 "Sales Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate(); // NAVCZ
                         CurrPage.Update();
                     end;
                 }
@@ -395,15 +422,6 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
-                }
-                field("Shipment Method Code"; Rec."Shipment Method Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how items on the sales document are shipped to the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
                 }
                 field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
@@ -427,11 +445,6 @@ page 44 "Sales Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the customer s market type to link business transactions to.';
                 }
-                field("Reason Code"; Rec."Reason Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -444,6 +457,13 @@ page 44 "Sales Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = IsPaymentMethodCodeVisible;
+                }
+                field("Reason Code"; Rec."Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -648,24 +668,6 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
-                }
-                field("Language Code"; Rec."Language Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT country/region code of customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Rcvd-from Country/Region Code"; Rec."Rcvd.-from Count./Region Code")
                 {
@@ -1132,7 +1134,7 @@ page 44 "Sales Credit Memo"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1171,7 +1173,7 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1187,7 +1189,7 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1239,20 +1241,6 @@ page 44 "Sales Credit Memo"
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
-                    }
-#endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
                     }
 #endif
                 }
@@ -1430,24 +1418,6 @@ page 44 "Sales Credit Memo"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {
@@ -1602,7 +1572,6 @@ page 44 "Sales Credit Memo"
         ShowWorkflowStatus: Boolean;
         OpenPostedSalesCrMemoQst: Label 'The credit memo is posted as number %1 and moved to the Posted Sales Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
         CanCancelApprovalForRecord: Boolean;
-        DocumentIsPosted: Boolean;
         IsCustomerOrContactNotEmpty: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -1613,8 +1582,11 @@ page 44 "Sales Credit Memo"
         SalesDocCheckFactboxVisible: Boolean;
         IsJournalTemplNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-        IsSalesLinesEditable: Boolean;
         VATDateEnabled: Boolean;
+
+    protected var
+        DocumentIsPosted: Boolean;
+        IsSalesLinesEditable: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1642,7 +1614,9 @@ page 44 "Sales Credit Memo"
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
+# if not CLEAN24
         NotSkipped: Boolean;
+# endif
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
         PreAssignedNo := Rec."No.";
@@ -1666,10 +1640,12 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
+# if not CLEAN24
         NotSkipped := false;
         OnPostDocumentOnBeforeSetTrackInfoForCancellation(Rec, NotSkipped);
         if NotSkipped then
             Rec.SetTrackInfoForCancellation();
+# endif
         Rec.UpdateSalesOrderLineIfExist();
 
         if OfficeMgt.IsAvailable() then begin
@@ -1720,12 +1696,6 @@ page 44 "Sales Credit Memo"
     begin
         CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
-    end;
-
-    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
-    local procedure CurrencyCodeOnAfterValidate()
-    begin
-        CurrPage.SalesLines.PAGE.UpdateForm(true); // NAVCZ
     end;
 
     local procedure SetDocNoVisible()
@@ -1874,10 +1844,13 @@ page 44 "Sales Credit Memo"
     local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
-    
+
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     local procedure OnPostDocumentOnBeforeSetTrackInfoForCancellation(var SalesHeader: Record "Sales Header"; var NotSkipped: Boolean)
     begin
     end;
+# endif
 }
-#endif
+

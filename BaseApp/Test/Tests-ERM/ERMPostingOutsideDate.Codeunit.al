@@ -64,7 +64,7 @@ codeunit 134342 "ERM Posting Outside Date"
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 05.01.2017
-        CreateGenJnlLine(GenJnlLine, WorkDate - LibraryRandom.RandInt(100));
+        CreateGenJnlLine(GenJnlLine, WorkDate() - LibraryRandom.RandInt(100));
 
         // [WHEN] Post General Journal Line
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -92,7 +92,7 @@ codeunit 134342 "ERM Posting Outside Date"
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 07.01.2017
-        CreateGenJnlLine(GenJnlLine, WorkDate + 1);
+        CreateGenJnlLine(GenJnlLine, WorkDate() + 1);
         LibraryVariableStorage.Enqueue(ConfirmPostingAfterWorkingDateQst);
 
         // [WHEN] Confirm dialog "The posting date of one or more General Journal Line is after the current date. Do you want to continue?" while posting Gen. Journal Line
@@ -121,7 +121,7 @@ codeunit 134342 "ERM Posting Outside Date"
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 07.01.2017
-        CreateGenJnlLine(GenJnlLine, WorkDate + 1);
+        CreateGenJnlLine(GenJnlLine, WorkDate() + 1);
         Commit();
 
         // [WHEN] Do not confirm dialog "The posting date of one or more General Journal Line is after the working date. Do you want to continue?" while posting Gen. Journal Line
@@ -156,7 +156,7 @@ codeunit 134342 "ERM Posting Outside Date"
         // [GIVEN] Two General Journal Lines with "Posting Date" = 07.01.2017
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         for i := 1 to ArrayLen(GenJnlLine) do
-            CreateGenJnlLineWithBatch(GenJnlLine[i], GenJournalBatch, WorkDate + 1);
+            CreateGenJnlLineWithBatch(GenJnlLine[i], GenJournalBatch, WorkDate() + 1);
 
         // [WHEN] Confirm dialog "The posting date of one or more General Journal Line is after working date. Do you want to continue?" while posting Gen. Journal Line one time for two entries
         // Single confirmation handled by ConfirmWithCheckHandler
@@ -212,7 +212,7 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         GenJnlLine.Validate("Posting Date", PostingDate);
         GenJnlLine.Modify(true);
     end;
@@ -221,8 +221,8 @@ codeunit 134342 "ERM Posting Outside Date"
     begin
         LibraryJournals.CreateGenJournalLine(
           GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-          GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         GenJnlLine.Validate("Posting Date", PostingDate);
         GenJnlLine.Modify(true);
     end;
@@ -256,7 +256,7 @@ codeunit 134342 "ERM Posting Outside Date"
     [Scope('OnPrem')]
     procedure ConfirmWithCheckHandler(Question: Text; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
@@ -264,7 +264,7 @@ codeunit 134342 "ERM Posting Outside Date"
     procedure ConfirmByQuestionHandler(Question: Text; var Reply: Boolean)
     begin
         // There should be no additonal confirm except one passed from LibraryVariableStorage
-        Assert.AreNotEqual(0, StrPos(Question, LibraryVariableStorage.DequeueText), UnexpectedConfirmTextErr);
+        Assert.AreNotEqual(0, StrPos(Question, LibraryVariableStorage.DequeueText()), UnexpectedConfirmTextErr);
         Reply := true;
     end;
 }

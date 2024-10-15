@@ -33,8 +33,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        RunMailEngine();
 
         // Verify
         CustomerCard."No.".AssertEquals(No);
@@ -54,8 +54,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        RunMailEngine();
 
         // Verify
         VendorCard."No.".AssertEquals(No);
@@ -76,9 +76,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        SalesQuote.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        SalesQuote.Trap();
+        RunMailEngine();
 
         // Verify
         SalesQuote.Control1903720907."No.".AssertEquals(No);
@@ -100,9 +100,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        SalesInvoice.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        SalesInvoice.Trap();
+        RunMailEngine();
 
         // Verify
         SalesInvoice."Sell-to Contact No.".AssertEquals(ContactNo);
@@ -124,9 +124,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        SalesOrder.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        SalesOrder.Trap();
+        RunMailEngine();
 
         // Verify
         SalesOrder.Control1903720907."No.".AssertEquals(No);
@@ -148,9 +148,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        SalesCreditMemo.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        SalesCreditMemo.Trap();
+        RunMailEngine();
 
         // Verify
         SalesCreditMemo."Sell-to Contact No.".AssertEquals(ContactNo);
@@ -171,8 +171,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        VendorDrillDownCreate;
+        VendorCard.Trap();
+        VendorDrillDownCreate();
 
         // Verify
         VendorCard."E-Mail".AssertEquals(Email);
@@ -196,8 +196,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // [WHEN] User selects Create Vendor
-        VendorCard.Trap;
-        VendorDrillDownCreate;
+        VendorCard.Trap();
+        VendorDrillDownCreate();
 
         // [THEN] The Vendor is created with the correct email
         VendorCard."E-Mail".AssertEquals(Email);
@@ -222,17 +222,17 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // [WHEN] The Purchase Order page is displayed
-        VendorCard.Trap;
-        PurchaseOrder.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseOrder.Trap();
+        RunMailEngine();
 
         // Gather expected parameters
         LibraryVariableStorage.Enqueue('sendAttachment');
-        PurchaseOrderNo := PurchaseOrder."No.".Value;
+        PurchaseOrderNo := PurchaseOrder."No.".Value();
         LibraryVariableStorage.Enqueue(StrSubstNo('Purchase Order %1.pdf', PurchaseOrderNo));
 
         // [WHEN] Email action is invoked from the Purchase Order page
-        PurchaseOrder.SendCustom.Invoke;
+        PurchaseOrder.SendCustom.Invoke();
 
         // [THEN] ActionHandler verifies that the expected JS function is called with the correct parameters
     end;
@@ -251,8 +251,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupCustomer(Email, No, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        VendorDrillDownCreate;
+        VendorCard.Trap();
+        VendorDrillDownCreate();
 
         // Verify
         VendorCard."E-Mail".AssertEquals(Email);
@@ -273,8 +273,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(Email);
@@ -295,8 +295,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(Email);
@@ -317,8 +317,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(Email);
@@ -339,8 +339,8 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(Email);
@@ -363,9 +363,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // [WHEN] The Purchase Order page is displayed
-        VendorCard.Trap;
-        PurchaseOrder.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseOrder.Trap();
+        RunMailEngine();
 
         // [THEN] The Purchase Order page has the correct contact information
         PurchaseOrder."Buy-from Contact No.".AssertEquals(ContactNo);
@@ -387,9 +387,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        PurchaseInvoice.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseInvoice.Trap();
+        RunMailEngine();
 
         // Verify
         PurchaseInvoice."Buy-from Contact No.".AssertEquals(ContactNo);
@@ -411,9 +411,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, No, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        PurchaseCreditMemo.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseCreditMemo.Trap();
+        RunMailEngine();
 
         // Verify
         PurchaseCreditMemo."Buy-from Contact No.".AssertEquals(ContactNo);
@@ -438,9 +438,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, VendorNo, VendorContactNo);
 
         // Execute
-        SalesQuote.Trap;
-        CustomerCard.Trap;
-        RunMailEngine;
+        SalesQuote.Trap();
+        CustomerCard.Trap();
+        RunMailEngine();
 
         // Verify
         SalesQuote."Sell-to Contact No.".AssertEquals(CustomerContactNo);
@@ -465,9 +465,9 @@ codeunit 139056 "Outlook Add-in Commands"
         SetupVendor(Email, VendorNo, VendorContactNo);
 
         // Execute
-        PurchaseInvoice.Trap;
-        VendorCard.Trap;
-        RunMailEngine;
+        PurchaseInvoice.Trap();
+        VendorCard.Trap();
+        RunMailEngine();
 
         // Verify
         PurchaseInvoice."Buy-from Contact No.".AssertEquals(VendorContactNo);
@@ -482,10 +482,10 @@ codeunit 139056 "Outlook Add-in Commands"
         CustomerNo: Code[20];
     begin
         Initialize('');
-        CustomerNo := CreateCompanyContactWithCustomer;
+        CustomerNo := CreateCompanyContactWithCustomer();
 
-        CustomerCard.Trap;
-        RunMailEngine;
+        CustomerCard.Trap();
+        RunMailEngine();
 
         // Verify
         CustomerCard."No.".AssertEquals(CustomerNo);
@@ -501,12 +501,12 @@ codeunit 139056 "Outlook Add-in Commands"
         CustomerNo: Code[20];
     begin
         Initialize(OutlookCommand.NewSalesOrder);
-        CustomerNo := CreateCompanyContactWithCustomer;
+        CustomerNo := CreateCompanyContactWithCustomer();
         Customer.Get(CustomerNo);
 
-        SalesOrder.Trap;
-        CustomerCard.Trap;
-        RunMailEngine;
+        SalesOrder.Trap();
+        CustomerCard.Trap();
+        RunMailEngine();
 
         // Verify
         SalesOrder."Bill-to Name".AssertEquals(Customer.Name);
@@ -520,10 +520,10 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeNoVendorDlg: TestPage "Office No Vendor Dlg";
     begin
         Initialize(OutlookCommand.NewPurchaseInvoice);
-        CreateCompanyContactWithCustomer;
+        CreateCompanyContactWithCustomer();
 
-        OfficeNoVendorDlg.Trap;
-        RunMailEngine;
+        OfficeNoVendorDlg.Trap();
+        RunMailEngine();
 
         // Verify
         OfficeNoVendorDlg.Close();
@@ -538,11 +538,11 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize('');
-        VendorNo := CreateCompanyContactWithVendor;
+        VendorNo := CreateCompanyContactWithVendor();
 
         // Execute
-        VendorCard.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        RunMailEngine();
 
         // Verify
         VendorCard."No.".AssertEquals(VendorNo);
@@ -556,11 +556,11 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize(OutlookCommand.NewSalesOrder);
-        CreateCompanyContactWithVendor;
+        CreateCompanyContactWithVendor();
 
         // Execute
-        OfficeNoCustomerDlg.Trap;
-        RunMailEngine;
+        OfficeNoCustomerDlg.Trap();
+        RunMailEngine();
 
         // Verify
         OfficeNoCustomerDlg.Close();
@@ -576,12 +576,12 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize(OutlookCommand.NewPurchaseInvoice);
-        VendorNo := CreateCompanyContactWithVendor;
+        VendorNo := CreateCompanyContactWithVendor();
 
         // Execute
-        VendorCard.Trap;
-        PurchaseInvoice.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseInvoice.Trap();
+        RunMailEngine();
 
         // Verify
         VendorCard."No.".AssertEquals(VendorNo);
@@ -600,16 +600,16 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize('');
-        Email := RandomEmail;
+        Email := RandomEmail();
         VendorNo := CreateCompanyContactWithCustomerWithEmail(Email, ContactNo);
         CustomerNo := CreateCompanyContactWithVendorWithEmail(Email, ContactNo);
 
         // Execute
-        OfficeContactAssociations.Trap;
-        RunMailEngine;
+        OfficeContactAssociations.Trap();
+        RunMailEngine();
 
         // Verify
-        OfficeContactAssociations.First;
+        OfficeContactAssociations.First();
         OfficeContactAssociations."No.".AssertEquals(VendorNo);
         OfficeContactAssociations.Next();
         OfficeContactAssociations."No.".AssertEquals(CustomerNo);
@@ -629,15 +629,15 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize(OutlookCommand.NewSalesOrder);
-        Email := RandomEmail;
+        Email := RandomEmail();
         CreateCompanyContactWithVendorWithEmail(Email, ContactNo);
         CustomerNo := CreateCompanyContactWithCustomerWithEmail(Email, ContactNo);
         Customer.Get(CustomerNo);
 
         // Execute
-        SalesOrder.Trap;
-        CustomerCard.Trap;
-        RunMailEngine;
+        SalesOrder.Trap();
+        CustomerCard.Trap();
+        RunMailEngine();
 
         // Verify
         SalesOrder."Bill-to Name".AssertEquals(Customer.Name);
@@ -656,14 +656,14 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize(OutlookCommand.NewPurchaseInvoice);
-        Email := RandomEmail;
+        Email := RandomEmail();
         VendorNo := CreateCompanyContactWithVendorWithEmail(Email, ContactNo);
         CreateCompanyContactWithCustomerWithEmail(Email, ContactNo);
 
         // Execute
-        VendorCard.Trap;
-        PurchaseInvoice.Trap;
-        RunMailEngine;
+        VendorCard.Trap();
+        PurchaseInvoice.Trap();
+        RunMailEngine();
 
         // Verify
         VendorCard."No.".AssertEquals(VendorNo);
@@ -686,8 +686,8 @@ codeunit 139056 "Outlook Add-in Commands"
         InitializeOutlookAddin(OutlookCommand.NewSalesQuote, CompanyEmail);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(CompanyEmail);
@@ -709,8 +709,8 @@ codeunit 139056 "Outlook Add-in Commands"
         InitializeOutlookAddin(OutlookCommand.NewSalesQuote, PersonEmail);
 
         // Execute
-        CustomerCard.Trap;
-        CustomerDrillDownCreate;
+        CustomerCard.Trap();
+        CustomerDrillDownCreate();
 
         // Verify
         CustomerCard."E-Mail".AssertEquals(CompanyEmail);
@@ -731,8 +731,8 @@ codeunit 139056 "Outlook Add-in Commands"
         InitializeOutlookAddin(OutlookCommand.NewPurchaseInvoice, CompanyEmail);
 
         // Execute
-        VendorCard.Trap;
-        VendorDrillDownCreate;
+        VendorCard.Trap();
+        VendorDrillDownCreate();
 
         // Verify
         VendorCard."E-Mail".AssertEquals(CompanyEmail);
@@ -752,7 +752,7 @@ codeunit 139056 "Outlook Add-in Commands"
     begin
         // Setup
         Initialize('');
-        Email := RandomEmail;
+        Email := RandomEmail();
         VendorNo := CreateCompanyContactWithVendorWithEmail(Email, VendorContactNo);
         CustomerNo := CreateCompanyContactWithCustomerWithEmail(Email, CustomerContactNo);
 
@@ -763,11 +763,11 @@ codeunit 139056 "Outlook Add-in Commands"
         Contact.Insert(true);
 
         // Execute
-        OfficeContactAssociations.Trap;
-        RunMailEngine;
+        OfficeContactAssociations.Trap();
+        RunMailEngine();
 
         // Verify
-        OfficeContactAssociations.First;
+        OfficeContactAssociations.First();
         OfficeContactAssociations."No.".AssertEquals(VendorNo);
         OfficeContactAssociations.Next();
         OfficeContactAssociations."No.".AssertEquals(CustomerNo);
@@ -808,7 +808,7 @@ codeunit 139056 "Outlook Add-in Commands"
         DummyOfficeContactDetails: Record "Office Contact Details";
     begin
         SetAndVerifyAddinCommandType('', DummyOfficeContactDetails."Associated Table"::" ");
-        SetAndVerifyAddinCommandType(CopyStr(CreateGuid, 1, 30), DummyOfficeContactDetails."Associated Table"::" ");
+        SetAndVerifyAddinCommandType(CopyStr(CreateGuid(), 1, 30), DummyOfficeContactDetails."Associated Table"::" ");
     end;
 
     [Scope('OnPrem')]
@@ -818,7 +818,7 @@ codeunit 139056 "Outlook Add-in Commands"
         Assert: Codeunit Assert;
     begin
         OfficeAddinContext.Command := Command;
-        Assert.AreEqual(AssociatedTable, OfficeAddinContext.CommandType, 'Unexpected command type.');
+        Assert.AreEqual(AssociatedTable, OfficeAddinContext.CommandType(), 'Unexpected command type.');
     end;
 
     [ConfirmHandler]
@@ -850,8 +850,8 @@ codeunit 139056 "Outlook Add-in Commands"
 
         if not IsInitialized then begin
             LibraryTemplates.EnableTemplatesFeature();
-            SMBOfficePages.SetupSales;
-            SMBOfficePages.SetupMarketing;
+            SMBOfficePages.SetupSales();
+            SMBOfficePages.SetupMarketing();
             IsInitialized := true;
         end;
 
@@ -865,7 +865,7 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -877,7 +877,7 @@ codeunit 139056 "Outlook Add-in Commands"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -910,7 +910,7 @@ codeunit 139056 "Outlook Add-in Commands"
         NewBusRelCode: Code[10];
     begin
         if Email = '' then
-            Email := RandomEmail;
+            Email := RandomEmail();
 
         if Vendor then
             No := SMBOfficePages.CreateContactFromVendor(Email, ContactNo, NewBusRelCode, true)
@@ -924,7 +924,7 @@ codeunit 139056 "Outlook Add-in Commands"
     var
         OutlookMailEngine: TestPage "Outlook Mail Engine";
     begin
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", TempOfficeAddinContext);
     end;
 
@@ -932,11 +932,11 @@ codeunit 139056 "Outlook Add-in Commands"
     var
         OfficeNoVendorDlg: TestPage "Office No Vendor Dlg";
     begin
-        OfficeNoVendorDlg.Trap;
-        RunMailEngine;
+        OfficeNoVendorDlg.Trap();
+        RunMailEngine();
 
         // The drilldown closes the page and causes an error here, which is why we need to ASSERTERROR.
-        asserterror OfficeNoVendorDlg.CreateVend.DrillDown;
+        asserterror OfficeNoVendorDlg.CreateVend.DrillDown();
         if GetLastErrorText <> 'The TestPage is not open.' then
             Error(GetLastErrorText);
     end;
@@ -945,11 +945,11 @@ codeunit 139056 "Outlook Add-in Commands"
     var
         OfficeNoCustomerDlg: TestPage "Office No Customer Dlg";
     begin
-        OfficeNoCustomerDlg.Trap;
-        RunMailEngine;
+        OfficeNoCustomerDlg.Trap();
+        RunMailEngine();
 
         // The drilldown closes the page and causes an error here, which is why we need to ASSERTERROR.
-        asserterror OfficeNoCustomerDlg.CreateCust.DrillDown;
+        asserterror OfficeNoCustomerDlg.CreateCust.DrillDown();
         if GetLastErrorText <> 'The TestPage is not open.' then
             Error(GetLastErrorText);
     end;
@@ -959,7 +959,7 @@ codeunit 139056 "Outlook Add-in Commands"
         Email: Text[80];
         ContactNo: Code[20];
     begin
-        Email := RandomEmail;
+        Email := RandomEmail();
         exit(CreateCompanyContactWithCustomerWithEmail(Email, ContactNo));
     end;
 
@@ -968,7 +968,7 @@ codeunit 139056 "Outlook Add-in Commands"
         Email: Text[80];
         ContactNo: Code[20];
     begin
-        Email := RandomEmail;
+        Email := RandomEmail();
         exit(CreateCompanyContactWithVendorWithEmail(Email, ContactNo));
     end;
 
@@ -997,7 +997,7 @@ codeunit 139056 "Outlook Add-in Commands"
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@example.com', CreateGuid));
+        exit(StrSubstNo('%1@example.com', CreateGuid()));
     end;
 
     local procedure CreateCompanyContactWithNoLinkToCustomerOrVendor(var CompanyEmail: Text[80]): Code[20]
@@ -1019,7 +1019,7 @@ codeunit 139056 "Outlook Add-in Commands"
     local procedure SetEmailAndCompanyNoOnContact(Contact: Record Contact; CompanyNo: Code[20]; var ContactEmail: Text[80]): Code[20]
     begin
         Contact."Company No." := CompanyNo;
-        Contact."E-Mail" := RandomEmail;
+        Contact."E-Mail" := RandomEmail();
         Contact."Search E-Mail" := UpperCase(Contact."E-Mail");
         Contact.Modify(true);
         ContactEmail := Contact."E-Mail";

@@ -6,6 +6,7 @@ table 11778 "Detailed G/L Entry"
     ObsoleteTag = '22.0';
 
     DataCaptionFields = "G/L Account No.";
+    DataClassification = CustomerContent;
 
     fields
     {

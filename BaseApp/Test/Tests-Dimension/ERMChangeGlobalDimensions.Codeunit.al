@@ -47,13 +47,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [FEATURE] [UI]
         // LibraryLowerPermissions.SetOutsideO365Scope();  TODO: Uncomment this when fixing the test
         Initialize();
-        // LibraryLowerPermissions.SetO365BusFull; TODO: Uncomment this when fixing the test
+        // LibraryLowerPermissions.SetO365BusFull(); TODO: Uncomment this when fixing the test
         // [GIVEN] 'Basic' experience
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [WHEN] Open page "General Ledger Setup"
-        GeneralLedgerSetupPage.OpenEdit;
+        GeneralLedgerSetupPage.OpenEdit();
         // [THEN] Action 'Change Global Dimensions' is not available
-        asserterror GeneralLedgerSetupPage.ChangeGlobalDimensions.Invoke;
+        asserterror GeneralLedgerSetupPage.ChangeGlobalDimensions.Invoke();
         Assert.ExpectedError('The action with ID = 2138997011 is not found on the page.');
     end;
 
@@ -69,50 +69,50 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [FEATURE] [UI]
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] Open page "General Ledger Setup"
-        GeneralLedgerSetupPage.OpenEdit;
+        GeneralLedgerSetupPage.OpenEdit();
         // [WHEN] Run action "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.Trap;
-        GeneralLedgerSetupPage.ChangeGlobalDimensions.Invoke;
+        ChangeGlobalDimensionsPage.Trap();
+        GeneralLedgerSetupPage.ChangeGlobalDimensions.Invoke();
         // [WHEN] "Parallel Processing" is set to 'Yes'
         ChangeGlobalDimensionsPage."Parallel Processing".SetValue(Format(true));
         // [THEN] Page 577 is open, where are visible, editable "Global Dimension 1 Code" and "Global Dimension 2 Code"
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Visible, 'Global Dimension 1 Code should be visible');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Visible, 'Global Dimension 2 Code should be visible');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'Global Dimension 1 Code should be editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'Global Dimension 2 Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Visible(), 'Global Dimension 1 Code should be visible');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Visible(), 'Global Dimension 2 Code should be visible');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'Global Dimension 1 Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'Global Dimension 2 Code should be editable');
         // [THEN] "Parallel Processing" is 'Yes', the control is visible and editable
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Parallel Processing".Editable, 'Parallel Processing should be editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Parallel Processing".Visible, 'Parallel Processing should be visible');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Parallel Processing".Editable(), 'Parallel Processing should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Parallel Processing".Visible(), 'Parallel Processing should be visible');
         ChangeGlobalDimensionsPage."Parallel Processing".AssertEquals(Format(true));
         // [THEN] Action "Prepare" is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Visible, 'Action Prepare should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Visible(), 'Action Prepare should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
         // [THEN] Action "Reset" is visible, but disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should be disabled');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be visible');
         // [THEN] Action "Start" is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Visible, 'Action Start should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Start.Enabled, 'Action Start should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Visible(), 'Action Start should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Start.Enabled(), 'Action Start should be disabled');
         // [THEN] Part "Log Lines" is empty and not editable.
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.First, 'Log Lines should be empty');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Editable, 'Log Lines should be not editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.First(), 'Log Lines should be empty');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Editable(), 'Log Lines should be not editable');
         // [THEN] "Table ID", "Table Name", "Total Records", "Progress", "Status", "Remaining Duration" are enabled, but not editable
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Table ID".Enabled, 'Table ID column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Table ID".Editable, 'Table ID column to be not editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Table Name".Enabled, 'Table Name column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Table Name".Editable, 'Table Name column to be not editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Total Records".Enabled, 'Total Records column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Total Records".Editable, 'Total Records column to be not editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Progress.Enabled, 'Progress column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Progress.Editable, 'Progress column to be not editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Status.Enabled, 'Status column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Status.Editable, 'Status column to be not editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Enabled, 'Remaining Duration column to be enabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Editable, 'Remaining Duration column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Table ID".Enabled(), 'Table ID column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Table ID".Editable(), 'Table ID column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Table Name".Enabled(), 'Table Name column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Table Name".Editable(), 'Table Name column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Total Records".Enabled(), 'Total Records column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Total Records".Editable(), 'Total Records column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Progress.Enabled(), 'Progress column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Progress.Editable(), 'Progress column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Status.Enabled(), 'Status column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Status.Editable(), 'Status column to be not editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Enabled(), 'Remaining Duration column to be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines."Remaining Duration".Editable(), 'Remaining Duration column to be not editable');
         ChangeGlobalDimensionsPage.Close();
     end;
 
@@ -128,24 +128,24 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         ChangeGlobalDimHeader.DeleteAll();
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
         // [WHEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
         // [THEN] "Parallel Processing" is 'No'
         ChangeGlobalDimensionsPage."Parallel Processing".AssertEquals(Format(false));
         // [THEN] Action "Prepare" is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Visible, 'Action Prepare should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Visible(), 'Action Prepare should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
         // [THEN] Action "Reset" is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should be disabled');
         // [THEN] Action "Start" (Parallel) is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Visible, 'Action Start(Parallel) should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Start.Enabled, 'Action Start(Parallel) should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Visible(), 'Action Start(Parallel) should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Start.Enabled(), 'Action Start(Parallel) should be disabled');
         // [THEN] Action "Start" (Sequential) is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible, 'Action Start(Sequential) should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled, 'Action Start(Sequential) should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible(), 'Action Start(Sequential) should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled(), 'Action Start(Sequential) should be disabled');
     end;
 
     [Test]
@@ -167,18 +167,18 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Detailed Entry With Global Dim");
         // [GIVEN] Open page "Change Global Dimensions" and
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
         // [GIVEN] Swap "Global Dimension 1 Code" and "Global Dimension 2 Code"
         SwapGlobalDimsOnPage(ChangeGlobalDimensionsPage, DimensionValue);
         // [GIVEN] Action "Start" (Sequential) is visible and enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible, 'Action Start(Sequential) should be visible');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Enabled, 'Action Start(Sequential) should be enabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible(), 'Action Start(Sequential) should be visible');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Enabled(), 'Action Start(Sequential) should be enabled');
 
         // [WHEN] Run Action "Start" (Sequential)
-        ChangeGlobalDimensionsPage.StartSequential.Invoke;
+        ChangeGlobalDimensionsPage.StartSequential.Invoke();
 
         // [THEN] Correct message should appear after processing
-        Assert.ExpectedMessage(SessionUpdateRequiredMsg, LibraryVariableStorage.DequeueText); // from Message handler
+        Assert.ExpectedMessage(SessionUpdateRequiredMsg, LibraryVariableStorage.DequeueText()); // from Message handler
         // [THEN] The list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
         // [THEN] Global Dimensions are updated in General Ledger Setup
@@ -186,11 +186,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         // [THEN] Action "Start" (Sequential) is visible, but disabled (as dimension codes are refreshed)
-        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled, 'Action Start (Sequential) should be disabled');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible, 'Action Start (Sequential) should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled(), 'Action Start (Sequential) should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible(), 'Action Start (Sequential) should be visible');
         // [THEN] gobal dimension codes are swapped and controls are editable
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should be editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension2Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension2Code should be editable');
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".AssertEquals(DimensionValue[2]."Dimension Code");
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".AssertEquals(DimensionValue[1]."Dimension Code");
         ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".AssertEquals(DimensionValue[2]."Dimension Code");
@@ -238,7 +238,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         SwapGlobalDimensions(ChangeGlobalDimensions);
 
         // [WHEN] Run Action "Start" (Sequential)
-        ChangeGlobalDimensions.StartSequential;
+        ChangeGlobalDimensions.StartSequential();
 
         // [THEN] The list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
@@ -287,7 +287,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         SwapGlobalDimensions(ChangeGlobalDimensions);
         Commit();
         // [GIVEN] Run Action "Start" (Sequential)
-        ChangeGlobalDimensions.StartSequential;
+        ChangeGlobalDimensions.StartSequential();
         // [WHEN] Error happens in the end of the update
         asserterror Error(TAB134483OnBeforeModifyErr);
 
@@ -339,7 +339,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         DtldEntryWithGlobalDim2.Insert();
         // [GIVEN] Empty table 134482 is in the list, but will get one record inserted during update
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
-        ERMChangeGlobalDimensions.SetInsertRecToEmptyTable;
+        ERMChangeGlobalDimensions.SetInsertRecToEmptyTable();
         // [GIVEN] Empty table 1001 is in the list
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Job Task");
         JobTask.DeleteAll();
@@ -349,7 +349,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         SwapGlobalDimensions(ChangeGlobalDimensions);
 
         // [WHEN] Run Action "Start" (Sequential)
-        ChangeGlobalDimensions.StartSequential;
+        ChangeGlobalDimensions.StartSequential();
 
         // [THEN] Table 134482 is not empty
         Assert.TableIsNotEmpty(DATABASE::"Table With Default Dim");
@@ -376,40 +376,40 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [FEATURE] [Prepare] [UI]
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryERMCountryData.InsertRecordsToProtectedTables;
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
+        LibraryERMCountryData.InsertRecordsToProtectedTables();
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
         // [GIVEN] Global Dimensions are set as 'A' and 'B'
         // [GIVEN] Open page "Change Global Dimensions"
         ChangeGlobalDimHeader.DeleteAll();
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
         // [GIVEN] "Parallel Processing" set to 'Yes'
         ChangeGlobalDimensionsPage."Parallel Processing".SetValue(true);
         // [GIVEN] Set "Global Dimension 1 Code" = 'B', "Global Dimension 2 Code" = 'A'
         SwapGlobalDimsOnPage(ChangeGlobalDimensionsPage, DimensionValue);
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
         // [WHEN] Run Action "Prepare"
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
 
         // [THEN] Part "Log Lines" gets filled by tables, both with default and global dimensions, and Table "Job Task"
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.FindFirstField("Table ID", DATABASE::"Job Task"), '1001');
         // [THEN] Action "Rerun" is disabled, as all lines in <blank> Status
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'Action Rerun should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled(), 'Action Rerun should be disabled');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.FindFirstField("Table ID", DATABASE::"Table With Default Dim"), '134482');
         Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.FindFirstField("Table ID", DATABASE::"Table With Dimension Set ID"), '134483');
         Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.FindFirstField("Table ID", DATABASE::"Table With Dim Flowfilter"), '134484');
         // [THEN] Action "Prepare" is disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled.');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled.');
         // [THEN] Action "Reset" is visible and enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be visible.');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should be enabled.');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be visible.');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should be enabled.');
         // [THEN] Action "Start" (Parallle) is enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Enabled, 'Action Start (Parallel) should be enabled.');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Start.Enabled(), 'Action Start (Parallel) should be enabled.');
         // [THEN] Action "Start" (Sequential) is visible, but disabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible, 'Action Start(Sequential) should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled, 'Action Start(Sequential) should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.StartSequential.Visible(), 'Action Start(Sequential) should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.StartSequential.Enabled(), 'Action Start(Sequential) should be disabled');
         // [THEN] G/L Setup is not changed, "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[1]."Dimension Code");
@@ -430,8 +430,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] There is no other active session
         MockActiveSessions(0);
         // [GIVEN] Open page "Change Global Dimensions"
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
         // [GIVEN] "Parallel Processing" is set to 'Yes'
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
         // [GIVEN] Set new "Global Dimension 1 Code" and "Global Dimension 2 Code" of maximum length
@@ -443,26 +443,26 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".SetValue(Dimension[2].Code);
 
         // [GIVEN] run Action "Prepare"
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
         // [GIVEN] Close the page
         ChangeGlobalDimensionsPage.Close();
 
         // [WHEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [THEN] The list is filled with lines of <blank> Status
         Assert.TableIsNotEmpty(DATABASE::"Change Global Dim. Log Entry");
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.First, 'Should be lines.');
-        Assert.AreNotEqual(0, ChangeGlobalDimensionsPage.LogLines."Table ID".AsInteger, 'First line Table ID.');
-        Assert.AreEqual(0, ChangeGlobalDimensionsPage.LogLines.Status.AsDEcimal, 'Status should be blank.');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.First(), 'Should be lines.');
+        Assert.AreNotEqual(0, ChangeGlobalDimensionsPage.LogLines."Table ID".AsInteger(), 'First line Table ID.');
+        Assert.AreEqual(0, ChangeGlobalDimensionsPage.LogLines.Status.AsDecimal(), 'Status should be blank.');
         // [THEN] "Parallel Processing" is 'Yes'
         ChangeGlobalDimensionsPage."Parallel Processing".AssertEquals(Format(true));
         // [THEN] Action "Prepare" is disabled, action 'Reset' is visible
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be visible');
         // [THEN] Global dimension codes set to new values and controls are not editable
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should not be editable');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension1Code should not be editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should not be editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension1Code should not be editable');
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".AssertEquals(Dimension[1].Code);
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".AssertEquals(Dimension[2].Code);
     end;
@@ -492,11 +492,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         SwapGlobalDimsOnPage(ChangeGlobalDimensionsPage, DimensionValue);
 
         // [WHEN] run Action "Prepare"
-        ConcurrentSessionListPage.Trap;
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ConcurrentSessionListPage.Trap();
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
 
         // [THEN] Notification is shown: "Close all other active sessions"
-        Assert.ExpectedMessage(CloseActiveSessionsMsg, LibraryVariableStorage.DequeueText); // from Notification handler
+        Assert.ExpectedMessage(CloseActiveSessionsMsg, LibraryVariableStorage.DequeueText()); // from Notification handler
         // [THEN] "Concurrent Session List" page open on click on "Details" action
         // [THEN] There is the first line, where "Current Session" is 'No', "Client Type" is 'Background'
         ConcurrentSessionListPage.FindFirstField("Session ID", ActiveSessionNo);
@@ -504,12 +504,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         ConcurrentSessionListPage."Client Type".AssertEquals(ActiveSession."Client Type"::Background);
         ConcurrentSessionListPage.Next();
         // [THEN] The secont line, where "Current Session" is 'Yes', "User ID", "Client Computer Name" are shown.
-        ConcurrentSessionListPage.FindFirstField("Session ID", SessionId);
+        ConcurrentSessionListPage.FindFirstField("Session ID", SessionId());
         ConcurrentSessionListPage.CurrentSession.AssertEquals(Format(true));
-        ConcurrentSessionListPage."Session ID".AssertEquals(SessionId);
+        ConcurrentSessionListPage."Session ID".AssertEquals(SessionId());
         ConcurrentSessionListPage."User ID".AssertEquals(UserId);
-        Assert.IsTrue(ConcurrentSessionListPage."Client Computer Name".Visible, 'Client Computer Name is not visible.');
-        Assert.IsFalse(ConcurrentSessionListPage.Next, 'should be two sessions in the list.');
+        Assert.IsTrue(ConcurrentSessionListPage."Client Computer Name".Visible(), 'Client Computer Name is not visible.');
+        Assert.IsFalse(ConcurrentSessionListPage.Next(), 'should be two sessions in the list.');
         ConcurrentSessionListPage.Close();
     end;
 
@@ -527,17 +527,17 @@ codeunit 134483 "ERM Change Global Dimensions"
         Initialize();
         // [GIVEN] Current Session is active only
         BindSubscription(ERMChangeGlobalDimensions);
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] One empty table is in the list to update
         MockNullTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
         // [GIVEN] Open page "Change Global Dimensions"
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
         // [GIVEN] Swap "Global Dimension 1 Code" and "Global Dimension 2 Code"
         SwapGlobalDimsOnPage(ChangeGlobalDimensionsPage, DimensionValue);
         // [WHEN] run Action "Prepare"
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
 
         // [THEN] The list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
@@ -546,12 +546,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         // [THEN] Action "Prepare" is disabled, action 'Reset' is visible, but disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be visible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should not be enabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be visible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should not be enabled');
         // [THEN] gobal dimension codes are swapped and controls are editable
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should be editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension2Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension2Code should be editable');
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".AssertEquals(DimensionValue[2]."Dimension Code");
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".AssertEquals(DimensionValue[1]."Dimension Code");
         ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".AssertEquals(DimensionValue[2]."Dimension Code");
@@ -569,32 +569,32 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Prepare] [UI]
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         // [GIVEN] Open page "Change Global Dimensions", where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
-        OriginalDimCode[1] := ChangeGlobalDimensionsPage."Global Dimension 1 Code".Value;
-        OriginalDimCode[2] := ChangeGlobalDimensionsPage."Global Dimension 2 Code".Value;
+        OriginalDimCode[1] := ChangeGlobalDimensionsPage."Global Dimension 1 Code".Value();
+        OriginalDimCode[2] := ChangeGlobalDimensionsPage."Global Dimension 2 Code".Value();
         // [WHEN] Set "Global Dimension 1 Code" to 'X'
         LibraryDimension.CreateDimension(Dimension);
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".SetValue(Dimension.Code);
         // [THEN] Action "Prepare" is enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be enabled (by Dim1).');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be enabled (by Dim1).');
         // [THEN] Current Global Dimension Codes are 'A' and 'B', disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".Enabled, 'CurrGlobalDimension1Code should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".Enabled(), 'CurrGlobalDimension1Code should be disabled');
         Assert.AreEqual(OriginalDimCode[1], ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".Value, 'CurrGlobalDimension1Code');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Old Global Dimension 2 Code".Enabled, 'CurrGlobalDimension2Code should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Old Global Dimension 2 Code".Enabled(), 'CurrGlobalDimension2Code should be disabled');
         Assert.AreEqual(OriginalDimCode[2], ChangeGlobalDimensionsPage."Old Global Dimension 2 Code".Value, 'CurrGlobalDimension2Code');
 
         // [WHEN] Set "Global Dimension 2 Code" to 'X'
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".SetValue(OriginalDimCode[1]);
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".SetValue(Dimension.Code);
         // [THEN] Action "Prepare" is enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be enabled (by Dim2).');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be enabled (by Dim2).');
         // [WHEN] Set "Global Dimension 1 Code" and "Global Dimension 2 Code" to 'A' and 'B'
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".SetValue(OriginalDimCode[1]);
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".SetValue(OriginalDimCode[2]);
         // [THEN] Action "Prepare" is disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled.');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled.');
     end;
 
     [Test]
@@ -616,16 +616,16 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry.Insert();
         // [GIVEN] Open page "Change Global Dimensions"
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
-        ChangeGlobalDimensionsPage.OpenEdit;
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
+        ChangeGlobalDimensionsPage.OpenEdit();
         // [WHEN] modify "Global Dimension 2 Code"
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".SetValue(DimensionValue."Dimension Code");
 
         // [THEN] Action "Prepare" is disabled, controls "Global Dimension 1/2 Code" are disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should be not editable');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension2Code should be not editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should be not editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension2Code should be not editable');
     end;
 
     [Test]
@@ -644,22 +644,22 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimHeader.DeleteAll();
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
         // [GIVEN] Open page "Change Global Dimensions"
-        LibraryLowerPermissions.SetO365BusFull;
-        LibraryLowerPermissions.AddO365GlobalDimMgt;
+        LibraryLowerPermissions.SetO365BusFull();
+        LibraryLowerPermissions.AddO365GlobalDimMgt();
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
         // [GIVEN] modify "Global Dimension 1 Code"
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".SetValue(DimensionValue."Dimension Code");
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
 
         // [WHEN] run Action "Prepare"
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
 
         // [THEN] Action "Prepare" is disabled, controls "Global Dimension 1/2 Code" are disabled
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should be not editable');
-        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension2Code should be not editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should be not editable');
+        Assert.IsFalse(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension2Code should be not editable');
     end;
 
     [Test]
@@ -675,17 +675,17 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockPreparedLines(DATABASE::"Salesperson/Purchaser", DATABASE::"Cust. Ledger Entry");
         // [GIVEN] Open page "Change Global Dimensions"
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should be enabled initially');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should be enabled initially');
 
         // [WHEN] Run action "Reset"
-        ChangeGlobalDimensionsPage.Reset.Invoke;
+        ChangeGlobalDimensionsPage.Reset.Invoke();
 
         // [THEN] The table list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
         // [THEN] Action "Reset" is visible, but disabled, Action "Prepare" is enabled
-        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible, 'Action Reset should be invisible');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled, 'Action Reset should be disabled');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.Reset.Visible(), 'Action Reset should be invisible');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Reset.Enabled(), 'Action Reset should be disabled');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled');
         // [THEN] New Dim codes are editable and equal to the current Dim codes
         Assert.AreEqual(
           ChangeGlobalDimensionsPage."Global Dimension 1 Code".Value,
@@ -693,8 +693,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.AreEqual(
           ChangeGlobalDimensionsPage."Global Dimension 2 Code".Value,
           ChangeGlobalDimensionsPage."Old Global Dimension 2 Code".Value, 'GlobalDimension2Code');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable, 'GlobalDimension1Code should be editable');
-        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable, 'GlobalDimension2Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 1 Code".Editable(), 'GlobalDimension1Code should be editable');
+        Assert.IsTrue(ChangeGlobalDimensionsPage."Global Dimension 2 Code".Editable(), 'GlobalDimension2Code should be editable');
     end;
 
     [Test]
@@ -710,7 +710,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Log lines are created by "Prepare" action
         MockPreparedLines(DATABASE::"Salesperson/Purchaser", DATABASE::"Cust. Ledger Entry");
         // [GIVEN] COD484 is subscribed on session start
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
 
         // [WHEN] Run action "Reset"
         ChangeGlobalDimensions.ResetState();
@@ -738,13 +738,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Global Dimensions are set as 'A' and 'B', swap "Global Dimension 1 Code" and "Global Dimension 2 Code" on the page
         SwapGlobalDimsOnPage(ChangeGlobalDimensionsPage, DimensionValue);
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
         // [GIVEN] Action "Prepare" filled the list of tables
-        ChangeGlobalDimensionsPage.Prepare.Invoke;
+        ChangeGlobalDimensionsPage.Prepare.Invoke();
 
         // [WHEN] Run Action "Start"
-        ChangeGlobalDimensionsPage.Start.Invoke;
+        ChangeGlobalDimensionsPage.Start.Invoke();
 
         // [THEN] G/L Setup , where "Global Dimension 1 Code" = 'B', "Global Dimension 2 Code" = 'A'
         GeneralLedgerSetup.Get();
@@ -759,7 +759,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [THEN] "Parallel Processing" is 'Yes'
         ChangeGlobalDimensionsPage."Parallel Processing".AssertEquals(Format(true));
         // [THEN] Action "Prepare" is disabled, Old Global Dimension Codes are equal to Global Dimension Codes
-        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled, 'Action Prepare should be disabled.');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.Prepare.Enabled(), 'Action Prepare should be disabled.');
         Assert.AreEqual(
           ChangeGlobalDimensionsPage."Global Dimension 1 Code".Value,
           ChangeGlobalDimensionsPage."Old Global Dimension 1 Code".Value, 'OldGlobalDimension1Code <> GlobalDimension1Code');
@@ -795,8 +795,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Line for TAB1001 is in "In Progress" status
         MockScheduledLogEntry(ChangeGlobalDimLogEntry[3], 1001, 0, 1);
         ChangeGlobalDimLogEntry[3]."Completed Records" := 1;
-        ChangeGlobalDimLogEntry[3]."Server Instance ID" := ServiceInstanceId;
-        ChangeGlobalDimLogEntry[3]."Session ID" := SessionId;
+        ChangeGlobalDimLogEntry[3]."Server Instance ID" := ServiceInstanceId();
+        ChangeGlobalDimLogEntry[3]."Session ID" := SessionId();
         ChangeGlobalDimLogEntry[3].Status := ChangeGlobalDimLogEntry[3].Status::"In Progress";
         ChangeGlobalDimLogEntry[3].Modify();
         // [GIVEN] Line for TAB134482 is in "Completed" status
@@ -806,35 +806,35 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockScheduledLogEntry(ChangeGlobalDimLogEntry[5], 134483, 0, 1);
         MockIncompleteLogEntry(ChangeGlobalDimLogEntry[5]);
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] Going through all lines
         // [THEN] Actions "Rerun" and "Show Error" are enabled for TAB21, where is <blank> status
-        ChangeGlobalDimensionsPage.LogLines.First;
+        ChangeGlobalDimensionsPage.LogLines.First();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[1].Status::" "), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB21: Status');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB21: Rerun');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB21: ShowError');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled(), 'TAB21: Rerun');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled(), 'TAB21: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are enabled for TAB25, where is 'Scheduled' status
         ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[2].Status::Scheduled), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB25: Status');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB25: Rerun');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB25: ShowError');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled(), 'TAB25: Rerun');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled(), 'TAB25: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are disabled for TAB1001, where is 'In Progress' status
         ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[3].Status::"In Progress"), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB1001: Status');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB1001: Rerun');
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB1001: ShowError');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled(), 'TAB1001: Rerun');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled(), 'TAB1001: ShowError');
         // [THEN] Actions "Rerun" and "Show Error" are enabled for TAB134483, where is 'Incomplete' status
         ChangeGlobalDimensionsPage.LogLines.Next();
         Assert.AreEqual(
           Format(ChangeGlobalDimLogEntry[5].Status::Incomplete), Format(ChangeGlobalDimensionsPage.LogLines.Status), 'TAB134483: Status');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled, 'TAB134483: Rerun');
-        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled, 'TAB134483: ShowError');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.Rerun.Enabled(), 'TAB134483: Rerun');
+        Assert.IsTrue(ChangeGlobalDimensionsPage.LogLines.ShowError.Enabled(), 'TAB134483: ShowError');
         // [THEN] 'Completed' line is removed
-        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Next, 'There should be 4 lines');
+        Assert.IsFalse(ChangeGlobalDimensionsPage.LogLines.Next(), 'There should be 4 lines');
     end;
 
     [Test]
@@ -866,13 +866,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockIncompleteLogEntry(ChangeGlobalDimLogEntry);
         xChangeGlobalDimLogEntry := ChangeGlobalDimLogEntry;
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] run action "Rerun"
         BindSubscription(ERMChangeGlobalDimensions);
         TaskID := MockTaskScheduling(ERMChangeGlobalDimensions, ChangeGlobalDimLogEntry."Table ID");
         CurrDT := CurrentDateTime;
-        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
+        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke();
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new, "Completed records" = 1, "Total Records" = 2.
         ChangeGlobalDimLogEntry.Find();
@@ -918,12 +918,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::" ");
         xChangeGlobalDimLogEntry := ChangeGlobalDimLogEntry;
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] run action "Rerun" for table 134482
         BindSubscription(ERMChangeGlobalDimensions);
         TaskID := MockTaskScheduling(ERMChangeGlobalDimensions, ChangeGlobalDimLogEntry."Table ID");
-        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
+        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke();
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new, "Completed records" = 0, "Total Records" = 2.
         ChangeGlobalDimLogEntry.Find();
@@ -964,12 +964,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.Modify();
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Scheduled);
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] run action "Rerun" for table 134482
         TaskID := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         CurrDT := CurrentDateTime;
-        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke;
+        ChangeGlobalDimensionsPage.LogLines.Rerun.Invoke();
 
         // [THEN] Log entry, where Status is "Scheduled", "Task ID" is new
         ChangeGlobalDimLogEntry.Find();
@@ -1012,13 +1012,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockJobQueueLogEntries(JobQueueLogEntry, ChangeGlobalDimLogEntry);
 
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] run action "Show Error"
-        ChangeGlobalDimensionsPage.LogLines.ShowError.Invoke;
+        ChangeGlobalDimensionsPage.LogLines.ShowError.Invoke();
 
         // [THEN] Page "Job Queue Log Entres" shows entry 'A'.
-        Assert.AreEqual('Table X', LibraryVariableStorage.DequeueText, 'Description'); // from JobQueueLogEntriesModalHandler
+        Assert.AreEqual('Table X', LibraryVariableStorage.DequeueText(), 'Description'); // from JobQueueLogEntriesModalHandler
     end;
 
     [Test]
@@ -1055,13 +1055,13 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockJobQueueLogEntries(JobQueueLogEntry, ChangeGlobalDimLogEntry);
 
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] run action "Show Error"
-        ChangeGlobalDimensionsPage.LogLines.ShowError.Invoke;
+        ChangeGlobalDimensionsPage.LogLines.ShowError.Invoke();
 
         // [THEN] Page "Job Queue Log Entres" shows entry 'C'.
-        Assert.AreEqual(ChangeGlobalDimLogEntry."Table Name", LibraryVariableStorage.DequeueText, 'Description'); // from JobQueueLogEntriesModalHandler
+        Assert.AreEqual(ChangeGlobalDimLogEntry."Table Name", LibraryVariableStorage.DequeueText(), 'Description'); // from JobQueueLogEntriesModalHandler
     end;
 
     [Test]
@@ -1098,7 +1098,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Incomplete);
 
         // [THEN] Job Queue Log Entry, where "Object ID to Run" = 483, "ID" = 'X', "Status" = 'Error', "Error Message" = 'Err', Description = 'T'
-        Assert.IsTrue(JobQueueLogEntry.FindLast, 'not inserted JobQueueLogEntry');
+        Assert.IsTrue(JobQueueLogEntry.FindLast(), 'not inserted JobQueueLogEntry');
         JobQueueLogEntry.TestField(ID, ChangeGlobalDimLogEntry."Task ID");
         JobQueueLogEntry.TestField("Object Type to Run", JobQueueLogEntry."Object Type to Run"::Codeunit);
         JobQueueLogEntry.TestField("Object ID to Run", CODEUNIT::"Change Global Dimensions");
@@ -1128,7 +1128,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
 
         // [WHEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [THEN] Page is open, where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         GeneralLedgerSetup.Get();
@@ -1156,7 +1156,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] Set "Global Dimension 1 Code" to 'B'
         ChangeGlobalDimensionsPage."Global Dimension 1 Code".SetValue(DimensionValue[2]."Dimension Code");
@@ -1167,7 +1167,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.AreEqual(
           '', ChangeGlobalDimensionsPage."Global Dimension 2 Code".Value, 'Global Dimension 2 Code');
         // [THEN] Lookup on "Global Dimension 1 Code" opens page "Dimension List"
-        ChangeGlobalDimensionsPage."Global Dimension 1 Code".Lookup; // handled by DimListModalHandler
+        ChangeGlobalDimensionsPage."Global Dimension 1 Code".Lookup(); // handled by DimListModalHandler
     end;
 
     [Test]
@@ -1186,7 +1186,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [WHEN] Set "Global Dimension 2 Code" to 'A'
         ChangeGlobalDimensionsPage."Global Dimension 2 Code".SetValue(DimensionValue[1]."Dimension Code");
@@ -1197,7 +1197,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.AreEqual(
           DimensionValue[1]."Dimension Code", ChangeGlobalDimensionsPage."Global Dimension 2 Code".Value, 'Global Dimension 2 Code');
         // [THEN] Lookup on "Global Dimension 2 Code" opens page "Dimension List"
-        ChangeGlobalDimensionsPage."Global Dimension 2 Code".Lookup; // handled by DimListModalHandler
+        ChangeGlobalDimensionsPage."Global Dimension 2 Code".Lookup(); // handled by DimListModalHandler
     end;
 
     [Test]
@@ -1219,7 +1219,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup."Shortcut Dimension 3 Code" := DimensionValue[3]."Dimension Code";
         GeneralLedgerSetup.Modify();
         ChangeGlobalDimHeader.Insert();
-        ChangeGlobalDimHeader.Refresh;
+        ChangeGlobalDimHeader.Refresh();
 
         // [WHEN] Set 'C' as a global dimension 1
         asserterror ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", DimensionValue[3]."Dimension Code");
@@ -1415,16 +1415,16 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockLogEntryWithProgress(DATABASE::"Vendor Ledger Entry", 1000);
 
         // [WHEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenView;
+        ChangeGlobalDimensionsPage.OpenView();
 
         // [THEN] lines are sorted by "Progress", then by "Table ID": 25, 21, 13, 15
-        Assert.AreEqual(25, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '1st');
+        Assert.AreEqual(25, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDecimal(), '1st');
         ChangeGlobalDimensionsPage.LogLines.Next();
-        Assert.AreEqual(21, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '2nd');
+        Assert.AreEqual(21, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDecimal(), '2nd');
         ChangeGlobalDimensionsPage.LogLines.Next();
-        Assert.AreEqual(13, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '3rd');
+        Assert.AreEqual(13, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDecimal(), '3rd');
         ChangeGlobalDimensionsPage.LogLines.Next();
-        Assert.AreEqual(15, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDEcimal, '4th');
+        Assert.AreEqual(15, ChangeGlobalDimensionsPage.LogLines."Table ID".AsDecimal(), '4th');
     end;
 
     [Test]
@@ -1574,7 +1574,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.TestField("Session ID", 0);
 
         // [WHEN] run RunTask() but fail on TAB134483 update
-        ERMChangeGlobalDimensions.SetFailOnModifyTAB134483;
+        ERMChangeGlobalDimensions.SetFailOnModifyTAB134483();
         asserterror RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Error message: 'TAB134483.OnBeforeModify'
@@ -1596,9 +1596,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         // [GIVEN] Global Dim codes are not changed
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         // [WHEN] Run Prepare() and Start()
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
         StartChangeGlobalDims(ChangeGlobalDimensions);
 
         // [THEN] Table "Change Global Dim. Log Entry" is still empty
@@ -1627,18 +1627,18 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] "Global Dimension 1 Code" is set to <blank>
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", '');
         ChangeGlobalDimHeader.Modify();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID[1] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         ExpectedTaskID[2] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -1678,19 +1678,19 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] "Global Dimension 2 Code" is set to "Global Dimension 1 Code"
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         ChangeGlobalDimHeader.Modify();
 
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID[1] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         ExpectedTaskID[2] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -1730,7 +1730,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] "Global Dimension 1 Code" and "Global Dimension 2 Code" are both set to <blank>
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", '');
@@ -1738,12 +1738,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimHeader.Modify();
 
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID[1] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         ExpectedTaskID[2] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -1781,7 +1781,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] "Global Dimension 1 Code" and "Global Dimension 2 Code" are swapped
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
@@ -1789,12 +1789,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimHeader.Modify();
 
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID[1] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         ExpectedTaskID[2] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -1831,16 +1831,16 @@ codeunit 134483 "ERM Change Global Dimensions"
         DetailedEntryWithGlobalDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
         // [GIVEN] Run Prepare()
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         ChangeGlobalDimHeader.Modify();
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         MockTaskScheduling(
@@ -1881,7 +1881,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         DtldEntryWithGlobalDim2."Parent Entry No." := TableWithDimensionSetID."Entry No.";
         DtldEntryWithGlobalDim2.Insert();
         // [GIVEN] Gobal dimensions are swapped
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
@@ -1889,7 +1889,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimHeader.Modify();
 
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID :=
@@ -1898,7 +1898,7 @@ codeunit 134483 "ERM Change Global Dimensions"
           ERMChangeGlobalDimensions, DATABASE::"Detailed Entry With Global Dim");
         MockTaskScheduling(
           ERMChangeGlobalDimensions, DATABASE::"Dtld. Entry With Global Dim 2");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -1944,16 +1944,16 @@ codeunit 134483 "ERM Change Global Dimensions"
         DetailedEntryWithGlobalDim."Parent Entry No." := TableWithDimensionSetID."Entry No.";
         DetailedEntryWithGlobalDim.Insert();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
         // [GIVEN] Run Prepare()
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
         ChangeGlobalDimHeader.Modify();
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start(), but scheduling failed
         ExpectedTaskID :=
@@ -1981,7 +1981,6 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: array[3] of Record "Change Global Dim. Log Entry";
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
-        DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
@@ -2095,9 +2094,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         RunChangeGlobalDimensionsInParallel(ParentChangeGlobalDimLogEntry);
 
         // [THEN] Both Parent and Dependent entries are removed
-        Assert.IsFalse(ParentChangeGlobalDimLogEntry.Find, 'Parent entry must be deleted.');
-        Assert.IsFalse(ChangeGlobalDimLogEntry[1].Find, '1st Dependent entry must be deleted.');
-        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find, '2nd Dependent entry must be deleted.');
+        Assert.IsFalse(ParentChangeGlobalDimLogEntry.Find(), 'Parent entry must be deleted.');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[1].Find(), '1st Dependent entry must be deleted.');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find(), '2nd Dependent entry must be deleted.');
     end;
 
     [Test]
@@ -2145,9 +2144,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         RunChangeGlobalDimensionsInParallel(ParentChangeGlobalDimLogEntry);
 
         // [THEN] Dependent entry is not removed; both entries are 'Incomplete'
-        Assert.IsTrue(ParentChangeGlobalDimLogEntry.Find, 'Parent entry must not be deleted.');
+        Assert.IsTrue(ParentChangeGlobalDimLogEntry.Find(), 'Parent entry must not be deleted.');
         ParentChangeGlobalDimLogEntry.TestField(Status, ParentChangeGlobalDimLogEntry.Status::Incomplete);
-        Assert.IsTrue(ChangeGlobalDimLogEntry.Find, 'Dependent entry must not be deleted.');
+        Assert.IsTrue(ChangeGlobalDimLogEntry.Find(), 'Dependent entry must not be deleted.');
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::Incomplete);
     end;
 
@@ -2170,7 +2169,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] "Global Dimension 1 Code" is set to <blank>
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", '');
@@ -2179,12 +2178,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.Insert();
         TableWithDimensionSetID.Insert();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         MockNullTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         ExpectedTaskID[2] := MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start(), but scheduling for "Table With Default Dim" didn't happen
         StartChangeGlobalDims(ChangeGlobalDimensions);
@@ -2210,8 +2209,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         Initialize();
         // [GIVEN] Log Entry, where "Server Instance ID" and "Session ID" are current, "Task ID" = 'X'
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid();
-        ChangeGlobalDimLogEntry."Session ID" := SessionId;
-        ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId;
+        ChangeGlobalDimLogEntry."Session ID" := SessionId();
+        ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId();
         // [GIVEN] "Completed Records" = 0, "Total Records" > 0
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry."Completed Records" := 0;
@@ -2339,15 +2338,15 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] 0 records in "Table With Default Dim"
         TableWithDefaultDim.DeleteAll();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         BindSubscription(ERMChangeGlobalDimensions);
         // [GIVEN] Run Prepare()
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimensions.SetParallelProcessing(true);
         ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", ChangeGlobalDimHeader."Global Dimension 2 Code");
         ChangeGlobalDimHeader.Modify();
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
 
         // [WHEN] Run Start()
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
@@ -2379,11 +2378,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] Run task for "Table With Default Dim"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log Entry is completed and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
     end;
 
     [Test]
@@ -2443,20 +2442,20 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry[3].Insert();
 
         // [GIVEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
 
         // [THEN] "Status" is "Incomplete" in the first record on the page
         Assert.AreEqual(
           ChangeGlobalDimLogEntry[1].Status::Incomplete,
-          ChangeGlobalDimensionsPage.LogLines.Status.AsInteger, '1st Status');
+          ChangeGlobalDimensionsPage.LogLines.Status.AsInteger(), '1st Status');
         // [THEN] "Status" is "Completed" in the 3rd record on the page
-        ChangeGlobalDimensionsPage.LogLines.Last;
+        ChangeGlobalDimensionsPage.LogLines.Last();
         Assert.AreEqual(
           ChangeGlobalDimLogEntry[3]."Table ID",
-          ChangeGlobalDimensionsPage.LogLines."Table ID".AsInteger, '3rd Table ID');
+          ChangeGlobalDimensionsPage.LogLines."Table ID".AsInteger(), '3rd Table ID');
         Assert.AreEqual(
           ChangeGlobalDimLogEntry[3].Status::Completed,
-          ChangeGlobalDimensionsPage.LogLines.Status.AsInteger, '3rd Status');
+          ChangeGlobalDimensionsPage.LogLines.Status.AsInteger(), '3rd Status');
         ChangeGlobalDimensionsPage.Close();
         // [THEN] "Status" is "In Progress" on both records
         ChangeGlobalDimLogEntry[1].Find();
@@ -2480,11 +2479,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Salesperson/Purchaser";
         ChangeGlobalDimLogEntry.Insert();
 
-        ChangeGlobalDimLogEntry.SetSessionInProgress;
+        ChangeGlobalDimLogEntry.SetSessionInProgress();
 
         ChangeGlobalDimLogEntry.Find();
-        ChangeGlobalDimLogEntry.TestField("Session ID", SessionId);
-        ChangeGlobalDimLogEntry.TestField("Server Instance ID", ServiceInstanceId);
+        ChangeGlobalDimLogEntry.TestField("Session ID", SessionId());
+        ChangeGlobalDimLogEntry.TestField("Server Instance ID", ServiceInstanceId());
         ChangeGlobalDimLogEntry.TestField(Status, ChangeGlobalDimLogEntry.Status::"In Progress");
     end;
 
@@ -2554,7 +2553,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 10);
         // [WHEN] Run task for "Table With Dimension Set ID"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         BindSubscription(ERMChangeGlobalDimensions); // subscribe to count MODIFY's
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[1]);
         // [THEN] 1 Entry.MODIFY call is executed, "Status" is "Completed"
@@ -2578,7 +2577,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 11);
         // [WHEN] Run task for "Table With Dimension Set ID"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         BindSubscription(ERMChangeGlobalDimensions); // subscribe to count MODIFY's
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[1]);
         // [THEN] 2 Entry.MODIFY calls are executed, "Status" is "Completed"
@@ -2602,7 +2601,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 1100);
         // [WHEN] Run task for "Table With Dimension Set ID"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         BindSubscription(ERMChangeGlobalDimensions); // subscribe to count MODIFY's
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[1]);
         // [THEN] 100 Entry.MODIFY calls are executed, "Status" is "Completed"
@@ -2630,7 +2629,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry[2].Validate("Completed Records", 1);
         ChangeGlobalDimLogEntry[2].Modify();
         // [WHEN] Run task for "Table With Dimension Set ID"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         BindSubscription(ERMChangeGlobalDimensions); // subscribe to count MODIFY's
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[1]);
         // [THEN] 3 Entry.MODIFY calls are executed, "Status" is "Completed"
@@ -2803,11 +2802,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, DATABASE::"Table With Default Dim", ChangeGlobalDimLogEntry."Change Type 1"::New, 0);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'X', "Shortcut Dimension 2 Code" is 'B'
         TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue[3].Code);
@@ -2844,11 +2843,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry, DATABASE::"Table With Dimension Set ID", 0, ChangeGlobalDimLogEntry."Change Type 1"::New);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'A', "Shortcut Dimension 2 Code" is 'Y'
         TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", DimensionValue[1].Code);
@@ -2887,11 +2886,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry."Change Type 1"::New, ChangeGlobalDimLogEntry."Change Type 2"::Blank);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'Y', "Shortcut Dimension 2 Code" is <blank>
         TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue[3].Code);
@@ -2930,11 +2929,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry."Change Type 1"::Blank, ChangeGlobalDimLogEntry."Change Type 2"::Replace);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'A'
         TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
@@ -2972,11 +2971,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry."Change Type 1"::Replace, ChangeGlobalDimLogEntry."Change Type 2"::Replace);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is 'B', "Shortcut Dimension 2 Code" is 'A'
         TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Dimension Set ID", DimSetID);
@@ -3013,11 +3012,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry, DATABASE::"Table With Default Dim", ChangeGlobalDimLogEntry."Change Type 1"::New, 0);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDefaultDim, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
         TableWithDefaultDim.Find();
         TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
@@ -3055,11 +3054,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry, DATABASE::"Table With Dimension Set ID", ChangeGlobalDimLogEntry."Change Type 1"::New, 0);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] TableWithDimensionSetID, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
         TableWithDimensionSetID.Find();
         TableWithDimensionSetID.TestField("Global Dimension 1 Code", '');
@@ -3094,11 +3093,11 @@ codeunit 134483 "ERM Change Global Dimensions"
           ChangeGlobalDimLogEntry, DATABASE::"Job Task", ChangeGlobalDimLogEntry."Change Type 1"::New, 0);
 
         // [WHEN] Run task
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry);
 
         // [THEN] Log entry is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         // [THEN] Job Task, where "Global Dimension 1 Code" is <blank>, "Shortcut Dimension 2 Code" is 'B'
         JobTask.Find();
         JobTask.TestField("Global Dimension 1 Code", '');
@@ -3149,15 +3148,15 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry[3].Modify();
 
         // [WHEN] Run task for table "Table With Dimension Set ID"
-        DisableEntriesDeletion;
+        DisableEntriesDeletion();
         RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[1]);
 
         // [THEN] ChangeGlobalDimLogEntry for "Table With Dimension Set ID" is 'Completed' and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry[1].Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[1].Find(), 'LogEntry should be deleted');
         // [THEN] ChangeGlobalDimLogEntry for dependent table, where "Status" is "Completed" and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find, '1st Dependent LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find(), '1st Dependent LogEntry should be deleted');
         // [THEN] ChangeGlobalDimLogEntry for dependent table, where "Status" is "Completed" and deleted
-        Assert.IsFalse(ChangeGlobalDimLogEntry[3].Find, '2nd Dependent LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[3].Find(), '2nd Dependent LogEntry should be deleted');
         // [THEN] Records of dependent table gets global dim codes from parent table
         TableWithDimensionSetID.Find();
         VerifyDependentRecords(TableWithDimensionSetID);
@@ -3298,7 +3297,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         // [GIVEN] Current Session is active only
-        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
+        ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly();
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         DimSetID := CreateDimSet(DimensionValue);
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3313,11 +3312,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
         ChangeGlobalDimensions.SetParallelProcessing(true);
-        ChangeGlobalDimensions.Prepare;
+        ChangeGlobalDimensions.Prepare();
         // [GIVEN] New session, where COD484 is subscribed to OnDatabase triggers
         ChangeGlobalDimLogMgt.ClearBuffer();
         // [GIVEN] 2 ChangeGlobalDimLogEntries for tables 1001 and 134482, where "Status" is "Completed"
-        ChangeGlobalDimensions.Start;
+        ChangeGlobalDimensions.Start();
         ChangeGlobalDimLogEntry.Get(DATABASE::"Job Task");
         MockCompletedLogEntry(ChangeGlobalDimLogEntry);
 
@@ -3368,10 +3367,10 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         // [THEN] One log entry, where "Status" is 'Incomplete'.
         Assert.RecordCount(ChangeGlobalDimLogEntry[1], 1);
-        Assert.IsTrue(ChangeGlobalDimLogEntry[1].Find, 'LogEntry[1]');
+        Assert.IsTrue(ChangeGlobalDimLogEntry[1].Find(), 'LogEntry[1]');
         ChangeGlobalDimLogEntry[1].TestField(Status, ChangeGlobalDimLogEntry[1].Status::Incomplete);
         // [THEN] The scheduled log entry is completed and removed.
-        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find, 'LogEntry[2] should be removed');
+        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find(), 'LogEntry[2] should be removed');
     end;
 
     [Test]
@@ -3391,7 +3390,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogMgt.ClearBuffer();
 
         // [WHEN] Open page "Change Global Dimensions"
-        ChangeGlobalDimensionsPage.OpenView;
+        ChangeGlobalDimensionsPage.OpenView();
 
         // [THEN] All log entries are deleted
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
@@ -3420,7 +3419,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
         // [WHEN] Create Service Order
         LibraryService.SetupServiceMgtNoSeries();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [THEN] Generated Dimension Set Entry holds correct values
         DimensionSetEntry.SetRange("Dimension Set ID", ServiceHeader."Dimension Set ID");
@@ -3995,7 +3994,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         i: Integer;
     begin
         with ActiveSession do begin
-            SetFilter("Session ID", '<>%1', SessionId);
+            SetFilter("Session ID", '<>%1', SessionId());
             DeleteAll();
             Reset();
             FindFirst();
@@ -4018,7 +4017,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             // Session for another ServiceID
             "Client Type" := "Client Type"::"Web Client";
             "Session ID" := "Session ID";
-            "Server Instance ID" := ServiceInstanceId + 1000;
+            "Server Instance ID" := ServiceInstanceId() + 1000;
             "Session Unique ID" := CreateGuid();
             Insert();
         end;
@@ -4082,7 +4081,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     local procedure MockCompletedLogEntry(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
     begin
-        ChangeGlobalDimLogEntry."Session ID" := SessionId;
+        ChangeGlobalDimLogEntry."Session ID" := SessionId();
         ChangeGlobalDimLogEntry.Validate("Completed Records", ChangeGlobalDimLogEntry."Total Records");
         ChangeGlobalDimLogEntry.UpdateStatus();
         ChangeGlobalDimLogEntry.Modify();
@@ -4131,7 +4130,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     local procedure OpenPageForParalllelProcessing(var ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions")
     begin
-        ChangeGlobalDimensionsPage.OpenEdit;
+        ChangeGlobalDimensionsPage.OpenEdit();
         ChangeGlobalDimensionsPage."Parallel Processing".SetValue(Format(true));
     end;
 
@@ -4158,7 +4157,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     local procedure StartChangeGlobalDims(var ChangeGlobalDimensions: Codeunit "Change Global Dimensions")
     begin
-        ChangeGlobalDimensions.Start;
+        ChangeGlobalDimensions.Start();
     end;
 
     local procedure SwapGlobalDimensions(var ChangeGlobalDimensions: Codeunit "Change Global Dimensions")
@@ -4166,7 +4165,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
         GlobalDimCode: Code[20];
     begin
-        ChangeGlobalDimensions.RefreshHeader;
+        ChangeGlobalDimensions.RefreshHeader();
         ChangeGlobalDimHeader.Get();
         GlobalDimCode := ChangeGlobalDimHeader."Global Dimension 1 Code";
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", ChangeGlobalDimHeader."Global Dimension 2 Code");
@@ -4217,7 +4216,7 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     local procedure VerifyModifyCount(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ExpectedCount: Integer; ActualCount: Integer)
     begin
-        Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
+        Assert.IsFalse(ChangeGlobalDimLogEntry.Find(), 'LogEntry should be deleted');
         Assert.AreEqual(ExpectedCount, ActualCount, 'Count of MODIFY calls');
     end;
 
@@ -4231,7 +4230,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             repeat
                 TestField("Initial Entry Global Dim. 1", TableWithDimensionSetID."Global Dimension 1 Code");
                 TestField("Initial Entry Global Dim. 2", TableWithDimensionSetID."Shortcut Dimension 2 Code");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4300,12 +4299,12 @@ codeunit 134483 "ERM Change Global Dimensions"
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        Assert.IsTrue(JobQueueLogEntriesPage.First, 'empty list');
-        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntriesPage.Status.AsInteger, 'Status');
+        Assert.IsTrue(JobQueueLogEntriesPage.First(), 'empty list');
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntriesPage.Status.AsInteger(), 'Status');
         Assert.AreEqual(
-          JobQueueLogEntry."Object Type to Run"::Codeunit, JobQueueLogEntriesPage."Object Type to Run".AsInteger, 'Object Type to Run');
+          JobQueueLogEntry."Object Type to Run"::Codeunit, JobQueueLogEntriesPage."Object Type to Run".AsInteger(), 'Object Type to Run');
         Assert.AreEqual(
-          CODEUNIT::"Change Global Dim Err. Handler", JobQueueLogEntriesPage."Object ID to Run".AsInteger, 'Object ID to Run');
+          CODEUNIT::"Change Global Dim Err. Handler", JobQueueLogEntriesPage."Object ID to Run".AsInteger(), 'Object ID to Run');
         LibraryVariableStorage.Enqueue(JobQueueLogEntriesPage.Description.Value);
     end;
 
@@ -4316,7 +4315,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         Assert.AreEqual(
-          Format(ChangeGlobalDimensions.GetCloseSessionsNotificationID),
+          Format(ChangeGlobalDimensions.GetCloseSessionsNotificationID()),
           Format(Notification.Id), 'Notification ID');
     end;
 
@@ -4327,7 +4326,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         Assert.AreEqual(
-          Format(ChangeGlobalDimensions.GetCloseSessionsNotificationID),
+          Format(ChangeGlobalDimensions.GetCloseSessionsNotificationID()),
           Format(Notification.Id), 'Notification ID');
         LibraryVariableStorage.Enqueue(Notification.Message);
         ChangeGlobalDimensions.ShowActiveSessions(Notification); // simulate click on notification action

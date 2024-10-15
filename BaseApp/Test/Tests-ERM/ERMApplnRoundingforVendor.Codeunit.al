@@ -40,10 +40,10 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         Initialize();
         GeneralLedgerSetup.Get();
         ApplnRounding := GeneralLedgerSetup."Appln. Rounding Precision";
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandInt(100);
         ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
-        ExchRateAmount2 := ExchRateAmount + LibraryUtility.GenerateRandomFraction;
+        ExchRateAmount2 := ExchRateAmount + LibraryUtility.GenerateRandomFraction();
         ApplyPaymentWithHigherValue(DocumentNo, CurrencyCode, -Amount, ExchRateAmount2, LibraryRandom.RandInt(2));
         Amount := ExchRateAmount2 - ExchRateAmount;
 
@@ -73,7 +73,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         GeneralLedgerSetup.Get();
         ApplnRounding := GeneralLedgerSetup."Appln. Rounding Precision";
         Amount := LibraryRandom.RandInt(100);
-        ExchRateAmount := Amount - LibraryUtility.GenerateRandomFraction;
+        ExchRateAmount := Amount - LibraryUtility.GenerateRandomFraction();
         ApplyPaymentWithHigherValue(DocumentNo, '', -Amount, ExchRateAmount, LibraryRandom.RandInt(2));
 
         // Verify: Verify that Application Rounding Entry not created on Detailed Ledger Entry.
@@ -97,7 +97,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
 
         // Create and Post General Line for Invoice and Payment with currency, Modify Exchange Rate and Apply invoice.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2);
         ExchRateAmount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         ApplyPaymentWithLowerValue(DocumentNo, CurrencyCode, -Amount, ExchRateAmount, 0);
@@ -115,9 +115,9 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         // Check that Application Rounding entry not Created in Detailed Ledger Entry after Post Invoice and Payment from General Journal
         // Lines Without currency and Modify General Ledger Setup for Appln. Rounding Precision.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandInt(100);
-        ExchRateAmount := Amount - LibraryUtility.GenerateRandomFraction;
+        ExchRateAmount := Amount - LibraryUtility.GenerateRandomFraction();
         ApplyPaymentWithLowerValue(DocumentNo, CurrencyCode, -Amount, ExchRateAmount, 0);
     end;
 
@@ -142,7 +142,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, Vendor."No.", -LibraryRandom.RandInt(100),
-          CreateAndModifyCurrency);
+          CreateAndModifyCurrency());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Create Another general line for Payment with Posted Entry.
@@ -152,9 +152,9 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
           GenJournalLine."Currency Code");
 
         // Verify: Open Apply Vendor Entries page through General Journal and Verify Balance and Rounding Values with ApplyVendorEntriesPageHandler.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure Initialize()
@@ -261,7 +261,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         Currency: Record Currency;
     begin
         // Take Random value for Application Rounding Precision.
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         Currency.Validate("Appln. Rounding Precision", LibraryRandom.RandDec(10, 2));
         Currency.Modify(true);
         exit(Currency.Code);
@@ -279,7 +279,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(2));
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryUtility.GenerateRandomFraction);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryUtility.GenerateRandomFraction());
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);
@@ -374,7 +374,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         FindDetailedLedgerEntry(DetailedVendorLedgEntry, DocumentNo);
-        Assert.IsFalse(DetailedVendorLedgEntry.FindFirst, 'Application Rounding entry should not present.');
+        Assert.IsFalse(DetailedVendorLedgEntry.FindFirst(), 'Application Rounding entry should not present.');
     end;
 
     local procedure VerifyCorrAmountGLEntries(Vendor: Record Vendor; DocumentNo: Code[20]; PayablesAmount: Decimal; CorrectionAmount: Decimal)
@@ -426,12 +426,12 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
     begin
         // Take Zero for Validation on Apply Customer Entries Page.
         GeneralLedgerSetup.Get();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         Assert.AreEqual(
-          0, ApplyVendorEntries.ApplnRounding.AsDEcimal,
+          0, ApplyVendorEntries.ApplnRounding.AsDecimal(),
           StrSubstNo(AmountError, ApplyVendorEntries.ApplnRounding.Caption, 0, ApplyVendorEntries.Caption));
         Assert.AreEqual(
-          -GeneralLedgerSetup."Inv. Rounding Precision (LCY)", ApplyVendorEntries.ControlBalance.AsDEcimal,
+          -GeneralLedgerSetup."Inv. Rounding Precision (LCY)", ApplyVendorEntries.ControlBalance.AsDecimal(),
           StrSubstNo(
             AmountError, ApplyVendorEntries.ControlBalance.Caption, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
             ApplyVendorEntries.Caption));

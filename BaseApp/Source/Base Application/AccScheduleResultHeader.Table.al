@@ -4,6 +4,7 @@ table 31086 "Acc. Schedule Result Header"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

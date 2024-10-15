@@ -37,7 +37,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // [THEN] Workflow table relations for vendor and workflow webhook entry exist.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         // Excercise
         WorkflowSetup.InitWorkflow();
@@ -91,7 +91,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Setup - A approval
@@ -129,7 +129,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Setup - A approval
@@ -169,7 +169,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Setup - A approval
@@ -204,7 +204,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Setup - A approval
@@ -240,7 +240,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         // Setup - an existing approval
         LibraryPurchase.CreateVendor(Vendor);
@@ -278,7 +278,7 @@ codeunit 134222 "WFWH Vendor Approval"
         // Setup
         Initialize();
         WorkflowCode := CreateAndEnableVendorWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         // Setup - an existing approval
         LibraryPurchase.CreateVendor(Vendor);
@@ -314,16 +314,16 @@ codeunit 134222 "WFWH Vendor Approval"
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
         Commit();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor card is opened.
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(VendorCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(VendorCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         VendorCard.Close();
@@ -342,21 +342,21 @@ codeunit 134222 "WFWH Vendor Approval"
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Vendor List page while Flow approval is pending.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Vendor record exists, with enabled workflow and a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
         Commit();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor list is opened.
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(VendorList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(VendorList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(VendorList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         VendorList.Close();
@@ -380,9 +380,9 @@ codeunit 134222 "WFWH Vendor Approval"
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor card is opened and Cancel button is clicked.
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.CancelApprovalRequest.Invoke;
+        VendorCard.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -404,7 +404,7 @@ codeunit 134222 "WFWH Vendor Approval"
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Vendor List page
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Vendor record exists, with a Flow approval request already open.
         LibraryPurchase.CreateVendor(Vendor);
@@ -412,9 +412,9 @@ codeunit 134222 "WFWH Vendor Approval"
         WebhookHelper.CreatePendingFlowApproval(Vendor.RecordId);
 
         // [WHEN] Vendor list is opened and Cancel button is clicked.
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
-        VendorList.CancelApprovalRequest.Invoke;
+        VendorList.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -428,9 +428,9 @@ codeunit 134222 "WFWH Vendor Approval"
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
         VendorCard.Close();
     end;
 
@@ -443,10 +443,10 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         ClearWorkflowWebhookEntry.DeleteAll();
-        RemoveBogusUser;
+        RemoveBogusUser();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -484,7 +484,7 @@ codeunit 134222 "WFWH Vendor Approval"
         WorkflowCode: Code[20];
     begin
         WorkflowCode :=
-          WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode,
+          WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode(),
             '', DynamicRequestPageParametersVendorTxt, ResponseUserID);
         Workflow.Get(WorkflowCode);
         LibraryWorkflow.EnableWorkflow(Workflow);

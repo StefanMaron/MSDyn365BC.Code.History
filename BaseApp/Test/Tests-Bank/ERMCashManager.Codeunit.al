@@ -98,7 +98,7 @@ codeunit 134500 "ERM Cash Manager"
         Initialize();
         LibraryERM.FindCurrency(Currency);
         GeneralLederSetup.get();
-        GeneralLederSetup.validate("LCY Code", Currency.Code);
+        GeneralLederSetup.Validate("LCY Code", Currency.Code);
         GeneralLederSetup.Modify();
         CreateBankAccountWithCurrency(BankAccount, '');
         CreatePostCustomerGenJnlLine(BankAccount."No.");
@@ -128,7 +128,7 @@ codeunit 134500 "ERM Cash Manager"
 
         // 2.Exercise: Create General Journal and Post without Bank Acc. Posting Group.
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -159,7 +159,7 @@ codeunit 134500 "ERM Cash Manager"
         // 2.Exercise: Print Check Report.
         Clear(Check);
         Check.InitializeRequest(BankAccount."No.", BankAccount."Last Check No.", false, false, false, false);
-        asserterror Check.InputBankAccount;
+        asserterror Check.InputBankAccount();
 
         // 3.Verification: Error occurs while Print check report without last check No.
         Assert.AreNotEqual(
@@ -195,7 +195,7 @@ codeunit 134500 "ERM Cash Manager"
           Round(
             LibraryERM.ConvertCurrency(
               BankAccount.Balance, CurrencyCode, '',
-              LibraryERM.FindEarliestDateForExhRate), Currency."Amount Rounding Precision"));
+              LibraryERM.FindEarliestDateForExhRate()), Currency."Amount Rounding Precision"));
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 134500 "ERM Cash Manager"
         Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfVATEntryErrorErr, VATEntry.TableCaption(), 1));
         Assert.AreNearlyEqual(
           VATEntry.Amount,
-          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', LibraryERM.FindEarliestDateForExhRate) *
+          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', LibraryERM.FindEarliestDateForExhRate()) *
           VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), Currency."Amount Rounding Precision", VATAmountErrorErr);
     end;
 
@@ -248,7 +248,7 @@ codeunit 134500 "ERM Cash Manager"
 
         // 2.Exercise: Create General Journal.
         asserterror CreateGenJnlLine(
-            GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+            GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
             -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
 
         // 3.Verification: Error occurs while using Blocked Bank Account in General Journal.
@@ -276,7 +276,7 @@ codeunit 134500 "ERM Cash Manager"
 
         // 2.Exercise: Update Bank Account on General Journal Batch and Create General Journal.
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
 
         // 3.Verification: Verify "Bal. Account No." must be same as Bank Account "No.".
@@ -377,11 +377,9 @@ codeunit 134500 "ERM Cash Manager"
     [HandlerFunctions('CountCheckLedgerEntries,TestPrintCheckRequestPageHandler')]
     procedure OutstandingChecksDrilldownOnlyShowsRecordsFromItsBank()
     var
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccount: Record "Bank Account";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
-        CheckBalance: Decimal;
         CheckLedgerEntryNo1: Integer;
         CheckLedgerEntryNo2: Integer;
     begin
@@ -439,7 +437,7 @@ codeunit 134500 "ERM Cash Manager"
         Initialize();
         CreateBankAccountStatementNo(BankAccount);
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
@@ -463,16 +461,14 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine: Record "Gen. Journal Line";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        NewBankAccount: Record "Bank Account";
     begin
         // Test that the Application doesn't allow posting the Bank Reconciliation when there is unapplied difference (line type Difference is deprecated)
-
         // 1.Setup: Create Bank Account with "Statement No." and "Balance Last Statement" fields Value, Find Customer,
         // Create and Post General Journal Line, and Create "Bank Acc. Reconciliation" using Bank Account.
         Initialize();
         CreateBankAccountStatementNo(BankAccount);
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
@@ -501,7 +497,7 @@ codeunit 134500 "ERM Cash Manager"
         Initialize();
         CreateBankAccountStatementNo(BankAccount);
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
@@ -572,7 +568,7 @@ codeunit 134500 "ERM Cash Manager"
         Initialize();
         CreateBankAccountStatementNo(BankAccount);
         CreateGenJnlLine(
-          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccount."No.", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.");
@@ -661,7 +657,7 @@ codeunit 134500 "ERM Cash Manager"
         // [GIVEN] General Journal Line with "Bal. Account Type" = Bank Account, "Bank Payment Type" = "Manual Check"
         LibraryERM.CreateBankAccount(BankAccount);
         CreateGenJnlLineWithBankPaymentType(
-          GenJournalLine, BankAccount."No.", LibraryPurchase.CreateVendorNo, GenJournalLine."Bank Payment Type"::"Manual Check");
+          GenJournalLine, BankAccount."No.", LibraryPurchase.CreateVendorNo(), GenJournalLine."Bank Payment Type"::"Manual Check");
 
         // [WHEN] Post General Journal Line.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -726,7 +722,7 @@ codeunit 134500 "ERM Cash Manager"
         // [GIVEN] Gen. Journal Line, where "Bank Payment Type" is "Computer Check", "Exported to Payment File" is Yes
         CreateBankAccountLastCheckNo(BankAccount);
         CreateGenJnlLineWithBankPaymentType(
-          GenJournalLine, BankAccount."No.", LibraryPurchase.CreateVendorNo, GenJournalLine."Bank Payment Type"::"Computer Check");
+          GenJournalLine, BankAccount."No.", LibraryPurchase.CreateVendorNo(), GenJournalLine."Bank Payment Type"::"Computer Check");
         GenJournalLine."Exported to Payment File" := true;
         GenJournalLine.Modify();
         CreateGenJnlBatchForBank(GenJournalBatch, BankAccount."No.");
@@ -765,14 +761,14 @@ codeunit 134500 "ERM Cash Manager"
         LibraryVariableStorage.Enqueue(BankAccount."No.");
         LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
         LibraryVariableStorage.Enqueue(true);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Check, true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was not changed
         BankAccount.Find();
         BankAccount.TestField("Last Check No.", LastCheckNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -798,7 +794,7 @@ codeunit 134500 "ERM Cash Manager"
         LibraryVariableStorage.Enqueue(BankAccount."No.");
         LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Check, true, false, GenJournalLine);
 
         // [THEN] Bank Account "Last Check No." was updated to the next value
@@ -806,7 +802,7 @@ codeunit 134500 "ERM Cash Manager"
         Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -832,9 +828,7 @@ codeunit 134500 "ERM Cash Manager"
     local procedure SetupBankWithOutstandingCheckPayment(var BankAccount: Record "Bank Account"): Integer
     var
         GenJournalLine: Record "Gen. Journal Line";
-        Vendor: Record "Vendor";
         CheckLedgerEntry: Record "Check Ledger Entry";
-        Check: Report Check;
         LastCheckNo: Code[20];
         NextCheckEntryNo: Integer;
     begin
@@ -907,7 +901,7 @@ codeunit 134500 "ERM Cash Manager"
     begin
         LibraryERM.FindBankAccount(BankAccount);
         BankAccount.Validate(Blocked, true);
-        BankAccount.Validate(IBAN, FindIBAN);
+        BankAccount.Validate(IBAN, FindIBAN());
         BankAccount.Modify(true);
     end;
 
@@ -1003,7 +997,7 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGenJnlLine(
-          GenJournalLine, BankAccountNo, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine, BankAccountNo, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1028,7 +1022,7 @@ codeunit 134500 "ERM Cash Manager"
     local procedure CreateGenJnlBatchForBank(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
         GenJournalBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJournalBatch.Modify(true);
@@ -1130,8 +1124,8 @@ codeunit 134500 "ERM Cash Manager"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo(Address))));
         BankAccount.Validate("Address 2", CopyStr(BankAccount.Address, 1, MaxStrLen(BankAccount."Address 2")));
-        BankAccount.Validate("Country/Region Code", FindCountryRegionCode);
-        BankAccount.Validate("Post Code", FindPostCode);
+        BankAccount.Validate("Country/Region Code", FindCountryRegionCode());
+        BankAccount.Validate("Post Code", FindPostCode());
         BankAccount.Validate("Phone No.", PhoneAndFaxNoTxt);  // Using text.
         BankAccount.Validate(
           Contact,
@@ -1147,7 +1141,7 @@ codeunit 134500 "ERM Cash Manager"
             LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Bank Branch No."))));
         BankAccount.Validate("Bank Account No.", BankAccount."Bank Branch No.");
         BankAccount.Validate("Min. Balance", LibraryRandom.RandDec(50000, 2));  // Using RANDOM for Minimum Balance.
-        BankAccount.Validate("Our Contact Code", FindSalespersonPurchaserCode);
+        BankAccount.Validate("Our Contact Code", FindSalespersonPurchaserCode());
         BankAccount.Validate("Fax No.", PhoneAndFaxNoTxt);  // Using text.
         BankAccount.Validate("E-Mail", EmailIDTxt);  // Using text.
         BankAccount.Validate("Home Page", HomePageTxt);  // Using text.
@@ -1160,7 +1154,7 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount.Validate("Transit No.", BankAccount."Last Check No.");
         BankAccount.Validate("Last Statement No.", BankAccount."Last Check No.");
         BankAccount.Validate("Balance Last Statement", LibraryRandom.RandDec(50000, 2));
-        BankAccount.Validate(IBAN, FindIBAN);
+        BankAccount.Validate(IBAN, FindIBAN());
         BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
         BankAccount.Validate("Currency Code", FindCurrency(Currency));
         BankAccount.Modify(true);
@@ -1169,7 +1163,7 @@ codeunit 134500 "ERM Cash Manager"
     local procedure PrepareGenJnlLineForCheckPrinting(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
     begin
         CreateGenJnlLineWithBankPaymentType(
-          GenJournalLine, BankAccountNo, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, BankAccountNo, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::"Computer Check");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -1316,10 +1310,10 @@ codeunit 134500 "ERM Cash Manager"
     var
         BankAccountCard: TestPage "Bank Account Card";
     begin
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard.FILTER.SetFilter("No.", BankAccountNo);
         BankAccountCard."Balance Last Statement".SetValue(NewBalanceLastStatement);
-        BankAccountCard.OK.Invoke;
+        BankAccountCard.OK().Invoke();
     end;
 
     local procedure InitBalanceLastStatementScenario(var BankAccount: Record "Bank Account"; var BalanceLastStatement: Decimal)
@@ -1355,7 +1349,7 @@ codeunit 134500 "ERM Cash Manager"
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         LibraryVariableStorage.Dequeue(LastCheckNo);
-        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        TestPrint := LibraryVariableStorage.DequeueBoolean();
         CheckRequestPage.BankAccount.SetValue(Format(BankAccountNo));
         CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
         CheckRequestPage.TestPrinting.SetValue(TestPrint);

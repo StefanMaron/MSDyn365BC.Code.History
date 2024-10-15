@@ -41,7 +41,7 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalanceCache.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
-        TrialBalance.OpenEdit;
+        TrialBalance.OpenEdit();
 
         // [THEN] the Trial Balance opens with no errors and shows a single column
         Assert.IsFalse(TrialBalanceCacheInfo.IsEmpty, 'Trial Balance Info record is not added.');
@@ -96,13 +96,13 @@ codeunit 138029 "O365 Trial Balance"
 
         NoOfColumns := 2;
         for I := 1 to 2 do begin
-            AccScheduleOverview.PreviousPeriod.Invoke;
+            AccScheduleOverview.PreviousPeriod.Invoke();
             TrialBalanceMgt.PreviousPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
             CompareResults(AccScheduleOverview, Values);
         end;
 
         for I := 1 to 2 do begin
-            AccScheduleOverview.NextPeriod.Invoke;
+            AccScheduleOverview.NextPeriod.Invoke();
             TrialBalanceMgt.NextPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
             CompareResults(AccScheduleOverview, Values);
         end;
@@ -116,43 +116,43 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalance: TestPage "Trial Balance";
     begin
         Initialize();
-        TrialBalance.OpenEdit;
+        TrialBalance.OpenEdit();
 
         // Test drill down on GL Accounts
         // Row 1
-        ExpectedAmount := -TrialBalance.CurrentPeriodValues1.AsDEcimal;
-        TrialBalance.CurrentPeriodValues1.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodValues1.AsDecimal();
+        TrialBalance.CurrentPeriodValues1.DrillDown();
 
-        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues1.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues1.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues1.AsDecimal();
+        TrialBalance.CurrentPeriodMinusOneValues1.DrillDown();
 
         // Row 2
-        ExpectedAmount := -TrialBalance.CurrentPeriodValues2.AsDEcimal;
-        TrialBalance.CurrentPeriodValues2.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodValues2.AsDecimal();
+        TrialBalance.CurrentPeriodValues2.DrillDown();
 
-        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues2.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues2.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues2.AsDecimal();
+        TrialBalance.CurrentPeriodMinusOneValues2.DrillDown();
 
         // Row 5
-        ExpectedAmount := TrialBalance.CurrentPeriodValues5.AsDEcimal;
-        TrialBalance.CurrentPeriodValues5.DrillDown;
+        ExpectedAmount := TrialBalance.CurrentPeriodValues5.AsDecimal();
+        TrialBalance.CurrentPeriodValues5.DrillDown();
 
-        ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues5.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues5.DrillDown;
+        ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues5.AsDecimal();
+        TrialBalance.CurrentPeriodMinusOneValues5.DrillDown();
 
         // Row 8
-        ExpectedAmount := TrialBalance.CurrentPeriodValues8.AsDEcimal;
-        TrialBalance.CurrentPeriodValues8.DrillDown;
+        ExpectedAmount := TrialBalance.CurrentPeriodValues8.AsDecimal();
+        TrialBalance.CurrentPeriodValues8.DrillDown();
 
-        ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues8.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues8.DrillDown;
+        ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues8.AsDecimal();
+        TrialBalance.CurrentPeriodMinusOneValues8.DrillDown();
 
         // Row 9
-        ExpectedAmount := -TrialBalance.CurrentPeriodValues9.AsDEcimal;
-        TrialBalance.CurrentPeriodValues9.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodValues9.AsDecimal();
+        TrialBalance.CurrentPeriodValues9.DrillDown();
 
-        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues9.AsDEcimal;
-        TrialBalance.CurrentPeriodMinusOneValues9.DrillDown;
+        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues9.AsDecimal();
+        TrialBalance.CurrentPeriodMinusOneValues9.DrillDown();
     end;
 
     [Test]
@@ -163,44 +163,44 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalance: TestPage "Trial Balance";
     begin
         Initialize();
-        TrialBalance.OpenEdit;
+        TrialBalance.OpenEdit();
 
         // Test drill down on Formulas
         LibraryVariableStorage.Enqueue(30);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues3.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues3.AsDEcimal);
-        TrialBalance.CurrentPeriodValues3.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues3.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues3.AsDecimal());
+        TrialBalance.CurrentPeriodValues3.DrillDown();
         LibraryVariableStorage.Enqueue(30);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues3.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues3.AsDEcimal);
-        TrialBalance.CurrentPeriodMinusOneValues3.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues3.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues3.AsDecimal());
+        TrialBalance.CurrentPeriodMinusOneValues3.DrillDown();
 
         LibraryVariableStorage.Enqueue(40);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues4.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues4.AsDEcimal);
-        TrialBalance.CurrentPeriodValues4.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues4.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues4.AsDecimal());
+        TrialBalance.CurrentPeriodValues4.DrillDown();
         LibraryVariableStorage.Enqueue(40);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues4.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues4.AsDEcimal);
-        TrialBalance.CurrentPeriodMinusOneValues4.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues4.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues4.AsDecimal());
+        TrialBalance.CurrentPeriodMinusOneValues4.DrillDown();
 
         LibraryVariableStorage.Enqueue(60);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues6.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues6.AsDEcimal);
-        TrialBalance.CurrentPeriodValues6.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues6.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues6.AsDecimal());
+        TrialBalance.CurrentPeriodValues6.DrillDown();
         LibraryVariableStorage.Enqueue(60);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues6.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues6.AsDEcimal);
-        TrialBalance.CurrentPeriodMinusOneValues6.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues6.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues6.AsDecimal());
+        TrialBalance.CurrentPeriodMinusOneValues6.DrillDown();
 
         LibraryVariableStorage.Enqueue(70);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues7.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues7.AsDEcimal);
-        TrialBalance.CurrentPeriodValues7.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues7.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues7.AsDecimal());
+        TrialBalance.CurrentPeriodValues7.DrillDown();
         LibraryVariableStorage.Enqueue(70);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues7.AsDEcimal);
-        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues7.AsDEcimal);
-        TrialBalance.CurrentPeriodMinusOneValues7.DrillDown;
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodValues7.AsDecimal());
+        LibraryVariableStorage.Enqueue(TrialBalance.CurrentPeriodMinusOneValues7.AsDecimal());
+        TrialBalance.CurrentPeriodMinusOneValues7.DrillDown();
     end;
 
     [Test]
@@ -217,11 +217,11 @@ codeunit 138029 "O365 Trial Balance"
         AccountingPeriod.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
-        TrialBalance.OpenEdit;
+        TrialBalance.OpenEdit();
 
         // [THEN] the Trial Balance opens with no errors and shows a single column
-        Assert.IsTrue(TrialBalance.CurrentPeriodValues1.Visible, 'Current period should be visible');
-        Assert.IsFalse(TrialBalance.CurrentPeriodMinusOneValues1.Visible, 'Current period minus one should not be visible');
+        Assert.IsTrue(TrialBalance.CurrentPeriodValues1.Visible(), 'Current period should be visible');
+        Assert.IsFalse(TrialBalance.CurrentPeriodMinusOneValues1.Visible(), 'Current period minus one should not be visible');
     end;
 
     [Test]
@@ -287,7 +287,6 @@ codeunit 138029 "O365 Trial Balance"
     local procedure OpenAccSchedOverviewPage(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
         TrialBalanceSetup: Record "Trial Balance Setup";
-        AccountScheduleNames: TestPage "Account Schedule Names";
         FinancialReports: TestPage "Financial Reports";
         TrialAccSchedName: Code[10];
     begin
@@ -296,7 +295,7 @@ codeunit 138029 "O365 Trial Balance"
 
         FinancialReports.OpenView();
         FinancialReports.Filter.SetFilter(Name, TrialAccSchedName);
-        AccScheduleOverview.Trap;
+        AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
         AccScheduleOverview.PeriodType.SetValue(PeriodType::"Accounting Period");
@@ -307,10 +306,10 @@ codeunit 138029 "O365 Trial Balance"
         I: Integer;
     begin
         I := 1;
-        AccScheduleOverview.First;
+        AccScheduleOverview.First();
         repeat
-            Assert.AreEqual(AccScheduleOverview.ColumnValues1.AsDEcimal, Round(Values[I, 2]), 'Data in column 1 does not match');
-            Assert.AreEqual(AccScheduleOverview.ColumnValues2.AsDEcimal, Round(Values[I, 1]), 'Data in column 2 does not match');
+            Assert.AreEqual(AccScheduleOverview.ColumnValues1.AsDecimal(), Round(Values[I, 2]), 'Data in column 1 does not match');
+            Assert.AreEqual(AccScheduleOverview.ColumnValues2.AsDecimal(), Round(Values[I, 1]), 'Data in column 2 does not match');
             I := I + 1;
         until not AccScheduleOverview.Next();
     end;
@@ -323,9 +322,9 @@ codeunit 138029 "O365 Trial Balance"
         ActualAmount: Decimal;
     begin
         ActualAmount := 0;
-        ChartofAccountsGL.First;
+        ChartofAccountsGL.First();
         repeat
-            ActualAmount := ActualAmount + ChartofAccountsGL."Net Change".AsDEcimal;
+            ActualAmount := ActualAmount + ChartofAccountsGL."Net Change".AsDecimal();
         until not ChartofAccountsGL.Next();
 
         Assert.AreEqual(ExpectedAmount, ActualAmount, 'Wrong amount on GL page');
@@ -345,15 +344,15 @@ codeunit 138029 "O365 Trial Balance"
         LibraryVariableStorage.Dequeue(Amount1);
         Assert.AreEqual(
           RowNo,
-          AccScheduleOverview."Row No.".AsInteger,
+          AccScheduleOverview."Row No.".AsInteger(),
           'Unexpected account schedule line selected in the overview page.');
         Assert.AreEqual(
           Round(Amount1),
-          AccScheduleOverview.ColumnValues1.AsDEcimal,
+          AccScheduleOverview.ColumnValues1.AsDecimal(),
           'Unexpected amount shown in account schedule overview page.');
         Assert.AreEqual(
           Round(Amount2),
-          AccScheduleOverview.ColumnValues2.AsDEcimal,
+          AccScheduleOverview.ColumnValues2.AsDecimal(),
           'Unexpected amount shown in account schedule overview page.');
 
         AccScheduleOverview.Close();

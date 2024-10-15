@@ -63,7 +63,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning - NTF tests");
         LibraryVariableStorage.Clear();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Initialize setup.
         if IsInitialized then
@@ -73,7 +73,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        GlobalSetup;
+        GlobalSetup();
 
         Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
         Evaluate(PlanningStartDate, '<+23D>');
@@ -90,9 +90,9 @@ codeunit 137021 "SCM Planning - NTF tests"
 
     local procedure GlobalSetup()
     begin
-        LibrarySales.SetOrderNoSeriesInSetup;
-        LibrarySales.SetReturnOrderNoSeriesInSetup;
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibrarySales.SetReturnOrderNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
 
         LocationSetup(LocationWhite, true, true, false);
         LocationSetup(LocationOne, false, false, false);
@@ -100,12 +100,12 @@ codeunit 137021 "SCM Planning - NTF tests"
         LocationSetup(LocationThree, false, false, false);
         LocationSetup(TransitLocation, false, false, true);
 
-        ItemJournalSetup;
+        ItemJournalSetup();
         LibraryWarehouse.WarehouseJournalSetup(LocationWhite.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
 
-        TransferRoutesSetup;
+        TransferRoutesSetup();
 
-        DisableWarnings;
+        DisableWarnings();
     end;
 
     local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; SafetyLeadTime: Text[30])
@@ -169,7 +169,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     local procedure ItemJournalSetup()
     begin
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -278,7 +278,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UsageLink: Boolean)
     begin
-        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate("Planning Date", WorkDate());
         JobPlanningLine.Validate("Usage Link", UsageLink);
@@ -374,7 +374,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             ProductionOrder.Validate("Bin Code", OutputBinCode);
 
         // Needed for executing the validate trigger on due date
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", DueDate);
         ProductionOrder.Modify(true);
 
@@ -382,8 +382,6 @@ codeunit 137021 "SCM Planning - NTF tests"
     end;
 
     local procedure CreateSKUs(Item: Record Item; LocationFilter: Text; VariantFilter: Text)
-    var
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("No.", Item."No.");
         if LocationFilter <> '' then
@@ -391,7 +389,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         if VariantFilter <> '' then
             Item.SetFilter("Variant Filter", VariantFilter);
 
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::"Location & Variant", false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::"Location & Variant", false, false);
     end;
 
     local procedure UpdateSKUAsTransfer(Item: Record Item; Location: Code[10]; Variant: Code[10]; LocationFromCode: Code[10])
@@ -406,7 +404,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
     local procedure CalculateAndPostConsumption(ProductionOrder: Record "Production Order")
     begin
-        ConsumptionJournalSetup;
+        ConsumptionJournalSetup();
         ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
         Commit();
         LibraryManufacturing.CalculateConsumption(
@@ -646,8 +644,8 @@ codeunit 137021 "SCM Planning - NTF tests"
     local procedure TestSetup()
     begin
         ErrorMessageCounter := 0;
-        ManufacturingSetup;
-        ClearDefaultLocation;
+        ManufacturingSetup();
+        ClearDefaultLocation();
     end;
 
     local procedure FilterRequisitionLineOnPlanningWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActionMsg: Enum "Action Message Type"; RefOrderType: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal)
@@ -743,17 +741,17 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateAndPostItemJnlLine(Item."No.", 15, LocationFromCode);
 
         // create transfer from LocationFrom to LocationTo
-        CreateTransferOrder(TransferHeader, Item."No.", LocationFromCode, LocationToCode, WorkDate + 2, 13);
+        CreateTransferOrder(TransferHeader, Item."No.", LocationFromCode, LocationToCode, WorkDate() + 2, 13);
         // post Shipment of tranfer
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
 
         // create demand - sales order, use LocationTo
-        CreateSalesOrder(SalesHeader, Item, 11, WorkDate + 3, LocationToCode);
+        CreateSalesOrder(SalesHeader, Item, 11, WorkDate() + 3, LocationToCode);
 
         // run planning for item and LocationTo
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", LocationToCode);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate + 5);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate() + 5);
     end;
 
     local procedure AssertTrackingLineForItem(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NoOfLines: Integer)
@@ -850,10 +848,10 @@ codeunit 137021 "SCM Planning - NTF tests"
 
     local procedure CreateProductionOrders(ItemNo: Code[20]; LocationCode: Code[10]; var ProductionOrder: array[3] of Record "Production Order")
     begin
-        CreateRelProdOrderAndRefresh(ProductionOrder[1], ItemNo, 10, WorkDate + 15, LocationCode, '');
-        CreateRelProdOrderAndRefresh(ProductionOrder[2], ItemNo, 10, WorkDate + 15, LocationCode, '');
+        CreateRelProdOrderAndRefresh(ProductionOrder[1], ItemNo, 10, WorkDate() + 15, LocationCode, '');
+        CreateRelProdOrderAndRefresh(ProductionOrder[2], ItemNo, 10, WorkDate() + 15, LocationCode, '');
 
-        CreateFPlanProdOrderAndRefresh(ProductionOrder[3], ItemNo, 10, WorkDate + 30, LocationCode, '');
+        CreateFPlanProdOrderAndRefresh(ProductionOrder[3], ItemNo, 10, WorkDate() + 30, LocationCode, '');
     end;
 
     local procedure CreateAndShipTransfer(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; LocationFromCode: Code[10]; LocationToCode: Code[10]; Quantity: Decimal; LotNo: Code[10]; ReceiveDate: Date; QuantityToShip: Decimal)
@@ -877,8 +875,6 @@ codeunit 137021 "SCM Planning - NTF tests"
     end;
 
     local procedure CreateItemTrackingForTransfer(TransferLine: Record "Transfer Line"; LotNo: Code[10])
-    var
-        Direction: Option Outbound,Inbound;
     begin
         // assign Lot No to trnasfer line - triggers the ItemTrackingPageHandler handler
         LibraryVariableStorage.Enqueue(LotNo);
@@ -897,7 +893,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateProductionOrders(ItemFGNo, LocationToCode, ProductionOrder);
 
         // create transfer and post shipment of it
-        CreateAndShipTransfer(TransferHeader, ItemCompNo, LocationFromCode, LocationToCode, 300, Text002, WorkDate + 7, 300);
+        CreateAndShipTransfer(TransferHeader, ItemCompNo, LocationFromCode, LocationToCode, 300, Text002, WorkDate() + 7, 300);
 
         // post more inventory
         CreateItemJnlLineWithLot(
@@ -925,7 +921,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             FindFirst();
             Validate("Lot No.", LotNo);
 
-            UpdateItemTracking;
+            UpdateItemTracking();
             Modify(true);
         end;
     end;
@@ -940,7 +936,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 0, '', 0);
 
         // Add inventory
@@ -964,7 +960,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 0, '', 0);
 
         // Add inventory
@@ -990,7 +986,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1018,7 +1014,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '1M', 0, 10, '', 0);
         OrderModifiersSetup(Item, 25, 0, 3);
 
@@ -1047,7 +1043,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
         OrderModifiersSetup(Item, 0, 2, 0);
         Evaluate(Item."Lead Time Calculation", '1W');
@@ -1079,7 +1075,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1106,7 +1102,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1134,7 +1130,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
         OrderModifiersSetup(Item, 25, 0, 3);
 
@@ -1163,7 +1159,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
         OrderModifiersSetup(Item, 0, 5, 0);
         Evaluate(Item."Lead Time Calculation", '2W');
@@ -1195,7 +1191,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
         Evaluate(Item."Lead Time Calculation", '2W');
         Item.Modify(true);
@@ -1224,7 +1220,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 10, 0);
 
         // Add inventory
@@ -1252,7 +1248,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 10, 0);
         OrderModifiersSetup(Item, 25, 100, 10);
 
@@ -1292,7 +1288,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 10, 0);
 
         // Add inventory
@@ -1326,7 +1322,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 60, 100, 0, '', 0, 10, '', 0);
         OrderModifiersSetup(Item, 0, 50, 0);
 
@@ -1356,7 +1352,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 60, 100, 0, '', 0, 0, '', 0);
         OrderModifiersSetup(Item, 25, 0, 0);
         Evaluate(Item."Lead Time Calculation", '10D');
@@ -1390,7 +1386,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 60, 100, 0, '', 0, 0, '', 0);
         OrderModifiersSetup(Item, 0, 0, 10);
         Evaluate(Item."Lead Time Calculation", '1M');
@@ -1419,7 +1415,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1449,7 +1445,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
         Evaluate(Item."Lead Time Calculation", '1W');
         Item.Modify(true);
@@ -1477,7 +1473,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1500,7 +1496,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '', 0, 0, '', 0);
         OrderModifiersSetup(Item, 0, 0, 10);
 
@@ -1528,7 +1524,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 10, 0);
 
         // Add inventory
@@ -1556,7 +1552,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1582,7 +1578,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1607,7 +1603,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1633,7 +1629,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1661,7 +1657,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1689,7 +1685,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '+1W', 0, 10, '', 0);
 
         // Add inventory
@@ -1717,7 +1713,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Exercise
@@ -1742,7 +1738,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 500, 0, '', 0, 10, '', 0);
 
         // Add inventory
@@ -1772,7 +1768,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 10, 0);
 
         // Add inventory
@@ -1803,7 +1799,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 500, 0, '2W', 0, 10, '', 0);
 
         // Add inventory
@@ -1835,7 +1831,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 200, 0, '1W', 0, 10, '', 0);
         Evaluate(Item."Lead Time Calculation", '3D');
         Item.Modify(true);
@@ -1869,7 +1865,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 200, 0, '1W', 0, 0, '', 0);
 
         // Add inventory
@@ -1904,7 +1900,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 200, 0, '2W', 0, 10, '', 0);
 
         // Add inventory
@@ -1934,7 +1930,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '1W', 0, 10, '', 0);
 
         // Add inventory
@@ -1966,7 +1962,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '1W', 0, 0, '', 0);
 
         // Add inventory
@@ -2001,7 +1997,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '1M', 0, 0, '', 0);
 
         // Add inventory
@@ -2035,7 +2031,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, false, '', '1W', '', 0, 0, 0);
 
         // Exercise
@@ -2064,7 +2060,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '1W', '', 0, 10, 0);
 
         // Add inventory
@@ -2097,7 +2093,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, false, '', '10D', '', 0, 0, 0);
 
         // Exercise
@@ -2122,7 +2118,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 250, 0, '', 0, 0, '', 0);
 
         // Add inventory
@@ -2148,7 +2144,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 250, 0, '', 0, 0, '', 0);
         Evaluate(Item."Lead Time Calculation", '10D');
         Item.Modify(true);
@@ -2177,7 +2173,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 250, 0, '', 0, 0, '', 0);
         Evaluate(Item."Lead Time Calculation", '10D');
         Item.Modify(true);
@@ -2206,7 +2202,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '', 0, 10, '', 0);
         Evaluate(Item."Lead Time Calculation", '10D');
         Item.Modify(true);
@@ -2235,7 +2231,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 100, 200, 0, '', 0, 10, '', 0);
         Evaluate(Item."Lead Time Calculation", '10D');
         Item.Modify(true);
@@ -2267,7 +2263,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, false, '', '1W', '', 0, 0, 0);
         Evaluate(Item."Lead Time Calculation", '3D');
         Item.Modify(true);
@@ -2298,7 +2294,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 200, 0, '1W', 0, 0, '', 0);
 
         // Add inventory
@@ -2331,7 +2327,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 100, 250, 0, '', 0, 0, '', 0);
         Evaluate(Item."Lead Time Calculation", '10D');
         Item.Modify(true);
@@ -2362,7 +2358,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Add inventory
@@ -2388,7 +2384,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Add inventory
@@ -2419,7 +2415,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2444,7 +2440,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Add inventory
@@ -2476,7 +2472,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2510,7 +2506,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2541,7 +2537,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2571,7 +2567,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2598,7 +2594,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2622,7 +2618,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2647,7 +2643,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2670,7 +2666,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Add inventory
@@ -2700,7 +2696,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         CreateBOM(ProductionBOMHeader, ChildItem, 1);
         SetBOMOnItem(Item, ProductionBOMHeader);
@@ -2730,7 +2726,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2759,7 +2755,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         CreateBOM(ProductionBOMHeader, ChildItem, 1);
         SetBOMOnItem(Item, ProductionBOMHeader);
@@ -2795,7 +2791,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2825,7 +2821,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2859,7 +2855,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         CreateBOM(ProductionBOMHeader, ChildItem, 1);
         SetBOMOnItem(Item, ProductionBOMHeader);
@@ -2912,7 +2908,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -2945,7 +2941,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         LibraryWarehouse.FindBin(Bin, LocationWhite.Code, 'PICK', 1);
         SetDefaultLocation(LocationWhite.Code);
@@ -2998,7 +2994,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         CreateBOM(ProductionBOMHeader, ChildItem, 1);
         SetBOMOnItem(Item, ProductionBOMHeader);
@@ -3041,7 +3037,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -3076,7 +3072,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         CreateBOM(ProductionBOMHeader, ChildItem, 1);
         SetBOMOnItem(Item, ProductionBOMHeader);
@@ -3125,7 +3121,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -3158,7 +3154,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetupForTransfer(Item, LocationFrom, LocationTo);
 
         // run planning for shipped transfer and sales order
@@ -3185,7 +3181,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetupForTransfer(ItemFG, LocationFrom, LocationTo);
         FinishSetupOfItem(ItemFG, ItemComp);
 
@@ -3195,7 +3191,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // run planning for component and LocationTo
         ItemComp.SetRange("No.", ItemComp."No.");
         ItemComp.SetRange("Location Filter", LocationTo.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 35);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate() + 35);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3206,7 +3202,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 1 tracking entry against FPPO, 1 surplus
 
         // rerun planning for a new period
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 15);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate() + 15);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3233,7 +3229,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetupForTransfer(ItemFG, LocationFrom, LocationTo);
         FinishSetupOfItem(ItemFG, ItemComp);
 
@@ -3243,7 +3239,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // run planning for component and LocationTo
         ItemComp.SetRange("No.", ItemComp."No.");
         ItemComp.SetRange("Location Filter", LocationTo.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 35);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate() + 35);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3257,7 +3253,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreateItemTrackingForFPPO(ProductionOrder[3], Text002);
 
         // rerun planning for a new period
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate + 15);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ItemComp, WorkDate() - 1, WorkDate() + 15);
 
         // verify results
         AssertNoLinesForItem(ItemComp);
@@ -3280,7 +3276,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // Setup
         Initialize();
 
-        LibraryApplicationArea.EnablePremiumSetup;
+        LibraryApplicationArea.EnablePremiumSetup();
 
         B335974_CreateSetup(Item, Location);
         // Create prod. order
@@ -3308,7 +3304,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, '<0D>');
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Modify(true);
@@ -3319,7 +3315,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, PurchaseQuantity, WorkDate(), '');
         CreateJobAndPlanningLine(JobTask, JobPlanningLine, Item."No.", JobQuantity, UsageLink);
         if Reserve then
-            PurchaseLine.ShowReservation
+            PurchaseLine.ShowReservation()
         else begin
             PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
             PurchaseLine.Modify(true);
@@ -3377,7 +3373,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         ItemSetup(Item, Item."Replenishment System"::Purchase, '<0D>');
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Modify(true);
@@ -3402,8 +3398,8 @@ codeunit 137021 "SCM Planning - NTF tests"
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3418,19 +3414,19 @@ codeunit 137021 "SCM Planning - NTF tests"
         // 3: Validate remaining serial numbers
         case GlobalHandlerAction of
             1:
-                ItemTrackingLines.CreateCustomizedSN.Invoke;
+                ItemTrackingLines.CreateCustomizedSN.Invoke();
             2:
                 begin
-                    ItemTrackingLines.First;
+                    ItemTrackingLines.First();
                     for i := 1 to GlobalQty[1] - GlobalQty[2] do begin
                         ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);
-                        GlobalRemainingSerialNos[i] := ItemTrackingLines."Serial No.".Value;
+                        GlobalRemainingSerialNos[i] := ItemTrackingLines."Serial No.".Value();
                         ItemTrackingLines.Next();
                     end;
                 end;
             3:
                 begin
-                    ItemTrackingLines.First;
+                    ItemTrackingLines.First();
                     for i := 1 to GlobalQty[1] - GlobalQty[2] do begin
                         Assert.AreEqual(
                           GlobalRemainingSerialNos[i],
@@ -3450,7 +3446,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         EnterCustomizedSN.CustomizedSN.SetValue(CustomizedSNTxt);
         EnterCustomizedSN.Increment.SetValue(1);
         EnterCustomizedSN.QtyToCreate.SetValue(GlobalQty[1]);
-        EnterCustomizedSN.OK.Invoke;
+        EnterCustomizedSN.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3459,9 +3455,9 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         ProductionJournal."Output Quantity".SetValue(GlobalQty[2]);
         if GlobalHandlerAction = 1 then
-            asserterror ProductionJournal.Post.Invoke // Try to post
+            asserterror ProductionJournal.Post.Invoke() // Try to post
         else
-            ProductionJournal.Post.Invoke;
+            ProductionJournal.Post.Invoke();
     end;
 
     [ConfirmHandler]
@@ -3498,7 +3494,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // Create item with serial no. tracking
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, Item."Inventory Posting Group");
-        AccNo := GetNonBlockedGLAccount;
+        AccNo := GetNonBlockedGLAccount();
         InventoryPostingSetup."Inventory Account" := AccNo;
         InventoryPostingSetup."WIP Account" := AccNo;
         InventoryPostingSetup.Modify();
@@ -3518,11 +3514,11 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         // Set item tracking
         // Adjust item tracking accordingly
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.GotoRecord(ProductionOrder);
         GlobalHandlerAction := 1; // Create full item tracking (serial no)
         // Set item tracking, GlobalQty[1] serial no's (done in page handler):
-        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke; // Item Tracking Lines
+        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke(); // Item Tracking Lines
     end;
 
     local procedure ReduceOutputQtyTryPostingErrExpected(ProductionOrder: Record "Production Order")
@@ -3531,9 +3527,9 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         // Set output qty to GlobalQty[2],done in page handler.
         // Try posting (done in page handler). Error expected:
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.GotoRecord(ProductionOrder);
-        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke; // Production Journal Line
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke(); // Production Journal Line
     end;
 
     local procedure ReduceItemTrackingTryPostNoErrorExpected(ProductionOrder: Record "Production Order")
@@ -3543,10 +3539,10 @@ codeunit 137021 "SCM Planning - NTF tests"
         GlobalHandlerAction := 2; // Put zeroes in qty to handle
         // Set item tracking, GlobalQty[2] serial numbers (done in page handler).
         // No posting error expected:
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.GotoRecord(ProductionOrder);
-        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke; // Item Tracking Lines
-        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke; // Production Journal Line - POSTING
+        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke(); // Item Tracking Lines
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke(); // Production Journal Line - POSTING
     end;
 
     local procedure VerifyRemainingProdOrderItemTrackingLines(ProductionOrder: Record "Production Order")
@@ -3554,10 +3550,10 @@ codeunit 137021 "SCM Planning - NTF tests"
         ReleasedProductionOrder: TestPage "Released Production Order";
     begin
         GlobalHandlerAction := 3;
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.GotoRecord(ProductionOrder);
 
-        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke; // Item Tracking Lines
+        ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke(); // Item Tracking Lines
         // Verify remaining reservation entries:
         AssertTrackingLineForSource(
           DATABASE::"Prod. Order Line", ProductionOrder.Status.AsInteger(), ProductionOrder."No.",
@@ -3576,7 +3572,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         // Setup
         Initialize();
-        TestSetup;
+        TestSetup();
 
         // Setup items and SKUs - and replenishment in a "chain" of transfers -
         // location white transfers to location 3 that transfers to location 2 that transfers to location 1
@@ -3592,7 +3588,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise - transfer order, ship partial
         CreateAndShipTransfer(TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, 3 * QtyOnInventory, Text002,
-          WorkDate, QtyOnInventory);
+          WorkDate(), QtyOnInventory);
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -3617,7 +3613,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         // Setup
         Initialize();
-        TestSetup;
+        TestSetup();
 
         // Setup items and SKUs - and replenishment in a "chain" of transfers -
         // location white transfers to location 3 that transfers to location 2 that transfers to location 1
@@ -3632,7 +3628,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         // Exercise - transfer order, no shipping just add/remove inventory
         CreateAndShipTransfer(TransferHeader, Item."No.", LocationTwo.Code, LocationOne.Code, 3 * QtyOnInventory, Text002,
-          WorkDate, 0); // Qty=0 means nothing to ship
+          WorkDate(), 0); // Qty=0 means nothing to ship
         AddInventoryNonDirectLocationWithLotNo(Item, LocationTwo.Code, QtyOnInventory, Text002);
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate(PlanningEndDate, WorkDate())); // required in order to have the entries split in tab337
         RemoveInventoryNonDirectLocationWithLotNo(Item, LocationTwo.Code, QtyOnInventory, Text002);

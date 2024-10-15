@@ -4,6 +4,7 @@ table 11772 "VAT Statement Comment Line"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {

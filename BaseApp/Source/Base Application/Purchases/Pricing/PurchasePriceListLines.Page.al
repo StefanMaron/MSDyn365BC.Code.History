@@ -48,21 +48,21 @@ page 7011 "Purchase Price List Lines"
                 field(ParentSourceNo; Rec."Parent Source No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Assign-to Job No.';
+                    Caption = 'Assign-to Project No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     Visible = ParentSourceNoVisible;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToParentNo; Rec."Assign-to Parent No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Assign-to Job No.';
+                    Caption = 'Assign-to Project No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     ShowMandatory = IsParentAllowed;
                     Visible = AssignToParentNoVisible;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
                 {

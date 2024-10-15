@@ -4,6 +4,7 @@ table 11741 "Cash Desk Event"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -139,11 +140,9 @@ table 11741 "Cash Desk Event"
                     end;
             end;
         }
-        field(14; "Document Type"; Option)
+        field(14; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,,,,,Refund';
-            OptionMembers = " ",Payment,,,,,Refund;
         }
         field(29; "Global Dimension 1 Code"; Code[20])
         {
@@ -157,11 +156,9 @@ table 11741 "Cash Desk Event"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
-        field(72; "Gen. Posting Type"; Option)
+        field(72; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale';
-            OptionMembers = " ",Purchase,Sale;
         }
         field(116; "VAT Bus. Posting Group"; Code[20])
         {

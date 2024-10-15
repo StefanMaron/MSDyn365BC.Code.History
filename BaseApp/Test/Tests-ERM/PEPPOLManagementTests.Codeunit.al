@@ -18,9 +18,7 @@
         LibraryInvt: Codeunit "Library - Inventory";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
@@ -61,7 +59,7 @@
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        Cust.Validate("Currency Code", CreateCurrencyCode);
+        Cust.Validate("Currency Code", CreateCurrencyCode());
         Cust.Modify(true);
 
         CreateItemWithPrice(Item, 10);
@@ -514,7 +512,7 @@
         Salesperson.Code := LibraryUtility.GenerateGUID();
         Salesperson.Name := LibraryUtility.GenerateGUID();
         Salesperson."Phone No." := LibraryUtility.GenerateGUID();
-        Salesperson."E-Mail" := LibraryUtility.GenerateRandomEmail;
+        Salesperson."E-Mail" := LibraryUtility.GenerateRandomEmail();
         Salesperson.Insert();
 
         DummySalesHeader."Salesperson Code" := Salesperson.Code;
@@ -770,7 +768,7 @@
         Customer."No." := LibraryUtility.GenerateGUID();
         Customer."Phone No." := LibraryUtility.GenerateGUID();
         Customer."E-Mail" := LibraryUtility.GenerateGUID();
-        Customer.Insert;
+        Customer.Insert();
 
         DummySalesHeader."Bill-to Customer No." := Customer."No.";
         DummySalesHeader."Bill-to Name" := LibraryUtility.GenerateGUID();
@@ -1211,7 +1209,7 @@
         Assert.AreEqual('UNCL4465', AllowanceChargeListID, '');
         Assert.AreEqual('Invoice Discount Amount', AllowanceChargeReason, '');
         Assert.AreEqual(Format(TempVATAmtLine."Invoice Discount Amount", 0, 9), Amount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, AllowanceChargeCurrencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), AllowanceChargeCurrencyID, '');
         Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxCategoryID, '');
         Assert.AreEqual('', TaxCategorySchemeID, '');
         Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), Percent, '');
@@ -1241,7 +1239,7 @@
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        Cust.Validate("Currency Code", CreateCurrencyCode);
+        Cust.Validate("Currency Code", CreateCurrencyCode());
         Cust.Modify(true);
 
         CreateItemWithPrice(Item, 10);
@@ -1258,7 +1256,7 @@
         // Verify
         Assert.AreEqual(SalesHeader."Currency Code", SourceCurrencyCode, '');
         Assert.AreEqual('ISO4217', SourceCurrencyCodeListID, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, TargetCurrencyCode, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TargetCurrencyCode, '');
         Assert.AreEqual('ISO4217', TargetCurrencyCodeListID, '');
         Assert.AreEqual(Format(SalesHeader."Currency Factor", 0, 9), CalculationRate, '');
         Assert.AreEqual('Multiply', MathematicOperatorCode, '');
@@ -1309,7 +1307,7 @@
 
         // Verify
         Assert.AreEqual(Format(TempVATAmtLine."VAT Amount", 0, 9), TaxAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, TaxTotalCurrencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxTotalCurrencyID, '');
     end;
 
     [Test]
@@ -1363,7 +1361,7 @@
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesHeader.Validate("Currency Code", CreateCurrencyCode);
+        SalesHeader.Validate("Currency Code", CreateCurrencyCode());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesHeader."No." := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1398,7 +1396,7 @@
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        SalesHeader.Validate("Currency Code", CreateCurrencyCode);
+        SalesHeader.Validate("Currency Code", CreateCurrencyCode());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesHeader."No." := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1476,11 +1474,11 @@
 
         // Verify
         Assert.AreEqual(Format(TempVATAmtLine."VAT Base", 0, 9), TaxableAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, TaxAmountCurrencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxAmountCurrencyID, '');
         Assert.AreEqual(Format(TempVATAmtLine."VAT Amount", 0, 9), SubtotalTaxAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, TaxSubtotalCurrencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxSubtotalCurrencyID, '');
         // Assert.AreEqual(FORMAT(tempVATAmtLine."Amount including vat",0,9),TransactionCurrencyTaxAmount,'');
-        // Assert.AreEqual(LibraryERM.GetLCYCode,TransCurrTaxAmtCurrencyID,'');
+        // Assert.AreEqual(LibraryERM.GetLCYCode(),TransCurrTaxAmtCurrencyID,'');
         Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxTotalTaxCategoryID, '');
         Assert.AreEqual('', schemeID, ''); // (TFS 388773)
         Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), TaxCategoryPercent, '');
@@ -1707,7 +1705,7 @@
         Initialize();
 
         // Exercise
-        PEPPOLMgt.GetLineOrderLineRefInfo;
+        PEPPOLMgt.GetLineOrderLineRefInfo();
     end;
 
     [Test]
@@ -1786,7 +1784,7 @@
         Assert.AreEqual('false', InvLnAllowanceChargeIndicator, '');
         Assert.AreEqual(Format(InvoiceDiscAmtTxt), InvLnAllowanceChargeReason, '');
         Assert.AreEqual(Format(SalesLine."Line Discount Amount", 0, 9), InvLnAllowanceChargeAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, InvLnAllowanceChargeAmtCurrID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), InvLnAllowanceChargeAmtCurrID, '');
     end;
 
     [Test]
@@ -1823,7 +1821,7 @@
 
         // Verify
         Assert.AreEqual(Format(SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, 0, 9), InvoiceLineTaxAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, currencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), currencyID, '');
     end;
 
     [Test]
@@ -2211,7 +2209,7 @@
 
         // Verify
         Assert.AreEqual(Format(SalesInvoiceLine."Line Amount", 0, 9), InvoiceLinePriceAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode, InvLinePriceAmountCurrencyID, '');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), InvLinePriceAmountCurrencyID, '');
         Assert.AreEqual(Format(SalesInvoiceLine."Quantity (Base)", 0, 9), BaseQuantity, '');
         Assert.AreEqual(UnitOfMeasure."International Standard Code", UnitCode, '');
     end;
@@ -2536,17 +2534,17 @@
         SalesInvoice.OpenNew();
         SalesInvoiceSubform.OpenNew();
 
-        AssertVisibility(SalesInvoice."Currency Code".Visible, 'Sales Invoice.Currency Code');
+        AssertVisibility(SalesInvoice."Currency Code".Visible(), 'Sales Invoice.Currency Code');
 
-        AssertVisibility(SalesInvoice."Your Reference".Visible, 'Sales Invoice.Your Reference');
-        AssertVisibility(SalesInvoice."Shipment Date".Visible, 'Sales Invoice.Shipment Date');
+        AssertVisibility(SalesInvoice."Your Reference".Visible(), 'Sales Invoice.Your Reference');
+        AssertVisibility(SalesInvoice."Shipment Date".Visible(), 'Sales Invoice.Shipment Date');
 
-        AssertVisibility(SalesInvoice."Due Date".Visible, 'Sales Invoice.Due Date');
+        AssertVisibility(SalesInvoice."Due Date".Visible(), 'Sales Invoice.Due Date');
 
-        AssertVisibility(SalesInvoiceSubform.Type.Visible, 'Sales Line.Type');
-        AssertVisibility(SalesInvoiceSubform."No.".Visible, 'Sales Line.To.');
-        AssertVisibility(SalesInvoiceSubform.Quantity.Visible, 'Sales Line.Quantity');
-        AssertVisibility(SalesInvoiceSubform."Unit of Measure Code".Visible, 'Sales Line.Unit of Measure Code');
+        AssertVisibility(SalesInvoiceSubform.Type.Visible(), 'Sales Line.Type');
+        AssertVisibility(SalesInvoiceSubform."No.".Visible(), 'Sales Line.To.');
+        AssertVisibility(SalesInvoiceSubform.Quantity.Visible(), 'Sales Line.Quantity');
+        AssertVisibility(SalesInvoiceSubform."Unit of Measure Code".Visible(), 'Sales Line.Unit of Measure Code');
     end;
 
     [Test]
@@ -2562,21 +2560,21 @@
         SalesCreditMemo.OpenNew();
         SalesCrMemoSubform.OpenNew();
 
-        AssertVisibility(SalesCreditMemo."Currency Code".Visible, 'Sales Credit Memo.Currency Code');
+        AssertVisibility(SalesCreditMemo."Currency Code".Visible(), 'Sales Credit Memo.Currency Code');
 
-        AssertVisibility(SalesCreditMemo."Bill-to Name".Visible, 'Sales Credit Memo.Bill-to Name');
-        AssertVisibility(SalesCreditMemo."Your Reference".Visible, 'Sales Credit Memo.Your Reference');
-        AssertVisibility(SalesCreditMemo."Shipment Date".Visible, 'Sales Credit Memo.Shipment Date');
-        AssertVisibility(SalesCreditMemo."Due Date".Visible, 'Sales Credit Memo.Due Date');
+        AssertVisibility(SalesCreditMemo."Bill-to Name".Visible(), 'Sales Credit Memo.Bill-to Name');
+        AssertVisibility(SalesCreditMemo."Your Reference".Visible(), 'Sales Credit Memo.Your Reference');
+        AssertVisibility(SalesCreditMemo."Shipment Date".Visible(), 'Sales Credit Memo.Shipment Date');
+        AssertVisibility(SalesCreditMemo."Due Date".Visible(), 'Sales Credit Memo.Due Date');
 
-        AssertVisibility(SalesCrMemoSubform.Type.Visible, 'Sales Credit Memo Line.Type');
-        AssertVisibility(SalesCrMemoSubform."No.".Visible, 'Sales Credit Memo Line.No.');
-        AssertVisibility(SalesCrMemoSubform.Quantity.Visible, 'Sales Credit Memo Line.Quantity');
-        AssertVisibility(SalesCrMemoSubform."Unit of Measure Code".Visible, 'Sales Credit Memo Line.Unit of Measure');
+        AssertVisibility(SalesCrMemoSubform.Type.Visible(), 'Sales Credit Memo Line.Type');
+        AssertVisibility(SalesCrMemoSubform."No.".Visible(), 'Sales Credit Memo Line.No.');
+        AssertVisibility(SalesCrMemoSubform.Quantity.Visible(), 'Sales Credit Memo Line.Quantity');
+        AssertVisibility(SalesCrMemoSubform."Unit of Measure Code".Visible(), 'Sales Credit Memo Line.Unit of Measure');
 
-        AssertVisibility(SalesCreditMemo."Applies-to Doc. Type".Visible, 'Sales Credit Memo.Applies-to Doc. Type');
-        AssertVisibility(SalesCreditMemo."Applies-to Doc. No.".Visible, 'Sales Credit Memo.Applies-to Doc. No.');
-        AssertVisibility(SalesCreditMemo."External Document No.".Visible, 'Sales Credit Memo.External Document No.');
+        AssertVisibility(SalesCreditMemo."Applies-to Doc. Type".Visible(), 'Sales Credit Memo.Applies-to Doc. Type');
+        AssertVisibility(SalesCreditMemo."Applies-to Doc. No.".Visible(), 'Sales Credit Memo.Applies-to Doc. No.');
+        AssertVisibility(SalesCreditMemo."External Document No.".Visible(), 'Sales Credit Memo.External Document No.');
     end;
 
     [Test]
@@ -2682,14 +2680,14 @@
         // [SCENARIO 205106] Export PEPPOL does not generate cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements.
 
         Initialize();
-        UpdateCompanySwiftCode;
+        UpdateCompanySwiftCode();
 
         // [GIVEN] Posted sales invoice for the customer
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice);
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice());
 
         // [WHEN] Send the invoice electronically with PEPPOL format
         SalesInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat());
 
         // [THEN] cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements are not exported
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2784,7 +2782,7 @@
         DummySalesHeader.Init();
         CreateCustomerWithGLN(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-        ShipToAddress.GLN := CreateValidGLN;
+        ShipToAddress.GLN := CreateValidGLN();
         ShipToAddress.Modify();
         DummySalesHeader."Ship-to Code" := ShipToAddress.Code;
         DummySalesHeader."Sell-to Customer No." := Customer."No.";
@@ -2826,13 +2824,13 @@
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Ship-to Address.GLN = 12345) and "Ship-to Code" is filled in
         SalesInvoiceHeader.Get(
-          CreatePostSalesDocWithShipToAddress(CreateCustomerWithAddressAndGLN, DummySalesHeader."Document Type"::Invoice));
+          CreatePostSalesDocWithShipToAddress(CreateCustomerWithAddressAndGLN(), DummySalesHeader."Document Type"::Invoice));
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         ShipToAddress.Get(Customer."No.", SalesInvoiceHeader."Ship-to Code");
 
         // [WHEN] Export PEPPOL format
         SalesInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2854,12 +2852,12 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = 12345) and no "Ship-to Code"
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice);
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice());
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
 
         // [WHEN] Export PEPPOL format
         SalesInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2881,11 +2879,11 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = "") and no "Ship-to Code"
-        SalesInvoiceHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
+        SalesInvoiceHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo(), SalesHeader."Document Type"::Invoice));
 
         // [WHEN] Export PEPPOL format
         SalesInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2909,13 +2907,13 @@
 
         // [GIVEN] Posted Sales Credit Memo ("Shipment Date" = 18-07-2018, Ship-to Address.GLN = 12345) with a "Ship-to Code"
         SalesCrMemoHeader.Get(
-          CreatePostSalesDocWithShipToAddress(CreateCustomerWithAddressAndGLN, DummySalesHeader."Document Type"::"Credit Memo"));
+          CreatePostSalesDocWithShipToAddress(CreateCustomerWithAddressAndGLN(), DummySalesHeader."Document Type"::"Credit Memo"));
         Customer.Get(SalesCrMemoHeader."Sell-to Customer No.");
         ShipToAddress.Get(Customer."No.", SalesCrMemoHeader."Ship-to Code");
 
         // [WHEN] Export PEPPOL format
         SalesCrMemoHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2937,12 +2935,12 @@
         Initialize();
 
         // [GIVEN] Posted Sales Credit Memo ("Shipment Date" = 18-07-2018, Customer.GLN = 12345) and no "Ship-to Code"
-        SalesCrMemoHeader.Get(CreatePostSalesCrMemo);
+        SalesCrMemoHeader.Get(CreatePostSalesCrMemo());
         Customer.Get(SalesCrMemoHeader."Sell-to Customer No.");
 
         // [WHEN] Export PEPPOL format
         SalesCrMemoHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2964,11 +2962,11 @@
         Initialize();
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = "") and no "Ship-to Code"
-        SalesCrMemoHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
+        SalesCrMemoHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo(), SalesHeader."Document Type"::"Credit Memo"));
 
         // [WHEN] Export PEPPOL format
         SalesCrMemoHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2994,7 +2992,7 @@
 
         // [WHEN] Export PEPPOL format
         ServiceInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -3021,7 +3019,7 @@
 
         // [WHEN] Export PEPPOL format
         ServiceCrMemoHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, GetPEPPOLFormat());
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -3099,7 +3097,7 @@
         // [GIVEN] Company information has Country/Region with ISO Code not specified
         CompanyInformation.Get();
         CountryRegion.Code := Format(LibraryRandom.RandIntInRange(10, 99));
-        CountryRegion.Insert;
+        CountryRegion.Insert();
         CompanyInformation."Country/Region Code" := CountryRegion.Code;
         CompanyInformation.Modify();
 
@@ -3126,7 +3124,7 @@
 
         // [GIVEN] Country/Region with ISO Code not specified
         CountryRegion.Code := Format(LibraryRandom.RandIntInRange(10, 99));
-        CountryRegion.Insert;
+        CountryRegion.Insert();
 
         // [GIVEN] Sales Invoice is created with the Country/Resion above
         CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -3214,12 +3212,12 @@
 
         // [GIVEN] Send the Invoice Electronically in PEPPOL format..
         SalesInvoiceHeader.SetRecFilter();
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat());
 
         // [VERIFY] Invoice Successfully send the electronically in PEPPOL transmission.
         Assert.IsTrue(FileManagement.ServerFileExists(XMLFilePath), InvoiceElectronicallySendPEPPOLFormatTxt);
     end;
- 
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -3240,16 +3238,16 @@
 
         CompanyInfo.Modify(true);
 
-        ConfigureVATPostingSetup;
+        ConfigureVATPostingSetup();
 
-        AddCompPEPPOLIdentifier;
+        AddCompPEPPOLIdentifier();
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateLocalData();
-        UpdateElectronicDocumentFormatSetup;
+        UpdateElectronicDocumentFormatSetup();
         LibraryService.SetupServiceMgtNoSeries();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
@@ -3280,7 +3278,7 @@
     local procedure CreateCustomerWithGLN(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(GLN, CreateValidGLN);
+        Customer.Validate(GLN, CreateValidGLN());
         Customer.Modify();
     end;
 
@@ -3360,7 +3358,7 @@
             Code := NewCode;
             Usage := NewUsage;
             "Codeunit ID" := NewCodeunitID;
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -3421,7 +3419,7 @@
             if SalesLine."Allow Invoice Disc." then
                 "Inv. Disc. Base Amount" := SalesLine."Line Amount";
             "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
-            InsertLine;
+            InsertLine();
         end;
     end;
 
@@ -3434,14 +3432,14 @@
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        exit(CreatePostSalesDoc(CreateCustomerWithAddressAndGLN, DummySalesHeader."Document Type"::Invoice));
+        exit(CreatePostSalesDoc(CreateCustomerWithAddressAndGLN(), DummySalesHeader."Document Type"::Invoice));
     end;
 
     local procedure CreatePostSalesCrMemo(): Code[20]
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        exit(CreatePostSalesDoc(CreateCustomerWithAddressAndGLN, DummySalesHeader."Document Type"::"Credit Memo"));
+        exit(CreatePostSalesDoc(CreateCustomerWithAddressAndGLN(), DummySalesHeader."Document Type"::"Credit Memo"));
     end;
 
     local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
@@ -3455,7 +3453,7 @@
         SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(10));
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
 
@@ -3476,7 +3474,7 @@
         SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
 
@@ -3493,7 +3491,7 @@
         LibrarySales.CreateCustomer(Customer);
         AddCustPEPPOLIdentifier(Customer."No.");
 
-        Customer.Validate("Currency Code", CreateCurrencyCode);
+        Customer.Validate("Currency Code", CreateCurrencyCode());
         Customer.Modify(true);
 
         CreateItemWithPrice(Item, LibraryRandom.RandIntInRange(1000, 2000));
@@ -3546,7 +3544,7 @@
         ServiceHeader.Validate("Due Date", LibraryRandom.RandDate(10));
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         ServiceLine.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -3559,7 +3557,7 @@
     begin
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
         Customer.Get(CustomerNo);
-        ShipToAddress.Validate(GLN, CreateValidGLN);
+        ShipToAddress.Validate(GLN, CreateValidGLN());
         ShipToAddress.Validate(Address, Customer.Address);
         ShipToAddress.Validate("Address 2", Customer."Address 2");
         ShipToAddress.Validate("Country/Region Code", Customer."Country/Region Code");
@@ -3629,13 +3627,13 @@
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0");
+          GetPEPPOLFormat(), ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0");
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0");
+          GetPEPPOLFormat(), ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0");
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0");
+          GetPEPPOLFormat(), ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0");
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0");
+          GetPEPPOLFormat(), ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0");
     end;
 
     local procedure VerifyPEPPOLMgtGetGLNDeliveryInfo(SalesHeader: Record "Sales Header"; ExpectedActualDeliveryDate: Text; ExpectedDeliveryID: Text; ExpectedDeliveryIDSchemeID: Text)

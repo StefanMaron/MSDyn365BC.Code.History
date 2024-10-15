@@ -33,7 +33,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
 
         // Setup: Create Customer and Update Currency.
         Initialize();
-        Currency.Get(UpdateCurrency(CreateCurrencyForApplRounding, LibraryRandom.RandInt(9) / 100));
+        Currency.Get(UpdateCurrency(CreateCurrencyForApplRounding(), LibraryRandom.RandInt(9) / 100));
 
         // Using value for calculating Application Rounding Amount.
         ApplRoundingAmountLCY := LibraryERM.ConvertCurrency(Currency."Appln. Rounding Precision", Currency.Code, '', WorkDate());
@@ -41,8 +41,8 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Create and Post Invoice and Payment Line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300), CreateCustomer,
-          CreateCurrencyForApplRounding);
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300), CreateCustomer(),
+          CreateCurrencyForApplRounding());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
           -GenJournalLine.Amount - Currency."Appln. Rounding Precision", GenJournalLine."Account No.", Currency.Code);
@@ -76,8 +76,8 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Create and Post Invoice and Payment Line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300), CreateCustomer,
-          CreateCurrencyForApplRounding);
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300), CreateCustomer(),
+          CreateCurrencyForApplRounding());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, -GenJournalLine."Amount (LCY)" -
           GeneralLedgerSetup."Appln. Rounding Precision", GenJournalLine."Account No.", '');
@@ -111,13 +111,13 @@ codeunit 134901 "ERM Customer Appl Rounding"
 
         // Fix the value of Application Rounding Precision because without fixing this value we are not able to generate
         // a Correction Entry.On Random value of Application Rounding Precision we are not able to find Correction Amount value.
-        Currency.Get(UpdateCurrency(CreateCurrencyCorrectionEntry, 0.05));
+        Currency.Get(UpdateCurrency(CreateCurrencyCorrectionEntry(), 0.05));
 
         // Create and Post Invoice and Payment Line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(300),
-          CreateCustomer, CreateCurrencyCorrectionEntry);
+          CreateCustomer(), CreateCurrencyCorrectionEntry());
         Amount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", Currency.Code, WorkDate());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
@@ -192,8 +192,8 @@ codeunit 134901 "ERM Customer Appl Rounding"
         GeneralLedgerSetup.Get();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), CreateCustomer,
-          CreateAndModifyCurrency);
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), CreateCustomer(),
+          CreateAndModifyCurrency());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Create Another general line for Payment with Posted Entry.
@@ -203,9 +203,9 @@ codeunit 134901 "ERM Customer Appl Rounding"
           GenJournalLine."Currency Code");
 
         // Verify: Open Apply Customer Entries page through General Journal and Verify Balance and Rounding Values with ApplyCustomerEntriesPageHandler.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure Initialize()
@@ -276,7 +276,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         Currency: Record Currency;
     begin
         // Take Random value for Application Rounding Precision.
-        Currency.Get(CreateCurrencyForApplRounding);
+        Currency.Get(CreateCurrencyForApplRounding());
         Currency.Validate("Appln. Rounding Precision", LibraryRandom.RandDec(10, 2));
         Currency.Modify(true);
         exit(Currency.Code);
@@ -302,7 +302,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Currency.Get(CreateCurrencyForApplRounding);
+        Currency.Get(CreateCurrencyForApplRounding());
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst();
 
@@ -451,12 +451,12 @@ codeunit 134901 "ERM Customer Appl Rounding"
     begin
         // Take Zero for Validation on Apply Customer Entries Page.
         GeneralLedgerSetup.Get();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         Assert.AreEqual(
-          0, ApplyCustomerEntries.ApplnRounding.AsDEcimal,
+          0, ApplyCustomerEntries.ApplnRounding.AsDecimal(),
           StrSubstNo(ApplyEntryMessage, ApplyCustomerEntries.ApplnRounding.Caption, 0, ApplyCustomerEntries.Caption));
         Assert.AreEqual(
-          GeneralLedgerSetup."Inv. Rounding Precision (LCY)", ApplyCustomerEntries.ControlBalance.AsDEcimal,
+          GeneralLedgerSetup."Inv. Rounding Precision (LCY)", ApplyCustomerEntries.ControlBalance.AsDecimal(),
           StrSubstNo(
             ApplyEntryMessage, ApplyCustomerEntries.ControlBalance.Caption, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
             ApplyCustomerEntries.Caption));

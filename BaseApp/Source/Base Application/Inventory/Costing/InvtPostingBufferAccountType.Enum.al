@@ -1,7 +1,8 @@
-#if not CLEAN21
-namespace Microsoft.Inventory.Costing;
+﻿namespace Microsoft.Inventory.Costing;
 
+#pragma warning disable AL0659
 enum 48 "Invt. Posting Buffer Account Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;
@@ -66,40 +67,4 @@ enum 48 "Invt. Posting Buffer Account Type"
     {
         Caption = 'Mfg. Overhead Variance';
     }
-    value(18; AccWIP)
-    {
-        Caption = 'AccWIP';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '21.0';
-    }
-    value(21; Rounding)
-    {
-        Caption = 'Rounding';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '21.0';
-    }
-    value(22; "WIP Inventory (Interim)")
-    {
-        Caption = 'WIP Inventory (Interim)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '21.0';
-    }
-    value(23; "AccWIPChange (Interim)")
-    {
-        Caption = 'AccWIPChange (Interim)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '21.0';
-    }
-    value(24; "AccProdChange (Interim)")
-    {
-        Caption = 'AccProdChange (Interim)';
-        ObsoleteState = Pending;
-        ObsoleteReason = 'This value is discontinued and should no longer be used.';
-        ObsoleteTag = '21.0';
-    }
 }
-#endif

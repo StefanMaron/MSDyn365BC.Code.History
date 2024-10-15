@@ -78,7 +78,7 @@ codeunit 132534 "Snapshot Management Test"
     begin
         Initialize();
         IncrementalSnapshotRestore(true, 'S1', 'S2');
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 132534 "Snapshot Management Test"
     begin
         Initialize();
         IncrementalSnapshotRestore(false, 'S1', 'S2');
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 132534 "Snapshot Management Test"
         IncrementalSnapshotRestore(false, 'S2', 'S3');
         IncrementalSnapshotRestore(true, 'S3', 'S4');
         IncrementalSnapshotRestore(false, 'S4', 'S5');
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 132534 "Snapshot Management Test"
 
         SnapshotManagement.InitSnapshot('S1', true);
         asserterror SnapshotManagement.InitSnapshot('S2', false);
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 132534 "Snapshot Management Test"
 
         Assert.IsFalse(Customer.Get(CustomerNo), StrSubstNo('Customer with %1 should not exist after snapshot restore.', CustomerNo));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -178,7 +178,7 @@ codeunit 132534 "Snapshot Management Test"
         Assert.IsFalse(Customer.Get(CustomerNo), StrSubstNo('Customer %1 should not exist after snapshot 2 restore.', CustomerNo));
         Assert.IsFalse(Vendor.Get(VendorNo), StrSubstNo('Vendor %1 should not exist after snapshot 2 restore.', VendorNo));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -221,7 +221,7 @@ codeunit 132534 "Snapshot Management Test"
         // Check that customer table is no longer implicitly tainted
         VerifyImplicitTaint(SnapshotNo2, DATABASE::Customer, false);
 
-        Teardown;
+        TearDown();
     end;
 
     [Normal]

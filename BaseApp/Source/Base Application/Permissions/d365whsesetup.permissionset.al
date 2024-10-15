@@ -14,6 +14,7 @@ permissionset 4784 "D365 WHSE, SETUP"
     Caption = 'Dynamics 365 Setup warehouse';
     Permissions = tabledata "Warehouse Activity Header" = rmD,
                   tabledata "Warehouse Activity Line" = rmD,
+                  tabledata "Warehouse Reason Code" = rmD,
                   tabledata "Warehouse Employee" = rD,
                   tabledata "Warehouse Register" = D,
                   tabledata "Warehouse Request" = rmD,

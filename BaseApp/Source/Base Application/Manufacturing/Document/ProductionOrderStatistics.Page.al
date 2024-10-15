@@ -378,17 +378,19 @@ page 99000816 "Production Order Statistics"
         ProdOrderLine: Record "Prod. Order Line";
         GLSetup: Record "General Ledger Setup";
         CostCalcMgt: Codeunit "Cost Calculation Management";
-        StdCost: array[6] of Decimal;
-        ExpCost: array[6] of Decimal;
-        ActCost: array[6] of Decimal;
-        VarAmt: array[6] of Decimal;
-        VarPct: array[6] of Decimal;
         DummyVar: Decimal;
         ShareOfTotalCapCost: Decimal;
         TimeExpendedPct: Decimal;
         ExpCapNeed: Decimal;
         ActTimeUsed: Decimal;
         CapacityUoM: Code[10];
+
+    protected var
+        StdCost: array[6] of Decimal;
+        ExpCost: array[6] of Decimal;
+        ActCost: array[6] of Decimal;
+        VarAmt: array[6] of Decimal;
+        VarPct: array[6] of Decimal;
 
     local procedure CalcTotal(Operand: array[6] of Decimal; var Total: Decimal)
     var

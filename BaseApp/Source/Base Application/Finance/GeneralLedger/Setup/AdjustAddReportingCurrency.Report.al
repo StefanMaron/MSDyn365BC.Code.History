@@ -271,7 +271,9 @@ report 86 "Adjust Add. Reporting Currency"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("GLSetup.""Additional Reporting Currency"""; GLSetup."Additional Reporting Currency")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Additional Reporting Currency';
@@ -384,6 +386,8 @@ report 86 "Adjust Add. Reporting Currency"
     end;
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         Currency.Get(GLSetup."Additional Reporting Currency");
         Currency.TestField("Amount Rounding Precision");
@@ -405,10 +409,9 @@ report 86 "Adjust Add. Reporting Currency"
             if GenJnlLineReq."Journal Batch Name" = '' then
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
-            Clear(NoSeriesMgt);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", FiscalYearEndDate2, true);
+            DocumentNo := NoSeries.GetNextNo(GenJnlBatch."No. Series", FiscalYearEndDate2);
         end else
             if DocumentNo = '' then
                 Error(
@@ -438,7 +441,6 @@ report 86 "Adjust Add. Reporting Currency"
         GLEntry3: Record "G/L Entry";
         RetainedEarningsGLAcc: Record "G/L Account";
         ResidualGLAcc: Record "G/L Account";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         ChangeExchangeRate: Page "Change Exchange Rate";
         Window: Dialog;
         CurrencyFactor: Decimal;
@@ -467,8 +469,8 @@ report 86 "Adjust Add. Reporting Currency"
         Text003Txt: Label 'Processing G/L Entries...\\';
         Text004Txt: Label 'Posting Date #1##########\';
         Text006Txt: Label 'Item No. #1##########\';
-        Text007Txt: Label 'Processing Job Ledger Entries...\\';
-        Text008Txt: Label 'Job No. #1##########\';
+        Text007Txt: Label 'Processing Project Ledger Entries...\\';
+        Text008Txt: Label 'Project No. #1##########\';
         Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
         Text011Txt: Label 'Processing Value Entries...\\';
         Text012Txt: Label 'Processing Cost Entries...\\';

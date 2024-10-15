@@ -27,6 +27,7 @@ using System.Utilities;
 table 5079 "Marketing Setup"
 {
     Caption = 'Marketing Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -545,13 +546,12 @@ table 5079 "Marketing Setup"
     end;
 
     [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [NonDebuggable]
     [Scope('OnPrem')]
-    procedure SetExchangeAccountPassword(Password: Text)
+    procedure SetExchangeAccountPassword(Password: SecretText)
     begin
         Session.LogMessage('0000BY0', SetExchangeAccountPasswordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if Password = '' then
+        if Password.IsEmpty() then
             if not IsNullGuid("Exchange Account Password Key") then begin
                 IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
                 exit;
@@ -566,11 +566,10 @@ table 5079 "Marketing Setup"
     end;
 
     [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure CreateExchangeAccountCredentials(var WebCredentials: DotNet WebCredentials)
     var
-        Value: Text;
+        Value: SecretText;
     begin
         Session.LogMessage('0000BY1', ConfigureExchangeAccountTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
@@ -586,9 +585,16 @@ table 5079 "Marketing Setup"
         end;
 
         IsolatedStorageManagement.Get("Exchange Account Password Key", DATASCOPE::Company, Value);
-        WebCredentials := WebCredentials.WebCredentials("Exchange Account User Name", Value);
+        CreateWebCredentials(WebCredentials, Value);
 
         Session.LogMessage('0000BY4', ExchangeAccountConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+    end;
+
+    [NonDebuggable]
+    [Scope('OnPrem')]
+    procedure CreateWebCredentials(var WebCredentials: DotNet WebCredentials; PasswordKey: SecretText)
+    begin
+        WebCredentials := WebCredentials.WebCredentials("Exchange Account User Name", PasswordKey.Unwrap());
     end;
 #endif
 
@@ -704,10 +710,9 @@ table 5079 "Marketing Setup"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure SetExchangeClientSecret(ClientSecret: Text)
+    procedure SetExchangeClientSecret(ClientSecret: SecretText)
     begin
-        if ClientSecret = '' then
+        if ClientSecret.IsEmpty() then
             if not IsNullGuid("Exchange Client Secret Key") then begin
                 IsolatedStorageManagement.Delete("Exchange Client Secret Key", DATASCOPE::Company);
                 exit;

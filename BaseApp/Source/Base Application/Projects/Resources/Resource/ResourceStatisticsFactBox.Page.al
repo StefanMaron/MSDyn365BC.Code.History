@@ -28,7 +28,7 @@ page 9107 "Resource Statistics FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'Capacity';
                 DecimalPlaces = 0 : 5;
-                ToolTip = 'Specifies the scheduled capacity of the resource. The amount is the sum of values in the Quantity field on job planning lines for the resource.';
+                ToolTip = 'Specifies the scheduled capacity of the resource. The amount is the sum of values in the Quantity field on project planning lines for the resource.';
             }
             field(UnusedCapacity; UnusedCapacity)
             {
@@ -56,7 +56,7 @@ page 9107 "Resource Statistics FactBox"
                 ApplicationArea = Jobs;
                 AutoFormatType = 1;
                 Caption = 'Usage (Cost)';
-                ToolTip = 'Specifies values for job usage based on cost. Specifies, based on cost, how much the resources has been used.';
+                ToolTip = 'Specifies values for project usage based on cost. Specifies, based on cost, how much the resources has been used.';
             }
             field(Profit; Profit)
             {

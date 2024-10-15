@@ -101,83 +101,107 @@ page 1272 "OCR Data Correction"
                     group(Control18)
                     {
                         ShowCaption = false;
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor Name"""; TempOriginalIncomingDocument."Vendor Name")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Name';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor VAT Registration No."""; TempOriginalIncomingDocument."Vendor VAT Registration No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor VAT Registration No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor IBAN"""; TempOriginalIncomingDocument."Vendor IBAN")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor IBAN';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor Bank Branch No."""; TempOriginalIncomingDocument."Vendor Bank Branch No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Bank Branch No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor Bank Account No."""; TempOriginalIncomingDocument."Vendor Bank Account No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Bank Account No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor Phone No."""; TempOriginalIncomingDocument."Vendor Phone No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Phone No.';
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Vendor Invoice No."""; TempOriginalIncomingDocument."Vendor Invoice No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Invoice No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Order No."""; TempOriginalIncomingDocument."Order No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Order No.';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Document Date"""; TempOriginalIncomingDocument."Document Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document Date';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Due Date"""; TempOriginalIncomingDocument."Due Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Due Date';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Currency Code"""; TempOriginalIncomingDocument."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Amount Incl. VAT"""; TempOriginalIncomingDocument."Amount Incl. VAT")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = Rec."Currency Code";
@@ -186,7 +210,9 @@ page 1272 "OCR Data Correction"
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""Amount Excl. VAT"""; TempOriginalIncomingDocument."Amount Excl. VAT")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = Rec."Currency Code";
@@ -195,7 +221,9 @@ page 1272 "OCR Data Correction"
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }
+#pragma warning disable AA0100
                         field("TempOriginalIncomingDocument.""VAT Amount"""; TempOriginalIncomingDocument."VAT Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = Rec."Currency Code";

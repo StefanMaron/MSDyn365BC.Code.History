@@ -4,6 +4,7 @@ table 11736 "Posted Cash Document Line"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {

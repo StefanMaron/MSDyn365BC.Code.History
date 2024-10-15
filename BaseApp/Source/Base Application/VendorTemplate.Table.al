@@ -4,6 +4,7 @@ table 11794 "Vendor Template"
     ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Vendor templates will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -132,7 +133,6 @@ table 11794 "Vendor Template"
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         PurchSetup: Record "Purchases & Payables Setup";
         DimMgt: Codeunit DimensionManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -142,10 +142,12 @@ table 11794 "Vendor Template"
 
     [Scope('OnPrem')]
     procedure AssistEdit(): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         PurchSetup.Get();
         PurchSetup.TestField("Vendor Nos.");
-        if NoSeriesMgt.SelectSeries(PurchSetup."Vendor Nos.", "No. Series", "No. Series") then
+        if NoSeries.LookupRelatedNoSeries(PurchSetup."Vendor Nos.", "No. Series", "No. Series") then
             exit(true);
     end;
 }

@@ -25,14 +25,14 @@ codeunit 136314 "Job Quote Report Tests"
         QuantityTxt: Label 'Quantity';
         UnitCostTxt: Label 'Unit Cost';
         TotalCostTxt: Label 'Total Cost';
-        JobTaskNoTxt: Label 'Job Task No.';
+        JobTaskNoTxt: Label 'Project Task No.';
 
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Quote Report Tests");
-        BindActiveDirectoryMockEvents;
+        BindActiveDirectoryMockEvents();
 
         if IsInitialized then
             exit;
@@ -41,7 +41,7 @@ codeunit 136314 "Job Quote Report Tests"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        RemoveReportLayout;
+        RemoveReportLayout();
 
         IsInitialized := true;
         Commit();
@@ -64,7 +64,7 @@ codeunit 136314 "Job Quote Report Tests"
     begin
         // [GIVEN] A newly setup company, with a new job created
         Initialize();
-        SetReportLayoutForRDLC;
+        SetReportLayoutForRDLC();
         // [WHEN] Job Quote report is run
         SetupForJobQuote(JobPlanningLine);
 
@@ -72,8 +72,8 @@ codeunit 136314 "Job Quote Report Tests"
         VerifyJobQuoteReportHeading(Job);
 
         // Cleanup
-        RemoveReportLayout;
-        TearDown;
+        RemoveReportLayout();
+        TearDown();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 136314 "Job Quote Report Tests"
     begin
         // [GIVEN] A newly setup company, with a new job created
         Initialize();
-        SetReportLayoutForRDLC;
+        SetReportLayoutForRDLC();
         // [WHEN] Job Quote report is run
         SetupForJobQuote(JobPlanningLine);
 
@@ -93,8 +93,8 @@ codeunit 136314 "Job Quote Report Tests"
         VerifyJobQuoteReport(JobPlanningLine, QuantityTxt, UnitCostTxt, TotalCostTxt, JobTaskNoTxt);
 
         // Cleanup
-        RemoveReportLayout;
-        TearDown;
+        RemoveReportLayout();
+        TearDown();
     end;
 
     [Test]
@@ -107,21 +107,21 @@ codeunit 136314 "Job Quote Report Tests"
     begin
         // [GIVEN] A newly setup company, with a new job created
         Initialize();
-        SetReportLayoutForCustomWord;
+        SetReportLayoutForCustomWord();
         SetupForJobQuote(JobPlanningLine);
 
         // [WHEN] Job list is opened with the newly-created job
-        JobList.Trap;
+        JobList.Trap();
         PAGE.Run(PAGE::"Job List", Job);
 
         // [WHEN] Run "Send Job Quote" action
-        JobList."Send Job Quote".Invoke;
+        JobList."Send Job Quote".Invoke();
 
         // [THEN] Post and Send Confirmation for the Job Quote page appears -- Page 365
 
         // Cleanup
-        RemoveReportLayout;
-        TearDown
+        RemoveReportLayout();
+        TearDown();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 136314 "Job Quote Report Tests"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 416894] The Job List use Report selection for runs report "Preview Job Queue"
         Initialize();
-        SetReportLayoutForCustomWord;
+        SetReportLayoutForCustomWord();
         CreateJobQueueReportSelection();
         SetupForJobQuote(JobPlanningLine);
 
@@ -171,7 +171,6 @@ codeunit 136314 "Job Quote Report Tests"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryResource: Codeunit "Library - Resource";
         LibraryRandom: Codeunit "Library - Random";
-        JobCard: TestPage "Job Card";
         ResQuantity: Decimal;
         UnitPrice: Decimal;
         DocNo: Code[20];
@@ -206,7 +205,7 @@ codeunit 136314 "Job Quote Report Tests"
         RunJobQuoteReport(Job."No.");
 
         // [THEN] Result
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         Assert.AreEqual(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Total Price"), true, ValueNotFoundErr);
     end;
 
@@ -218,7 +217,7 @@ codeunit 136314 "Job Quote Report Tests"
     begin
         // [GIVEN] A newly setup company, with a new job created
         Initialize();
-        SetReportLayoutForRDLC;
+        SetReportLayoutForRDLC();
         SetupForJobQuote(JobPlanningLine);
         LibraryWorkflow.SetUpEmailAccount();
 
@@ -226,18 +225,18 @@ codeunit 136314 "Job Quote Report Tests"
         VerifyJobQuoteReport(JobPlanningLine, QuantityTxt, UnitCostTxt, TotalCostTxt, JobTaskNoTxt);
 
         // [WHEN] Job card is opened with the newly-created job
-        JobCard.Trap;
+        JobCard.Trap();
         PAGE.Run(PAGE::"Job Card", Job);
 
         // [WHEN] Run "Send Job Quote" action
         CreateDocumentLayoutForCustomer(Job);
-        JobCard."Send Job Quote".Invoke;
+        JobCard."Send Job Quote".Invoke();
 
         // [THEN] Post and Send Confirmation for the Job Quote page appears -- Page 365
 
         // Cleanup
-        RemoveReportLayout;
-        TearDown;
+        RemoveReportLayout();
+        TearDown();
     end;
 
     local procedure RunJobQuoteReport(No: Code[20])
@@ -249,8 +248,8 @@ codeunit 136314 "Job Quote Report Tests"
         Clear(JobQuote);
         JobQuote.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobQuote.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure CreateJobQueueReportSelection()
@@ -271,7 +270,7 @@ codeunit 136314 "Job Quote Report Tests"
 
     local procedure VerifyJobQuoteReport(JobPlanningLine: Record "Job Planning Line"; Column: Text[250]; Column2: Text[250]; Column3: Text[250]; Column4: Text[250])
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobPlanningLine.FieldCaption("Job Task No."), Format(JobPlanningLine."Job Task No."));
         LibraryReportValidation.SetColumn(Column);
         Assert.AreEqual(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine.Quantity), true, ValueNotFoundErr);
@@ -361,14 +360,14 @@ codeunit 136314 "Job Quote Report Tests"
     [Scope('OnPrem')]
     procedure PostandSendPageHandlerNo(var PostandSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirmation.No.Invoke;
+        PostandSendConfirmation.No().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostandSendPageHandlerYes(var PostandSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirmation.Yes.Invoke;
+        PostandSendConfirmation.Yes().Invoke();
     end;
 
     local procedure SetupForJobQuote(var JobPlanningLine: Record "Job Planning Line")
@@ -402,7 +401,7 @@ codeunit 136314 "Job Quote Report Tests"
 
     local procedure VerifyJobQuoteReportHeading(Job: Record Job)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         with Job do
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1: %2: %3', TableCaption(), FieldCaption("No."), "No.")),
@@ -435,10 +434,10 @@ codeunit 136314 "Job Quote Report Tests"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 
     [RequestPageHandler]

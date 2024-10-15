@@ -5,6 +5,7 @@ table 9177 "Experience Tier Buffer"
     Caption = 'Experience Tier Buffer';
     LookupPageID = "Experience Tiers";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

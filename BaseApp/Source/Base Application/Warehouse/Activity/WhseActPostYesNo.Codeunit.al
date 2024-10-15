@@ -41,20 +41,18 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         if (DefaultOption < 1) or (DefaultOption > 2) then
             DefaultOption := 2;
 
-        with WhseActivLine do begin
-            if not HideDialog then
-                if not IsPreview then
-                    case "Activity Type" of
-                        "Activity Type"::"Invt. Put-away":
-                            if not SelectForPutAway() then
-                                exit;
-                        else
-                            if not SelectForOtherTypes() then
-                                exit;
-                    end;
+        if not HideDialog then
+            if not IsPreview then
+                case WhseActivLine."Activity Type" of
+                    WhseActivLine."Activity Type"::"Invt. Put-away":
+                        if not SelectForPutAway() then
+                            exit;
+                    else
+                        if not SelectForOtherTypes() then
+                            exit;
+                end;
 
-            SetParamsAndRunWhseActivityPost(HideDialog);
-        end;
+        SetParamsAndRunWhseActivityPost(HideDialog);
     end;
 
     procedure SetPreviewMode(NewPreviewMode: Boolean)
@@ -69,6 +67,17 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     begin
         BindSubscription(WhseActPostYesNo);
         GenJnlPostPreview.Preview(WhseActPostYesNo, WarehouseActivityLine);
+    end;
+
+    procedure MessageIfPostingPreviewMultipleDocuments(var WarehouseActivityHeaderToPreview: Record "Warehouse Activity Header"; DocumentNo: Code[20])
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordRefToPreview: RecordRef;
+    begin
+        RecordRefToPreview.Open(Database::"Warehouse Activity Header");
+        RecordRefToPreview.Copy(WarehouseActivityHeaderToPreview);
+
+        GenJnlPostPreview.MessageIfPostingPreviewMultipleDocuments(RecordRefToPreview, DocumentNo);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
@@ -163,7 +172,7 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnRun(var WarehouseActivityLine : Record "Warehouse Activity Line")
+    local procedure OnAfterOnRun(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

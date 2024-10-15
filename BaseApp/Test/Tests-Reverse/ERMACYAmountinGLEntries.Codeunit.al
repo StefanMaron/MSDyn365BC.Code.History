@@ -30,12 +30,12 @@ codeunit 134144 "ERM ACY Amount in GL Entries"
         LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateGenJournalLine(
-          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(5), CreateCurrency);
+          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(5), CreateCurrency());
         CreateGenJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", GenJournalLine.Amount, GenJournalLine."Currency Code");
         Amount := GenJournalLine.Amount * 2; // For both lines using the same Amount, So multiply by 2.
         CreateGenJournalLine(
-          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo, -Amount, GenJournalLine."Currency Code");
+          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo(), -Amount, GenJournalLine."Currency Code");
         Amount := FindBalanceAmount(GenJournalLine."Currency Code");
 
         // Create new line for Rounding in General Journal Line and Post General Journal Line.
@@ -56,7 +56,7 @@ codeunit 134144 "ERM ACY Amount in GL Entries"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Conv. LCY Rndg. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Conv. LCY Rndg. Debit Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Validate("Conv. LCY Rndg. Credit Acc.", Currency."Conv. LCY Rndg. Debit Acc.");
         Currency.Modify(true);
         UpdateExchangeRate(Currency.Code);

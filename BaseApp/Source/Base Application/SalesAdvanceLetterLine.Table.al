@@ -4,6 +4,7 @@ table 31001 "Sales Advance Letter Line"
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

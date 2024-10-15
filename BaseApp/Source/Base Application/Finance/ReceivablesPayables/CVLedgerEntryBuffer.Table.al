@@ -20,6 +20,7 @@ table 382 "CV Ledger Entry Buffer"
 {
     Caption = 'CV Ledger Entry Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -463,14 +464,6 @@ table 382 "CV Ledger Entry Buffer"
         {
             Clustered = true;
         }
-#if not CLEAN21
-        key(Key2; "Document Date", "Currency Code")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not used anymore and will be removed.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -595,8 +588,10 @@ table 382 "CV Ledger Entry Buffer"
         "Bal. Account No." := EmplLedgEntry."Bal. Account No.";
         "Transaction No." := EmplLedgEntry."Transaction No.";
         "Closed by Amount (LCY)" := EmplLedgEntry."Closed by Amount (LCY)";
-        "Adjusted Currency Factor" := 1;
-        "Original Currency Factor" := 1;
+        "Closed by Currency Code" := EmplLedgEntry."Closed by Currency Code";
+        "Closed by Currency Amount" := EmplLedgEntry."Closed by Currency Amount";
+        "Adjusted Currency Factor" := EmplLedgEntry."Adjusted Currency Factor";
+        "Original Currency Factor" := EmplLedgEntry."Original Currency Factor";
         "Debit Amount" := EmplLedgEntry."Debit Amount";
         "Credit Amount" := EmplLedgEntry."Credit Amount";
         "Debit Amount (LCY)" := EmplLedgEntry."Debit Amount (LCY)";

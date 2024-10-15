@@ -1,5 +1,4 @@
-#if not CLEAN21
-namespace Microsoft.Sales.Document;
+﻿namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -96,6 +95,7 @@ page 6630 "Sales Return Order"
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers.';
                     Visible = false;
@@ -220,15 +220,6 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field(Correction; Rec.Correction)
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to a customer account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -261,19 +252,16 @@ page 6630 "Sales Return Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
+                }
                 field("No. of Archived Versions"; Rec."No. of Archived Versions")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of archived versions for this document.';
-                }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -317,6 +305,18 @@ page 6630 "Sales Return Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
+                field("Language Code"; Rec."Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                }
+                field("Format Region"; Rec."Format Region")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the format to be used on printouts for this document.';
+                    Visible = false;
+                }
             }
             part(SalesLines; "Sales Return Order Subform")
             {
@@ -350,7 +350,6 @@ page 6630 "Sales Return Order"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate(); // NAVCZ
                         CurrPage.Update();
                     end;
                 }
@@ -386,15 +385,6 @@ page 6630 "Sales Return Order"
                     Editable = IsPostingGroupEditable;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
-                }
-                field("Reason Code"; Rec."Reason Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
@@ -439,15 +429,6 @@ page 6630 "Sales Return Order"
                     ApplicationArea = SalesReturnOrder;
                     Importance = Promoted;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
-                }
-                field("Shipment Method Code"; Rec."Shipment Method Code")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies how items on the sales document are shipped to the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
@@ -710,11 +691,6 @@ page 6630 "Sales Return Order"
                         ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
                     }
                 }
-                field("Your Reference"; Rec."Your Reference")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
-                }
             }
             group("Foreign Trade")
             {
@@ -743,24 +719,6 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
-                }
-                field("Language Code"; Rec."Language Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the VAT country/region code of customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Rcvd-from Country/Region Code"; Rec."Rcvd.-from Count./Region Code")
                 {
@@ -1452,7 +1410,7 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1817,12 +1775,6 @@ page 6630 "Sales Return Order"
         CurrPage.Update();
     end;
 
-    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
-    local procedure CurrencyCodeOnAfterValidate()
-    begin
-        CurrPage.SalesLines.PAGE.UpdateForm(true); // NAVCZ
-    end;
-
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
@@ -1911,4 +1863,4 @@ page 6630 "Sales Return Order"
     begin
     end;
 }
-#endif
+

@@ -43,12 +43,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
-          GenJournalLine, LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "T1", Status = "File Created".
@@ -93,12 +93,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Vendor Ledger Entry with "Entry No." = "E1".
         CreateAndPostPurchaseInvoice(
-          GenJournalLine, LibraryPurchase.CreateVendorNo,
-          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, LibraryPurchase.CreateVendorNo(),
+          LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "T1", Status = "File Created".
@@ -139,12 +139,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
-          GenJournalLine, LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "Canceled".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "T1", Status = "File Created".
@@ -185,12 +185,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
-          GenJournalLine, LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "T1", Status = "Rejected".
@@ -231,12 +231,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1".
         CreateAndPostSalesInvoice(
-          GenJournalLine, LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "T1", Status = "File Created".
@@ -279,17 +279,17 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1".
         // [GIVEN] Closed Customer Ledger Entry with "Entry No." = "E2".
         CreateAndPostSalesInvoice(
-          GenJournalLine[1], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[1], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         CreateAndPostSalesInvoice(
-          GenJournalLine[2], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[2], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[2]."Document No.");
         CustLedgerEntry.Open := false;
         CustLedgerEntry.Modify();
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E2", "Transaction ID" = "T2", Status = "File Created".
@@ -337,17 +337,17 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1", "Posting Date" = 01.01.20.
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E2", "Posting Date" = 02.01.20 .
         CreateAndPostSalesInvoice(
-          GenJournalLine[1], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[1], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         CreateAndPostSalesInvoice(
-          GenJournalLine[2], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[2], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[2]."Document No.");
-        CustLedgerEntry."Posting Date" := WorkDate + 1;
+        CustLedgerEntry."Posting Date" := WorkDate() + 1;
         CustLedgerEntry.Modify();
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E2", "Transaction ID" = "T2", Status = "File Created".
@@ -394,15 +394,15 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         // [GIVEN] Opened Customer Ledger Entry with Amount = "A1", "Document No." = "D1".
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E2".
         CreateAndPostSalesInvoice(
-          GenJournalLine[1], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[1], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         CreateAndPostSalesInvoice(
-          GenJournalLine[2], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[2], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[2]."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E2", "Transaction ID" = "T2", Status = "File Created".
@@ -449,18 +449,18 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Two opened Customer Ledger Entries with "Entry No." = "E1","E2", Amount = "A1","A2", "Document No." = "D1","D2".
         CreateAndPostSalesInvoice(
-          GenJournalLine[1], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[1], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         CreateAndPostSalesInvoice(
-          GenJournalLine[2], LibrarySales.CreateCustomerNo,
-          LibraryUtility.GenerateGUID, '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine[2], LibrarySales.CreateCustomerNo(),
+          LibraryUtility.GenerateGUID(), '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry[1], CustLedgerEntry[1]."Document Type"::Invoice, GenJournalLine[1]."Document No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry[2], CustLedgerEntry[2]."Document Type"::Invoice, GenJournalLine[2]."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Two Direct Debit Collections with Status = "File Created".
         // [GIVEN] Two Direct Debit Collection Entries with "Applies-to Entry No." = "E1","E2", "Transaction ID" = "T1", Status = "File Created".
@@ -511,12 +511,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1".
         CreateAndPostSalesInvoice(
-            GenJournalLine, LibrarySales.CreateCustomerNo(), LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+            GenJournalLine, LibrarySales.CreateCustomerNo(), LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(
             CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
-        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT());
 
         // [GIVEN] Direct Debit Collection with Status = "File Created".
         // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "abcd" (value has 35 chars - max length of the field), Status = "File Created".
@@ -550,13 +550,13 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         CustLedgerEntry.DeleteAll();
         VendorLedgerEntry.DeleteAll();
-        InsertDefaultMatchingRules;
+        InsertDefaultMatchingRules();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm II");
 
-        LibraryERM.SetLCYCode(GetEURCurrency);
+        LibraryERM.SetLCYCode(GetEURCurrency());
         Commit();
 
         IsInitialized := true;
@@ -572,7 +572,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        DataExchLineDef.SetFilter(Namespace, GetNamespace05302);
+        DataExchLineDef.SetFilter(Namespace, GetNamespace05302());
         DataExchLineDef.FindFirst();
         exit(DataExchLineDef."Data Exch. Def Code");
     end;
@@ -602,8 +602,8 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         BankExportImportSetup.Code :=
           LibraryUtility.GenerateRandomCode(BankExportImportSetup.FieldNo(Code), DATABASE::"Bank Export/Import Setup");
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Import;
-        BankExportImportSetup."Data Exch. Def. Code" := GetCAMTDataExch;
-        BankExportImportSetup."Processing Codeunit ID" := GetCAMTProcCodID;
+        BankExportImportSetup."Data Exch. Def. Code" := GetCAMTDataExch();
+        BankExportImportSetup."Processing Codeunit ID" := GetCAMTProcCodID();
         BankExportImportSetup.Insert();
         exit(BankExportImportSetup.Code);
     end;
@@ -679,7 +679,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         BankPmtApplRule.DeleteAll();
-        BankPmtApplRule.InsertDefaultMatchingRules;
+        BankPmtApplRule.InsertDefaultMatchingRules();
     end;
 
     local procedure SetRule(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; RelatedPartyMatched: Option; DocNoMatched: Option; AmountInclToleranceMatched: Option; DirectDebitCollectMatched: Option)

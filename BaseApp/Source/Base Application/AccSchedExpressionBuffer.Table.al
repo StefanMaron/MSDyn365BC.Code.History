@@ -4,6 +4,7 @@ table 31084 "Acc. Sched. Expression Buffer"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

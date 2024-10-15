@@ -11,6 +11,7 @@ table 99000763 "Routing Header"
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Routing List";
     LookupPageID = "Routing List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -139,11 +140,29 @@ table 99000763 "Routing Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Routing Nos.");
-            NoSeriesMgt.InitSeries(MfgSetup."Routing Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Routing Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := MfgSetup."Routing Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", MfgSetup."Routing Nos.", 0D, "No.");
+            end;
+#endif
+
         end;
     end;
 
@@ -163,23 +182,21 @@ table 99000763 "Routing Header"
         RoutingHeader: Record "Routing Header";
         RtngVersion: Record "Routing Version";
         CheckRouting: Codeunit "Check Routing Lines";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-
         Text000: Label 'This Routing is being used on Items.';
         Text001: Label 'All versions attached to the routing will be closed. Close routing?';
         Text002: Label 'You cannot rename the %1 when %2 is %3.';
 
     procedure AssistEdit(OldRtngHeader: Record "Routing Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with RoutingHeader do begin
-            RoutingHeader := Rec;
-            MfgSetup.Get();
-            MfgSetup.TestField("Routing Nos.");
-            if NoSeriesMgt.SelectSeries(MfgSetup."Routing Nos.", OldRtngHeader."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := RoutingHeader;
-                exit(true);
-            end;
+        RoutingHeader := Rec;
+        MfgSetup.Get();
+        MfgSetup.TestField("Routing Nos.");
+        if NoSeries.LookupRelatedNoSeries(MfgSetup."Routing Nos.", OldRtngHeader."No. Series", RoutingHeader."No. Series") then begin
+            RoutingHeader."No." := NoSeries.GetNextNo(RoutingHeader."No. Series");
+            Rec := RoutingHeader;
+            exit(true);
         end;
     end;
 }

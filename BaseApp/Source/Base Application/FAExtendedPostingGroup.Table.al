@@ -4,6 +4,7 @@ table 31042 "FA Extended Posting Group"
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

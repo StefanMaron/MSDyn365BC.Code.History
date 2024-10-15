@@ -239,96 +239,94 @@ page 511 "Change Exchange Rate"
 
     procedure InitForm()
     begin
-        with CurrExchRate do begin
-            if CurrencyCode3 = '' then begin
+        if CurrencyCode3 = '' then begin
+            CurrencyCodeEditable := false;
+            CurrentExchRateEditable := false;
+            RefExchRateEditable := false;
+            RefCurrencyCodeEditable := false;
+            CurrencyCode2Editable := false;
+            CurrentExchRate2Editable := false;
+            RefExchRate2Editable := false;
+            RefCurrencyCode2Editable := false;
+            exit;
+        end;
+
+        CurrExchRate.SetRange("Currency Code", CurrencyCode3);
+        CurrExchRate.SetRange("Starting Date", 0D, Date3);
+        CurrExchRate.FindLast();
+        CurrencyCode := CurrExchRate."Currency Code";
+        CurrentExchRate := CurrExchRate."Exchange Rate Amount";
+        RefExchRate := CurrExchRate."Relational Exch. Rate Amount";
+        RefCurrencyCode := CurrExchRate."Relational Currency Code";
+        Fix := CurrExchRate."Fix Exchange Rate Amount";
+        CurrExchRate.SetRange("Currency Code", RefCurrencyCode);
+        CurrExchRate.SetRange("Starting Date", 0D, Date3);
+        if CurrExchRate.FindLast() then begin
+            CurrencyCode2 := CurrExchRate."Currency Code";
+            CurrentExchRate2 := CurrExchRate."Exchange Rate Amount";
+            RefExchRate2 := CurrExchRate."Relational Exch. Rate Amount";
+            RefCurrencyCode2 := CurrExchRate."Relational Currency Code";
+            Fix2 := CurrExchRate."Fix Exchange Rate Amount";
+        end;
+
+        case Fix of
+            CurrExchRate."Fix Exchange Rate Amount"::Currency:
+                begin
+                    CurrentExchRateEditable := false;
+                    RefExchRateEditable := true;
+                    if RefCurrencyCode = '' then
+                        RefExchRate := CurrentExchRate / CurrencyFactor
+                    else
+                        RefExchRate := (CurrentExchRate * CurrentExchRate2) / (CurrencyFactor * RefExchRate2);
+                end;
+            CurrExchRate."Fix Exchange Rate Amount"::"Relational Currency":
+                begin
+                    CurrentExchRateEditable := true;
+                    RefExchRateEditable := false;
+                    if RefCurrencyCode = '' then
+                        CurrentExchRate := CurrencyFactor * RefExchRate
+                    else
+                        CurrentExchRate := (RefExchRate * RefExchRate2 * CurrencyFactor) / CurrentExchRate2;
+                end;
+            CurrExchRate."Fix Exchange Rate Amount"::Both:
+                begin
+                    CurrentExchRateEditable := false;
+                    RefExchRateEditable := false;
+                end;
+        end;
+
+        if RefCurrencyCode <> '' then begin
+            if (Fix <> CurrExchRate."Fix Exchange Rate Amount"::Both) and (Fix2 <> CurrExchRate."Fix Exchange Rate Amount"::Both) then
+                Error(Text001, CurrExchRate.FieldCaption(CurrExchRate."Fix Exchange Rate Amount"), CurrencyCode, CurrExchRate.FieldCaption(CurrExchRate."Relational Currency Code"));
+            case Fix2 of
+                CurrExchRate."Fix Exchange Rate Amount"::Currency:
+                    begin
+                        CurrentExchRate2Editable := false;
+                        RefExchRate2Editable := true;
+                        RefExchRate2 := (CurrentExchRate * CurrentExchRate2) / (CurrencyFactor * RefExchRate);
+                    end;
+                CurrExchRate."Fix Exchange Rate Amount"::"Relational Currency":
+                    begin
+                        CurrentExchRate2Editable := true;
+                        RefExchRate2Editable := false;
+                        CurrentExchRate2 := (CurrencyFactor * RefExchRate * RefExchRate2) / CurrentExchRate;
+                    end;
+                CurrExchRate."Fix Exchange Rate Amount"::Both:
+                    begin
+                        CurrentExchRate2Editable := false;
+                        RefExchRate2Editable := false;
+                    end;
+            end;
+        end else begin
+            CurrencyCode2Editable := false;
+            CurrentExchRate2Editable := false;
+            RefExchRate2Editable := false;
+            RefCurrencyCode2Editable := false;
+            if CurrencyCode = '' then begin
                 CurrencyCodeEditable := false;
                 CurrentExchRateEditable := false;
                 RefExchRateEditable := false;
                 RefCurrencyCodeEditable := false;
-                CurrencyCode2Editable := false;
-                CurrentExchRate2Editable := false;
-                RefExchRate2Editable := false;
-                RefCurrencyCode2Editable := false;
-                exit;
-            end;
-
-            SetRange("Currency Code", CurrencyCode3);
-            SetRange("Starting Date", 0D, Date3);
-            FindLast();
-            CurrencyCode := "Currency Code";
-            CurrentExchRate := "Exchange Rate Amount";
-            RefExchRate := "Relational Exch. Rate Amount";
-            RefCurrencyCode := "Relational Currency Code";
-            Fix := "Fix Exchange Rate Amount";
-            SetRange("Currency Code", RefCurrencyCode);
-            SetRange("Starting Date", 0D, Date3);
-            if FindLast() then begin
-                CurrencyCode2 := "Currency Code";
-                CurrentExchRate2 := "Exchange Rate Amount";
-                RefExchRate2 := "Relational Exch. Rate Amount";
-                RefCurrencyCode2 := "Relational Currency Code";
-                Fix2 := "Fix Exchange Rate Amount";
-            end;
-
-            case Fix of
-                "Fix Exchange Rate Amount"::Currency:
-                    begin
-                        CurrentExchRateEditable := false;
-                        RefExchRateEditable := true;
-                        if RefCurrencyCode = '' then
-                            RefExchRate := CurrentExchRate / CurrencyFactor
-                        else
-                            RefExchRate := (CurrentExchRate * CurrentExchRate2) / (CurrencyFactor * RefExchRate2);
-                    end;
-                "Fix Exchange Rate Amount"::"Relational Currency":
-                    begin
-                        CurrentExchRateEditable := true;
-                        RefExchRateEditable := false;
-                        if RefCurrencyCode = '' then
-                            CurrentExchRate := CurrencyFactor * RefExchRate
-                        else
-                            CurrentExchRate := (RefExchRate * RefExchRate2 * CurrencyFactor) / CurrentExchRate2;
-                    end;
-                "Fix Exchange Rate Amount"::Both:
-                    begin
-                        CurrentExchRateEditable := false;
-                        RefExchRateEditable := false;
-                    end;
-            end;
-
-            if RefCurrencyCode <> '' then begin
-                if (Fix <> "Fix Exchange Rate Amount"::Both) and (Fix2 <> "Fix Exchange Rate Amount"::Both) then
-                    Error(Text001, FieldCaption("Fix Exchange Rate Amount"), CurrencyCode, FieldCaption("Relational Currency Code"));
-                case Fix2 of
-                    "Fix Exchange Rate Amount"::Currency:
-                        begin
-                            CurrentExchRate2Editable := false;
-                            RefExchRate2Editable := true;
-                            RefExchRate2 := (CurrentExchRate * CurrentExchRate2) / (CurrencyFactor * RefExchRate);
-                        end;
-                    "Fix Exchange Rate Amount"::"Relational Currency":
-                        begin
-                            CurrentExchRate2Editable := true;
-                            RefExchRate2Editable := false;
-                            CurrentExchRate2 := (CurrencyFactor * RefExchRate * RefExchRate2) / CurrentExchRate;
-                        end;
-                    "Fix Exchange Rate Amount"::Both:
-                        begin
-                            CurrentExchRate2Editable := false;
-                            RefExchRate2Editable := false;
-                        end;
-                end;
-            end else begin
-                CurrencyCode2Editable := false;
-                CurrentExchRate2Editable := false;
-                RefExchRate2Editable := false;
-                RefCurrencyCode2Editable := false;
-                if CurrencyCode = '' then begin
-                    CurrencyCodeEditable := false;
-                    CurrentExchRateEditable := false;
-                    RefExchRateEditable := false;
-                    RefCurrencyCodeEditable := false;
-                end;
             end;
         end;
     end;

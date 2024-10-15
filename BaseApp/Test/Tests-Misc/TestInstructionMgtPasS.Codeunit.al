@@ -58,9 +58,9 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         DocumentNo := SalesHeader."No.";
 
         // Exercise
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // Verify
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
@@ -76,7 +76,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Instruction Mgt. PasS");
 
-        BindActiveDirectoryMockEvents;
+        BindActiveDirectoryMockEvents();
 
         UserPreference.DeleteAll();
 
@@ -106,7 +106,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     [Scope('OnPrem')]
     procedure PostAndSendConfirmationModalPageHandler(var PostAndSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostAndSendConfirmation.Yes.Invoke;
+        PostAndSendConfirmation.Yes().Invoke();
     end;
 
     [ModalPageHandler]
@@ -126,10 +126,10 @@ codeunit 139003 "Test Instruction Mgt. PasS"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

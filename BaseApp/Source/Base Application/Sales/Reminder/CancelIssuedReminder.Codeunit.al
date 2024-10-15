@@ -218,54 +218,51 @@ codeunit 1393 "Cancel Issued Reminder"
 
     local procedure InsertGenJnlLineForFee(IssuedReminderHeader: Record "Issued Reminder Header"; var IssuedReminderLine: Record "Issued Reminder Line"; DocumentNo: Code[20]; PostingDate: Date; VATDate: Date)
     begin
-        with IssuedReminderLine do
-            if Amount <> 0 then begin
-                TestField("No.");
-                InitGenJnlLine(IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
-                  "No.",
-                  "Line Type" = "Line Type"::Rounding, DocumentNo, PostingDate, VATDate);
-                TempGenJnlLine.CopyFromIssuedReminderLine(IssuedReminderLine);
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
-                    TempGenJnlLine.Validate("Tax Area Code", IssuedReminderHeader."Tax Area Code");
-                    TempGenJnlLine.Validate("Tax Liable", IssuedReminderHeader."Tax Liable");
-                    TempGenJnlLine.Validate("Tax Group Code", "Tax Group Code");
-                end;
-                TempGenJnlLine.UpdateLineBalance();
-                TotalAmount := TotalAmount - TempGenJnlLine.Amount;
-                TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
-                TempGenJnlLine."Bill-to/Pay-to No." := IssuedReminderHeader."Customer No.";
-                TempGenJnlLine.Insert();
+        if IssuedReminderLine.Amount <> 0 then begin
+            IssuedReminderLine.TestField("No.");
+            InitGenJnlLine(IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
+              IssuedReminderLine."No.",
+              IssuedReminderLine."Line Type" = IssuedReminderLine."Line Type"::Rounding, DocumentNo, PostingDate, VATDate);
+            TempGenJnlLine.CopyFromIssuedReminderLine(IssuedReminderLine);
+            if IssuedReminderLine."VAT Calculation Type" = IssuedReminderLine."VAT Calculation Type"::"Sales Tax" then begin
+                TempGenJnlLine.Validate("Tax Area Code", IssuedReminderHeader."Tax Area Code");
+                TempGenJnlLine.Validate("Tax Liable", IssuedReminderHeader."Tax Liable");
+                TempGenJnlLine.Validate("Tax Group Code", IssuedReminderLine."Tax Group Code");
             end;
+            TempGenJnlLine.UpdateLineBalance();
+            TotalAmount := TotalAmount - TempGenJnlLine.Amount;
+            TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
+            TempGenJnlLine."Bill-to/Pay-to No." := IssuedReminderHeader."Customer No.";
+            TempGenJnlLine.Insert();
+        end;
     end;
 
     local procedure InitGenJnlLine(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date; VATDate: Date)
     begin
-        with GenJnlLine do begin
-            Init();
-            "Line No." := "Line No." + 1;
-            "Document Type" := "Document Type"::" ";
-            "Document No." := DocumentNo;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := VATDate;
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."Document No." := DocumentNo;
+        GenJnlLine."Posting Date" := PostingDate;
+        GenJnlLine."VAT Reporting Date" := VATDate;
 
-            "Account Type" := AccountType;
-            Validate("Account No.", AccountNo);
-            CopyFromIssuedReminderHeader(IssuedReminderHeader);
-            if "Account Type" = "Account Type"::Customer then begin
-                Amount := TotalAmount;
-                "Amount (LCY)" := TotalAmountLCY;
-                "Due Date" := IssuedReminderHeader."Due Date";
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::Reminder;
-                "Applies-to Doc. No." := IssuedReminderHeader."No.";
-            end;
-            "Source Code" := ReminderSourceCode;
-            "System-Created Entry" := SystemCreatedEntry;
-            "Salespers./Purch. Code" := '';
-            GLSetup.Get();
-            if GLSetup."Journal Templ. Name Mandatory" then begin
-                "Journal Template Name" := GenJnlBatch."Journal Template Name";
-                "Journal Batch Name" := GenJnlBatch.Name;
-            end;
+        GenJnlLine."Account Type" := AccountType;
+        GenJnlLine.Validate("Account No.", AccountNo);
+        GenJnlLine.CopyFromIssuedReminderHeader(IssuedReminderHeader);
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
+            GenJnlLine.Amount := TotalAmount;
+            GenJnlLine."Amount (LCY)" := TotalAmountLCY;
+            GenJnlLine."Due Date" := IssuedReminderHeader."Due Date";
+            GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Reminder;
+            GenJnlLine."Applies-to Doc. No." := IssuedReminderHeader."No.";
+        end;
+        GenJnlLine."Source Code" := ReminderSourceCode;
+        GenJnlLine."System-Created Entry" := SystemCreatedEntry;
+        GenJnlLine."Salespers./Purch. Code" := '';
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
         end;
 
         OnAfterInitGenJnlLine(GenJnlLine, IssuedReminderHeader);
@@ -290,7 +287,7 @@ codeunit 1393 "Cancel Issued Reminder"
     local procedure GetDocumentNoAndDates(IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentNo: Code[20]; var PostingDate: Date; var VATDate: Date)
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if UseSamePostingDate then
             PostingDate := IssuedReminderHeader."Posting Date"
@@ -307,7 +304,7 @@ codeunit 1393 "Cancel Issued Reminder"
         else begin
             SalesSetup.Get();
             SalesSetup.TestField("Canceled Issued Reminder Nos.");
-            DocumentNo := NoSeriesManagement.GetNextNo(SalesSetup."Canceled Issued Reminder Nos.", PostingDate, true);
+            DocumentNo := NoSeries.GetNextNo(SalesSetup."Canceled Issued Reminder Nos.", PostingDate);
         end;
     end;
 

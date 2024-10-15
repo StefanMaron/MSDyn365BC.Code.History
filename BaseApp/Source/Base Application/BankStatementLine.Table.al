@@ -4,6 +4,7 @@ table 11705 "Bank Statement Line"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

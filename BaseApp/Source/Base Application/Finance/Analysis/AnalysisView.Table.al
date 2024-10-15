@@ -1,5 +1,4 @@
-﻿﻿#if not CLEAN21
-namespace Microsoft.Finance.Analysis;
+﻿namespace Microsoft.Finance.Analysis;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -18,6 +17,7 @@ table 363 "Analysis View"
     LookupPageID = "Analysis View List";
     Permissions = TableData "Analysis View Entry" = rimd,
                   TableData "Analysis View Budget Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -455,7 +455,6 @@ table 363 "Analysis View"
         Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
         ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';
         ResetNeededMsg: Label 'The data in the analysis view needs to be updated because a dimension has been changed. To update the data, choose Reset.';
-        DimFilterTxt: Label '1,6,,Dimension %1 Filter';
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
     var
@@ -869,42 +868,6 @@ table 363 "Analysis View"
         end;
     end;
 
-    [Obsolete('The function is not used anymore.', '21.0')]
-    [Scope('OnPrem')]
-    procedure GetCaptionClass(DimNo: Integer): Text[250]
-    begin
-        case DimNo of
-            1:
-                begin
-                    if "Dimension 1 Code" <> '' then
-                        exit('1,6,' + "Dimension 1 Code");
-
-                    exit(StrSubstNo(DimFilterTxt, DimNo));
-                end;
-            2:
-                begin
-                    if "Dimension 2 Code" <> '' then
-                        exit('1,6,' + "Dimension 2 Code");
-
-                    exit(StrSubstNo(DimFilterTxt, DimNo));
-                end;
-            3:
-                begin
-                    if "Dimension 3 Code" <> '' then
-                        exit('1,6,' + "Dimension 3 Code");
-
-                    exit(StrSubstNo(DimFilterTxt, DimNo));
-                end;
-            4:
-                begin
-                    if "Dimension 4 Code" <> '' then
-                        exit('1,6,' + "Dimension 4 Code");
-
-                    exit(StrSubstNo(DimFilterTxt, DimNo));
-                end;
-        end;
-    end;
-
     procedure SetSkipConfirmationDialogue()
     begin
         SkipConfirmationDialogue := true;
@@ -1019,4 +982,3 @@ table 363 "Analysis View"
     end;
 }
 
-#endif

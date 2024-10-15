@@ -6,6 +6,7 @@ table 5722 "Item Category"
 {
     Caption = 'Item Category';
     LookupPageID = "Item Categories";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -39,7 +39,6 @@ codeunit 134362 "Accounting Period Search Test"
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
-        CurrentYear: Integer;
     begin
         // [SCENARIO] DateFilter for a single year evaluates correctly.
 

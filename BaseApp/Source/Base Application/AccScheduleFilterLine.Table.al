@@ -5,6 +5,7 @@ table 31081 "Acc. Schedule Filter Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'The functionality will be removed and this table should not be used.';
+    DataClassification = CustomerContent;
 
     fields
     {

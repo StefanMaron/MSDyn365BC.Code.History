@@ -25,6 +25,7 @@ using System.Security.User;
 table 753 "Standard Item Journal Line"
 {
     Caption = 'Standard Item Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -430,18 +431,8 @@ table 753 "Standard Item Journal Line"
             Caption = 'New Location Code';
             TableRelation = Location;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-#if CLEAN21
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-
-            trigger OnValidate()
-            begin
-                TestField("Entry Type", "Entry Type"::Transfer);
-            end;
-#endif
         }
         field(53; "Qty. (Calculated)"; Decimal)
         {

@@ -8,7 +8,7 @@ page 5073 "Contact Int. Entries Subform"
     PageType = ListPart;
     SourceTable = "Interaction Log Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {
@@ -183,8 +183,6 @@ page 5073 "Contact Int. Entries Subform"
                 ApplicationArea = RelationshipMgmt;
                 Caption = '&Show Attachments';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show attachments or related documents.';
                 Scope = Repeater;
 
@@ -198,8 +196,6 @@ page 5073 "Contact Int. Entries Subform"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Create &Interaction';
                 Image = CreateInteraction;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an interaction with a specified contact.';
                 Scope = Repeater;
 
@@ -215,8 +211,6 @@ page 5073 "Contact Int. Entries Subform"
                 Enabled = ShowCreateOpportunity;
                 Gesture = None;
                 Image = NewOpportunity;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an opportunity with a specified contact.';
                 Scope = Repeater;
 
@@ -234,8 +228,6 @@ page 5073 "Contact Int. Entries Subform"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Co&mments';
                 Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "Inter. Log Entry Comment Sheet";
                 RunPageLink = "Entry No." = field("Entry No.");
                 ToolTip = 'View or add comments for the record.';

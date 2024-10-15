@@ -4,6 +4,7 @@ table 11785 "Posting Description"
     ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of posting description will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

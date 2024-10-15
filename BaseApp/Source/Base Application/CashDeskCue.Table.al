@@ -4,6 +4,7 @@ table 11749 "Cash Desk Cue"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '20.0';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -24,6 +24,7 @@ table 5741 "Transfer Line"
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
     LookupPageID = "Transfer Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -1019,15 +1020,10 @@ table 5741 "Transfer Line"
     }
 
     trigger OnDelete()
-#if CLEAN21
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-#endif
     begin
         OnBeforeOnDelete(Rec);
-#if not CLEAN21
-        DeleteRelatedTransferLines(Rec, false); // NAVCZ
-#else
         TestStatusOpen();
 
         TestField("Quantity Shipped", "Quantity Received");
@@ -1047,7 +1043,6 @@ table 5741 "Transfer Line"
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", "Document No.");
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", "Line No.");
         ItemChargeAssgntPurch.DeleteAll(true);
-#endif
     end;
 
     trigger OnInsert()
@@ -1057,7 +1052,7 @@ table 5741 "Transfer Line"
     begin
         IsHandled := false;
         OnBeforeOnInsert(Rec, xRec, TransHeader, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         TestStatusOpen();
@@ -1835,47 +1830,6 @@ table 5741 "Transfer Line"
             ConfirmShippedDimChange();
     end;
 
-#if not CLEAN21
-    [Obsolete('The function will be replaced by code in OnDelete trigger.', '21.0')]
-    [Scope('OnPrem')]
-    procedure DeleteRelatedTransferLines(TransLine: Record "Transfer Line"; CalledFromHeader: Boolean)
-    var
-        TransLine2: Record "Transfer Line";
-        ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
-    begin
-        // NAVCZ
-        with TransLine2 do begin
-            SetRange("Document No.", TransLine."Document No.");
-            if not CalledFromHeader then
-                SetRange("Line No.", TransLine."Line No.");
-            if FindSet(true, true) then
-                repeat
-                    TestStatusOpen();
-
-                    TestField("Quantity Shipped", "Quantity Received");
-                    TestField("Qty. Shipped (Base)", "Qty. Received (Base)");
-                    CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Outbnd. (Base)");
-                    TestField("Reserved Qty. Inbnd. (Base)", 0);
-                    TestField("Reserved Qty. Outbnd. (Base)", 0);
-
-                    OnDeleteRelatedTransferLinesOnBeforeDeleteRelatedData(TransLine);
-
-                    TransferLineReserve.DeleteLine(TransLine2);
-                    WhseValidateSourceLine.TransLineDelete(TransLine2);
-
-                    ItemChargeAssgntPurch.SetCurrentKey(
-                      "Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                    ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
-                    ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", "Document No.");
-                    ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", "Line No.");
-                    ItemChargeAssgntPurch.DeleteAll(true);
-
-                    if CalledFromHeader then
-                        Delete();
-                until Next() = 0;
-        end;
-    end;
-#endif
     procedure ReserveFromInventory(var TransLine: Record "Transfer Line")
     var
         ReservMgt: Codeunit "Reservation Management";
@@ -2240,18 +2194,10 @@ table 5741 "Transfer Line"
     begin
     end;
 
-#if not CLEAN21
-    [Obsolete('The event will be replaced by standard event OnDeleteOnBeforeDeleteRelatedData.', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnDeleteRelatedTransferLinesOnBeforeDeleteRelatedData(var TransferLine: Record "Transfer Line")
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeDeleteRelatedData(var TransferLine: Record "Transfer Line")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterInitLine(var TransferLine: Record "Transfer Line"; TempTransferLine: Record "Transfer Line" temporary)

@@ -4,6 +4,7 @@ table 31041 "Depreciation Group"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

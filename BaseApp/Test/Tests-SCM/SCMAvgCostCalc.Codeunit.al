@@ -62,11 +62,11 @@ codeunit 137070 "SCM Avg. Cost Calc."
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
         CreateItem(Item);
         PostPurch(Item, '', WorkDate(), 142.7, 8.458);
-        PostTrans(Item, '', SelectLocBlue, 132.5);
+        PostTrans(Item, '', SelectLocBlue(), 132.5);
         PostNegPurch(Item, PurchaseLine, '', -28.7);
         UndoNegPurch(PurchaseLine);
         AdjustCost(Item);
-        PostSaleOrder(Item, SelectLocBlue, WorkDate(), 3.9, true, true, '');
+        PostSaleOrder(Item, SelectLocBlue(), WorkDate(), 3.9, true, true, '');
         AdjustCost(Item);
         VerifyExpectedCostunit(Item."No.", 8.458, 0.001);
     end;
@@ -523,7 +523,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         PostPurch(Item, '', WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(100, 200));
 
         // [GIVEN] Post a purchase order with linked job for the same item "I", "Unit Cost" = 300
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithJob(
           PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(300, 400));
 
@@ -570,7 +570,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Post a purchase order with linked job for the same item "I", "Unit Cost" = 300
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithJob(
           PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(300, 400));
         PurchaseLine.OpenItemTrackingLines();
@@ -787,7 +787,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJnlLine.Init();
         ItemJnlLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
         ItemJnlLine."Journal Batch Name" := ItemJournalBatch.Name;
-        LibraryCosting.CreateRevaluationJnlLines(Item, ItemJnlLine, LibraryUtility.GenerateGUID, 1, 0, false, false, false, PostingDate);
+        LibraryCosting.CreateRevaluationJnlLines(Item, ItemJnlLine, LibraryUtility.GenerateGUID(), "Inventory Value Calc. Per"::Item, "Inventory Value Calc. Base"::" ", false, false, false, PostingDate);
 
         // Change Unit Cost
         ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
@@ -1024,7 +1024,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
                 CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                 AverageCost += "Cost Amount (Actual)";
                 AverageCostACY += "Cost Amount (Actual) (ACY)";
-            until Next = 0;
+            until Next() = 0;
         end;
 
         AverageCost /= TotalQuantity;
@@ -1081,15 +1081,15 @@ codeunit 137070 "SCM Avg. Cost Calc."
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 }
 

@@ -1,5 +1,4 @@
-﻿#if not CLEAN21
-namespace Microsoft.Purchases.Document;
+﻿namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -96,6 +95,12 @@ page 52 "Purchase Credit Memo"
                     begin
                         exit(Rec.LookupBuyFromVendorName(Text));
                     end;
+                }
+                field("Posting Description"; Rec."Posting Description")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -222,11 +227,6 @@ page 52 "Purchase Credit Memo"
                         CurrPage.Update();
                     end;
                 }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -265,15 +265,6 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date you expect to receive the items on the purchase document.';
-                }
-                field("Shipment Method Code"; Rec."Shipment Method Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code that represents the shipment method for this purchase.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Vendor Authorization No."; Rec."Vendor Authorization No.")
                 {
@@ -337,6 +328,18 @@ page 52 "Purchase Credit Memo"
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the record is open, is waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
+                field("Language Code"; Rec."Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
+                }
+                field("Format Region"; Rec."Format Region")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the format to be used on printouts for this document.';
+                    Visible = false;
+                }
             }
             part(PurchLines; "Purch. Cr. Memo Subform")
             {
@@ -371,7 +374,6 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate(); // NAVCZ
                         CurrPage.SaveRecord();
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
@@ -755,33 +757,6 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
-                }
-                field("Language Code"; Rec."Language Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT country/region code of vendor.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
             }
             group(Application)
             {
@@ -865,7 +840,7 @@ page 52 "Purchase Credit Memo"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(Control5; "Purchase Line FactBox")
             {
@@ -1290,7 +1265,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1306,7 +1281,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1363,20 +1338,6 @@ page 52 "Purchase Credit Memo"
                         end;
                     }
 #endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                 }
             }
             group("P&osting")
@@ -1431,7 +1392,7 @@ page 52 "Purchase Credit Memo"
                     Image = PostPrint;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -1572,24 +1533,6 @@ page 52 "Purchase Credit Memo"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category6)
             {
@@ -1861,12 +1804,6 @@ page 52 "Purchase Credit Memo"
         CurrPage.Update();
     end;
 
-    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
-    local procedure CurrencyCodeOnAfterValidate()
-    begin
-        CurrPage.PurchLines.PAGE.UpdateForm(true); // NAVCZ
-    end;
-
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
@@ -2015,4 +1952,4 @@ page 52 "Purchase Credit Memo"
     begin
     end;
 }
-#endif
+

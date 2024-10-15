@@ -5,6 +5,7 @@ table 31050 "Credit Header"
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

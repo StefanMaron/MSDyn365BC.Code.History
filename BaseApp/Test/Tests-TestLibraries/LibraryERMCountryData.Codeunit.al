@@ -9,8 +9,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     var
         LibraryERM: Codeunit "Library - ERM";
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
-        LibraryInventory: Codeunit "Library - Inventory";
 
     procedure InitializeCountry()
     begin
@@ -90,7 +88,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        CreateUserSetup; // NAVCZ
+        CreateUserSetup(); // NAVCZ
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -109,8 +107,6 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdatePrepaymentAccounts()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         UpdateVATPostingSetupOnPrepAccount();
         UpdateGenProdPostingSetupOnPrepAccount();
@@ -289,7 +285,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();

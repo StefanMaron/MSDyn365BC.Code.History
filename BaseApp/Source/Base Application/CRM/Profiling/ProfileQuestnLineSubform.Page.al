@@ -67,14 +67,12 @@ page 5169 "Profile Questn. Line Subform"
 
     procedure SetProfileQnLine(var FromProfileQuestionnaireLine: Record "Profile Questionnaire Line")
     begin
-        with FromProfileQuestionnaireLine do begin
-            ClearSettings();
-            if Find('-') then
-                repeat
-                    TempProfileQuestionnaireLine := FromProfileQuestionnaireLine;
-                    TempProfileQuestionnaireLine.Insert();
-                until Next() = 0;
-        end;
+        ClearSettings();
+        if FromProfileQuestionnaireLine.Find('-') then
+            repeat
+                TempProfileQuestionnaireLine := FromProfileQuestionnaireLine;
+                TempProfileQuestionnaireLine.Insert();
+            until FromProfileQuestionnaireLine.Next() = 0;
     end;
 
     local procedure ClearSettings()

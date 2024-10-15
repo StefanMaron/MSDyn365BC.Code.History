@@ -4,6 +4,7 @@ table 11787 "Detailed Fin. Charge Memo Line"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,13 +45,11 @@ table 11787 "Detailed Fin. Charge Memo Line"
         {
             Caption = 'Interest Base Amount';
         }
-        field(9; "Entry Type"; Option)
+        field(9; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Entry Type" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Entry Type';
             FieldClass = FlowField;
-            OptionCaption = ',Initial Entry,Application,Unrealized Loss,Unrealized Gain,Realized Loss,Realized Gain,Payment Discount,Payment Discount (VAT Excl.),Payment Discount (VAT Adjustment),Appln. Rounding,Correction of Remaining Amount,Payment Tolerance,Payment Discount Tolerance,Payment Tolerance (VAT Excl.),Payment Tolerance (VAT Adjustment),Payment Discount Tolerance (VAT Excl.),Payment Discount Tolerance (VAT Adjustment)';
-            OptionMembers = ,"Initial Entry",Application,"Unrealized Loss","Unrealized Gain","Realized Loss","Realized Gain","Payment Discount","Payment Discount (VAT Excl.)","Payment Discount (VAT Adjustment)","Appln. Rounding","Correction of Remaining Amount","Payment Tolerance","Payment Discount Tolerance","Payment Tolerance (VAT Excl.)","Payment Tolerance (VAT Adjustment)","Payment Discount Tolerance (VAT Excl.)","Payment Discount Tolerance (VAT Adjustment)";
         }
         field(10; "Posting Date"; Date)
         {

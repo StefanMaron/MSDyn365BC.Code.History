@@ -23,8 +23,8 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenErrorReceived_StatusMustBeFailed()
     begin
         Initialize('ErrorReceived');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
         Assert.AreEqual(WorkflowWebhookNotificationTable.Status,
           WorkflowWebhookNotificationTable.Status::Failed, 'The notification status must be failed.');
     end;
@@ -34,7 +34,7 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure MultipleRetries_OnlyOneRecordMustExist()
     begin
         Initialize('ErrorReceived');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
         WorkflowWebhookNotificationTable.SetCurrentKey("Workflow Step Instance ID");
         WorkflowWebhookNotificationTable.SetRange("Workflow Step Instance ID", WorkflowStepInstanceID);
         Assert.AreEqual(WorkflowWebhookNotificationTable.Count, 1, 'There must be just one record for given WorkflowStepInstanceID');
@@ -45,8 +45,8 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenNoErrorReceived_StatusMustBeSent()
     begin
         Initialize('NoErrorReceived');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
         Assert.AreEqual(WorkflowWebhookNotificationTable.Status, WorkflowWebhookNotificationTable.Status::Sent,
           'The notification status must be sent.');
     end;
@@ -60,7 +60,7 @@ codeunit 134217 "WFWH Notifications Tests"
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
         TmpGuid := CreateGuid();
         Clear(TmpGuid);
-        asserterror WorkflowWebhookNotification.SendNotification(TmpGuid, CreateGuid, 'dd', '');
+        asserterror WorkflowWebhookNotification.SendNotification(TmpGuid, CreateGuid(), 'dd', '');
         Assert.AreEqual(GetLastErrorText, 'DataID cannot be null.', 'Invalid error message.');
     end;
 
@@ -73,7 +73,7 @@ codeunit 134217 "WFWH Notifications Tests"
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
         TmpGuid := CreateGuid();
         Clear(TmpGuid);
-        asserterror WorkflowWebhookNotification.SendNotification(CreateGuid, TmpGuid, 'dd', '');
+        asserterror WorkflowWebhookNotification.SendNotification(CreateGuid(), TmpGuid, 'dd', '');
         Assert.AreEqual(GetLastErrorText, 'WorkflowStepInstanceID cannot be null.', 'Invalid error message.');
     end;
 
@@ -82,7 +82,7 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenNotificationUrlIsNull_ThrowError()
     begin
         WorkflowWebhookNotification.Initialize(RetryCount, 1);
-        asserterror WorkflowWebhookNotification.SendNotification(CreateGuid, CreateGuid, '', '');
+        asserterror WorkflowWebhookNotification.SendNotification(CreateGuid(), CreateGuid(), '', '');
         Assert.AreEqual(GetLastErrorText, 'NotificationUrl cannot be empty.', 'Invalid error message.');
     end;
 
@@ -91,9 +91,9 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenErrorReceived_ErrorFieldsMustNotBeBlank()
     begin
         Initialize('ErrorReceived');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
-        Assert.AreNotEqual(EmptyText, WorkflowWebhookNotificationTable.GetErrorDetails, 'The error details must not be emtpy.');
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
+        Assert.AreNotEqual(EmptyText, WorkflowWebhookNotificationTable.GetErrorDetails(), 'The error details must not be emtpy.');
         Assert.AreEqual('abc', WorkflowWebhookNotificationTable."Error Message", 'The error message must not be emtpy.');
     end;
 
@@ -102,8 +102,8 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenErrorThanSuccessReceived_StatusMustBeSuccess()
     begin
         Initialize('ErrorSuccess');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
         Assert.AreEqual(WorkflowWebhookNotificationTable.Status, WorkflowWebhookNotificationTable.Status::Sent,
           'The notification status must be sent.');
     end;
@@ -113,8 +113,8 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenDotNetException_StatusMustBeFail()
     begin
         Initialize('DotNetException');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
         Assert.AreEqual(WorkflowWebhookNotificationTable.Status, WorkflowWebhookNotificationTable.Status::Failed,
           'The notification status must be failed.');
     end;
@@ -124,8 +124,8 @@ codeunit 134217 "WFWH Notifications Tests"
     procedure WhenWebException_Retry()
     begin
         Initialize('WebException');
-        WorkflowWebhookNotification.SendNotification(CreateGuid, WorkflowStepInstanceID, 'abc', '');
-        FindNotificationRecord;
+        WorkflowWebhookNotification.SendNotification(CreateGuid(), WorkflowStepInstanceID, 'abc', '');
+        FindNotificationRecord();
         Assert.AreEqual(WorkflowWebhookNotificationTable.Status, WorkflowWebhookNotificationTable.Status::Sent,
           'The notification status must be sent.');
         Assert.AreEqual(EmptyText, WorkflowWebhookNotificationTable."Error Message",
@@ -141,8 +141,8 @@ codeunit 134217 "WFWH Notifications Tests"
         WorkflowWebhookNotificationTable."Workflow Step Instance ID" := WorkflowStepInstanceID;
         WorkflowWebhookNotificationTable.SetErrorDetails('asdf');
         WorkflowWebhookNotificationTable.Insert(true);
-        FindNotificationRecord;
-        Assert.AreEqual(WorkflowWebhookNotificationTable.GetErrorDetails, 'asdf', 'Invalid error details');
+        FindNotificationRecord();
+        Assert.AreEqual(WorkflowWebhookNotificationTable.GetErrorDetails(), 'asdf', 'Invalid error details');
     end;
 
     [Test]

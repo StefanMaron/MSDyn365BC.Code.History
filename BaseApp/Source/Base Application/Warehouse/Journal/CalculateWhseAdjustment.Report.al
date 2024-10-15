@@ -33,129 +33,124 @@ report 7315 "Calculate Whse. Adjustment"
                     WhseItemTrackingSetup: Record "Item Tracking Setup";
                     SNLotNumbersByBin: Query "Lot Numbers by Bin";
                 begin
-                    with TempAdjmtBinContentBuffer do begin
-                        Location.Reset();
-                        Item.CopyFilter("Location Filter", Location.Code);
-                        Location.SetRange("Directed Put-away and Pick", true);
-                        if Location.FindSet() then
-                            repeat
-                                AdjmtBin.Get(Location.Code, Location."Adjustment Bin Code");
+                    Location.Reset();
+                    Item.CopyFilter("Location Filter", Location.Code);
+                    Location.SetRange("Directed Put-away and Pick", true);
+                    if Location.FindSet() then
+                        repeat
+                            AdjmtBin.Get(Location.Code, Location."Adjustment Bin Code");
 
-                                SNLotNumbersByBin.SetRange(Location_Code, Location.Code);
-                                SNLotNumbersByBin.SetRange(Zone_Code, AdjmtBin."Zone Code");
-                                SNLotNumbersByBin.SetRange(Bin_Code, AdjmtBin.Code);
-                                SNLotNumbersByBin.SetRange(Item_No, Item."No.");
-                                SNLotNumbersByBin.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
-                                SNLotNumbersByBin.SetFilter(Lot_No, Item.GetFilter("Lot No. Filter"));
-                                SNLotNumbersByBin.SetFilter(Serial_No, Item.GetFilter("Serial No. Filter"));
-                                SNLotNumbersByBin.SetFilter(Package_No, Item.GetFilter("Package No. Filter"));
-                                OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(SNLotNumbersByBin, Item);
-                                SNLotNumbersByBin.Open();
+                            SNLotNumbersByBin.SetRange(Location_Code, Location.Code);
+                            SNLotNumbersByBin.SetRange(Zone_Code, AdjmtBin."Zone Code");
+                            SNLotNumbersByBin.SetRange(Bin_Code, AdjmtBin.Code);
+                            SNLotNumbersByBin.SetRange(Item_No, Item."No.");
+                            SNLotNumbersByBin.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
+                            SNLotNumbersByBin.SetFilter(Lot_No, Item.GetFilter("Lot No. Filter"));
+                            SNLotNumbersByBin.SetFilter(Serial_No, Item.GetFilter("Serial No. Filter"));
+                            SNLotNumbersByBin.SetFilter(Package_No, Item.GetFilter("Package No. Filter"));
+                            OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(SNLotNumbersByBin, Item);
+                            SNLotNumbersByBin.Open();
 
-                                while SNLotNumbersByBin.Read() do begin
-                                    Init();
-                                    "Item No." := SNLotNumbersByBin.Item_No;
-                                    "Variant Code" := SNLotNumbersByBin.Variant_Code;
-                                    "Location Code" := SNLotNumbersByBin.Location_Code;
-                                    "Bin Code" := SNLotNumbersByBin.Bin_Code;
-                                    "Unit of Measure Code" := SNLotNumbersByBin.Unit_of_Measure_Code;
-                                    "Base Unit of Measure" := Item."Base Unit of Measure";
-                                    "Lot No." := SNLotNumbersByBin.Lot_No;
-                                    "Serial No." := SNLotNumbersByBin.Serial_No;
-                                    "Package No." := SNLotNumbersByBin.Package_No;
-                                    "Qty. to Handle (Base)" := SNLotNumbersByBin.Sum_Qty_Base;
-                                    OnBeforeAdjmtBinQuantityBufferInsert(TempAdjmtBinContentBuffer, WhseEntry, SNLotNumbersByBin);
-                                    Insert();
-                                end;
-                            until Location.Next() = 0;
+                            while SNLotNumbersByBin.Read() do begin
+                                TempAdjmtBinContentBuffer.Init();
+                                TempAdjmtBinContentBuffer."Item No." := SNLotNumbersByBin.Item_No;
+                                TempAdjmtBinContentBuffer."Variant Code" := SNLotNumbersByBin.Variant_Code;
+                                TempAdjmtBinContentBuffer."Location Code" := SNLotNumbersByBin.Location_Code;
+                                TempAdjmtBinContentBuffer."Bin Code" := SNLotNumbersByBin.Bin_Code;
+                                TempAdjmtBinContentBuffer."Unit of Measure Code" := SNLotNumbersByBin.Unit_of_Measure_Code;
+                                TempAdjmtBinContentBuffer."Base Unit of Measure" := Item."Base Unit of Measure";
+                                TempAdjmtBinContentBuffer."Lot No." := SNLotNumbersByBin.Lot_No;
+                                TempAdjmtBinContentBuffer."Serial No." := SNLotNumbersByBin.Serial_No;
+                                TempAdjmtBinContentBuffer."Package No." := SNLotNumbersByBin.Package_No;
+                                TempAdjmtBinContentBuffer."Qty. to Handle (Base)" := SNLotNumbersByBin.Sum_Qty_Base;
+                                OnBeforeAdjmtBinQuantityBufferInsert(TempAdjmtBinContentBuffer, WhseEntry, SNLotNumbersByBin);
+                                TempAdjmtBinContentBuffer.Insert();
+                            end;
+                        until Location.Next() = 0;
 
-                        Reset();
-                        ReservationEntry.Reset();
-                        ReservationEntry.SetCurrentKey("Source ID");
-                        ItemJnlLine.Reset();
-                        ItemJnlLine.SetCurrentKey("Item No.");
-                        if FindSet() then
-                            repeat
-                                ItemJnlLine.Reset();
-                                ItemJnlLine.SetCurrentKey("Item No.");
-                                ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
-                                ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
-                                ItemJnlLine.SetRange("Item No.", "Item No.");
-                                ItemJnlLine.SetRange("Location Code", "Location Code");
-                                ItemJnlLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                                ItemJnlLine.SetRange("Warehouse Adjustment", true);
-                                OnAfterGetRecordItemOnAfterItemJnlLineSetFilters(ItemJnlLine, TempAdjmtBinContentBuffer);
-                                if ItemJnlLine.FindSet() then
-                                    repeat
-                                        ReservationEntry.SetRange("Source Type", Database::"Item Journal Line");
-                                        ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
-                                        ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
-                                        ReservationEntry.SetRange("Source Ref. No.", ItemJnlLine."Line No.");
-                                        WhseItemTrackingSetup.CopyTrackingFromBinContentBuffer(TempAdjmtBinContentBuffer);
-                                        ReservationEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
-                                        OnAfterGetRecordItemOnAfterReservationEntrySetFilters(TempAdjmtBinContentBuffer, ReservationEntry);
-                                        ReservationEntry.CalcSums("Qty. to Handle (Base)");
-                                        if ReservationEntry."Qty. to Handle (Base)" <> 0 then begin
-                                            "Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
-                                            OnBeforeAdjmtBinQuantityBufferModify(TempAdjmtBinContentBuffer, ReservationEntry);
-                                            Modify();
-                                            OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
-                                        end;
-                                        OnAfterGetRecordItemOnBeforeNextItemJournalLine(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
-                                    until ItemJnlLine.Next() = 0;
-                            until Next() = 0;
-                    end;
+                    TempAdjmtBinContentBuffer.Reset();
+                    ReservationEntry.Reset();
+                    ReservationEntry.SetCurrentKey("Source ID");
+                    ItemJnlLine.Reset();
+                    ItemJnlLine.SetCurrentKey("Item No.");
+                    if TempAdjmtBinContentBuffer.FindSet() then
+                        repeat
+                            ItemJnlLine.Reset();
+                            ItemJnlLine.SetCurrentKey("Item No.");
+                            ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+                            ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+                            ItemJnlLine.SetRange("Item No.", TempAdjmtBinContentBuffer."Item No.");
+                            ItemJnlLine.SetRange("Location Code", TempAdjmtBinContentBuffer."Location Code");
+                            ItemJnlLine.SetRange("Unit of Measure Code", TempAdjmtBinContentBuffer."Unit of Measure Code");
+                            ItemJnlLine.SetRange("Warehouse Adjustment", true);
+                            OnAfterGetRecordItemOnAfterItemJnlLineSetFilters(ItemJnlLine, TempAdjmtBinContentBuffer);
+                            if ItemJnlLine.FindSet() then
+                                repeat
+                                    ReservationEntry.SetRange("Source Type", Database::"Item Journal Line");
+                                    ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
+                                    ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
+                                    ReservationEntry.SetRange("Source Ref. No.", ItemJnlLine."Line No.");
+                                    WhseItemTrackingSetup.CopyTrackingFromBinContentBuffer(TempAdjmtBinContentBuffer);
+                                    ReservationEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
+                                    OnAfterGetRecordItemOnAfterReservationEntrySetFilters(TempAdjmtBinContentBuffer, ReservationEntry);
+                                    ReservationEntry.CalcSums("Qty. to Handle (Base)");
+                                    if ReservationEntry."Qty. to Handle (Base)" <> 0 then begin
+                                        TempAdjmtBinContentBuffer."Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
+                                        OnBeforeAdjmtBinQuantityBufferModify(TempAdjmtBinContentBuffer, ReservationEntry);
+                                        TempAdjmtBinContentBuffer.Modify();
+                                        OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
+                                    end;
+                                    OnAfterGetRecordItemOnBeforeNextItemJournalLine(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
+                                until ItemJnlLine.Next() = 0;
+                        until TempAdjmtBinContentBuffer.Next() = 0;
                 end;
 
                 trigger OnPostDataItem()
                 var
                     QtyInUOM: Decimal;
                 begin
-                    with TempAdjmtBinContentBuffer do begin
-                        Reset();
-                        if FindSet() then
-                            repeat
-                                SetRange("Location Code", "Location Code");
-                                SetRange("Variant Code", "Variant Code");
-                                SetRange("Unit of Measure Code", "Unit of Measure Code");
-                                SetFilter("Qty. to Handle (Base)", '>0');
-                                OnPostDataItemOnAfterAdjmtBinContentBufferSetFilters(TempAdjmtBinContentBuffer);
+                    TempAdjmtBinContentBuffer.Reset();
+                    if TempAdjmtBinContentBuffer.FindSet() then
+                        repeat
+                            TempAdjmtBinContentBuffer.SetRange("Location Code", TempAdjmtBinContentBuffer."Location Code");
+                            TempAdjmtBinContentBuffer.SetRange("Variant Code", TempAdjmtBinContentBuffer."Variant Code");
+                            TempAdjmtBinContentBuffer.SetRange("Unit of Measure Code", TempAdjmtBinContentBuffer."Unit of Measure Code");
+                            TempAdjmtBinContentBuffer.SetFilter("Qty. to Handle (Base)", '>0');
+                            OnPostDataItemOnAfterAdjmtBinContentBufferSetFilters(TempAdjmtBinContentBuffer);
 
-                                CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM :=
-                                    UOMMgt.CalcQtyFromBase(
-                                        "Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
-                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
-                                if QtyInUOM <> 0 then
-                                    InsertItemJnlLine(TempAdjmtBinContentBuffer, QtyInUOM, -"Qty. to Handle (Base)", "Unit of Measure Code", 1);
+                            TempAdjmtBinContentBuffer.CalcSums("Qty. to Handle (Base)");
+                            QtyInUOM :=
+                                UOMMgt.CalcQtyFromBase(
+                                    TempAdjmtBinContentBuffer."Item No.", TempAdjmtBinContentBuffer."Variant Code", TempAdjmtBinContentBuffer."Unit of Measure Code", -TempAdjmtBinContentBuffer."Qty. to Handle (Base)",
+                                    UOMMgt.GetQtyPerUnitOfMeasure(Item, TempAdjmtBinContentBuffer."Unit of Measure Code"));
+                            if QtyInUOM <> 0 then
+                                InsertItemJnlLine(TempAdjmtBinContentBuffer, QtyInUOM, -TempAdjmtBinContentBuffer."Qty. to Handle (Base)", TempAdjmtBinContentBuffer."Unit of Measure Code", 1);
 
-                                SetFilter("Qty. to Handle (Base)", '<0');
-                                CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM :=
-                                    UOMMgt.CalcQtyFromBase("Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
-                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
-                                if QtyInUOM <> 0 then
-                                    InsertItemJnlLine(TempAdjmtBinContentBuffer, QtyInUOM, -"Qty. to Handle (Base)", "Unit of Measure Code", 0);
+                            TempAdjmtBinContentBuffer.SetFilter("Qty. to Handle (Base)", '<0');
+                            TempAdjmtBinContentBuffer.CalcSums("Qty. to Handle (Base)");
+                            QtyInUOM :=
+                                UOMMgt.CalcQtyFromBase(TempAdjmtBinContentBuffer."Item No.", TempAdjmtBinContentBuffer."Variant Code", TempAdjmtBinContentBuffer."Unit of Measure Code", -TempAdjmtBinContentBuffer."Qty. to Handle (Base)",
+                                    UOMMgt.GetQtyPerUnitOfMeasure(Item, TempAdjmtBinContentBuffer."Unit of Measure Code"));
+                            if QtyInUOM <> 0 then
+                                InsertItemJnlLine(TempAdjmtBinContentBuffer, QtyInUOM, -TempAdjmtBinContentBuffer."Qty. to Handle (Base)", TempAdjmtBinContentBuffer."Unit of Measure Code", 0);
+                            // rounding residue
+                            TempAdjmtBinContentBuffer.SetRange("Qty. to Handle (Base)");
+                            TempAdjmtBinContentBuffer.CalcSums("Qty. to Handle (Base)");
+                            QtyInUOM :=
+                                UOMMgt.CalcQtyFromBase(
+                                    TempAdjmtBinContentBuffer."Item No.", TempAdjmtBinContentBuffer."Variant Code", TempAdjmtBinContentBuffer."Unit of Measure Code", -TempAdjmtBinContentBuffer."Qty. to Handle (Base)",
+                                    UOMMgt.GetQtyPerUnitOfMeasure(Item, TempAdjmtBinContentBuffer."Unit of Measure Code"));
+                            if (QtyInUOM = 0) and (TempAdjmtBinContentBuffer."Qty. to Handle (Base)" > 0) then
+                                InsertItemJnlLine(TempAdjmtBinContentBuffer, -TempAdjmtBinContentBuffer."Qty. to Handle (Base)", -TempAdjmtBinContentBuffer."Qty. to Handle (Base)", TempAdjmtBinContentBuffer."Base Unit of Measure", 1);
 
-                                // rounding residue
-                                SetRange("Qty. to Handle (Base)");
-                                CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM :=
-                                    UOMMgt.CalcQtyFromBase(
-                                        "Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
-                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
-                                if (QtyInUOM = 0) and ("Qty. to Handle (Base)" > 0) then
-                                    InsertItemJnlLine(TempAdjmtBinContentBuffer, -"Qty. to Handle (Base)", -"Qty. to Handle (Base)", "Base Unit of Measure", 1);
-
-                                FindLast();
-                                SetRange("Location Code");
-                                SetRange("Variant Code");
-                                SetRange("Unit of Measure Code");
-                                OnPostDataItemOnAfterAdjmtBinContentBufferClearFilters(TempAdjmtBinContentBuffer);
-                            until Next() = 0;
-                        Reset();
-                        DeleteAll();
-                    end;
+                            TempAdjmtBinContentBuffer.FindLast();
+                            TempAdjmtBinContentBuffer.SetRange("Location Code");
+                            TempAdjmtBinContentBuffer.SetRange("Variant Code");
+                            TempAdjmtBinContentBuffer.SetRange("Unit of Measure Code");
+                            OnPostDataItemOnAfterAdjmtBinContentBufferClearFilters(TempAdjmtBinContentBuffer);
+                        until TempAdjmtBinContentBuffer.Next() = 0;
+                    TempAdjmtBinContentBuffer.Reset();
+                    TempAdjmtBinContentBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -204,7 +199,7 @@ report 7315 "Calculate Whse. Adjustment"
                         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
                         if not ItemJnlLine.Find('-') then
-                            NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
+                            NextDocNo := NoSeriesBatch.GetNextNo(ItemJnlBatch."No. Series", PostingDate);
                         ItemJnlLine.Init();
                     end;
                     if NextDocNo = '' then
@@ -236,6 +231,7 @@ report 7315 "Calculate Whse. Adjustment"
                         ApplicationArea = Warehouse;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date for the posting of this batch job. The program automatically enters the work date in this field, but you can change it.';
+                        ShowMandatory = true;
 
                         trigger OnValidate()
                         begin
@@ -247,6 +243,7 @@ report 7315 "Calculate Whse. Adjustment"
                         ApplicationArea = Warehouse;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies a manually entered document number that will be entered in the Document No. field, on the journal lines created by the batch job.';
+                        ShowMandatory = DocumentNoInputMandatory;
                     }
                 }
             }
@@ -276,13 +273,13 @@ report 7315 "Calculate Whse. Adjustment"
         SourceCodeSetup: Record "Source Code Setup";
         TempAdjmtBinContentBuffer: Record "Bin Content Buffer" temporary;
         TempReservationEntryBuffer: Record "Reservation Entry" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         PostingDate: Date;
         NextDocNo: Code[20];
         NextLineNo: Integer;
-
+        DocumentNoInputMandatory: Boolean;
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document no.';
         Text002: Label 'Processing items    #1##########';
@@ -296,13 +293,16 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     local procedure ValidatePostingDate()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
-        if ItemJnlBatch."No. Series" = '' then
-            NextDocNo := ''
-        else begin
-            NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
-            Clear(NoSeriesMgt);
+        if ItemJnlBatch."No. Series" = '' then begin
+            DocumentNoInputMandatory := true;
+            NextDocNo := '';
+        end else begin
+            DocumentNoInputMandatory := false;
+            NextDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", PostingDate);
         end;
     end;
 
@@ -314,52 +314,50 @@ report 7315 "Calculate Whse. Adjustment"
           TempBinContentBuffer."Item No.", TempBinContentBuffer."Variant Code", TempBinContentBuffer."Location Code",
           Quantity2, QuantityBase2, UOM2, EntryType2);
 
-        with ItemJnlLine do begin
-            if NextLineNo = 0 then begin
-                LockTable();
-                Reset();
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                if Find('+') then
-                    NextLineNo := "Line No.";
+        if NextLineNo = 0 then begin
+            ItemJnlLine.LockTable();
+            ItemJnlLine.Reset();
+            ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+            ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+            if ItemJnlLine.Find('+') then
+                NextLineNo := ItemJnlLine."Line No.";
 
-                SourceCodeSetup.Get();
+            SourceCodeSetup.Get();
+        end;
+        NextLineNo := NextLineNo + 10000;
+
+        if QuantityBase2 <> 0 then begin
+            ItemJnlLine.Init();
+            ItemJnlLine."Line No." := NextLineNo;
+            ItemJnlLine.Validate("Posting Date", PostingDate);
+            if QuantityBase2 > 0 then
+                ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Positive Adjmt.")
+            else begin
+                ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Negative Adjmt.");
+                Quantity2 := -Quantity2;
+                QuantityBase2 := -QuantityBase2;
             end;
-            NextLineNo := NextLineNo + 10000;
 
-            if QuantityBase2 <> 0 then begin
-                Init();
-                "Line No." := NextLineNo;
-                Validate("Posting Date", PostingDate);
-                if QuantityBase2 > 0 then
-                    Validate("Entry Type", "Entry Type"::"Positive Adjmt.")
-                else begin
-                    Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
-                    Quantity2 := -Quantity2;
-                    QuantityBase2 := -QuantityBase2;
-                end;
-
-                IsHandled := false;
-                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine, ItemJnlBatch, SourceCodeSetup, IsHandled, TempBinContentBuffer, NextDocNo, UOM2);
-                if not IsHandled then begin
-                    Validate("Document No.", NextDocNo);
-                    Validate("Item No.", TempBinContentBuffer."Item No.");
-                    Validate("Variant Code", TempBinContentBuffer."Variant Code");
-                    Validate("Location Code", TempBinContentBuffer."Location Code");
-                    Validate("Source Code", SourceCodeSetup."Item Journal");
-                    Validate("Unit of Measure Code", UOM2);
-                end;
-                "Posting No. Series" := ItemJnlBatch."Posting No. Series";
-                Validate(Quantity, Quantity2);
-                "Quantity (Base)" := QuantityBase2;
-                "Invoiced Qty. (Base)" := QuantityBase2;
-                "Warehouse Adjustment" := true;
-                OnInsertItemJnlLineOnBeforeInsert(ItemJnlLine, TempAdjmtBinContentBuffer);
-                Insert(true);
-                OnAfterInsertItemJnlLine(ItemJnlLine);
-
-                CreateReservationEntry(ItemJnlLine, TempBinContentBuffer, EntryType2, UOM2);
+            IsHandled := false;
+            OnInsertItemLineOnBeforeValidateFields(ItemJnlLine, ItemJnlBatch, SourceCodeSetup, IsHandled, TempBinContentBuffer, NextDocNo, UOM2);
+            if not IsHandled then begin
+                ItemJnlLine.Validate("Document No.", NextDocNo);
+                ItemJnlLine.Validate("Item No.", TempBinContentBuffer."Item No.");
+                ItemJnlLine.Validate("Variant Code", TempBinContentBuffer."Variant Code");
+                ItemJnlLine.Validate("Location Code", TempBinContentBuffer."Location Code");
+                ItemJnlLine.Validate("Source Code", SourceCodeSetup."Item Journal");
+                ItemJnlLine.Validate("Unit of Measure Code", UOM2);
             end;
+            ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+            ItemJnlLine.Validate(Quantity, Quantity2);
+            ItemJnlLine."Quantity (Base)" := QuantityBase2;
+            ItemJnlLine."Invoiced Qty. (Base)" := QuantityBase2;
+            ItemJnlLine."Warehouse Adjustment" := true;
+            OnInsertItemJnlLineOnBeforeInsert(ItemJnlLine, TempAdjmtBinContentBuffer);
+            ItemJnlLine.Insert(true);
+            OnAfterInsertItemJnlLine(ItemJnlLine);
+
+            CreateReservationEntry(ItemJnlLine, TempBinContentBuffer, EntryType2, UOM2);
         end;
 
         OnAfterFunctionInsertItemJnlLine(

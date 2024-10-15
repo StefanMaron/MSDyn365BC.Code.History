@@ -198,67 +198,65 @@ report 5757 "Items with Negative Inventory"
         if LocCode = '' then
             Error(Text001);
 
-        with ItemLedgEntry do begin
-            SetCurrentKey(
-              "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        ItemLedgEntry.SetCurrentKey(
+          "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
 
-            if Find('-') then begin
-                Window.Open(StrSubstNo(Text002, FieldCaption("Location Code"), LocCode) + Text003);
-                i := 1;
-                ILECounter := Count;
-                repeat
-                    Window.Update(100, i);
-                    Window.Update(102, Round(i / ILECounter * 10000, 1));
+        if ItemLedgEntry.Find('-') then begin
+            Window.Open(StrSubstNo(Text002, ItemLedgEntry.FieldCaption("Location Code"), LocCode) + Text003);
+            i := 1;
+            ILECounter := ItemLedgEntry.Count;
+            repeat
+                Window.Update(100, i);
+                Window.Update(102, Round(i / ILECounter * 10000, 1));
 
-                    SetRange("Item No.", "Item No.");
-                    if Find('-') then begin
-                        SetRange("Location Code", LocCode);
-                        SetRange(Open, true);
-                        if Find('-') then
-                            repeat
-                                SetRange("Variant Code", "Variant Code");
-                                if Find('-') then
-                                    repeat
-                                        SetRange("Unit of Measure Code", "Unit of Measure Code");
-                                        if Find('-') then
-                                            repeat
-                                                SetRange("Package No.", "Package No.");
-                                                if Find('-') then
-                                                    repeat
-                                                        SetRange("Lot No.", "Lot No.");
-                                                        if Find('-') then
-                                                            repeat
-                                                                SetRange("Serial No.", "Serial No.");
-                                                                CalcSums("Remaining Quantity");
-                                                                if "Remaining Quantity" < 0 then
-                                                                    FillBuffer();
-                                                                Find('+');
-                                                                SetRange("Serial No.");
-                                                            until Next() = 0;
-                                                        Find('+');
-                                                        SetRange("Lot No.");
-                                                    until Next() = 0;
-                                                Find('+');
-                                                SetRange("Package No.");
-                                            until Next() = 0;
-                                        Find('+');
-                                        SetRange("Unit of Measure Code")
-                                    until Next() = 0;
+                ItemLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
+                if ItemLedgEntry.Find('-') then begin
+                    ItemLedgEntry.SetRange("Location Code", LocCode);
+                    ItemLedgEntry.SetRange(Open, true);
+                    if ItemLedgEntry.Find('-') then
+                        repeat
+                            ItemLedgEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
+                            if ItemLedgEntry.Find('-') then
+                                repeat
+                                    ItemLedgEntry.SetRange("Unit of Measure Code", ItemLedgEntry."Unit of Measure Code");
+                                    if ItemLedgEntry.Find('-') then
+                                        repeat
+                                            ItemLedgEntry.SetRange("Package No.", ItemLedgEntry."Package No.");
+                                            if ItemLedgEntry.Find('-') then
+                                                repeat
+                                                    ItemLedgEntry.SetRange("Lot No.", ItemLedgEntry."Lot No.");
+                                                    if ItemLedgEntry.Find('-') then
+                                                        repeat
+                                                            ItemLedgEntry.SetRange("Serial No.", ItemLedgEntry."Serial No.");
+                                                            ItemLedgEntry.CalcSums("Remaining Quantity");
+                                                            if ItemLedgEntry."Remaining Quantity" < 0 then
+                                                                FillBuffer();
+                                                            ItemLedgEntry.Find('+');
+                                                            ItemLedgEntry.SetRange("Serial No.");
+                                                        until ItemLedgEntry.Next() = 0;
+                                                    ItemLedgEntry.Find('+');
+                                                    ItemLedgEntry.SetRange("Lot No.");
+                                                until ItemLedgEntry.Next() = 0;
+                                            ItemLedgEntry.Find('+');
+                                            ItemLedgEntry.SetRange("Package No.");
+                                        until ItemLedgEntry.Next() = 0;
+                                    ItemLedgEntry.Find('+');
+                                    ItemLedgEntry.SetRange("Unit of Measure Code")
+                                until ItemLedgEntry.Next() = 0;
 
-                                Find('+');
-                                SetRange("Variant Code");
-                            until Next() = 0;
-                    end;
+                            ItemLedgEntry.Find('+');
+                            ItemLedgEntry.SetRange("Variant Code");
+                        until ItemLedgEntry.Next() = 0;
+                end;
 
-                    SetRange(Open);
-                    SetRange("Location Code");
-                    Find('+');
-                    i := i + Count;
-                    SetRange("Item No.");
-                until Next() = 0;
+                ItemLedgEntry.SetRange(Open);
+                ItemLedgEntry.SetRange("Location Code");
+                ItemLedgEntry.Find('+');
+                i := i + ItemLedgEntry.Count;
+                ItemLedgEntry.SetRange("Item No.");
+            until ItemLedgEntry.Next() = 0;
 
-                Window.Close();
-            end;
+            Window.Close();
         end;
 
         ErrorCounter := 0;

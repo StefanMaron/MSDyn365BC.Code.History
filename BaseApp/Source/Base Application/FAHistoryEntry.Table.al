@@ -4,6 +4,7 @@ table 31044 "FA History Entry"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

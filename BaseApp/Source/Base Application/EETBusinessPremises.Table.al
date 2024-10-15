@@ -4,6 +4,7 @@ table 31121 "EET Business Premises"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -230,18 +230,18 @@ codeunit 139054 "Office Addin Redeploy"
         BindSubscription(LibraryOfficeHostProvider);
 
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
         OfficeManagement.InitializeHost(OfficeHost, HostType);
 
-        TestEmail := StrSubstNo('%1@%2', CreateGuid, 'example.com');
+        TestEmail := StrSubstNo('%1@%2', CreateGuid(), 'example.com');
         OfficeAddinContext.SetFilter(Email, TestEmail);
         OfficeAddinContext.SetFilter(Version, UserVersion);
 
-        OutlookMailEngine.Trap;
-        OfficeNewContactDlg.Trap;
+        OutlookMailEngine.Trap();
+        OfficeNewContactDlg.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
 
         OfficeNewContactDlg.Close();
@@ -252,7 +252,7 @@ codeunit 139054 "Office Addin Redeploy"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -304,7 +304,7 @@ codeunit 139054 "Office Addin Redeploy"
         if OAuthInitialized then
             exit;
 
-        LibraryO365Sync.SetupNavUser;
+        LibraryO365Sync.SetupNavUser();
 
         OAuthInitialized := true;
     end;
@@ -332,67 +332,67 @@ codeunit 139054 "Office Addin Redeploy"
     [Scope('OnPrem')]
     procedure RedeployUserCanUpdateNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UserNonBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'UserNonBreaking'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeNow.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeNow'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.DontShowAgain.Visible, StrSubstNo(FieldNotDisplayedErr, 'DontShowAgain'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UserNonBreaking.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UserNonBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeNow.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UpgradeNow'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.DontShowAgain.Visible(), StrSubstNo(FieldNotDisplayedErr, 'DontShowAgain'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RedeployUserCanUpdateBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'UserBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeNow.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeNow'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.DontShowAgain.Visible, StrSubstNo(FieldIsDisplayedErr, 'DontShowAgain'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UserBreaking.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UserBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeNow.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UpgradeNow'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.DontShowAgain.Visible(), StrSubstNo(FieldIsDisplayedErr, 'DontShowAgain'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RedeployUserCannotUpdateNonBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.UpgradeLater.Visible(), StrSubstNo(FieldNotDisplayedErr, 'UpgradeLater'));
         Assert.AreEqual(OfficeUpdateAvailableDlg.UpgradeLater.Value, 'Continue', 'Upgrade later was not changed');
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeNow.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeNow'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.DontShowAgain.Visible, StrSubstNo(FieldNotDisplayedErr, 'DontShowAgain'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'AdminNonBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeNow.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UpgradeNow'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.DontShowAgain.Visible(), StrSubstNo(FieldNotDisplayedErr, 'DontShowAgain'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible(), StrSubstNo(FieldNotDisplayedErr, 'AdminNonBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminBreaking'));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RedeployUserCannotUpdateBreakingPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeNow.Visible, StrSubstNo(FieldIsDisplayedErr, 'UpgradeNow'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.DontShowAgain.Visible, StrSubstNo(FieldIsDisplayedErr, 'DontShowAgain'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
-        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible, StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
-        Assert.IsTrue(OfficeUpdateAvailableDlg.AdminBreaking.Visible, StrSubstNo(FieldNotDisplayedErr, 'AdminBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeLater.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UpgradeLater'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UpgradeNow.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UpgradeNow'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.DontShowAgain.Visible(), StrSubstNo(FieldIsDisplayedErr, 'DontShowAgain'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.UserNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'UserNonBreaking'));
+        Assert.IsFalse(OfficeUpdateAvailableDlg.AdminNonBreaking.Visible(), StrSubstNo(FieldIsDisplayedErr, 'AdminNonBreaking'));
+        Assert.IsTrue(OfficeUpdateAvailableDlg.AdminBreaking.Visible(), StrSubstNo(FieldNotDisplayedErr, 'AdminBreaking'));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RedeployUpdateNowPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        OfficeUpdateAvailableDlg.UpgradeNow.DrillDown;
+        OfficeUpdateAvailableDlg.UpgradeNow.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RedeployUpdateLaterPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
-        asserterror OfficeUpdateAvailableDlg.UpgradeLater.DrillDown;
+        asserterror OfficeUpdateAvailableDlg.UpgradeLater.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -400,7 +400,7 @@ codeunit 139054 "Office Addin Redeploy"
     procedure RedeployUserIgnoredPageHandler(var OfficeUpdateAvailableDlg: TestPage "Office Update Available Dlg")
     begin
         OfficeUpdateAvailableDlg.DontShowAgain.SetValue(true);
-        asserterror OfficeUpdateAvailableDlg.UpgradeLater.DrillDown;
+        asserterror OfficeUpdateAvailableDlg.UpgradeLater.DrillDown();
     end;
 
     [MessageHandler]

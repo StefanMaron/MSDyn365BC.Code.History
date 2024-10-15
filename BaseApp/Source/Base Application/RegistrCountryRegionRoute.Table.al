@@ -4,6 +4,7 @@ table 11763 "Registr. Country/Region Route"
     ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

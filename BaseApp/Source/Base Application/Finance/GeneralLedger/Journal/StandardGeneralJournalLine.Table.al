@@ -27,6 +27,7 @@ using System.Utilities;
 table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -493,7 +494,7 @@ table 751 "Standard General Journal Line"
         }
         field(42; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
             TableRelation = Job;
 

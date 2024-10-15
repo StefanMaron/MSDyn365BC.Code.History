@@ -102,181 +102,179 @@ report 33 "Reconcile Cust. and Vend. Accs"
                     DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
                     Found: Boolean;
                 begin
-                    with ReconCustVendBuffer do begin
-                        AmountTotal := AmountTotal + Amount;
-                        Amount := 0;
-                        Found := false;
+                    AmountTotal := AmountTotal + Amount;
+                    Amount := 0;
+                    Found := false;
 
-                        if Number = 1 then
-                            Found := Find('-')
-                        else
-                            Found := Next() <> 0;
+                    if Number = 1 then
+                        Found := ReconCustVendBuffer.Find('-')
+                    else
+                        Found := ReconCustVendBuffer.Next() <> 0;
 
-                        if not Found then
-                            CurrReport.Break();
+                    if not Found then
+                        CurrReport.Break();
 
-                        case true of
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Receivables Account")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Receivables Account");
-                                    Amount := CalcCustAccAmount("Posting Group");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Payment Disc. Debit Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Payment Disc. Debit Acc.");
-                                    Amount :=
-                                      CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Payment Disc. Credit Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Payment Disc. Credit Acc.");
-                                    Amount :=
-                                      CalcCustDebitAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Payment Tolerance Debit Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Payment Tolerance Debit Acc.");
-                                    Amount :=
-                                      CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Tolerance") +
-                                      CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Payment Tolerance Credit Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Payment Tolerance Credit Acc.");
-                                    Amount :=
-                                      CalcCustDebitAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Tolerance") +
-                                      CalcCustDebitAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Debit Curr. Appln. Rndg. Acc.");
-                                    Amount :=
-                                      CalcCustCreditAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Appln. Rounding");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Credit Curr. Appln. Rndg. Acc.");
-                                    Amount :=
-                                      CalcCustDebitAmount("Posting Group", DtldCustLedgEntry."Entry Type"::"Appln. Rounding");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Debit Rounding Account")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Debit Rounding Account");
-                                    Amount :=
-                                      CalcCustCreditAmount(
-                                        "Posting Group", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
-                                end;
-                            ("Table ID" = DATABASE::"Customer Posting Group") and
-                            ("Field No." = CustPostingGr.FieldNo("Credit Rounding Account")):
-                                begin
-                                    AccountType := CustPostingGr.FieldCaption("Credit Rounding Account");
-                                    Amount :=
-                                      CalcCustDebitAmount(
-                                        "Posting Group", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Payables Account")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Payables Account");
-                                    Amount := CalcVendAccAmount("Posting Group");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Payment Disc. Debit Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Payment Disc. Debit Acc.");
-                                    Amount :=
-                                      CalcVendCreditAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Payment Disc. Credit Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Payment Disc. Credit Acc.");
-                                    Amount :=
-                                      CalcVendDebitAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Payment Tolerance Debit Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Payment Tolerance Debit Acc.");
-                                    Amount :=
-                                      CalcVendDebitAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Tolerance") +
-                                      CalcVendDebitAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount Tolerance");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Payment Tolerance Credit Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Payment Tolerance Credit Acc.");
-                                    Amount :=
-                                      CalcVendCreditAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Tolerance") +
-                                      CalcVendCreditAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount Tolerance");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Debit Curr. Appln. Rndg. Acc.");
-                                    Amount :=
-                                      CalcVendCreditAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Appln. Rounding");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Credit Curr. Appln. Rndg. Acc.");
-                                    Amount :=
-                                      CalcVendDebitAmount("Posting Group", DtldVendLedgEntry."Entry Type"::"Appln. Rounding");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Debit Rounding Account")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Debit Rounding Account");
-                                    Amount :=
-                                      CalcVendCreditAmount(
-                                        "Posting Group", DtldVendLedgEntry."Entry Type"::"Correction of Remaining Amount");
-                                end;
-                            ("Table ID" = DATABASE::"Vendor Posting Group") and
-                            ("Field No." = VendPostingGr.FieldNo("Credit Rounding Account")):
-                                begin
-                                    AccountType := VendPostingGr.FieldCaption("Credit Rounding Account");
-                                    Amount :=
-                                      CalcVendDebitAmount(
-                                        "Posting Group", DtldVendLedgEntry."Entry Type"::"Correction of Remaining Amount");
-                                end;
-                            ("Table ID" = DATABASE::Currency) and
-                            ("Field No." = Currency.FieldNo("Unrealized Gains Acc.")):
-                                begin
-                                    AccountType := Currency.FieldCaption("Unrealized Gains Acc.");
-                                    Amount :=
-                                      CalcCurrGainLossAmount("Currency code", DtldVendLedgEntry."Entry Type"::"Unrealized Gain");
-                                end;
-                            ("Table ID" = DATABASE::Currency) and
-                            ("Field No." = Currency.FieldNo("Realized Gains Acc.")):
-                                begin
-                                    AccountType := Currency.FieldCaption("Realized Gains Acc.");
-                                    Amount :=
-                                      CalcCurrGainLossAmount("Currency code", DtldVendLedgEntry."Entry Type"::"Realized Gain");
-                                end;
-                            ("Table ID" = DATABASE::Currency) and
-                            ("Field No." = Currency.FieldNo("Unrealized Losses Acc.")):
-                                begin
-                                    AccountType := Currency.FieldCaption("Unrealized Losses Acc.");
-                                    Amount :=
-                                      CalcCurrGainLossAmount("Currency code", DtldVendLedgEntry."Entry Type"::"Unrealized Loss");
-                                end;
-                            ("Table ID" = DATABASE::Currency) and
-                            ("Field No." = Currency.FieldNo("Realized Losses Acc.")):
-                                begin
-                                    AccountType := Currency.FieldCaption("Realized Losses Acc.");
-                                    Amount :=
-                                      CalcCurrGainLossAmount("Currency code", DtldVendLedgEntry."Entry Type"::"Realized Loss");
-                                end;
-                        end;
+                    case true of
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Receivables Account")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Receivables Account");
+                                Amount := CalcCustAccAmount(ReconCustVendBuffer."Posting Group");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Payment Disc. Debit Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Payment Disc. Debit Acc.");
+                                Amount :=
+                                  CalcCustCreditAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Payment Disc. Credit Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Payment Disc. Credit Acc.");
+                                Amount :=
+                                  CalcCustDebitAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Payment Tolerance Debit Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Payment Tolerance Debit Acc.");
+                                Amount :=
+                                  CalcCustCreditAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Tolerance") +
+                                  CalcCustCreditAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Payment Tolerance Credit Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Payment Tolerance Credit Acc.");
+                                Amount :=
+                                  CalcCustDebitAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Tolerance") +
+                                  CalcCustDebitAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Debit Curr. Appln. Rndg. Acc.");
+                                Amount :=
+                                  CalcCustCreditAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Appln. Rounding");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Credit Curr. Appln. Rndg. Acc.");
+                                Amount :=
+                                  CalcCustDebitAmount(ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Appln. Rounding");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Debit Rounding Account")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Debit Rounding Account");
+                                Amount :=
+                                  CalcCustCreditAmount(
+                                    ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Customer Posting Group") and
+                        (ReconCustVendBuffer."Field No." = CustPostingGr.FieldNo("Credit Rounding Account")):
+                            begin
+                                AccountType := CustPostingGr.FieldCaption("Credit Rounding Account");
+                                Amount :=
+                                  CalcCustDebitAmount(
+                                    ReconCustVendBuffer."Posting Group", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Payables Account")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Payables Account");
+                                Amount := CalcVendAccAmount(ReconCustVendBuffer."Posting Group");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Payment Disc. Debit Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Payment Disc. Debit Acc.");
+                                Amount :=
+                                  CalcVendCreditAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Payment Disc. Credit Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Payment Disc. Credit Acc.");
+                                Amount :=
+                                  CalcVendDebitAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Payment Tolerance Debit Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Payment Tolerance Debit Acc.");
+                                Amount :=
+                                  CalcVendDebitAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Tolerance") +
+                                  CalcVendDebitAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount Tolerance");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Payment Tolerance Credit Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Payment Tolerance Credit Acc.");
+                                Amount :=
+                                  CalcVendCreditAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Tolerance") +
+                                  CalcVendCreditAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Payment Discount Tolerance");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Debit Curr. Appln. Rndg. Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Debit Curr. Appln. Rndg. Acc.");
+                                Amount :=
+                                  CalcVendCreditAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Appln. Rounding");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Credit Curr. Appln. Rndg. Acc.")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Credit Curr. Appln. Rndg. Acc.");
+                                Amount :=
+                                  CalcVendDebitAmount(ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Appln. Rounding");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Debit Rounding Account")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Debit Rounding Account");
+                                Amount :=
+                                  CalcVendCreditAmount(
+                                    ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Correction of Remaining Amount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::"Vendor Posting Group") and
+                        (ReconCustVendBuffer."Field No." = VendPostingGr.FieldNo("Credit Rounding Account")):
+                            begin
+                                AccountType := VendPostingGr.FieldCaption("Credit Rounding Account");
+                                Amount :=
+                                  CalcVendDebitAmount(
+                                    ReconCustVendBuffer."Posting Group", DtldVendLedgEntry."Entry Type"::"Correction of Remaining Amount");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::Currency) and
+                        (ReconCustVendBuffer."Field No." = Currency.FieldNo("Unrealized Gains Acc.")):
+                            begin
+                                AccountType := Currency.FieldCaption("Unrealized Gains Acc.");
+                                Amount :=
+                                  CalcCurrGainLossAmount(ReconCustVendBuffer."Currency code", DtldVendLedgEntry."Entry Type"::"Unrealized Gain");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::Currency) and
+                        (ReconCustVendBuffer."Field No." = Currency.FieldNo("Realized Gains Acc.")):
+                            begin
+                                AccountType := Currency.FieldCaption("Realized Gains Acc.");
+                                Amount :=
+                                  CalcCurrGainLossAmount(ReconCustVendBuffer."Currency code", DtldVendLedgEntry."Entry Type"::"Realized Gain");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::Currency) and
+                        (ReconCustVendBuffer."Field No." = Currency.FieldNo("Unrealized Losses Acc.")):
+                            begin
+                                AccountType := Currency.FieldCaption("Unrealized Losses Acc.");
+                                Amount :=
+                                  CalcCurrGainLossAmount(ReconCustVendBuffer."Currency code", DtldVendLedgEntry."Entry Type"::"Unrealized Loss");
+                            end;
+                        (ReconCustVendBuffer."Table ID" = DATABASE::Currency) and
+                        (ReconCustVendBuffer."Field No." = Currency.FieldNo("Realized Losses Acc.")):
+                            begin
+                                AccountType := Currency.FieldCaption("Realized Losses Acc.");
+                                Amount :=
+                                  CalcCurrGainLossAmount(ReconCustVendBuffer."Currency code", DtldVendLedgEntry."Entry Type"::"Realized Loss");
+                            end;
                     end;
                 end;
 

@@ -626,8 +626,8 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
-        UpdateDefaultVATSetupPct;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
+        UpdateDefaultVATSetupPct();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -727,9 +727,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
         with GLAccount do begin
             Get(VATPostingSetup_FULLVAT."Purchase VAT Account");
-            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo);
+            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
             Get(VATPostingSetup_FULLVAT."Sales VAT Account");
-            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo);
+            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
         end;
     end;
 
@@ -886,7 +886,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, "Journal Template Name", "Journal Batch Name",
               "Document Type"::Payment, "Account Type"::Vendor, VendorNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LineAmount);
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
     end;
 
     local procedure CreatePostCustomerPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; LineAmount: Decimal)
@@ -902,7 +902,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, "Journal Template Name", "Journal Batch Name",
               "Document Type"::Payment, "Account Type"::Customer, CustomerNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LineAmount);
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LineAmount);
     end;
 
     local procedure CreateGLAccountInvoiceGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; LineAmount: Decimal)
@@ -1062,9 +1062,9 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
         with GLAccount do begin
             Get(NormalVATPostingSetup."Purchase VAT Account");
-            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo);
+            UpdateGeneralPostingSetupPurch("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
             Get(NormalVATPostingSetup."Sales VAT Account");
-            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo);
+            UpdateGeneralPostingSetupSales("Gen. Bus. Posting Group", "Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
         end;
     end;
 
@@ -1109,11 +1109,11 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         ActualVATAmount := GLEntry."VAT Amount";
 
         Assert.AreNearlyEqual(
-          ExpectedAmount, ActualAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          ExpectedAmount, ActualAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), ExpectedAmount, GLEntry.TableCaption()));
 
         Assert.AreNearlyEqual(
-          ExpectedVATAmount, ActualVATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          ExpectedVATAmount, ActualVATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"), ExpectedVATAmount, GLEntry.TableCaption()));
     end;
 
@@ -1205,7 +1205,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         Customer.Get(CustomerNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
-        exit(CustomerPostingGroup.GetReceivablesAccount);
+        exit(CustomerPostingGroup.GetReceivablesAccount());
     end;
 
     local procedure GetPayablesAccountNo(VendorNo: Code[20]): Code[20]
@@ -1215,7 +1215,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     begin
         Vendor.Get(VendorNo);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        exit(VendorPostingGroup.GetPayablesAccount);
+        exit(VendorPostingGroup.GetPayablesAccount());
     end;
 
     local procedure GetSalesVATAccountNo(GLAccountNo: Code[20]): Code[20]
@@ -1436,7 +1436,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         Posting: Option " ","Payment Tolerance Accounts","Remaining Amount";
     begin
         PaymentToleranceWarning.Posting.SetValue(Posting::"Payment Tolerance Accounts");
-        PaymentToleranceWarning.Yes.Invoke;
+        PaymentToleranceWarning.Yes().Invoke();
     end;
 }
 

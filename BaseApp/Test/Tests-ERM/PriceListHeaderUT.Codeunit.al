@@ -24,23 +24,16 @@ codeunit 134118 "Price List Header UT"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
-        AssetTypeForUOMErr: Label 'Asset Type must be equal to Item or Resource.';
-        AssetTypeMustBeItemErr: Label 'Asset Type must be equal to ''Item''';
-        NotPostingJobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''';
         CodeMustNotBeBlankErr: Label 'Code must have a value in Price List';
         DateConfirmQst: Label 'Do you want to update %1 in the price list lines?', Comment = '%1 - the field caption';
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - Field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
-        ParentSourceJobErr: Label 'Parent Source No. must be blank for Job source type.';
-        ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
+        ParentSourceJobErr: Label 'Parent Source No. must be blank for Project source type.';
         CustomParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (custom) must have a value';
-        JobsParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (jobs) must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (jobs) must be equal to ''''';
-        ProductNoMustBeFilledErr: Label 'Product No. must have a value';
-        SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
+        JobsParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (projects) must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (projects) must be equal to ''''';
         SourceNoCustomMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         SourceNoCustomMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
@@ -1116,7 +1109,6 @@ codeunit 134118 "Price List Header UT"
     [HandlerFunctions('ConfirmYesHandler')]
     procedure T065_UpdateStatusOnHeaderAsDefault()
     var
-        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
@@ -1150,7 +1142,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T066_UpdateStatusOnHeaderAsDefaultWithBlankSourceNo()
     var
-        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
@@ -1178,7 +1169,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T067_UpdateStatusOnHeaderAsDefaultWithBlankParentSourceNo()
     var
-        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
         Job: Record Job;
@@ -1211,7 +1201,6 @@ codeunit 134118 "Price List Header UT"
     [HandlerFunctions('ConfirmYesHandler')]
     procedure T068_UpdateStatusOnHeaderAsDefaultWithBlankProductNo()
     var
-        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
@@ -1921,7 +1910,7 @@ codeunit 134118 "Price List Header UT"
         VerifyPricesRenamed("Price Source Type"::Job, '', Job[1]."No.", OldNo, Job[2]."No.");
 
         // [THEN] Verify Price list header fields for for Job 'X'
-        VerifyPricesFieldsRenamedForJob("Price Source Type"::Job, '', Job[1]."No.", OldNo, Job[2]."No.");
+        VerifyPricesFieldsRenamedForJob("Price Source Type"::Job, '', Job[1]."No.");
     end;
 
     [Test]
@@ -2043,7 +2032,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T130_GetDefaultPriceListCodeSales()
     var
-        PriceListLine: Record "Price List Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PriceListManagement: Codeunit "Price List Management";
     begin
@@ -2071,7 +2059,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T131_GetDefaultPriceListCodePurchase()
     var
-        PriceListLine: Record "Price List Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PriceListManagement: Codeunit "Price List Management";
     begin
@@ -2099,7 +2086,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T132_GetDefaultPriceListCodeJobSales()
     var
-        PriceListLine: Record "Price List Line";
         JobsSetup: Record "Jobs Setup";
         PriceListManagement: Codeunit "Price List Management";
     begin
@@ -2127,7 +2113,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T133_GetDefaultPriceListCodeJobPurchase()
     var
-        PriceListLine: Record "Price List Line";
         JobsSetup: Record "Jobs Setup";
         PriceListManagement: Codeunit "Price List Management";
     begin
@@ -2156,7 +2141,6 @@ codeunit 134118 "Price List Header UT"
     procedure T135_NewLineWithNumberOver1bnGoesToNewDefaultPriceListSales()
     var
         PriceListLine: Record "Price List Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         PriceListManagement: Codeunit "Price List Management";
         DefaultPriceListCode: array[2] of Code[20];
@@ -2191,7 +2175,6 @@ codeunit 134118 "Price List Header UT"
     procedure T136_NewLineWithNumberOver1bnGoesToNewDefaultPriceListPurch()
     var
         PriceListLine: Record "Price List Line";
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         PriceListManagement: Codeunit "Price List Management";
         DefaultPriceListCode: array[2] of Code[20];
@@ -2226,7 +2209,6 @@ codeunit 134118 "Price List Header UT"
     procedure T137_NewLineWithNumberOver1bnGoesToNewDefaultPriceListJobSales()
     var
         PriceListLine: Record "Price List Line";
-        JobsSetup: Record "Jobs Setup";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         PriceListManagement: Codeunit "Price List Management";
         DefaultPriceListCode: array[2] of Code[20];
@@ -2262,7 +2244,6 @@ codeunit 134118 "Price List Header UT"
     procedure T138_NewLineWithNumberOver1bnGoesToNewDefaultPriceListJobPurch()
     var
         PriceListLine: Record "Price List Line";
-        JobsSetup: Record "Jobs Setup";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         PriceListManagement: Codeunit "Price List Management";
         DefaultPriceListCode: array[2] of Code[20];
@@ -2303,7 +2284,6 @@ codeunit 134118 "Price List Header UT"
         Job: Array[2] of Record Job;
         JobTask: Array[2] of Record "Job Task";
         JobTask2: Record "Job Task";
-        OldNo: Code[20];
         ResourceNo: Code[20];
     begin
         // [SCENARIO 450480] The values on the sales Job Price list should be updated correctly.
@@ -2350,7 +2330,6 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure VerifyUnitCostInJobJournalWhenUsingPurchasePriceList()
     var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         JobJournalLine: Record "Job Journal Line";
@@ -2359,7 +2338,6 @@ codeunit 134118 "Price List Header UT"
         FeatureDataUpdateStatus: Record "Feature Data Update Status";
         ScheduleFeatureDataUpdate: Page "Schedule Feature Data Update";
         TestScheduleFeatureDataUpdate: TestPage "Schedule Feature Data Update";
-        PriceListManagement: Codeunit "Price List Management";
     begin
         // [SCENARIO 450229] Purchase price list doesn't work in job journal
         Initialize();
@@ -2439,7 +2417,7 @@ codeunit 134118 "Price List Header UT"
         JobsSetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price List Header UT");
     end;
 
@@ -2597,7 +2575,7 @@ codeunit 134118 "Price List Header UT"
         Assert.RecordIsNotEmpty(PriceListLine);
     end;
 
-    local procedure VerifyPricesFieldsRenamedForJob(SourceType: Enum "Price Source Type"; ParentSourceNo: Code[20]; NewSourceNo: Code[20]; RenamedSourceNo: Code[20]; SourceNo: Code[20])
+    local procedure VerifyPricesFieldsRenamedForJob(SourceType: Enum "Price Source Type"; ParentSourceNo: Code[20]; NewSourceNo: Code[20])
     var
         PriceListHeader: Record "Price List Header";
     begin

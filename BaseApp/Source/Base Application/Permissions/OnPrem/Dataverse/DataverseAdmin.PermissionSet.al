@@ -24,6 +24,8 @@ permissionset 8708 "Dataverse - Admin"
                   tabledata "CRM Role" = RIMD,
                   tabledata "CRM Systemuser" = RIMD,
                   tabledata "CRM Systemuserroles" = RIMD,
+                  tabledata "CDS Field Security Profile" = RIMD,
+                  tabledata "CDS System User Profiles" = RIMD,
                   tabledata "CRM Team" = RIMD,
                   tabledata "CRM Transactioncurrency" = RIMD;
 }

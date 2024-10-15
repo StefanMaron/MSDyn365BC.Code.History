@@ -10,6 +10,7 @@ table 5617 "FA Register"
 {
     Caption = 'FA Register';
     LookupPageID = "FA Registers";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,6 +31,14 @@ table 5617 "FA Register"
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(5; "Source Code"; Code[10])
         {
@@ -71,6 +80,14 @@ table 5617 "FA Register"
         field(13; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
     }
 
@@ -80,12 +97,20 @@ table 5617 "FA Register"
         {
             Clustered = true;
         }
+#if not CLEAN24
         key(Key2; "Creation Date")
         {
         }
+#endif
+#if not CLEAN24
         key(Key3; "Source Code", "Journal Batch Name", "Creation Date")
         {
         }
+#else
+        key(Key3; "Source Code", "Journal Batch Name")
+        {
+        }
+#endif
     }
 
     fieldgroups

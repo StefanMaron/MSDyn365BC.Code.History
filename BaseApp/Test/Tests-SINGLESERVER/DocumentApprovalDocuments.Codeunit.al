@@ -42,7 +42,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Blanket Order is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::"Blanket Order");
 
         // Exercise
@@ -50,10 +50,10 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
         Assert.AreEqual(ApprovalEntry."Sender ID", BlanketPurchaseOrder.Control5."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", BlanketPurchaseOrder.Control5."Due Date".AsDate, '');
+        Assert.AreEqual(ApprovalEntry."Due Date", BlanketPurchaseOrder.Control5."Due Date".AsDate(), '');
         Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), BlanketPurchaseOrder.Control5.Comment.Value, '');
     end;
 
@@ -73,7 +73,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::"Credit Memo");
 
         // Exercise
@@ -81,12 +81,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseCreditMemo.Control15."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseCreditMemo.Control15."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseCreditMemo.Control15."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseCreditMemo.Control15.Comment.Value, '');
         end;
     end;
@@ -107,7 +107,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Invoice is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::Invoice);
 
         // Exercise
@@ -115,12 +115,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseInvoice.Control27."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseInvoice.Control27."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseInvoice.Control27."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseInvoice.Control27.Comment.Value, '');
         end;
     end;
@@ -142,7 +142,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::Order);
 
         // Exercise
@@ -150,10 +150,10 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchHeader);
         Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseOrder.Control23."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseOrder.Control23."Due Date".AsDate, '');
+        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseOrder.Control23."Due Date".AsDate(), '');
         Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseOrder.Control23.Comment.Value, '');
     end;
 
@@ -174,7 +174,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::Quote);
 
         // Exercise
@@ -182,10 +182,10 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchHeader);
         Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseQuote.Control13."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseQuote.Control13."Due Date".AsDate, '');
+        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseQuote.Control13."Due Date".AsDate(), '');
         Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseQuote.Control13.Comment.Value, '');
     end;
 
@@ -205,7 +205,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchHeader, UserSetup, PurchHeader."Document Type"::"Return Order");
 
         // Exercise
@@ -213,12 +213,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, PurchHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchHeader);
-        
+
         if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseReturnOrder.Control21."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseReturnOrder.Control21."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseReturnOrder.Control21."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseReturnOrder.Control21.Comment.Value, '');
         end;
     end;
@@ -240,7 +240,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Blanket Order is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::"Blanket Order");
 
         // Exercise
@@ -248,10 +248,10 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
         Assert.AreEqual(ApprovalEntry."Sender ID", BlanketSalesOrder.Control13."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", BlanketSalesOrder.Control13."Due Date".AsDate, '');
+        Assert.AreEqual(ApprovalEntry."Due Date", BlanketSalesOrder.Control13."Due Date".AsDate(), '');
         Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), BlanketSalesOrder.Control13.Comment.Value, '');
     end;
 
@@ -271,7 +271,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::"Credit Memo");
 
         // Exercise
@@ -279,12 +279,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        SalesCreditMemo.OpenView;
+        SalesCreditMemo.OpenView();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", SalesCreditMemo.Control19."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", SalesCreditMemo.Control19."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesCreditMemo.Control19."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesCreditMemo.Control19.Comment.Value, '');
         end;
     end;
@@ -305,7 +305,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Invoice is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::Invoice);
 
         // Exercise
@@ -313,12 +313,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", SalesInvoice.Control31."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", SalesInvoice.Control31."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesInvoice.Control31."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesInvoice.Control31.Comment.Value, '');
         end;
     end;
@@ -340,7 +340,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::Order);
 
         // Exercise
@@ -348,10 +348,10 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
         Assert.AreEqual(ApprovalEntry."Sender ID", SalesOrder.Control35."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", SalesOrder.Control35."Due Date".AsDate, '');
+        Assert.AreEqual(ApprovalEntry."Due Date", SalesOrder.Control35."Due Date".AsDate(), '');
         Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesOrder.Control35.Comment.Value, '');
     end;
 
@@ -371,7 +371,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::Quote);
 
         // Exercise
@@ -379,12 +379,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", SalesQuote.Control11."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", SalesQuote.Control11."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesQuote.Control11."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesQuote.Control11.Comment.Value, '');
         end;
     end;
@@ -405,7 +405,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] The Purchase Document is approved.
 
         // Setup
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::"Return Order");
 
         // Exercise
@@ -413,12 +413,12 @@ codeunit 134203 "Document Approval - Documents"
           ApprovalEntry, SalesHeader.RecordId, LibraryUtility.GenerateRandomCode(ApprovalEntry.FieldNo(Comment), DATABASE::"Approval Entry"));
 
         // Verify
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
             Assert.AreEqual(ApprovalEntry."Sender ID", SalesReturnOrder.Control19."Sender ID".Value, '');
-            Assert.AreEqual(ApprovalEntry."Due Date", SalesReturnOrder.Control19."Due Date".AsDate, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesReturnOrder.Control19."Due Date".AsDate(), '');
             Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesReturnOrder.Control19.Comment.Value, '');
         end;
     end;
@@ -439,7 +439,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Approvals are set for the current User
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupPurchApproval(ApprovalEntry, PurchaseHeader, UserSetup, PurchaseHeader."Document Type"::Order);
 
         // [GIVEN] Create Purchase Order with prepayment
@@ -473,7 +473,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Approvals are set for the current User
-        EnableAllApprovalsWorkflows;
+        EnableAllApprovalsWorkflows();
         SetupSalesApproval(ApprovalEntry, SalesHeader, UserSetup, SalesHeader."Document Type"::Order);
 
         // [GIVEN] Create Sales Order with prepayment
@@ -507,8 +507,8 @@ codeunit 134203 "Document Approval - Documents"
 
         // [GIVEN] Sales Order with Approval Entry and Comment
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', WorkDate());
         SalesRecordID := SalesHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, SalesRecordID);
 
@@ -534,8 +534,8 @@ codeunit 134203 "Document Approval - Documents"
 
         // [GIVEN] Purchase Order with Approval Entry and Comment
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2), '', WorkDate());
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), '', WorkDate());
         PurchaseRecordID := PurchaseHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, PurchaseRecordID);
 
@@ -559,7 +559,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Sales Quote with Approval Entry and Comment
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         QuoteRecordID := SalesHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, QuoteRecordID);
@@ -584,7 +584,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Purchase Quote with Approval Entry and Comment
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
         QuoteRecordID := PurchaseHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, QuoteRecordID);
 
@@ -608,7 +608,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Service Quote with Approval Entry and Comment
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         QuoteRecordID := ServiceHeader.RecordId;
         MockApprovalEntryWithComment(ApprovalCommentLine, QuoteRecordID);
 
@@ -933,7 +933,7 @@ codeunit 134203 "Document Approval - Documents"
         Initialize();
 
         // [GIVEN] Sales Order without Approvals
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Run Approval FactBox subpage from Sales Order
         ApprovalFactBox.UpdateApprovalEntriesFromSourceRecord(SalesHeader.RecordId);
@@ -941,7 +941,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] Approval FactBox subpage has no records
         ApprovalFactBox.GetRecord(ApprovalEntry);
         asserterror ApprovalEntry.Find();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -960,7 +960,7 @@ codeunit 134203 "Document Approval - Documents"
 
         // [GIVEN] Sales Order with Approval Entry Sender equal Approval Entry Approver
         SetupDocumentApprovals(UserSetup, '');
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockApprovalEntry(
           SalesHeader."Document Type"::Order, SalesHeader."No.", SalesHeader.RecordId, ApprovalEntry.Status::Open,
           UserSetup."User ID", UserSetup."User ID");
@@ -971,7 +971,7 @@ codeunit 134203 "Document Approval - Documents"
         // [THEN] Approval FactBox subpage has no records
         ApprovalFactBox.GetRecord(ApprovalEntry);
         asserterror ApprovalEntry.Find();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -1040,7 +1040,6 @@ codeunit 134203 "Document Approval - Documents"
         LineGLAccount: Record "G/L Account";
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibraryPurchase.CreateVendor(Vendor);
@@ -1064,7 +1063,7 @@ codeunit 134203 "Document Approval - Documents"
         UserSetup: Record "User Setup";
     begin
         SetupDocumentApprovals(UserSetup, '');
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         MockApprovalEntry(
           DocumentType, PurchaseHeader."No.", PurchaseHeader.RecordId, "Approval Status"::Open, UserSetup."User ID", '');
         MockApprovalEntry(
@@ -1102,7 +1101,6 @@ codeunit 134203 "Document Approval - Documents"
         Customer: Record Customer;
         LineGLAccount: Record "G/L Account";
         SalesLine: Record "Sales Line";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibrarySales.CreateCustomer(Customer);
@@ -1126,7 +1124,7 @@ codeunit 134203 "Document Approval - Documents"
         UserSetup: Record "User Setup";
     begin
         SetupDocumentApprovals(UserSetup, '');
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         MockApprovalEntry(
           DocumentType, SalesHeader."No.", SalesHeader.RecordId, "Approval Status"::Open, UserSetup."User ID", '');
         MockApprovalEntry(
@@ -1172,7 +1170,7 @@ codeunit 134203 "Document Approval - Documents"
     var
         UserName: Code[50];
     begin
-        UserName := GenerateUserName;
+        UserName := GenerateUserName();
         LibraryDocumentApprovals.CreateUser(UserName, WindowsUserName);
         LibraryDocumentApprovals.GetUser(User, WindowsUserName)
     end;
@@ -1351,7 +1349,7 @@ codeunit 134203 "Document Approval - Documents"
 
     local procedure Initialize()
     begin
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if IsInitialized then
             exit;
@@ -1378,24 +1376,24 @@ codeunit 134203 "Document Approval - Documents"
     begin
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
         Workflow.SetFilter(Code, StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5',
-            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.PurchaseInvoiceWorkflowCode),
-            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode),
-            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesOrderCreditLimitApprovalWorkflowCode),
-            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode),
-            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode)));
+            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.PurchaseInvoiceWorkflowCode()),
+            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode()),
+            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesOrderCreditLimitApprovalWorkflowCode()),
+            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode()),
+            WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode())));
         Workflow.SetRange(Template, true);
         Workflow.FindSet();
         repeat
             LibraryWorkflow.CopyWorkflow(ActualWorkflow, Workflow.Code);
-            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode) then
+            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode()) then
                 CreateWorkflowUserGroupForWorkflow(UserSetup, ActualWorkflow.Code);
-            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentApprovalWorkflowCode) then
+            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentApprovalWorkflowCode()) then
                 CreateWorkflowUserGroupForWorkflow(UserSetup, ActualWorkflow.Code);
-            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode) then
+            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode()) then
                 CreateWorkflowUserGroupForWorkflow(UserSetup, ActualWorkflow.Code);
-            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode) then
+            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode()) then
                 CreateWorkflowUserGroupForWorkflow(UserSetup, ActualWorkflow.Code);
-            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode) then
+            if Workflow.Code = WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode()) then
                 CreateWorkflowUserGroupForWorkflow(UserSetup, ActualWorkflow.Code);
             AddUserForNotifications(ActualWorkflow.Code, UserSetup."User ID");
             ActualWorkflow.Validate(Enabled, true);
@@ -1410,7 +1408,7 @@ codeunit 134203 "Document Approval - Documents"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         if WorkflowStep.FindFirst() then
             if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                 WorkflowStepArgument."Notification User ID" := UserID;

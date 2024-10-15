@@ -1,4 +1,3 @@
-#if not CLEAN21
 namespace Microsoft.FixedAssets.Journal;
 
 using Microsoft.Finance.Currency;
@@ -47,7 +46,7 @@ page 5628 "Fixed Asset G/L Journal"
                 trigger OnValidate()
                 begin
                     GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali();
+                    CurrentJnlBatchNameOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -198,40 +197,10 @@ page 5628 "Fixed Asset G/L Journal"
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field(Correction; Rec.Correction)
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
-                    Visible = false;
-                }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total amount the journal line consists of.';
-                }
-                field("Amount (LCY)"; Rec."Amount (LCY)")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the total amount that the journal line consists of.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-                    ObsoleteTag = '21.0';
-                }
-                field("VAT Amount (LCY)"; Rec."VAT Amount (LCY)")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                field("Bal. VAT Amount (LCY)"; Rec."Bal. VAT Amount (LCY)")
-                {
-                    ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-                    ObsoleteTag = '20.0';
                 }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
@@ -379,7 +348,7 @@ page 5628 "Fixed Asset G/L Journal"
                 field("Depr. until FA Posting Date"; Rec."Depr. until FA Posting Date")
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies if depreciation was calculated until the FA posting date of the line.';
+                    ToolTip = 'Specifies if depreciation should be calculated until the FA posting date of the line.';
                 }
                 field("Depr. Acquisition Cost"; Rec."Depr. Acquisition Cost")
                 {
@@ -429,6 +398,12 @@ page 5628 "Fixed Asset G/L Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the entry was generated from a fixed asset reclassification journal.';
+                }
+                field(Correction; Rec.Correction)
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
+                    Visible = false;
                 }
                 field("FA Error Entry No."; Rec."FA Error Entry No.")
                 {
@@ -881,7 +856,8 @@ page 5628 "Fixed Asset G/L Journal"
                     var
                         ODataUtility: Codeunit ODataUtility;
                     begin
-                        ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
+                        ODataUtility.EditJournalWorksheetInExcel(
+                            CopyStr(CurrPage.Caption(), 1, 240), CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
                     end;
                 }
             }
@@ -1002,23 +978,18 @@ page 5628 "Fixed Asset G/L Journal"
 
     var
         GLSetup: Record "General Ledger Setup";
-        GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
-        CurrentJnlBatchName: Code[10];
-        AccName: Text[100];
-        BalAccountName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         AddCurrCodeIsFound: Boolean;
-        ApplyEntriesActionEnabled: Boolean;
         BalanceVisible: Boolean;
         TotalBalanceVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
@@ -1026,6 +997,11 @@ page 5628 "Fixed Asset G/L Journal"
         ShowAllLinesEnabled: Boolean;
 
     protected var
+        GenJnlManagement: Codeunit GenJnlManagement;
+        CurrentJnlBatchName: Code[10];
+        AccName: Text[100];
+        BalAccountName: Text[100];
+        ApplyEntriesActionEnabled: Boolean;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1068,7 +1044,7 @@ page 5628 "Fixed Asset G/L Journal"
         exit(GLSetup."Additional Reporting Currency");
     end;
 
-    local procedure CurrentJnlBatchNameOnAfterVali()
+    protected procedure CurrentJnlBatchNameOnAfterValidate()
     begin
         CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
@@ -1076,7 +1052,7 @@ page 5628 "Fixed Asset G/L Journal"
         CurrPage.Update(false);
     end;
 
-    local procedure SetControlAppearanceFromBatch()
+    protected procedure SetControlAppearanceFromBatch()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1107,14 +1083,16 @@ page 5628 "Fixed Asset G/L Journal"
         Clear(DimMgt);
     end;
 
+#pragma warning disable AL0523
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
     begin
     end;
+#pragma warning restore AL0523
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBalance(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var TotalBalance: Decimal; var ShowBalance: Boolean; var ShowTotalBalance: Boolean; var BalanceVisible: Boolean; var TotalBalanceVisible: Boolean; var NumberOfRecords: Integer; var IsHandled: Boolean)
     begin
     end;
 }
-#endif
+

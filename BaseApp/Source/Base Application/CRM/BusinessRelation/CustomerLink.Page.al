@@ -68,6 +68,8 @@ page 5135 "Customer Link"
         Cust: Record Customer;
         UpdateCustVendBank: Codeunit "CustVendBank-Update";
         UpdateContFromCust: Codeunit "CustCont-Update";
+
+    protected var
         CurrMasterFields: Option Contact,Customer;
 
     [IntegrationEvent(false, false)]

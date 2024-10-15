@@ -8,6 +8,7 @@ table 260 "Tariff Number"
 {
     Caption = 'Tariff Number';
     LookupPageID = "Tariff Numbers";
+    DataClassification = CustomerContent;
 
     fields
     {

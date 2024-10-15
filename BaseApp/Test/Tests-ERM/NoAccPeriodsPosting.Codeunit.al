@@ -38,7 +38,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindFirst();
@@ -58,7 +58,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         Initialize();
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
           LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         GLEntry.SetRange("Source No.", PurchaseHeader."Buy-from Vendor No.");
@@ -79,7 +79,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         GLEntry.SetRange("Source No.", SalesHeader."Sell-to Customer No.");
@@ -101,10 +101,10 @@ codeunit 134361 "No Acc. Periods: Posting"
         // [SCENARIO 222561] Posting of service document is available
         Initialize();
         LibraryService.SetupServiceMgtNoSeries();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);
@@ -167,7 +167,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         // [GIVEN] General Journal Line with 'equal per period' Deferral Template
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithEqualPerPeriodDeferral, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithEqualPerPeriodDeferral(), LibraryRandom.RandDec(1000, 2));
 
         // [WHEN] Post General Journal Lines
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -189,7 +189,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Purchase Invoice with 'straight line' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
-          PurchaseHeader, PurchaseLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
+          PurchaseHeader, PurchaseLine, CreateGLAccountWithStraightLineDeferral(), LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -211,7 +211,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Purchase Invoice with 'days per period' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
-          PurchaseHeader, PurchaseLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
+          PurchaseHeader, PurchaseLine, CreateGLAccountWithDaysPerPeriodDeferral(), LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -233,7 +233,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Sales Invoice with 'straight line' Deferral Template
         CreateSalesInvoiceWithDeferral(
-          SalesHeader, SalesLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
+          SalesHeader, SalesLine, CreateGLAccountWithStraightLineDeferral(), LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -255,7 +255,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Sales Invoice with 'days per period' Deferral Template
         CreateSalesInvoiceWithDeferral(
-          SalesHeader, SalesLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
+          SalesHeader, SalesLine, CreateGLAccountWithDaysPerPeriodDeferral(), LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -445,7 +445,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         GenJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
         GenJournalLine.Validate("FA Posting Type", FAPostingType);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Document No.", FADepreciationBook."FA No.");
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
@@ -457,12 +457,12 @@ codeunit 134361 "No Acc. Periods: Posting"
         GLAccount: Record "G/L Account";
         DeferralTemplate: Record "Deferral Template";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate(
           "Default Deferral Template Code",
           CreateDeferralTemplate(
             DeferralTemplate."Calc. Method"::"Straight-Line",
-            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID, 100));
+            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID(), 100));
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -473,12 +473,12 @@ codeunit 134361 "No Acc. Periods: Posting"
         GLAccount: Record "G/L Account";
         DeferralTemplate: Record "Deferral Template";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate(
           "Default Deferral Template Code",
           CreateDeferralTemplate(
             DeferralTemplate."Calc. Method"::"Equal per Period",
-            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID, 100));
+            DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID(), 100));
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -489,12 +489,12 @@ codeunit 134361 "No Acc. Periods: Posting"
         GLAccount: Record "G/L Account";
         DeferralTemplate: Record "Deferral Template";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate(
           "Default Deferral Template Code",
           CreateDeferralTemplate(
             DeferralTemplate."Calc. Method"::"Days per Period",
-            DeferralTemplate."Start Date"::"Beginning of Period", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID, 100));
+            DeferralTemplate."Start Date"::"Beginning of Period", LibraryRandom.RandIntInRange(2, 5), LibraryUtility.GenerateGUID(), 100));
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -513,7 +513,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
     local procedure CreateSalesInvoiceWithDeferral(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; AccountNo: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
@@ -526,7 +526,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     local procedure CreatePurchaseInvoiceWithDeferral(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; AccountNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.SetHideValidationDialog(true);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
@@ -612,7 +612,7 @@ codeunit 134361 "No Acc. Periods: Posting"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
     end;

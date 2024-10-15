@@ -18,8 +18,8 @@ codeunit 131101 "Library - Workflow"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
-        NotificationBodyDoesNotMatchErr: Label 'The body of the notification does not match the one that was sent to the server.';
         FileManagement: Codeunit "File Management";
+        NotificationBodyDoesNotMatchErr: Label 'The body of the notification does not match the one that was sent to the server.';
         EmailShouldNotExistErr: Label 'There should not be an email sent to this user.';
         TimeoutErr: Label 'The Notification Entry was not completed during the 2 minutes period.';
         InvalidEventCondErr: Label 'No event conditions are specified.';
@@ -27,9 +27,9 @@ codeunit 131101 "Library - Workflow"
     procedure CreateWorkflow(var Workflow: Record Workflow)
     begin
         Workflow.Init();
-        Workflow.Code := GenerateRandomWorkflowCode;
-        Workflow.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(Workflow.Description));
-        Workflow.Category := CreateWorkflowCategory;
+        Workflow.Code := GenerateRandomWorkflowCode();
+        Workflow.Description := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Workflow.Description)), 1, MaxStrLen(Workflow.Description));
+        Workflow.Category := CreateWorkflowCategory();
         Workflow.Template := false;
         Workflow.Insert(true);
     end;
@@ -113,7 +113,7 @@ codeunit 131101 "Library - Workflow"
         SentNotificationEntry.SetRange("Recipient User ID", UserId);
 
         Retries := 0;
-        while (not SentNotificationEntry.FindFirst()) and (Retries < 120) do begin
+        while SentNotificationEntry.IsEmpty() and (Retries < 120) do begin
             Sleep(1000);
             Retries += 1;
         end;
@@ -150,7 +150,7 @@ codeunit 131101 "Library - Workflow"
         SentNotificationEntry.SetRange("Recipient User ID", UserCode);
 
         Retries := 0;
-        while (not SentNotificationEntry.FindFirst()) and (Retries < 120) do begin
+        while SentNotificationEntry.IsEmpty() and (Retries < 120) do begin
             Sleep(1000);
             Retries += 1;
         end;
@@ -305,12 +305,10 @@ codeunit 131101 "Library - Workflow"
 
     local procedure InsertStep(var WorkflowStep: Record "Workflow Step"; WorkflowCode: Code[20]; StepType: Option; FunctionName: Code[128])
     begin
-        with WorkflowStep do begin
-            Validate("Workflow Code", WorkflowCode);
-            Validate(Type, StepType);
-            Validate("Function Name", FunctionName);
-            Insert(true);
-        end;
+        WorkflowStep.Validate("Workflow Code", WorkflowCode);
+        WorkflowStep.Validate(Type, StepType);
+        WorkflowStep.Validate("Function Name", FunctionName);
+        WorkflowStep.Insert(true);
     end;
 
     local procedure GetNextSequenceNo(Workflow: Record Workflow; PreviousStepID: Integer): Integer
@@ -369,7 +367,7 @@ codeunit 131101 "Library - Workflow"
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
     end;
 
@@ -697,7 +695,7 @@ codeunit 131101 "Library - Workflow"
     begin
         WorkflowCategory.Code := LibraryUtility.GenerateRandomCode(WorkflowCategory.FieldNo(Code), DATABASE::"Workflow Category");
         WorkflowCategory.Description :=
-          LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowCategory.Description));
+          CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowCategory.Description)), 1, MaxStrLen(WorkflowCategory.Description));
         WorkflowCategory.Insert();
         exit(WorkflowCategory.Code);
     end;

@@ -1,12 +1,6 @@
 codeunit 104150 "Upgrade - Local App"
 {
-#if not CLEAN21
-    ObsoleteState = Pending;
-    ObsoleteReason = 'The access of this codeunit will be changed to internal.';
-    ObsoleteTag = '21.0';
-#else
     Access = internal;
-#endif
     Subtype = Upgrade;
 
     trigger OnRun()
@@ -53,16 +47,15 @@ codeunit 104150 "Upgrade - Local App"
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag()) then
             exit;
 
-        with VATPostingSetup do
-            if FindSet() then
-                repeat
-                    // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
-                    "Corrections for Bad Receivable" := "Corrections for Bad Receivable"::" ";
-                    if "Insolvency Proceedings (p.44)" then begin
-                        "Corrections for Bad Receivable" := "Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
-                        Modify();
-                    end;
-                until Next() = 0;
+        if VATPostingSetup.FindSet() then
+            repeat
+                // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
+                VATPostingSetup."Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable"::" ";
+                if VATPostingSetup."Insolvency Proceedings (p.44)" then begin
+                    VATPostingSetup."Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
+                    VATPostingSetup.Modify();
+                end;
+            until VATPostingSetup.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag());
     end;
@@ -76,16 +69,15 @@ codeunit 104150 "Upgrade - Local App"
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag()) then
             exit;
 
-        with VATControlReportLine do
-            if FindSet() then
-                repeat
-                    // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
-                    "Corrections for Bad Receivable" := "Corrections for Bad Receivable"::" ";
-                    if "Insolvency Proceedings (p.44)" then begin
-                        "Corrections for Bad Receivable" := "Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
-                        Modify();
-                    end;
-                until Next() = 0;
+        if VATControlReportLine.FindSet() then
+            repeat
+                // "Insolvency Proceedings (p.44)" field replaced by "Corrections for Bad Receivable" field
+                VATControlReportLine."Corrections for Bad Receivable" := VATControlReportLine."Corrections for Bad Receivable"::" ";
+                if VATControlReportLine."Insolvency Proceedings (p.44)" then begin
+                    VATControlReportLine."Corrections for Bad Receivable" := VATControlReportLine."Corrections for Bad Receivable"::"Insolvency Proceedings (p.44)";
+                    VATControlReportLine.Modify();
+                end;
+            until VATControlReportLine.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCorrectionsForBadReceivableUpgradeTag());
     end;
@@ -100,20 +92,18 @@ codeunit 104150 "Upgrade - Local App"
         if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetUseIsolatedCertificateInsteadOfCertificateCZ()) then
             exit;
 
-        with Permission do begin
-            SetRange("Object Type", "Object Type"::"Table Data");
-            SetRange("Object ID", Database::"Certificate CZ");
-            if FindSet() then
-                repeat
-                    if not NewPermission.Get("Role ID", "Object Type", Database::"Isolated Certificate") then begin
-                        NewPermission.Init();
-                        NewPermission := Permission;
-                        NewPermission."Object ID" := Database::"Isolated Certificate";
-                        NewPermission.Insert();
-                    end;
-                    Delete();
-                until Next() = 0;
-        end;
+        Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
+        Permission.SetRange("Object ID", Database::"Certificate CZ");
+        if Permission.FindSet() then
+            repeat
+                if not NewPermission.Get(Permission."Role ID", Permission."Object Type", Database::"Isolated Certificate") then begin
+                    NewPermission.Init();
+                    NewPermission := Permission;
+                    NewPermission."Object ID" := Database::"Isolated Certificate";
+                    NewPermission.Insert();
+                end;
+                Permission.Delete();
+            until Permission.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetUseIsolatedCertificateInsteadOfCertificateCZ());
     end;

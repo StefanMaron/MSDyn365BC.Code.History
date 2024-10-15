@@ -28,7 +28,7 @@ codeunit 134206 "Workflow Rule Tests"
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryApplicationArea.EnableFoundationSetup();
     end;
 
@@ -372,10 +372,10 @@ codeunit 134206 "Workflow Rule Tests"
         CreateAndEnableWorkflow(Workflow, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Increased);
 
         // Exercise.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Credit Limit (LCY)".SetValue(LibraryRandom.RandDec(100, 2));
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // Verify.
         VerifyWorkflowStepInstance(Workflow);
@@ -402,10 +402,10 @@ codeunit 134206 "Workflow Rule Tests"
         CreateAndEnableWorkflow(Workflow, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Decreased);
 
         // Exercise.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Credit Limit (LCY)".SetValue(-LibraryRandom.RandDec(100, 2));
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // Verify.
         VerifyWorkflowStepInstance(Workflow);
@@ -432,10 +432,10 @@ codeunit 134206 "Workflow Rule Tests"
         CreateAndEnableWorkflow(Workflow, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Changed);
 
         // Exercise.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Credit Limit (LCY)".SetValue(LibraryRandom.RandDec(100, 2));
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // Verify.
         VerifyWorkflowStepInstance(Workflow);
@@ -463,19 +463,19 @@ codeunit 134206 "Workflow Rule Tests"
         Customer.Insert(true);
 
         // Exercise.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
         CustomerCard."Credit Limit (LCY)".SetValue(LibraryRandom.RandDec(100, 2));
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // Verify.
         VerifyWorkflowStepInstance(Workflow);
 
         // Exercise.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard."Credit Limit (LCY)".SetValue(CustomerCard."Credit Limit (LCY)".AsDEcimal + LibraryRandom.RandDec(100, 2));
-        CustomerCard.OK.Invoke;
+        CustomerCard."Credit Limit (LCY)".SetValue(CustomerCard."Credit Limit (LCY)".AsDecimal() + LibraryRandom.RandDec(100, 2));
+        CustomerCard.OK().Invoke();
 
         // Verify.
         VerifyArchivedWorkflowStepInstance(Workflow);
@@ -562,8 +562,8 @@ codeunit 134206 "Workflow Rule Tests"
         EntryPointEventID := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventID, FieldNo, Operator);
 
-        ResponseStepID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventID);
-        SecondEventID := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode, ResponseStepID);
+        ResponseStepID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventID);
+        SecondEventID := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode(), ResponseStepID);
         LibraryWorkflow.InsertEventRule(SecondEventID, FieldNo, Operator);
 
         LibraryWorkflow.EnableWorkflow(Workflow);

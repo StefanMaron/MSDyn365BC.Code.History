@@ -1726,7 +1726,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
         // Verify: Order Promising Line.
         RequisitionLine.SetRange("No.", Item."No.");
-        Assert.IsTrue(RequisitionLine.FindFirst, 'There should be at least one requisition line');
+        Assert.IsTrue(RequisitionLine.FindFirst(), 'There should be at least one requisition line');
 
         // Exercise: Create a Sales Credit memo with the same "No." as the Order
         CustomerNo1 := LibrarySales.CreateCustomerNo();
@@ -1742,7 +1742,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
         // Verify: The Requisition lines are still there
         RequisitionLine.SetRange("No.", Item."No.");
-        Assert.IsTrue(RequisitionLine.FindFirst, 'There should be at least one requisition line');
+        Assert.IsTrue(RequisitionLine.FindFirst(), 'There should be at least one requisition line');
     end;
 
 
@@ -2391,7 +2391,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Initialize();
 
         // [GIVEN] First and Second Parent Items have same demand dates.
-        ShipmentDate := WorkDate + LibraryRandom.RandInt(30); // up to 1 month after WORKDATE
+        ShipmentDate := WorkDate() + LibraryRandom.RandInt(30); // up to 1 month after WORKDATE
 
         // [GIVEN] Child Item with Prod Order replenishment, Manufacturing Policy: Make-to-Order, zero safety stock, nonzero inventory
         CreateZeroSafetyStockItemWithInventory(ChildItem);
@@ -2440,7 +2440,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CreateItemWithDampenerQuantity(Item, DampenerQuantity);
 
         // [GIVEN] Sales Order For Item has Production Order, "Reserved Quantity" is less on the "Dampener Quantity".
-        ShipmentDate := WorkDate + LibraryRandom.RandIntInRange(30, 60); // up to 1 - 2 months after WORKDATE
+        ShipmentDate := WorkDate() + LibraryRandom.RandIntInRange(30, 60); // up to 1 - 2 months after WORKDATE
         CreateSalesOrderForItemPlanProdOrderAndReduceQtyOnDampener(Item, ShipmentDate);
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet with Item.
@@ -2679,7 +2679,7 @@ codeunit 137071 "SCM Supply Planning -II"
         UpdateProductionBOMNoOnItem(ParentItem, ProductionBOMHeader."No.");
 
         // [GIVEN] Two sales order lines make a demand for item "P".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", Qty);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", Qty);
 
@@ -2721,7 +2721,7 @@ codeunit 137071 "SCM Supply Planning -II"
         UpdateProductionBOMNoOnItem(ParentItem, ProductionBOMHeader."No.");
 
         // [GIVEN] Two sales order lines make a demand for item "P".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", Qty);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", Qty);
 
@@ -2864,7 +2864,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryVariableStorage.Clear();
         LibraryRandom.Init();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
         UpdateForecastOnLocationsOnManufacturingSetup(true);
         UpdateManufacturingSetup(true);
 
@@ -2876,11 +2876,11 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
-        CreateLocationSetup;
-        ConsumptionJournalSetup;
-        OutputJournalSetup;
-        DisableManufacturingPlanningWarning;
+        ItemJournalSetup();
+        CreateLocationSetup();
+        ConsumptionJournalSetup();
+        OutputJournalSetup();
+        DisableManufacturingPlanningWarning();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
@@ -2897,8 +2897,8 @@ codeunit 137071 "SCM Supply Planning -II"
         NoSeries: Record "No. Series";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         NoSeries.Get(SalesReceivablesSetup."Credit Memo Nos.");
@@ -2910,7 +2910,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         ItemJournalBatch.Init();
@@ -2960,7 +2960,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Reordering Policy", ReorderingPolicy);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -3216,16 +3216,16 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryVariableStorage.Enqueue(ItemNo2);  // Required for CalculatePlanPlanWkshRequestPageHandler.
         Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
     local procedure CalcRegenPlanForPlanningWkshPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
     begin
         Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -3398,7 +3398,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure OpenPlanningWorksheetPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
     begin
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
     end;
 
@@ -3714,14 +3714,14 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure UpdateTrackingAndLotNosOnItem(var Item: Record Item; ItemTrackingCode: Code[10])
     begin
         Item.Validate("Item Tracking Code", ItemTrackingCode);  // Assign Tracking Code.
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
     local procedure UpdateTrackingAndSerialNosOnItem(var Item: Record Item; ItemTrackingCode: Code[10])
     begin
         Item.Validate("Item Tracking Code", ItemTrackingCode); // Assign Tracking Code.
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -3907,7 +3907,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CreateRequisitionWorksheetName(RequisitionWkshName);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure UpdateQuantityOnPurchaseLine(ItemNo: Code[20])
@@ -3942,7 +3942,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item."No.", Item."No.", StartingDate, EndingDate);
         AcceptActionMessage(RequisitionLine, Item."No.");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -4145,9 +4145,9 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
-        SalesOrder.SalesLines.OrderPromising.Invoke;  // Open OrderPromisingPageHandler.
+        SalesOrder.SalesLines.OrderPromising.Invoke();  // Open OrderPromisingPageHandler.
     end;
 
     local procedure PostPurchaseDocument(PurchaseHeader: Record "Purchase Header")
@@ -4352,7 +4352,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         Quantity := LibraryRandom.RandInt(20);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity + Item."Dampener Quantity");
         SalesLine.Validate("Shipment Date", ShipmentDate);
         SalesLine.Modify(true);
@@ -4385,7 +4385,7 @@ codeunit 137071 "SCM Supply Planning -II"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(2000));
         exit(SalesLine."Shipment Date");
     end;
@@ -4605,30 +4605,30 @@ codeunit 137071 "SCM Supply Planning -II"
         CalculatePlanPlanWksh.MPS.SetValue(true);
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRandomDateUsingWorkDate(90));
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandlerForAssignSN(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke; // Assign Serial No.
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke(); // Assign Serial No.
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4638,51 +4638,51 @@ codeunit 137071 "SCM Supply Planning -II"
         TrackingQuantity: Variant;
         TrackingOption: Option;
     begin
-        TrackingOption := LibraryVariableStorage.DequeueInteger;
+        TrackingOption := LibraryVariableStorage.DequeueInteger();
         case TrackingOption of
             ItemTrackingOption::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             ItemTrackingOption::AssignManualLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingOption::VerifyTrackingQty:
                 begin
                     // Verify Quantity(Base) on Tracking Line.
-                    ItemTrackingLines.First;
+                    ItemTrackingLines.First();
                     LibraryVariableStorage.Dequeue(TrackingQuantity);
                     ItemTrackingLines."Quantity (Base)".AssertEquals(TrackingQuantity);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PlanningErrorLogPageHandler(var PlanningErrorLog: TestPage "Planning Error Log")
     begin
-        PlanningErrorLog.OK.Invoke;
+        PlanningErrorLog.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PlanningErrorLogPageHandler2(var PlanningErrorLog: TestPage "Planning Error Log")
     begin
-        PlanningErrorLog.Last;
+        PlanningErrorLog.Last();
         repeat
-            PlanningErrorLog."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        until not PlanningErrorLog.Previous;
-        Assert.AreEqual(0, LibraryVariableStorage.Length, NumberOfErrorsErr);
-        PlanningErrorLog.OK.Invoke;
+            PlanningErrorLog."Item No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        until not PlanningErrorLog.Previous();
+        Assert.AreEqual(0, LibraryVariableStorage.Length(), NumberOfErrorsErr);
+        PlanningErrorLog.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OrderPromisingPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.CapableToPromise.Invoke;  // Capable To Promise will generate a new Requisition Line for the demand.
-        OrderPromisingLines.AcceptButton.Invoke;
+        OrderPromisingLines.CapableToPromise.Invoke();  // Capable To Promise will generate a new Requisition Line for the demand.
+        OrderPromisingLines.AcceptButton.Invoke();
     end;
 
     [MessageHandler]
@@ -4723,7 +4723,7 @@ codeunit 137071 "SCM Supply Planning -II"
     [Scope('OnPrem')]
     procedure ReservationHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
+        Reservation."Auto Reserve".Invoke();
     end;
 }
 

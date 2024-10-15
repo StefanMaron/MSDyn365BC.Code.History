@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+namespace Microsoft.Finance.FinancialReports;
 
 using System.Environment;
 
@@ -149,16 +149,14 @@ page 198 "Acc. Sched. KPI WS Dimensions"
 
     local procedure SetupColumnLayout(var TempColumnLayout: Record "Column Layout" temporary)
     begin
-        with TempColumnLayout do begin
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Net Change", "Ledger Entry Type"::Entries, false);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Balance at Date", "Ledger Entry Type"::Entries, false);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Net Change", "Ledger Entry Type"::"Budget Entries", false);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Balance at Date", "Ledger Entry Type"::"Budget Entries", false);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Net Change", "Ledger Entry Type"::Entries, true);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Balance at Date", "Ledger Entry Type"::Entries, true);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Net Change", "Ledger Entry Type"::"Budget Entries", true);
-            InsertTempColumn(TempColumnLayout, "Column Type"::"Balance at Date", "Ledger Entry Type"::"Budget Entries", true);
-        end;
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Net Change", TempColumnLayout."Ledger Entry Type"::Entries, false);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Balance at Date", TempColumnLayout."Ledger Entry Type"::Entries, false);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Net Change", TempColumnLayout."Ledger Entry Type"::"Budget Entries", false);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Balance at Date", TempColumnLayout."Ledger Entry Type"::"Budget Entries", false);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Net Change", TempColumnLayout."Ledger Entry Type"::Entries, true);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Balance at Date", TempColumnLayout."Ledger Entry Type"::Entries, true);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Net Change", TempColumnLayout."Ledger Entry Type"::"Budget Entries", true);
+        InsertTempColumn(TempColumnLayout, TempColumnLayout."Column Type"::"Balance at Date", TempColumnLayout."Ledger Entry Type"::"Budget Entries", true);
     end;
 
     local procedure SetupActiveAccSchedLines()
@@ -184,16 +182,14 @@ page 198 "Acc. Sched. KPI WS Dimensions"
 
     local procedure InsertTempColumn(var TempColumnLayout: Record "Column Layout" temporary; ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
-        with TempColumnLayout do begin
-            if FindLast() then;
-            Init();
-            "Line No." += 10000;
-            "Column Type" := ColumnType;
-            "Ledger Entry Type" := EntryType;
-            if LastYear then
-                Evaluate("Comparison Date Formula", '<-1Y>');
-            Insert();
-        end;
+        if TempColumnLayout.FindLast() then;
+        TempColumnLayout.Init();
+        TempColumnLayout."Line No." += 10000;
+        TempColumnLayout."Column Type" := ColumnType;
+        TempColumnLayout."Ledger Entry Type" := EntryType;
+        if LastYear then
+            Evaluate(TempColumnLayout."Comparison Date Formula", '<-1Y>');
+        TempColumnLayout.Insert();
     end;
 
     local procedure PrecalculateData()
@@ -217,34 +213,30 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         for C := 1 to NoOfPeriods do begin
             FromDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, C - 1);
             ToDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(FromDate, 1) - 1;
-            with TempAccSchedKPIBuffer do begin
-                Init();
-                Date := FromDate;
-                "Closed Period" := (FromDate <= LastClosedDate);
-                ForecastFromBudget :=
-                  ((AccSchedKPIWebSrvSetup."Forecasted Values Start" =
-                    AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Latest Closed Period") and
-                   not "Closed Period") or
-                  ((AccSchedKPIWebSrvSetup."Forecasted Values Start" =
-                    AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Current Date") and
-                   (Date > WorkDate()));
-            end;
+            TempAccSchedKPIBuffer.Init();
+            TempAccSchedKPIBuffer.Date := FromDate;
+            TempAccSchedKPIBuffer."Closed Period" := (FromDate <= LastClosedDate);
+            ForecastFromBudget :=
+              ((AccSchedKPIWebSrvSetup."Forecasted Values Start" =
+                AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Latest Closed Period") and
+               not TempAccSchedKPIBuffer."Closed Period") or
+              ((AccSchedKPIWebSrvSetup."Forecasted Values Start" =
+                AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Current Date") and
+               (TempAccSchedKPIBuffer.Date > WorkDate()));
 
-            with TempAccScheduleLine do begin
-                FindSet();
-                repeat
-                    if TempAccSchedKPIBuffer."Account Schedule Name" <> "Schedule Name" then begin
-                        InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
-                        TempAccSchedKPIBuffer."Account Schedule Name" := "Schedule Name";
-                    end;
-                    TempAccSchedKPIBuffer."KPI Code" := "Row No.";
-                    TempAccSchedKPIBuffer."KPI Name" :=
-                      CopyStr(Description, 1, MaxStrLen(TempAccSchedKPIBuffer."KPI Name"));
-                    SetRange("Date Filter", FromDate, ToDate);
-                    SetRange("G/L Budget Filter", AccSchedKPIWebSrvSetup."G/L Budget Name");
-                    AccSchedKPIDimensions.GetCellDataWithDimensions(TempAccScheduleLine, TempColumnLayout, TempAccSchedKPIBuffer);
-                until Next() = 0;
-            end;
+            TempAccScheduleLine.FindSet();
+            repeat
+                if TempAccSchedKPIBuffer."Account Schedule Name" <> TempAccScheduleLine."Schedule Name" then begin
+                    InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
+                    TempAccSchedKPIBuffer."Account Schedule Name" := TempAccScheduleLine."Schedule Name";
+                end;
+                TempAccSchedKPIBuffer."KPI Code" := TempAccScheduleLine."Row No.";
+                TempAccSchedKPIBuffer."KPI Name" :=
+                  CopyStr(TempAccScheduleLine.Description, 1, MaxStrLen(TempAccSchedKPIBuffer."KPI Name"));
+                TempAccScheduleLine.SetRange(TempAccScheduleLine."Date Filter", FromDate, ToDate);
+                TempAccScheduleLine.SetRange(TempAccScheduleLine."G/L Budget Filter", AccSchedKPIWebSrvSetup."G/L Budget Name");
+                AccSchedKPIDimensions.GetCellDataWithDimensions(TempAccScheduleLine, TempColumnLayout, TempAccSchedKPIBuffer);
+            until TempAccScheduleLine.Next() = 0;
             InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
         end;
         Rec.Reset();
@@ -255,18 +247,16 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     var
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
-        with TempAccSchedKPIBuffer do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    AccScheduleLine.SetRange("Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
-                    AccScheduleLine.SetRange("Row No.", TempAccSchedKPIBuffer."KPI Code");
-                    if AccScheduleLine.FindFirst() then;
-                    if AccScheduleLine.Show = "Acc. Schedule Line Show"::Yes then
-                        InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
-                until Next() = 0;
-            DeleteAll();
-        end;
+        TempAccSchedKPIBuffer.Reset();
+        if TempAccSchedKPIBuffer.FindSet() then
+            repeat
+                AccScheduleLine.SetRange("Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
+                AccScheduleLine.SetRange("Row No.", TempAccSchedKPIBuffer."KPI Code");
+                if AccScheduleLine.FindFirst() then;
+                if AccScheduleLine.Show = "Acc. Schedule Line Show"::Yes then
+                    InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
+            until TempAccSchedKPIBuffer.Next() = 0;
+        TempAccSchedKPIBuffer.DeleteAll();
     end;
 
     local procedure InsertData(AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer"; ForecastFromBudget: Boolean)
@@ -277,12 +267,10 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         Rec."No." += 1;
         Rec.TransferFields(AccSchedKPIBuffer, false);
 
-        with TempAccScheduleLine2 do begin
-            Copy(TempAccScheduleLine, true);
-            SetRange("Schedule Name", AccSchedKPIBuffer."Account Schedule Name");
-            SetRange("Row No.", AccSchedKPIBuffer."KPI Code");
-            FindFirst();
-        end;
+        TempAccScheduleLine2.Copy(TempAccScheduleLine, true);
+        TempAccScheduleLine2.SetRange(TempAccScheduleLine2."Schedule Name", AccSchedKPIBuffer."Account Schedule Name");
+        TempAccScheduleLine2.SetRange(TempAccScheduleLine2."Row No.", AccSchedKPIBuffer."KPI Code");
+        TempAccScheduleLine2.FindFirst();
 
         Rec."Net Change Actual" :=
           AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Net Change Actual");

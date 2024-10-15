@@ -6,6 +6,7 @@ using System.Text;
 table 1252 "Bank Pmt. Appl. Rule"
 {
     Caption = 'Bank Pmt. Appl. Rule';
+    DataClassification = CustomerContent;
 
     fields
     {

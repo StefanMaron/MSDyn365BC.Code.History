@@ -54,7 +54,7 @@ codeunit 136109 "Service Posting - Consumption"
         // 2. Exercise: Create Service Order.
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", LibraryRandom.RandInt(10), 0);  // Use 0 for Boundary Value Testing.
 
         // 3. Verify: Verify that Service Order shows Error "Nothing to Post" on Posting as Ship and Consume.
@@ -335,7 +335,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
-          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
 
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -374,7 +374,7 @@ codeunit 136109 "Service Posting - Consumption"
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           LibraryRandom.RandIntInRange(10, 20));
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -413,7 +413,7 @@ codeunit 136109 "Service Posting - Consumption"
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
         CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           LibraryRandom.RandIntInRange(10, 20));
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -448,7 +448,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         CreateServiceOrderWithCurrency(ServiceHeader);
         CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           LibraryRandom.RandIntInRange(10, 20));
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -618,7 +618,7 @@ codeunit 136109 "Service Posting - Consumption"
         // 1. Setup: Create Service Order.
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
         UpdateQtyToInvoice(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity);
 
@@ -652,7 +652,7 @@ codeunit 136109 "Service Posting - Consumption"
         Initialize();
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
         UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity);
 
@@ -742,7 +742,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
-        InventorySetupCostPosting;
+        InventorySetupCostPosting();
 
         // 2. Exercise: Post Service Order as Ship and Consume Partially.
         UpdatePartialQtyOnServiceLines(ServiceItemLine);
@@ -773,7 +773,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
-        InventorySetupCostPosting;
+        InventorySetupCostPosting();
 
         // 2. Exercise: Post Service Order as Ship and Consume Fully.
         UpdateFullQtyOnServiceLines(ServiceItemLine);
@@ -805,7 +805,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
-        InventorySetupCostPosting;
+        InventorySetupCostPosting();
 
         UpdatePartialQtyOnServiceLines(ServiceItemLine);
         SaveServiceLineInTempTable(TempServiceLine, ServiceItemLine);
@@ -827,7 +827,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Test undo consumption for the Service Order consumed Quantity.
 
-        UndoConsumptionServiceOrder;
+        UndoConsumptionServiceOrder();
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Test undo consumption for the Service Order with multiple Service Lines.
 
-        UndoConsumptionServiceOrder;
+        UndoConsumptionServiceOrder();
     end;
 
     local procedure UndoConsumptionServiceOrder()
@@ -858,15 +858,15 @@ codeunit 136109 "Service Posting - Consumption"
         Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.CreateCustomer(Customer);
-        No := LibraryService.CreateServiceOrderHeaderUsingPage;
+        No := LibraryService.CreateServiceOrderHeaderUsingPage();
         CreateServiceItemLine(No, Customer."No.");
         OpenServiceLine(No);
 
         // 2. Exercise: Undo Consumption of the Service Order consumed Quantity.
-        PostedServiceShipment.OpenView;
+        PostedServiceShipment.OpenView();
         PostedServiceShipment.FILTER.SetFilter("Order No.", No);
-        ServiceShipmentHeaderNo := PostedServiceShipment."No.".Value;
-        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke;
+        ServiceShipmentHeaderNo := PostedServiceShipment."No.".Value();
+        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke();
 
         // 3. Verify: Verify the undone Qty Consumed through the handler.
         // VERIFY: All ledger entries generated after undo matchup
@@ -926,11 +926,11 @@ codeunit 136109 "Service Posting - Consumption"
         LibrarySales.CreateCustomer(Customer);
         CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode(FindItemTrackingCode(false, true)));
 
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
         TrackingAction := TrackingAction::AssignSerialNo;  // Setting tracking action to execute Assign Serial No. Action on Item Tracking Lines Page.
-        ItemJournal.ItemTrackingLines.Invoke;
-        ItemJournal.Post.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
+        ItemJournal.Post.Invoke();
         LibraryUtility.GenerateGUID();  // Hack to fix problem with Generate GUID.
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
@@ -939,7 +939,7 @@ codeunit 136109 "Service Posting - Consumption"
         CreateServiceLine(ServiceHeader, ServiceItem."No.", ItemJournalLine."Item No.", ItemJournalLine.Quantity, ItemJournalLine.Quantity);
         TrackingAction := TrackingAction::SelectEntries;  // Setting tracking action to execute Select Entries Action on Item Tracking Lines Page.
         ServiceOrderPageOpenEdit(ServiceOrder, ServiceHeader."No.");
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);  // Post the Service Order as Ship and Consume.
 
         // 2. Exercise: Undo Consumption of the Quantity on Item Journal through posting the Service Credit Memo for it.
@@ -971,7 +971,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
-          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
 
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -1006,7 +1006,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
-          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+          ServiceHeader, ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
 
         CheckGeneralPostingSetupExists(ServiceLine);
 
@@ -1060,7 +1060,7 @@ codeunit 136109 "Service Posting - Consumption"
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
         CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandIntInRange(10, 20));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(10, 20));
         CheckGeneralPostingSetupExists(ServiceLine);
 
         // 3. Excercise: ship and consume and undo
@@ -1093,7 +1093,7 @@ codeunit 136109 "Service Posting - Consumption"
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
         CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandIntInRange(10, 20));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(10, 20));
         CheckGeneralPostingSetupExists(ServiceLine);
 
         // 3. Excercise: ship and consume and undo
@@ -1494,9 +1494,9 @@ codeunit 136109 "Service Posting - Consumption"
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
         // 3. Verify: Verify Item tracking Entry on Posted Service Shipment performed on Posted Item Tracking Lines handler.
-        PostedServiceShipment.OpenView;
+        PostedServiceShipment.OpenView();
         PostedServiceShipment.FILTER.SetFilter("No.", FindServiceShipmentHeader(ServiceHeader."No."));
-        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke;
+        PostedServiceShipment.ServShipmentItemLines.ServiceShipmentLines.Invoke();
     end;
 
     [Test]
@@ -1761,7 +1761,7 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceShipmentLine2.Next();
             ServiceShipmentLine2.TestField(Quantity, -ServiceShipmentLine.Quantity);
             // Value entries:
-            VerifyValueEntries;
+            VerifyValueEntries();
         end;
     end;
 
@@ -1780,9 +1780,9 @@ codeunit 136109 "Service Posting - Consumption"
 
     local procedure AssignSerialNumberToCreditMemo(var ServiceCreditMemo: TestPage "Service Credit Memo"; No: Code[20])
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
-        ServiceCreditMemo.ServLines.ItemTrackingLines.Invoke;
+        ServiceCreditMemo.ServLines.ItemTrackingLines.Invoke();
     end;
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1816,8 +1816,8 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemCategoryCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1881,8 +1881,8 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceOrderPageOpenEdit(ServiceOrder, No);
         ServiceOrder."Customer No.".SetValue(CustomerNo);
         ServiceOrder.ServItemLines.ServiceItemNo.SetValue(ServiceItem."No.");
-        ServiceOrder.ServItemLines.New;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.ServItemLines.New();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; QtyToConsume: Decimal)
@@ -1934,7 +1934,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Create 2 to 12 Service Lines - Boundary 2 is important.
         for Counter := 2 to 2 + LibraryRandom.RandInt(10) do
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
     end;
 
     local procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; QuantitytoSet: Decimal)
@@ -1953,7 +1953,7 @@ codeunit 136109 "Service Posting - Consumption"
         Initialize();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
-        ServiceHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        ServiceHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         ServiceHeader.Modify(true);
 
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
@@ -1973,7 +1973,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Using Random Number for Default Unit Cost.
         LibraryService.CreateServiceCost(ServiceCost);
-        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceCost.Validate("Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         ServiceCost.Validate("Cost Type", ServiceCost."Cost Type"::Other);
         ServiceCost.Validate("Default Unit Cost", LibraryRandom.RandDec(100, 2));
         ServiceCost.Modify(true);
@@ -2025,7 +2025,7 @@ codeunit 136109 "Service Posting - Consumption"
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
                 Validate("VAT Calculation Type", VATCalType);
                 Validate("VAT %", VATPct);
-                Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);
+                Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
                 Modify(true);
             end;
         end;
@@ -2114,34 +2114,34 @@ codeunit 136109 "Service Posting - Consumption"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke;
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
     end;
 
     local procedure OpenItemTrackingLinesForSalesCreditMemo(No: Code[20])
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
-        SalesCreditMemo.SalesLines.ItemTrackingLines.Invoke;
+        SalesCreditMemo.SalesLines.ItemTrackingLines.Invoke();
     end;
 
     local procedure OpenServiceLine(No: Code[20])
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenView;
+        ServiceOrder.OpenView();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
     end;
 
     local procedure ServiceOrderPageOpenEdit(var ServiceOrder: TestPage "Service Order"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Order));
         ServiceOrder.FILTER.SetFilter("No.", No);
     end;
@@ -2192,7 +2192,7 @@ codeunit 136109 "Service Posting - Consumption"
         FindServiceLine(ServiceLine, ServiceItemLine);
         repeat
             Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
-            UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
+            UpdateQtyToShipOnServiceLine(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction());
         until ServiceLine.Next() = 0;
     end;
 
@@ -2238,7 +2238,7 @@ codeunit 136109 "Service Posting - Consumption"
         FindServiceLine(ServiceLine, ServiceItemLine);
         repeat
             Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
-            UpdateQtyToInvoice(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
+            UpdateQtyToInvoice(ServiceLine, ServiceItemLine."Line No.", Quantity, Quantity * LibraryUtility.GenerateRandomFraction());
         until ServiceLine.Next() = 0;
     end;
 
@@ -2408,7 +2408,7 @@ codeunit 136109 "Service Posting - Consumption"
         ValueEntry.TestField("Source No.", TempServiceLine."Customer No.");
         ValueEntry.TestField("Cost Amount (Actual)",
           -Round(
-            TempServiceLine."Unit Cost (LCY)" * TempServiceLine."Qty. to Consume", LibraryERM.GetAmountRoundingPrecision));
+            TempServiceLine."Unit Cost (LCY)" * TempServiceLine."Qty. to Consume", LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure UpdateConsumedQtyOnServiceLine(ServiceItemLine: Record "Service Item Line")
@@ -2420,7 +2420,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.FindSet();
         repeat
-            ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -2612,23 +2612,23 @@ codeunit 136109 "Service Posting - Consumption"
             ServiceLedgerEntry.SetRange("No.", TempServiceLineBeforePosting."No.");
             ServiceLedgerEntry.SetRange("Entry Type", ServiceLedgerEntry."Entry Type"::Usage);
             if IsUndo then
-                ServiceLedgerEntry.FindLast
+                ServiceLedgerEntry.FindLast()
             else
                 ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField(Quantity, SignFactor * TempServiceLineBeforePosting."Qty. to Consume");
             UnitPriceLCY := TempServiceLineBeforePosting."Unit Price" / CurrencyFactor;
-            Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
+            Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption()));
             ServiceLedgerEntry.TestField(Amount, 0);
             ServiceLedgerEntry.TestField("Charged Qty.", 0);
 
             ServiceLedgerEntry.SetRange("Entry Type", ServiceLedgerEntry."Entry Type"::Consume);
             if IsUndo then
-                ServiceLedgerEntry.FindLast
+                ServiceLedgerEntry.FindLast()
             else
                 ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField(Quantity, SignFactor * -TempServiceLineBeforePosting."Qty. to Consume");
-            Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", -UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
+            Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", -UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption()));
             ServiceLedgerEntry.TestField(Amount, 0);
 
@@ -2694,7 +2694,7 @@ codeunit 136109 "Service Posting - Consumption"
             exit;
 
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        GeneralPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -2718,11 +2718,11 @@ codeunit 136109 "Service Posting - Consumption"
         Commit();
         case TrackingAction of
             TrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingAction::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             TrackingAction::EnterValues:
                 begin
                     ItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
@@ -2731,14 +2731,14 @@ codeunit 136109 "Service Posting - Consumption"
                     ItemTrackingLines."Appl.-from Item Entry".SetValue(ItemLedgerEntry."Entry No.");
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -2761,14 +2761,14 @@ codeunit 136109 "Service Posting - Consumption"
     [Scope('OnPrem')]
     procedure PostedServiceShipmentLinesHandler(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines")
     begin
-        PostedServiceShipmentLines.ItemTrackingEntries.Invoke;
+        PostedServiceShipmentLines.ItemTrackingEntries.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedShipmentLineHandler(var PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines")
     begin
-        PostedServiceShipmentLines.UndoConsumption.Invoke;
+        PostedServiceShipmentLines.UndoConsumption.Invoke();
         // Verifying the Service Shipment Line Quantity which was Undone.
         PostedServiceShipmentLines.Next();
         PostedServiceShipmentLines."Quantity Consumed".AssertEquals(-Quantity / 2);  // Using partial value for Quantity Consumed.
@@ -2779,14 +2779,14 @@ codeunit 136109 "Service Posting - Consumption"
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(CreateLotNo);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines.ItemTrackingLines.Invoke;
+        ServiceLines.ItemTrackingLines.Invoke();
     end;
 
     [ModalPageHandler]
@@ -2796,14 +2796,14 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentLine: Record "Service Shipment Line";
     begin
         // Undo consumption of the Service Lines.
-        PostedServiceShipmentLines.UndoConsumption.Invoke;
-        PostedServiceShipmentLines.Last;
-        PostedServiceShipmentLines.UndoConsumption.Invoke;
+        PostedServiceShipmentLines.UndoConsumption.Invoke();
+        PostedServiceShipmentLines.Last();
+        PostedServiceShipmentLines.UndoConsumption.Invoke();
 
         // Verifying the Service Shipment Lines Quantity which was Undone.
         VerifyPostedShipmentLine(PostedServiceShipmentLines, ServiceShipmentLine.Type::Item);
         VerifyPostedShipmentLine(PostedServiceShipmentLines, ServiceShipmentLine.Type::Resource);
-        PostedServiceShipmentLines.OK.Invoke;
+        PostedServiceShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2847,7 +2847,7 @@ codeunit 136109 "Service Posting - Consumption"
         CreateLineForDifferentTypes(ServiceLines, ServiceLine.Type::Item, Item."No.", Quantity);
 
         // Post the service Order as Ship and Consume.
-        ServiceLines.Post.Invoke;
+        ServiceLines.Post.Invoke();
     end;
 
     [ConfirmHandler]

@@ -45,7 +45,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesInvoiceList.Trap;
+        SalesInvoiceList.Trap();
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
@@ -77,7 +77,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesCreditMemos.Trap;
+        SalesCreditMemos.Trap();
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
@@ -111,7 +111,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Ship and Invoice menu choice
@@ -124,7 +124,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader[2]."Sell-to Customer No.");
         Assert.RecordCount(SalesInvoiceHeader, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesReturnOrderList.Trap;
+        SalesReturnOrderList.Trap();
         PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Ship and Invoice menu choice
@@ -159,7 +159,7 @@ codeunit 134891 "Sales Batch Document Posting"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader[2]."Sell-to Customer No.");
         Assert.RecordCount(ReturnReceiptHeader, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesLine.Modify(true);
 
         // [WHEN] Post three invoices as a batch
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SalesBatchPostMgt.RunWithUI(SalesHeaderCreated, SalesHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
 
         // [THEN] Error message page for "Y" opened with one error line: 'There is nothing to post'
@@ -202,7 +202,7 @@ codeunit 134891 "Sales Batch Document Posting"
         Assert.IsTrue(SalesHeader[2].Find(), 'Second invoice is posted');
         Assert.IsFalse(SalesHeader[3].Find(), 'Third invoice is not posted');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 134891 "Sales Batch Document Posting"
 
         LibraryVariableStorage.Enqueue(ReadyToPostTwoInvoicesQst);
 
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SalesBatchPostMgt.RunWithUI(SalesHeaderToPost, SalesHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
 
         repeat
@@ -243,7 +243,7 @@ codeunit 134891 "Sales Batch Document Posting"
 
         Assert.AreEqual(SalesHeaderToPost.Count, ErrorCount, 'Unexpected error count');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -283,7 +283,7 @@ codeunit 134891 "Sales Batch Document Posting"
         VerifyInvoicePosted(SalesHeader[2]);
         VerifyInvoiceUnposted(SalesHeader[3]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -306,12 +306,12 @@ codeunit 134891 "Sales Batch Document Posting"
         // [THEN] Invoices "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, 0);
 
-        SalesInvoiceList.Trap;
+        SalesInvoiceList.Trap();
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -338,12 +338,12 @@ codeunit 134891 "Sales Batch Document Posting"
         // [THEN] Credit memos "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", 0);
 
-        SalesCreditMemos.Trap;
+        SalesCreditMemos.Trap();
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -370,12 +370,12 @@ codeunit 134891 "Sales Batch Document Posting"
         // [THEN] Orders "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, 0);
 
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(3); // Ship and Invoice menu choice
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedOrders(SalesOrderList, SalesHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -402,11 +402,11 @@ codeunit 134891 "Sales Batch Document Posting"
         // [THEN] Return orders "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", 0);
 
-        SalesReturnOrderList.Trap;
+        SalesReturnOrderList.Trap();
         PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Ship and Invoice menu choice
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -432,7 +432,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Quote, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesQuotes.Trap;
+        SalesQuotes.Trap();
         PAGE.Run(PAGE::"Sales Quotes", SalesHeaderUI);
 
         InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[2]);
@@ -462,7 +462,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Quote, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesQuotes.Trap;
+        SalesQuotes.Trap();
         PAGE.Run(PAGE::"Sales Quotes", SalesHeaderUI);
 
         InvokeReleaseSelectedQuotes(SalesQuotes, SalesHeader[1]);
@@ -495,7 +495,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
 
         InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[2]);
@@ -525,7 +525,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         PAGE.Run(PAGE::"Sales Order List", SalesHeaderUI);
 
         InvokeReleaseSelectedOrders(SalesOrderList, SalesHeader[1]);
@@ -558,7 +558,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesInvoiceList.Trap;
+        SalesInvoiceList.Trap();
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
         InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
@@ -588,7 +588,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        SalesInvoiceList.Trap;
+        SalesInvoiceList.Trap();
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
         InvokeReleaseSelectedInvoices(SalesInvoiceList, SalesHeader[1]);
@@ -621,7 +621,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesCreditMemos.Trap;
+        SalesCreditMemos.Trap();
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
         InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
@@ -651,7 +651,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesCreditMemos.Trap;
+        SalesCreditMemos.Trap();
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
         InvokeReleaseSelectedCreditMemos(SalesCreditMemos, SalesHeader[1]);
@@ -684,7 +684,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesReturnOrderList.Trap;
+        SalesReturnOrderList.Trap();
         PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
 
         InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[2]);
@@ -714,7 +714,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        SalesReturnOrderList.Trap;
+        SalesReturnOrderList.Trap();
         PAGE.Run(PAGE::"Sales Return Order List", SalesHeaderUI);
 
         InvokeReleaseSelectedReturnOrders(SalesReturnOrderList, SalesHeader[1]);
@@ -747,7 +747,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 
-        BlanketSalesOrders.Trap;
+        BlanketSalesOrders.Trap();
         PAGE.Run(PAGE::"Blanket Sales Orders", SalesHeaderUI);
 
         InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[2]);
@@ -777,7 +777,7 @@ codeunit 134891 "Sales Batch Document Posting"
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 
-        BlanketSalesOrders.Trap;
+        BlanketSalesOrders.Trap();
         PAGE.Run(PAGE::"Blanket Sales Orders", SalesHeaderUI);
 
         InvokeReleaseSelectedBlanketOrders(BlanketSalesOrders, SalesHeader[1]);
@@ -800,9 +800,9 @@ codeunit 134891 "Sales Batch Document Posting"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Batch Document Posting");
 
-        LibrarySales.SetReturnOrderNoSeriesInSetup;
+        LibrarySales.SetReturnOrderNoSeriesInSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Batch Document Posting");
@@ -815,7 +815,7 @@ codeunit 134891 "Sales Batch Document Posting"
     begin
         for Index := 1 to ArrayLen(SalesHeader) do begin
             LibrarySales.CreateSalesDocumentWithItem(
-              SalesHeader[Index], SalesLine, DocumentType, LibrarySales.CreateCustomerNo, '', Quantity, '', 0D);
+              SalesHeader[Index], SalesLine, DocumentType, LibrarySales.CreateCustomerNo(), '', Quantity, '', 0D);
             SalesHeader[Index].CalcFields("Amount Including VAT");
         end;
 
@@ -826,97 +826,97 @@ codeunit 134891 "Sales Batch Document Posting"
     local procedure InvokePostSelectedInvoices(var SalesInvoiceList: TestPage "Sales Invoice List"; SalesHeaderToPost: Record "Sales Header")
     begin
         SalesInvoiceList.GotoRecord(SalesHeaderToPost);
-        SalesInvoiceList.Post.Invoke;
+        SalesInvoiceList.Post.Invoke();
     end;
 
     local procedure InvokePostSelectedCreditMemos(var SalesCreditMemos: TestPage "Sales Credit Memos"; SalesHeaderToPost: Record "Sales Header")
     begin
         SalesCreditMemos.GotoRecord(SalesHeaderToPost);
-        SalesCreditMemos.Post.Invoke;
+        SalesCreditMemos.Post.Invoke();
     end;
 
     local procedure InvokePostSelectedOrders(var SalesOrderList: TestPage "Sales Order List"; SalesHeaderToPost: Record "Sales Header")
     begin
         SalesOrderList.GotoRecord(SalesHeaderToPost);
-        SalesOrderList.Post.Invoke;
+        SalesOrderList.Post.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedQuotes(var SalesQuotes: TestPage "Sales Quotes"; SalesHeaderToRelease: Record "Sales Header")
     begin
         SalesQuotes.GotoRecord(SalesHeaderToRelease);
-        SalesQuotes.Release.Invoke;
+        SalesQuotes.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedQuotes(var SalesQuotes: TestPage "Sales Quotes"; SalesHeaderToReopen: Record "Sales Header")
     begin
         SalesQuotes.GotoRecord(SalesHeaderToReopen);
-        SalesQuotes.Reopen.Invoke;
+        SalesQuotes.Reopen.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedOrders(var SalesOrderList: TestPage "Sales Order List"; SalesHeaderToRelease: Record "Sales Header")
     begin
         SalesOrderList.GotoRecord(SalesHeaderToRelease);
-        SalesOrderList.Release.Invoke;
+        SalesOrderList.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedOrders(var SalesOrderList: TestPage "Sales Order List"; SalesHeaderToReopen: Record "Sales Header")
     begin
         SalesOrderList.GotoRecord(SalesHeaderToReopen);
-        SalesOrderList.Reopen.Invoke;
+        SalesOrderList.Reopen.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedInvoices(var SalesInvoiceList: TestPage "Sales Invoice List"; SalesHeaderToRelease: Record "Sales Header")
     begin
         SalesInvoiceList.GotoRecord(SalesHeaderToRelease);
-        SalesInvoiceList."Re&lease".Invoke;
+        SalesInvoiceList."Re&lease".Invoke();
     end;
 
     local procedure InvokeReopenSelectedInvoices(var SalesInvoiceList: TestPage "Sales Invoice List"; SalesHeaderToReopen: Record "Sales Header")
     begin
         SalesInvoiceList.GotoRecord(SalesHeaderToReopen);
-        SalesInvoiceList."Re&open".Invoke;
+        SalesInvoiceList."Re&open".Invoke();
     end;
 
     local procedure InvokeReleaseSelectedCreditMemos(var SalesCreditMemos: TestPage "Sales Credit Memos"; SalesHeaderToRelease: Record "Sales Header")
     begin
         SalesCreditMemos.GotoRecord(SalesHeaderToRelease);
-        SalesCreditMemos."Re&lease".Invoke;
+        SalesCreditMemos."Re&lease".Invoke();
     end;
 
     local procedure InvokeReopenSelectedCreditMemos(var SalesCreditMemos: TestPage "Sales Credit Memos"; SalesHeaderToReopen: Record "Sales Header")
     begin
         SalesCreditMemos.GotoRecord(SalesHeaderToReopen);
-        SalesCreditMemos."Re&open".Invoke;
+        SalesCreditMemos."Re&open".Invoke();
     end;
 
     local procedure InvokePostSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToPost: Record "Sales Header")
     begin
         SalesReturnOrderList.GotoRecord(SalesHeaderToPost);
-        SalesReturnOrderList.Post.Invoke;
+        SalesReturnOrderList.Post.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToRelease: Record "Sales Header")
     begin
         SalesReturnOrderList.GotoRecord(SalesHeaderToRelease);
-        SalesReturnOrderList.Release.Invoke;
+        SalesReturnOrderList.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedReturnOrders(var SalesReturnOrderList: TestPage "Sales Return Order List"; SalesHeaderToReopen: Record "Sales Header")
     begin
         SalesReturnOrderList.GotoRecord(SalesHeaderToReopen);
-        SalesReturnOrderList.Reopen.Invoke;
+        SalesReturnOrderList.Reopen.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedBlanketOrders(var BlanketSalesOrders: TestPage "Blanket Sales Orders"; SalesHeaderToRelease: Record "Sales Header")
     begin
         BlanketSalesOrders.GotoRecord(SalesHeaderToRelease);
-        BlanketSalesOrders."Re&lease".Invoke;
+        BlanketSalesOrders."Re&lease".Invoke();
     end;
 
     local procedure InvokeReopenSelectedBlanketOrders(var BlanketSalesOrders: TestPage "Blanket Sales Orders"; SalesHeaderToReopen: Record "Sales Header")
     begin
         BlanketSalesOrders.GotoRecord(SalesHeaderToReopen);
-        BlanketSalesOrders."Re&open".Invoke;
+        BlanketSalesOrders."Re&open".Invoke();
     end;
 
     local procedure MarkDocumentsToPost(var SalesHeaderToPost: Record "Sales Header"; var SalesHeader: array[3] of Record "Sales Header"; var SalesHeaderCreated: Record "Sales Header")
@@ -935,7 +935,7 @@ codeunit 134891 "Sales Batch Document Posting"
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true; // precal forces to set any value to VAR parameter
     end;
 
@@ -950,14 +950,14 @@ codeunit 134891 "Sales Batch Document Posting"
     [Scope('OnPrem')]
     procedure MessageHandler(MessageText: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, MessageText);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), MessageText);
     end;
 
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure PostStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     local procedure VerifyTwoOfThreeDocumentsUnposted(var SalesHeaderUI: Record "Sales Header"; var SalesHeader: array[3] of Record "Sales Header")
@@ -975,7 +975,7 @@ codeunit 134891 "Sales Batch Document Posting"
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         Assert.RecordCount(SalesInvoiceHeader, 1);
-        Assert.IsFalse(SalesHeader.Find, '');
+        Assert.IsFalse(SalesHeader.Find(), '');
     end;
 
     local procedure VerifyInvoiceUnposted(var SalesHeader: Record "Sales Header")
@@ -984,7 +984,7 @@ codeunit 134891 "Sales Batch Document Posting"
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         Assert.RecordCount(SalesInvoiceHeader, 0);
-        Assert.IsTrue(SalesHeader.Find, '');
+        Assert.IsTrue(SalesHeader.Find(), '');
     end;
 
     local procedure VerifySaleDocumentStatus(var SalesHeader: Record "Sales Header"; ExpectedStatus: Enum "Sales Document Status")

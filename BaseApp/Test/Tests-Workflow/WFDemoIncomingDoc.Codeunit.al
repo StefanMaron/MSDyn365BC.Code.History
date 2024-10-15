@@ -32,7 +32,7 @@
         Guid: Guid;
     begin
         // [SCENARIO] Recreate the workflow demo data
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         WorkflowEvent.DeleteAll();
         WorkflowResponse.DeleteAll();
 
@@ -84,7 +84,7 @@
         VerifyNotificationEntry(NotificationEntry, UserId, IncomingDocument.RecordId);
 
         // Tear-down
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
     end;
 
     [Test]
@@ -114,7 +114,7 @@
         Assert.IsTrue(WorkflowStepInstanceArchive.IsEmpty, 'All step instances should be completed.');
 
         // Tear-down
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
     end;
 
     local procedure Initialize()
@@ -127,8 +127,8 @@
         WorkflowStepInstanceArchive.DeleteAll();
         NotificationEntry.DeleteAll();
         NotificationSetup.DeleteAll();
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         WorkflowSetup.InitWorkflow();
         if IsInitialized then
             exit;
@@ -167,10 +167,10 @@
         LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserId, NotificationSetup."Notification Type"::"New Record",
           NotificationSetup."Notification Method"::Note);
 
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.IncomingDocumentWorkflowCode());
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         WorkflowStep.FindFirst();
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
 

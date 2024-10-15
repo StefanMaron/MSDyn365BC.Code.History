@@ -69,9 +69,9 @@ codeunit 137211 "SCM Update Unit Cost"
 
         // Verify: Unit Cost on Prod. Order Line and related reserved document line.
         FindProdOrderLine(ProdOrderLine1, ProductionOrder);
-        Assert.AreNearlyEqual(ExpectedUnitCost, ProdOrderLine1."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+        Assert.AreNearlyEqual(ExpectedUnitCost, ProdOrderLine1."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong prod. order line unit cost.');
-        Assert.AreNearlyEqual(ExpectedCostAmount, ProdOrderLine1."Cost Amount", LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(ExpectedCostAmount, ProdOrderLine1."Cost Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Wrong prod. order line cost amount.');
 
         // Reserved line unit cost should not be updated if UpdateReservations is false.
@@ -324,7 +324,7 @@ codeunit 137211 "SCM Update Unit Cost"
         SalesLine.SetRange("Document No.", ReservationEntry."Source ID");
         SalesLine.FindFirst();
 
-        Assert.AreNearlyEqual(ExpectedUnitCost, SalesLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision,
+        Assert.AreNearlyEqual(ExpectedUnitCost, SalesLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong unit cost in reserved sales line.');
     end;
 

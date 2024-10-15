@@ -4,6 +4,7 @@ table 11798 "XML Export Buffer"
     ObsoleteState = Removed;
     ObsoleteReason = 'Became obsolete after refactoring. Use dictionary variable instead.';
     ObsoleteTag = '21.0';
+    DataClassification = CustomerContent;
 
     fields
     {

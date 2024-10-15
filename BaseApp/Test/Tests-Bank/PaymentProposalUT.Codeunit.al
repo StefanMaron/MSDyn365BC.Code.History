@@ -40,7 +40,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
-        CloseExistingEntries;
+        CloseExistingEntries();
 
         GeneralLedgerSetup.Get();
 
@@ -288,7 +288,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', true);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
@@ -310,7 +310,7 @@ codeunit 134267 "Payment Proposal UT"
 
         // Verify Payment Application Proposal Specific Fields
         Assert.AreEqual(
-          NewTempPaymentApplicationProposal."Sorting Order", -AppliedPaymentEntry.Quality - BankPmtApplRule.GetHighestPossibleScore,
+          NewTempPaymentApplicationProposal."Sorting Order", -AppliedPaymentEntry.Quality - BankPmtApplRule.GetHighestPossibleScore(),
           'Sorting order is not set correctly');
         Assert.AreEqual(
           NewTempPaymentApplicationProposal."Remaining Amount", CustLedgerEntry."Remaining Amount",
@@ -357,14 +357,14 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', true);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
         // Verify Payment Application Proposal Specific Fields
         Assert.IsTrue(
-          TempPaymentApplicationProposal."Sorting Order" > -BankPmtApplRule.GetHighestPossibleScore,
+          TempPaymentApplicationProposal."Sorting Order" > -BankPmtApplRule.GetHighestPossibleScore(),
           'Sorting order is not set correctly');
         Assert.AreEqual(
           TempPaymentApplicationProposal."Remaining Amount", CustLedgerEntry."Remaining Amount", 'Remaining Amount is not set correctly');
@@ -442,7 +442,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', false);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
@@ -482,7 +482,7 @@ codeunit 134267 "Payment Proposal UT"
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
@@ -704,7 +704,7 @@ codeunit 134267 "Payment Proposal UT"
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
         // Excercise
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", AppliedAmount);
         TempPaymentApplicationProposal.Modify(true);
 
@@ -745,7 +745,7 @@ codeunit 134267 "Payment Proposal UT"
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
         // Excercise
-        AppliedAmount := Round(Amount * 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount * 2, LibraryERM.GetAmountRoundingPrecision());
         asserterror TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", AppliedAmount);
     end;
 
@@ -866,7 +866,7 @@ codeunit 134267 "Payment Proposal UT"
         // Excercise and verify multiple applications
         TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
-            NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
+            NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision());
             Difference += TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
             AppliedAmount -= TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
             TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", NewAppliedAmount);
@@ -908,7 +908,7 @@ codeunit 134267 "Payment Proposal UT"
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
@@ -1237,7 +1237,7 @@ codeunit 134267 "Payment Proposal UT"
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
@@ -1289,7 +1289,7 @@ codeunit 134267 "Payment Proposal UT"
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
@@ -1340,7 +1340,7 @@ codeunit 134267 "Payment Proposal UT"
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, AppliedAmount, '', true);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
@@ -1400,7 +1400,7 @@ codeunit 134267 "Payment Proposal UT"
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -1455,7 +1455,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', false);
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
@@ -1514,7 +1514,7 @@ codeunit 134267 "Payment Proposal UT"
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', true);
         CreateBankReconciliationLine(
@@ -1585,7 +1585,7 @@ codeunit 134267 "Payment Proposal UT"
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -1647,7 +1647,7 @@ codeunit 134267 "Payment Proposal UT"
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(CustLedgerEntry."Remaining Pmt. Disc. Possible" / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(CustLedgerEntry."Remaining Pmt. Disc. Possible" / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -1826,7 +1826,7 @@ codeunit 134267 "Payment Proposal UT"
         CreateCLEAndBankRecLine(CustLedgerEntry, BankAccReconciliationLine, TempPaymentApplicationProposal, Amount);
         ModifyTempPaymentAppPropsalAppliedAmt(CustLedgerEntry, TempPaymentApplicationProposal, AppliedAmount);
 
-        NewAppliedAmount := Round(AppliedAmount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewAppliedAmount := Round(AppliedAmount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         // Execute
         TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", NewAppliedAmount);
@@ -1978,7 +1978,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', true);
-        AppliedAmount := Round((Amount - CustLedgerEntry."Remaining Pmt. Disc. Possible") / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round((Amount - CustLedgerEntry."Remaining Pmt. Disc. Possible") / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, CustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
@@ -2082,7 +2082,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostSalesInvoiceWithOneLine(CustLedgerEntry, Amount, '', true);
-        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
@@ -2277,12 +2277,12 @@ codeunit 134267 "Payment Proposal UT"
         // Verify Applied Payment Entry Exists and the fields are set
         VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure PrepareTwoPaymentApplicationProposalLines(var BankAccount: Record "Bank Account"; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line"; var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; var TempPaymentApplicationProposal2: Record "Payment Application Proposal" temporary; CustLedgerEntry: Record "Cust. Ledger Entry"; Amount: Decimal; var FirstLineAmount: Decimal; var SecondLineAmount: Decimal)
     begin
-        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
@@ -2431,7 +2431,7 @@ codeunit 134267 "Payment Proposal UT"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure GetAmountAndAppliedAmt(var CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal; var Amount: Decimal)
@@ -2604,14 +2604,14 @@ codeunit 134267 "Payment Proposal UT"
             Assert.AreEqual(BankAccReconciliationLine.Difference, Difference, 'Difference is Not set correctly');
             Assert.AreEqual(BankAccReconciliationLine."Account No.", TempPaymentApplicationProposal."Account No.", 'Account No. is not set');
             Assert.IsTrue(
-              (StrPos(BankAccReconciliationLine.GetAppliedToDocumentNo, CustLedgerEntry."Document No.") > 0) or
+              (StrPos(BankAccReconciliationLine.GetAppliedToDocumentNo(), CustLedgerEntry."Document No.") > 0) or
               (CustLedgerEntry."Document No." = ''), 'Document No. is not added');
         end else begin
             Assert.AreEqual(BankAccReconciliationLine."Account No.", '', 'Account No. should be blank');
             Assert.AreEqual(BankAccReconciliationLine."Applied Amount", 0, ' Applied Amount should be zero');
             Assert.AreEqual(
               BankAccReconciliationLine.Difference, BankAccReconciliationLine."Statement Amount", 'Difference is Not set correctly');
-            Assert.AreEqual(BankAccReconciliationLine.GetAppliedToDocumentNo, '', 'Document No. should be blank');
+            Assert.AreEqual(BankAccReconciliationLine.GetAppliedToDocumentNo(), '', 'Document No. should be blank');
         end;
     end;
 

@@ -8,6 +8,7 @@ table 386 "Entry No. Amount Buffer"
 {
     Caption = 'Entry No. Amount Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

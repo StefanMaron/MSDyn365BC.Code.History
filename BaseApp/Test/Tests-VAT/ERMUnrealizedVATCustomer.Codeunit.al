@@ -604,7 +604,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
 
         // [GIVEN] Enable GLSetup."Unealized VAT".  Config "VAT Posting Setup"."Unrealized VAT Type" = Percentage.
         EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, false, false);
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
 
         // [GIVEN] Create and post Sales Invoice with two lines:
         // [GIVEN] Positive Line: Quantity = 1,"Unit Price" = 1000, VAT Amount = 200
@@ -1138,7 +1138,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibrarySales.SetInvoiceRounding(false);
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         isInitialized := true;
@@ -1212,10 +1212,10 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        CustomerLedgerEntries."Apply Entries".Invoke; // Apply Entries.
+        CustomerLedgerEntries."Apply Entries".Invoke(); // Apply Entries.
     end;
 
     local procedure ApplyCustomerPaymentToInvoice(InvoiceDocNo: Code[20]; PaymentDocNo: Code[20])
@@ -1343,7 +1343,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibraryERM.SetAddReportingCurrency(CurrencyExchangeRate."Currency Code");
         LibraryERM.RunAddnlReportingCurrency(
           CurrencyExchangeRate."Currency Code", CurrencyExchangeRate."Currency Code",
-          LibraryERM.CreateGLAccountWithSalesSetup);
+          LibraryERM.CreateGLAccountWithSalesSetup());
     end;
 
     local procedure CreateCustomerWithPaymentTerms(VATBusPostingGroup: Code[20]): Code[20]
@@ -1355,7 +1355,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Method Code", PaymentMethod.Code);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1366,7 +1366,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         // Create a new Item and Update VAT Prod. Posting Group.
-        ModifyItemNoSeries;
+        ModifyItemNoSeries();
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
@@ -1477,12 +1477,12 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup") DocumentNo: Code[20]
     var
         SalesLine: Record "Sales Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(SalesHeader."Posting No. Series");
     end;
 
     local procedure CreateSalesInvoiceWithCurrency(var SalesHeader: Record "Sales Header"; VATBusPostingGroup: Code[20]; CurrencyCode: Code[10])
@@ -1719,7 +1719,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
     end;
 
@@ -1760,7 +1760,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     begin
         with VATPostingSetup do begin
             Validate("Unrealized VAT Type", UnrealizedVATType);
-            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Validate("Adjust for Payment Discount", AdjustForPaymentDiscount);
             Modify(true);
         end;
@@ -1844,7 +1844,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+          UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntry.FieldCaption(Amount));
     end;
 
     local procedure VerifyUnrealizedVATEntryIsRealized(PmtDocumentNo: Code[20]; UnrealizedTransactionNo: Integer; RealizedTransactionNo: Integer)
@@ -1917,7 +1917,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
             FindFirst();
             CalcFields("Remaining Amount");
             Assert.AreNearlyEqual(
-              RemainingAmount, "Remaining Amount", LibraryERM.GetAmountRoundingPrecision, FieldCaption("Remaining Amount"));
+              RemainingAmount, "Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Remaining Amount"));
         end;
     end;
 
@@ -1931,10 +1931,10 @@ codeunit 134025 "ERM Unrealized VAT Customer"
             FindFirst();
             Assert.AreNearlyEqual(
               AdditionalCurrencyAmount, "Additional-Currency Amount",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Additional-Currency Amount"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Additional-Currency Amount"));
             Assert.AreNearlyEqual(
               AdditionalCurrencyBase, "Additional-Currency Base",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Additional-Currency Base"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Additional-Currency Base"));
         end;
     end;
 
@@ -1958,7 +1958,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry."Unrealized Base", AmountRoundingPrecision,
           VATEntry.FieldCaption("Unrealized Base"));
@@ -1977,7 +1977,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     var
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
         Assert.AreNearlyEqual(
           ExpectedBase, VATEntry.Base, AmountRoundingPrecision, VATEntry.FieldCaption(Base));
         Assert.AreNearlyEqual(
@@ -1999,7 +1999,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
                 VerifyUnrealizedVATEntryAmounts(
                   VATEntry, -SalesLine[i].Amount, -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount), 0, 0);
                 VATEntryNo[ArrayLen(SalesLine) - i + 1] := "Entry No.";
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2024,7 +2024,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
                   VATEntry,
                   -SalesLine[i].Amount * VATPart,
                   -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount) * VATPart);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -2080,15 +2080,15 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;  // Set Applies To ID.
-        ApplyCustomerEntries."Post Application".Invoke;  // Post Application.
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();  // Set Applies To ID.
+        ApplyCustomerEntries."Post Application".Invoke();  // Post Application.
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

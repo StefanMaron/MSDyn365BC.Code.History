@@ -91,6 +91,10 @@ codeunit 1006 "Copy Job"
                 TargetJobTask.Validate("Job No.", TargetJob."No.");
                 TargetJobTask.Validate("Job Task No.", SourceJobTask."Job Task No.");
                 TargetJobTask.TransferFields(SourceJobTask, false);
+                if SourceJob."Task Billing Method" = SourceJob."Task Billing Method"::"Multiple customers" then begin
+                    TargetJobTask.SetHideValidationDialog(true);
+                    TargetJobTask.Validate("Sell-to Customer No.", '');
+                end;
                 if TargetJobTask."WIP Method" <> '' then begin
                     TargetJobTask.Validate("WIP-Total", TargetJobTask."WIP-Total"::Total);
                     TargetJobTask.Validate("WIP Method", TargetJob."WIP Method");
@@ -150,49 +154,47 @@ codeunit 1006 "Copy Job"
         OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine);
         if SourceJobPlanningLine.FindSet() then
             repeat
-                with TargetJobPlanningLine do begin
-                    IsHandled := false;
-                    OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInit(TargetJobPlanningLine, SourceJobPlanningLine, TargetJobTask, IsHandled);
-                    if not IsHandled then begin
-                        Init();
-                        Validate("Job No.", TargetJobTask."Job No.");
-                        Validate("Job Task No.", TargetJobTask."Job Task No.");
-                        if NextPlanningLineNo = 0 then
-                            NextPlanningLineNo := FindLastJobPlanningLine(TargetJobPlanningLine);
-                        NextPlanningLineNo += 10000;
-                        Validate("Line No.", NextPlanningLineNo);
-                        TransferFields(SourceJobPlanningLine, false);
-                        if not CopyPrices then
-                            UpdateAllAmounts();
+                IsHandled := false;
+                OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInit(TargetJobPlanningLine, SourceJobPlanningLine, TargetJobTask, IsHandled);
+                if not IsHandled then begin
+                    TargetJobPlanningLine.Init();
+                    TargetJobPlanningLine.Validate("Job No.", TargetJobTask."Job No.");
+                    TargetJobPlanningLine.Validate("Job Task No.", TargetJobTask."Job Task No.");
+                    if NextPlanningLineNo = 0 then
+                        NextPlanningLineNo := FindLastJobPlanningLine(TargetJobPlanningLine);
+                    NextPlanningLineNo += 10000;
+                    TargetJobPlanningLine.Validate("Line No.", NextPlanningLineNo);
+                    TargetJobPlanningLine.TransferFields(SourceJobPlanningLine, false);
+                    if not CopyPrices then
+                        TargetJobPlanningLine.UpdateAllAmounts();
 
-                        "Remaining Qty." := 0;
-                        "Remaining Qty. (Base)" := 0;
-                        "Remaining Total Cost" := 0;
-                        "Remaining Total Cost (LCY)" := 0;
-                        "Remaining Line Amount" := 0;
-                        "Remaining Line Amount (LCY)" := 0;
-                        "Qty. Posted" := 0;
-                        "Qty. to Transfer to Journal" := 0;
-                        "Posted Total Cost" := 0;
-                        "Posted Total Cost (LCY)" := 0;
-                        "Posted Line Amount" := 0;
-                        "Posted Line Amount (LCY)" := 0;
-                        "Qty. to Transfer to Invoice" := 0;
-                        "Qty. to Invoice" := 0;
-                        "Ledger Entry No." := 0;
-                        "Ledger Entry Type" := "Ledger Entry Type"::" ";
-                        OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
-                        Insert(true);
-                        OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
-                        if Type <> Type::Text then begin
-                            ExchangeJobPlanningLineAmounts(TargetJobPlanningLine, SourceJob."Currency Code");
-                            if not CopyQuantity then
-                                Validate(Quantity, 0)
-                            else
-                                Validate(Quantity);
-                            OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
-                            Modify();
-                        end;
+                    TargetJobPlanningLine."Remaining Qty." := 0;
+                    TargetJobPlanningLine."Remaining Qty. (Base)" := 0;
+                    TargetJobPlanningLine."Remaining Total Cost" := 0;
+                    TargetJobPlanningLine."Remaining Total Cost (LCY)" := 0;
+                    TargetJobPlanningLine."Remaining Line Amount" := 0;
+                    TargetJobPlanningLine."Remaining Line Amount (LCY)" := 0;
+                    TargetJobPlanningLine."Qty. Posted" := 0;
+                    TargetJobPlanningLine."Qty. to Transfer to Journal" := 0;
+                    TargetJobPlanningLine."Posted Total Cost" := 0;
+                    TargetJobPlanningLine."Posted Total Cost (LCY)" := 0;
+                    TargetJobPlanningLine."Posted Line Amount" := 0;
+                    TargetJobPlanningLine."Posted Line Amount (LCY)" := 0;
+                    TargetJobPlanningLine."Qty. to Transfer to Invoice" := 0;
+                    TargetJobPlanningLine."Qty. to Invoice" := 0;
+                    TargetJobPlanningLine."Ledger Entry No." := 0;
+                    TargetJobPlanningLine."Ledger Entry Type" := TargetJobPlanningLine."Ledger Entry Type"::" ";
+                    OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
+                    TargetJobPlanningLine.Insert(true);
+                    OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
+                    if TargetJobPlanningLine.Type <> TargetJobPlanningLine.Type::Text then begin
+                        ExchangeJobPlanningLineAmounts(TargetJobPlanningLine, SourceJob."Currency Code");
+                        if not CopyQuantity then
+                            TargetJobPlanningLine.Validate(Quantity, 0)
+                        else
+                            TargetJobPlanningLine.Validate(Quantity);
+                        OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
+                        TargetJobPlanningLine.Modify();
                     end;
                 end;
                 OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(TargetJobPlanningLine, SourceJobPlanningLine);
@@ -265,15 +267,13 @@ codeunit 1006 "Copy Job"
         DefaultDimension.SetRange("No.", SourceJob."No.");
         if DefaultDimension.FindSet() then
             repeat
-                with NewDefaultDimension do begin
-                    Init();
-                    "Table ID" := DATABASE::Job;
-                    "No." := TargetJob."No.";
-                    "Dimension Code" := DefaultDimension."Dimension Code";
-                    TransferFields(DefaultDimension, false);
-                    Insert();
-                    DimMgt.DefaultDimOnInsert(DefaultDimension);
-                end;
+                NewDefaultDimension.Init();
+                NewDefaultDimension."Table ID" := DATABASE::Job;
+                NewDefaultDimension."No." := TargetJob."No.";
+                NewDefaultDimension."Dimension Code" := DefaultDimension."Dimension Code";
+                NewDefaultDimension.TransferFields(DefaultDimension, false);
+                NewDefaultDimension.Insert();
+                DimMgt.DefaultDimOnInsert(DefaultDimension);
             until DefaultDimension.Next() = 0;
 
         DimMgt.UpdateDefaultDim(

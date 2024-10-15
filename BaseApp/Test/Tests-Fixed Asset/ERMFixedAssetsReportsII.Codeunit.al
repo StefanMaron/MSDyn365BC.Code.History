@@ -73,9 +73,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::" ", true, true, '', false);
 
         // 3.Verify: Verify values on Projected Value Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyProjectedDisposalValues(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 1. Setup: Create Fixed Asset, FA Depreciation Book, First Maintenance, Second Maintenance, General Journal Batch,
         // First Journal Line with First Maintenance, Second Journal Line with Second Maintenance, Post Journal Line.
         Initialize();
-        OldDefaultDeprBook := UpdateFASetup(CreateDepreciationBook);
+        OldDefaultDeprBook := UpdateFASetup(CreateDepreciationBook());
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset);
         LibraryFixedAsset.CreateMaintenance(Maintenance);
@@ -120,13 +120,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         MaintenanceRegister.Run();
 
         // 3. Verify: Verify values on Maintenance Register Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMaintenanceRegisterLine(Maintenance.Code);
         VerifyMaintenanceRegisterLine(Maintenance2.Code);
 
         // Tear Down.
         UpdateFASetup(OldDefaultDeprBook);
-        LibraryFixedAsset.VerifyMaintenanceLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyMaintenanceLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -178,7 +178,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         MaintenanceNextService.Run();
 
         // 3. Verify: Verify values on Maintenance Next Service Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMaintenanceNextService(FixedAsset);
     end;
 
@@ -212,11 +212,11 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetDocumentNos.Run();
 
         // 3. Verify: Verify warning and other values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(GapWarningMsg));
         VerifyFixedAssetDocument(FixedAsset."No.");
         VerifyFixedAssetDocument(FixedAsset2."No.");
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -261,11 +261,11 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetDocumentNos.Run();
 
         // 3. Verify: Verify values on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetDocument(FixedAsset."No.");
         VerifyFixedAssetDocument(FixedAsset2."No.");
         asserterror LibraryReportDataset.AssertElementWithValueExists('', GapWarningMsg);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -306,10 +306,10 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetRegister.Run();
 
         // 3. Verify: Verify values on Fixed Asset Register Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetRegisterLine(FixedAsset."No.");
         VerifyFixedAssetRegisterLine(FixedAsset2."No.");
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -351,10 +351,10 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         // 2. Exercise: Run Fixed Asset Projected Value Report without Starting Date and Ending Date.
         Clear(FixedAssetProjectedValue);
-        LibraryVariableStorage.Enqueue(LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryVariableStorage.Enqueue(LibraryFixedAsset.GetDefaultDeprBook());
         LibraryVariableStorage.Enqueue(0D);
         LibraryVariableStorage.Enqueue(0D);
-        FixedAssetProjectedValue.GetFASetup;
+        FixedAssetProjectedValue.GetFASetup();
         Commit();
         asserterror FixedAssetProjectedValue.Run();
 
@@ -380,7 +380,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // Using the Random Number for the Day.
         FixedAssetProjectedValue.SetMandatoryFields(
           '', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
-        FixedAssetProjectedValue.GetFASetup;
+        FixedAssetProjectedValue.GetFASetup();
 
         asserterror FixedAssetProjectedValue.Run();
 
@@ -437,9 +437,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"FA Class", true, false, '', false);
 
         // 3. Verify: Verify values on report generated with FA Class.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -474,9 +474,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"FA Subclass", true, false, '', false);
 
         // 3. Verify: Verify values on report generated with FA Subclass.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -511,10 +511,10 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"FA Location", true, false, '', false);
 
         // 3. Verify: Verify values on report generated with FA Location.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyProjectedGroupValue(FADepreciationBook, FADepreciationBook2);
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -552,9 +552,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"Main Asset", true, false, '', false);
 
         // 3.Verify: Verify values on report generated with Main Asset.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -584,7 +584,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFAProjectedValueMultiLines(FixedAsset, GroupTotals::" ", true, false, '', false);
 
         // 3. Verify: Verify values on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyValuesOnNewAccPeriod(NewAccPeriodDate, NoOfDays);
     end;
@@ -657,9 +657,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"Global Dimension 1", true, false, '', false);
 
         // 3. Verify: Verify values on report generated with Global Dimension 1.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -693,9 +693,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"Global Dimension 2", true, false, '', false);
 
         // 3. Verify: Verify values on report generated with Global Dimension 2.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -726,9 +726,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"FA Posting Group", true, false, '', false);
 
         // 3.Verify: Verify values on report generated with FA Posting Group.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnGroupTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -758,9 +758,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals, false, false, '', false);
 
         // 3.Verify: Verify values on report generated with blank Group.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFAProjectedValueTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -790,9 +790,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals, false, true, '', false);
 
         // 3.Verify: Verify values on report generated with Project Disposal as True.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyProjectedDisposalTotal(FADepreciationBook, FADepreciationBook2);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -826,11 +826,11 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals, false, false, GLBudgetName.Name, true);
 
         // 3.Verify: Verify values on Report and G/L Budget Entry.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFAProjectedValueTotal(FADepreciationBook, FADepreciationBook2);
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         GLBudgetEntry.FindFirst();
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -846,7 +846,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report without Depreciation Book Code.
-        asserterror RunFAGLAnalysisWithPeriod('', '', WorkDate(), WorkDate, '', '', '', 0, 0, false);
+        asserterror RunFAGLAnalysisWithPeriod('', '', WorkDate(), WorkDate(), '', '', '', 0, 0, false);
 
         // 3. Verify: Verify that System generates an error without Depreciation Book Code.
         Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
@@ -863,7 +863,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report without Starting Date and Ending Date.
-        asserterror RunFAGLAnalysisWithPeriod('', LibraryFixedAsset.GetDefaultDeprBook, 0D, 0D, '', '', '', 0, 0, false);
+        asserterror RunFAGLAnalysisWithPeriod('', LibraryFixedAsset.GetDefaultDeprBook(), 0D, 0D, '', '', '', 0, 0, false);
 
         // 3. Verify: Verify that System generates an error when Starting Date and Ending Date are blank.
         Assert.AreEqual(StrSubstNo(BlankDatesErr), GetLastErrorText, UnknownErr);
@@ -916,10 +916,10 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report with PostingType1 as Acquisition Cost and All Period as blank.
         RunFAGLAnalysisWithPeriod(
           FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
-          WorkDate, WorkDate(), AcquisitionCostTxt, '', '', Period, 0, false);
+          WorkDate(), WorkDate(), AcquisitionCostTxt, '', '', Period, 0, false);
 
         // 3. Verify: Verify value of Acquisition Cost on report with PostingType1 as Acquisition Cost and All Period as blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText3', AcquisitionCostTxt + '  ');
         LibraryReportDataset.AssertElementWithValueExists('Amounts1', GenJournalLine.Amount);
     end;
@@ -971,13 +971,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report with PostingType2 as Acquisition Cost and SalesReport with True or False.
         RunFAGLAnalysisWithPeriod(
           FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
-          WorkDate, WorkDate(), AcquisitionCostTxt, '', '', Period::Disposal, GroupTotals, SalesReport);
+          WorkDate(), WorkDate(), AcquisitionCostTxt, '', '', Period::Disposal, GroupTotals, SalesReport);
 
         // 3. Verify: Verify value of Acquisition Cost on report with PostingType2 as Acquisition Cost and SalesReport with True or False.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText3', AcquisitionCostTxt + ' Disposal');
         LibraryReportDataset.AssertElementWithValueExists('Amounts1', -AcquisitionAmount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -995,8 +995,8 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report with PostingType1 as Acquisition Cost and All Period as Bal. Disposal.
         asserterror RunFAGLAnalysisWithPeriod(
-            '', LibraryFixedAsset.GetDefaultDeprBook,
-            WorkDate, WorkDate(), AcquisitionCostTxt, '', '', Period::"Bal. Disposal", 0, false);
+            '', LibraryFixedAsset.GetDefaultDeprBook(),
+            WorkDate(), WorkDate(), AcquisitionCostTxt, '', '', Period::"Bal. Disposal", 0, false);
 
         // 3. Verify: Verify error occurs on Running Fixed Asset - G/L Analysis Report with PostingType1 as Acquisition Cost and
         // All Period as Bal. Disposal.
@@ -1079,13 +1079,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2.Exercise: Run Fixed Asset - G/L Analysis Report with different PostingType1 and All Period as Blank.
         RunFAGLAnalysisWithPeriod(
           FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
-          WorkDate, WorkDate(), PostingType1, '', '', Period, 0, false);
+          WorkDate(), WorkDate(), PostingType1, '', '', Period, 0, false);
 
         // 3. Verify: Verify values on report with different PostingType1 and All Period as Blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText3', PostingType1 + '  ');
         LibraryReportDataset.AssertElementWithValueExists('Amounts1', GenJournalLine.Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1115,13 +1115,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2. Exercise: Run Fixed Asset - G/L Analysis Report with PostingType3 as Appreciation and All Period as blank.
         RunFAGLAnalysisWithPeriod(
           FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
-          WorkDate, WorkDate(), '', '', AppreciationTxt, Period, 0, false);
+          WorkDate(), WorkDate(), '', '', AppreciationTxt, Period, 0, false);
 
         // 3. Verify: Verify value of Appreciation on Report with PostingType3 as Appreciation and All Period as blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText5', AppreciationTxt + '  ');
         LibraryReportDataset.AssertElementWithValueExists('Amounts3', GenJournalLine.Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1155,13 +1155,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAsset.SetRange("No.", FixedAsset."No.");
         RunFAGLAnalysisWithPeriod(
           FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
-          WorkDate, WorkDate(), GainLossTxt, '', '', Period::Disposal, 0, false);
+          WorkDate(), WorkDate(), GainLossTxt, '', '', Period::Disposal, 0, false);
 
         // 3. Verify: Verify value of Gain/Loss on report with PostingType1 as Gain/Loss and All Period as Disposal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText3', GainLossTxt + '  ');
         LibraryReportDataset.AssertElementWithValueExists('Amounts1', AcquisitionAmount + GenJournalLine.Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1193,9 +1193,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"FA Class", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as FA Class.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1227,9 +1227,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"FA Subclass", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as FA Subclass.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1261,9 +1261,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"FA Location", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as FA Location.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1299,9 +1299,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"Main Asset", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as Main Asset.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1336,9 +1336,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"Global Dimension 1", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as Global Dimension 1.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1373,9 +1373,9 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"Global Dimension 2", false, false);
 
         // 3. Verify: Verify values on Fixed Asset - G/L Analysis Report with Group Total as Global Dimension 2.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1403,7 +1403,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
           FixedAsset[1], WorkDate(), AcquisitionCostTxt, Period::" ", Period::" ", Period::" ", GroupTotals::"FA Posting Group", false, false);
 
         // 3. Verify: Verify values on report generated with FA Posting Group.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGroupTotalValue(AcquisitionCostTxt, Amount);
     end;
 
@@ -1588,7 +1588,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // [SCENARIO 408658] Calculate Depreciation, when scheduled should use saved dates instead workdate(it was real date before)
         Initialize();
 
-        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = Workdate + 1 day
+        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = WorkDate() + 1 day
         CalculateDepreciation.InitializeRequest('', WorkDate() + 1, false, 0, WorkDate() + 1, '', '', false);
 
         // [WHEN] Calculate Depreciation request page is opened 
@@ -1604,13 +1604,13 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         OldClientType := ClientTypeManagement.GetCurrentClientType();
         TestClientTypeSubscriber.SetClientType(ClientType::Background);
 
-        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = Workdate + 1 day
+        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = WorkDate() + 1 day
         CalculateDepreciation.InitializeRequest('', WorkDate() + 1, false, 0, WorkDate() + 1, '', '', false);
 
         // [WHEN] Calculated Depreciation request page is opened in background (simulate scheduled report)
         CalculateDepreciation.Run();
 
-        // [THEN] "Posting Date"/"FA Posting Date" on request page = Workdate + 1
+        // [THEN] "Posting Date"/"FA Posting Date" on request page = WorkDate() + 1
         Assert.AreEqual(WorkDate() + 1, LibraryVariableStorage.DequeueDate(), 'Wrong FA Posting Date');
         Assert.AreEqual(WorkDate() + 1, LibraryVariableStorage.DequeueDate(), 'Wrong Posting Date');
 
@@ -1630,7 +1630,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
     end;
 
@@ -1706,7 +1706,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         i: Integer;
     begin
         // Create Fiscal Year.
-        LibraryFiscalYear.CloseAccountingPeriod;
+        LibraryFiscalYear.CloseAccountingPeriod();
         LibraryFiscalYear.CreateFiscalYear();
         FindAccountingPeriod(AccountingPeriod);
         while not (AccountingPeriod."Starting Date" >= WorkDate()) do
@@ -1755,7 +1755,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook);
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         with FADepreciationBook do begin
             Validate("Depreciation Starting Date", WorkDate());
@@ -1771,7 +1771,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook);
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
         DepreciationBook.Validate("Use Custom 1 Depreciation", true);
         DepreciationBook.Modify(true);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
@@ -1899,7 +1899,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         GenJournalTemplate.SetRange(Recurring, false);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -2040,7 +2040,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Clear(FixedAssetProjectedValue);
         FixedAssetProjectedValue.SetTableView(FixedAsset);
         FixedAssetProjectedValue.SetMandatoryFields('', WorkDate(), WorkDate());
-        FixedAssetProjectedValue.GetFASetup;
+        FixedAssetProjectedValue.GetFASetup();
         FixedAssetProjectedValue.SetTotalFields(GroupTotals, PrintDetails);
 
         // 30 for days in first period.
@@ -2056,7 +2056,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Clear(FixedAssetProjectedValue);
         FixedAssetProjectedValue.SetTableView(FixedAsset);
         FixedAssetProjectedValue.SetMandatoryFields('', CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        FixedAssetProjectedValue.GetFASetup;
+        FixedAssetProjectedValue.GetFASetup();
         FixedAssetProjectedValue.SetTotalFields(GroupTotals, PrintDetails);
 
         FixedAssetProjectedValue.SetPeriodFields(0, 0, 0D, true);
@@ -2100,7 +2100,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryVariableStorage.Enqueue(GroupTotals);
         LibraryVariableStorage.Enqueue(PrintDetails);
         LibraryVariableStorage.Enqueue(SalesReport);
-        FixedAssetGLAnalysis.GetFASetup;
+        FixedAssetGLAnalysis.GetFASetup();
         Commit();
         REPORT.Run(REPORT::"Fixed Asset - G/L Analysis", true, false, FixedAsset);
     end;
@@ -2111,7 +2111,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         GenJournalLine: Record "Gen. Journal Line";
         FAJournalSetup: Record "FA Journal Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         LibraryERM.CreateGLAccount(GLAccount);
@@ -2122,17 +2122,17 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
             FindSet();
             GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
             if CountPostDepreciationNumber <= 1 then begin
-                GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+                GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
                 GenJournalBatch.Modify(true);
             end;
-            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
+            DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
             repeat
                 Validate("Document No.", DocumentNo);
                 Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
                 Validate("FA Posting Date", "Posting Date");
                 Validate("Bal. Account No.", GLAccount."No.");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -2240,7 +2240,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         FAJournalSetup2: Record "FA Journal Setup";
     begin
-        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
+        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook());
         FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
@@ -2295,7 +2295,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('FALedgEntry__FA_No__', FANo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('FALedgEntry__Document_No__', FALedgerEntry."Document No.");
     end;
 
@@ -2306,7 +2306,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('FA_Ledger_Entry__FA_No__', FANo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Ledger_Entry_Amount', FALedgerEntry.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Ledger_Entry__G_L_Entry_No__', FALedgerEntry."G/L Entry No.");
@@ -2324,7 +2324,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     local procedure VerifyMaintenanceNextService(FixedAsset: Record "Fixed Asset")
     begin
         LibraryReportDataset.SetRange('Fixed_Asset__No__', FixedAsset."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Fixed_Asset__Next_Service_Date_', Format(FixedAsset."Next Service Date"));
     end;
 
@@ -2335,7 +2335,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         MaintenanceLedgerEntry.SetRange("Maintenance Code", MaintenanceCode);
         MaintenanceLedgerEntry.FindFirst();
         LibraryReportDataset.SetRange('Maintenance_Ledger_Entry__Maintenance_Code_', MaintenanceCode);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Maintenance_Ledger_Entry__Document_No__', MaintenanceLedgerEntry."Document No.");
@@ -2391,16 +2391,16 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Amount2 := GetDepreciationAmount(FADepreciationBook2);
 
         LibraryReportDataset.SetRange('FixedAssetNo', FADepreciationBook."FA No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BookValue', FADepreciationBook."Book Value");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DeprAmount', -Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('GroupTotalBookValue', FADepreciationBook."Book Value" - Amount);
 
         LibraryReportDataset.SetRange('FixedAssetNo', FADepreciationBook2."FA No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BookValue', FADepreciationBook2."Book Value");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DeprAmount', -Amount2);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'GroupTotalBookValue',
@@ -2410,8 +2410,8 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     local procedure VerifyValuesOnNewAccPeriod(NewPeriodDate: Date; NoOfDays: Integer)
     begin
         LibraryReportDataset.SetRange('FormatUntilDate', Format(NewPeriodDate - 1));
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('NumberOfDays', NoOfDays);
 
         LibraryReportDataset.Reset();
@@ -2528,18 +2528,18 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAssetProjectedValue.DepreciationBook.SetValue(DepreciationBook);
         FixedAssetProjectedValue.FirstDeprDate.SetValue(Format(StartingDate));
         FixedAssetProjectedValue.LastDeprDate.SetValue(Format(EndingDate));
-        FixedAssetProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHFixedAssetProjectedValueNoOfDaysError(var FixedAssetProjectedValue: TestRequestPage "Fixed Asset - Projected Value")
     begin
-        FixedAssetProjectedValue.DepreciationBook.SetValue(LibraryFixedAsset.GetDefaultDeprBook);
+        FixedAssetProjectedValue.DepreciationBook.SetValue(LibraryFixedAsset.GetDefaultDeprBook());
         FixedAssetProjectedValue.FirstDeprDate.SetValue(Format(WorkDate()));
         FixedAssetProjectedValue.LastDeprDate.SetValue(Format(WorkDate()));
         FixedAssetProjectedValue.NumberOfDays.SetValue(LibraryRandom.RandInt(4));
-        FixedAssetProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2593,35 +2593,35 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     [Scope('OnPrem')]
     procedure RHFAProjectedValue(var FixedAssetGLAnalysis: TestRequestPage "Fixed Asset - Projected Value")
     begin
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHFARegister(var FixedAssetGLAnalysis: TestRequestPage "Fixed Asset Register")
     begin
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHFADocumentNos(var FixedAssetGLAnalysis: TestRequestPage "Fixed Asset Document Nos.")
     begin
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHMaintenanceNextService(var FixedAssetGLAnalysis: TestRequestPage "Maintenance - Next Service")
     begin
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHMaintenanceRegister(var FixedAssetGLAnalysis: TestRequestPage "Maintenance Register")
     begin
-        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetGLAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2646,7 +2646,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         CalculateDepreciation.UseForceNoOfDays.SetValue(UseForceNoOfDays);
         CalculateDepreciation.ForceNoOfDays.SetValue(ForceNoOfDays);
         CalculateDepreciation.DocumentNo.SetValue(No);
-        CalculateDepreciation.OK.Invoke;
+        CalculateDepreciation.OK().Invoke();
     end;
 
     [ConfirmHandler]

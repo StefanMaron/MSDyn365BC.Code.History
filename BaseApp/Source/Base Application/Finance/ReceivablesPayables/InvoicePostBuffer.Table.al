@@ -40,12 +40,13 @@ table 49 "Invoice Post. Buffer"
     ObsoleteReason = 'This table will be replaced by table Invoice Posting Buffer in new Invoice Posting implementation.';
 #if CLEAN23
     ObsoleteState = Removed;
-    ObsoleteTag = '23.0';
+    ObsoleteTag = '26.0';
 #else
     ObsoleteState = Pending;
     ObsoleteTag = '20.0';
 #endif
 #pragma warning restore AS0074
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -76,7 +77,7 @@ table 49 "Invoice Post. Buffer"
         }
         field(6; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
             TableRelation = Job;
         }
@@ -329,13 +330,8 @@ table 49 "Invoice Post. Buffer"
         {
             Caption = 'VAT Date';
             DataClassification = SystemMetadata;
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
         }
         field(11761; Description; Text[100])
@@ -424,13 +420,8 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
             ObsoleteReason = 'The field is not needed anymore.';
         }
         field(31100; "Original Document VAT Date"; Date)
@@ -445,18 +436,9 @@ table 49 "Invoice Post. Buffer"
 
     keys
     {
-#if not CLEAN21
-        key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "VAT Date", "Prepayment Type", "Additional Grouping Identifier")
-#else
         key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "Additional Grouping Identifier")
-#endif
         {
             Clustered = true;
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The fields "VAT Date" and "Prepayment Type" will be removed and cannot be part of the primary key.';
-            ObsoleteTag = '21.0';
-#endif
         }
     }
 

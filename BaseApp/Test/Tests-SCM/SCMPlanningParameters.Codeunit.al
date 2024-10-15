@@ -31,7 +31,7 @@ codeunit 137022 "SCM Planning Parameters"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Parameters");
         RequisitionLine.DeleteAll(true);
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if IsInitialized then
             exit;
@@ -71,14 +71,14 @@ codeunit 137022 "SCM Planning Parameters"
             // Create demand
             LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
             LibrarySales.CreateSalesLine(WithDemandSalesLine, SalesHeader, WithDemandSalesLine.Type::Item, WithDemandItem."No.", 1);
-            WithDemandSalesLine.Validate("Planned Delivery Date", SSDemandDate);
+            WithDemandSalesLine.Validate("Planned Delivery Date", SSDemandDate());
             WithDemandSalesLine.Modify(true);
 
             // Initial supply > Safety Stock
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
             LibraryPurchase.CreatePurchaseLine(
               WithDemandPurchaseLine, PurchaseHeader, WithDemandPurchaseLine.Type::Item, WithDemandItem."No.", 1);
-            WithDemandPurchaseLine.Validate("Planned Receipt Date", StartingDate - 2);
+            WithDemandPurchaseLine.Validate("Planned Receipt Date", StartingDate() - 2);
             WithDemandPurchaseLine.Modify(true);
 
             WithDemandIsInitialized := true;
@@ -174,7 +174,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 22, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 22, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -189,8 +189,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -205,8 +205,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -221,9 +221,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -238,8 +238,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 23, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 23, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -254,9 +254,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 6, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 6, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 17, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -277,9 +277,9 @@ codeunit 137022 "SCM Planning Parameters"
         // documentation of this decision.
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -295,9 +295,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -327,8 +327,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -343,7 +343,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -358,8 +358,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -374,7 +374,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 14, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 14, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -389,7 +389,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 21, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 21, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -421,7 +421,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -437,9 +437,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -454,7 +454,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -469,7 +469,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -484,9 +484,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -501,9 +501,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -518,9 +518,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 8, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 8, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -535,9 +535,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 8, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 8, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 9, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -552,8 +552,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -568,9 +568,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -585,9 +585,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -604,18 +604,18 @@ codeunit 137022 "SCM Planning Parameters"
 
         ValidatePlanningLineCount(RequisitionLine, Item, 7);
 
-        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(true), StartingDate);
+        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(true), StartingDate());
 
         // There is a by design inconsistency where, when using Maximum Order Quantity in Scenario when you,
         // get a below safety stock exception in the middle of a planning period, planning engine will only
         // order up to safety stock, and not to reorder point. This test serves as documentation of this decision.
 
-        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, 4, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -630,7 +630,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -645,7 +645,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -660,7 +660,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -675,7 +675,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -690,8 +690,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), StartingDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), StartingDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -706,7 +706,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -721,7 +721,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -736,8 +736,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 18, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -752,7 +752,7 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -767,8 +767,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 3, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -783,8 +783,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), StartingDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), StartingDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -799,8 +799,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -815,8 +815,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -831,9 +831,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -848,9 +848,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -865,10 +865,10 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 4);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 1, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -889,8 +889,8 @@ codeunit 137022 "SCM Planning Parameters"
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 3);
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock, 'Safety Stock Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate - 1);
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -910,12 +910,12 @@ codeunit 137022 "SCM Planning Parameters"
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 2);
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock, 'Safety Stock Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, SafetyStock, AcceptAction(false), StartingDate - 1);
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, SafetyStock, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -936,8 +936,8 @@ codeunit 137022 "SCM Planning Parameters"
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 3);
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock, 'Safety Stock Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate - 1);
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -957,12 +957,12 @@ codeunit 137022 "SCM Planning Parameters"
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 2);
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock, 'Safety Stock Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, 5, AcceptAction(false), StartingDate - 1);
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, 5, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -984,17 +984,17 @@ codeunit 137022 "SCM Planning Parameters"
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 2);
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, GLB_MaxQty, 'Safety Stock Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, GLB_MaxQty, AcceptAction(false), StartingDate - 1);
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, GLB_MaxQty(), 'Safety Stock Quantity');
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, GLB_MaxQty(), AcceptAction(false), StartingDate() - 1);
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 4);
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock - GLB_MaxQty, 'Safety Stock Quantity');
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, SafetyStock, SafetyStock - GLB_MaxQty(), 'Safety Stock Quantity');
         ValidateNextTrackingLine(
-          UntrackedPlanningElement, Item, ReorderQuantity, ReorderQuantity - (SafetyStock - GLB_MaxQty), 'Reorder Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, GLB_MinQty, GLB_MinQty - ReorderQuantity, 'Minimum Order Quantity');
-        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate));
-        ValidateNextPlanningLine(RequisitionLine, Item, GLB_MinQty, AcceptAction(false), StartingDate - 1);
+          UntrackedPlanningElement, Item, ReorderQuantity, ReorderQuantity - (SafetyStock - GLB_MaxQty()), 'Reorder Quantity');
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, GLB_MinQty(), GLB_MinQty() - ReorderQuantity, 'Minimum Order Quantity');
+        ValidateNextTrackingLine(UntrackedPlanningElement, Item, 0, 0, SSExceptionText(SafetyStock, StartingDate()));
+        ValidateNextPlanningLine(RequisitionLine, Item, GLB_MinQty(), AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -1009,8 +1009,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 28, AcceptAction(false), StartingDate() - 1);
     end;
 
     [Test]
@@ -1025,9 +1025,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 15, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -1046,9 +1046,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 12, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 12, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -1063,8 +1063,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -1079,9 +1079,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 2, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -1099,8 +1099,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -1118,8 +1118,8 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 2);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 20, AcceptAction(false), SSDemandDate() - 1);
     end;
 
     [Test]
@@ -1138,9 +1138,9 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 3);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -1156,15 +1156,15 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(true));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 5);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
 
         ValidateTrackingLineCount(UntrackedPlanningElement, Item, RequisitionLine."Line No.", 3);
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, 5, 5, 'Safety Stock Quantity');
         ValidateNextTrackingLine(UntrackedPlanningElement, Item, 10, 3, 'Minimum Order Quantity');
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     [Test]
@@ -1183,11 +1183,11 @@ codeunit 137022 "SCM Planning Parameters"
         CalculatePlanFor(Item, RespectParameters(false));
 
         ValidatePlanningLineCount(RequisitionLine, Item, 5);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), SSDemandDate - 1);
-        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate));
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), StartingDate());
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 25, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 7, AcceptAction(false), SSDemandDate() - 1);
+        ValidateNextPlanningLine(RequisitionLine, Item, 10, AcceptAction(true), TimeBucketEnd(Item, StartingDate()));
     end;
 
     local procedure CreateItem(var Item: Record Item)
@@ -1204,7 +1204,7 @@ codeunit 137022 "SCM Planning Parameters"
     var
         LibraryPlanning: Codeunit "Library - Planning";
     begin
-        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, StartingDate, EndingDate, RespectParameters);
+        LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(Item, StartingDate(), EndingDate(), RespectParameters);
     end;
 
     local procedure SetOrderModifiers(var Item: Record Item; OrderMultiple: Integer; MinimumQty: Integer; MaximumQty: Integer)
@@ -1277,12 +1277,12 @@ codeunit 137022 "SCM Planning Parameters"
 
     local procedure EndingDate(): Date
     begin
-        exit(WorkDate + 10);
+        exit(WorkDate() + 10);
     end;
 
     local procedure SSDemandDate(): Date
     begin
-        exit(WorkDate + 6);
+        exit(WorkDate() + 6);
     end;
 
     local procedure AcceptAction(Accept: Boolean): Boolean

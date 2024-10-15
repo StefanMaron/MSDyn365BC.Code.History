@@ -5,6 +5,7 @@ using System.Security.AccessControl;
 table 5098 "Saved Segment Criteria"
 {
     Caption = 'Saved Segment Criteria';
+    DataClassification = CustomerContent;
     LookupPageID = "Saved Segment Criteria List";
 
     fields

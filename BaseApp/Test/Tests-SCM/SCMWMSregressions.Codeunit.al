@@ -49,11 +49,11 @@ codeunit 137005 "SCM WMS regressions"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         WarehouseSetup.Get();
-        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         SalesReceivablesSetup.Modify(true);
 
         Initialized := true;
@@ -269,7 +269,7 @@ codeunit 137005 "SCM WMS regressions"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenter."No.");
         CertifyRouting(RoutingHeader);
 
         // [GIVEN] Create item with routing "R"
@@ -314,9 +314,9 @@ codeunit 137005 "SCM WMS regressions"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID, RoutingLine[1].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID(), RoutingLine[1].Type::"Work Center", WorkCenter."No.");
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID, RoutingLine[2].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID(), RoutingLine[2].Type::"Work Center", WorkCenter."No.");
 
         // [GIVEN] Set operation "2" to be the starting routing operation, "1" - terminating operation
         RoutingLine[1]."Previous Operation No." := RoutingLine[2]."Operation No.";
@@ -388,7 +388,7 @@ codeunit 137005 "SCM WMS regressions"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenter."No.");
         CertifyRouting(RoutingHeader);
 
         // [GIVEN] Create item with routing "R"
@@ -420,7 +420,7 @@ codeunit 137005 "SCM WMS regressions"
         ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        Assert.IsTrue(ProdOrderLine.FindSet, ProdOrderLinesNotCreatedConst);
+        Assert.IsTrue(ProdOrderLine.FindSet(), ProdOrderLinesNotCreatedConst);
         repeat
             ProdOrderLine.Validate("Unit of Measure Code", UOMCode);
             ProdOrderLine.Modify(true);
@@ -434,7 +434,7 @@ codeunit 137005 "SCM WMS regressions"
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        Assert.IsTrue(ProdOrderComponent.FindSet, ProdOrdCompLinesNotCrtdConst);
+        Assert.IsTrue(ProdOrderComponent.FindSet(), ProdOrdCompLinesNotCrtdConst);
         repeat
             ProdOrderComponent.Validate("Unit of Measure Code", UOMCode);
             ProdOrderComponent.Modify(true);
@@ -460,7 +460,7 @@ codeunit 137005 "SCM WMS regressions"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenter."No.");
         CertifyRouting(RoutingHeader);
 
         CreateItemWithRouting(Item, RoutingHeader."No.");

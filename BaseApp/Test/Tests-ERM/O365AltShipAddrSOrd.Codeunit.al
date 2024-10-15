@@ -55,8 +55,8 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         // [WHEN] ShipToOption is set to default and Annie changes Sell-To address fields on Sales Order
         // [THEN] Ship-To address fields are updated
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Setup - Create a Sales Order with empty customer address fields
         LibrarySales.CreateCustomer(Customer);
@@ -67,13 +67,13 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         LibrarySales.CreateCustomerAddress(ArgCustomer);
 
         // Excercise - Open the Sales Order that has empty address fields and set the address fields
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         CopySalesOrderSellToAddressFromCustomer(SalesOrder, ArgCustomer);
 
         // Verify - Verify that the sell-to address field values are copied to the ship-to address fields
         SalesHeader.Find();
-        Assert.IsTrue(SalesHeader.ShipToAddressEqualsSellToAddress, 'Ship-to and Sell-to address fields are not equal');
+        Assert.IsTrue(SalesHeader.ShipToAddressEqualsSellToAddress(), 'Ship-to and Sell-to address fields are not equal');
     end;
 
     [Test]
@@ -100,7 +100,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
         // Excercise - Open the Sales Order and choose to select an alternative shipping address
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.ShippingOptions.Value := Format(ShipToOptions::"Alternate Shipping Address");
 
@@ -123,10 +123,10 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
 
         // Setup - Create a Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', 0D);
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', 0D);
 
         // Excercise - Open the Sales Order and choose to ship to a custom address
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.ShippingOptions.Value := Format(ShipToOptions::"Custom Address");
 
@@ -160,7 +160,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
 
         // Excercise - Open the Sales Order and choose to select an alternative shipping address
         // Cancel the resulting "Ship-To Address List" modal page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.ShippingOptions.Value := Format(ShipToOptions::"Alternate Shipping Address");
 
@@ -193,7 +193,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         SalesHeader.Modify(true);
 
         // Excercise
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Verify - Verify that the sell-to address field visibility and editability is as expected
@@ -217,12 +217,12 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
 
         // Setup - Create a Sales Order for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', 0D);
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', 0D);
         LibrarySales.CreateCustomerWithAddress(ArgCustomer);
         LibrarySales.CopySalesHeaderShipToAddressFromCustomer(SalesHeader, ArgCustomer);
 
         // Excercise
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Verify - Verify that the sell-to address field visibility and editability is as expected
@@ -250,7 +250,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
         // Excercise
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Verify - Verify that the sell-to address field visibility and editability is as expected
@@ -305,47 +305,47 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         case ShipToOptionParam of
             ShipToOptions::"Default (Sell-to Address)":
                 begin
-                    Assert.IsFalse(SalesOrder."Ship-to Code".Visible, 'Ship-To Code is visible');
-                    Assert.IsFalse(SalesOrder."Ship-to Address".Visible, 'Ship-To Address is visible');
-                    Assert.IsFalse(SalesOrder."Ship-to Address 2".Visible, 'Ship-To Address 2 is visible');
-                    Assert.IsFalse(SalesOrder."Ship-to City".Visible, 'Ship-To City is visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible, 'Ship-To Contact is not visible');
-                    Assert.IsFalse(SalesOrder."Ship-to Name".Visible, 'Ship-To Name is visible');
-                    Assert.IsFalse(SalesOrder."Ship-to Post Code".Visible, 'Ship-To Post Code is visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Code".Visible(), 'Ship-To Code is visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Address".Visible(), 'Ship-To Address is visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Address 2".Visible(), 'Ship-To Address 2 is visible');
+                    Assert.IsFalse(SalesOrder."Ship-to City".Visible(), 'Ship-To City is visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Name".Visible(), 'Ship-To Name is visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is visible');
                 end;
             ShipToOptions::"Alternate Shipping Address":
                 begin
-                    Assert.IsTrue(SalesOrder."Ship-to Code".Visible, 'Ship-To Code is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Address".Visible, 'Ship-To Address is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Visible, 'Ship-To Address 2 is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to City".Visible, 'Ship-To City is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible, 'Ship-To Contact is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Name".Visible, 'Ship-To Name is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Visible, 'Ship-To Post Code is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Code".Editable, 'Ship-To Code is not editable');
-                    Assert.IsFalse(SalesOrder."Ship-to Address".Editable, 'Ship-To Address is editable');
-                    Assert.IsFalse(SalesOrder."Ship-to Address 2".Editable, 'Ship-To Address 2 is editable');
-                    Assert.IsFalse(SalesOrder."Ship-to City".Editable, 'Ship-To City is editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Contact".Editable, 'Ship-To Contact is not editable');
-                    Assert.IsFalse(SalesOrder."Ship-to Name".Editable, 'Ship-To Name is editable');
-                    Assert.IsFalse(SalesOrder."Ship-to Post Code".Editable, 'Ship-To Post Code is editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Code".Visible(), 'Ship-To Code is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Address".Visible(), 'Ship-To Address is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Visible(), 'Ship-To Address 2 is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to City".Visible(), 'Ship-To City is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Name".Visible(), 'Ship-To Name is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Code".Editable(), 'Ship-To Code is not editable');
+                    Assert.IsFalse(SalesOrder."Ship-to Address".Editable(), 'Ship-To Address is editable');
+                    Assert.IsFalse(SalesOrder."Ship-to Address 2".Editable(), 'Ship-To Address 2 is editable');
+                    Assert.IsFalse(SalesOrder."Ship-to City".Editable(), 'Ship-To City is editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
+                    Assert.IsFalse(SalesOrder."Ship-to Name".Editable(), 'Ship-To Name is editable');
+                    Assert.IsFalse(SalesOrder."Ship-to Post Code".Editable(), 'Ship-To Post Code is editable');
                 end;
             ShipToOptions::"Custom Address":
                 begin
-                    Assert.IsTrue(SalesOrder."Ship-to Code".Visible, 'Ship-To Code is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Address".Visible, 'Ship-To Address is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Visible, 'Ship-To Address 2 is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to City".Visible, 'Ship-To City is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible, 'Ship-To Contact is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Name".Visible, 'Ship-To Name is not visible');
-                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Visible, 'Ship-To Post Code is not visible');
-                    Assert.IsFalse(SalesOrder."Ship-to Code".Editable, 'Ship-To Code is editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Address".Editable, 'Ship-To Address is not editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Editable, 'Ship-To Address 2 is not editable');
-                    Assert.IsTrue(SalesOrder."Ship-to City".Editable, 'Ship-To City is not editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Contact".Editable, 'Ship-To Contact is not editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Name".Editable, 'Ship-To Name is not editable');
-                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Editable, 'Ship-To Post Code is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Code".Visible(), 'Ship-To Code is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Address".Visible(), 'Ship-To Address is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Visible(), 'Ship-To Address 2 is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to City".Visible(), 'Ship-To City is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Name".Visible(), 'Ship-To Name is not visible');
+                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsFalse(SalesOrder."Ship-to Code".Editable(), 'Ship-To Code is editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Address".Editable(), 'Ship-To Address is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Address 2".Editable(), 'Ship-To Address 2 is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to City".Editable(), 'Ship-To City is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Name".Editable(), 'Ship-To Name is not editable');
+                    Assert.IsTrue(SalesOrder."Ship-to Post Code".Editable(), 'Ship-To Post Code is not editable');
                 end;
         end;
     end;
@@ -354,15 +354,15 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
     [Scope('OnPrem')]
     procedure ShipToAddressListModalPageHandlerOK(var ShipToAddressList: TestPage "Ship-to Address List")
     begin
-        ShipToAddressList.First;
-        ShipToAddressList.OK.Invoke;
+        ShipToAddressList.First();
+        ShipToAddressList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShipToAddressListModalPageHandlerCancel(var ShipToAddressList: TestPage "Ship-to Address List")
     begin
-        ShipToAddressList.Cancel.Invoke;
+        ShipToAddressList.Cancel().Invoke();
     end;
 }
 

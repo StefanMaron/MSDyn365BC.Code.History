@@ -4,6 +4,7 @@ table 11784 "Non Deductible VAT Setup"
     ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this table should not be used.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

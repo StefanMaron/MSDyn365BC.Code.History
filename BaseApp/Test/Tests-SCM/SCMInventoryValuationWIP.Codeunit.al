@@ -47,7 +47,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // Setup.
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
-        LibraryERM.SetAllowPostingFromTo(WorkDate - 30, WorkDate());
+        LibraryERM.SetAllowPostingFromTo(WorkDate() - 30, WorkDate());
         SetupInventoryForReport(ParentItem, ChildItem, PurchaseHeader, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, true, Qty, QtyPer, WorkDate());
 
@@ -64,15 +64,15 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInv, true, true);
 
         // Exercise. Adjust and run Inventory Valuation - WIP report.
-        LibraryERM.SetAllowPostingFromTo(WorkDate + 1, WorkDate + 30);
+        LibraryERM.SetAllowPostingFromTo(WorkDate() + 1, WorkDate() + 30);
         // The error "Posting Date is not within your range of allowed posting dates." occur in CZ
         asserterror LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
 
         // Verify.
-        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate - 30, WorkDate());
-        VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate - 30, WorkDate(), false);
-        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate + 1, WorkDate + 30);
-        asserterror VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate + 1, WorkDate + 30, false);
+        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate() - 30, WorkDate());
+        VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate() - 30, WorkDate(), false);
+        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate() + 1, WorkDate() + 30);
+        asserterror VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate() + 1, WorkDate() + 30, false);
     end;
 
     [Test]
@@ -84,7 +84,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ChildItem: Record Item;
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
         EndingDate: Date;
         Qty: Decimal;
         QtyPer: Decimal;
@@ -92,7 +91,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Initialize();
         Qty := LibraryRandom.RandDecInRange(10, 100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
-        EndingDate := WorkDate + LibraryRandom.RandInt(10);
+        EndingDate := WorkDate() + LibraryRandom.RandInt(10);
 
         // Setup. Make BOM structure.
         SetupInventoryForReportWithoutPurchOrder(
@@ -104,7 +103,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
         // Exercise. Adjust, revalue and run Inventory Valuation - WIP report.
-        AdjustAndRevalueParent(ParentItem, ChildItem, EndingDate, CalculatePer::"Item Ledger Entry");
+        AdjustAndRevalueParent(ParentItem, ChildItem, EndingDate, "Inventory Value Calc. Per"::"Item Ledger Entry");
         RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate(), EndingDate);
 
         // Verify. Inventory Valuation - WIP report.
@@ -122,7 +121,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         CalcStandardCost: Codeunit "Calculate Standard Cost";
-        CalculatePer: Option "Item Ledger Entry",Item;
         OutputDate: Date;
         InvoiceDate: Date;
         RevalDate: Date;
@@ -132,7 +130,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
-        OutputDate := WorkDate + LibraryRandom.RandInt(5);
+        OutputDate := WorkDate() + LibraryRandom.RandInt(5);
         InvoiceDate := OutputDate + LibraryRandom.RandInt(5);
         RevalDate := InvoiceDate + LibraryRandom.RandInt(5);
 
@@ -149,7 +147,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
         // Exercise. Adjust, revalue and run Inventory Valuation - WIP report.
-        AdjustAndRevalueParent(ParentItem, ChildItem, RevalDate, CalculatePer::Item);
+        AdjustAndRevalueParent(ParentItem, ChildItem, RevalDate, "Inventory Value Calc. Per"::Item);
 
         // Verify.
         RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate(), InvoiceDate + 1);
@@ -178,7 +176,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Initialize();
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandDec(5, 2);
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryERM.SetAllowPostingFromTo(0D, 0D);
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, true,
           InventorySetup."Automatic Cost Adjustment", InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period");
@@ -193,12 +191,12 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // Exercise. Adjust, revalue and run Inventory Valuation - WIP report.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
-        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate - 30, WorkDate());
+        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate() - 30, WorkDate());
 
         // Verify. Inventory Valuation - WIP report.
         asserterror
         begin
-            VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate - 30, WorkDate(), true);
+            VerifyInventoryValuationWIPReport(ProductionOrder, WorkDate() - 30, WorkDate(), true);
             Assert.KnownFailure('ValueEntryCostPostedToGL', 48268);
         end;
 
@@ -300,7 +298,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         CalcStandardCost: Codeunit "Calculate Standard Cost";
-        CalculatePer: Option "Item Ledger Entry",Item;
         Qty: Decimal;
         QtyPer: Decimal;
         FinishDate: Date;
@@ -320,7 +317,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         CalcStandardCost.CalcItem(ParentItem."No.", false);
 
         // Setup. Adjust, Revalue unit cost of comp.
-        AdjustAndRevalueChild(ParentItem, ChildItem, WorkDate(), CalculatePer::"Item Ledger Entry");
+        AdjustAndRevalueChild(ParentItem, ChildItem, WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry");
 
         // Setup. Post consumption & output for production order.
         LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, WorkDate(), ChildItem."Unit Cost");
@@ -396,7 +393,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
         DirectUnitCost: Decimal;
-        CalculatePer: Option "Item Ledger Entry",Item;
         InvoiceDate: Date;
         TempDate: Date;
     begin
@@ -427,7 +423,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // Setup. Re-valuate the production item.
         TempDate := CalcDate('<CM>', WorkDate()); // last date of the month
-        AdjustAndRevalueParent(ParentItem, ChildItem, TempDate, CalculatePer::Item);
+        AdjustAndRevalueParent(ParentItem, ChildItem, TempDate, "Inventory Value Calc. Per"::Item);
 
         // Setup. Invoice purchase order after changing the cost.
         InvoiceDate := TempDate; // same as revaluation date
@@ -484,7 +480,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         Qty: Decimal;
         QtyPer: Decimal;
         DirectUnitCost: Decimal;
-        CalculatePer: Option "Item Ledger Entry",Item;
         TempDate: Date;
     begin
         // Also for 285890
@@ -517,7 +512,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
         // Setup. Adjust and Revalue 2nd output
-        AdjustAndRevalueParentAppliesTo(ParentItem, ChildItem, WorkDate(), CalculatePer::"Item Ledger Entry", ItemLedgerEntry."Entry No.");
+        AdjustAndRevalueParentAppliesTo(ParentItem, ChildItem, WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry", ItemLedgerEntry."Entry No.");
 
         // Exercise. Verify Inventory Valuation - WIP report for the month containing the prod. order output.
         TempDate := CalcDate('<-1M>', WorkDate());
@@ -624,7 +619,6 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         CalcStandardCost: Codeunit "Calculate Standard Cost";
         Qty: Decimal;
         QtyPer: Decimal;
-        CalculatePer: Option "Item Ledger Entry",Item;
         TempDate: Date;
     begin
         Initialize();
@@ -645,7 +639,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         PostExplodedOutput(ProdOrderLine, WorkDate(), ProdOrderLine.Quantity, 0);
 
         // Setup. Revaluate parent Per Item
-        AdjustAndRevalueParent(ParentItem, ChildItem, WorkDate + 2, CalculatePer::Item);
+        AdjustAndRevalueParent(ParentItem, ChildItem, WorkDate() + 2, "Inventory Value Calc. Per"::Item);
 
         // Setup. Finish the released production order
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
@@ -926,7 +920,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
 
         // [GIVEN] Not Completely Invoiced Finished Production Order for Item with "Unit Cost" = "X" and Quantity = "Y"
         Qty := LibraryRandom.RandInt(100);
-        LibraryERM.SetAllowPostingFromTo(WorkDate - 30, WorkDate());
+        LibraryERM.SetAllowPostingFromTo(WorkDate() - 30, WorkDate());
         SetupInventoryForReportWithoutPurchOrder(
           ParentItem, ChildItem, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, true, Qty, 1, WorkDate());
@@ -967,16 +961,16 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // [GIVEN] Post consumption of "Y" items from "PO", posting date is 25.01
         LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty, WorkDate(), 0);
         // [GIVEN] Post output from "PO", posting date is 27.01
-        PostProdOrderOutput(ProductionOrder, ParentItem."No.", WorkDate + 2);
+        PostProdOrderOutput(ProductionOrder, ParentItem."No.", WorkDate() + 2);
 
         // [GIVEN] Finish the production order
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate + 2, true);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate() + 2, true);
 
         // [GIVEN] Adjust cost of both component and manufactured items
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ChildItem."No.", ParentItem."No."), '');
 
         // [WHEN] Run the report "Inventory Valuation - WIP" with date filter on 26.01
-        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate + 1, WorkDate + 1);
+        RunInventoryValuationWIPReport(ProductionOrder."No.", WorkDate() + 1, WorkDate() + 1);
 
         // [THEN] Opening balance in the report is "X" * "Y"
         ParentItem.Find();
@@ -1002,7 +996,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1010,40 +1004,37 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     end;
 
     [Normal]
-    local procedure AdjustAndRevalueParent(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Option)
+    local procedure AdjustAndRevalueParent(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Enum "Inventory Value Calc. Per")
     var
         ItemJournalBatch: Record "Item Journal Batch";
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, ParentItem, RevalDate, CalculatePer, false, false, false, CalculationBase::" ", false, '', '');
+          ItemJournalBatch, ParentItem, RevalDate, CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandIntInRange(3, 10));
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
     end;
 
     [Normal]
-    local procedure AdjustAndRevalueParentAppliesTo(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Option; AppliesToEntry: Integer)
+    local procedure AdjustAndRevalueParentAppliesTo(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Enum "Inventory Value Calc. Per"; AppliesToEntry: Integer)
     var
         ItemJournalBatch: Record "Item Journal Batch";
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, ParentItem, RevalDate, CalculatePer, false, false, false, CalculationBase::" ", false, '', '');
+          ItemJournalBatch, ParentItem, RevalDate, CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
         LibraryPatterns.ModifyAppliesToPostRevaluation(ItemJournalBatch, LibraryRandom.RandIntInRange(3, 10), AppliesToEntry);
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
     end;
 
     [Normal]
-    local procedure AdjustAndRevalueChild(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Option)
+    local procedure AdjustAndRevalueChild(ParentItem: Record Item; ChildItem: Record Item; RevalDate: Date; CalculatePer: Enum "Inventory Value Calc. Per")
     var
         ItemJournalBatch: Record "Item Journal Batch";
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, ChildItem, RevalDate, CalculatePer, false, false, false, CalculationBase::" ", false, '', '');
+          ItemJournalBatch, ChildItem, RevalDate, CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false, '', '');
         LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandIntInRange(3, 10));
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + ChildItem."No.", '');
     end;
@@ -1094,7 +1085,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
                             Validate("Applies-to Entry", AppliesToEntry);
                         Modify();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -1266,7 +1257,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         CapacityPostedToGL: Decimal;
         Visible: Boolean;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ProductionOrder', ProductionOrder."No.");
 
         GetExpectedWIPDistribution(BOPCostPostedToGL, BOP, Output, Consumption, Capacity, EOP,
@@ -1274,7 +1265,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
           Visible, ProductionOrder, StartDate, EndDate);
 
         if Visible then begin
-            Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Row should be found.');
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Row should be found.');
             LibraryReportDataset.AssertCurrentRowValueEquals('LastWIP', -BOP);
             LibraryReportDataset.AssertCurrentRowValueEquals('LastOutput', -Output);
             LibraryReportDataset.AssertCurrentRowValueEquals('ValueOfCap', Capacity);
@@ -1288,14 +1279,14 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
                   -CalculateNetCost(BOPCostPostedToGL, ConsumptionPostedToGL, OutputPostedToGL, CapacityPostedToGL));
             end;
         end else
-            Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Report should be empty.')
+            Assert.IsFalse(LibraryReportDataset.GetNextRow(), 'Report should be empty.')
     end;
 
     local procedure VerifyOpenningBalanceOnInventoryValuationWIPReport(ProductionOrderNo: Code[20]; ExpectedOpenningBalance: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ProductionOrder', ProductionOrderNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LastWIP', ExpectedOpenningBalance);
     end;
 
@@ -1319,7 +1310,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         InventoryValuationWIP.StartingDate.SetValue(StartDate);
         InventoryValuationWIP.EndingDate.SetValue(EndDate);
 
-        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

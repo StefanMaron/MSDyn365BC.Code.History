@@ -10,6 +10,7 @@ using Microsoft.Inventory.Intrastat;
 table 5096 "Segment Wizard Filter"
 {
     Caption = 'Segment Wizard Filter';
+    DataClassification = CustomerContent;
 
     fields
     {

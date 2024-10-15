@@ -4,6 +4,7 @@ table 11703 "Text-to-Account Mapping Code"
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
     ObsoleteReason = 'The table will no longer be used.';
+    DataClassification = CustomerContent;
 
     fields
     {

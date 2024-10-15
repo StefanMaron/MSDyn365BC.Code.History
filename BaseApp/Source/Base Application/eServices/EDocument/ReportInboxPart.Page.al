@@ -14,7 +14,7 @@ page 681 "Report Inbox Part"
     RefreshOnActivate = true;
     SourceTable = "Report Inbox";
     SourceTableView = sorting("User ID", "Created Date-Time")
-                      order(Descending);
+                      order(descending);
 
     layout
     {
@@ -26,7 +26,7 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the name of the report.';
                     Visible = false;
 
@@ -40,7 +40,7 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the description of the scheduled report that was processed from the job queue.';
 
                     trigger OnDrillDown()
@@ -53,7 +53,7 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                     Visible = false;
                 }
@@ -61,14 +61,14 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the object ID of the report.';
                     Visible = false;
                 }
@@ -76,28 +76,10 @@ page 681 "Report Inbox Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = NOT Rec.Read;
+                    StyleExpr = not Rec.Read;
                     ToolTip = 'Specifies the output type of the scheduled report.';
                 }
             }
-#if not CLEAN21
-            group(Control16)
-            {
-                ShowCaption = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'PingPong control has been deprecated.';
-                ObsoleteTag = '21.0';
-                field(PingPong; DeprecatedFuncTxt)
-                {
-                    Visible = false;
-                    Caption = 'Deprecated';
-                    ToolTip = 'Deprecated';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'PingPong control has been deprecated.';
-                    ObsoleteTag = '21.0';
-                }
-            }
-#endif
         }
     }
 
@@ -112,8 +94,6 @@ page 681 "Report Inbox Part"
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
                 Visible = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
                 trigger OnAction()
                 begin
@@ -127,9 +107,6 @@ page 681 "Report Inbox Part"
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
                 Visible = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Scope = Repeater;
                 trigger OnAction()
                 begin
@@ -172,7 +149,7 @@ page 681 "Report Inbox Part"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Reports';
-                Enabled = NOT ShowAll;
+                Enabled = not ShowAll;
                 Image = AllLines;
                 ToolTip = 'View all reports in your inbox.';
 
@@ -250,9 +227,6 @@ page 681 "Report Inbox Part"
         ShowAll: Boolean;
         ActionsEnabled: Boolean;
         ShareOptionsEnabled: Boolean;
-#if not CLEAN21
-        DeprecatedFuncTxt: Label 'This function has been deprecated.';
-#endif        
 
     local procedure UpdateVisibility()
     begin

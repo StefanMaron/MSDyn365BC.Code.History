@@ -745,7 +745,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         OnInitializeSalesOrderLineOnAfterCalcUpdateItemUnitPriceNeeded(CRMSalesorderdetail, CRMProduct, SalesLine, SalesHeader, UpdateItemUnitPriceNeeded);
         if UpdateItemUnitPriceNeeded then
             if Item.GET(SalesLine."No.") then
-                if (Item."Price Includes VAT") AND (Item."VAT Bus. Posting Gr. (Price)" <> '') then
+                if (Item."Price Includes VAT") and (Item."VAT Bus. Posting Gr. (Price)" <> '') then
                     if SalesLine."VAT Bus. Posting Group" = Item."VAT Bus. Posting Gr. (Price)" then
                         if VATPostingSetup.GET(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
                             UnitPrice :=

@@ -73,20 +73,18 @@ codeunit 92 "Purch.-Post + Print"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            case "Document Type" of
-                "Document Type"::Order:
-                    if not SelectPostOrderOption(PurchHeader, DefaultOption) then
-                        exit(false);
-                "Document Type"::"Return Order":
-                    if not SelectPostReturnOrderOption(PurchHeader, DefaultOption) then
-                        exit(false);
-                else
-                    if not PostingSelectionManagement.ConfirmPostPurchaseDocument(PurchHeader, DefaultOption, true, false) then
-                        exit(false);
-            end;
-            "Print Posted Documents" := true;
+        case PurchHeader."Document Type" of
+            PurchHeader."Document Type"::Order:
+                if not SelectPostOrderOption(PurchHeader, DefaultOption) then
+                    exit(false);
+            PurchHeader."Document Type"::"Return Order":
+                if not SelectPostReturnOrderOption(PurchHeader, DefaultOption) then
+                    exit(false);
+            else
+                if not PostingSelectionManagement.ConfirmPostPurchaseDocument(PurchHeader, DefaultOption, true, false) then
+                    exit(false);
         end;
+        PurchHeader."Print Posted Documents" := true;
         exit(true);
     end;
 
@@ -127,27 +125,26 @@ codeunit 92 "Purch.-Post + Print"
         if IsHandled then
             exit;
 
-        with PurchHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        if Receive then
-                            PrintReceive(PurchHeader);
-                        if Invoice then
-                            PrintInvoice(PurchHeader);
-                    end;
-                "Document Type"::Invoice:
-                    PrintInvoice(PurchHeader);
-                "Document Type"::"Return Order":
-                    begin
-                        if Ship then
-                            PrintShip(PurchHeader);
-                        if Invoice then
-                            PrintCrMemo(PurchHeader);
-                    end;
-                "Document Type"::"Credit Memo":
-                    PrintCrMemo(PurchHeader);
-            end;
+        case PurchHeader."Document Type" of
+            PurchHeader."Document Type"::Order:
+                begin
+                    if PurchHeader.Receive then
+                        PrintReceive(PurchHeader);
+                    if PurchHeader.Invoice then
+                        PrintInvoice(PurchHeader);
+                end;
+            PurchHeader."Document Type"::Invoice:
+                PrintInvoice(PurchHeader);
+            PurchHeader."Document Type"::"Return Order":
+                begin
+                    if PurchHeader.Ship then
+                        PrintShip(PurchHeader);
+                    if PurchHeader.Invoice then
+                        PrintCrMemo(PurchHeader);
+                end;
+            PurchHeader."Document Type"::"Credit Memo":
+                PrintCrMemo(PurchHeader);
+        end;
     end;
 
     procedure PrintReceive(PurchHeader: Record "Purchase Header")

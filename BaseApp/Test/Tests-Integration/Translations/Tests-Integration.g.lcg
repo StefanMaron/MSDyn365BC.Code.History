@@ -140,15 +140,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Mailing Tests - NamedType VendorLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3250438326 - NamedType 80484680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contact@consoto.com]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Address Selection - NamedType ContactEmailTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3250438326 - NamedType 1207365956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Customer@consoto.com]]></Val>
@@ -196,7 +187,7 @@
   </Item>
   <Item ItemId=";Codeunit 704460425 - NamedType 4277620860" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestJobNo287178]]></Val>
+      <Val><![CDATA[TestProjectNo287178]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -205,7 +196,7 @@
   </Item>
   <Item ItemId=";Codeunit 704460425 - NamedType 2312367559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestJobTaskNo82917]]></Val>
+      <Val><![CDATA[TestProjectTaskNo82917]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

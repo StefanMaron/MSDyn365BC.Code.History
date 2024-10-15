@@ -112,28 +112,26 @@ codeunit 7712 "Miniform Phys. Journal List"
 
     local procedure PrepareData()
     begin
-        with WhseJournalBatch do begin
-            Reset();
-            SetCurrentKey("Location Code", "Assigned User ID");
-            if WhseEmpId <> '' then begin
-                SetRange("Assigned User ID", WhseEmpId);
-                SetFilter("Location Code", LocationFilter);
+        WhseJournalBatch.Reset();
+        WhseJournalBatch.SetCurrentKey("Location Code", "Assigned User ID");
+        if WhseEmpId <> '' then begin
+            WhseJournalBatch.SetRange("Assigned User ID", WhseEmpId);
+            WhseJournalBatch.SetFilter("Location Code", LocationFilter);
+        end;
+        if not WhseJournalBatch.FindFirst() then begin
+            if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
+                ADCSMgt.SendError(Text009);
+                exit;
             end;
-            if not FindFirst() then begin
-                if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
-                    ADCSMgt.SendError(Text009);
-                    exit;
-                end;
-                ADCSCommunication.DecreaseStack(DOMxmlin, PreviousCode);
-                MiniformHeader2.Get(PreviousCode);
-                MiniformHeader2.SaveXMLin(DOMxmlin);
-                CODEUNIT.Run(MiniformHeader2."Handling Codeunit", MiniformHeader2);
-            end else begin
-                RecRef.GetTable(WhseJournalBatch);
-                ADCSCommunication.SetRecRef(RecRef);
-                ActiveInputField := 1;
-                SendForm(ActiveInputField);
-            end;
+            ADCSCommunication.DecreaseStack(DOMxmlin, PreviousCode);
+            MiniformHeader2.Get(PreviousCode);
+            MiniformHeader2.SaveXMLin(DOMxmlin);
+            CODEUNIT.Run(MiniformHeader2."Handling Codeunit", MiniformHeader2);
+        end else begin
+            RecRef.GetTable(WhseJournalBatch);
+            ADCSCommunication.SetRecRef(RecRef);
+            ActiveInputField := 1;
+            SendForm(ActiveInputField);
         end;
     end;
 

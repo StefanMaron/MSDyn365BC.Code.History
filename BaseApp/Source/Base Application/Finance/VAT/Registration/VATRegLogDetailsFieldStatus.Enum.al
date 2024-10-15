@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Registration;
 
+#pragma warning disable AL0659
 enum 244 "VAT Reg. Log Details Field Status"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

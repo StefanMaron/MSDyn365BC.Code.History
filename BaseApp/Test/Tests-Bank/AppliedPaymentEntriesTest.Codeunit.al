@@ -44,7 +44,7 @@ codeunit 134264 "Applied Payment Entries Test"
           CreateBankAccRecLine(BankAccRecon, PostingDate, CustLedgEntry."Document No." + Cust.Name, Amount);
 
         // Exercise
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
 
         // Verify Amount is correctly applied
@@ -57,7 +57,7 @@ codeunit 134264 "Applied Payment Entries Test"
         Assert.AreEqual(0, TotalRemainingAmount, 'Amount left to apply is incorrect.');
         PaymentReconciliationJournal.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 134264 "Applied Payment Entries Test"
           CreateBankAccRecLine(BankAccRecon, PostingDate, CustLedgEntry."Document No." + Cust.Name, Amount);
 
         // Exercise
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ClosePage := false;
         LibraryVariableStorage.Enqueue(ClosePage);
         LibraryVariableStorage.Enqueue(Amount);
@@ -106,7 +106,7 @@ codeunit 134264 "Applied Payment Entries Test"
           'Unexpected match confidence after rejecting the application');
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -144,15 +144,15 @@ codeunit 134264 "Applied Payment Entries Test"
         InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
 
         // [WHEN] Reject Applied Payment.
-        LibraryLowerPermissions.AddAccountReceivables;
-        PaymentReconciliationJournal.Reject.Invoke;
+        LibraryLowerPermissions.AddAccountReceivables();
+        PaymentReconciliationJournal.Reject.Invoke();
         ClosePage := false;
         LibraryVariableStorage.Enqueue(ClosePage);
         LibraryVariableStorage.Enqueue(Amount);
         RejectFromPaymentApplication := false;
         LibraryVariableStorage.Enqueue(RejectFromPaymentApplication);
         LibraryVariableStorage.Enqueue(CustLedgEntry."Entry No.");
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
 
         // [THEN] No Applied Payment Entry exist.
         VerifyNoAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
@@ -162,7 +162,7 @@ codeunit 134264 "Applied Payment Entries Test"
         // [THEN] Bank Account Reconciliation Line field "Account No." is empty
         PaymentReconciliationJournal."Account No.".AssertEquals('');
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Enqueue(Amount);
         Applied := false;
         LibraryVariableStorage.Enqueue(Applied);
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
 
         // Verify
@@ -207,7 +207,7 @@ codeunit 134264 "Applied Payment Entries Test"
           PaymentReconciliationJournal."Match Confidence".Value,
           'Unexpected match confidence after rejecting the application');
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 134264 "Applied Payment Entries Test"
           'Unexpected match confidence after rejecting the application');
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -289,13 +289,13 @@ codeunit 134264 "Applied Payment Entries Test"
         Applied := true;
         LibraryVariableStorage.Enqueue(Applied);
         LibraryVariableStorage.Enqueue(CustLedgEntry."Entry No.");
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
 
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", Amount);
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -340,7 +340,7 @@ codeunit 134264 "Applied Payment Entries Test"
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -374,7 +374,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Enqueue(ClosePage);
 
         InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
-        PaymentReconciliationJournal.Accept.Invoke;
+        PaymentReconciliationJournal.Accept.Invoke();
 
         // Verify
         Assert.AreEqual(
@@ -385,7 +385,7 @@ codeunit 134264 "Applied Payment Entries Test"
         VerifyAppliedPaymentEntry(BankAccRecon, ExpectedMatchedLineNo, CustLedgEntry."Entry No.",
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -425,7 +425,7 @@ codeunit 134264 "Applied Payment Entries Test"
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry."Customer No.", ChangedAmount);
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -468,7 +468,7 @@ codeunit 134264 "Applied Payment Entries Test"
           CustLedgEntry."Bal. Account Type"::Customer, CustLedgEntry2."Customer No.", Amount - AmountDelta);
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -510,7 +510,7 @@ codeunit 134264 "Applied Payment Entries Test"
             repeat
                 LibraryVariableStorage.Enqueue(CustLedgEntry."Entry No.");
                 LibraryVariableStorage.Enqueue(StmtAmt);
-                PaymentReconciliationJournal.ApplyEntries.Invoke;
+                PaymentReconciliationJournal.ApplyEntries.Invoke();
                 LibraryVariableStorage.Dequeue(ExpectAmtVariant);
                 ExpectAmt := ExpectAmtVariant;
 
@@ -524,7 +524,7 @@ codeunit 134264 "Applied Payment Entries Test"
             until CustLedgEntry.Next() = 0;
 
         PaymentReconciliationJournal.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -555,7 +555,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Enqueue(ChangedAmount);
         asserterror InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -586,7 +586,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Enqueue(ChangedAmount);
         asserterror InvokeAutoApplyAndOpenPaymentApplicationsPage(BankAccRecon, PaymentReconciliationJournal, CustLedgEntry."Entry No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -617,13 +617,13 @@ codeunit 134264 "Applied Payment Entries Test"
         CreateBankAccRecLine(BankAccRecon, PostingDate, CustLedgEntry2."Document No." + Cust2.Name, Amount * 2);
 
         // Exercise
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         InvokeAutoApply(BankAccRecon, PaymentReconciliationJournal);
 
         // Verify Account Name is displayed and you cann drill down on it
-        PaymentReconciliationJournal.Last;
+        PaymentReconciliationJournal.Last();
         VerifyAccountNameField(Cust2, PaymentReconciliationJournal);
-        PaymentReconciliationJournal.First;
+        PaymentReconciliationJournal.First();
         VerifyAccountNameField(Cust, PaymentReconciliationJournal);
         Assert.AreEqual(Cust.Name, PaymentReconciliationJournal.AccountName.Value, 'Unexpected Account Name shown');
         PaymentReconciliationJournal.Close();
@@ -633,20 +633,20 @@ codeunit 134264 "Applied Payment Entries Test"
     begin
         InvokeAutoApply(BankAccRecon, PaymentReconciliationJournal);
         LibraryVariableStorage.Enqueue(EntryNo);
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
     end;
 
     local procedure InvokeAutoApply(BankAccRecon: Record "Bank Acc. Reconciliation"; var PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal")
     var
         PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
     begin
-        PmtReconciliationJournals.OpenView;
+        PmtReconciliationJournals.OpenView();
         PmtReconciliationJournals.GotoRecord(BankAccRecon);
-        PaymentReconciliationJournal.Trap;
-        PmtReconciliationJournals.EditJournal.Invoke;
+        PaymentReconciliationJournal.Trap();
+        PmtReconciliationJournals.EditJournal.Invoke();
 
-        PaymentReconciliationJournal.ApplyAutomatically.Invoke;
-        PaymentReconciliationJournal.First;
+        PaymentReconciliationJournal.ApplyAutomatically.Invoke();
+        PaymentReconciliationJournal.First();
     end;
 
     local procedure CreateBankAccRec(var BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccNo: Code[20]; StatementNo: Code[20])
@@ -697,18 +697,16 @@ codeunit 134264 "Applied Payment Entries Test"
         BankAcc: Record "Bank Account";
     begin
         Amount := LibraryRandom.RandDec(1000, 2);
-        PostingDate := WorkDate + LibraryRandom.RandInt(10);
+        PostingDate := WorkDate() + LibraryRandom.RandInt(10);
 
         BankAccNo :=
           LibraryUtility.GenerateRandomCode(
             BankAccReconLine.FieldNo("Bank Account No."), DATABASE::"Bank Acc. Reconciliation Line");
 
-        with BankAcc do begin
-            Init();
-            "No." := BankAccNo;
-            "Currency Code" := LibraryERM.GetLCYCode;
-            Insert();
-        end;
+        BankAcc.Init();
+        BankAcc."No." := BankAccNo;
+        BankAcc."Currency Code" := LibraryERM.GetLCYCode();
+        BankAcc.Insert();
 
         StatementNo :=
           LibraryUtility.GenerateRandomCode(
@@ -723,7 +721,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
-        CloseExistingEntries;
+        CloseExistingEntries();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Applied Payment Entries Test");
     end;
 
@@ -739,7 +737,7 @@ codeunit 134264 "Applied Payment Entries Test"
             "Entry No." := LastEntryNo + 1;
             "Posting Date" := WorkDate();
             "Customer No." := CustNo;
-            "Document No." := CopyStr(CreateGuid, 1, 20);
+            "Document No." := CopyStr(CreateGuid(), 1, 20);
             Open := true;
             Insert();
             CalcFields("Remaining Amount");
@@ -768,9 +766,9 @@ codeunit 134264 "Applied Payment Entries Test"
         with Cust do begin
             Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
-            Name := CopyStr(CreateGuid, 1, 50);
-            "Payment Terms Code" := CreatePaymentTerms;
-            "Payment Method Code" := CreatePaymentMethod;
+            Name := CopyStr(CreateGuid(), 1, 50);
+            "Payment Terms Code" := CreatePaymentTerms();
+            "Payment Method Code" := CreatePaymentMethod();
             City := LibraryUtility.GenerateGUID();
             Address := LibraryUtility.GenerateGUID();
             Insert(true);
@@ -818,8 +816,8 @@ codeunit 134264 "Applied Payment Entries Test"
         CustomerCard: TestPage "Customer Card";
     begin
         Assert.AreEqual(Customer.Name, PaymentReconciliationJournal.AccountName.Value, 'Unexpected Account Name shown');
-        CustomerCard.Trap;
-        PaymentReconciliationJournal.AccountName.DrillDown;
+        CustomerCard.Trap();
+        PaymentReconciliationJournal.AccountName.DrillDown();
         Assert.AreEqual(Customer."No.", CustomerCard."No.".Value, 'Unexpected customer shown after drilldown on Account Name');
         CustomerCard.Close();
     end;
@@ -877,8 +875,8 @@ codeunit 134264 "Applied Payment Entries Test"
     begin
         LibraryVariableStorage.Dequeue(CustomerLedgerEntryNo);
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo);
-        LibraryVariableStorage.Enqueue(PaymentApplication.TotalAppliedAmount.AsDEcimal);
-        LibraryVariableStorage.Enqueue(PaymentApplication.TotalRemainingAmount.AsDEcimal);
+        LibraryVariableStorage.Enqueue(PaymentApplication.TotalAppliedAmount.AsDecimal());
+        LibraryVariableStorage.Enqueue(PaymentApplication.TotalRemainingAmount.AsDecimal());
     end;
 
     [ModalPageHandler]
@@ -908,17 +906,17 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo);
 
         if Reject then begin
-            MatchConfidenceBeforeRejecting := PaymentApplication.Control2.MatchConfidence.Value;
-            PaymentApplication.Reject.Invoke;
+            MatchConfidenceBeforeRejecting := PaymentApplication.Control2.MatchConfidence.Value();
+            PaymentApplication.Reject.Invoke();
             Assert.AreEqual(
               MatchConfidenceBeforeRejecting,
               PaymentApplication.Control2.MatchConfidence.Value,
               'Unexpected match confidence after rejecting the application');
         end;
 
-        Assert.IsFalse(PaymentApplication.Applied.AsBoolean, 'Applied not set to false when rejecting application.');
-        Assert.AreEqual(PaymentApplication.AppliedAmount.AsDEcimal, 0, 'Amount not un-applied.');
-        Assert.AreEqual(PaymentApplication.RemainingAmountAfterPosting.AsDEcimal, Amount, 'Amount left to apply is incorrect.');
+        Assert.IsFalse(PaymentApplication.Applied.AsBoolean(), 'Applied not set to false when rejecting application.');
+        Assert.AreEqual(PaymentApplication.AppliedAmount.AsDecimal(), 0, 'Amount not un-applied.');
+        Assert.AreEqual(PaymentApplication.RemainingAmountAfterPosting.AsDecimal(), Amount, 'Amount left to apply is incorrect.');
     end;
 
     [ModalPageHandler]
@@ -936,7 +934,7 @@ codeunit 134264 "Applied Payment Entries Test"
         if ClosePage then
             exit;
 
-        PaymentApplication.Accept.Invoke;
+        PaymentApplication.Accept.Invoke();
     end;
 
     [ModalPageHandler]
@@ -959,7 +957,7 @@ codeunit 134264 "Applied Payment Entries Test"
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo);
 
         Assert.AreNotEqual(Applied, PaymentApplication.Applied.Value, 'Value is already set');
-        MatchConfidenceBeforeChange := PaymentApplication.Control2.MatchConfidence.Value;
+        MatchConfidenceBeforeChange := PaymentApplication.Control2.MatchConfidence.Value();
 
         PaymentApplication.Applied.SetValue(Applied);
 
@@ -971,9 +969,9 @@ codeunit 134264 "Applied Payment Entries Test"
         else
             ExpectedAppliedAmount := 0;
 
-        Assert.AreEqual(PaymentApplication.AppliedAmount.AsDEcimal, ExpectedAppliedAmount, 'Amount not un-applied.');
+        Assert.AreEqual(PaymentApplication.AppliedAmount.AsDecimal(), ExpectedAppliedAmount, 'Amount not un-applied.');
         Assert.AreEqual(
-          PaymentApplication.RemainingAmountAfterPosting.AsDEcimal, ExpectedRemainingAmount, 'Amount left to apply is incorrect.');
+          PaymentApplication.RemainingAmountAfterPosting.AsDecimal(), ExpectedRemainingAmount, 'Amount left to apply is incorrect.');
         Assert.AreEqual(
           MatchConfidenceBeforeChange,
           PaymentApplication.Control2.MatchConfidence.Value,
@@ -999,12 +997,12 @@ codeunit 134264 "Applied Payment Entries Test"
         Amount := AmountVariant;
 
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo);
-        MatchConfidenceBeforeUnapplying := PaymentApplication.Control2.MatchConfidence.Value;
+        MatchConfidenceBeforeUnapplying := PaymentApplication.Control2.MatchConfidence.Value();
         PaymentApplication.AppliedAmount.SetValue(NewAmount);
 
-        Assert.AreEqual(NewAmount <> 0, PaymentApplication.Applied.AsBoolean, 'Applied is not set correctly.');
-        Assert.AreEqual(NewAmount, PaymentApplication.AppliedAmount.AsDEcimal, 'Applied Amount is not set correctly.');
-        Assert.AreEqual(Amount - NewAmount, PaymentApplication.RemainingAmountAfterPosting.AsDEcimal, 'Remaining Amount is incorrect.');
+        Assert.AreEqual(NewAmount <> 0, PaymentApplication.Applied.AsBoolean(), 'Applied is not set correctly.');
+        Assert.AreEqual(NewAmount, PaymentApplication.AppliedAmount.AsDecimal(), 'Applied Amount is not set correctly.');
+        Assert.AreEqual(Amount - NewAmount, PaymentApplication.RemainingAmountAfterPosting.AsDecimal(), 'Remaining Amount is incorrect.');
         Assert.AreEqual(
           MatchConfidenceBeforeUnapplying,
           PaymentApplication.Control2.MatchConfidence.Value,
@@ -1045,19 +1043,19 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryVariableStorage.Dequeue(CustomerLedgerEntryNo);
 
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo2);
-        MatchConfidenceBeforeApplying := PaymentApplication.Control2.MatchConfidence.Value;
+        MatchConfidenceBeforeApplying := PaymentApplication.Control2.MatchConfidence.Value();
 
         PaymentApplication.AppliedAmount.SetValue(NewAmountVariant);
 
-        Assert.AreEqual(NewAmount <> 0, PaymentApplication.Applied.AsBoolean, 'Applied is not set correctly.');
-        Assert.AreEqual(NewAmount, PaymentApplication.AppliedAmount.AsDEcimal, 'Applied Amount is not set correctly.');
+        Assert.AreEqual(NewAmount <> 0, PaymentApplication.Applied.AsBoolean(), 'Applied is not set correctly.');
+        Assert.AreEqual(NewAmount, PaymentApplication.AppliedAmount.AsDecimal(), 'Applied Amount is not set correctly.');
         Assert.AreEqual(
           MatchConfidenceBeforeApplying,
           PaymentApplication.Control2.MatchConfidence.Value,
           'Unexpected match confidence after rejecting the application');
 
-        Assert.AreEqual(PaymentApplication.TotalAppliedAmount.AsDEcimal, Amount, 'Total applied amount should match the original amount');
-        Assert.AreEqual(PaymentApplication.TotalRemainingAmount.AsDEcimal, 0, 'Total remaining amount should be zero');
+        Assert.AreEqual(PaymentApplication.TotalAppliedAmount.AsDecimal(), Amount, 'Total applied amount should match the original amount');
+        Assert.AreEqual(PaymentApplication.TotalRemainingAmount.AsDecimal(), 0, 'Total remaining amount should be zero');
     end;
 
     [ModalPageHandler]
@@ -1077,15 +1075,15 @@ codeunit 134264 "Applied Payment Entries Test"
 
         PaymentApplication.FindFirstField("Applies-to Entry No.", CustomerLedgerEntryNo);
 
-        if Abs(StmtAmt) > Abs(PaymentApplication.RemainingAmountAfterPosting.AsDEcimal) then
-            ExpectAmt := PaymentApplication.RemainingAmountAfterPosting.AsDEcimal
+        if Abs(StmtAmt) > Abs(PaymentApplication.RemainingAmountAfterPosting.AsDecimal()) then
+            ExpectAmt := PaymentApplication.RemainingAmountAfterPosting.AsDEcimal()
         else
             ExpectAmt := StmtAmt;
 
         PaymentApplication.Applied.SetValue(true);
 
-        Assert.AreEqual(ExpectAmt, PaymentApplication.TotalAppliedAmount.AsDEcimal, 'Amount incorrectly applied.');
-        Assert.AreEqual(StmtAmt - ExpectAmt, PaymentApplication.TotalRemainingAmount.AsDEcimal, 'Amount left to apply is incorrect.');
+        Assert.AreEqual(ExpectAmt, PaymentApplication.TotalAppliedAmount.AsDecimal(), 'Amount incorrectly applied.');
+        Assert.AreEqual(StmtAmt - ExpectAmt, PaymentApplication.TotalRemainingAmount.AsDecimal(), 'Amount left to apply is incorrect.');
 
         LibraryVariableStorage.Enqueue(ExpectAmt);
     end;

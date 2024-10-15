@@ -35,25 +35,24 @@ codeunit 211 "Res. Jnl.-Check Line"
             exit;
 
         GLSetup.Get();
-        with ResJnlLine do begin
-            if EmptyLine() then
-                exit;
 
-            TestField("Resource No.", ErrorInfo.Create());
-            TestField("Posting Date", ErrorInfo.Create());
-            TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
+        if ResJnlLine.EmptyLine() then
+            exit;
 
-            CheckPostingDate(ResJnlLine);
+        ResJnlLine.TestField("Resource No.", ErrorInfo.Create());
+        ResJnlLine.TestField("Posting Date", ErrorInfo.Create());
+        ResJnlLine.TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
-            if "Document Date" <> 0D then
-                if "Document Date" <> NormalDate("Document Date") then
-                    FieldError("Document Date", ErrorInfo.Create(Text000, true));
+        CheckPostingDate(ResJnlLine);
 
-            if ("Entry Type" = "Entry Type"::Usage) and ("Time Sheet No." <> '') then
-                TimeSheetMgt.CheckResJnlLine(ResJnlLine);
+        if ResJnlLine."Document Date" <> 0D then
+            if ResJnlLine."Document Date" <> NormalDate(ResJnlLine."Document Date") then
+                ResJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
 
-            CheckDimensions(ResJnlLine);
-        end;
+        if (ResJnlLine."Entry Type" = ResJnlLine."Entry Type"::Usage) and (ResJnlLine."Time Sheet No." <> '') then
+            TimeSheetMgt.CheckResJnlLine(ResJnlLine);
+
+        CheckDimensions(ResJnlLine);
 
         OnAfterRunCheck(ResJnlLine);
     end;
@@ -63,17 +62,15 @@ codeunit 211 "Res. Jnl.-Check Line"
         UserSetupManagement: Codeunit "User Setup Management";
         IsHandled: Boolean;
     begin
-        with ResJnlLine do begin
-            if "Posting Date" <> NormalDate("Posting Date") then
-                FieldError("Posting Date", ErrorInfo.Create(Text000, true));
+        if ResJnlLine."Posting Date" <> NormalDate(ResJnlLine."Posting Date") then
+            ResJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text000, true));
 
-            IsHandled := false;
-            OnCheckPostingDateOnBeforeCheckAllowedPostingDate("Posting Date", IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnCheckPostingDateOnBeforeCheckAllowedPostingDate(ResJnlLine."Posting Date", IsHandled);
+        if IsHandled then
+            exit;
 
-            UserSetupManagement.CheckAllowedPostingDate("Posting Date");
-        end;
+        UserSetupManagement.CheckAllowedPostingDate(ResJnlLine."Posting Date");
     end;
 
     local procedure CheckDimensions(ResJnlLine: Record "Res. Journal Line")
@@ -87,29 +84,27 @@ codeunit 211 "Res. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with ResJnlLine do begin
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                Error(
-                  Text002,
-                  TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr());
+        if not DimMgt.CheckDimIDComb(ResJnlLine."Dimension Set ID") then
+            Error(
+                Text002,
+                ResJnlLine.TableCaption(), ResJnlLine."Journal Template Name", ResJnlLine."Journal Batch Name", ResJnlLine."Line No.",
+                DimMgt.GetDimCombErr());
 
-            TableID[1] := DATABASE::Resource;
-            No[1] := "Resource No.";
-            TableID[2] := DATABASE::"Resource Group";
-            No[2] := "Resource Group No.";
-            TableID[3] := DATABASE::Job;
-            No[3] := "Job No.";
-            OnCheckDimensionsOnAfterAssignDimTableIDs(ResJnlLine, TableID, No);
-            if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                if "Line No." <> 0 then
-                    Error(
-                      Text003,
-                      TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                      DimMgt.GetDimValuePostingErr())
-                else
-                    Error(DimMgt.GetDimValuePostingErr());
-        end;
+        TableID[1] := DATABASE::Resource;
+        No[1] := ResJnlLine."Resource No.";
+        TableID[2] := DATABASE::"Resource Group";
+        No[2] := ResJnlLine."Resource Group No.";
+        TableID[3] := DATABASE::Job;
+        No[3] := ResJnlLine."Job No.";
+        OnCheckDimensionsOnAfterAssignDimTableIDs(ResJnlLine, TableID, No);
+        if not DimMgt.CheckDimValuePosting(TableID, No, ResJnlLine."Dimension Set ID") then
+            if ResJnlLine."Line No." <> 0 then
+                Error(
+                    Text003,
+                    ResJnlLine.TableCaption(), ResJnlLine."Journal Template Name", ResJnlLine."Journal Batch Name", ResJnlLine."Line No.",
+                    DimMgt.GetDimValuePostingErr())
+            else
+                Error(DimMgt.GetDimValuePostingErr());
     end;
 
     [IntegrationEvent(false, false)]

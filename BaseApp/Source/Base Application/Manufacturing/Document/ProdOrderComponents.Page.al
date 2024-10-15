@@ -640,15 +640,6 @@ page 99000818 "Prod. Order Components"
                     actionref("Co&mments_Promoted"; "Co&mments")
                     {
                     }
-#if not CLEAN21
-                    actionref("Bin Contents_Promoted"; "Bin Contents")
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref("Put-away/Pick Lines/Movement Lines_Promoted"; "Put-away/Pick Lines/Movement Lines")
                     {
                     }

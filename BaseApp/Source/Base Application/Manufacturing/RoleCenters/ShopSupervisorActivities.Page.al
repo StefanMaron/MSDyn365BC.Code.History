@@ -4,7 +4,6 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Journal;
 using Microsoft.Warehouse.Activity;
-using Microsoft.Foundation.Task;
 
 page 9041 "Shop Supervisor Activities"
 {
@@ -115,33 +114,6 @@ page 9041 "Shop Supervisor Activities"
                     ToolTip = 'Specifies the number of inventory put-always from production that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount())
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks();
-                        UserTaskList.Run();
-                    end;
-                }
-            }
         }
     }
 
@@ -158,8 +130,5 @@ page 9041 "Shop Supervisor Activities"
         end;
         Rec.SetRange("User ID Filter", UserId);
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 }
 

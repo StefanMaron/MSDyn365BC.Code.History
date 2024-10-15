@@ -209,7 +209,7 @@ page 354 "Item Turnover Lines"
             Item.SetRange("Date Filter", 0D, Rec."Period End");
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcLine(var Item: Record Item; var ItemTurnoverBuffer: Record "Item Turnover Buffer")
     begin
     end;

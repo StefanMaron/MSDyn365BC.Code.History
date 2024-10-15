@@ -13,7 +13,7 @@ report 1139 "Delete Cost Budget Entries"
     {
         dataitem("Cost Budget Register"; "Cost Budget Register")
         {
-            DataItemTableView = sorting("No.") order(Descending);
+            DataItemTableView = sorting("No.") order(descending);
 
             trigger OnAfterGetRecord()
             begin

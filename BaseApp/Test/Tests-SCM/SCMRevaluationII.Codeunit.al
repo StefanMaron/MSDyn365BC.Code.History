@@ -19,7 +19,6 @@ codeunit 137011 "SCM Revaluation-II"
         RevaluationItemJournalBatch: Record "Item Journal Batch";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -621,7 +620,7 @@ codeunit 137011 "SCM Revaluation-II"
         CreateItemWithProductionBOM(ParentItem, ComponentItem."No.", 1);
 
         Quantity := LibraryRandom.RandInt(10);
-        ValuationDate := WorkDate + LibraryRandom.RandInt(5);
+        ValuationDate := WorkDate() + LibraryRandom.RandInt(5);
         // [GIVEN] Post income of item "I1" on inventory with unit cost = "C"
         UpdateItemInventory(ComponentItem."No.", '');
         // [GIVEN] Create production order for item "I2" and post output of "X" pcs on workdate
@@ -630,11 +629,11 @@ codeunit 137011 "SCM Revaluation-II"
 
         // [GIVEN] Consume component item "I1"
         PostProdOrderConsumption(ProductionOrder."No.");
-        // [GIVEN] Revaluate item "I2" on WORKDATE + 3
+        // [GIVEN] Revaluate item "I2" on WorkDate() + 3
         PostItemRevaluation(ParentItem, ValuationDate);
-        // [GIVEN] Revert output on WORKDATE + 3 days
+        // [GIVEN] Revert output on WorkDate() + 3 days
         RevertProdOrderOutput(ProductionOrder."No.", ParentItem."No.", ValuationDate);
-        // [GIVEN] Post new output on WORKDATE + 3
+        // [GIVEN] Post new output on WorkDate() + 3
         PostOutputJournalOnDate(ProductionOrder."No.", ParentItem."No.", Quantity, ValuationDate);
 
         // [GIVEN] Finish production order
@@ -753,7 +752,7 @@ codeunit 137011 "SCM Revaluation-II"
 
         // [GIVEN] Create a revaluation journal line for item "I2"
         CreateRevaluationJournal(ItemJournalLine);
-        RevaluationJournal.OpenEdit;
+        RevaluationJournal.OpenEdit();
         RevaluationJournal.GotoRecord(ItemJournalLine);
         RevaluationJournal."Item No.".SetValue(Item."No.");
 
@@ -796,7 +795,7 @@ codeunit 137011 "SCM Revaluation-II"
             UnitCost[i] := LibraryRandom.RandDec(100, 2);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
-        PostingDate := GetLatestPostingDate;
+        PostingDate := GetLatestPostingDate();
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[1], true, true);
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[2], true, false);
 
@@ -942,7 +941,7 @@ codeunit 137011 "SCM Revaluation-II"
         end;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryPatterns.POSTPurchaseOrderPartially(
-          PurchaseHeader, Item, Location.Code, '', Qty[1] + Qty[2], GetLatestPostingDate,
+          PurchaseHeader, Item, Location.Code, '', Qty[1] + Qty[2], GetLatestPostingDate(),
           UnitCost[1], true, Qty[1], true, Qty[1]);
 
         // [GIVEN] Direct Unit Cost on the purchase line is updated to "Y".
@@ -985,14 +984,14 @@ codeunit 137011 "SCM Revaluation-II"
 
         // [GIVEN] Location with a code containing a special character "L>"
         Location.Init();
-        Location.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Location.Code) - 1) + '>');
+        Location.Validate(Code, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(Location.Code) - 1) + '>');
         Location.Insert(true);
         LibraryInventory.UpdateInventoryPostingSetup(Location);
 
         // [GIVEN] Item variant with a code containing a special character "V="
         ItemVariant.Init();
         ItemVariant.Validate("Item No.", Item."No.");
-        ItemVariant.Validate(Code, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ItemVariant.Code) - 1) + '=');
+        ItemVariant.Validate(Code, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(ItemVariant.Code) - 1) + '=');
         ItemVariant.Insert(true);
 
         // [GIVEN] Post item stock for item "I", variant "V=", on location "L>". Quantity = "Q", Unit cost = "C"
@@ -1099,11 +1098,11 @@ codeunit 137011 "SCM Revaluation-II"
     local procedure NoSeriesSetup()
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1112,14 +1111,14 @@ codeunit 137011 "SCM Revaluation-II"
         Clear(OutputItemJournalTemplate);
         OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
-        OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
         OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
-        OutputItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        OutputItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         OutputItemJournalBatch.Modify(true);
     end;
 
@@ -1291,7 +1290,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         CreateRevaluationJournal(ItemJournalLine);
-        CalcInventoryValueWithLocationAndVariant(Item, ItemJournalLine, GetLatestPostingDate, true, true);
+        CalcInventoryValueWithLocationAndVariant(Item, ItemJournalLine, GetLatestPostingDate(), true, true);
     end;
 
     local procedure CalcInventoryValue(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
@@ -1305,14 +1304,11 @@ codeunit 137011 "SCM Revaluation-II"
     end;
 
     local procedure CalcInventoryValueWithLocationAndVariant(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; PostingDate: Date; ByLocation: Boolean; ByVariant: Boolean)
-    var
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         Item.SetRecFilter();
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, PostingDate, ItemJournalLine."Document No.", CalculatePer::Item,
-          ByLocation, ByVariant, true, CalculationBase::" ", false);
+          ItemJournalLine, Item, PostingDate, ItemJournalLine."Document No.", "Inventory Value Calc. Per"::Item,
+          ByLocation, ByVariant, true, "Inventory Value Calc. Base"::" ", false);
     end;
 
     local procedure UpdateRevaluedUnitCost(JournalTemplateName: Text[10]; JournalTemplateBatch: Text[10]; ItemNo: Code[20]; OldUnitCost: Decimal): Decimal
@@ -1375,7 +1371,7 @@ codeunit 137011 "SCM Revaluation-II"
         ShopCalendarCode: Code[10];
         WorkCenterNo: Code[20];
     begin
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes);
 
@@ -1504,7 +1500,7 @@ codeunit 137011 "SCM Revaluation-II"
         for i := 1 to ArrayLen(UnitCost) do
             UnitCost[i] := LibraryRandom.RandDec(100, 2);
 
-        PostingDate := GetLatestPostingDate;
+        PostingDate := GetLatestPostingDate();
 
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, PostingDate, UnitCost[1], true, false);
         LibraryPatterns.POSTTransferOrder(
@@ -1697,14 +1693,14 @@ codeunit 137011 "SCM Revaluation-II"
 
     local procedure CreateOutputJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; ProductionOrderNo: Code[20]; Quantity: Decimal)
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ClearJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(
           ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, ItemNo, ProductionOrderNo);
         ItemJournalLine.Validate("Output Quantity", Quantity);
         ItemJournalLine.Validate(
-          "Document No.", NoSeriesManagement.GetNextNo(OutputItemJournalBatch."No. Series", ItemJournalLine."Posting Date", false));
+          "Document No.", NoSeries.PeekNextNo(OutputItemJournalBatch."No. Series", ItemJournalLine."Posting Date"));
         ItemJournalLine.Modify(true);
     end;
 
@@ -1727,7 +1723,7 @@ codeunit 137011 "SCM Revaluation-II"
             Find();
             LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
             Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Validate("Posting Date", LibraryRandom.RandDateFrom(GetLatestPostingDate, 10));
+            Validate("Posting Date", LibraryRandom.RandDateFrom(GetLatestPostingDate(), 10));
             Modify(true);
         end;
     end;
@@ -1751,9 +1747,9 @@ codeunit 137011 "SCM Revaluation-II"
         LibraryInventory.SetExpectedCostPosting(ExpectedCostPosting);
         case AutomaticCostAdjmt of
             AutomaticCostAdjustment::Always:
-                LibraryInventory.SetAutomaticCostAdjmtAlways;
+                LibraryInventory.SetAutomaticCostAdjmtAlways();
             AutomaticCostAdjustment::Never:
-                LibraryInventory.SetAutomaticCostAdjmtNever;
+                LibraryInventory.SetAutomaticCostAdjmtNever();
         end;
         LibraryInventory.UpdateAverageCostSettings(AvgCostCalcType, AvgCostPeriod);
     end;
@@ -1769,7 +1765,7 @@ codeunit 137011 "SCM Revaluation-II"
             FindSet();
             repeat
                 TestField("Cost Posted to G/L", "Cost Amount (Actual)");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

@@ -4,6 +4,7 @@ table 31035 "Advance Letter Matching Buffer"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

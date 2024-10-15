@@ -51,7 +51,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] Blocked Vendor "X"
         BlockVendor(PurchCrMemoHdr."Pay-to Vendor No.");
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -78,7 +78,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Vendor.Get(PurchCrMemoHdr."Pay-to Vendor No.");
         Vendor.Validate("Privacy Blocked", true);
         Vendor.Modify(true);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -102,7 +102,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] "Allow Posting From" = 02.01 in General Ledger Setup
         LibraryERM.SetAllowPostingFromTo(PurchCrMemoHdr."Posting Date" + 1, 0D);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -127,7 +127,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Cancelled and unapplied Posted Credit Memo
         PurchCrMemoHdr.Find();
         CancelCrMemo(PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -148,7 +148,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Initialize();
         // [GIVEN] Posted Credit Memo
         PostCrMemo(PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -174,7 +174,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Closed Inventoty Period with "Posting Date" = 31.01
         CreateInvtPeriod(InventoryPeriod);
         Commit();
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -203,7 +203,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] Blocked Item "X"
         BlockItemOfPurchCrMemo(Item, PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credit Memo
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -230,7 +230,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Posted Invoice "A2" cancelled Credit Memo "B1"
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Invoice "A2"
         asserterror CancelInvoice(NewPurchCrMemoHdr, PurchInvHeader);
@@ -259,7 +259,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           PurchCrMemoHdr, -Round(PurchCrMemoHdr."Amount Including VAT" / LibraryRandom.RandIntInRange(3, 5)), false);
         Commit();
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "D"
         asserterror CancelCrMemo(PurchCrMemoHdr);
@@ -282,7 +282,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         Initialize();
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
         MockDtldVendLedgEntry(VendLedgEntry."Entry No.", DetailedVendLedgEntry."Entry Type"::"Realized Gain");
         Commit();
@@ -345,8 +345,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(PurchCrMemoHdr);
 
@@ -389,8 +389,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Posted Invoice "A" and Posted Credit Memo "B" are unapplied
         UnapplyDocument(VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
         Commit();
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(PurchCrMemoHdr);
@@ -425,8 +425,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PostApplyUnapplyInvoiceToCrMemo(PurchCrMemoHdr);
         FindLastPurchInvHeader(PurchInvHeader, PurchCrMemoHdr."Pay-to Vendor No.");
         Commit();
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B"
         CancelCrMemo(PurchCrMemoHdr);
@@ -457,8 +457,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
         OrigPurchInvHeader.Get(PurchCrMemoHdr."Applies-to Doc. No.");
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [GIVEN] cancelled Posted Credit Memo "B"
         CancelCrMemo(PurchCrMemoHdr);
@@ -500,8 +500,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           PurchCrMemoHdr, -PurchCrMemoHdr."Amount Including VAT" + PartialAmount, true);
         Commit();
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "E"
         CancelCrMemo(PurchCrMemoHdr);
@@ -529,14 +529,14 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
         // [GIVEN] Open "Posted Purchase Credit Memos" page
-        PostedPurchInvoice.Trap;
-        PostedPurchCreditMemos.OpenEdit;
+        PostedPurchInvoice.Trap();
+        PostedPurchCreditMemos.OpenEdit();
         PostedPurchCreditMemos.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Run action "Cancel Credit Memo" on "B"
-        PostedPurchCreditMemos.CancelCrMemo.Invoke;
+        PostedPurchCreditMemos.CancelCrMemo.Invoke();
 
         // [THEN] "cancelled" is Yes on "Posted Credit Memos" page, action Cancel is invisible, action 'Show Invoice' is visible
         PostedPurchCreditMemos.Cancelled.AssertEquals(true);
@@ -568,14 +568,14 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
         // [GIVEN] Open "Posted Purchase Credit Memo" page
-        PostedPurchInvoice.Trap;
-        PostedPurchCreditMemo.OpenEdit;
+        PostedPurchInvoice.Trap();
+        PostedPurchCreditMemo.OpenEdit();
         PostedPurchCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Run action "Cancel Credit Memo" on "B"
-        PostedPurchCreditMemo.CancelCrMemo.Invoke;
+        PostedPurchCreditMemo.CancelCrMemo.Invoke();
 
         // [THEN] "cancelled" is Yes on "Posted Credit Memo" page, action Cancel is invisible, action 'Show Invoice' is visible
         PostedPurchCreditMemo.Cancelled.AssertEquals(true);
@@ -610,7 +610,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Positive Adjustment "A1"
         // [GIVEN] Positive Adjustment "A2"
         // [GIVEN] Invoice "I1"
-        ItemNo := CreateItemNoWithFIFO;
+        ItemNo := CreateItemNoWithFIFO();
         CreateDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, PurchLine.Type::Item, ItemNo);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         InvItemLedgEntryNo[1] := FindItemLedgEntryNo(ItemNo);
@@ -624,8 +624,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(NewPurchInvHeader, PurchCrMemoHdr);
         InvItemLedgEntryNo[2] := FindItemLedgEntryNo(ItemNo);
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Invoice "I1" second time with Corrective Credit Memo "C2"
         CancelInvoice(NewPurchCrMemoHdr, PurchInvHeader);
@@ -654,8 +654,8 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
         PurchCrMemoHdr.CalcFields("Amount Including VAT");
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Cancel Posted Credit Memo "B" with Corrective Invoice "C"
         CancelCrMemo(PurchCrMemoHdr);
@@ -689,12 +689,12 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [GIVEN] Posted Invoice with GLAccounts 'A' and 'B' for 200
         CreateDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup);
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup());
         PurchaseLine.Validate(Quantity, 1);
         PurchaseLine.Validate("Direct Unit Cost", 99.98);
         PurchaseLine.Modify(true);
         PurchaseLine."Line No." += 10000;
-        PurchaseLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup);
+        PurchaseLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup());
         PurchaseLine.Validate(Quantity, 1);
         PurchaseLine.Validate("Direct Unit Cost", 99.98);
         PurchaseLine.Insert(true);
@@ -731,18 +731,18 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
 
         // [GIVEN] Opened page "Posted Purchase Credit Memo" with Credit Memo "B"
-        PostedPurchaseInvoice.Trap;
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseInvoice.Trap();
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedPurchaseCreditMemo.ShowInvoice.Invoke;
+        PostedPurchaseCreditMemo.ShowInvoice.Invoke();
 
         // [THEN] "Posted Purchase Invoice" page with Invoice "C" is opened
         PostedPurchaseInvoice."No.".AssertEquals(PurchInvHeader."No.");
@@ -765,18 +765,18 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
 
         // [GIVEN] Opened page "Posted Purchase Credit Memos" with Credit Memo "B"
-        PostedPurchaseInvoice.Trap;
-        PostedPurchaseCreditMemos.OpenView;
+        PostedPurchaseInvoice.Trap();
+        PostedPurchaseCreditMemos.OpenView();
         PostedPurchaseCreditMemos.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Invoice"
-        PostedPurchaseCreditMemos.ShowInvoice.Invoke;
+        PostedPurchaseCreditMemos.ShowInvoice.Invoke();
 
         // [THEN] "Posted Purchase Invoice" page with Invoice "C" is opened
         PostedPurchaseInvoice."No.".AssertEquals(PurchInvHeader."No.");
@@ -799,18 +799,18 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
 
         // [GIVEN] Opened page "Posted Purchase Invoice" with Invoice "C"
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedPurchaseInvoice.ShowCreditMemo.Invoke;
+        PostedPurchaseInvoice.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Purchase Credit Memo" with Credit Memo "B" is opened
         PostedPurchaseCreditMemo."No.".AssertEquals(PurchCrMemoHdr."No.");
@@ -833,18 +833,18 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
         // [GIVEN] Canceled Posted Credit Memo "A" with corrective Invoice "C"
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
         CancelCrMemo(PurchCrMemoHdr);
         LibrarySmallBusiness.FindPurchCorrectiveInvoice(PurchInvHeader, PurchCrMemoHdr);
 
         // [GIVEN] Opened page "Posted Purchase Invoice" with Invoice "C"
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.FILTER.SetFilter("No.", PurchInvHeader."No.");
 
         // [WHEN] Run action "Show Canceled/Corrective Credit Memo"
-        PostedPurchaseInvoices.ShowCreditMemo.Invoke;
+        PostedPurchaseInvoices.ShowCreditMemo.Invoke();
 
         // [THEN] "Posted Purchase Credit Memo" page with Credit Memo "B" is opened
         PostedPurchaseCreditMemo."No.".AssertEquals(PurchCrMemoHdr."No.");
@@ -864,14 +864,14 @@ codeunit 137028 "Purch. Correct Cr. Memo"
 
         // [GIVEN] Posted Purchase Credit Memo "X"
         PostCrMemo(PurchCrMemoHdr);
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
 
         // [WHEN] Cancel Purchase Credit Memo "X"
-        PostedPurchCreditMemo.OpenEdit;
+        PostedPurchCreditMemo.OpenEdit();
         PostedPurchCreditMemo.GotoRecord(PurchCrMemoHdr);
 
         // [THEN] Cancel action cannot be clicked
-        Assert.IsFalse(PostedPurchCreditMemo.CancelCrMemo.Visible, 'User can cancel a non-corrective purchase credit memo.');
+        Assert.IsFalse(PostedPurchCreditMemo.CancelCrMemo.Visible(), 'User can cancel a non-corrective purchase credit memo.');
     end;
 
     [Test]
@@ -1004,7 +1004,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        CreateDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, PurchLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateDocument(PurchHeader, PurchLine, PurchHeader."Document Type"::Invoice, PurchLine.Type::Item, LibraryInventory.CreateItemNo());
         PurchLine.Validate("Direct Unit Cost", 99.98);
         PurchLine.Modify(true);
         LibrarySmallBusiness.UpdateInvRoundingAccountWithPurchSetup(
@@ -1022,7 +1022,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, ItemType);
         Item.Modify(true);
@@ -1065,13 +1065,13 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     var
         PurchLine: Record "Purchase Line";
     begin
-        CreateDocument(PurchHeader, PurchLine, DocType, PurchLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateDocument(PurchHeader, PurchLine, DocType, PurchLine.Type::Item, LibraryInventory.CreateItemNo());
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;
 
     local procedure CreateDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; LineType: Enum "Purchase Line Type"; ItemNo: Code[20])
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, LineType, ItemNo, LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Modify(true);

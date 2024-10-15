@@ -6,6 +6,7 @@ table 762 "Account Schedules Chart Setup"
 {
     Caption = 'Account Schedules Chart Setup';
     LookupPageID = "Account Schedule Chart List";
+    DataClassification = CustomerContent;
 
     fields
     {

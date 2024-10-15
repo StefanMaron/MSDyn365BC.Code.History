@@ -104,76 +104,6 @@ page 99000912 "Simulated Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
-#if not CLEAN17
-                field("Starting Time"; StartingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Time", StartingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Starting Date"; StartingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Date", StartingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Time"; EndingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Time", EndingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Date"; EndingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Date", EndingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -441,29 +371,6 @@ page 99000912 "Simulated Production Order"
             }
         }
     }
-#if not CLEAN17
-    trigger OnAfterGetRecord()
-    begin
-        Rec.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
-    end;
-
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    var
-        StartingTime: Time;
-        EndingTime: Time;
-        StartingDate: Date;
-        EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
-#endif
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

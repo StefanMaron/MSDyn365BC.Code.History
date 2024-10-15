@@ -5,6 +5,7 @@ table 31020 "Purch. Advance Letter Header"
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

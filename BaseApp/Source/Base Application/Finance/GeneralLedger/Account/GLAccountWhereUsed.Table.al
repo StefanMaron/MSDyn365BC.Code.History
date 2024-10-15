@@ -6,6 +6,7 @@ table 180 "G/L Account Where-Used"
 {
     Caption = 'G/L Account Where-Used';
     LookupPageID = "G/L Account Where-Used List";
+    DataClassification = CustomerContent;
 
     fields
     {

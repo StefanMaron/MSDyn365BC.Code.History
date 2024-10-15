@@ -67,7 +67,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check Apply Customer Entries Page Fields with Posting Invoice and Apply Payment with different Currency.
         Initialize();
-        ApplyCustEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency, CreateCurrency);
+        ApplyCustEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency(), CreateCurrency());
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Apply Customer Entries Page Fields with Posting Refund and Apply Credit Memo with different Currency.
         Initialize();
         ApplyCustEntry(
-          GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
+          GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency(), CreateCurrency());
     end;
 
     local procedure ApplyCustEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode2: Code[10]; CurrencyCode3: Code[10])
@@ -95,7 +95,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Setup. Post Customer Invoice and Partial Payment.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateCustomer, DocumentType, LibraryRandom.RandDec(100, 2), CurrencyCode2,
+          GenJournalLine, GenJournalBatch, CreateCustomer(), DocumentType, LibraryRandom.RandDec(100, 2), CurrencyCode2,
           GenJournalLine."Account Type"::Customer);
         Amount := GenJournalLine.Amount;
         CreateGeneralJournalLines(
@@ -106,15 +106,15 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Exercise.
         OpenCustLedgerEntryPage(DocumentType, GenJournalLine."Account No.");
 
-        AppliedAmount := LibraryVariableStorage.DequeueDecimal;
-        ApplyingAmount := LibraryVariableStorage.DequeueDecimal;
-        Balance := LibraryVariableStorage.DequeueDecimal;
+        AppliedAmount := LibraryVariableStorage.DequeueDecimal();
+        ApplyingAmount := LibraryVariableStorage.DequeueDecimal();
+        Balance := LibraryVariableStorage.DequeueDecimal();
 
         // Verify: Verify Page fields value on Apply Customer Entries Page.
         Assert.AreEqual(GenJournalLine.Amount, AppliedAmount, StrSubstNo(ApplyAmountErr, 'Applied Amount', AppliedAmount));
         Assert.AreEqual(Amount, ApplyingAmount, StrSubstNo(ApplyAmountErr, 'Applying Amount', ApplyingAmount));
         Assert.AreEqual(Amount + GenJournalLine.Amount, Balance, StrSubstNo(ApplyAmountErr, 'Balance', Balance));
-        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText, StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
+        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText(), StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
     end;
 
     [Test]
@@ -150,7 +150,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Setup. Post Customer Invoice and Partial Payment with Random Amount.
         SelectGenJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, CreateCustomer, DocumentType, LibraryRandom.RandDec(100, 2), '',
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, CreateCustomer(), DocumentType, LibraryRandom.RandDec(100, 2), '',
           GenJournalLine."Account Type"::Customer);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", DocumentType2, -GenJournalLine.Amount / 2, '',
@@ -266,7 +266,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Check Apply Vendor Entries Page Fields with Posting Invoice and Apply Payment with different Currency.
         Initialize();
-        ApplyVendorEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency, CreateCurrency);
+        ApplyVendorEntry(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, CreateCurrency(), CreateCurrency());
     end;
 
     [Test]
@@ -279,7 +279,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Apply Vendor Entries Page Fields with Posting Refund and Apply Credit Memo with different Currency.
         Initialize();
         ApplyVendorEntry(
-          GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
+          GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency(), CreateCurrency());
     end;
 
     local procedure ApplyVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode3: Code[10]; CurrencyCode2: Code[10])
@@ -294,7 +294,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Setup: Create Vendor, Create and post General Journal  Line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateVendor, DocumentType, -LibraryRandom.RandDec(100, 2),
+          GenJournalLine, GenJournalBatch, CreateVendor(), DocumentType, -LibraryRandom.RandDec(100, 2),
           CurrencyCode3, GenJournalLine."Account Type"::Vendor);
         Amount := GenJournalLine.Amount;
         CreateGeneralJournalLines(
@@ -305,15 +305,15 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Exercise.
         OpenVendorLedgerEntryPage(DocumentType2, GenJournalLine."Account No.");
 
-        AppliedAmount := LibraryVariableStorage.DequeueDecimal;
-        ApplyingAmount := LibraryVariableStorage.DequeueDecimal;
-        Balance := LibraryVariableStorage.DequeueDecimal;
+        AppliedAmount := LibraryVariableStorage.DequeueDecimal();
+        ApplyingAmount := LibraryVariableStorage.DequeueDecimal();
+        Balance := LibraryVariableStorage.DequeueDecimal();
 
         // Verify: Verify Page fields value on Apply Vendor Entries Page.
         Assert.AreEqual(Amount, AppliedAmount, StrSubstNo(ApplyAmountErr, 'Applied Amount', Amount));
         Assert.AreEqual(GenJournalLine.Amount, ApplyingAmount, StrSubstNo(ApplyAmountErr, 'Applying Amount', GenJournalLine.Amount));
         Assert.AreEqual(Amount + GenJournalLine.Amount, Balance, StrSubstNo(ApplyAmountErr, 'Balance', Amount + GenJournalLine.Amount));
-        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText, StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
+        Assert.AreEqual(CurrencyCode2, LibraryVariableStorage.DequeueText(), StrSubstNo(ApplyAmountErr, 'Currency Code', CurrencyCode2));
     end;
 
     [Test]
@@ -350,7 +350,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Setup. Post Vendor Invoice and Partial Payment with Random Amount.
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateVendor, DocumentType, -LibraryRandom.RandDec(100, 2), '',
+          GenJournalLine, GenJournalBatch, CreateVendor(), DocumentType, -LibraryRandom.RandDec(100, 2), '',
           GenJournalLine."Account Type"::Vendor);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", DocumentType2, -GenJournalLine.Amount / 2, '',
@@ -452,7 +452,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateVendor, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, CreateVendor(), GenJournalLine."Document Type"::Invoice,
           -LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Vendor);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", GenJournalLine."Document Type"::Payment,
@@ -584,9 +584,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         // Setup: Create and post Customer Invoice, create Payment and Apply Payment using Applies to Doc. No.
         Initialize();
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate());
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, CreateCustomer(), GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Customer);
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -625,9 +625,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check that it is possible to enter an invoice number without having a customer number.
         // Setup: Create and post Customer Invoice, create Payment and Apply Payment using Applies to Doc. No.
         Initialize();
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate());
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, CreateCustomer(), GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Customer);
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -659,9 +659,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check that it is possible to enter an invoice number without having a vendor number.
         // Setup: Create and post Vendor Invoice, create Payment and Apply Payment using Applies to Doc. No.
         Initialize();
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate());
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateVendor, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, CreateVendor(), GenJournalLine."Document Type"::Invoice,
           -LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Vendor);
         ModifyGenLineBalAccountNo(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -693,7 +693,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Verify With ApplyCustomerEntriesPageHandler.
         Initialize();
         CreateGeneralLineAndApplyEntries(
-          GenJournalLine."Account Type"::Customer, CreateCustomer, LibraryRandom.RandDec(100, 2));  // Take Random Amount for General Line.
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), LibraryRandom.RandDec(100, 2));  // Take Random Amount for General Line.
     end;
 
     [Test]
@@ -706,7 +706,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Check Applies to ID field should be blank on Apply Vendor Entries Page.
         // Verify with ApplyVendorEntriesPageHandler.
         Initialize();
-        CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
+        CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Vendor, CreateVendor(), -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
     end;
 
     local procedure CreateGeneralLineAndApplyEntries(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -728,9 +728,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
           AccountType, AccountNo, 0);
 
         // Verify: Open Apply Entries Page and Check Applies to ID field should be blank.
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     [Test]
@@ -749,7 +749,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Commit(); // commit is required to save the DB State.
 
         // Exercise: Open Sales Journal page with Created Batch Name.
-        SalesJournal.OpenView;
+        SalesJournal.OpenView();
         SalesJournal.CurrentJnlBatchName.SetValue(BatchName);
 
         // Verify: Verify Sales Journal Page's Caption with Created Batch Name.
@@ -772,7 +772,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Commit(); // commit is required to save the DB State.
 
         // Exercise: Open Purchase Journal page with Created Batch Name.
-        PurchaseJournal.OpenView;
+        PurchaseJournal.OpenView();
         PurchaseJournal.CurrentJnlBatchName.SetValue(BatchName);
 
         // Verify: Verify Purchase Journal Page's Caption with Created Batch Name.
@@ -792,8 +792,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize();
 
         // [WHEN] Purchase Jouranl opened
-        PurchaseJournal.OpenView;
-        PurchaseJournal.New;
+        PurchaseJournal.OpenView();
+        PurchaseJournal.New();
 
         // [THEN] Purchase Journal simple view "Document Type" and "Account Type" default to the correct values
         Assert.AreEqual(
@@ -817,8 +817,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize();
 
         // [WHEN] Purchase Jouranl opened
-        PurchaseJournal.OpenView;
-        PurchaseJournal.New;
+        PurchaseJournal.OpenView();
+        PurchaseJournal.New();
 
         // [THEN] Purchase Journal Amount is correctly assigned based on Document Type and Document Amount
         PurchaseJournal.DocumentAmount.SetValue(1.23);
@@ -877,8 +877,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize();
 
         // [WHEN] Sales Journal opened
-        SalesJournal.OpenView;
-        SalesJournal.New;
+        SalesJournal.OpenView();
+        SalesJournal.New();
 
         // [THEN] Sales Journal simple view "Document Type" and "Account Type" default to the correct values
         Assert.AreEqual(
@@ -910,8 +910,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalTemplate.Modify();
 
         // [WHEN] Sales Journal opens, it will look for a template of type Sales.  Not finding one, it will create Sale1.
-        SalesJournal.OpenView;
-        SalesJournal.New;
+        SalesJournal.OpenView();
+        SalesJournal.New();
         SalesJournal.Close();
 
         GenJournalTemplate.Init();
@@ -932,8 +932,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize();
 
         // [WHEN] Sales Journal opened
-        SalesJournal.OpenView;
-        SalesJournal.New;
+        SalesJournal.OpenView();
+        SalesJournal.New();
 
         // [THEN] Sales Journal Amount is correctly assigned based on Document Type and Document Amount
         SalesJournal.DocumentAmount.SetValue(1.23);
@@ -996,20 +996,20 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Customer.Modify(true);
 
         // [GIVEN] Customer List filtered by Name = "X1"
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter(Name, Customer.Name);
 
         // [GIVEN] Customer Card for Customer "A" opened from Customer List
         CustomerList."No.".AssertEquals(Customer."No.");
-        CustomerCard.Trap;
-        CustomerList.Edit.Invoke;
+        CustomerCard.Trap();
+        CustomerList.Edit().Invoke();
 
         // [GIVEN] Name changed to "X2" for Customer "A" in Customer Card
         NewName := LibraryUtility.GenerateGUID();
         CustomerCard.Name.SetValue(NewName);
 
         // [WHEN] Click OK on  Customer Card
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // [THEN] Customer Card closed and Customer List does not contain any record.
         CustomerList."No.".AssertEquals('');
@@ -1034,19 +1034,19 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Vendor.Modify(true);
 
         // [GIVEN] Vendor List filtered by Name = "X1"
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.FILTER.SetFilter(Name, Vendor.Name);
 
         // [GIVEN] Vendor Card for Vendor "A" opened from Vendor List
         VendorList."No.".AssertEquals(Vendor."No.");
-        VendorCard.Trap;
-        VendorList.Edit.Invoke;
+        VendorCard.Trap();
+        VendorList.Edit().Invoke();
 
         // [GIVEN] Name changed to "X2" for Vendor "A" in Vendor Card
         VendorCard.Name.SetValue(LibraryUtility.GenerateGUID());
 
         // [WHEN] Click OK on Vendor Card.
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
 
         // [THEN] Vendor Card closed and Vendor List does not contain any record.
         VendorList."No.".AssertEquals('');
@@ -1110,13 +1110,13 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Assert.IsTrue(DuplicateManagement.DuplicateExist(Contact), 'The contacts should be duplicates');
 
         // [GIVEN] Customer List filtered by the name of the customer
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter(Name, Customer.Name);
 
         // [GIVEN] Customer Card for the customer opened from the Customer List so it has the same filter
         CustomerList."No.".AssertEquals(Customer."No.");
-        CustomerCard.Trap;
-        CustomerList.Edit.Invoke;
+        CustomerCard.Trap();
+        CustomerList.Edit().Invoke();
 
         // [GIVEN] The customer's name is changed
         NewName := LibraryUtility.GenerateGUID();
@@ -1316,11 +1316,11 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [SCENARIO 491576] When Posting a Payment with several lines the Apply to Oldest is not applied properly
         Initialize();
 
-        // [GIVEN] Create Customer with  Application method = "Apply to Oldest", Payment Term and Payment Method Code
+        // [GIVEN] Create Customer withh Application method = "Apply to Oldest", Payment Term and Payment Method Code
         CreateCustomerWithApplicationMethod(Customer);
 
         // [GIVEN] Create and post sales order
-        CreateAndPostSalesOrder(Customer."No.", InvoiceAmount);
+        CreateandPostSalesOrder(Customer."No.", InvoiceAmount);
 
         // [GIVEN] Assume two payment, first will be small amount and second larger than first.
         Payment := 100;
@@ -1352,13 +1352,12 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine."Document No." := DocumentNo;
         GenJournalLine.Modify();
 
-        // [WHEN] Post the payment from Cash Receipt Journal
+        // [WHEN] Post the payment fron Cash Receipt Journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [VERIFY]: Verify Remaining Amount and Open field on Customer Ledger Entries.
         VerifyCustomerLedgerEntry(Customer."No.");
     end;
-
 
     local procedure Initialize()
     var
@@ -1376,7 +1375,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purchase Application");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -1471,9 +1470,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         // Create and Post Invoice,Credit Memo and create Payment.
         // Take Random Amount on Gen. Journal Line.
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate());
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, CreateCustomer(), GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(100, 2), '', GenJournalLine."Account Type"::Customer);
         ModifyGenLineBalAccountNo(GenJournalLine);
         ApplyCustEntryDocumentType := GenJournalLine."Document Type";
@@ -1614,10 +1613,10 @@ codeunit 134918 "ERM Sales/Purchase Application"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure OpenSalesAnalysisMatrix(RoundingFactor: Option; AnalysisViewCode: Code[10])
@@ -1626,21 +1625,21 @@ codeunit 134918 "ERM Sales/Purchase Application"
         SalesAnalysisByDimensions: TestPage "Sales Analysis by Dimensions";
     begin
         // Exercise. Open Show Matrix page by Sales Analysis by Dimension Page.
-        SalesAnalysisByDimensions.OpenEdit;
+        SalesAnalysisByDimensions.OpenEdit();
         SalesAnalysisByDimensions.CurrentItemAnalysisViewCode.SetValue(AnalysisViewCode);
         SalesAnalysisByDimensions.LineDimCode.SetValue(Item.TableCaption());
         SalesAnalysisByDimensions.RoundingFactor.SetValue(RoundingFactor);
-        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure OpenVendorLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1662,9 +1661,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         CreateAndPostSalesInvoice(SalesLine);
 
-        AnalysisViewListSales.OpenView;
+        AnalysisViewListSales.OpenView();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListSales."&Update".Invoke;
+        AnalysisViewListSales."&Update".Invoke();
         exit(ItemAnalysisView.Code);
     end;
 
@@ -1673,12 +1672,12 @@ codeunit 134918 "ERM Sales/Purchase Application"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // Open Cash Receipt Journal page for lookup on applies to Doc. no. field.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue := BatchName;
         CashReceiptJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         CashReceiptJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure GetPaymentTermsDiscountPercentage(PaymentTerms: Record "Payment Terms"): Decimal
@@ -1721,33 +1720,6 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
-    begin
-        ApplyCustomerEntries.AppliesToID.AssertEquals('');
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ApplyCustEntriesOKPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
-    begin
-        // Modal Page Handler.
-        // Using Case to handle consecutive Modal Page Handlers.
-
-        case LibraryVariableStorage.DequeueInteger of
-            1:
-                begin
-                    ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
-                    ApplyCustomerEntries.Next();
-                    ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
-                end;
-            2:
-                asserterror ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
-        end;
-        ApplyCustomerEntries.OK.Invoke;
-    end;
-
     local procedure CreateCustomerWithApplicationMethod(var Customer: Record Customer)
     var
         PaymentTerms: Record "Payment Terms";
@@ -1763,7 +1735,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Customer.Modify();
     end;
 
-    local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; var Amount: Decimal)
+    local procedure CreateandPostSalesOrder(CustomerNo: Code[20]; var Amount: Decimal)
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -1796,9 +1768,36 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.AppliesToID.AssertEquals('');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustEntriesOKPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        // Modal Page Handler.
+        // Using Case to handle consecutive Modal Page Handlers.
+
+        case LibraryVariableStorage.DequeueInteger() of
+            1:
+                begin
+                    ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger());
+                    ApplyCustomerEntries.Next();
+                    ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger());
+                end;
+            2:
+                asserterror ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger());
+        end;
+        ApplyCustomerEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.AppliedAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ApplyingAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ControlBalance.Value);
@@ -1816,7 +1815,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure ApplyVendorPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.AppliedAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.ApplyingAmount.Value);
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.ControlBalance.Value);
@@ -1827,16 +1826,16 @@ codeunit 134918 "ERM Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure ApplyPostCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndApplyVendorPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [MessageHandler]
@@ -1858,16 +1857,16 @@ codeunit 134918 "ERM Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure MatixPageHandler(var SalesAnalysisByDimMatrix: TestPage "Sales Analysis by Dim Matrix")
     begin
-        SalesAnalysisByDimMatrix.FindFirstField(Code, LibraryVariableStorage.DequeueText);
-        SalesAnalysisByDimMatrix.TotalQuantity.AssertEquals(-LibraryVariableStorage.DequeueDecimal);
-        SalesAnalysisByDimMatrix.TotalInvtValue.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        SalesAnalysisByDimMatrix.FindFirstField(Code, LibraryVariableStorage.DequeueText());
+        SalesAnalysisByDimMatrix.TotalQuantity.AssertEquals(-LibraryVariableStorage.DequeueDecimal());
+        SalesAnalysisByDimMatrix.TotalInvtValue.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactDuplicatesModalPageHandler(var ContactDuplicates: TestPage "Contact Duplicates")
     begin
-        ContactDuplicates.OK.Invoke;
+        ContactDuplicates.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1882,16 +1881,16 @@ codeunit 134918 "ERM Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.Last;
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.Last();
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.Last;
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries.Last();
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     [ModalPageHandler]

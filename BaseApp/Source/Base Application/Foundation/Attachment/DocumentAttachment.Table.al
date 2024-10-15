@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.Attachment;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
+using Microsoft.Service.History;
 using Microsoft.EServices.EDocument;
 using System.IO;
 using System.Reflection;
@@ -18,6 +19,7 @@ using System.Integration;
 table 1173 "Document Attachment"
 {
     Caption = 'Document Attachment';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -55,7 +57,7 @@ table 1173 "Document Attachment"
                     Error(EmptyFileNameErr);
 
                 if DocumentAttachmentMgmt.IsDuplicateFile(
-                    "Table ID", "No.", "Document Type".AsInteger(), "Line No.", "File Name", "File Extension")
+                    "Table ID", "No.", "Document Type", "Line No.", "File Name", "File Extension")
                 then
                     Error(DuplicateErr);
             end;
@@ -155,6 +157,24 @@ table 1173 "Document Attachment"
             Caption = 'VAT Report Config. Code';
             TableRelation = "VAT Reports Configuration"."VAT Report Type";
         }
+        field(20; "Document Flow Service"; Boolean)
+        {
+            Caption = 'Flow to Service Trx';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateDocumentFlowService(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
+                if not HasContent() then
+                    Error(NoDocumentAttachedErr);
+            end;
+        }
     }
 
     keys
@@ -219,6 +239,7 @@ table 1173 "Document Attachment"
     procedure Export(ShowFileDialog: Boolean) Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
         DocumentStream: OutStream;
         FullFileName: Text;
         IsHandled: Boolean;
@@ -250,15 +271,17 @@ table 1173 "Document Attachment"
         RecRef.GetTable(Record);
         SetRange("Table ID", RecRef.Number);
         case RecRef.Number of
-            DATABASE::"Sales Invoice Header",
-            DATABASE::"Sales Cr.Memo Header",
-            DATABASE::"Purch. Inv. Header",
-            DATABASE::"Purch. Cr. Memo Hdr.":
+            Database::"Sales Invoice Header",
+            Database::"Sales Cr.Memo Header",
+            Database::"Purch. Inv. Header",
+            Database::"Purch. Cr. Memo Hdr.",
+            Database::"Service Invoice Header",
+            Database::"Service Cr.Memo Header":
                 begin
                     FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
+                    RecNo := FieldRef.Value();
                     SetRange("No.", RecNo);
-                    exit(not IsEmpty);
+                    exit(not IsEmpty());
                 end;
         end;
 
@@ -334,7 +357,7 @@ table 1173 "Document Attachment"
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         FieldRef: FieldRef;
         RecNo: Code[20];
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        AttachmentDocumentType: Enum "Attachment Document Type";
         FieldNo: Integer;
         LineNo: Integer;
         VATRepConfigType: Enum "VAT Report Configuration";
@@ -349,8 +372,9 @@ table 1173 "Document Attachment"
 
         if DocumentAttachmentMgmt.TableHasDocTypePrimaryKey(RecRef.Number(), FieldNo) then begin
             FieldRef := RecRef.Field(FieldNo);
-            DocType := FieldRef.Value();
-            Validate("Document Type", DocType);
+            AttachmentDocumentType := FieldRef.Value();
+            DocumentAttachmentMgmt.TransformAttachmentDocumentTypeValue(RecRef.Number(), AttachmentDocumentType);
+            Validate("Document Type", AttachmentDocumentType);
         end;
 
         if DocumentAttachmentMgmt.TableHasLineNumberPrimaryKey(RecRef.Number(), FieldNo) then begin
@@ -375,7 +399,7 @@ table 1173 "Document Attachment"
         SourceFileName: Text[250];
     begin
         SourceFileName := CopyStr(FileName, 1, MaxStrLen(SourceFileName));
-        while DocumentAttachmentMgmt.IsDuplicateFile("Table ID", "No.", "Document Type".AsInteger(), "Line No.", FileName, FileExtension) do begin
+        while DocumentAttachmentMgmt.IsDuplicateFile("Table ID", "No.", "Document Type", "Line No.", FileName, FileExtension) do begin
             FileIndex += 1;
             FileName := GetNextFileName(SourceFileName, FileIndex);
         end;
@@ -529,6 +553,7 @@ table 1173 "Document Attachment"
     procedure OpenInOneDrive(DocumentSharingIntent: Enum "Document Sharing Intent")
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
+        FileManagement: Codeunit "File Management";
         IsHandled: Boolean;
         FileName: Text;
         FileExtension: Text;
@@ -614,15 +639,22 @@ table 1173 "Document Attachment"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDocumentFlowPurchase(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; IsHandled: Boolean)
+    local procedure OnBeforeValidateDocumentFlowPurchase(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateDocumentFlowSales(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; IsHandled: Boolean)
+    local procedure OnBeforeValidateDocumentFlowSales(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentFlowService(var DocumentAttachment: Record "Document Attachment"; xDocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
+    begin
+    end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeCheckDocRefID(var DocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)

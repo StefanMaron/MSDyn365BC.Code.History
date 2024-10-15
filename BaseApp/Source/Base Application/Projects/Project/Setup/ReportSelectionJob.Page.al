@@ -5,7 +5,8 @@ using System.Reflection;
 
 page 307 "Report Selection - Job"
 {
-    Caption = 'Report Selection - Job';
+    AdditionalSearchTerms = 'Report Selection - Job';
+    Caption = 'Report Selection - Project';
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Report Selections";
@@ -29,6 +30,7 @@ page 307 "Report Selection - Job"
             }
             repeater(Control1)
             {
+                FreezeColumn = "Report Caption";
                 ShowCaption = false;
                 field(Sequence; Rec.Sequence)
                 {
@@ -62,6 +64,7 @@ page 307 "Report Selection - Job"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the email body layout that is used.';
+                    Visible = false;
                 }
                 field(EmailBodyPublisher; Rec."Email Body Layout Publisher")
                 {
@@ -69,17 +72,47 @@ page 307 "Report Selection - Job"
                     ToolTip = 'Specifies the publisher of the email body layout that is used.';
                     Visible = false;
                 }
+                field(ReportLayoutName; Rec."Report Layout Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field(EmailLayoutCaption; Rec."Email Body Layout Caption")
+                {
+                    ApplicationArea = Basic, Suite;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToSelectLayout(Rec."Email Body Layout Name", Rec."Email Body Layout AppID");
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ReportLayoutCaption; Rec."Report Layout Caption")
+                {
+                    ApplicationArea = Basic, Suite;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToSelectLayout(Rec."Report Layout Name", Rec."Report Layout AppID");
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ReportLayoutPublisher; Rec."Report Layout Publisher")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the email body layout that is used.';
+                    ToolTip = 'Specifies the ID of the custom email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the email body custom layout that is used.';
-                    Visible = CustomLayoutsExist;
+                    Visible = false;
 
                     trigger OnDrillDown()
                     var
@@ -119,12 +152,10 @@ page 307 "Report Selection - Job"
     begin
         InitUsageFilter();
         SetUsageFilter(false);
-        CustomLayoutsExist := Rec.DoesAnyCustomLayotExist();
     end;
 
     var
         ReportUsage2: Enum "Report Selection Usage Job";
-        CustomLayoutsExist: Boolean;
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
@@ -134,6 +165,8 @@ page 307 "Report Selection - Job"
         case ReportUsage2 of
             ReportUsage2::Quote:
                 Rec.SetRange(Usage, Rec.Usage::JQ);
+            ReportUsage2::"Task Quote":
+                Rec.SetRange(Usage, Rec.Usage::"Job Task Quote");
         end;
         OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         Rec.FilterGroup(0);
@@ -149,6 +182,8 @@ page 307 "Report Selection - Job"
                 case ReportUsage of
                     ReportUsage::JQ:
                         ReportUsage2 := ReportUsage2::Quote;
+                    ReportUsage::"Job Task Quote":
+                        ReportUsage2 := ReportUsage2::"Task Quote";
                     else
                         OnInitUsageFilterOnElseCase(ReportUsage, ReportUsage2);
                 end;

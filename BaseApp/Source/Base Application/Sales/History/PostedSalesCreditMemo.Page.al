@@ -1,5 +1,4 @@
-﻿#if not CLEAN21
-namespace Microsoft.Sales.History;
+﻿namespace Microsoft.Sales.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -18,7 +17,6 @@ page 134 "Posted Sales Credit Memo"
     Caption = 'Posted Sales Credit Memo';
     InsertAllowed = false;
     PageType = Document;
-    Permissions = TableData "Sales Cr.Memo Header" = rm;
     RefreshOnActivate = true;
     SourceTable = "Sales Cr.Memo Header";
 
@@ -151,16 +149,6 @@ page 134 "Posted Sales Credit Memo"
                     Caption = 'Contact';
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact when you communicate with the customer who you shipped the items on the credit memo to.';
-                }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies a description of the sales credit memo The posting description also appers on customer and G/L entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -363,15 +351,11 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the customer''s method of payment. The program has copied the code from the Payment Method Code field on the sales header.';
                 }
-                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = BasicEU;
                     Editable = false;
-                    ToolTip = 'Specifies a VAT business posting group code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
+                    ToolTip = 'Specifies whether the invoice was part of an EU 3-party trade transaction.';
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
@@ -384,96 +368,6 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
-                field("Reason Code"; Rec."Reason Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies whether the invoice was part of an EU 3-party trade transaction.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Transaction Type"; Rec."Transaction Type")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Transaction Specification"; Rec."Transaction Specification")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies a code for the sales document''s transaction specification, for the purpose of reporting to INTRASTAT.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Transport Method"; Rec."Transport Method")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Exit Point"; Rec."Exit Point")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Area"; Rec.Area)
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies the area code used in the credit memo.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Language Code"; Rec."Language Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the language to be used on printouts for this document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
-                {
-                    ApplicationArea = VAT;
-                    Editable = false;
-                    ToolTip = 'Specifies the VAT country/region code of customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field(Correction; Rec.Correction)
                 {
@@ -706,7 +600,7 @@ page 134 "Posted Sales Credit Memo"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -850,7 +744,7 @@ page 134 "Posted Sales Credit Memo"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -896,7 +790,7 @@ page 134 "Posted Sales Credit Memo"
                 Image = Navigate;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -986,7 +880,7 @@ page 134 "Posted Sales Credit Memo"
                     AccessByPermission = TableData "Incoming Document" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = SelectLineToApply;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -1002,7 +896,7 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = Attach;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1113,10 +1007,6 @@ page 134 "Posted Sales Credit Memo"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
-            group(Category_Category8)
-            {
-                Caption = 'Credit Card', Comment = 'Generated from the PromotedActionCategories property index 7.';
-            }
         }
     }
 
@@ -1171,4 +1061,4 @@ page 134 "Posted Sales Credit Memo"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 }
-#endif
+

@@ -309,7 +309,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] One VAT Amount Line is added
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, true);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), VATPercent, true);
 
         // [THEN] For 1 line VATAmountText returns "VAT X%" text
         Assert.AreEqual(StrSubstNo(PercentVATAmountTxt, VATPercent), TempVATAmountLine.VATAmountText(), 'VATAmountText returned wrong text');
@@ -330,8 +330,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] 2 VAT Amount Lines were added with same VAT%
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, true);
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent, false);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), VATPercent, true);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), VATPercent, false);
 
         // [THEN] For 2 lines with same "VAT %" VATAmountText returns "VAT X%" text
         Assert.AreEqual(StrSubstNo(PercentVATAmountTxt, VATPercent), TempVATAmountLine.VATAmountText(), 'VATAmountText returned wrong text');
@@ -353,8 +353,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         VATPercent[2] := VATPercent[1] + 1;
 
         // [GIVEN] 2 VAT Amount Lines were added with same Positive, but different VAT%
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent[1], true);
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, VATPercent[2], true);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), VATPercent[1], true);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), VATPercent[2], true);
 
         // [THEN] For 2 lines with different "VAT %" VATAmount returns default text
         Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText(), 'VATAmountText returned wrong text');
@@ -371,7 +371,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         Initialize();
 
         // [GIVEN] One VAT Amount Line is added with 0 VAT
-        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, 0, true);
+        CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID(), 0, true);
 
         // [THEN] For 1 line VATAmountText returns "VAT X%" text
         Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText(), 'VATAmountText returned wrong text');
@@ -482,12 +482,12 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
         LibrarySales.SetAllowVATDifference(true);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         if CurrencyFCY then begin
             SalesHeader.Validate("Currency Code", CreateCurrencyWithVATDiffAmt(MaxVATDiffAmt));
             SalesHeader.Modify(true);
         end;
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 10 + LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 10 + LibraryRandom.RandInt(10));
 
         // Using base object helper function for generating data on VAT Amount Lines. Use any of the option value for Qty Type field as
         // these represent tabs in Sales Order Statistics Form.
@@ -521,13 +521,13 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
         LibraryPurchase.SetAllowVATDifference(true);
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         if CurrencyFCY then begin
             PurchaseHeader.Validate("Currency Code", CreateCurrencyWithVATDiffAmt(MaxVATDiffAmt));
             PurchaseHeader.Modify(true);
         end;
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 10 + LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), 10 + LibraryRandom.RandInt(10));
 
         // Using base object helper function for generating data on VAT Amount Lines. Use any of the option value for Qty Type field as
         // these represent tabs in Purchase Order Statistics Form.
@@ -642,18 +642,18 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VATDifference: Decimal)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Use Random Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Use Random Quantity.
         PurchaseLine.Validate("VAT Difference", VATDifference);
         PurchaseLine.Modify(true);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; VATDifference: Decimal)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Use Random Quantity.
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Use Random Quantity.
         SalesLine.Validate("VAT Difference", VATDifference);
         SalesLine.Modify(true);
     end;
@@ -663,9 +663,9 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceHeader(
-          ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer);
+          ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomer());
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure UpdateVATAmount(var VATAmountLine: Record "VAT Amount Line"; NewVATAmount: Decimal; Positive: Boolean)
@@ -768,8 +768,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
-        SalesOrderStatistics.VATAmount.AssertEquals(SalesOrderStatistics.VATAmount_Invoicing.AsDEcimal);
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        SalesOrderStatistics.VATAmount.AssertEquals(SalesOrderStatistics.VATAmount_Invoicing.AsDecimal());
     end;
 
     [ModalPageHandler]
@@ -779,18 +779,18 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         SalesHeader: Record "Sales Header";
     begin
         SalesStatistics.SubForm."VAT Amount".SetValue(
-          SalesStatistics.SubForm."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal);
-        SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText);
+          SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
         SalesStatistics.GotoRecord(SalesHeader); // Refresh
-        SalesStatistics.VATAmount.AssertEquals(SalesStatistics.SubForm."VAT Amount".AsDEcimal);
+        SalesStatistics.VATAmount.AssertEquals(SalesStatistics.SubForm."VAT Amount".AsDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
-        PurchaseOrderStatistics."VATAmount[1]".AssertEquals(PurchaseOrderStatistics.VATAmount_Invoicing.AsDEcimal);
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        PurchaseOrderStatistics."VATAmount[1]".AssertEquals(PurchaseOrderStatistics.VATAmount_Invoicing.AsDecimal());
     end;
 
     [ModalPageHandler]
@@ -800,10 +800,10 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseStatistics.SubForm."VAT Amount".SetValue(
-          PurchaseStatistics.SubForm."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal);
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText);
+          PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
         PurchaseStatistics.GotoRecord(PurchaseHeader); // Refresh
-        PurchaseStatistics.VATAmount.AssertEquals(PurchaseStatistics.SubForm."VAT Amount".AsDEcimal);
+        PurchaseStatistics.VATAmount.AssertEquals(PurchaseStatistics.SubForm."VAT Amount".AsDecimal());
     end;
 
     [ModalPageHandler]
@@ -811,8 +811,8 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     procedure VATAmountLinesHandler(var VATAmountLines: TestPage "VAT Amount Lines")
     begin
         VATAmountLines."VAT Amount".SetValue(
-          VATAmountLines."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal);
-        VATAmountLines.OK.Invoke;
+          VATAmountLines."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
+        VATAmountLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -822,10 +822,10 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         ServiceHeader: Record "Service Header";
     begin
         ServiceStatistics.SubForm."VAT Amount".SetValue(
-          ServiceStatistics.SubForm."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal);
-        ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText);
+          ServiceStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
+        ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
         ServiceStatistics.GotoRecord(ServiceHeader); // Refresh
-        ServiceStatistics."VAT Amount_General".AssertEquals(ServiceStatistics.SubForm."VAT Amount".AsDEcimal);
+        ServiceStatistics."VAT Amount_General".AssertEquals(ServiceStatistics.SubForm."VAT Amount".AsDecimal());
     end;
 
     [ModalPageHandler]

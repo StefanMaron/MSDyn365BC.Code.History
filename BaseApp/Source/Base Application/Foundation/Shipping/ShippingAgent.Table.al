@@ -13,6 +13,7 @@ table 291 "Shipping Agent"
     DataCaptionFields = "Code", Name;
     DrillDownPageID = "Shipping Agents";
     LookupPageID = "Shipping Agents";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -86,7 +87,12 @@ table 291 "Shipping Agent"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CalendarManagement: Codeunit "Calendar Management";
 
+#if not CLEAN24
+    [Obsolete('Field length for PackageTrackingNo will be increased to 50.', '24.0')]
     procedure GetTrackingInternetAddr(PackageTrackingNo: Text[30]) TrackingInternetAddr: Text
+#else
+    procedure GetTrackingInternetAddr(PackageTrackingNo: Text[50]) TrackingInternetAddr: Text
+#endif
     var
         HttpStr: Text;
         HttpsStr: Text;

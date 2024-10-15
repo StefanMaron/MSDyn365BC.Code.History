@@ -1,4 +1,3 @@
-#if not CLEAN21
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Finance.Dimension;
@@ -238,15 +237,6 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
                     Visible = false;
                 }
-                field("Shpt. Method Code"; Rec."Shpt. Method Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the item''s shipment method.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
-                }
                 field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU, BasicNO;
@@ -257,15 +247,6 @@ page 40 "Item Journal"
                 {
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
-                    Visible = false;
-                }
-                field("Transaction Specification"; Rec."Transaction Specification")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the transaction specification, for the purpose of reporting to INTRASTAT.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
                     Visible = false;
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
@@ -1009,38 +990,11 @@ page 40 "Item Journal"
                     {
                     }
                 }
-#if not CLEAN21
-                actionref("Bin Contents_Promoted"; "Bin Contents")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
                 Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -1256,4 +1210,4 @@ page 40 "Item Journal"
     end;
 
 }
-#endif
+

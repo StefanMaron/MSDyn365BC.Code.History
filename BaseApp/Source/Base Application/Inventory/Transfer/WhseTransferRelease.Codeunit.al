@@ -39,15 +39,13 @@ codeunit 5773 "Whse.-Transfer Release"
     begin
         OnBeforeReopen(TransferHeader);
 
-        with TransferHeader do begin
-            if WarehouseRequest.Get("Warehouse Request Type"::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
-                WarehouseRequest."Document Status" := Status::Open;
-                WarehouseRequest.Modify();
-            end;
-            if WarehouseRequest.Get("Warehouse Request Type"::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
-                WarehouseRequest."Document Status" := Status::Open;
-                WarehouseRequest.Modify();
-            end;
+        if WarehouseRequest.Get("Warehouse Request Type"::Inbound, TransferHeader."Transfer-to Code", DATABASE::"Transfer Line", 1, TransferHeader."No.") then begin
+            WarehouseRequest."Document Status" := TransferHeader.Status::Open;
+            WarehouseRequest.Modify();
+        end;
+        if WarehouseRequest.Get("Warehouse Request Type"::Outbound, TransferHeader."Transfer-from Code", DATABASE::"Transfer Line", 0, TransferHeader."No.") then begin
+            WarehouseRequest."Document Status" := TransferHeader.Status::Open;
+            WarehouseRequest.Modify();
         end;
 
         OnAfterReopen(TransferHeader);
@@ -58,79 +56,71 @@ codeunit 5773 "Whse.-Transfer Release"
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with TransferHeader do begin
-            if WarehouseRequest.Get("Warehouse Request Type"::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
-                WarehouseRequest."External Document No." := "External Document No.";
-                WarehouseRequest.Modify();
-            end;
-            if WarehouseRequest.Get("Warehouse Request Type"::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
-                WarehouseRequest."External Document No." := "External Document No.";
-                WarehouseRequest.Modify();
-            end;
+        if WarehouseRequest.Get("Warehouse Request Type"::Inbound, TransferHeader."Transfer-to Code", DATABASE::"Transfer Line", 1, TransferHeader."No.") then begin
+            WarehouseRequest."External Document No." := TransferHeader."External Document No.";
+            WarehouseRequest.Modify();
+        end;
+        if WarehouseRequest.Get("Warehouse Request Type"::Outbound, TransferHeader."Transfer-from Code", DATABASE::"Transfer Line", 0, TransferHeader."No.") then begin
+            WarehouseRequest."External Document No." := TransferHeader."External Document No.";
+            WarehouseRequest.Modify();
         end;
     end;
 
     procedure InitializeWhseRequest(var WarehouseRequest: Record "Warehouse Request"; TransferHeader: Record "Transfer Header"; DocumentStatus: Option)
     begin
-        with WarehouseRequest do begin
-            "Source Type" := DATABASE::"Transfer Line";
-            "Source No." := TransferHeader."No.";
-            "Document Status" := DocumentStatus;
-            "Destination Type" := "Destination Type"::Location;
-            "External Document No." := TransferHeader."External Document No.";
-        end;
+        WarehouseRequest."Source Type" := DATABASE::"Transfer Line";
+        WarehouseRequest."Source No." := TransferHeader."No.";
+        WarehouseRequest."Document Status" := DocumentStatus;
+        WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Location;
+        WarehouseRequest."External Document No." := TransferHeader."External Document No.";
     end;
 
     procedure CreateInboundWhseRequest(var WarehouseRequest: Record "Warehouse Request"; TransferHeader: Record "Transfer Header")
     begin
-        with WarehouseRequest do begin
-            CheckUnitOfMeasureCode(TransferHeader."No.");
-            TransferHeader.SetRange("Location Filter", TransferHeader."Transfer-to Code");
-            TransferHeader.CalcFields("Completely Received");
+        CheckUnitOfMeasureCode(TransferHeader."No.");
+        TransferHeader.SetRange("Location Filter", TransferHeader."Transfer-to Code");
+        TransferHeader.CalcFields("Completely Received");
 
-            Type := Type::Inbound;
-            "Source Subtype" := 1;
-            "Source Document" := WhseManagement.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
-            "Expected Receipt Date" := TransferHeader."Receipt Date";
-            "Location Code" := TransferHeader."Transfer-to Code";
-            "Completely Handled" := TransferHeader."Completely Received";
-            "Shipment Method Code" := TransferHeader."Shipment Method Code";
-            "Shipping Agent Code" := TransferHeader."Shipping Agent Code";
-            "Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
-            "Destination No." := TransferHeader."Transfer-to Code";
-            OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
-            if CalledFromTransferOrder then begin
-                if Modify() then;
-            end else
-                if not Insert() then
-                    Modify();
-        end;
+        WarehouseRequest.Type := WarehouseRequest.Type::Inbound;
+        WarehouseRequest."Source Subtype" := 1;
+        WarehouseRequest."Source Document" := WhseManagement.GetWhseRqstSourceDocument(WarehouseRequest."Source Type", WarehouseRequest."Source Subtype");
+        WarehouseRequest."Expected Receipt Date" := TransferHeader."Receipt Date";
+        WarehouseRequest."Location Code" := TransferHeader."Transfer-to Code";
+        WarehouseRequest."Completely Handled" := TransferHeader."Completely Received";
+        WarehouseRequest."Shipment Method Code" := TransferHeader."Shipment Method Code";
+        WarehouseRequest."Shipping Agent Code" := TransferHeader."Shipping Agent Code";
+        WarehouseRequest."Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
+        WarehouseRequest."Destination No." := TransferHeader."Transfer-to Code";
+        OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
+        if CalledFromTransferOrder then begin
+            if WarehouseRequest.Modify() then;
+        end else
+            if not WarehouseRequest.Insert() then
+                WarehouseRequest.Modify();
 
         OnAfterCreateInboundWhseRequest(WarehouseRequest, TransferHeader);
     end;
 
     procedure CreateOutboundWhseRequest(var WarehouseRequest: Record "Warehouse Request"; TransferHeader: Record "Transfer Header")
     begin
-        with WarehouseRequest do begin
-            CheckUnitOfMeasureCode(TransferHeader."No.");
-            TransferHeader.SetRange("Location Filter", TransferHeader."Transfer-from Code");
-            TransferHeader.CalcFields("Completely Shipped");
+        CheckUnitOfMeasureCode(TransferHeader."No.");
+        TransferHeader.SetRange("Location Filter", TransferHeader."Transfer-from Code");
+        TransferHeader.CalcFields("Completely Shipped");
 
-            Type := Type::Outbound;
-            "Source Subtype" := 0;
-            "Source Document" := WhseManagement.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
-            "Location Code" := TransferHeader."Transfer-from Code";
-            "Completely Handled" := TransferHeader."Completely Shipped";
-            "Shipment Method Code" := TransferHeader."Shipment Method Code";
-            "Shipping Agent Code" := TransferHeader."Shipping Agent Code";
-            "Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
-            "Shipping Advice" := TransferHeader."Shipping Advice";
-            "Shipment Date" := TransferHeader."Shipment Date";
-            "Destination No." := TransferHeader."Transfer-from Code";
-            OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
-            if not Insert() then
-                Modify();
-        end;
+        WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
+        WarehouseRequest."Source Subtype" := 0;
+        WarehouseRequest."Source Document" := WhseManagement.GetWhseRqstSourceDocument(WarehouseRequest."Source Type", WarehouseRequest."Source Subtype");
+        WarehouseRequest."Location Code" := TransferHeader."Transfer-from Code";
+        WarehouseRequest."Completely Handled" := TransferHeader."Completely Shipped";
+        WarehouseRequest."Shipment Method Code" := TransferHeader."Shipment Method Code";
+        WarehouseRequest."Shipping Agent Code" := TransferHeader."Shipping Agent Code";
+        WarehouseRequest."Shipping Agent Service Code" := TransferHeader."Shipping Agent Service Code";
+        WarehouseRequest."Shipping Advice" := TransferHeader."Shipping Advice";
+        WarehouseRequest."Shipment Date" := TransferHeader."Shipment Date";
+        WarehouseRequest."Destination No." := TransferHeader."Transfer-from Code";
+        OnBeforeCreateWhseRequest(WarehouseRequest, TransferHeader);
+        if not WarehouseRequest.Insert() then
+            WarehouseRequest.Modify();
 
         OnAfterCreateOutboundWhseRequest(WarehouseRequest, TransferHeader);
     end;
@@ -139,14 +129,12 @@ codeunit 5773 "Whse.-Transfer Release"
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with WarehouseRequest do begin
-            SetCurrentKey("Source Type", "Source No.");
-            SetRange("Source Type", DATABASE::"Transfer Line");
-            SetRange("Source No.", TransferOrderNo);
-            SetRange("Document Status", "Document Status"::Open);
-            if not IsEmpty() then
-                DeleteAll(true);
-        end;
+        WarehouseRequest.SetCurrentKey("Source Type", "Source No.");
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
+        WarehouseRequest.SetRange("Source No.", TransferOrderNo);
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
     end;
 
     procedure SetCallFromTransferOrder(CalledFromTransferOrder2: Boolean)

@@ -4,6 +4,7 @@ table 11770 "G/L Account Adjustment Buffer"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

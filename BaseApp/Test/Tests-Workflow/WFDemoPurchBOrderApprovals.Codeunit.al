@@ -35,7 +35,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;
@@ -65,7 +65,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -75,9 +75,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         CreatePurchDocument(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        BlanketPurchaseOrders.OpenView;
+        BlanketPurchaseOrders.OpenView();
         BlanketPurchaseOrders.GotoRecord(PurchaseHeader);
-        asserterror BlanketPurchaseOrders.Release.Invoke;
+        asserterror BlanketPurchaseOrders.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -104,7 +104,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -122,9 +122,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // Exercise
         Commit();
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
-        asserterror BlanketPurchaseOrder.Release.Invoke;
+        asserterror BlanketPurchaseOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchHeader.RecordId, 0, 1)));
@@ -157,9 +157,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::"Pending Approval");
 
         // Exercise
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
-        asserterror BlanketPurchaseOrder.Reopen.Invoke;
+        asserterror BlanketPurchaseOrder.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -427,15 +427,15 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
         Commit();
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketPurchaseOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketPurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(BlanketPurchaseOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror BlanketPurchaseOrder.SendApprovalRequest.Invoke;
+        asserterror BlanketPurchaseOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -444,34 +444,34 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
           Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // [WHEN] PurchHeader card is opened.
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketPurchaseOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketPurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(BlanketPurchaseOrder.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(BlanketPurchaseOrder.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(BlanketPurchaseOrder.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(BlanketPurchaseOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(BlanketPurchaseOrder.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(BlanketPurchaseOrder.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(BlanketPurchaseOrder.Delegate.Visible(), 'Delegate should NOT be visible');
         BlanketPurchaseOrder.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        BlanketPurchaseOrder.SendApprovalRequest.Invoke;
+        BlanketPurchaseOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(BlanketPurchaseOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(BlanketPurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketPurchaseOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         BlanketPurchaseOrder.Close();
@@ -480,13 +480,13 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(BlanketPurchaseOrder.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(BlanketPurchaseOrder.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(BlanketPurchaseOrder.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(BlanketPurchaseOrder.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(BlanketPurchaseOrder.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(BlanketPurchaseOrder.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -509,15 +509,15 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
         Commit();
-        BlanketPurchaseOrders.OpenEdit;
+        BlanketPurchaseOrders.OpenEdit();
         BlanketPurchaseOrders.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketPurchaseOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketPurchaseOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketPurchaseOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror BlanketPurchaseOrders.SendApprovalRequest.Invoke;
+        asserterror BlanketPurchaseOrders.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -526,31 +526,31 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrders.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
           Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // [WHEN] PurchHeader card is opened.
-        BlanketPurchaseOrders.OpenEdit;
+        BlanketPurchaseOrders.OpenEdit();
         BlanketPurchaseOrders.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketPurchaseOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketPurchaseOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketPurchaseOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         BlanketPurchaseOrders.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
-        BlanketPurchaseOrders.OpenEdit;
+        BlanketPurchaseOrders.OpenEdit();
         BlanketPurchaseOrders.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        BlanketPurchaseOrders.SendApprovalRequest.Invoke;
+        BlanketPurchaseOrders.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(BlanketPurchaseOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(BlanketPurchaseOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketPurchaseOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketPurchaseOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -668,7 +668,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -713,9 +713,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        BlanketPurchaseOrder.SendApprovalRequest.Invoke;
+        BlanketPurchaseOrder.SendApprovalRequest.Invoke();
         BlanketPurchaseOrder.Close();
     end;
 
@@ -723,9 +723,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        BlanketPurchaseOrder.Approve.Invoke;
+        BlanketPurchaseOrder.Approve.Invoke();
         BlanketPurchaseOrder.Close();
     end;
 
@@ -733,9 +733,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        BlanketPurchaseOrder.Reject.Invoke;
+        BlanketPurchaseOrder.Reject.Invoke();
         BlanketPurchaseOrder.Close();
     end;
 
@@ -743,9 +743,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        BlanketPurchaseOrder.CancelApprovalRequest.Invoke;
+        BlanketPurchaseOrder.CancelApprovalRequest.Invoke();
         BlanketPurchaseOrder.Close();
     end;
 
@@ -753,9 +753,9 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        BlanketPurchaseOrder.Delegate.Invoke;
+        BlanketPurchaseOrder.Delegate.Invoke();
         BlanketPurchaseOrder.Close();
     end;
 
@@ -802,16 +802,16 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, BlanketPurchaseOrder.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, BlanketPurchaseOrder.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            BlanketPurchaseOrder.Comment.Invoke;
-            if ApprovalComments.First then
+            BlanketPurchaseOrder.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -831,13 +831,13 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -854,13 +854,13 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -876,15 +876,15 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
         BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
     begin
-        BlanketPurchaseOrder.OpenView;
+        BlanketPurchaseOrder.OpenView();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrder.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrder.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         BlanketPurchaseOrder.Close();
 
-        BlanketPurchaseOrders.OpenView;
+        BlanketPurchaseOrders.OpenView();
         BlanketPurchaseOrders.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrders.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, BlanketPurchaseOrders.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         BlanketPurchaseOrders.Close();
     end;

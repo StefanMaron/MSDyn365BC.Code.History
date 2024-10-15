@@ -32,38 +32,35 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // Execute
         CreateCustomerPostingGroup(CustomerPostingGroup, false);
-
         // Verify
-        with CustomerPostingGroup do begin
-            Assert.AreEqual(
-              "Receivables Account", GetReceivablesAccount, 'Receivables Accounts are not equal');
-            Assert.AreEqual(
-              "Service Charge Acc.", GetServiceChargeAccount, 'Service Charge Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Disc. Debit Acc.", GetPmtDiscountAccount(true), 'Payment Disc. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Disc. Credit Acc.", GetPmtDiscountAccount(false), 'Payment Disc. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Invoice Rounding Account", GetInvRoundingAccount, 'Invoice Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Additional Fee Account", GetAdditionalFeeAccount, 'Additional Fee Accounts are not equal');
-            Assert.AreEqual(
-              "Interest Account", GetInterestAccount, 'Interest Accounts are not equal');
-            Assert.AreEqual(
-              "Debit Curr. Appln. Rndg. Acc.", GetApplRoundingAccount(true), 'Debit Curr. Appln. Rndg. Accounts are not equal');
-            Assert.AreEqual(
-              "Credit Curr. Appln. Rndg. Acc.", GetApplRoundingAccount(false), 'Credit Curr. Appln. Rndg. Accounts are not equal');
-            Assert.AreEqual(
-              "Debit Rounding Account", GetRoundingAccount(true), 'Debit Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Credit Rounding Account", GetRoundingAccount(false), 'Credit Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Tolerance Debit Acc.", GetPmtToleranceAccount(true), 'Payment Tolerance Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Tolerance Credit Acc.", GetPmtToleranceAccount(false), 'Payment Tolerance Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Add. Fee per Line Account", GetAddFeePerLineAccount, 'Add. Fee per Line Accounts are not equal');
-        end;
+        Assert.AreEqual(
+          CustomerPostingGroup."Receivables Account", CustomerPostingGroup.GetReceivablesAccount(), 'Receivables Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Service Charge Acc.", CustomerPostingGroup.GetServiceChargeAccount(), 'Service Charge Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Payment Disc. Debit Acc.", CustomerPostingGroup.GetPmtDiscountAccount(true), 'Payment Disc. Debit Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Payment Disc. Credit Acc.", CustomerPostingGroup.GetPmtDiscountAccount(false), 'Payment Disc. Credit Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Invoice Rounding Account", CustomerPostingGroup.GetInvRoundingAccount(), 'Invoice Rounding Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Additional Fee Account", CustomerPostingGroup.GetAdditionalFeeAccount(), 'Additional Fee Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Interest Account", CustomerPostingGroup.GetInterestAccount(), 'Interest Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Debit Curr. Appln. Rndg. Acc.", CustomerPostingGroup.GetApplRoundingAccount(true), 'Debit Curr. Appln. Rndg. Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Credit Curr. Appln. Rndg. Acc.", CustomerPostingGroup.GetApplRoundingAccount(false), 'Credit Curr. Appln. Rndg. Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Debit Rounding Account", CustomerPostingGroup.GetRoundingAccount(true), 'Debit Rounding Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Credit Rounding Account", CustomerPostingGroup.GetRoundingAccount(false), 'Credit Rounding Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Payment Tolerance Debit Acc.", CustomerPostingGroup.GetPmtToleranceAccount(true), 'Payment Tolerance Debit Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Payment Tolerance Credit Acc.", CustomerPostingGroup.GetPmtToleranceAccount(false), 'Payment Tolerance Credit Accounts are not equal');
+        Assert.AreEqual(
+          CustomerPostingGroup."Add. Fee per Line Account", CustomerPostingGroup.GetAddFeePerLineAccount(), 'Add. Fee per Line Accounts are not equal');
     end;
 
     [Test]
@@ -76,32 +73,29 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // Execute
         CreateVendorPostingGroup(VendorPostingGroup, false);
-
         // Verify
-        with VendorPostingGroup do begin
-            Assert.AreEqual(
-              "Payables Account", GetPayablesAccount, 'Payables Accounts are not equal');
-            Assert.AreEqual(
-              "Service Charge Acc.", GetServiceChargeAccount, 'Service Charge Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Disc. Debit Acc.", GetPmtDiscountAccount(true), 'Payment Disc. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Disc. Credit Acc.", GetPmtDiscountAccount(false), 'Payment Disc. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Invoice Rounding Account", GetInvRoundingAccount, 'Invoice Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Debit Curr. Appln. Rndg. Acc.", GetApplRoundingAccount(true), 'Debit Curr. Appln. Rndg. Accounts are not equal');
-            Assert.AreEqual(
-              "Credit Curr. Appln. Rndg. Acc.", GetApplRoundingAccount(false), 'Credit Curr. Appln. Rndg. Accounts are not equal');
-            Assert.AreEqual(
-              "Debit Rounding Account", GetRoundingAccount(true), 'Debit Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Credit Rounding Account", GetRoundingAccount(false), 'Credit Rounding Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Tolerance Debit Acc.", GetPmtToleranceAccount(true), 'Payment Tolerance Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Payment Tolerance Credit Acc.", GetPmtToleranceAccount(false), 'Payment Tolerance Credit Accounts are not equal');
-        end;
+        Assert.AreEqual(
+          VendorPostingGroup."Payables Account", VendorPostingGroup.GetPayablesAccount(), 'Payables Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Service Charge Acc.", VendorPostingGroup.GetServiceChargeAccount(), 'Service Charge Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Payment Disc. Debit Acc.", VendorPostingGroup.GetPmtDiscountAccount(true), 'Payment Disc. Debit Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Payment Disc. Credit Acc.", VendorPostingGroup.GetPmtDiscountAccount(false), 'Payment Disc. Credit Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Invoice Rounding Account", VendorPostingGroup.GetInvRoundingAccount(), 'Invoice Rounding Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Debit Curr. Appln. Rndg. Acc.", VendorPostingGroup.GetApplRoundingAccount(true), 'Debit Curr. Appln. Rndg. Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Credit Curr. Appln. Rndg. Acc.", VendorPostingGroup.GetApplRoundingAccount(false), 'Credit Curr. Appln. Rndg. Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Debit Rounding Account", VendorPostingGroup.GetRoundingAccount(true), 'Debit Rounding Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Credit Rounding Account", VendorPostingGroup.GetRoundingAccount(false), 'Credit Rounding Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Payment Tolerance Debit Acc.", VendorPostingGroup.GetPmtToleranceAccount(true), 'Payment Tolerance Debit Accounts are not equal');
+        Assert.AreEqual(
+          VendorPostingGroup."Payment Tolerance Credit Acc.", VendorPostingGroup.GetPmtToleranceAccount(false), 'Payment Tolerance Credit Accounts are not equal');
     end;
 
     [Test]
@@ -114,26 +108,23 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // Execute
         CreateInventoryPostingSetup(InventoryPostingSetup, false);
-
         // Verify
-        with InventoryPostingSetup do begin
-            Assert.AreEqual(
-              "Inventory Account", GetInventoryAccount, 'Inventory Accounts are not equal');
-            Assert.AreEqual(
-              "Inventory Account (Interim)", GetInventoryAccountInterim, 'Inventory Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "WIP Account", GetWIPAccount, 'WIP Accounts are not equal');
-            Assert.AreEqual(
-              "Material Variance Account", GetMaterialVarianceAccount, 'Material Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Capacity Variance Account", GetCapacityVarianceAccount, 'Capacity Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Mfg. Overhead Variance Account", GetMfgOverheadVarianceAccount, 'Mfg. Overhead Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Cap. Overhead Variance Account", GetCapOverheadVarianceAccount, 'Cap. Overhead Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Subcontracted Variance Account", GetSubcontractedVarianceAccount, 'Subcontracted Variance Accounts are not equal');
-        end;
+        Assert.AreEqual(
+          InventoryPostingSetup."Inventory Account", InventoryPostingSetup.GetInventoryAccount(), 'Inventory Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Inventory Account (Interim)", InventoryPostingSetup.GetInventoryAccountInterim(), 'Inventory Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."WIP Account", InventoryPostingSetup.GetWIPAccount(), 'WIP Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Material Variance Account", InventoryPostingSetup.GetMaterialVarianceAccount(), 'Material Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Capacity Variance Account", InventoryPostingSetup.GetCapacityVarianceAccount(), 'Capacity Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Mfg. Overhead Variance Account", InventoryPostingSetup.GetMfgOverheadVarianceAccount(), 'Mfg. Overhead Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Cap. Overhead Variance Account", InventoryPostingSetup.GetCapOverheadVarianceAccount(), 'Cap. Overhead Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Subcontracted Variance Account", InventoryPostingSetup.GetSubcontractedVarianceAccount(), 'Subcontracted Variance Accounts are not equal');
     end;
 
     [Test]
@@ -150,58 +141,55 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // Execute
         CreateGeneralPostingSetup(GenPostingSetup, false);
-
         // Verify
-        with GenPostingSetup do begin
-            Assert.AreEqual(
-              "Sales Account", GetSalesAccount, 'Sales Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Line Disc. Account", GetSalesLineDiscAccount, 'Sales Line Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Inv. Disc. Account", GetSalesInvDiscAccount, 'Sales Inv. Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Disc. Debit Acc.", GetSalesPmtDiscountAccount(true), 'Sales Pmt. Disc. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Account", GetPurchAccount, 'Purch. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Line Disc. Account", GetPurchLineDiscAccount, 'Purch. Line Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Inv. Disc. Account", GetPurchInvDiscAccount, 'Purch. Inv. Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Disc. Credit Acc.", GetPurchPmtDiscountAccount(false), 'Purch. Pmt. Disc. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "COGS Account", GetCOGSAccount(), 'COGS Accounts are not equal');
-            Assert.AreEqual(
-              "Inventory Adjmt. Account", GetInventoryAdjmtAccount, 'Inventory Adjmt. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Credit Memo Account", GetSalesCrMemoAccount, 'Sales Credit Memo Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Credit Memo Account", GetPurchCrMemoAccount, 'Purch. Credit Memo Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Tol. Debit Acc.", GetSalesPmtToleranceAccount(true), 'Sales Pmt. Tol. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Tol. Credit Acc.", GetSalesPmtToleranceAccount(false), 'Sales Pmt. Tol. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Tol. Debit Acc.", GetPurchPmtToleranceAccount(true), 'Purch. Pmt. Tol. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Tol. Credit Acc.", GetPurchPmtToleranceAccount(false), 'Purch. Pmt. Tol. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Prepayments Account", GetSalesPrepmtAccount, 'Sales Prepayments Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Prepayments Account", GetPurchPrepmtAccount, 'Purch. Prepayments Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. FA Disc. Account", GetPurchFADiscAccount, 'Purch. FA Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Invt. Accrual Acc. (Interim)", GetInventoryAccrualAccount, 'Invt. Accrual Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "COGS Account (Interim)", GetCOGSInterimAccount, 'COGS Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "Direct Cost Applied Account", GetDirectCostAppliedAccount, 'Direct Cost Applied Accounts are not equal');
-            Assert.AreEqual(
-              "Overhead Applied Account", GetOverheadAppliedAccount, 'Overhead Applied Accounts are not equal');
-            Assert.AreEqual(
-              "Purchase Variance Account", GetPurchaseVarianceAccount, 'Purchase Variance Accounts are not equal');
-        end;
+        Assert.AreEqual(
+          GenPostingSetup."Sales Account", GenPostingSetup.GetSalesAccount(), 'Sales Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Line Disc. Account", GenPostingSetup.GetSalesLineDiscAccount(), 'Sales Line Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Inv. Disc. Account", GenPostingSetup.GetSalesInvDiscAccount(), 'Sales Inv. Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Disc. Debit Acc.", GenPostingSetup.GetSalesPmtDiscountAccount(true), 'Sales Pmt. Disc. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Account", GenPostingSetup.GetPurchAccount(), 'Purch. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Line Disc. Account", GenPostingSetup.GetPurchLineDiscAccount(), 'Purch. Line Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Inv. Disc. Account", GenPostingSetup.GetPurchInvDiscAccount(), 'Purch. Inv. Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Disc. Credit Acc.", GenPostingSetup.GetPurchPmtDiscountAccount(false), 'Purch. Pmt. Disc. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."COGS Account", GenPostingSetup.GetCOGSAccount(), 'COGS Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Inventory Adjmt. Account", GenPostingSetup.GetInventoryAdjmtAccount(), 'Inventory Adjmt. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Credit Memo Account", GenPostingSetup.GetSalesCrMemoAccount(), 'Sales Credit Memo Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Credit Memo Account", GenPostingSetup.GetPurchCrMemoAccount(), 'Purch. Credit Memo Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Tol. Debit Acc.", GenPostingSetup.GetSalesPmtToleranceAccount(true), 'Sales Pmt. Tol. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Tol. Credit Acc.", GenPostingSetup.GetSalesPmtToleranceAccount(false), 'Sales Pmt. Tol. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Tol. Debit Acc.", GenPostingSetup.GetPurchPmtToleranceAccount(true), 'Purch. Pmt. Tol. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Tol. Credit Acc.", GenPostingSetup.GetPurchPmtToleranceAccount(false), 'Purch. Pmt. Tol. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Prepayments Account", GenPostingSetup.GetSalesPrepmtAccount(), 'Sales Prepayments Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Prepayments Account", GenPostingSetup.GetPurchPrepmtAccount(), 'Purch. Prepayments Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. FA Disc. Account", GenPostingSetup.GetPurchFADiscAccount(), 'Purch. FA Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Invt. Accrual Acc. (Interim)", GenPostingSetup.GetInventoryAccrualAccount(), 'Invt. Accrual Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."COGS Account (Interim)", GenPostingSetup.GetCOGSInterimAccount(), 'COGS Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Direct Cost Applied Account", GenPostingSetup.GetDirectCostAppliedAccount(), 'Direct Cost Applied Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Overhead Applied Account", GenPostingSetup.GetOverheadAppliedAccount(), 'Overhead Applied Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purchase Variance Account", GenPostingSetup.GetPurchaseVarianceAccount(), 'Purchase Variance Accounts are not equal');
     end;
 
     [Test]
@@ -1603,7 +1591,7 @@ codeunit 134097 "ERM Check Posting Groups"
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
         GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLineType,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenJournalLine.Modify(true);
@@ -1617,13 +1605,13 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
         GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLineType,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
         GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenJournalLine.Modify(true);
@@ -1692,7 +1680,6 @@ codeunit 134097 "ERM Check Posting Groups"
     var
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
-        GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
@@ -1761,38 +1748,38 @@ codeunit 134097 "ERM Check Posting Groups"
         Initialize();
         CreateCustomerPostingGroup(CustomerPostingGroup, ViewAllAccounts);
 
-        CustomerPostingGroupsPage.OpenEdit;
+        CustomerPostingGroupsPage.OpenEdit();
         CustomerPostingGroupsPage.GotoRecord(CustomerPostingGroup);
-        GLAccountList.Trap;
+        GLAccountList.Trap();
         case LookupFieldNo of
             CustomerPostingGroup.FieldNo("Receivables Account"):
-                CustomerPostingGroupsPage."Receivables Account".Lookup;
+                CustomerPostingGroupsPage."Receivables Account".Lookup();
             CustomerPostingGroup.FieldNo("Service Charge Acc."):
-                CustomerPostingGroupsPage."Service Charge Acc.".Lookup;
+                CustomerPostingGroupsPage."Service Charge Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Payment Disc. Debit Acc."):
-                CustomerPostingGroupsPage."Payment Disc. Debit Acc.".Lookup;
+                CustomerPostingGroupsPage."Payment Disc. Debit Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Payment Disc. Credit Acc."):
-                CustomerPostingGroupsPage."Payment Disc. Credit Acc.".Lookup;
+                CustomerPostingGroupsPage."Payment Disc. Credit Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Debit Curr. Appln. Rndg. Acc."):
-                CustomerPostingGroupsPage."Debit Curr. Appln. Rndg. Acc.".Lookup;
+                CustomerPostingGroupsPage."Debit Curr. Appln. Rndg. Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Credit Curr. Appln. Rndg. Acc."):
-                CustomerPostingGroupsPage."Credit Curr. Appln. Rndg. Acc.".Lookup;
+                CustomerPostingGroupsPage."Credit Curr. Appln. Rndg. Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Payment Tolerance Debit Acc."):
-                CustomerPostingGroupsPage."Payment Tolerance Debit Acc.".Lookup;
+                CustomerPostingGroupsPage."Payment Tolerance Debit Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Payment Tolerance Credit Acc."):
-                CustomerPostingGroupsPage."Payment Tolerance Credit Acc.".Lookup;
+                CustomerPostingGroupsPage."Payment Tolerance Credit Acc.".Lookup();
             CustomerPostingGroup.FieldNo("Invoice Rounding Account"):
-                CustomerPostingGroupsPage."Invoice Rounding Account".Lookup;
+                CustomerPostingGroupsPage."Invoice Rounding Account".Lookup();
             CustomerPostingGroup.FieldNo("Debit Rounding Account"):
-                CustomerPostingGroupsPage."Debit Rounding Account".Lookup;
+                CustomerPostingGroupsPage."Debit Rounding Account".Lookup();
             CustomerPostingGroup.FieldNo("Credit Rounding Account"):
-                CustomerPostingGroupsPage."Credit Rounding Account".Lookup;
+                CustomerPostingGroupsPage."Credit Rounding Account".Lookup();
             CustomerPostingGroup.FieldNo("Additional Fee Account"):
-                CustomerPostingGroupsPage."Additional Fee Account".Lookup;
+                CustomerPostingGroupsPage."Additional Fee Account".Lookup();
             CustomerPostingGroup.FieldNo("Add. Fee per Line Account"):
-                CustomerPostingGroupsPage."Add. Fee per Line Account".Lookup;
+                CustomerPostingGroupsPage."Add. Fee per Line Account".Lookup();
             CustomerPostingGroup.FieldNo("Interest Account"):
-                CustomerPostingGroupsPage."Interest Account".Lookup;
+                CustomerPostingGroupsPage."Interest Account".Lookup();
         end;
     end;
 
@@ -1805,32 +1792,32 @@ codeunit 134097 "ERM Check Posting Groups"
         Initialize();
         CreateVendorPostingGroup(VendorPostingGroup, ViewAllAccounts);
 
-        VendorPostingGroupsPage.OpenEdit;
+        VendorPostingGroupsPage.OpenEdit();
         VendorPostingGroupsPage.GotoRecord(VendorPostingGroup);
-        GLAccountList.Trap;
+        GLAccountList.Trap();
         case LookupFieldNo of
             VendorPostingGroup.FieldNo("Payables Account"):
-                VendorPostingGroupsPage."Payables Account".Lookup;
+                VendorPostingGroupsPage."Payables Account".Lookup();
             VendorPostingGroup.FieldNo("Service Charge Acc."):
-                VendorPostingGroupsPage."Service Charge Acc.".Lookup;
+                VendorPostingGroupsPage."Service Charge Acc.".Lookup();
             VendorPostingGroup.FieldNo("Payment Disc. Debit Acc."):
-                VendorPostingGroupsPage."Payment Disc. Debit Acc.".Lookup;
+                VendorPostingGroupsPage."Payment Disc. Debit Acc.".Lookup();
             VendorPostingGroup.FieldNo("Invoice Rounding Account"):
-                VendorPostingGroupsPage."Invoice Rounding Account".Lookup;
+                VendorPostingGroupsPage."Invoice Rounding Account".Lookup();
             VendorPostingGroup.FieldNo("Debit Curr. Appln. Rndg. Acc."):
-                VendorPostingGroupsPage."Debit Curr. Appln. Rndg. Acc.".Lookup;
+                VendorPostingGroupsPage."Debit Curr. Appln. Rndg. Acc.".Lookup();
             VendorPostingGroup.FieldNo("Credit Curr. Appln. Rndg. Acc."):
-                VendorPostingGroupsPage."Credit Curr. Appln. Rndg. Acc.".Lookup;
+                VendorPostingGroupsPage."Credit Curr. Appln. Rndg. Acc.".Lookup();
             VendorPostingGroup.FieldNo("Debit Rounding Account"):
-                VendorPostingGroupsPage."Debit Rounding Account".Lookup;
+                VendorPostingGroupsPage."Debit Rounding Account".Lookup();
             VendorPostingGroup.FieldNo("Credit Rounding Account"):
-                VendorPostingGroupsPage."Credit Rounding Account".Lookup;
+                VendorPostingGroupsPage."Credit Rounding Account".Lookup();
             VendorPostingGroup.FieldNo("Payment Disc. Credit Acc."):
-                VendorPostingGroupsPage."Payment Disc. Credit Acc.".Lookup;
+                VendorPostingGroupsPage."Payment Disc. Credit Acc.".Lookup();
             VendorPostingGroup.FieldNo("Payment Tolerance Debit Acc."):
-                VendorPostingGroupsPage."Payment Tolerance Debit Acc.".Lookup;
+                VendorPostingGroupsPage."Payment Tolerance Debit Acc.".Lookup();
             VendorPostingGroup.FieldNo("Payment Tolerance Credit Acc."):
-                VendorPostingGroupsPage."Payment Tolerance Credit Acc.".Lookup;
+                VendorPostingGroupsPage."Payment Tolerance Credit Acc.".Lookup();
         end;
     end;
 
@@ -1843,26 +1830,26 @@ codeunit 134097 "ERM Check Posting Groups"
         Initialize();
         CreateInventoryPostingSetup(InventoryPostingSetup, ViewAllAccounts);
 
-        InventoryPostingSetupPage.OpenEdit;
+        InventoryPostingSetupPage.OpenEdit();
         InventoryPostingSetupPage.GotoRecord(InventoryPostingSetup);
-        GLAccountList.Trap;
+        GLAccountList.Trap();
         case LookupFieldNo of
             InventoryPostingSetup.FieldNo("Inventory Account"):
-                InventoryPostingSetupPage."Inventory Account".Lookup;
+                InventoryPostingSetupPage."Inventory Account".Lookup();
             InventoryPostingSetup.FieldNo("Inventory Account (Interim)"):
-                InventoryPostingSetupPage."Inventory Account (Interim)".Lookup;
+                InventoryPostingSetupPage."Inventory Account (Interim)".Lookup();
             InventoryPostingSetup.FieldNo("WIP Account"):
-                InventoryPostingSetupPage."WIP Account".Lookup;
+                InventoryPostingSetupPage."WIP Account".Lookup();
             InventoryPostingSetup.FieldNo("Material Variance Account"):
-                InventoryPostingSetupPage."Material Variance Account".Lookup;
+                InventoryPostingSetupPage."Material Variance Account".Lookup();
             InventoryPostingSetup.FieldNo("Capacity Variance Account"):
-                InventoryPostingSetupPage."Capacity Variance Account".Lookup;
+                InventoryPostingSetupPage."Capacity Variance Account".Lookup();
             InventoryPostingSetup.FieldNo("Mfg. Overhead Variance Account"):
-                InventoryPostingSetupPage."Mfg. Overhead Variance Account".Lookup;
+                InventoryPostingSetupPage."Mfg. Overhead Variance Account".Lookup();
             InventoryPostingSetup.FieldNo("Cap. Overhead Variance Account"):
-                InventoryPostingSetupPage."Cap. Overhead Variance Account".Lookup;
+                InventoryPostingSetupPage."Cap. Overhead Variance Account".Lookup();
             InventoryPostingSetup.FieldNo("Subcontracted Variance Account"):
-                InventoryPostingSetupPage."Subcontracted Variance Account".Lookup;
+                InventoryPostingSetupPage."Subcontracted Variance Account".Lookup();
         end;
     end;
 
@@ -1880,66 +1867,66 @@ codeunit 134097 "ERM Check Posting Groups"
 
         CreateGeneralPostingSetup(GeneralPostingSetup, ViewAllAccounts);
 
-        GeneralPostingSetupPage.OpenEdit;
+        GeneralPostingSetupPage.OpenEdit();
         GeneralPostingSetupPage.GotoRecord(GeneralPostingSetup);
-        GLAccountList.Trap;
+        GLAccountList.Trap();
         case LookupFieldNo of
             // Sales
             GeneralPostingSetup.FieldNo("Sales Account"):
-                GeneralPostingSetupPage."Sales Account".Lookup;
+                GeneralPostingSetupPage."Sales Account".Lookup();
             GeneralPostingSetup.FieldNo("Sales Line Disc. Account"):
-                GeneralPostingSetupPage."Sales Line Disc. Account".Lookup;
+                GeneralPostingSetupPage."Sales Line Disc. Account".Lookup();
             GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"):
-                GeneralPostingSetupPage."Sales Inv. Disc. Account".Lookup;
+                GeneralPostingSetupPage."Sales Inv. Disc. Account".Lookup();
             GeneralPostingSetup.FieldNo("Sales Pmt. Disc. Debit Acc."):
-                GeneralPostingSetupPage."Sales Pmt. Disc. Debit Acc.".Lookup;
+                GeneralPostingSetupPage."Sales Pmt. Disc. Debit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Sales Credit Memo Account"):
-                GeneralPostingSetupPage."Sales Credit Memo Account".Lookup;
+                GeneralPostingSetupPage."Sales Credit Memo Account".Lookup();
             GeneralPostingSetup.FieldNo("Sales Pmt. Disc. Credit Acc."):
-                GeneralPostingSetupPage."Sales Pmt. Disc. Credit Acc.".Lookup;
+                GeneralPostingSetupPage."Sales Pmt. Disc. Credit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Sales Pmt. Tol. Debit Acc."):
-                GeneralPostingSetupPage."Sales Pmt. Tol. Debit Acc.".Lookup;
+                GeneralPostingSetupPage."Sales Pmt. Tol. Debit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Sales Pmt. Tol. Credit Acc."):
-                GeneralPostingSetupPage."Sales Pmt. Tol. Credit Acc.".Lookup;
+                GeneralPostingSetupPage."Sales Pmt. Tol. Credit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Sales Prepayments Account"):
-                GeneralPostingSetupPage."Sales Prepayments Account".Lookup;
+                GeneralPostingSetupPage."Sales Prepayments Account".Lookup();
             // Purchases
             GeneralPostingSetup.FieldNo("Purch. Account"):
-                GeneralPostingSetupPage."Purch. Account".Lookup;
+                GeneralPostingSetupPage."Purch. Account".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"):
-                GeneralPostingSetupPage."Purch. Line Disc. Account".Lookup;
+                GeneralPostingSetupPage."Purch. Line Disc. Account".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"):
-                GeneralPostingSetupPage."Purch. Inv. Disc. Account".Lookup;
+                GeneralPostingSetupPage."Purch. Inv. Disc. Account".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Pmt. Disc. Credit Acc."):
-                GeneralPostingSetupPage."Purch. Pmt. Disc. Credit Acc.".Lookup;
+                GeneralPostingSetupPage."Purch. Pmt. Disc. Credit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Credit Memo Account"):
-                GeneralPostingSetupPage."Purch. Credit Memo Account".Lookup;
+                GeneralPostingSetupPage."Purch. Credit Memo Account".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Pmt. Disc. Debit Acc."):
-                GeneralPostingSetupPage."Purch. Pmt. Disc. Debit Acc.".Lookup;
+                GeneralPostingSetupPage."Purch. Pmt. Disc. Debit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Pmt. Tol. Debit Acc."):
-                GeneralPostingSetupPage."Purch. Pmt. Tol. Debit Acc.".Lookup;
+                GeneralPostingSetupPage."Purch. Pmt. Tol. Debit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Pmt. Tol. Credit Acc."):
-                GeneralPostingSetupPage."Purch. Pmt. Tol. Credit Acc.".Lookup;
+                GeneralPostingSetupPage."Purch. Pmt. Tol. Credit Acc.".Lookup();
             GeneralPostingSetup.FieldNo("Purch. Prepayments Account"):
-                GeneralPostingSetupPage."Purch. Prepayments Account".Lookup;
+                GeneralPostingSetupPage."Purch. Prepayments Account".Lookup();
             GeneralPostingSetup.FieldNo("Purch. FA Disc. Account"):
-                GeneralPostingSetupPage."Purch. FA Disc. Account".Lookup;
+                GeneralPostingSetupPage."Purch. FA Disc. Account".Lookup();
             // Inventory
             GeneralPostingSetup.FieldNo("COGS Account"):
-                GeneralPostingSetupPage."COGS Account".Lookup;
+                GeneralPostingSetupPage."COGS Account".Lookup();
             GeneralPostingSetup.FieldNo("Inventory Adjmt. Account"):
-                GeneralPostingSetupPage."Inventory Adjmt. Account".Lookup;
+                GeneralPostingSetupPage."Inventory Adjmt. Account".Lookup();
             GeneralPostingSetup.FieldNo("Invt. Accrual Acc. (Interim)"):
-                GeneralPostingSetupPage."Invt. Accrual Acc. (Interim)".Lookup;
+                GeneralPostingSetupPage."Invt. Accrual Acc. (Interim)".Lookup();
             GeneralPostingSetup.FieldNo("COGS Account (Interim)"):
-                GeneralPostingSetupPage."COGS Account (Interim)".Lookup;
+                GeneralPostingSetupPage."COGS Account (Interim)".Lookup();
             // Manufactruring
             GeneralPostingSetup.FieldNo("Direct Cost Applied Account"):
-                GeneralPostingSetupPage."Direct Cost Applied Account".Lookup;
+                GeneralPostingSetupPage."Direct Cost Applied Account".Lookup();
             GeneralPostingSetup.FieldNo("Overhead Applied Account"):
-                GeneralPostingSetupPage."Overhead Applied Account".Lookup;
+                GeneralPostingSetupPage."Overhead Applied Account".Lookup();
             GeneralPostingSetup.FieldNo("Purchase Variance Account"):
-                GeneralPostingSetupPage."Purchase Variance Account".Lookup;
+                GeneralPostingSetupPage."Purchase Variance Account".Lookup();
         end;
     end;
 
@@ -2012,7 +1999,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         GLAccountFilter := GLAccountList.FILTER.GetFilter("Account Category");
         Assert.IsFalse(GLAccountFilter = '', 'Account Category filter missing.');
-        GLAccountList.Cancel.Invoke;
+        GLAccountList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2023,7 +2010,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         GLAccountFilter := GLAccountList.FILTER.GetFilter("Account Category");
         Assert.IsTrue(GLAccountFilter = '', 'Account Category filter set.');
-        GLAccountList.Cancel.Invoke;
+        GLAccountList.Cancel().Invoke();
     end;
 
     [MessageHandler]

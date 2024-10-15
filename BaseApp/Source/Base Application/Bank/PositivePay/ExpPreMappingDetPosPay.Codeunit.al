@@ -52,30 +52,28 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
     begin
         BankAccount.Get(CheckLedgerEntry."Bank Account No.");
 
-        with PosPayDetail do begin
-            Init();
-            "Data Exch. Entry No." := DataExchangeEntryNo;
-            "Entry No." := LineNo;
-            "Account Number" := BankAccount."Bank Account No.";
-            if DataExchangeEntryNo = CheckLedgerEntry."Data Exch. Voided Entry No." then begin
-                // V for Void legend
-                "Record Type Code" := 'V';
-                "Void Check Indicator" := 'V';
-            end else begin
-                // O for Open legend
-                "Record Type Code" := 'O';
-                "Void Check Indicator" := '';
-            end;
-            "Check Number" := CheckLedgerEntry."Check No.";
-            Amount := CheckLedgerEntry.Amount;
-            Payee := CheckLedgerEntry.Description;
-            "Issue Date" := CheckLedgerEntry."Check Date";
-            if BankAccount."Currency Code" <> '' then
-                "Currency Code" := BankAccount."Currency Code";
-
-            OnPreparePosPayDetailOnBeforeInsert(CheckLedgerEntry, PosPayDetail);
-            Insert(true);
+        PosPayDetail.Init();
+        PosPayDetail."Data Exch. Entry No." := DataExchangeEntryNo;
+        PosPayDetail."Entry No." := LineNo;
+        PosPayDetail."Account Number" := BankAccount."Bank Account No.";
+        if DataExchangeEntryNo = CheckLedgerEntry."Data Exch. Voided Entry No." then begin
+            // V for Void legend
+            PosPayDetail."Record Type Code" := 'V';
+            PosPayDetail."Void Check Indicator" := 'V';
+        end else begin
+            // O for Open legend
+            PosPayDetail."Record Type Code" := 'O';
+            PosPayDetail."Void Check Indicator" := '';
         end;
+        PosPayDetail."Check Number" := CheckLedgerEntry."Check No.";
+        PosPayDetail.Amount := CheckLedgerEntry.Amount;
+        PosPayDetail.Payee := CheckLedgerEntry.Description;
+        PosPayDetail."Issue Date" := CheckLedgerEntry."Check Date";
+        if BankAccount."Currency Code" <> '' then
+            PosPayDetail."Currency Code" := BankAccount."Currency Code";
+
+        OnPreparePosPayDetailOnBeforeInsert(CheckLedgerEntry, PosPayDetail);
+        PosPayDetail.Insert(true);
     end;
 
     [IntegrationEvent(false, false)]

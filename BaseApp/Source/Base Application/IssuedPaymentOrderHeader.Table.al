@@ -5,6 +5,7 @@ table 11710 "Issued Payment Order Header"
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    DataClassification = CustomerContent;
 
     fields
     {

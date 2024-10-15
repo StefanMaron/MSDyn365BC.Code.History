@@ -20,6 +20,7 @@ table 380 "Detailed Vendor Ledg. Entry"
     DrillDownPageID = "Detailed Vendor Ledg. Entries";
     LookupPageID = "Detailed Vendor Ledg. Entries";
     Permissions = TableData "Detailed Vendor Ledg. Entry" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -284,16 +285,6 @@ table 380 "Detailed Vendor Ledg. Entry"
         key(Key12; "Entry Type", "Vendor No.", "Posting Date")
         {
         }
-#if not CLEAN21
-        key(Key14; "Vendor No.", "Initial Entry Due Date", "Posting Date", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Currency Code", "Vendor Posting Group")
-        {
-            Enabled = false;
-            SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not used anymore.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     fieldgroups

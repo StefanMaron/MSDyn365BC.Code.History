@@ -26,7 +26,7 @@ codeunit 139090 "Test Postcode Service Manager"
 
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN]
         PostcodeServiceManager.DiscoverPostcodeServices(TempServiceListNameValueBuffer);
@@ -43,7 +43,7 @@ codeunit 139090 "Test Postcode Service Manager"
 
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN]
         TempEnteredAutocompleteAddressNameValueBuffer.Postcode := '';
@@ -65,7 +65,7 @@ codeunit 139090 "Test Postcode Service Manager"
         // [GIVEN]
         // Set values that you want to get
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         TempAutocompleteAddress.Address := 'ADDRESS';
         TempAutocompleteAddress.Postcode := 'POSTCODE';
 
@@ -87,7 +87,7 @@ codeunit 139090 "Test Postcode Service Manager"
 
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryVariableStorage.Enqueue('A general technical error occurred while contacting remote service.'); // Expected error message
 
         // [WHEN]
@@ -107,7 +107,7 @@ codeunit 139090 "Test Postcode Service Manager"
 
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryVariableStorage.Enqueue('Error from postcode service.'); // Expe
 
         // [WHEN]
@@ -140,7 +140,7 @@ codeunit 139090 "Test Postcode Service Manager"
     [Scope('OnPrem')]
     procedure MessageDialogHandler(Message: Text[1024])
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Message, 'Invalid message was shown');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Message, 'Invalid message was shown');
     end;
 }
 

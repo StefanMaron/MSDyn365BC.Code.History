@@ -1,5 +1,4 @@
-﻿#if not CLEAN21
-namespace Microsoft.Finance.RoleCenters;
+﻿namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Deposit;
@@ -137,17 +136,6 @@ page 9022 "Business Manager Role Center"
                 SubPageView = where(Context = const('Power BI Part III'));
                 Visible = false;
             }
-#if not CLEAN21
-            part(Control98; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -633,74 +621,6 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Cash Flow Manual Expenses";
                     ToolTip = 'Record manual expenses, such as salaries, interest on credit, or planned investments to be used in cash flow forecasting.';
                 }
-            }
-            group("VAT Reporting")
-            {
-                Caption = 'VAT Reporting';
-                Image = Statistics;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality will be removed and this group should not be used.';
-                ObsoleteTag = '21.0';
-                action(Action1220024)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'VAT Statements';
-                    RunObject = Page "VAT Statement Names";
-                    ToolTip = 'Specifies vat statement';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action(Action1220023)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Intrastat Journals';
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Specifies intrastat journals';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Posted Sales Invoices cz")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posted Sales Invoices';
-                    RunObject = Page "Posted Sales Invoices";
-                    ToolTip = 'Specifies posted sales invoices';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Posted Sales Credit Memos cz")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posted Sales Credit Memos';
-                    RunObject = Page "Posted Sales Credit Memos";
-                    ToolTip = 'Specifies posted sales credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Posted Purchase Invoice")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posted Purchase Invoice';
-                    RunObject = Page "Posted Purchase Invoices";
-                    ToolTip = 'Specifies posted purchace invoices';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Posted Purchase Credit Memos")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posted Purchase Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    ToolTip = 'Specifies posted purchace credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
                 action(CashReceiptJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -989,107 +909,6 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Posted Purchase Credit Memos";
                     ToolTip = 'Open the list of posted purchase credit memos.';
                 }
-            }
-            group("Bank & Payments")
-            {
-                Caption = 'Bank & Payments';
-                Image = Bank;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The functionality will be removed and this group should not be used.';
-                ObsoleteTag = '21.0';
-                action(Action1220007)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Bank Accounts';
-                    Image = BankAccount;
-                    RunObject = Page "Bank Account List";
-                    ToolTip = 'Specifies bank accounts';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Bank Acc. Reconciliations")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Bank Acc. Reconciliations';
-                    Image = BankAccountRec;
-                    RunObject = Page "Bank Acc. Reconciliation List";
-                    ToolTip = 'Specifies bank accounts reconciliations';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action(Action1220014)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Bank Acc. Statements';
-                    Image = BankAccountStatement;
-                    RunObject = Page "Bank Account Statement List";
-                    ToolTip = 'Specifies bank accounts statements';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("General Journals")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'General Journals';
-                    Image = Journal;
-                    RunObject = Page "General Journal Batches";
-                    RunPageView = where("Template Type" = const(General),
-                                        Recurring = const(false));
-                    ToolTip = 'Specifies general journals';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Payment Journals")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Payment Journals';
-                    Image = Journals;
-                    RunObject = Page "General Journal Batches";
-                    RunPageView = where("Template Type" = const(Payments),
-                                        Recurring = const(false));
-                    ToolTip = 'Specifies payment journals';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action("Cash Receipt Journals")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Receipt Journals';
-                    Image = Journals;
-                    RunObject = Page "General Journal Batches";
-                    RunPageView = where("Template Type" = const("Cash Receipts"),
-                                        Recurring = const(false));
-                    ToolTip = 'Specifies receipt journals';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action(Action1220016)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Currencies';
-                    Image = Currency;
-                    RunObject = Page Currencies;
-                    ToolTip = 'Specifies page of currencies';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
-                action(Action1220015)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Direct Debit Collections';
-                    RunObject = Page "Direct Debit Collections";
-                    ToolTip = 'Specifies direct debit collections';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
-                    ObsoleteTag = '20.0';
-                }
                 action("<Page Posted Purchase Receipts>")
                 {
                     ApplicationArea = Suite;
@@ -1108,4 +927,3 @@ page 9022 "Business Manager Role Center"
         }
     }
 }
-#endif

@@ -193,7 +193,7 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"Inventory - Availability Plan");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
@@ -204,7 +204,7 @@ codeunit 132600 "Report Layout"
     begin
         Initialize();
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
-        LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo);
+        LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo());
         Commit();
         REPORT.Run(REPORT::"Price List");
     end;
@@ -542,7 +542,7 @@ codeunit 132600 "Report Layout"
         LibraryERMCountryData.CreateVATData(); // NAVCZ
 
         isInitialized := true;
-        Commit
+        Commit();
     end;
 
     local procedure FormatFileName(ReportCaption: Text) ReportFileName: Text
@@ -767,12 +767,12 @@ codeunit 132600 "Report Layout"
         InventoryAvailabilityPlan.SaveAsPdf(FormatFileName(InventoryAvailabilityPlan.Caption));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHPriceList(var PriceList: TestRequestPage "Price List")
     begin
-        PriceList.SalesCodeCtrl.SetValue(LibraryVariableStorage.DequeueText);
+        PriceList.SalesCodeCtrl.SetValue(LibraryVariableStorage.DequeueText());
         PriceList.Date.SetValue(WorkDate());
         PriceList.SaveAsPdf(FormatFileName(PriceList.Caption));
     end;

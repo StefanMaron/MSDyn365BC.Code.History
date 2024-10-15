@@ -1,4 +1,3 @@
-#if not CLEAN21
 namespace Microsoft.Bank.Reconciliation;
 
 page 1252 "Payment Application Rules"
@@ -70,12 +69,8 @@ page 1252 "Payment Application Rules"
 
     actions
     {
-        area(creation)
+        area(Processing)
         {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Merge to W1 where the area is called Processing';
-            ObsoleteTag = '21.0';
-
             action(RestoreDefaultRules)
             {
                 ApplicationArea = Basic, Suite;
@@ -134,5 +129,3 @@ page 1252 "Payment Application Rules"
         ApplyAutomaticallyVisible: Boolean;
 }
 
-
-#endif

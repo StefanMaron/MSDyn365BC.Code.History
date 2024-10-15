@@ -26,6 +26,7 @@ table 25 "Vendor Ledger Entry"
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
     LookupPageID = "Vendor Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -807,32 +808,6 @@ table 25 "Vendor Ledger Entry"
         {
             IncludedFields = "Currency Code", "Amount to Apply", Open;
         }
-#if not CLEAN21
-        key(Key26; "Vendor No.", "Currency Code", "Vendor Posting Group", "Document Type")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not needed anymore.';
-            ObsoleteTag = '21.0';
-        }
-        key(Key27; "Document No.", "Posting Date", "Currency Code")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not needed anymore.';
-            ObsoleteTag = '21.0';
-        }
-        key(Key28; "Vendor No.", "Vendor Posting Group", Prepayment, "Posting Date")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not needed anymore.';
-            ObsoleteTag = '21.0';
-        }
-        key(Key29; "Document Type", "Document No.")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The key is not needed anymore.';
-            ObsoleteTag = '21.0';
-        }
-#endif
     }
 
     fieldgroups

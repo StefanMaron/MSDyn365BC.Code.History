@@ -12,6 +12,7 @@ table 1518 "My Notifications"
     Caption = 'My Notifications';
     InherentEntitlements = riX;
     InherentPermissions = riX;
+    DataClassification = CustomerContent;
 
     fields
     {

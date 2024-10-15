@@ -69,7 +69,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryPurchase.CreateOrderAddress(OrderAddress, PurchaseHeader."Buy-from Vendor No.");
 
         // Exercise - Open the Purchase Return Order, select ShipToOption to 'Alternate Vendor Address' and select a Order Address
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.ShipToOptions.SetValue(ShipToOptions::"Alternate Vendor Address");
         PurchaseReturnOrder."Order Address Code".SetValue(OrderAddress.Code);
@@ -105,7 +105,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryPurchase.CreateOrderAddress(OrderAddress, PurchaseHeader."Buy-from Vendor No.");
 
         // Exercise - Select the ShipToOption to 'Alternate Vendor Address' on the Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.ShipToOptions.SetValue(ShipToOptions::"Alternate Vendor Address");
         PurchaseReturnOrder."Order Address Code".SetValue(OrderAddress.Code);
@@ -130,7 +130,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Custom Address on the Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.ShipToOptions.SetValue(ShipToOptions::"Custom Address");
 
@@ -154,7 +154,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Default on the Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder.ShipToOptions.SetValue(ShipToOptions::"Default (Vendor Address)");
 
@@ -178,7 +178,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
 
         // Exercise - Reopen the created Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Default (Vendor Address)"
@@ -206,7 +206,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to Location
@@ -231,7 +231,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Return Order
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Custom Address"
@@ -256,12 +256,12 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
 
     local procedure VerifyShipToEditableState(PurchaseReturnOrder: TestPage "Purchase Return Order"; ExpectedState: Boolean)
     begin
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Name".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Address".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Address 2".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to City".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Contact".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Post Code".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Name".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Address".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Address 2".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to City".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Contact".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseReturnOrder."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
     local procedure VerifyShipToAddressValues(PurchaseReturnOrder: TestPage "Purchase Return Order"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])

@@ -12,6 +12,7 @@ table 5389 "CRM Role"
     Description = 'Grouping of security privileges. Users are assigned roles that authorize their access to the Microsoft CRM system.';
     ExternalName = 'role';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {

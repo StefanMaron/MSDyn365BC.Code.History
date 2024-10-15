@@ -7,6 +7,7 @@ table 8611 "Config. Question Area"
     Caption = 'Config. Question Area';
     LookupPageID = "Config. Question Areas";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -67,7 +68,7 @@ table 8611 "Config. Question Area"
         }
         field(5; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
                                                                         "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -75,7 +76,7 @@ table 8611 "Config. Question Area"
         }
         field(6; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -83,7 +84,7 @@ table 8611 "Config. Question Area"
         }
         field(7; "No. of Questions"; Integer)
         {
-            CalcFormula = Count("Config. Question" where("Questionnaire Code" = field("Questionnaire Code"),
+            CalcFormula = count("Config. Question" where("Questionnaire Code" = field("Questionnaire Code"),
                                                           "Question Area Code" = field(Code)));
             Caption = 'No. of Questions';
             Editable = false;

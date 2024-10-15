@@ -6,6 +6,7 @@ table 1801 "Data Migration Entity"
 {
     Caption = 'Data Migration Entity';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

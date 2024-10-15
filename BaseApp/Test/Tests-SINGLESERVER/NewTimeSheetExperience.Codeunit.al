@@ -20,6 +20,7 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         DescriptionTxt: Label 'Week %1', Comment = '%1 - week number';
@@ -110,10 +111,13 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetCardSubmit()
     var
         TimeSheetHeader: Record "Time Sheet Header";
+        xTimeSheetLineType: Text;
         TimeSheetCard: TestPage "Time Sheet Card";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Submit on Time Sheet Card page does submit lines
+        // [SCENARIO 448247] Copy Type from the previous line.
+        // [SCENARIO 448247] Action Approve in subform not available for blank Type.
         Initialize();
 
 #if not CLEAN22
@@ -138,6 +142,20 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetCard.ReopenSubmitted.Enabled(), 'Reopen must be enabled');
         // [THEN] Action "Submit" is disabled
         Assert.IsFalse(TimeSheetCard.Submit.Enabled(), 'Submit must be disabled');
+
+        // [WHEN] Add new line
+        TimeSheetCard.TimeSheetLines.Last();
+        xTimeSheetLineType := TimeSheetCard.TimeSheetLines.Type.Value();
+        TimeSheetCard.TimeSheetLines.New();
+
+        // [THEN] Type is copied from the previous line
+        Assert.AreEqual(xTimeSheetLineType, TimeSheetCard.TimeSheetLines.Type.Value(), 'Type must be the same as in the previous line');
+
+        // [WHEN] Change Type to blank
+        TimeSheetCard.TimeSheetLines.Type.SetValue("Time Sheet Line Type"::" ");
+
+        // [THEN] Action Approve in subform not available for blank Type
+        Assert.IsFalse(TimeSheetCard.TimeSheetLines.Submit.Enabled(), 'Submit must be disabled');
     end;
 
     [Test]
@@ -665,6 +683,34 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetArchiveCard.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenTimeSheetArchiveInTimeSheetLines()
+    var
+        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
+        TimeSheetLines: TestPage "Time Sheet Lines";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 496952] Time Sheet Archive should be part of Time Sheet Lines list
+        Initialize();
+
+#if not CLEAN22
+        // [GIVEN] Enable Time Sheet V2
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        // [GIVEN] Create archived time sheet "TS01"
+        MockArchivedTimeSheet(TimeSheetHeaderArchive);
+
+        // [WHEN] Open Time Sheet Lines to check that archived time sheet is visible
+        TimeSheetLines.OpenView();
+        TimeSheetLines.Filter.SetFilter("Time Sheet No.", TimeSheetHeaderArchive."No.");
+
+        // [THEN] Archived Time Sheet "TS01" is in the list
+        TimeSheetLines."Time Sheet No.".AssertEquals(TimeSheetHeaderArchive."No.");
+
+        TimeSheetLines.Close();
+    end;
+
 #if not CLEAN22
     [Test]
     [Scope('OnPrem')]
@@ -853,6 +899,228 @@ codeunit 136506 "New Time Sheet Experience"
         UserSetup.Delete();
     end;
 #endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateJobStatusWhenExistOnTimeSheetLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        TimeSheetLineExistsForJobErr: Label 'One or more unposted Time Sheet lines exists for the project %1.\\You must post or delete the time sheet lines before you can change the project status.', Comment = '%1 = Project No.';
+    begin
+        // [FEATURE] [Time Sheet], [Job] [Project]
+        // [SCENARIO 497260] Job status can`t be updated when time sheet lines exists for the job
+        Initialize();
+
+        // [GIVEN] Create job
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        Job.TestField(Status, Job.Status::Open);
+
+        // [GIVEN] Create time sheets, with  job line
+        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, true);
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetLine, TimeSheetHeader, "Time Sheet Line Type"::Job, Job."No.", JobTask."Job Task No.");
+
+        // [WHEN] Update job status
+        asserterror Job.Validate(Status, Job.Status::Quote);
+
+        // [THEN] Error message is shown
+        Assert.ExpectedError(StrSubstNo(TimeSheetLineExistsForJobErr, Job."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TimeSheetLinesDoesNotContainsEntriesFromOtherUsers()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        Resource: Record Resource;
+        UserSetup: Record "User Setup";
+        TimeSheetLines: TestPage "Time Sheet Lines";
+        UpdateUserSetup: Boolean;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 496952] Time Sheet from different owner/approver should not be part of Time Sheet Lines list
+        Initialize();
+
+#if not CLEAN22
+        // [GIVEN] Enable Time Sheet V2
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        // [GIVEN] Create time sheet "TS01"
+        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+        TimeSheetLine.Validate(Status, TimeSheetLine.Status::Approved);
+        TimeSheetLine.Validate(Posted, true);
+
+        // [GIVEN] with different owner/approver
+        TimeSheetLine."Approver ID" := LibraryRandom.RandText(20);
+        TimeSheetLine.Modify(true);
+
+        TimeSheetHeader."Owner User ID" := TimeSheetLine."Approver ID";
+        TimeSheetHeader."Approver User ID" := TimeSheetLine."Approver ID";
+        TimeSheetHeader.Modify();
+
+        // [GIVEN] User is not time sheet admin
+        if UserSetup.Get(UserId) then
+            if UserSetup."Time Sheet Admin." then begin
+                UserSetup."Time Sheet Admin." := false;
+                UserSetup.Modify();
+                UpdateUserSetup := true;
+            end;
+
+        // [WHEN] Open Time Sheet Lines to check is TS01 visible
+        TimeSheetLines.OpenView();
+        TimeSheetLines.Filter.SetFilter("Time Sheet No.", TimeSheetHeader."No.");
+
+        // [THEN] Time Sheet "TS01" is not in the list
+        if TimeSheetLines.Last() then
+            Error('Time Sheet Lines must be empty');
+
+        TimeSheetLines.Close();
+
+        if UpdateUserSetup then begin
+            UserSetup."Time Sheet Admin." := true;
+            UserSetup.Modify();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyTimeSheetLinesNoLinesToCopy()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetCard: TestPage "Time Sheet Card";
+        NoLinesToCopyErr: Label 'There are no time sheet lines to show.';
+    begin
+        // [FEATURE] [Time Sheet], [Copy Time Sheet Lines]
+        // [SCENARIO 448248] TS improvement - Copy Lines from Previous TS
+        Initialize();
+
+        // [GIVEN] Create X time sheets, but no lines
+        CreateMultipleTimeSheet(Resource, TimeSheetHeader, LibraryRandom.RandIntInRange(5, 10));
+
+        // [GIVEN] Open time sheet card for the last entry
+        TimeSheetCard.OpenEdit();
+        TimeSheetCard.Filter.SetFilter("Resource No.", Resource."No.");
+        TimeSheetCard.Last();
+
+        // [WHEN] Run action "Select and Copy Lines from TS"
+        asserterror TimeSheetCard.SelectAndCopyLinesFromTS_Promoted.Invoke();
+
+        // [THEN] Error message is shown
+        Assert.IsTrue(StrPos(GetLastErrorText(), NoLinesToCopyErr) > 0, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('TimeSheetLinesModalHandler')]
+    procedure CopyTimeSheetLinesCopyOneLineFromTS()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        CopiedTimeSheetLine: Record "Time Sheet Line";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+    begin
+        // [FEATURE] [Time Sheet], [Copy Time Sheet Lines]
+        // [SCENARIO 448248] TS improvement - Copy Lines from Previous TS
+        Initialize();
+
+        // [GIVEN] Create 2 time sheets, but no lines
+        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
+
+        // [GIVEN] Added lines into first one
+        TimeSheetHeader.SetRange("Resource No.", Resource."No.");
+        TimeSheetHeader.FindFirst();
+
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+        TimeSheetLine.Description := LibraryRandom.RandText(20);
+        TimeSheetLine.Modify();
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+        TimeSheetLine.Description := LibraryRandom.RandText(20);
+        TimeSheetLine.Modify();
+
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        TimeSheetLine.FindFirst();
+
+        // [WHEN] Run action "Select and Copy Lines from TS"
+        LibraryVariableStorage.Enqueue('CopyTimeSheetLinesCopyOneLineFromTS');
+        TimeSheetHeader.FindLast();
+        TimeSheetManagement.SelectAndCopyTimeSheetLines(TimeSheetHeader, false);
+
+        // [THEN] Only one line is copied
+        CopiedTimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        CopiedTimeSheetLine.FindLast();
+
+        CopiedTimeSheetLine.TestField(Type, TimeSheetLine.Type);
+        CopiedTimeSheetLine.TestField(Description, TimeSheetLine.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('TimeSheetLinesModalHandler,CopyTSLinesStrMenuHandler')]
+    procedure CopyTimeSheetLinesCopyAllLinesFromTS()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+    begin
+        // [FEATURE] [Time Sheet], [Copy Time Sheet Lines]
+        // [SCENARIO 448248] TS improvement - Copy Lines from Previous TS
+        Initialize();
+
+        // [GIVEN] Create 2 time sheets, but no lines
+        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
+
+        // [GIVEN] Added lines into first one
+        TimeSheetHeader.SetRange("Resource No.", Resource."No.");
+        TimeSheetHeader.FindFirst();
+
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+        TimeSheetLine.Description := LibraryRandom.RandText(20);
+        TimeSheetLine.Modify();
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+        TimeSheetLine.Description := LibraryRandom.RandText(20);
+        TimeSheetLine.Modify();
+
+        // [WHEN] Run action "Select and Copy Lines from TS"
+        LibraryVariableStorage.Enqueue('CopyTimeSheetLinesCopyAllLinesFromTS');
+        TimeSheetHeader.FindLast();
+        TimeSheetManagement.SelectAndCopyTimeSheetLines(TimeSheetHeader, false);
+
+        // [THEN] All lines are copied
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        Assert.AreEqual(2, TimeSheetLine.Count, 'Invalid number of lines copied');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TimeSheetLinesModalHandler(var TimeSheetLines: TestPage "Time Sheet Lines")
+    var
+        DequeuedText: Text;
+    begin
+        DequeuedText := LibraryVariableStorage.DequeueText();
+        case DequeuedText of
+            'CopyTimeSheetLinesCopyOneLineFromTS':
+                TimeSheetLines.Last();
+            'CopyTimeSheetLinesCopyAllLinesFromTS':
+                TimeSheetLines.First();
+        end;
+
+        TimeSheetLines.OK().Invoke();
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CopyTSLinesStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -1436,6 +1704,44 @@ codeunit 136506 "New Time Sheet Experience"
 
         // [THEN] Time sheet details copied from "1" to "2"
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SubmitEmptyTimeSheetLines()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        ResourceSetup: Record "Resources Setup";
+        TimeSheetApprovalManagement: Codeunit "Time Sheet Approval Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 448249] Allow submitting empty time sheet lines
+        Initialize();
+
+        // [GIVEN] Set "Time Sheet Submission Policy" = "Stop and Show Empty Line Error"
+        ResourceSetup.Get();
+        ResourceSetup."Time Sheet Submission Policy" := ResourceSetup."Time Sheet Submission Policy"::"Stop and Show Empty Line Error";
+        ResourceSetup.Modify();
+
+        // [GIVEN] Create time sheet with data
+        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, true);
+        CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
+
+        // [GIVEN] and line without quantities
+        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
+
+        // [WHEN THEN] Submit line, system throw an error
+        TimeSheetLine.Reset();
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        asserterror TimeSheetApprovalManagement.Submit(TimeSheetLine);
+
+        // [WHEN THEN] Set "Time Sheet Submission Policy" = "Empty Lines Not Submitted", submitting will be done successfully
+        ResourceSetup."Time Sheet Submission Policy" := ResourceSetup."Time Sheet Submission Policy"::"Empty Lines Not Submitted";
+        ResourceSetup.Modify();
+        Commit();
+        Clear(TimeSheetApprovalManagement);
+        TimeSheetApprovalManagement.Submit(TimeSheetLine);
     end;
 
     [Test]

@@ -12,6 +12,7 @@ using Microsoft.Foundation.Enums;
 table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
+    DataClassification = CustomerContent;
 
     fields
     {

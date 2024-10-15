@@ -1,4 +1,3 @@
-#if not CLEAN21
 namespace Microsoft.FixedAssets.Posting;
 
 enum 5607 "Purchase FA Posting Type"
@@ -17,6 +16,7 @@ enum 5607 "Purchase FA Posting Type"
     {
         Caption = 'Maintenance';
     }
+#if not CLEAN22
     value(3; "Custom 2")
     {
         Caption = 'Custom 2 (Obsolete)';
@@ -24,9 +24,9 @@ enum 5607 "Purchase FA Posting Type"
         ObsoleteState = Pending;
         ObsoleteTag = '21.0';
     }
+#endif
     value(4; Appreciation)
     {
         Caption = 'Appreciation';
     }
 }
-#endif

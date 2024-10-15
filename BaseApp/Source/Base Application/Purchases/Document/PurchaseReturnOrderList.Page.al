@@ -675,8 +675,11 @@ page 9311 "Purchase Return Order List"
 
                     trigger OnAction()
                     var
+                        SelectedPurchaseHeader: Record "Purchase Header";
                         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedPurchaseHeader);
+                        PurchPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedPurchaseHeader, Rec."No.");
                         PurchPostYesNo.Preview(Rec);
                     end;
                 }
@@ -734,7 +737,7 @@ page 9311 "Purchase Return Order List"
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 

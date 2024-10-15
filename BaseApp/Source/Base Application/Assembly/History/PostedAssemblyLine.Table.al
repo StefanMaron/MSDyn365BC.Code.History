@@ -17,6 +17,7 @@ table 911 "Posted Assembly Line"
     Caption = 'Posted Assembly Line';
     DrillDownPageID = "Posted Assembly Order Subform";
     LookupPageID = "Posted Assembly Order Subform";
+    DataClassification = CustomerContent;
 
     fields
     {

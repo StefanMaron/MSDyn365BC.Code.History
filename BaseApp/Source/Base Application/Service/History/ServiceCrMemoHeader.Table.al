@@ -43,6 +43,7 @@ table 5994 "Service Cr.Memo Header"
     DrillDownPageID = "Posted Service Credit Memos";
     LookupPageID = "Posted Service Credit Memos";
     Permissions = TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -782,6 +783,10 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }	
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
@@ -1133,23 +1138,6 @@ table 5994 "Service Cr.Memo Header"
         end;
     end;
 
-#if not CLEAN21
-    [Obsolete('The function is not used anymore.', '21.0')]
-    [Scope('OnPrem')]
-    procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"): Boolean
-    begin
-        // NAVCZ
-        CustLedgEntry.Reset();
-        CustLedgEntry.SetCurrentKey("Document No.");
-        CustLedgEntry.SetRange("Document No.", "No.");
-        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
-        CustLedgEntry.SetRange("Posting Date", "Posting Date");
-        if not CustLedgEntry.FindFirst() then
-            exit(false);
-
-        exit(true);
-    end;
-#endif
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1169,6 +1157,27 @@ table 5994 "Service Cr.Memo Header"
         ActivityLog: Record "Activity Log";
     begin
         ActivityLog.ShowEntries(Rec.RecordId);
+    end;
+
+    procedure PrintToDocumentAttachment(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceCrMemoHeader.Count() = 1;
+        if ServiceCrMemoHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceCrMemoHeader, ShowNotificationAction);
+            until ServiceCrMemoHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceCrMemoHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Credit Memo".AsInteger(), ServiceCrMemoHeader, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

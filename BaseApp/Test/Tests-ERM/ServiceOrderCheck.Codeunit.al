@@ -21,7 +21,6 @@ codeunit 136114 "Service Order Check"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportValidation: Codeunit "Library - Report Validation";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         ServiceOrderError: Label 'Service Order must not exist.';
@@ -418,7 +417,7 @@ codeunit 136114 "Service Order Check"
         VerifyGetShipmentLines(OrderNo, ServiceHeader."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderDiscounts()
@@ -552,7 +551,7 @@ codeunit 136114 "Service Order Check"
         Initialize();
         LibraryInventory.CreateItem(Item);
         Description := CreateExtendedTextForItem(Item."No.");
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", ServiceItemLine."Line No.");
         TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
@@ -578,9 +577,9 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
+        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
 
         // 2. Exercise: Update Posting Date on Service Order Header after creating Service Line.
         UpdatePostingDateOnServiceHeader(NewPostingDate, ServiceHeader);
@@ -604,10 +603,10 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup: Create Service Order with multiple Service Lines using Random.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do
-            CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
+            CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
         UpdatePostingDateOnServiceHeader(NewPostingDate, ServiceHeader);
 
         // 2. Exercise.
@@ -632,10 +631,10 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup: Create Service Order with Two Service Item Lines and One Service Line.
         Initialize();
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
+        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // 2. Exercise: Open Service Lines Page for first Service Line and Post Service Line using Page Handler.
@@ -661,10 +660,10 @@ codeunit 136114 "Service Order Check"
 
         // 1. Setup: Create Service Order with 2 Service Lines, one contains Some Item and other is having Blank Item No. with Description.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
+        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
         CreateServiceLineWithDescriptionOnly(ServiceHeader, ServiceItemLine."Line No.");
         GetServiceLines(ServiceLine, ServiceHeader."No.", ServiceHeader."Document Type");
         ServiceLineCount := ServiceLine.Count();
@@ -707,10 +706,10 @@ codeunit 136114 "Service Order Check"
           CustInvoiceDisc[2], CustomerNo, LibraryRandom.RandDecInRange(1000, 2000, 2), LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [GIVEN] Service Order with Item Service Line
-        ServiceItemNo := CreateServiceDocument(ServiceHeader, CustomerNo, LibraryInventory.CreateItemNo);
+        ServiceItemNo := CreateServiceDocument(ServiceHeader, CustomerNo, LibraryInventory.CreateItemNo());
         // [GIVEN] Service Line with Item, "Unit Price" = 99.99
         UpdateServiceLineCustomValues(
-          ServiceLine, ServiceHeader."No.", ServiceItemNo, 1, CustInvoiceDisc[2]."Minimum Amount" - LibraryERM.GetAmountRoundingPrecision);
+          ServiceLine, ServiceHeader."No.", ServiceItemNo, 1, CustInvoiceDisc[2]."Minimum Amount" - LibraryERM.GetAmountRoundingPrecision());
 
         // [GIVEN] Calculate Invoice Discount for Service Line
         VerifyServiceLineInvDiscAmount(ServiceLine, 0);
@@ -801,7 +800,7 @@ codeunit 136114 "Service Order Check"
         // [GIVEN] Service Order with Item Service Line having "Service Item No." = "", "Item No." = "X"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Service Line for Item "X":  "Service Item No." = "", "No." = "X", "Unit Price" = 100
         UpdateServiceLine(ServiceLine, ServiceHeader."No.", '', WorkDate());
@@ -852,7 +851,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type G/L Account using Ascending sorting while deleting the contract No on service Item line.
         ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, true);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), true);
     end;
 
     [Test]
@@ -864,7 +863,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type G/L Account using Descending sorting while deleting the contract No on service Item line.
         ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, false);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), false);
     end;
 
     [Test]
@@ -876,7 +875,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type Resource using Ascending sorting while deleting the contract No on service Item line.
         ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, true);
+          CreateResource(), CreateResource(), true);
     end;
 
     [Test]
@@ -888,7 +887,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type Resource using Decending sorting while deleting the contract No on service Item line.
         ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, false);
+          CreateResource(), CreateResource(), false);
     end;
 
     local procedure ServItemWorkSheetAfterDeletingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
@@ -953,7 +952,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type G/L Account using Ascending sorting while Inserting the contract No on service Item line.
         ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, true);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), true);
     end;
 
     [Test]
@@ -965,7 +964,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type G/L Account using Decending sorting while Inserting the contract No on service Item line.
         ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, false);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), false);
     end;
 
     [Test]
@@ -977,7 +976,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type Resource using Ascending sorting while Inserting the contract No on service Item line.
         ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, true);
+          CreateResource(), CreateResource(), true);
     end;
 
     [Test]
@@ -989,7 +988,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service Item Worksheet lines for Type Resource using Decending sorting while Inserting the contract No on service Item line.
         ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, false);
+          CreateResource(), CreateResource(), false);
     end;
 
     local procedure ServItemWorkSheetAfterInsertingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
@@ -1055,7 +1054,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type G/L Account using Ascending sorting while Deleting the contract No on service Item line.
         ServiceLinesAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, true);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), true);
     end;
 
     [Test]
@@ -1067,7 +1066,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type G/L Account using Decending sorting while Deleting the contract No on service Item line.
         ServiceLinesAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, false);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), false);
     end;
 
     [Test]
@@ -1079,7 +1078,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type Resource using Ascending sorting while Deleting the contract No on service Item line.
         ServiceLinesAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, true);
+          CreateResource(), CreateResource(), true);
     end;
 
     [Test]
@@ -1091,7 +1090,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type Resource using Decending sorting while Deleting the contract No on service Item line.
         ServiceLinesAfterDeletingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, false);
+          CreateResource(), CreateResource(), false);
     end;
 
     local procedure ServiceLinesAfterDeletingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
@@ -1156,7 +1155,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type G/L Account using Ascending sorting while Inserting the contract No on Service Item line.
         ServiceLinesAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, true);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), true);
     end;
 
     [Test]
@@ -1168,7 +1167,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type G/L Account using Decending sorting while Inserting the contract No on Service Item line.
         ServiceLinesAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryERM.CreateGLAccountWithSalesSetup, false);
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryERM.CreateGLAccountWithSalesSetup(), false);
     end;
 
     [Test]
@@ -1180,7 +1179,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type Resource using Ascending sorting while Inserting the contract No on Service Item line.
         ServiceLinesAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, true);
+          CreateResource(), CreateResource(), true);
     end;
 
     [Test]
@@ -1192,7 +1191,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Verify program does not messed up on Service lines for Type Resource using Decending sorting while Inserting the contract No on Service Item line.
         ServiceLinesAfterInsertingContractNoOnServiceItemLine(ServiceLine.Type::Resource,
-          CreateResource, CreateResource, false);
+          CreateResource(), CreateResource(), false);
     end;
 
     local procedure ServiceLinesAfterInsertingContractNoOnServiceItemLine(Type: Enum "Service Line Type"; FirstItem: Code[20]; SecondItem: Code[20]; Value: Boolean)
@@ -1275,7 +1274,7 @@ codeunit 136114 "Service Order Check"
         CreateCustomerInvoiceDiscount(CustInvoiceDisc, Customer."No.", 0, 1.0);
 
         // [GIVEN] Service order with one service line for an item. The amount on the service line = 10.1 LCY.
-        ServiceItemNo := CreateServiceDocument(ServiceHeader, Customer."No.", LibraryInventory.CreateItemNo);
+        ServiceItemNo := CreateServiceDocument(ServiceHeader, Customer."No.", LibraryInventory.CreateItemNo());
         UpdateServiceLineCustomValues(ServiceLine, ServiceHeader."No.", ServiceItemNo, 10, 1.01);
 
         // [WHEN] Post the Service Order as Ship and Invoice.
@@ -1303,7 +1302,7 @@ codeunit 136114 "Service Order Check"
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
 
         // [GIVEN] Service Line for "SEO01" with Amount = 60 and Quantity = 30
-        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
+        CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
 
         // [GIVEN] "Line Discount %" = 15 on the Service Line ("Line Discount Amount" = 9)
         ServiceLine.Validate("Line Discount %", LibraryRandom.RandDec(100, 2));
@@ -1426,8 +1425,6 @@ codeunit 136114 "Service Order Check"
         ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
-        TempServiceItemLine: Record "Service Item Line" temporary;
-        ServLoanerManagement: Codeunit ServLoanerManagement;
     begin
         // [SCENARIO 434818] System shows warning messages when OnValidate is triggered on "Invoice Disc. Code" field.
 
@@ -1435,7 +1432,7 @@ codeunit 136114 "Service Order Check"
         Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
 
         // [WHEN] Exercise: Update Invoice Disc. Group code
         ServiceHeader.Validate("Invoice Disc. Code", LibraryRandom.RandText(20));
@@ -1452,7 +1449,6 @@ codeunit 136114 "Service Order Check"
         ServiceItemLine: Record "Service Item Line";
         ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
-        TempServiceItemLine: Record "Service Item Line" temporary;
         ServiceLine: Record "Service Line";
         ReleaseServiceDocument: Codeunit "Release Service Document";
     begin
@@ -1462,7 +1458,7 @@ codeunit 136114 "Service Order Check"
         Initialize();
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
         CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, 1);
         ServiceLine.Modify(true);
         ReleaseServiceDocument.Run(ServiceHeader);
@@ -1551,12 +1547,12 @@ codeunit 136114 "Service Order Check"
         // Setup demonstration data
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInServiceCosts;
+        LibraryERMCountryData.UpdateAccountInServiceCosts();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryService.SetupServiceMgtNoSeries();
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1586,7 +1582,7 @@ codeunit 136114 "Service Order Check"
         ServiceLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateCustomerLineDiscount(Item: Record Item; CustomerNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1642,7 +1638,7 @@ codeunit 136114 "Service Order Check"
 
     local procedure CreateResource(): Code[20]
     begin
-        exit(LibraryResource.CreateResourceNo);
+        exit(LibraryResource.CreateResourceNo());
     end;
 
     local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; ItemNo: Code[20]) ServiceItemNo: Code[20]
@@ -1681,7 +1677,7 @@ codeunit 136114 "Service Order Check"
     begin
         // Create 2 to 10 Service Lines with Type Item - Boundary 2 is important.
         for Counter := 2 to 2 + LibraryRandom.RandInt(8) do begin
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem());
             ServiceLine.Validate("Service Item No.", ServiceItemNo);
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Required field - value is not important to test case.
             ServiceLine.Modify(true);
@@ -1736,11 +1732,11 @@ codeunit 136114 "Service Order Check"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryService.FindServiceCost(ServiceCost);
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo, ServiceItemLine."Line No.");
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, CreateItem(), ServiceItemLine."Line No.");
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo(), ServiceItemLine."Line No.");
         CreateServiceLine(ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code, ServiceItemLine."Line No.");
         CreateServiceLine(
-          ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, ServiceItemLine."Line No.");
+          ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), ServiceItemLine."Line No.");
     end;
 
     local procedure CreateServiceItemAndItemLine(var ServiceItem: Record "Service Item"; var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
@@ -1757,7 +1753,7 @@ codeunit 136114 "Service Order Check"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Use Random because value is not important.
-        ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate("Qty. to Invoice", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
         ServiceLine.Modify(true);
     end;
 
@@ -1767,7 +1763,7 @@ codeunit 136114 "Service Order Check"
         ServiceItem: Record "Service Item";
         SignServContractDoc: Codeunit SignServContractDoc;
     begin
-        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ContractType, CreateCustomer);
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ContractType, CreateCustomer());
         LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
         LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
         ServiceContractLine.Validate("Line Cost", 1000 * LibraryRandom.RandInt(10));
@@ -1894,10 +1890,10 @@ codeunit 136114 "Service Order Check"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure ReceiveLoanerOnServiceItemLine(ServiceItemLine: Record "Service Item Line")
@@ -1947,7 +1943,7 @@ codeunit 136114 "Service Order Check"
     begin
         GetServiceLines(ServiceLine, ServiceHeader."No.", ServiceHeader."Document Type");
         repeat
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -2247,10 +2243,10 @@ codeunit 136114 "Service Order Check"
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindFirst();
 
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
 
-        asserterror PostedServiceInvoice.ServInvLines.ItemShipmentLines.Invoke;
+        asserterror PostedServiceInvoice.ServInvLines.ItemShipmentLines.Invoke();
         Assert.ExpectedError(
           StrSubstNo(
             ItemShipmentLineServiceTier, ServiceInvoiceLine.FieldCaption(Type), ServiceInvoiceLine.TableCaption(),
@@ -2418,8 +2414,8 @@ codeunit 136114 "Service Order Check"
     [Scope('OnPrem')]
     procedure ServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
     begin
-        ServiceLines.Post.Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines.Post.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [StrMenuHandler]

@@ -12,7 +12,9 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+#if not CLEAN23
         LibraryCosting: Codeunit "Library - Costing";
+#endif
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
@@ -26,7 +28,10 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN23
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         isInitialized: Boolean;
         AmountError: Label 'Amount must be equal.';
         ItemVariantExistError: Label 'The Item Variant does not exist. Identification fields and values: Item No.=''%1'',Code=''%2''';
@@ -52,7 +57,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item, create Item Variant.
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         VariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
         ItemVariant.Delete(true);
 
@@ -91,9 +96,9 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         // [GIVEN] Create Item, Create Purchase Document with Variant Code.
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreatePurchaseDocument(
-          PurchaseLine, DocumentType, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), CreateVendor,
+          PurchaseLine, DocumentType, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), CreateVendor(),
           LibraryRandom.RandInt(10), WorkDate()); // Used Random for Quantity.
 
         // Exercise.
@@ -131,7 +136,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     begin
         // [GIVEN] Create Item, Create Sales Document with Variant Code.
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreateSalesDocument(
           SalesLine, DocumentType, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), LibraryRandom.RandDec(10, 2));  // Used Random for Quantity.
 
@@ -154,8 +159,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Service Order with Variant Code.
         Initialize(false);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem());
         ServiceLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, ServiceLine."No."));
         ServiceLine.Modify(true);
 
@@ -178,7 +183,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item Journal with Variant Code..
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreateItemJournalLine(ItemJournalLine, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), '', '');
 
         // Exercise.
@@ -201,7 +206,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item Journal with Variant Code and Post.
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreateItemJournalLine(ItemJournalLine, ItemNo, LibraryInventory.CreateItemVariant(ItemVariant, ItemNo), '', '');
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
@@ -225,7 +230,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item, create Productin BOM with Variant Code.
         Initialize(false);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, '');
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, 1);  // Required 1 for Quantity Per.
         ProductionBOMLine.Validate("Variant Code", LibraryInventory.CreateItemVariant(ItemVariant, ProductionBOMLine."No."));
@@ -252,8 +257,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item, create component Item, create Certified Production BOM.
         Initialize(false);
-        Item.Get(CreateItem);
-        Item2.Get(CreateItem);
+        Item.Get(CreateItem());
+        Item2.Get(CreateItem());
 
         // Update Production Bom on Item.
         UpdateItemWithCertifiedBOMAndRouting(Item, Item2."No.");
@@ -378,7 +383,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] The current counting period is 0..6 days from WORKDATE.
         NextCountingStartDate := WorkDate();
-        NextCountingEndDate := WorkDate + 6;
+        NextCountingEndDate := WorkDate() + 6;
 
         // [GIVEN] The next counting periods will be as follows: 7..13, 14..20, 21..27, ...
         for i := 1 to ArrayLen(CountPeriodBounds, 1) do begin
@@ -395,8 +400,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
           PhysInvtDate, NextCountingStartDate, NextCountingEndDate, CountFrequency);
 
         // [THEN] The next counting period is the period that follows 8..15, which is 16..23 days.
-        Assert.AreEqual(WorkDate + CountPeriodBounds[i + 1] [1], NextCountingStartDate, WrongNextCountingStartDateErr);
-        Assert.AreEqual(WorkDate + CountPeriodBounds[i + 1] [2], NextCountingEndDate, WrongNextCountingEndDateErr);
+        Assert.AreEqual(WorkDate() + CountPeriodBounds[i + 1] [1], NextCountingStartDate, WrongNextCountingStartDateErr);
+        Assert.AreEqual(WorkDate() + CountPeriodBounds[i + 1] [2], NextCountingEndDate, WrongNextCountingEndDateErr);
     end;
 
     [Test]
@@ -504,7 +509,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreEqual(20200214D, NextCountingEndDate, WrongNextCountingEndDateErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure DirectUnitCostOnPurchLineFromPurchPrice()
@@ -516,7 +521,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor(), WorkDate());
         CopyAllPurchPriceToPriceListLine();
 
         // [WHEN] Create Purchase Order.
@@ -551,7 +556,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor(), WorkDate());
         Item.Get(PurchasePrice."Item No.");
 
         // [WHEN] Create Purchase Order.
@@ -575,7 +580,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         CreatePurchasePrice(PurchasePrice, Currency.Code, CreateAndModifyVendor(Currency.Code), WorkDate());
         CopyAllPurchPriceToPriceListLine();
 
@@ -600,7 +605,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN]
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor(), WorkDate());
         CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
@@ -630,7 +635,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Purchase Price, create and Receive Purchase order.
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate());
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor(), WorkDate());
         CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
@@ -651,6 +656,71 @@ codeunit 137296 "SCM Inventory Misc. IV"
     end;
 
     [Test]
+    [HandlerFunctions('SentNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure DirectUnitPriceOnPurchLineRemainUnchangedWhenOverReceiptIsSetOnWhseReceiptLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        Item: Record Item;
+        PurchasePrice: Record "Purchase Price";
+        OverReceiptCode: Record "Over-Receipt Code";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Over-Receipt] [UI]
+        // [SCENARIO] Over-Receipt quantity changes in Warehouse Receipt Line does not cause the Direct Unit Price on Purchase Line to change.
+        // Bug https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/500735
+        Initialize(false);
+
+        // [GIVEN] Location with Warehouse Receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Vendor with a special purchase price on item with Over-Receipt setup.
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryInventory.CreateItem(Item);
+        OverReceiptCode.FindFirst();
+        Item.Validate("Over-Receipt Code", OverReceiptCode.Code);
+        Item.Modify(true);
+        CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.");
+
+        // [GIVEN] Purchase Order "PO" with Quantity = 11 and a manually entered Direct Unit Cost = 50.
+        CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
+          PurchasePrice."Minimum Quantity", WorkDate());
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", 11);
+        PurchaseLine.Validate("Direct Unit Cost", 50);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Warehouse Receipt created from Purchaser Order "PO"
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+
+        // [WHEN] Enter "Qty to Receive" = 12.
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.GoToRecord(WarehouseReceiptHeader);
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(12);
+
+        // [THEN] 'Over-Receipt Code' and 'Over-Receipt Qty.' are populated
+        Assert.IsTrue(WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".Value <> '', 'Over-Receipt Code should not be empty');
+        Assert.IsTrue(WarehouseReceipt.WhseReceiptLines."Over-Receipt Quantity".AsDecimal() = 1, 'Over-Receipt Quantity should be greater than 0');
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchaseHeader.RecordId);
+        WarehouseReceipt.Close();
+
+        // [THEN] Direct Unit Cost on Purchase Line is not changed.
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Over-Receipt Quantity", 1);
+        PurchaseLine.TestField(Quantity, 12);
+        PurchaseLine.TestField("Direct Unit Cost", 50);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure UnitCostOnPurchLineWithCarryOutActionMsg()
     var
@@ -662,7 +732,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Create Item, create Purchase Price, create Sales order.
         Initialize(false);
-        CreatePurchasePrice(PurchasePrice, '', CreateVendor, CalcDate('<-1D>', WorkDate()));
+        CreatePurchasePrice(PurchasePrice, '', CreateVendor(), CalcDate('<-1D>', WorkDate()));
         CopyAllPurchPriceToPriceListLine();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Minimum Quantity");
 
@@ -806,7 +876,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // Setup.
         Initialize(false);
-        InventorySetupEnqueues;  // Enqueue Message Handler.
+        InventorySetupEnqueues();  // Enqueue Message Handler.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -845,7 +915,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // Setup.
         Initialize(false);
-        InventorySetupEnqueues;  // Enqueue Message Handler.
+        InventorySetupEnqueues();  // Enqueue Message Handler.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -890,13 +960,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Update Inventory Setup, create Purchase Order,
         Initialize(false);
-        InventorySetupEnqueues; // Enqueue Message Handler.
+        InventorySetupEnqueues(); // Enqueue Message Handler.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order,
-          CreateAndModifyItem('', Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase), '', CreateVendor,
+          CreateAndModifyItem('', Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase), '', CreateVendor(),
           LibraryRandom.RandInt(10), WorkDate());
 
         // Exercise
@@ -929,7 +999,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [GIVEN] Update Inventory Setup, create and post Purchase Order, create Sales Order.
         Initialize(false);
-        InventorySetupEnqueues; // Enqueue Message Handler.
+        InventorySetupEnqueues(); // Enqueue Message Handler.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -974,7 +1044,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN] Update Inventory Setup, create and receive Purchase Order.
         Initialize(false);
         LibraryERM.CreateReasonCode(ReasonCode);  // Added for G1 Country Fix.
-        InventorySetupEnqueues; // Enqueue Message Handler.
+        InventorySetupEnqueues(); // Enqueue Message Handler.
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -1042,7 +1112,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", '', LibraryRandom.RandInt(100));
 
         // [WHEN] Calculate requisition plan for item "I"
-        ReqWkshTemplateName := LibraryPlanning.SelectRequisitionTemplateName;
+        ReqWkshTemplateName := LibraryPlanning.SelectRequisitionTemplateName();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplateName);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplateName, RequisitionWkshName.Name);
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -1509,7 +1579,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.TestField("Trans. Ord. Receipt (Qty.)", 0);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseVariantZeroLineDiscount()
@@ -1523,7 +1593,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Initialize(false);
 
         // [GIVEN] Variant "IV" of Item "I"
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Vendor "V"
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -1553,7 +1623,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Initialize(false);
 
         // [GIVEN] Variant "IV" of Item "I"
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Customer "C"
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -1584,7 +1654,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Initialize(false);
 
         // [GIVEN] Variant "IV" of Item "I"
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Customer "C"
         CustomerNo := CreateJobTask(JobTask);
@@ -1615,7 +1685,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Initialize(false);
 
         // [GIVEN] Variant "IV" of Item "I"
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
 
         // [GIVEN] Customer "C"
         CustomerNo := CreateJobTask(JobTask);
@@ -1776,7 +1846,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
     begin
         // [FEATURE] [Phys. Invt. Counting Period] [UT]
-        // [SCENARIO 420429] When counting frequency is 52 times/year and "Last Counting Period Update" = WORKDATE, the next Phys. Invt. Counting Period will start right after the current week.
+        // [SCENARIO 420429] When counting frequency is 52 times/year and "Last Counting Period Update" = WorkDate(), the next Phys. Invt. Counting Period will start right after the current week.
         Initialize(false);
 
         LibraryInventory.CreateItem(Item);
@@ -1923,7 +1993,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         JobJournalLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateZeroForVariantPurchaseLineDiscount(ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         ItemBlankVariantPurchaseLineDiscount: Record "Purchase Line Discount";
@@ -1979,7 +2049,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate());
+          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor(), LibraryRandom.RandInt(10), WorkDate());
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
@@ -2003,7 +2073,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate("Vendor No.", VendorNo);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -2016,7 +2086,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -2204,13 +2274,30 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GeneralPostingSetup.Modify(true);
     end;
 
-#if not CLEAN21
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);  // Taking Random Quantity.
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+    end;
+
+#if not CLEAN23
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
         LibraryERM.CreateLineDiscForVendor(
-          PurchaseLineDiscount, CreateItem, CreateVendor, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
+          PurchaseLineDiscount, CreateItem(), CreateVendor(), WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Take random for Line Discount Pct.
         PurchaseLineDiscount.Modify(true);
+    end;
+
+    local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20])
+    begin
+        LibraryCosting.CreatePurchasePrice(
+          PurchasePrice, VendorNo, ItemNo, 0D, '', '', '', 0);  // Take random for Quantity.
+        PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // take random for Direct Unit Cost.
+        PurchasePrice.Modify(true);
     end;
 
     local procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; CurrencyCode: Code[10]; VendorNo: Code[20]; StartingDate: Date)
@@ -2254,7 +2341,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));  // Take random for Unit Price.
         SalesLine.Validate("Variant Code", VariantCode);
@@ -2385,9 +2472,9 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
-        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke;
+        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure GetSalesOrdersInRequisitionWorksheet(SalesLine: Record "Sales Line")
@@ -2395,7 +2482,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName);
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, 0);
     end;
@@ -2425,6 +2512,13 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20])
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.FindFirst();
+    end;
+
     local procedure SetupForPostOutputJournal(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     var
         Item: Record Item;
@@ -2440,8 +2534,8 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CreateAndPostPurchaseOrder(PurchaseLine, ItemNo, true);
 
         CreatePurchaseDocument(
-          PurchaseLine2, PurchaseLine2."Document Type"::Order, PurchaseLine."No.", '', CreateVendor, LibraryRandom.RandInt(10),
-          WorkDate);  // Used Rnadom for Quantity.
+          PurchaseLine2, PurchaseLine2."Document Type"::Order, PurchaseLine."No.", '', CreateVendor(), LibraryRandom.RandInt(10),
+          WorkDate());  // Used Rnadom for Quantity.
         PurchaseLine2.Validate("Direct Unit Cost", (PurchaseLine2."Direct Unit Cost" + LibraryRandom.RandInt(10)));  // 'Direct Unit Cost' required more than previous Purchase Order.
         PurchaseLine2.Modify(true);
         PostPurchaseDocument(PurchaseLine2, true);
@@ -2474,7 +2568,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount: Record "Purchase Line Discount"): Decimal
     begin
         PurchaseLineDiscount.Validate("Line Discount %", PurchaseLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random to update Line Discount Pct.
@@ -2486,7 +2580,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     local procedure UpdatePhysInvCountingPeriodOnItem(var Item: Record Item; CountFrequency: Integer)
     begin
         with Item do begin
-            Get(CreateItem);
+            Get(CreateItem());
             Validate("Phys Invt Counting Period Code", CreatePhysInvtCountingPeriod(CountFrequency));
             Modify(true);
         end;
@@ -2499,7 +2593,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure UpdateUnitCostOnPurchasePrice(PurchasePrice: Record "Purchase Price"): Decimal
     begin
         PurchasePrice.Validate("Direct Unit Cost", PurchasePrice."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));  // Take random value to update Direct Unit Cost.
@@ -2554,7 +2648,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         repeat
             ActualAmount := GLEntry.Amount;
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, AmountError);
+        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
     local procedure VerifyPstdPurchaseInvoice(DocumentNo: Code[20]; DirectUnitCost: Decimal; LineDiscountPct: Decimal)
@@ -2611,13 +2705,20 @@ codeunit 137296 "SCM Inventory Misc. IV"
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemAvailabilityLineListHandler(var ItemAvailabilityLineList: TestPage "Item Availability Line List")
     begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SentNotificationHandler(var Notification: Notification): Boolean;
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 

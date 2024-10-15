@@ -12,8 +12,6 @@ codeunit 139095 "Test System Constants"
 
     var
         Assert: Codeunit Assert;
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
 
     [Test]
     [Scope('OnPrem')]

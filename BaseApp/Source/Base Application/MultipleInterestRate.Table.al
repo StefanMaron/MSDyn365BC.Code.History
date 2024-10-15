@@ -4,6 +4,7 @@ table 11783 "Multiple Interest Rate"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
+    DataClassification = CustomerContent;
 
     fields
     {

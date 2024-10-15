@@ -15,6 +15,7 @@ table 204 "Unit of Measure"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "Units of Measure";
     LookupPageID = "Units of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {

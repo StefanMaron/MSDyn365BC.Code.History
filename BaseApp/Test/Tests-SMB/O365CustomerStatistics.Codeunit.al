@@ -122,7 +122,7 @@ codeunit 138009 "O365 Customer Statistics"
                 "Document Type" := "Document Type"::Invoice;
                 Open := false;
 
-                "Closed at Date" := WorkDate + Day1;
+                "Closed at Date" := WorkDate() + Day1;
                 Modify();
             end;
 
@@ -142,7 +142,7 @@ codeunit 138009 "O365 Customer Statistics"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Customer Statistics");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryApplicationArea.EnableFoundationSetup();
@@ -150,13 +150,13 @@ codeunit 138009 "O365 Customer Statistics"
         SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
         if SalesSetup."Blanket Order Nos." = '' then
-            SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesSetup."Return Order Nos." = '' then
-            SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesSetup."Order Nos." = '' then
-            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesSetup."Quote Nos." = '' then
-            SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify();
 
         isInitialized := true;
@@ -337,7 +337,7 @@ codeunit 138009 "O365 Customer Statistics"
         Initialize();
 
         DateFilterCalc.CreateFiscalYearFilter(DateFilterExpected, CustDateName, WorkDate(), 0);
-        DateFilterActual := CustomerMgt.GetCurrentYearFilter;
+        DateFilterActual := CustomerMgt.GetCurrentYearFilter();
         Assert.AreEqual(DateFilterExpected, DateFilterActual, 'Wrong fiscal year calculation.')
     end;
 
@@ -511,9 +511,9 @@ codeunit 138009 "O365 Customer Statistics"
             Amount := LibraryRandom.RandDec(10, 2);
             CreateSalesHeaderWithAmount(SalesHeader, CustNo, SalesHeader."Document Type"::Quote, Amount);
 
-            SalesQuotes.Trap;
+            SalesQuotes.Trap();
             CustomerMgt.DrillDownOnQuotes(CustNo);
-            if not SalesQuotes.First then
+            if not SalesQuotes.First() then
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
@@ -546,9 +546,9 @@ codeunit 138009 "O365 Customer Statistics"
             Amount := LibraryRandom.RandDec(10, 2);
             CreateSalesHeaderWithAmount(SalesHeader, CustNo, SalesHeader."Document Type"::Order, Amount);
 
-            SalesOrderList.Trap;
+            SalesOrderList.Trap();
             CustomerMgt.DrillDownOnOrders(CustNo);
-            if not SalesOrderList.First then
+            if not SalesOrderList.First() then
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
@@ -581,9 +581,9 @@ codeunit 138009 "O365 Customer Statistics"
             Amount := LibraryRandom.RandDec(10, 2);
             CreateSalesHeaderWithAmount(SalesHeader, CustNo, SalesHeader."Document Type"::Invoice, Amount);
 
-            SalesInvoiceList.Trap;
+            SalesInvoiceList.Trap();
             CustomerMgt.DrillDownOnUnpostedInvoices(CustNo);
-            if not SalesInvoiceList.First then
+            if not SalesInvoiceList.First() then
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
@@ -616,9 +616,9 @@ codeunit 138009 "O365 Customer Statistics"
             Amount := LibraryRandom.RandDec(10, 2);
             CreateSalesHeaderWithAmount(SalesHeader, CustNo, SalesHeader."Document Type"::"Credit Memo", Amount);
 
-            SalesCreditMemos.Trap;
+            SalesCreditMemos.Trap();
             CustomerMgt.DrillDownOnUnpostedCrMemos(CustNo);
-            if not SalesCreditMemos.First then
+            if not SalesCreditMemos.First() then
                 Error(DrillDownNoRecordsErr);
 
             for i := 2 to ExpectedCount do
@@ -652,9 +652,9 @@ codeunit 138009 "O365 Customer Statistics"
         CreditMemoAmount := LibraryRandom.RandDec(10, 2);
         CreateSalesHeaderWithAmount(CreditMemoSalesHeader, CustNo, CreditMemoSalesHeader."Document Type"::"Credit Memo", CreditMemoAmount);
 
-        SalesList.Trap;
+        SalesList.Trap();
         CustomerMgt.DrillDownMoneyOwedExpected(CustNo);
-        if not SalesList.First then
+        if not SalesList.First() then
             Error(DrillDownNoRecordsErr);
 
         repeat

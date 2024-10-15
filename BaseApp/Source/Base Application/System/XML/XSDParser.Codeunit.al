@@ -3,7 +3,6 @@
 using Microsoft.Bank.Statement;
 using System;
 using System.IO;
-using System.Utilities;
 
 codeunit 9610 "XSD Parser"
 {
@@ -930,116 +929,6 @@ codeunit 9610 "XSD Parser"
         TempXMLSchemaRestriction.DeleteAll();
     end;
 
-    [Obsolete('Function will be removed', '18.0')]
-    [Scope('OnPrem')]
-    procedure CreateXMLPortFile(var XMLSchemaElement: Record "XML Schema Element"; NewObjectNo: Integer; NewName: Text[30]; ShowFileDialog: Boolean; ForImport: Boolean): Text
-    var
-        XMLSchema: Record "XML Schema";
-        xXMLSchemaElement: Record "XML Schema Element";
-        TempXMLSchemaElement: Record "XML Schema Element" temporary;
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
-        File: File;
-        FileName: Text;
-        NewFileName: Text;
-        ElementTypeText: Text;
-        IndentationText: Text[2];
-        NodeNameText: Text;
-    begin
-        XMLSchema.Get(XMLSchemaElement."XML Schema Code");
-        xXMLSchemaElement := XMLSchemaElement;
-        XMLSchemaElement.SetRange("XML Schema Code", XMLSchemaElement."XML Schema Code");
-        XMLSchemaElement.FindSet();
-        File.TextMode := true;
-
-        File.CreateTempFile();
-        FileName := File.Name;
-        // CLOSE + CREATE to avoid the file from being deleted before download.
-        File.Close();
-        File.Create(FileName);
-
-        File.Write(StrSubstNo('OBJECT XMLport %1 %2', NewObjectNo, NewName));
-        File.Write('{');
-        File.Write('  OBJECT-PROPERTIES');
-        File.Write('  {');
-        File.Write('    Date=;');
-        File.Write('    Time=;');
-        File.Write('    Version List=;');
-        File.Write('  }');
-        File.Write('  PROPERTIES');
-        File.Write('  {');
-        if ForImport then
-            File.Write('    Direction=Import;')
-        else
-            File.Write('    Direction=Export;');
-        File.Write('    Encoding=UTF-8;');
-        File.Write('    Format/Evaluate=XML Format/Evaluate;');
-        if XMLSchema."Target Namespace" <> '' then begin
-            File.Write(StrSubstNo('    DefaultNamespace=%1;', XMLSchema."Target Namespace"));
-            File.Write('    UseDefaultNamespace=Yes;');
-        end;
-        File.Write('  }');
-        File.Write('  ELEMENTS');
-        File.Write('  {');
-        with XMLSchemaElement do
-            repeat
-                if "Node Type" = "Node Type"::Element then
-                    ElementTypeText := 'Element '
-                else
-                    ElementTypeText := 'Attribute';
-                if Indentation = 0 then
-                    IndentationText := '  '
-                else
-                    IndentationText := StrSubstNo('#1', Indentation);
-                if StrLen("Node Name") > 20 then
-                    NodeNameText := "Node Name"
-                else
-                    NodeNameText := PadStr("Node Name", 20);
-                TempXMLSchemaElement.Reset();
-                TempXMLSchemaElement.SetRange("Node Name", "Node Name");
-                if TempXMLSchemaElement.Count = 0 then
-                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text     }', CreateGuid(), IndentationText, NodeNameText, ElementTypeText))
-                else begin
-                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text    ;', CreateGuid(), IndentationText, NodeNameText, ElementTypeText));
-                    File.Write(StrSubstNo('                                                  VariableName=<%1%2> }',
-                        "Node Name", TempXMLSchemaElement.Count));
-                end;
-                File.Write('');
-                TempXMLSchemaElement := XMLSchemaElement;
-                TempXMLSchemaElement.Insert();
-            until Next() = 0;
-        File.Write('  }');
-        File.Write('  EVENTS');
-        File.Write('  {');
-        File.Write('  }');
-        File.Write('  REQUESTPAGE');
-        File.Write('  {');
-        File.Write('    PROPERTIES');
-        File.Write('    {');
-        File.Write('    }');
-        File.Write('    CONTROLS');
-        File.Write('    {');
-        File.Write('    }');
-        File.Write('  }');
-        File.Write('  CODE');
-        File.Write('  {');
-        File.Write('');
-        File.Write('    BEGIN');
-        File.Write('    END.');
-        File.Write('  }');
-        File.Write('}');
-        File.Close();
-
-        FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
-        Erase(FileName);
-
-        XMLSchemaElement := xXMLSchemaElement;
-        if XMLSchemaElement.Find() then;
-
-        NewFileName := StrSubstNo('XML%1.TXT', NewObjectNo);
-        exit(FileManagement.BLOBExport(TempBlob, NewFileName, ShowFileDialog));
-    end;
-
     procedure CreateDataExchDefForCAMT(var XMLSchemaElement: Record "XML Schema Element")
     var
         XMLSchema: Record "XML Schema";
@@ -1091,24 +980,23 @@ codeunit 9610 "XSD Parser"
         DataExchColumnDef.DeleteAll(true);
 
         SchemaContext := XMLSchema.GetSchemaContext();
-        with XMLSchemaElement do
-            repeat
-                if IsLeaf() then begin
-                    ColumnNo += 1;
-                    FullPath := GetFullPath();
-                    ElementName := FullPath;
-                    if StrPos(FullPath, SchemaContext) > 0 then
-                        ElementName := DelStr(FullPath, StrPos(FullPath, SchemaContext), StrLen(SchemaContext));
-                    DataExchColumnDef.InsertRecordForImport(
-                        DataExchDef.Code, DataExchLineDef.Code,
-                        ColumnNo, CopyStr(ElementName, 1, MaxStrLen(DataExchColumnDef.Name)),
-                        CopyStr("Node Name", 1, MaxStrLen(DataExchColumnDef.Description)), true,
-                        DataExchColumnDef."Data Type"::Text, '', '');
-                    DataExchColumnDef.SetXMLDataFormattingValues("Simple Data Type");
-                    DataExchColumnDef.Path := CopyStr(FullPath, 1, MaxStrLen(DataExchColumnDef.Path));
-                    DataExchColumnDef.Modify();
-                end;
-            until Next() = 0;
+        repeat
+            if XMLSchemaElement.IsLeaf() then begin
+                ColumnNo += 1;
+                FullPath := XMLSchemaElement.GetFullPath();
+                ElementName := FullPath;
+                if StrPos(FullPath, SchemaContext) > 0 then
+                    ElementName := DelStr(FullPath, StrPos(FullPath, SchemaContext), StrLen(SchemaContext));
+                DataExchColumnDef.InsertRecordForImport(
+                    DataExchDef.Code, DataExchLineDef.Code,
+                    ColumnNo, CopyStr(ElementName, 1, MaxStrLen(DataExchColumnDef.Name)),
+                    CopyStr(XMLSchemaElement."Node Name", 1, MaxStrLen(DataExchColumnDef.Description)), true,
+                    DataExchColumnDef."Data Type"::Text, '', '');
+                DataExchColumnDef.SetXMLDataFormattingValues(XMLSchemaElement."Simple Data Type");
+                DataExchColumnDef.Path := CopyStr(FullPath, 1, MaxStrLen(DataExchColumnDef.Path));
+                DataExchColumnDef.Modify();
+            end;
+        until XMLSchemaElement.Next() = 0;
     end;
 
     local procedure PushDefinitionOnStack(var TempDefinitionXMLSchemaElement: Record "XML Schema Element" temporary)

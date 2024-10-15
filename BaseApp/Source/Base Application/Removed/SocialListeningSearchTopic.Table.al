@@ -5,6 +5,7 @@ table 871 "Social Listening Search Topic"
     ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
     ObsoleteTag = '20.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

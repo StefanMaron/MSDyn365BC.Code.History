@@ -434,8 +434,8 @@ report 408 "Purchase - Receipt"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purch. Rcpt. Header");
@@ -540,14 +540,13 @@ report 408 "Purchase - Receipt"
 
     var
         Text002: Label 'Purchase - Receipt %1', Comment = '%1 = Document No.';
-        CompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -592,6 +591,9 @@ report 408 "Purchase - Receipt"
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
 
+    protected var
+        CompanyInfo: Record "Company Information";
+
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean; NewShowCorrectionLines: Boolean)
     begin
         NoOfCopies := NewNoOfCopies;
@@ -621,19 +623,17 @@ report 408 "Purchase - Receipt"
 
     local procedure FormatDocumentFields(PurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
-        with PurchRcptHeader do begin
-            FormatDocument.SetPurchaser(SalesPurchPerson, "Purchaser Code", PurchaserText);
+        FormatDocument.SetPurchaser(SalesPurchPerson, PurchRcptHeader."Purchaser Code", PurchaserText);
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-        end;
+        ReferenceText := FormatDocument.SetText(PurchRcptHeader."Your Reference" <> '', PurchRcptHeader.FieldCaption("Your Reference"));
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var PurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
     end;

@@ -8,12 +8,14 @@ using Microsoft.Sales.History;
 table 905 "Assembly Setup"
 {
     Caption = 'Assembly Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
             Caption = 'Primary Key';
+            DataClassification = SystemMetadata;
         }
         field(5; "Stockout Warning"; Boolean)
         {

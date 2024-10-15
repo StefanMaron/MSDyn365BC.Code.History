@@ -38,7 +38,7 @@
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
-        CloseExistingEntries;
+        CloseExistingEntries();
 
         GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<0D>');
@@ -78,7 +78,7 @@
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, Amount, '', false);
 
-        AppliedAmount := -Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := -Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
@@ -119,7 +119,7 @@
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
@@ -347,7 +347,7 @@
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
         // Excercise
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", AppliedAmount);
         TempPaymentApplicationProposal.Modify(true);
 
@@ -388,7 +388,7 @@
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
         // Excercise
-        AppliedAmount := Round(Amount * 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount * 2, LibraryERM.GetAmountRoundingPrecision());
         asserterror TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", AppliedAmount);
     end;
 
@@ -511,7 +511,7 @@
         // Excercise and verify multiple applications
         TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
-            NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
+            NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision());
             Difference += TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
             AppliedAmount -= TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
             TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", NewAppliedAmount);
@@ -555,7 +555,7 @@
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Applied Amount", Amount);
         TempPaymentApplicationProposal.Modify(true);
 
@@ -675,7 +675,7 @@
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
@@ -728,7 +728,7 @@
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -AppliedAmount, '', false);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
@@ -780,7 +780,7 @@
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -AppliedAmount, '', true);
         CreateBankReconciliationLine(BankAccReconciliationLine, Amount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
@@ -841,7 +841,7 @@
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -897,7 +897,7 @@
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -Amount, '', false);
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
         CreatePaymentApplicationProposalLines(TempPaymentApplicationProposal, BankAccReconciliationLine);
@@ -957,7 +957,7 @@
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -Amount, '', true);
         CreateBankReconciliationLine(
@@ -1029,7 +1029,7 @@
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -1092,7 +1092,7 @@
         TempPaymentApplicationProposal.Modify(true);
 
         NewDiscountDueDate := CalcDate('<1M>', WorkDate());
-        NewDiscountAmount := Round(VendorLedgerEntry."Remaining Pmt. Disc. Possible" / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewDiscountAmount := Round(VendorLedgerEntry."Remaining Pmt. Disc. Possible" / 2, LibraryERM.GetAmountRoundingPrecision());
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
         TempPaymentApplicationProposal.Modify(true);
@@ -1255,7 +1255,7 @@
     begin
         CreateVLEAndBankRecLine(VendorLedgerEntry, BankAccReconciliationLine, TempPaymentApplicationProposal, AppliedAmount, Amount);
 
-        NewAppliedAmount := Round(AppliedAmount / 2, LibraryERM.GetAmountRoundingPrecision);
+        NewAppliedAmount := Round(AppliedAmount / 2, LibraryERM.GetAmountRoundingPrecision());
 
         // Execute
         TempPaymentApplicationProposal.Validate("Applied Amt. Incl. Discount", NewAppliedAmount);
@@ -1436,7 +1436,7 @@
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -Amount, '', true);
-        AppliedAmount := Round((Amount - VendorLedgerEntry."Remaining Pmt. Disc. Possible") / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round((Amount - VendorLedgerEntry."Remaining Pmt. Disc. Possible") / 2, LibraryERM.GetAmountRoundingPrecision());
 
         CreateBankReconciliationLine(
           BankAccReconciliationLine, AppliedAmount, VendorLedgerEntry."Document No.", VendorLedgerEntry."Document No.");
@@ -1541,7 +1541,7 @@
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -Amount, '', true);
-        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         SecondLineAmount := Amount - FirstLineAmount - VendorLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1583,7 +1583,7 @@
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
         CreateAndPostPurhcaseInvoiceWithOneLine(VendorLedgerEntry, -Amount, '', true);
-        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        FirstLineAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision());
         SecondLineAmount := Amount - FirstLineAmount - VendorLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1744,7 +1744,7 @@
         // Verify Applied Payment Entry Exists and the fields are set
         VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateVLEAndBankRecLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; var AppliedAmount: Decimal; var Amount: Decimal)
@@ -1961,14 +1961,14 @@
             Assert.AreEqual(BankAccReconciliationLine.Difference, Difference, 'Difference is Not set correctly');
             Assert.AreEqual(BankAccReconciliationLine."Account No.", TempPaymentApplicationProposal."Account No.", 'Account No. is not set');
             Assert.IsTrue(
-              (StrPos(BankAccReconciliationLine.GetAppliedToDocumentNo, VendorLedgerEntry."Document No.") > 0) or
+              (StrPos(BankAccReconciliationLine.GetAppliedToDocumentNo(), VendorLedgerEntry."Document No.") > 0) or
               (VendorLedgerEntry."Document No." = ''), 'Document No. is not added');
         end else begin
             Assert.AreEqual(BankAccReconciliationLine."Account No.", '', 'Account No. should be blank');
             Assert.AreEqual(BankAccReconciliationLine."Applied Amount", 0, ' Applied Amount should be zero');
             Assert.AreEqual(
               BankAccReconciliationLine.Difference, BankAccReconciliationLine."Statement Amount", 'Difference is Not set correctly');
-            Assert.AreEqual(BankAccReconciliationLine.GetAppliedToDocumentNo, '', 'Document No. should be blank');
+            Assert.AreEqual(BankAccReconciliationLine.GetAppliedToDocumentNo(), '', 'Document No. should be blank');
         end;
     end;
 

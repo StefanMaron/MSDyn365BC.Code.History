@@ -64,7 +64,7 @@ table 23 Vendor
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN21
+#if not CLEAN23
                   TableData "Purchase Price" = rd,
                   TableData "Purchase Line Discount" = rd,
 #endif
@@ -72,6 +72,7 @@ table 23 Vendor
                   TableData "Purchase Discount Access" = rd,
                   tabledata Language = r,
                   tabledata "Language Selection" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -83,7 +84,7 @@ table 23 Vendor
             begin
                 if "No." <> xRec."No." then begin
                     PurchSetup.Get();
-                    NoSeriesMgt.TestManual(PurchSetup."Vendor Nos.");
+                    NoSeries.TestManual(PurchSetup."Vendor Nos.");
                     "No. Series" := '';
                 end;
                 if "Invoice Disc. Code" = '' then
@@ -509,7 +510,7 @@ table 23 Vendor
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = - sum("Detailed Vendor Ledg. Entry".Amount where("Vendor No." = field("No."),
-                                                                           "Initial Entry Due Date" = field(UPPERLIMIT("Date Filter")),
+                                                                           "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                            "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                            "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                            "Currency Code" = field("Currency Filter")));
@@ -521,7 +522,7 @@ table 23 Vendor
         {
             AutoFormatType = 1;
             CalcFormula = - sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor No." = field("No."),
-                                                                                   "Initial Entry Due Date" = field(UPPERLIMIT("Date Filter")),
+                                                                                   "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                                    "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                    "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                                    "Currency Code" = field("Currency Filter")));
@@ -849,11 +850,24 @@ table 23 Vendor
                 MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(104; "Reminder Amounts"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -1669,18 +1683,9 @@ table 23 Vendor
 
     fieldgroups
     {
-#if not CLEAN21
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "VAT Registration No.")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Merge to W1.';
-            ObsoleteTag = '21.0';
-        }
-#else
         fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact)
         {
         }
-#endif
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
         {
         }
@@ -1748,6 +1753,10 @@ table 23 Vendor
 
     trigger OnInsert()
     var
+        Vendor: Record Vendor;
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1758,13 +1767,29 @@ table 23 Vendor
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
-            NoSeriesMgt.InitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+            "No. Series" := PurchSetup."Vendor Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Vendor.SetLoadFields("No.");
+            while Vendor.Get("No.") do
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
+            end;
+#endif
         end;
+
 
         if "Invoice Disc. Code" = '' then
             "Invoice Disc. Code" := "No.";
 
-        if not (InsertFromContact or (InsertFromTemplate and (Contact <> ''))) then
+        if (not (InsertFromContact or (InsertFromTemplate and (Contact <> '')))) or ForceUpdateContact then
             UpdateContFromVend.OnInsert(Rec);
 
         if "Purchaser Code" = '' then
@@ -1825,7 +1850,7 @@ table 23 Vendor
         MarketingSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromVend: Codeunit "VendCont-Update";
         DimMgt: Codeunit DimensionManagement;
@@ -1833,6 +1858,7 @@ table 23 Vendor
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CalendarManagement: Codeunit "Calendar Management";
         InsertFromContact: Boolean;
+        ForceUpdateContact: Boolean;
 
         Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 for this vendor.';
         Text003: Label 'Do you wish to create a contact for %1 %2?';
@@ -1859,18 +1885,14 @@ table 23 Vendor
     var
         Vend: Record Vendor;
     begin
-        with Vend do begin
-            Vend := Rec;
-            PurchSetup.Get();
-            PurchSetup.TestField("Vendor Nos.");
-            if NoSeriesMgt.SelectSeries(PurchSetup."Vendor Nos.", OldVend."No. Series", "No. Series") then begin
-                PurchSetup.Get();
-                PurchSetup.TestField("Vendor Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := Vend;
-                OnAssistEditOnBeforeExit(Rec);
-                exit(true);
-            end;
+        Vend := Rec;
+        PurchSetup.Get();
+        PurchSetup.TestField("Vendor Nos.");
+        if NoSeries.LookupRelatedNoSeries(PurchSetup."Vendor Nos.", OldVend."No. Series", Vend."No. Series") then begin
+            Vend."No." := NoSeries.GetNextNo(Vend."No. Series");
+            Rec := Vend;
+            OnAssistEditOnBeforeExit(Rec);
+            exit(true);
         end;
     end;
 
@@ -1957,15 +1979,13 @@ table 23 Vendor
         if IsOnBeforeCheckBlockedVendHandled(Vend2, Source::Journal, DocType::" ", Transaction) then
             exit;
 
-        with Vend2 do begin
-            if "Privacy Blocked" then
-                VendPrivacyBlockedErrorMessage(Vend2, Transaction);
+        if Vend2."Privacy Blocked" then
+            Vend2.VendPrivacyBlockedErrorMessage(Vend2, Transaction);
 
-            if (Blocked = Blocked::All) or
-               (Blocked = Blocked::Payment) and (DocType = DocType::Payment)
-            then
-                VendBlockedErrorMessage(Vend2, Transaction);
-        end;
+        if (Vend2.Blocked = Vend2.Blocked::All) or
+           (Vend2.Blocked = Vend2.Blocked::Payment) and (DocType = DocType::Payment)
+        then
+            Vend2.VendBlockedErrorMessage(Vend2, Transaction);
     end;
 
     local procedure CheckOutstandingPurchaseDocuments()
@@ -2341,12 +2361,6 @@ table 23 Vendor
     end;
 
     procedure SelectVendor(var Vendor: Record Vendor): Boolean
-    begin
-        exit(LookupVendor(Vendor));
-    end;
-
-    [Scope('OnPrem')]
-    procedure LookupVendor(var Vendor: Record Vendor): Boolean
     var
         VendorLookup: Page "Vendor Lookup";
         Result: Boolean;
@@ -2362,6 +2376,15 @@ table 23 Vendor
 
         exit(Result);
     end;
+
+#if not CLEAN24
+    [Scope('OnPrem')]
+    [Obsolete('Use SelectVendor(var Vendor: Record Vendor): Boolean instead.', '24.0')]
+    procedure LookupVendor(var Vendor: Record Vendor): Boolean
+    begin
+        exit(SelectVendor(Vendor));
+    end;
+#endif
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)
     begin
@@ -2426,7 +2449,10 @@ table 23 Vendor
         if not UpdateNeeded and not IsTemporary then
             UpdateNeeded := VendContUpdate.ContactNameIsBlank("No.");
 
-        OnBeforeIsContactUpdateNeeded(Rec, xRec, UpdateNeeded);
+        if ForceUpdateContact then
+            UpdateNeeded := true;
+
+        OnBeforeIsContactUpdateNeeded(Rec, xRec, UpdateNeeded, ForceUpdateContact);
         exit(UpdateNeeded);
     end;
 
@@ -2526,14 +2552,6 @@ table 23 Vendor
             VATRegistrationLogMgt.LogVendor(Rec);
     end;
 
-#if not CLEAN21
-    [Obsolete('The function is not used anymore.', '21.0')]
-    procedure VerifyAndUpdateFromVIES()
-    begin
-        // NAVCZ
-        VATRegistrationValidation();
-    end;
-#endif
     procedure UpdateCurrencyId()
     var
         Currency: Record Currency;
@@ -2577,6 +2595,11 @@ table 23 Vendor
             exit;
 
         "Payment Method Id" := PaymentMethod.SystemId;
+    end;
+
+    procedure SetForceUpdateContact(NewForceUpdateContact: Boolean)
+    begin
+        ForceUpdateContact := NewForceUpdateContact;
     end;
 
     local procedure UpdateCurrencyCode()
@@ -2715,7 +2738,7 @@ table 23 Vendor
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsContactUpdateNeeded(Vendor: Record Vendor; xVendor: Record Vendor; var UpdateNeeded: Boolean)
+    local procedure OnBeforeIsContactUpdateNeeded(Vendor: Record Vendor; xVendor: Record Vendor; var UpdateNeeded: Boolean; ForceUpdateContact: Boolean)
     begin
     end;
 
@@ -2864,7 +2887,7 @@ table 23 Vendor
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

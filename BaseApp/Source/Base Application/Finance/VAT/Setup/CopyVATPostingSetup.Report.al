@@ -1,4 +1,3 @@
-#if not CLEAN21
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -34,11 +33,7 @@ report 85 "Copy - VAT Posting Setup"
                         "VAT %" := VATPostingSetup."VAT %";
                     "Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type";
                     "Adjust for Payment Discount" := VATPostingSetup."Adjust for Payment Discount";
-                    
-                    // NAVCZ
-                    "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
-                    // NAVCZ
                 end;
 
                 if Sales then begin
@@ -52,11 +47,6 @@ report 85 "Copy - VAT Posting Setup"
                     "Reverse Chrg. VAT Acc." := VATPostingSetup."Reverse Chrg. VAT Acc.";
                     "Reverse Chrg. VAT Unreal. Acc." := VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.";
                 end;
-
-                // NAVCZ
-                if VIES then
-                    "EU Service" := VATPostingSetup."EU Service";
-                // NAVCZ
 
                 OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch, VATSetup);
 
@@ -145,21 +135,6 @@ report 85 "Copy - VAT Posting Setup"
                             Selection := Selection::"Selected fields";
                         end;
                     }
-                    field(VIES; VIES)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'VIES (Obsolete)';
-                        ToolTip = 'Specifies if vies fields will be copied';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '21.0';
-                        Visible = false;
-
-                        trigger OnValidate()
-                        begin
-                            Selection := Selection::"Selected fields"; // NAVCZ
-                        end;
-                    }
                 }
             }
         }
@@ -174,9 +149,6 @@ report 85 "Copy - VAT Posting Setup"
                 VATSetup := true;
                 Sales := true;
                 Purch := true;
-                // NAVCZ
-                VIES := true;
-                // NAVCZ
             end;
         end;
     }
@@ -195,7 +167,6 @@ report 85 "Copy - VAT Posting Setup"
         Sales: Boolean;
         Purch: Boolean;
         Selection: Option "All fields","Selected fields";
-        VIES: Boolean;
 
     procedure SetVATSetup(VATPostingSetup2: Record "VAT Posting Setup")
     begin
@@ -207,9 +178,6 @@ report 85 "Copy - VAT Posting Setup"
         VATSetup := true;
         Sales := true;
         Purch := true;
-        // NAVCZ
-        VIES := true;
-        // NAVCZ
     end;
 
     local procedure AllfieldsSelectionOnValidate()
@@ -232,4 +200,4 @@ report 85 "Copy - VAT Posting Setup"
     begin
     end;
 }
-#endif
+

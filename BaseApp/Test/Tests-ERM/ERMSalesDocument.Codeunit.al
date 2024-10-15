@@ -26,7 +26,9 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
@@ -64,7 +66,7 @@
         Initialize();
 
         // Exercise: Create Customer and Return Sales Order.
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
 
         // Verify: Verify Sales Return Order.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -85,7 +87,7 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
 
         // Exercise: Calculate VAT Amount and Release Sales Return Order.
         SalesLine.CalcVATAmountLines(QtyType::Invoicing, SalesHeader, SalesLine, VATAmountLine);
@@ -113,7 +115,7 @@
 
         // Setup: Create Sales Return Order and calculate VAT Amount.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields(Amount);
         VATAmount := (SalesHeader.Amount * SalesLine."VAT %") / 100;
@@ -142,7 +144,7 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", SetInvDiscForCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", SetInvDiscForCustomer());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Exercise: Calculate Invoice Discount Amount and Post Sales Return Order.
@@ -165,7 +167,7 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         SalesLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
 
@@ -195,7 +197,7 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer());
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Create Sales Return Order needs to be created using Sales Invoice Item and Quantity.
@@ -225,7 +227,7 @@
         // Setup. Find Location with Require Receive with True and Create Sales Return Order.
         Initialize();
         OldRequireReceive := FindAndUpdateLocation(LocationCode, true);
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity);
         SalesLine.Modify(true);
@@ -252,8 +254,8 @@
 
         // Setup: Create Sales Return Order with Currency and Random Quantity for Sales Line.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
-        SalesHeader.Validate("Currency Code", CreateCurrency);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
+        SalesHeader.Validate("Currency Code", CreateCurrency());
         SalesHeader.Modify(true);
         SalesLine.Validate("Qty. to Ship", 0);  // Qty. to Ship must be 0 in Sales Return Order.
 
@@ -276,8 +278,8 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        SetSalesandReceivablesSetup;
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        SetSalesandReceivablesSetup();
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         DocumentNo := SalesHeader."No.";
 
         SalesHeader.Init();
@@ -303,7 +305,7 @@
 
         // Setup: Create Partial Sales Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineQtyToShip(SalesLine);
 
         // Exercise: Post Partial Sales Order.
@@ -348,7 +350,7 @@
 
         // 1. Setup: Create a Sales Return Order.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         CreateSalesLines(SalesLine, SalesHeader);
         CopySalesLines(TempSalesLine, SalesLine);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -367,7 +369,7 @@
         VerifyValueEntries(SalesHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnCreditMemo()
@@ -491,7 +493,7 @@
 
         // 1. Setup: Create a Sales Invoice.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         CreateSalesLines(SalesLine, SalesHeader);
         CopySalesLines(TempSalesLine, SalesLine);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -500,7 +502,7 @@
 
         // Create a Sales Return Order using Sales Invoice Item and Quantity.
         Clear(SalesLine);
-        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Return Order", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Return Order", CreateCustomer());
         CreateSalesLinesFromDocument(TempSalesLine, SalesLine, SalesHeader2);
 
         // 2. Exercise: Post Sales Return Order as Receive and Invoice.
@@ -527,7 +529,7 @@
 
         // Setup: Create and Post Sales Order with Partial Shipment.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineQtyToShip(SalesLine);
         TotalAmount := SalesLine."Qty. to Ship" * SalesLine."Unit Price";
         TotalAmount := TotalAmount + (TotalAmount * SalesLine."VAT %" / 100);
@@ -555,7 +557,7 @@
 
         // Setup: Create and Post Sales Order with Partial Shipment and modify Sales Line with Negative Amount.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineQtyToShip(SalesLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -586,7 +588,7 @@
         // Setup: Create and Post Sales Order with Partial Shipment.
         Initialize();
         LibrarySales.SetArchiveOrders(true);
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineQtyToShip(SalesLine);
 
         // Exercise: Post Sales Order with Ship.
@@ -661,7 +663,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldVATPercentage := UpdateVATPostingSetup(VATPostingSetup, OldAdjustForPaymentDiscount, true, LibraryRandom.RandDec(10, 2));
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo);
+        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo());
         CreateAndPostSalesDocument(SalesLine, VATPostingSetup, GeneralPostingSetup, SalesLine."Document Type"::Invoice, CurrencyCode);
 
         // Exercise: Update Remaining Pmt. Disc. Possible on Customer Ledger Entry. Create and post payment against invoice.
@@ -706,7 +708,7 @@
         PaymentMethod.Modify();
 
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer());
         SalesHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.Modify(true);
@@ -741,11 +743,11 @@
         Initialize();
 
         // [GIVEN] Sales Order with non-empty Your Reference exists
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
         SalesHeader.Modify(true);
 
-        // [WHEN] The document is posted        
+        // [WHEN] The document is posted
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Cust. ledger entry with the same Your Reference is created
@@ -765,11 +767,11 @@
         Initialize();
 
         // [GIVEN] Sales Invoice with non-empty Your Reference exists
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer());
         SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
         SalesHeader.Modify(true);
 
-        // [WHEN] The document is posted        
+        // [WHEN] The document is posted
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Cust. ledger entry with the same Your Reference is created
@@ -789,11 +791,11 @@
         Initialize();
 
         // [GIVEN] Sales Order with non-empty Your Reference exists
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
         SalesHeader.Modify(true);
 
-        // [WHEN] The document is posted        
+        // [WHEN] The document is posted
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Cust. ledger entry with the same Your Reference is created
@@ -813,11 +815,11 @@
         Initialize();
 
         // [GIVEN] Sales Credit Memo with non-empty Your Reference exists
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer());
         SalesHeader.Validate("Your Reference", LibraryRandom.RandText(10));
         SalesHeader.Modify(true);
 
-        // [WHEN] The document is posted        
+        // [WHEN] The document is posted
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Cust. ledger entry with the same Your Reference is created
@@ -840,7 +842,7 @@
         // Setup: Create Customer, select General Journal Batch, post 2 general journal lines one for the current year and other
         // for previous year.
         Initialize();
-        CreateAccountingPeriod;
+        CreateAccountingPeriod();
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
@@ -857,7 +859,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
-        CustomerStatisticsFactBox.OpenView;
+        CustomerStatisticsFactBox.OpenView();
         CustomerStatisticsFactBox.FILTER.SetFilter("No.", Customer."No.");
 
         // Verify: Verify that Sales(LCY) contains value of current year sales and caption as Total Sales (LCY) on Customer Statistics FactBox.
@@ -890,7 +892,7 @@
         Initialize();
         CreateAdditionalCurrencySetup(CurrencyCode);
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer());
 
         // Exercise: Post Sales Credit Memo.
         VATAmountLCY := SalesLine."Line Amount" * SalesLine."VAT %" / 100;
@@ -923,7 +925,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldVATPercentage := UpdateVATPostingSetup(VATPostingSetup, OldAdjustForPaymentDisc, true, LibraryRandom.RandDec(10, 2));
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo);
+        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo());
 
         // Exercise: Create and Post Sales Invoice.
         CreateAndPostSalesDocument(SalesLine, VATPostingSetup, GeneralPostingSetup, SalesHeader."Document Type"::"Credit Memo", '');
@@ -959,7 +961,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldVATPercentage := UpdateVATPostingSetup(VATPostingSetup, OldAdjustForPaymentDisc, true, LibraryRandom.RandDec(10, 2));
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo);
+        UpdateGeneralPostingSetup(GeneralPostingSetup, FindGLAccountNo());
 
         // Exercise: Create and Post Sales Invoice.
         CreateAndPostSalesDocument(SalesLine, VATPostingSetup, GeneralPostingSetup, SalesHeader."Document Type"::Invoice, '');
@@ -985,7 +987,7 @@
 
         // Setup: Create Sales Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
 
         // Exercise: Post Sales Order.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1006,7 +1008,7 @@
 
         // Setup: Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
 
         // Exercise: Post Sales Return Order.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1028,7 +1030,7 @@
 
         // Setup. Create Sales Return Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
 
         // Exercise: Receive Sales Return Order.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1053,7 +1055,7 @@
 
         // Setup: Create Sales Return Order and create Sales Credit Memo.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
         SalesHeader2.Validate("Prices Including VAT", true);
@@ -1071,7 +1073,7 @@
         SalesLine2.SetRange("No.", SalesLine."No.");
         SalesLine2.FindFirst();
         Assert.AreNearlyEqual(
-          UnitPriceInclVAT, SalesLine2."Unit Price", LibraryERM.GetAmountRoundingPrecision,
+          UnitPriceInclVAT, SalesLine2."Unit Price", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(FieldError, SalesLine.FieldCaption("Unit Price"), UnitPriceInclVAT, SalesLine.TableCaption()));
     end;
 
@@ -1094,9 +1096,9 @@
         LibraryVariableStorage.Enqueue(SalesLine."No.");
 
         // Exercise: Doing GetPostedDocumentLinesToReverse on Sales Return Order.
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader2."No.");
-        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
 
         // Verify: Verify Sales Line exist with Standard Text Code without any error.
         VerifySalesLine(SalesHeader2, SalesLine."No.");
@@ -1112,16 +1114,16 @@
     begin
         // [SCENARIO 360323] Sales line with Standard Text type is not deleted when 'Sell-To Customer No.' changed
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // [GIVEN] Create Sales Order header with Customer = 'A'
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         // [GIVEN] Add a Sales Line of Standard Text
         CreateStandardTextLine(SalesLine, SalesHeader);
 
         // [WHEN] Modify 'Sell-To Customer No.' to 'B' on Sales Header.
-        SalesHeader.Validate("Sell-to Customer No.", CreateCustomer);
+        SalesHeader.Validate("Sell-to Customer No.", CreateCustomer());
 
         // [THEN] Sales line with Standard Text still exists
         SalesLine.SetRange(Type, SalesLine.Type::" ");
@@ -1172,7 +1174,7 @@
 
         // Setup: Post Sales Document with Ship Option and Create Analysis Report Name.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         FindValueEntry(ValueEntry, SalesHeader."Document Type"::Order, LibrarySales.PostSalesDocument(SalesHeader, true, false));
         LibraryVariableStorage.Enqueue(ValueEntry."Cost Amount (Expected)");
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
@@ -1257,7 +1259,7 @@
         // Setup: Create sales document with bin & bin content.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        CreateBinAndBinContent(Bin, CreateLocationWithBinMandatory, Item."No.", Item."Base Unit of Measure", true); // True for Default Bin.
+        CreateBinAndBinContent(Bin, CreateLocationWithBinMandatory(), Item."No.", Item."Base Unit of Measure", true); // True for Default Bin.
         CreateSalesDocumentWithLocation(SalesLine, SalesLine."Document Type"::Order, Item."No.", Bin."Location Code");
 
         // Exercise: Re-enter Item No on sales line.
@@ -1285,7 +1287,7 @@
 
         // Setup: Post Sales Document with Ship Option and Create Analysis Report Name.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         FindValueEntry(ValueEntry, SalesHeader."Document Type"::Order, LibrarySales.PostSalesDocument(SalesHeader, true, false));
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
         LibraryInventory.CreateAnalysisReportName(AnalysisReportName, ItemAnalysisView."Analysis Area");
@@ -1297,7 +1299,7 @@
           CreateAnalysisMultipleColumns(
             ItemAnalysisView."Analysis Area",
             Format(ValueEntry."Item Ledger Entry Type"::Sale),
-            AnalysisColumn."Value Type"::"Cost Amount", SalesAnalysisMatrix.GetMatrixDimension));
+            AnalysisColumn."Value Type"::"Cost Amount", SalesAnalysisMatrix.GetMatrixDimension()));
 
         // Verify: Verification done in SaleAnalysisMatrixColumnsRPH.
     end;
@@ -1456,7 +1458,7 @@
     begin
         // Setup: Post Sales Document with Ship Option and Create Analysis Report Name.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibraryVariableStorage.Enqueue(0);
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
@@ -1490,7 +1492,7 @@
         UpdateExactCostReversingMandatory(true);
 
         // Create Sales Order with multiple lines.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         PostedSalesHeaderNo := CreateAndPostSalesOrderWithMultipleLines(CustomerNo);
 
         // Create Return Sales Order by Copy Document. Delete one Sales Line.
@@ -1526,7 +1528,7 @@
         // Setup: Create payment method and create Sales return order.
         Initialize();
         CreatePaymentMethodCode(PaymentMethod);
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.Modify(true);
 
@@ -1587,8 +1589,8 @@
         // [SCENARIO 375365] Copy Document from Posted Sales Invoice and Shipment with Date Order enabled and user not accepted confirmation
 
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // [GIVEN] Posted Sales Invoice with Posting Date = "X"
         PostedDocNo :=
@@ -1599,7 +1601,7 @@
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeader, LibrarySales.CreateCustomerNo,
+          SalesHeader, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := SalesHeader."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -1640,8 +1642,8 @@
         // [SCENARIO 375365] Copy Document from Posted Sales Credit Memo and Return Receipt with Date Order enabled and user not accepted confirmation
 
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // [GIVEN] Posted Credit Memo with Posting Date = "X"
         PostedDocNo :=
@@ -1652,7 +1654,7 @@
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeader, LibrarySales.CreateCustomerNo,
+          SalesHeader, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := SalesHeader."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -1697,7 +1699,7 @@
 
         // [GIVEN] Sales Quote with Posting Date = "X"
         LibrarySales.CreateSalesHeader(
-          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -1796,7 +1798,7 @@
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeader1, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(5), PostedDocNo);
+          SalesHeader1, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(5), PostedDocNo);
 
         // [WHEN] Run Copy Document from Posted Sales Cr. Memo to Sales Document with Include Header = TRUE
         CopyDocument(SalesHeader1, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
@@ -1807,7 +1809,7 @@
 
         // [WHEN] Run Copy Document from Posted Return Receipt to Sales Document with Include Header = TRUE
         CreateSalesDocumentWithPostingNo(
-          SalesHeader2, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(5), PostedDocNo);
+          SalesHeader2, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(5), PostedDocNo);
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ReturnReceiptHeader.FindFirst();
@@ -1838,11 +1840,11 @@
         OldDateOrder := SetNoSeriesDateOrder(true);
 
         // [GIVEN] Sales Quote with Posting Date = "X"
-        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeaderSrc, SalesHeaderSrc."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreateSalesDocumentWithPostingNo(
-          SalesHeaderDst, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(5),
+          SalesHeaderDst, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(5),
           LibraryUtility.GenerateRandomCode(SalesHeaderDst.FieldNo("Posting No."), DATABASE::"Sales Header"));
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
@@ -1871,7 +1873,7 @@
 
         // [GIVEN] Source Sales Invoice with "VAT Bus. Posting Group" = "X" in line
         LibrarySales.CreateSalesHeader(
-          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
         SalesHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -1910,7 +1912,7 @@
 
         // [GIVEN] Source Sales Invoice with "VAT Bus. Posting Group" = "X" in line
         LibrarySales.CreateSalesHeader(
-          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          SalesHeaderSrc, SalesHeaderSrc."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
         SalesHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -2100,11 +2102,11 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustNo);
 
         // [GIVEN] Opened Sales Credit Memo page with new Sales Credit Memo
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] Invoke action "Get Posted Document Lines to Reverse"
-        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke;
+        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
 
         // [THEN] "Posted Sales Document Lines" is opened and Posted Sales Credit Memo "X" exists in "Posted Credit Memos" list
         // Verification done in handler PostedSalesDocumentLinesWithSpecificCrMemoValidationHandler
@@ -2126,8 +2128,8 @@
         // Setup: Create Sales Invoice.
         Initialize();
         SalesThisMonthBeforeInvoicePost := ActivitiesMgt.CalcSalesThisMonthAmount(false);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // Excercise: Post the Sales Document
         InvoiceAmount := SalesLine.Amount;
@@ -2155,8 +2157,8 @@
         // Setup: Create Sales CreditMemo.
         Initialize();
         SalesThisMonthBeforeInvoicePost := ActivitiesMgt.CalcSalesThisMonthAmount(false);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // Excercise: Post the Sales Document
         ReturnedAmount := SalesLine.Amount;
@@ -2196,20 +2198,20 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Balance (LCY) and Balance Due (LCY) are different
-        Customer.SetFilter("Date Filter", CustomerMgt.GetCurrentYearFilter);
+        Customer.SetFilter("Date Filter", CustomerMgt.GetCurrentYearFilter());
         Customer.CalcFields("Balance (LCY)", "Balance Due (LCY)");
         Assert.AreNotEqual(
           Customer."Balance (LCY)", Customer."Balance Due (LCY)", 'Balance Due (LCY) and Balance (LCY) must be different');
 
         // [THEN] Balance (LCY) and Balance Due (LCY) are correct on Customer List
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.GotoKey(Customer."No.");
         CustomerList."Balance (LCY)".AssertEquals(Customer."Balance (LCY)");
         CustomerList."Balance Due (LCY)".AssertEquals(Customer."Balance Due (LCY)");
 
         // [THEN] Balance (LCY) and Balance Due (LCY) are correct on Customer Card opened from Customer List
-        CustomerCard.Trap;
-        CustomerList.View.Invoke;
+        CustomerCard.Trap();
+        CustomerList.View().Invoke();
         CustomerCard."Balance (LCY)".AssertEquals(Customer."Balance (LCY)");
         CustomerCard."Balance Due (LCY)".AssertEquals(Customer."Balance Due (LCY)");
     end;
@@ -2231,14 +2233,14 @@
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Customer List with Date Filter.
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.GotoKey(Customer."No.");
         DateFilter := StrSubstNo('%1..%2', LibraryRandom.RandDate(-100), LibraryRandom.RandDate(100));
         CustomerList.FILTER.SetFilter("Date Filter", DateFilter);
 
         // [WHEN] Open Customer Card from Customer List.
-        CustomerCard.Trap;
-        CustomerList.View.Invoke;
+        CustomerCard.Trap();
+        CustomerList.View().Invoke();
 
         // [THEN] Customer List has Date Filter which is equal to the Customer List Date Filter.
         Assert.AreEqual(DateFilter, CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
@@ -2259,7 +2261,7 @@
         LibrarySales.CreateCustomer(Customer);
 
         // [WHEN] Open Customer Card directly.
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.GotoKey(Customer."No.");
 
         // [THEN] Customer Card are filtered until workdate.
@@ -2282,7 +2284,7 @@
         Customer.SetRange("Date Filter", 0D, WorkDate());
 
         // [WHEN] Open "Customer List" page
-        CustomerList.OpenView;
+        CustomerList.OpenView();
 
         // [THEN] "Date Filter" is "..10.01.2018"
         Assert.AreEqual(Customer.GetFilter("Date Filter"), CustomerList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
@@ -2303,7 +2305,7 @@
         // [FEATURE] [Assemble-to-Order]
         // [SCENARIO 229829] "Document Line No." in Assemble-to Order Link is updated, when the update of sales header causes re-creation of the sales lines.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
 
         // [GIVEN] Assemble-to Order Item "I".
         LibraryInventory.CreateItem(Item);
@@ -2311,7 +2313,7 @@
 
         // [GIVEN] Sales Order with 2 lines.
         // [GIVEN] Line no. 10000 is empty and contains only a description.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::" ", '', 0);
         SalesLine[1].Validate(Description, LibraryUtility.GenerateGUID());
         SalesLine[1].Modify(true);
@@ -2325,7 +2327,7 @@
         SalesLine[1].Delete(true);
 
         // [WHEN] Change "Bill-to Customer No." in order to invoke re-creation of the sales lines.
-        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
 
         // [THEN] "Document Line No." in Assemble-to Order Link is equal to "Line No." on the sales line with ATO item "I".
@@ -2357,6 +2359,78 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromCustomerOnValidate()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Sales Document must be copied from Customer when the Customer has a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+
+        // [WHEN] Validate Sell-to Cusotmer in new Sales Order
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        // [THEN] Sales Document Salesperson Code is equal to Customer Salesperson Code
+        SalesHeader.TestField("Salesperson Code", Customer."Salesperson Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromShiptoCodeOnValidate()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [FEATURE] [Ship-to Address] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Sales Document must be copied from Ship-to Address when the Ship-to Address has a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Ship-to Address with Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+        CreateShiptoAddressWithSalesperson(ShipToAddress, Customer."No.");
+
+        // [WHEN] Validate Ship-to Address with a Salesperson Code in new Sales Order
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress."Code");
+        SalesHeader.Insert(true);
+
+        // [THEN] Sales Document Salesperson Code is equal to Ship-to Address Salesperson Code
+        SalesHeader.TestField("Salesperson Code", ShipToAddress."Salesperson Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromCustomerNoShiptoSalespersonOnValidate()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [FEATURE] [Ship-to Address] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Sales Document must be copied from Customer when the Ship-to Address does not have a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Ship-to Address without Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+        CreateShiptoAddressWithoutSalesperson(ShipToAddress, Customer."No.");
+
+        // [WHEN] Validate Ship-to Address without a Salesperson Code in new Sales Order
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress."Code");
+        SalesHeader.Insert(true);
+
+        // [THEN] Sales Document Salesperson Code is equal to Customer Salesperson Code
+        SalesHeader.TestField("Salesperson Code", Customer."Salesperson Code");
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DefaultLocationCodeFromCustomerOnRevalidatingBuyFromVendor()
@@ -2367,8 +2441,8 @@
         // [FEATURE] [Customer] [Location] [UT]
         // [SCENARIO 255036] "Location Code" in Sales Document must be copied from Customer when "Sell-to Customer No." is set and then revalidated with a new value
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
 
         // [GIVEN] Customer "10000" with Location "BLUE"
         CreateCustomerWithLocation(Customer);
@@ -2858,7 +2932,6 @@
     var
         SalesHeader: Record "Sales Header";
         GLEntry: Record "G/L Entry";
-        ERMSalesDocument: Codeunit "ERM Sales Document";
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] When the Additional Grouping Identifier is not set, lines are not split when posting to G/L.
@@ -2891,7 +2964,7 @@
         Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Clause Code" = "A" and "VAT %" = "X"
-        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode);
+        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode());
 
         // [GIVEN] Sales Order with one Line, having "VAT Clause Code" = "A" and "VAT %" = "X"
         CreateSalesDocumentWithSetup(SalesHeader, SalesHeader."Document Type"::Order, VATPostingSetup);
@@ -2903,7 +2976,7 @@
         // [GIVEN] "VAT Clause Code" was changed to "B" and "VAT %" was changed to "Y" in VAT Posting Setup
         OldVATRate := VATPostingSetup."VAT %";
         OldVATClauseCode := VATPostingSetup."VAT Clause Code";
-        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode);
+        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode());
 
         // [GIVEN] New Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
@@ -2931,7 +3004,7 @@
         Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Clause Code" = "A" and "VAT %" = "X"
-        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode);
+        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode());
 
         // [GIVEN] Sales Order with one Line, having "VAT Clause Code" = "A" and "VAT %" = "X"
         CreateSalesDocumentWithSetup(SalesHeader, SalesHeader."Document Type"::Order, VATPostingSetup);
@@ -2943,10 +3016,10 @@
         // [GIVEN] "VAT Clause Code" was changed to "B" and "VAT %" was changed to "Y" in VAT Posting Setup
         OldVATRate := VATPostingSetup."VAT %";
         OldVATClauseCode := VATPostingSetup."VAT Clause Code";
-        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode);
+        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode());
 
         // [GIVEN] New Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'Yes' and "Recalculate Lines" = 'No'
         CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
@@ -2969,7 +3042,7 @@
         Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Clause Code" = "A" and "VAT %" = "X"
-        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode);
+        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode());
 
         // [GIVEN] Sales Order with one Line, having "VAT Clause Code" = "A" and "VAT %" = "X"
         CreateSalesDocumentWithSetup(SalesHeader, SalesHeader."Document Type"::Order, VATPostingSetup);
@@ -2979,7 +3052,7 @@
         SalesHeaderNo := SalesHeader."No.";
 
         // [GIVEN] "VAT Clause Code" was changed to "B" and "VAT %" was changed to "Y" in VAT Posting Setup
-        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode);
+        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode());
 
         // [GIVEN] New Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
@@ -3006,7 +3079,7 @@
         Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Clause Code" = "A" and "VAT %" = "X"
-        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode);
+        CreateVATPostingSetupWithVATClauseCode(VATPostingSetup, CreateVATClauseCode());
 
         // [GIVEN] Sales Order with one Line, having "VAT Clause Code" = "A" and "VAT %" = "X"
         CreateSalesDocumentWithSetup(SalesHeader, SalesHeader."Document Type"::Order, VATPostingSetup);
@@ -3016,10 +3089,10 @@
         SalesHeaderNo := SalesHeader."No.";
 
         // [GIVEN] "VAT Clause Code" was changed to "B" and "VAT %" was changed to "Y" in VAT Posting Setup
-        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode);
+        ModifyVATPostingSetupVATRateAndClauseCode(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2), CreateVATClauseCode());
 
         // [GIVEN] New Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'Yes' and "Recalculate Lines" = 'Yes'
         CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, true, SalesHeader."Document Type");
@@ -3241,7 +3314,7 @@
         SalesHeader.TestField("Bill-to Customer No.", BillToCustNo);
 
         // [THEN] No other confirmations pop up and no errors
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3262,16 +3335,16 @@
         CreateCustomersWithSameName(Customer1, Customer2);
 
         // [GIVEN] Sales Invoice card is opened
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
         LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         LibraryVariableStorage.Enqueue(true); // yes to change "Sell-to Customer No."
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] Select "Cust2" when lookup "Sell-to Customer Name"
-        SalesInvoice."Sell-to Customer Name".Lookup;
+        SalesInvoice."Sell-to Customer Name".Lookup();
         SalesInvoice.Close();
 
         // [THEN] "Sell-to Customer No." is updated with "Cust2" on the Sales Invoice
@@ -3279,7 +3352,7 @@
         SalesHeader.TestField("Sell-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Sell-to Customer Name", Customer2.Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3300,15 +3373,15 @@
         CreateCustomersWithSameName(Customer1, Customer2);
 
         // [GIVEN] Sales Invoice card is opened
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(Customer2."No.");
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] Select "Cust2" when lookup "Bill-to Customer Name"
-        SalesInvoice."Bill-to Name".Lookup;
+        SalesInvoice."Bill-to Name".Lookup();
         SalesInvoice.Close();
 
         // [THEN] "Bill-to Customer No." is updated with "Cust2" on the Sales Invoice
@@ -3316,7 +3389,7 @@
         SalesHeader.TestField("Bill-to Customer No.", Customer2."No.");
         SalesHeader.TestField("Bill-to Name", Customer2.Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3386,7 +3459,7 @@
 
         // [GIVEN] Posted Sales Order
         CreateSalesDocumentWithItem(
-          SalesHeader, SalesHeader."Document Type"::Order, LibraryInventory.CreateItemNo, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Order, LibraryInventory.CreateItemNo(), LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [GIVEN] Posted Sales Return Order for Sales Order
@@ -3404,8 +3477,8 @@
         SalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
-        Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3422,7 +3495,7 @@
 
         // [GIVEN] Posted Sales Order
         CreateSalesDocumentWithItem(
-          SalesHeader, SalesHeader."Document Type"::Order, CreateTrackedItem, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Order, CreateTrackedItem(), LibrarySales.CreateCustomerNo());
         FindSalesLine(SalesLine, SalesHeader);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(SalesLine.Quantity);
@@ -3444,8 +3517,8 @@
         SalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Message "One or more return document lines were not copied..."
-        Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(CopyDocForReturnOrderMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3496,12 +3569,12 @@
         LibraryVariableStorage.Enqueue(Customer1."No.");
         LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
-        SalesInvoice."Sell-to Customer Name".Lookup;
+        SalesInvoice."Sell-to Customer Name".Lookup();
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
-        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesInvoice.Close();
 
         SalesHeader.Find();
@@ -3511,7 +3584,7 @@
         SalesLine.TestField(Type);
         SalesLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3542,13 +3615,13 @@
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         SalesInvoice."Sell-to Customer No.".SetValue(Customer1."No.");
-        SalesInvoice."Bill-to Name".Lookup;
+        SalesInvoice."Bill-to Name".Lookup();
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
-        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesInvoice.Close();
 
         SalesHeader.Find();
@@ -3560,7 +3633,7 @@
         SalesLine.TestField(Type);
         SalesLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3586,12 +3659,12 @@
         SalesHeader.Insert(true);
         SalesHeader.TestField("No.");
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         SalesInvoice."Sell-to Customer Name".SetValue(Customer1."No.");
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
-        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesInvoice.Close();
 
         SalesHeader.Find();
@@ -3603,7 +3676,7 @@
         SalesLine.TestField(Type);
         SalesLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3634,13 +3707,13 @@
 
         LibraryVariableStorage.Enqueue(true);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         SalesInvoice."Sell-to Customer No.".SetValue(Customer1."No.");
         SalesInvoice."Bill-to Name".SetValue(Customer2."No.");
         SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
-        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesInvoice.Close();
 
         SalesHeader.Find();
@@ -3652,7 +3725,7 @@
         SalesLine.TestField(Type);
         SalesLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3922,7 +3995,7 @@
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 7);
 
         // [GIVEN] Create Sales Invoice with new customer and set Price Including VAT true
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
@@ -3963,7 +4036,6 @@
     [Scope('OnPrem')]
     procedure VerifyPaymentTermCodeErrorOnDocumentDateBlank()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         PaymentTerms: Record "Payment Terms";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3975,7 +4047,7 @@
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         // [GIVEN] Create Sales Order document
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
 
         // [WHEN] Blank the "Document Date"
         SalesHeader.Validate("Document Date", 0D);
@@ -4020,7 +4092,7 @@
         SalesQuote."Archive Document".Invoke();
         SalesQuote.Close();
 
-        // [GIVEN] Open New Sales Quote Page to Create second new Sales Quote 
+        // [GIVEN] Open New Sales Quote Page to Create second new Sales Quote
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Contact No.".Activate();
 
@@ -4032,7 +4104,7 @@
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         Commit();
-        SalesQuote.CopyDocument.Invoke;
+        SalesQuote.CopyDocument.Invoke();
 
         // [VERIFY] Verify: Second new Sales Quote is created with contact No.
         Assert.AreEqual(SalesQuote."Sell-to Contact No.".Value, Contact."No.", '');
@@ -4200,6 +4272,93 @@
         Assert.AreEqual(-Amount[3], GLEntry.Amount, AmountNotMatchedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerRegistrationNumberOnSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO] Check Registration Number on Sales Invoice.
+        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        Initialize();
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+        UpdateCustomerRegistrationNumber(Customer);
+
+        // [WHEN]: Create sales invoice for that customer.        
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [THEN]: Verify Registration number on sales invoice.
+        SalesHeader.TestField("Registration Number", Customer."Registration Number");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerRegistrationNumberOnSalesCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO] Check Registration Number on Sales Invoice.
+        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        Initialize();
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+        UpdateCustomerRegistrationNumber(Customer);
+
+        // [WHEN]: Create sales invoice for that customer.        
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        // [THEN]: Verify Registration number on sales invoice.
+        SalesHeader.TestField("Registration Number", Customer."Registration Number");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerRegistrationNumberOnPostedSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO] Check Registration Number on Sales Invoice.
+        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        Initialize();
+
+        // [WHEN]: Create sales invoice for that customer.        
+        // [WHEN] Post the sales invoice.
+        CreateSalesDocWithRegistrationNo(SalesHeader, Customer, SalesHeader."Document Type"::Invoice);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN]: Verify Registration number on posted sales invoice.
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesInvoiceHeader.FindFirst();
+        SalesInvoiceHeader.TestField("Registration Number", Customer."Registration Number");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerRegistrationNumberOnPostedSalesCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO] Check Registration Number on Sales Invoice.
+
+        // [GIVEN]: Create Customer with Registration number and create sales invoice.
+        Initialize();
+
+        // [WHEN]: Create sales invoice for that customer.        
+        // [WHEN] Post the sales invoice.
+        CreateSalesDocWithRegistrationNo(SalesHeader, Customer, SalesHeader."Document Type"::"Credit Memo");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN]: Verify Registration number on posted sales invoice.
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesCrMemoHeader.FindFirst();
+        SalesCrMemoHeader.TestField("Registration Number", Customer."Registration Number");
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4239,7 +4398,7 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesPrepaymentAccount(SalesLine);
         SalesHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
         SalesHeader.Modify(true);
@@ -4263,7 +4422,7 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineQtyToShip(SalesLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -4272,7 +4431,7 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         ModifySalesLineReturnQtyToReceive(SalesLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -4291,9 +4450,9 @@
 
     local procedure CreateAdditionalCurrencySetup(var CurrencyCode: Code[10])
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
-        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, FindGLAccountNo);
+        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, FindGLAccountNo());
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; GeneralPostingSetup: Record "General Posting Setup"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
@@ -4322,14 +4481,14 @@
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateAndPostSalesOrderWithStandardTextLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
-        SalesHeader.Validate("Currency Code", CreateCurrency);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer());
+        SalesHeader.Validate("Currency Code", CreateCurrency());
         SalesHeader.Modify(true);
         CreateStandardTextLine(SalesLine, SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4361,7 +4520,7 @@
         AnalysisColumn: Record "Analysis Column";
     begin
         LibraryERM.CreateAnalysisColumn(AnalysisColumn, ItemAnalysisViewAnalysisArea, ColumnTemplateName);
-        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID, 1, AnalysisColumn.FieldNo("Column No.")));
+        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID(), 1, AnalysisColumn.FieldNo("Column No.")));
         AnalysisColumn.Validate(
           "Column Header",
           CopyStr(
@@ -4440,7 +4599,7 @@
         BinContent: Record "Bin Content";
         LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, ItemNo, '', UnitOfMeasure);
         BinContent.Validate(Default, IsDefault);
         BinContent.Modify(true);
@@ -4461,14 +4620,14 @@
     begin
         // Create Sales Order using Random Quantity for Sales Line.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesDocumentWithLocation(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
@@ -4502,12 +4661,31 @@
         SalesLine.Insert();
     end;
 
+    local procedure CreateSalesDocWithRegistrationNo(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; SalesDocType: Enum "Sales Document Type")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesLine: Record "Sales Line";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Customer.Get(CreateCustomer());
+        Customer.Validate("Registration Number", LibraryRandom.RandText(20));
+        Customer.Modify();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocType, Customer."No.");
+        CreateSalesLines(SalesLine, SalesHeader);
+    end;
+
+    local procedure UpdateCustomerRegistrationNumber(var Customer: Record Customer)
+    begin
+        Customer.Validate("Registration Number", LibraryRandom.RandText(20));
+        Customer.Modify();
+    end;
+
     local procedure SetInvDiscForCustomer(): Code[20]
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         // Setting Invoice Discount for Customer.
-        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer, '', LibraryRandom.RandInt(10));
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer(), '', LibraryRandom.RandInt(10));
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(40));
         CustInvoiceDisc.Modify(true);
         exit(CustInvoiceDisc.Code);
@@ -4556,8 +4734,8 @@
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermsCode);
+        Customer.Get(CreateCustomer());
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsCode());
         Customer.Validate("Combine Shipments", true);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -4569,6 +4747,37 @@
     begin
         LibraryWarehouse.CreateLocation(Location);
         LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+    end;
+
+    local procedure CreateCustomerWithSalesperson(var Customer: Record Customer)
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateSalesperson(Salesperson);
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        Customer.Validate("Salesperson Code", Salesperson.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateShiptoAddressWithoutSalesperson(var ShiptoAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    var
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateShipToAddress(ShiptoAddress, CustomerNo);
+        ShiptoAddress.Validate("Salesperson Code", '');
+        ShiptoAddress.Modify(true);
+    end;
+
+    local procedure CreateShiptoAddressWithSalesperson(var ShiptoAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateSalesperson(Salesperson);
+        LibrarySales.CreateShipToAddress(ShiptoAddress, CustomerNo);
+        ShiptoAddress.Validate("Salesperson Code", Salesperson.Code);
+        ShiptoAddress.Modify(true);
     end;
 
     local procedure CreateCustomerWithLocationAndShipToAddressWithoutLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
@@ -4651,7 +4860,7 @@
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
         exit(Item."No.");
     end;
 
@@ -4660,7 +4869,7 @@
         ValueEntry: Record "Value Entry";
         RecRef: RecordRef;
     begin
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         with ValueEntry do begin
             Init();
             RecRef.GetTable(ValueEntry);
@@ -4694,14 +4903,14 @@
     begin
         // Using random value because value is not important.
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateStandardTextLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesLine.Validate(Type, SalesLine.Type::" ");
-        SalesLine.Validate("No.", FindStandardTextCode);
+        SalesLine.Validate("No.", FindStandardTextCode());
         SalesLine.Modify(true);
     end;
 
@@ -4709,7 +4918,7 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomerWithPaymentTermsCode);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomerWithPaymentTermsCode());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
@@ -4753,15 +4962,15 @@
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         FOR i := 1 TO LibraryRandom.RandIntInRange(3, 7) DO BEGIN
             CASE Type OF
                 SalesLine.Type::"G/L Account":
                     LibrarySales.CreateSalesLine(
-                      SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+                      SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
                 SalesLine.Type::Item:
                     LibrarySales.CreateSalesLine(
-                      SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+                      SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
             END;
             SalesLine.Description :=
               COPYSTR(
@@ -4845,7 +5054,7 @@
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -4869,11 +5078,11 @@
     var
         AnalysisReportSale: TestPage "Analysis Report Sale";
     begin
-        AnalysisReportSale.OpenEdit;
+        AnalysisReportSale.OpenEdit();
         AnalysisReportSale.FILTER.SetFilter(Name, AnalysisReportName);
         AnalysisReportSale."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
         AnalysisReportSale."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        AnalysisReportSale.EditAnalysisReport.Invoke;
+        AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
@@ -4897,12 +5106,12 @@
     local procedure SetupInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc.")
     begin
         // Using random value for Minimum Amount and Discount Pct fields because value is not important.
-        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer, '', LibraryRandom.RandDec(99, 2));
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer(), '', LibraryRandom.RandDec(99, 2));
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDec(99, 2));
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -4911,9 +5120,9 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // Using random value for Minimum Quantity and Line Discount Pct fields because value is not important.
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         LibraryERM.CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.",
-          SalesLineDiscount."Sales Type"::Customer, CreateCustomer, WorkDate(), '', Item."Variant Filter",
+          SalesLineDiscount."Sales Type"::Customer, CreateCustomer(), WorkDate(), '', Item."Variant Filter",
           Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
@@ -5125,7 +5334,7 @@
         Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateItemParameters(Item, Item."Replenishment System"::Assembly, Item."Assembly Policy"::"Assemble-to-Order");
-        CreateBinAndBinContent(DefaultBin, CreateLocationWithBinMandatory, Item."No.", Item."Base Unit of Measure", true); // True for Default Bin.
+        CreateBinAndBinContent(DefaultBin, CreateLocationWithBinMandatory(), Item."No.", Item."Base Unit of Measure", true); // True for Default Bin.
         CreateBinAndBinContent(Bin, DefaultBin."Location Code", Item."No.", Item."Base Unit of Measure", false); // False for not Default Bin.
 
         // Create Sales Document with Location and update Bin Code.
@@ -5152,7 +5361,7 @@
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();  // Fix for Number Series Error.
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -5208,20 +5417,20 @@
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);
         SalesOrder.SalesLines.Quantity.SetValue(Qty); // Required for test to update it on page.
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure UpdateQtyToAsmToOrderOnSalesLineByPage(DocumentNo: Code[20]; QtyToAssemble: Decimal)
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);
         SalesOrder.SalesLines."Qty. to Assemble to Order".SetValue(QtyToAssemble); // Required for test to update it on page.
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure UpdateItemParameters(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; AssemblyPolicy: Enum "Assembly Policy")
@@ -5276,12 +5485,12 @@
     var
         AnalysisReportSale: TestPage "Analysis Report Sale";
     begin
-        AnalysisReportSale.OpenView;
+        AnalysisReportSale.OpenView();
         AnalysisReportSale.GotoRecord(AnalysisReportName);
         AnalysisReportSale."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
         AnalysisReportSale."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        SalesAnalysisReport.Trap;
-        AnalysisReportSale.EditAnalysisReport.Invoke;
+        SalesAnalysisReport.Trap();
+        AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
     local procedure SalesAnalysisReportPageShowMatrix(SalesAnalysisReport: TestPage "Sales Analysis Report"; CustomerNo: Code[20])
@@ -5292,7 +5501,7 @@
         SalesAnalysisReport.PeriodType.SetValue(SalesPeriodType::Year);
         SalesAnalysisReport.CurrentSourceTypeFilter.SetValue(Sourcetypefilter::Customer);
         SalesAnalysisReport.CurrentSourceTypeNoFilter.SetValue(CustomerNo);
-        SalesAnalysisReport.ShowMatrix.Invoke;
+        SalesAnalysisReport.ShowMatrix.Invoke();
     end;
 
     local procedure SetSalesReceivablesSetupStockoutCreditWarning(CreditWarnings: Option; StockoutWarning: Boolean)
@@ -5358,7 +5567,7 @@
             Assert.AreNearlyEqual(
               Amount2,
               Amount,
-              LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateError, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
@@ -5371,7 +5580,7 @@
             FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
             Amount2 := LibraryERM.ConvertCurrency(Amount2, '', CurrencyCode, WorkDate());
             Assert.AreNearlyEqual(
-              Amount2, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              Amount2, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateError, FieldCaption("Additional-Currency Amount"), Amount,
                 TableCaption, FieldCaption("Entry No."), "Entry No."));
         end;
@@ -5388,7 +5597,7 @@
             Assert.AreNearlyEqual(
               AmountLCY,
               "Amount (LCY)",
-              LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateError, FieldCaption("Amount (LCY)"), AmountLCY, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
     end;
@@ -5414,7 +5623,7 @@
             Assert.AreNearlyEqual(
               RemainingAmount,
               "Remaining Amount",
-              LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(
                 ValidateError, FieldCaption("Remaining Amount"), RemainingAmount, TableCaption(), FieldCaption("Entry No."), "Entry No."));
         end;
@@ -5744,7 +5953,7 @@
         LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
+        CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup());
         CustomerTemplate.Modify(true);
     end;
 
@@ -5815,7 +6024,7 @@
     [Scope('OnPrem')]
     procedure GetReturnReceiptHandler(var GetReturnReceiptLines: TestPage "Get Return Receipt Lines")
     begin
-        GetReturnReceiptLines.OK.Invoke;
+        GetReturnReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5826,23 +6035,23 @@
     begin
         LibraryVariableStorage.Dequeue(StandardTextCode);
         PostedSalesDocumentLines.PostedInvoices.FILTER.SetFilter("No.", StandardTextCode);
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesWithSpecificCrMemoValidationHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.PostedCrMemos."Document No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.PostedCrMemos."Document No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesModalPageHandlerWithPostedShipments(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.PostedShpts.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.PostedShpts.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -5850,7 +6059,7 @@
     procedure CombineShipmentRequestPageHandler(var CombineShipments: TestRequestPage "Combine Shipments")
     begin
         CombineShipments.PostingDate.SetValue(CalcDate('<1M>', WorkDate()));
-        CombineShipments.OK.Invoke;
+        CombineShipments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -5877,7 +6086,7 @@
         LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
         CopySalesDocument.RecalculateLines.SetValue(ValueFromQueue);
 
-        CopySalesDocument.OK.Invoke;
+        CopySalesDocument.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -5913,7 +6122,7 @@
         SalesPeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         SalesAnalysisReport.PeriodType.SetValue(SalesPeriodType::Year);
-        SalesAnalysisReport.ShowMatrix.Invoke;
+        SalesAnalysisReport.ShowMatrix.Invoke();
     end;
 
     local procedure EnqueueAnalysisColumnHeader(AnalysisColumnTemplateName: Code[10])
@@ -5947,8 +6156,8 @@
     begin
         SalesAnalysisReport.PeriodType.SetValue(SalesPeriodType::Year);
         SalesAnalysisReport.CurrentSourceTypeFilter.SetValue(Sourcetypefilter::Customer);
-        SalesAnalysisReport.CurrentSourceTypeNoFilter.SetValue(CreateCustomer);
-        SalesAnalysisReport.ShowMatrix.Invoke;
+        SalesAnalysisReport.CurrentSourceTypeNoFilter.SetValue(CreateCustomer());
+        SalesAnalysisReport.ShowMatrix.Invoke();
     end;
 
     [PageHandler]
@@ -5973,38 +6182,38 @@
         LibraryVariableStorage.Dequeue(CountVar);
         Count := CountVar;
 
-        FieldVisibilityArray[1] := MatrixForm.Field1.Visible;
-        FieldVisibilityArray[2] := MatrixForm.Field2.Visible;
-        FieldVisibilityArray[3] := MatrixForm.Field3.Visible;
-        FieldVisibilityArray[4] := MatrixForm.Field4.Visible;
-        FieldVisibilityArray[5] := MatrixForm.Field5.Visible;
-        FieldVisibilityArray[6] := MatrixForm.Field6.Visible;
-        FieldVisibilityArray[7] := MatrixForm.Field7.Visible;
-        FieldVisibilityArray[8] := MatrixForm.Field8.Visible;
-        FieldVisibilityArray[9] := MatrixForm.Field9.Visible;
-        FieldVisibilityArray[10] := MatrixForm.Field10.Visible;
-        FieldVisibilityArray[11] := MatrixForm.Field11.Visible;
-        FieldVisibilityArray[12] := MatrixForm.Field12.Visible;
-        FieldVisibilityArray[13] := MatrixForm.Field13.Visible;
-        FieldVisibilityArray[14] := MatrixForm.Field14.Visible;
-        FieldVisibilityArray[15] := MatrixForm.Field15.Visible;
-        FieldVisibilityArray[16] := MatrixForm.Field16.Visible;
-        FieldVisibilityArray[17] := MatrixForm.Field17.Visible;
-        FieldVisibilityArray[18] := MatrixForm.Field18.Visible;
-        FieldVisibilityArray[19] := MatrixForm.Field19.Visible;
-        FieldVisibilityArray[20] := MatrixForm.Field20.Visible;
-        FieldVisibilityArray[21] := MatrixForm.Field21.Visible;
-        FieldVisibilityArray[22] := MatrixForm.Field22.Visible;
-        FieldVisibilityArray[23] := MatrixForm.Field23.Visible;
-        FieldVisibilityArray[24] := MatrixForm.Field24.Visible;
-        FieldVisibilityArray[25] := MatrixForm.Field25.Visible;
-        FieldVisibilityArray[26] := MatrixForm.Field26.Visible;
-        FieldVisibilityArray[27] := MatrixForm.Field27.Visible;
-        FieldVisibilityArray[28] := MatrixForm.Field28.Visible;
-        FieldVisibilityArray[29] := MatrixForm.Field29.Visible;
-        FieldVisibilityArray[30] := MatrixForm.Field30.Visible;
-        FieldVisibilityArray[31] := MatrixForm.Field31.Visible;
-        FieldVisibilityArray[32] := MatrixForm.Field32.Visible;
+        FieldVisibilityArray[1] := MatrixForm.Field1.Visible();
+        FieldVisibilityArray[2] := MatrixForm.Field2.Visible();
+        FieldVisibilityArray[3] := MatrixForm.Field3.Visible();
+        FieldVisibilityArray[4] := MatrixForm.Field4.Visible();
+        FieldVisibilityArray[5] := MatrixForm.Field5.Visible();
+        FieldVisibilityArray[6] := MatrixForm.Field6.Visible();
+        FieldVisibilityArray[7] := MatrixForm.Field7.Visible();
+        FieldVisibilityArray[8] := MatrixForm.Field8.Visible();
+        FieldVisibilityArray[9] := MatrixForm.Field9.Visible();
+        FieldVisibilityArray[10] := MatrixForm.Field10.Visible();
+        FieldVisibilityArray[11] := MatrixForm.Field11.Visible();
+        FieldVisibilityArray[12] := MatrixForm.Field12.Visible();
+        FieldVisibilityArray[13] := MatrixForm.Field13.Visible();
+        FieldVisibilityArray[14] := MatrixForm.Field14.Visible();
+        FieldVisibilityArray[15] := MatrixForm.Field15.Visible();
+        FieldVisibilityArray[16] := MatrixForm.Field16.Visible();
+        FieldVisibilityArray[17] := MatrixForm.Field17.Visible();
+        FieldVisibilityArray[18] := MatrixForm.Field18.Visible();
+        FieldVisibilityArray[19] := MatrixForm.Field19.Visible();
+        FieldVisibilityArray[20] := MatrixForm.Field20.Visible();
+        FieldVisibilityArray[21] := MatrixForm.Field21.Visible();
+        FieldVisibilityArray[22] := MatrixForm.Field22.Visible();
+        FieldVisibilityArray[23] := MatrixForm.Field23.Visible();
+        FieldVisibilityArray[24] := MatrixForm.Field24.Visible();
+        FieldVisibilityArray[25] := MatrixForm.Field25.Visible();
+        FieldVisibilityArray[26] := MatrixForm.Field26.Visible();
+        FieldVisibilityArray[27] := MatrixForm.Field27.Visible();
+        FieldVisibilityArray[28] := MatrixForm.Field28.Visible();
+        FieldVisibilityArray[29] := MatrixForm.Field29.Visible();
+        FieldVisibilityArray[30] := MatrixForm.Field30.Visible();
+        FieldVisibilityArray[31] := MatrixForm.Field31.Visible();
+        FieldVisibilityArray[32] := MatrixForm.Field32.Visible();
 
         for Index := 1 to Count do
             Assert.AreEqual(true, FieldVisibilityArray[Index], StrSubstNo(ColumnWrongVisibilityErr, Index));
@@ -6018,23 +6227,23 @@
     begin
         ExpectedConfirmText := CopyDocDateOrderConfirmMsg;
         Assert.AreEqual(ExpectedConfirmText, Question, WrongConfirmationMsgErr);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
 #if not CLEAN23
@@ -6056,10 +6265,10 @@
     [Scope('OnPrem')]
     procedure CustomerLookupHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
-        CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText);
+        CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText());
         Assert.AreEqual(LibraryVariableStorage.DequeueText(),
             CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
-        CustomerLookup.OK.Invoke;
+        CustomerLookup.OK().Invoke();
     end;
 }
 

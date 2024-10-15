@@ -74,12 +74,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Set File Name for Report.
         Initialize();
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
 
         // 2. Exercise: Save as Excel.
-        LibraryLowerPermissions.SetO365FAView;
-        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryLowerPermissions.SetO365FAView();
+        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify that System generates an error when Starting Date and End Date are not filled.
         Assert.AreEqual(StrSubstNo(SpecifyDateErr), GetLastErrorText, UnknownErr);
@@ -101,12 +101,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // Using the Random Number for the Day.
         FixedAssetAnalysis.SetMandatoryFields('', CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
 
         // 2. Exercise: Save as Excel.
-        LibraryLowerPermissions.SetO365FAView;
-        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryLowerPermissions.SetO365FAView();
+        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify that System generates an error when Starting Date is later than the Ending Date.
         Assert.AreEqual(StrSubstNo(LaterEndingDateErr), GetLastErrorText, UnknownErr);
@@ -126,8 +126,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         OptionWithStartingDateError(ProceedsonDisposalTxt);
 
         // 2. Exercise: Save as Excel.
-        LibraryLowerPermissions.SetO365FAView;
-        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryLowerPermissions.SetO365FAView();
+        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify an error when Proceeds on Disposal and Gain/Loss specified without option at Ending date.
         Assert.ExpectedError(StrSubstNo(
@@ -149,8 +149,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         OptionWithStartingDateError(GainLossTxt);
 
         // 2. Exercise: Save as Excel.
-        LibraryLowerPermissions.SetO365FAView;
-        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryLowerPermissions.SetO365FAView();
+        asserterror FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify an error when Proceeds on Disposal and Gain/Loss specified without option at Ending date.
         Assert.AreEqual(
@@ -167,7 +167,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetAnalysis.SetTableView(FixedAsset);
         FixedAssetAnalysis.SetMandatoryFields('', WorkDate(), WorkDate());
         FixedAssetAnalysis.SetPostingType(PostingType, '', '');
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
     end;
 
@@ -188,10 +188,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, '', Period::"before Starting Date", false);
 
         // 3. Verify: Verify Acquisition Cost Caption and Amount in excel.
@@ -214,7 +214,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalLineAmount := AcquisitionCostWithPeriod(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, '', Period::"Net Change", false);
 
         // 3. Verify: Verify Acquisition Cost Amount in excel.
@@ -236,7 +236,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalLineAmount := AcquisitionCostWithPeriod(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, '', Period::"at Ending Date", false);
 
         // 3. Verify: Verify Acquisition Cost Amount in excel.
@@ -252,7 +252,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook,
           FAJournalLine, FAJournalLineAmount);
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
     end;
 
     local procedure AcquireNewFixedAssetUsingFAJournal(var FixedAsset: Record "Fixed Asset"; var DepreciationBook: Record "Depreciation Book"; var FADepreciationBook: Record "FA Depreciation Book"; var FAJournalLine: Record "FA Journal Line"; var FAJournalLineAmount: Decimal)
@@ -282,10 +282,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, '', Period::"at Ending Date", true);
 
         // 3. Verify: Verify Acquisition Cost Amount in excel.
@@ -313,14 +313,14 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, AppreciationTxt, Period::"before Starting Date", false);
 
         // 3. Verify: Verify Acquisition Cost, Appreciation amount and Caption in excel.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(AcquisitionCostBeforeDateTxt), AcquisitionCostErr);
         Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(Format(FAJournalLineAmount)), AcquisitionCostErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(AppreciationBeforeDateTxt), AppreciationErr);
@@ -343,7 +343,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AppreciationWithOption(FADepreciationBook, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, AppreciationTxt, Period::"Net Change", false);
 
         // 3. Verify: Verify Acquisition Cost and Appreciation amount in excel.
@@ -367,7 +367,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AppreciationWithOption(FADepreciationBook, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, AppreciationTxt, Period::"at Ending Date", false);
 
         // 3. Verify: Verify Acquisition Cost and Appreciation amount in excel.
@@ -386,7 +386,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
     end;
 
     [Test]
@@ -410,10 +410,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAcquisitionAndPrintDetail(FADepreciationBook, AppreciationTxt, Period::"at Ending Date", true);
 
         // 3. Verify: Verify Acquisition Cost and Appreciation amount in excel.
@@ -442,15 +442,15 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         SaveAppreciationAndPrintDetail(FixedAsset, DepreciationBook.Code, Period::"before Starting Date", false);
 
         // 3. Verify: Verify Acquisition Cost, Appreciation amount and caption in excel.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(AcquisitionCostBeforeDateTxt), AcquisitionCostErr);
         Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(Format(FAJournalLineAmount)), AcquisitionCostErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(AppreciationBeforeDateTxt), AppreciationErr);
@@ -475,7 +475,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AppreciationDateTypeWithOption(FANo, DeprBookCode, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FANo);
         SaveAppreciationAndPrintDetail(FixedAsset, DeprBookCode, Period::"Net Change", false);
 
@@ -502,7 +502,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         AppreciationDateTypeWithOption(FANo, DeprBookCode, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FANo);
         SaveAppreciationAndPrintDetail(FixedAsset, DeprBookCode, Period::"at Ending Date", false);
 
@@ -523,7 +523,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
         DeprBookCode := DepreciationBook.Code;
         FANo := FixedAsset."No.";
     end;
@@ -549,10 +549,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         SaveAppreciationAndPrintDetail(FixedAsset, DepreciationBook.Code, Period::"at Ending Date", true);
 
@@ -594,10 +594,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset2."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.", FixedAsset2."No.");
         SaveAppreciationAndPrintDetail(FixedAsset, DepreciationBook.Code, Period::"at Ending Date", true);
 
@@ -632,10 +632,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
           CreateAndPostFAJournalLine(
             FixedAsset."No.", FAJournalLine."FA Posting Type"::Appreciation, DepreciationBook.Code, WorkDate());
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         SaveAppreciationAndPrintDetail(FixedAsset, DepreciationBook.Code, Period::"at Ending Date", true);
 
@@ -657,11 +657,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DisposalOfFixedAssets(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAnalysisWithoutPrintDetail(FADepreciationBook, true, false);
 
         // 3. Verify: Verify for Only Sold Assets and Budget Report in excel.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(FADepreciationBook."FA No."), FixedAssetsErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(SoldTxt), FixedAssetsColumnvalueErr);
     end;
@@ -679,11 +679,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DisposalOfFixedAssets(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         SaveAnalysisWithoutPrintDetail(FADepreciationBook, false, true);
 
         // 3. Verify: Verify for Only Sold Assets and Budget Report in excel.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(FADepreciationBook."FA No."), FixedAssetsErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(BudgetTxt), FixedAssetsColumnvalueErr);
     end;
@@ -701,7 +701,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateDisposalFAJournalLine(FAJournalLine, FixedAsset."No.", FAJournalLine."FA Posting Type"::Disposal, DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         Clear(FixedAssetAnalysis);
-        FixedAssetAnalysis.GetFASetup;
+        FixedAssetAnalysis.GetFASetup();
     end;
 
     [Test]
@@ -717,12 +717,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report without Starting and Ending Date.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAssetBookValue01.UseRequestPage(false);
         FixedAssetBookValue01.SetMandatoryFields('', 0D, 0D);
-        FixedAssetBookValue01.GetDepreciationBookCode;
+        FixedAssetBookValue01.GetDepreciationBookCode();
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption());
-        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "You must specify the Starting Date and the Ending Date" error occurs.
         Assert.AreEqual(StrSubstNo(SpecifyDateErr), GetLastErrorText, UnknownErr);
@@ -742,14 +742,14 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Starting Date greater than Ending Date.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAssetBookValue01.UseRequestPage(false);
 
         // Using Random Number for the Day.
         FixedAssetBookValue01.SetMandatoryFields(
           DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.Code);
-        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "The Starting Date is later than the Ending Date" error occurs.
         Assert.AreEqual(StrSubstNo(LaterEndingDateErr), GetLastErrorText, UnknownErr);
@@ -768,11 +768,11 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report without Depreciation Book Code.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAssetBookValue01.UseRequestPage(false);
         FixedAssetBookValue01.SetMandatoryFields('', WorkDate(), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.TableCaption());
-        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
         Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
@@ -815,12 +815,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Posting Group.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Posting Group", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("FA Posting Group")),
           GroupTotalTxt + ' ' + FixedAsset."FA Posting Group");
@@ -869,12 +869,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Class.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Class", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("FA Class Code")), GroupTotalTxt + ' ' + FAClass.Code);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
@@ -921,12 +921,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Subclass.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Subclass", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("FA Subclass Code")), GroupTotalTxt + ' ' + FASubclass.Code);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
@@ -973,12 +973,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as FA Location.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Location", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("FA Location Code")), GroupTotalTxt + ' ' + FALocation.Code);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
@@ -1027,12 +1027,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Global Dimension 1.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Global Dimension 1", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("Global Dimension 1 Code")), GroupTotalTxt + ' ' + DimensionValue.Code);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
@@ -1081,12 +1081,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Global Dimension 2.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Global Dimension 2", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("Global Dimension 2 Code")), GroupTotalTxt + ' ' + DimensionValue.Code);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
@@ -1135,12 +1135,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Group Total as Main Asset.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Main Asset", false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(
           StrSubstNo(GroupTotalsTxt, FixedAsset.FieldCaption("Main Asset/Component")),
           StrSubstNo('Group Total: Main Asset %1', FixedAsset3."No."));
@@ -1188,12 +1188,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Disposal, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Print Details as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", true, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(FixedAsset.FieldCaption("No."), FixedAsset."No.");
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
         VerifyBookValue(FindDisposalAmount(FixedAsset."No."), DisposalDepreciationTxt);
@@ -1235,12 +1235,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Print Details as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", true, false);
 
         // 3. Verify: Verify Total on Fixed Asset Book Value 01 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(FixedAsset.FieldCaption("No."), TotalTxt);
         VerifyFixedAssetBookValue(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
         VerifyBookValue(FindDisposalAmount(FixedAsset."No.") + FindDisposalAmount(FixedAsset2."No."), DisposalDepreciationTxt);
@@ -1267,12 +1267,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Budget Report as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", false, true);
 
         // 3. Verify: Verify Fixed Asset - Book Value 01 (Budget Report) exist on report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(StrSubstNo(BookValueBudgetReportTxt, 1)),
           StrSubstNo(ExistErr, BookValueBudgetReportTxt));
@@ -1300,7 +1300,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Budget Report as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         asserterror RunFixedAssetBookValue01Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", false, true);
 
@@ -1323,13 +1323,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report without Starting and Ending Date.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         Clear(FixedAssetBookValue02);
         FixedAssetBookValue02.UseRequestPage(false);
         FixedAssetBookValue02.SetMandatoryFields('', 0D, 0D);
-        FixedAssetBookValue02.GetDepreciationBookCode;
+        FixedAssetBookValue02.GetDepreciationBookCode();
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption());
-        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "You must specify the Starting Date and the Ending Date" error occurs.
         Assert.AreEqual(StrSubstNo(SpecifyDateErr), GetLastErrorText, UnknownErr);
@@ -1349,7 +1349,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Starting Date greater than Ending Date.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         Clear(FixedAssetBookValue02);
         FixedAssetBookValue02.UseRequestPage(false);
 
@@ -1357,7 +1357,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue02.SetMandatoryFields(
           DepreciationBook.Code, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.Code);
-        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "The Starting Date is later than the Ending Date" error occurs.
         Assert.AreEqual(StrSubstNo(LaterEndingDateErr), GetLastErrorText, UnknownErr);
@@ -1376,12 +1376,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report without Depreciation Book Code.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         Clear(FixedAssetBookValue02);
         FixedAssetBookValue02.UseRequestPage(false);
         FixedAssetBookValue02.SetMandatoryFields('', WorkDate(), WorkDate());
         LibraryReportValidation.SetFileName(DepreciationBook.TableCaption());
-        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
+        asserterror FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // 3. Verify: Verify "Depreciation Book Code does not exist" error occurs.
         Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
@@ -1408,12 +1408,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Budget Report as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", false, true, false);
 
         // 3. Verify: Verify Fixed Asset - Book Value 02 (Budget Report) exist on report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(StrSubstNo(BookValueBudgetReportTxt, 2)),
           StrSubstNo(ExistErr, BookValueBudgetReportTxt));
@@ -1441,7 +1441,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         CreateAndPostFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::"Acquisition Cost", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Budget Report as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         asserterror RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", false, true, false);
 
@@ -1486,7 +1486,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Posting Group.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Posting Group", false, false, false);
 
@@ -1525,7 +1525,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           PostDisposalFAJournalLine(FixedAsset2."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Posting Group.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Posting Group", false, false, false);
 
@@ -1571,7 +1571,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Class.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Class", false, false, false);
 
@@ -1618,7 +1618,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Subclass.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Subclass", false, false, false);
 
@@ -1665,7 +1665,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as FA Location.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"FA Location", false, false, false);
 
@@ -1714,7 +1714,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Global Dimension 1.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Global Dimension 1", false, false, false);
 
@@ -1763,7 +1763,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Global Dimension 2.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Global Dimension 2", false, false, false);
 
@@ -1812,7 +1812,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationCostAmount2 := PostDepreciationDifferentFA(FixedAsset."No.", FixedAsset2."No.", DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Group Total as Main Asset.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::"Main Asset", false, false, false);
 
@@ -1859,12 +1859,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
           PostDisposalFAJournalLine(FixedAsset."No.", FAJournalLine."FA Posting Type"::Depreciation, DepreciationBook.Code, WorkDate());
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Print Details as True.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         RunFixedAssetBookValue02Report(FixedAsset, DepreciationBook.Code, GroupTotals::" ", true, false, false);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 02 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(FixedAsset."No."), StrSubstNo(ExistErr, FixedAsset."No."));
         VerifyDecimalValuesOnReport(AcquisitionCostAmount, AcquisitionCostAmount2, DepreciationCostAmount, DepreciationCostAmount2);
     end;
@@ -1889,24 +1889,24 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         CreateFADepreciationBook(
-          FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+          FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         CreateFADepreciationBook(
-          FADepreciationBook, FixedAsset2."No.", FixedAsset2."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+          FADepreciationBook, FixedAsset2."No.", FixedAsset2."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         AcquisitionCostAmount := LibraryRandom.RandDec(1000, 2);  // Using Random Number Generator for Amount.
         DepreciationCostAmount := AcquisitionCostAmount / 2;  // using 2 for partial Depreciation Amount.
         CreateAndPostFAGLJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::"Acquisition Cost", AcquisitionCostAmount);
         CreateAndPostFAGLJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::Depreciation, -DepreciationCostAmount);
 
-        CreateAndPostFAReclassJournal(LibraryFixedAsset.GetDefaultDeprBook, FixedAsset."No.", FixedAsset2."No.");
+        CreateAndPostFAReclassJournal(LibraryFixedAsset.GetDefaultDeprBook(), FixedAsset."No.", FixedAsset2."No.");
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Reclassify as True.
-        LibraryLowerPermissions.SetO365FAView;
-        LibraryLowerPermissions.AddJournalsEdit;
+        LibraryLowerPermissions.SetO365FAView();
+        LibraryLowerPermissions.AddJournalsEdit();
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
-        RunFixedAssetBookValue02Report(FixedAsset, LibraryFixedAsset.GetDefaultDeprBook, GroupTotals::" ", true, false, true);
+        RunFixedAssetBookValue02Report(FixedAsset, LibraryFixedAsset.GetDefaultDeprBook(), GroupTotals::" ", true, false, true);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 02 Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(ReclassifyTxt), StrSubstNo(ExistErr, ReclassifyTxt));
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(Format(-AcquisitionCostAmount, 0, '<Precision,2><Standard Format,0>')),
@@ -1914,7 +1914,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(Format(DepreciationCostAmount, 0, '<Precision,2><Standard Format,0>')),
           StrSubstNo(ExistErr, DepreciationCostAmount));
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -1934,10 +1934,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // 1. Setup: Create Fixed Asset,FA Depreciation Books,Create and Post FA G/L Journal Lines with different FA Posting Type
         Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
-        UpdateFAPostingTypeSetup(LibraryFixedAsset.GetDefaultDeprBook); // NAVCZ
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
+        UpdateFAPostingTypeSetup(LibraryFixedAsset.GetDefaultDeprBook()); // NAVCZ
         UpdateGainAccOnDisposal(OldGainOnDisposalAcc, FixedAsset."FA Posting Group");
-        LibraryVariableStorage.Enqueue(LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryVariableStorage.Enqueue(LibraryFixedAsset.GetDefaultDeprBook());
         AcquisitionCostAmount := LibraryRandom.RandDec(1000, 2);
         DepreciationCostAmount := AcquisitionCostAmount / LibraryRandom.RandIntInRange(2, 4);
         CreateAndPostFAGLJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::"Acquisition Cost", AcquisitionCostAmount);
@@ -1946,13 +1946,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
           FixedAsset."No.", GenJournalLine."FA Posting Type"::Disposal, -1 * LibraryRandom.RandDec(1000, 2));
 
         // 2. Exercise: Run report Fixed Asset Book Value 02.
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         FixedAsset.SetFilter("No.", FixedAsset."No.");
         REPORT.Run(REPORT::"Fixed Asset - Book Value 02", true, false, FixedAsset);
 
         // 3. Verify: Verify values on Fixed Asset Book Value 02 report that sign gets reversed for Acquisition cost and Depriciation after doing disposal.
-        LibraryReportValidation.DownloadFile;
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.DownloadFile();
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(Format(-1 * AcquisitionCostAmount, 0, '<Precision,2><Standard Format,0>')),
           StrSubstNo(ExistErr, -1 * AcquisitionCostAmount));
@@ -1961,7 +1961,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
           StrSubstNo(ExistErr, DepreciationCostAmount));
 
         // 4. Tear Down: Restore the value of FA Group Gain on Disposal Acc.
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         RestoreGainAccOnDisposal(FixedAsset."FA Posting Group", OldGainOnDisposalAcc);
     end;
 
@@ -1985,20 +1985,20 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DepreciationBook.Validate("Fiscal Year 365 Days", true);
         DepreciationBook.Modify(true);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
-        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate + 1);
+        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate() + 1);
         FADepreciationBook.Modify(true);
 
         // [WHEN] Running "Fixed Asset - List" report
-        LibraryLowerPermissions.SetO365FAView;
+        LibraryLowerPermissions.SetO365FAView();
         LibraryVariableStorage.Enqueue(FADepreciationBook."Depreciation Book Code");
         LibraryVariableStorage.Enqueue(FixedAsset."No.");
         Commit();
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // [THEN] "Fixed Asset - List" report contains "Depreciation Ending date" (31.12.17)
-        LibraryReportValidation.DownloadFile;
-        LibraryReportValidation.OpenFile;
-        LibraryReportValidation.VerifyCellValueByRef('B', 27, 1, Format(WorkDate + 1));
+        LibraryReportValidation.DownloadFile();
+        LibraryReportValidation.OpenFile();
+        LibraryReportValidation.VerifyCellValueByRef('B', 27, 1, Format(WorkDate() + 1));
     end;
 
     local procedure Initialize()
@@ -2248,8 +2248,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue01.SetMandatoryFields(DepreciationBookCode, WorkDate(), WorkDate());
         FixedAssetBookValue01.SetTotalFields(GroupTotals, PrintTotal, BudgetReport);
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        FixedAssetBookValue01.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunFixedAssetBookValue02Report(var FixedAsset: Record "Fixed Asset"; DepreciationBookCode: Code[10]; GroupTotals: Option; PrintTotal: Boolean; BudgetReport: Boolean; Reclassify: Boolean)
@@ -2262,8 +2262,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetBookValue02.SetMandatoryFields(DepreciationBookCode, WorkDate(), WorkDate());
         FixedAssetBookValue02.SetTotalFields(GroupTotals, PrintTotal, BudgetReport, Reclassify);
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RestoreGainAccOnDisposal(FAPostingGroupCode: Code[20]; GainAccOnDisposal: Code[20])
@@ -2293,8 +2293,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", PrintDetails, false, false);
 
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure SaveAppreciationAndPrintDetail(var FixedAsset: Record "Fixed Asset"; DepreciationBookCode: Code[10]; PeriodValue: Option; PrintDetails: Boolean)
@@ -2313,8 +2313,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", PrintDetails, false, false);
 
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure SaveAnalysisWithoutPrintDetail(FADepreciationBook: Record "FA Depreciation Book"; SalesReport: Boolean; BudgetReport: Boolean)
@@ -2335,8 +2335,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAssetAnalysis.SetTotalFields(GroupTotals::"FA Posting Group", true, SalesReport, BudgetReport);
 
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        FixedAssetAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure UpdateCustom1Depreciation(var DepreciationBook: Record "Depreciation Book")
@@ -2349,13 +2349,13 @@ codeunit 134978 "ERM Fixed Assets Reports"
     var
         FAJournalSetup: Record "FA Journal Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         FAJournalSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
         FAJournalSetup.FindFirst();
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
         GenJournalLine.FindSet();
@@ -2381,7 +2381,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     var
         FAJournalSetup2: Record "FA Journal Setup";
     begin
-        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
+        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook());
         FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
@@ -2437,7 +2437,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     var
         Amount: array[50] of Text[250];
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetColumn(ColumnValue);
         LibraryReportValidation.FindSet(Amount);
         Assert.IsTrue(FindValueInArray(Amount, Format(FAJournalLineAmount)), ErrorMessage);
@@ -2448,7 +2448,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FixedAsset: Record "Fixed Asset";
         AmountValue: Decimal;
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(FixedAsset.FieldCaption("No."), SetRangeValue);
         LibraryReportValidation.SetColumn(ColumnValue);
         Evaluate(AmountValue, LibraryReportValidation.GetValue());
@@ -2499,7 +2499,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
     local procedure VerifyTotalExistenceOnReport(FieldCaption: Text[30]; FieldValue: Text[50])
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfValueExists(StrSubstNo(GroupTotalsTxt, FieldCaption)), StrSubstNo(ExistErr, FieldCaption));
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(GroupTotalTxt + ' ' + FieldValue), StrSubstNo(ExistErr, FieldValue));
@@ -2511,12 +2511,12 @@ codeunit 134978 "ERM Fixed Assets Reports"
     var
         DepriciationBookCode: Text;
     begin
-        DepriciationBookCode := LibraryVariableStorage.DequeueText;
+        DepriciationBookCode := LibraryVariableStorage.DequeueText();
         FixedAssetBookValue02.DeprBookCode.SetValue(DepriciationBookCode);
         FixedAssetBookValue02.StartingDate.SetValue(WorkDate());
         FixedAssetBookValue02.EndingDate.SetValue(WorkDate());
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FixedAssetBookValue02.SaveAsExcel(LibraryReportValidation.GetFileName());
         Sleep(200);
     end;
 
@@ -2524,10 +2524,10 @@ codeunit 134978 "ERM Fixed Assets Reports"
     [Scope('OnPrem')]
     procedure FixedAssetListRequestPageHandler(var FixedAssetList: TestRequestPage "Fixed Asset - List")
     begin
-        FixedAssetList.DeprBookCode.SetValue(LibraryVariableStorage.DequeueText);  // Setting Depreciation Book Code.
-        FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        FixedAssetList.DeprBookCode.SetValue(LibraryVariableStorage.DequeueText());  // Setting Depreciation Book Code.
+        FixedAssetList."Fixed Asset".SetFilter("No.", LibraryVariableStorage.DequeueText());
         LibraryReportValidation.SetFileName(CreateGuid());
-        FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FixedAssetList.SaveAsExcel(LibraryReportValidation.GetFileName());
         Sleep(200);
     end;
 

@@ -733,7 +733,7 @@ codeunit 136111 "Service Planning Management"
         VerifyPurchaseOrder(ServiceHeader."No.");
 
         // Tear Down: Delete the earlier created Manufacturing User Template.
-        DeleteManufacturingUserTemplate;
+        DeleteManufacturingUserTemplate();
     end;
 
     local procedure CreateItemWithVendorNo(): Code[20]
@@ -741,7 +741,7 @@ codeunit 136111 "Service Planning Management"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -758,7 +758,7 @@ codeunit 136111 "Service Planning Management"
     var
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItemWithVendorNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItemWithVendorNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important.
         ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Used Random to calculate the Needed By Date.
         ServiceLine.Modify(true);
@@ -766,11 +766,11 @@ codeunit 136111 "Service Planning Management"
 
     local procedure CreateServiceLineWithResource(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
         ServiceLine.Validate("Service Item No.", ServiceItemNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-        ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
+        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
         ServiceLine.Modify(true);
     end;
 
@@ -958,7 +958,7 @@ codeunit 136111 "Service Planning Management"
         ServiceLine.SetRange("Document No.", DocumentNo);
         ServiceLine.FindSet();
         repeat
-            ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;

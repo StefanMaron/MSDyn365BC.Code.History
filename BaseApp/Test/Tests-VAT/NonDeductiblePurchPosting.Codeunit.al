@@ -89,7 +89,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         DocNo: Code[20];
     begin
         // [SCENARIO 456471] Stan can post Reverse Charge VAT with Non-Deductible VAT
-        //q1
 
         Initialize();
         LibraryNonDeductibleVAT.SetUseForItemCost();
@@ -132,15 +131,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         LineGLAccount: Record "G/L Account";
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
-        GeneralPostingSetup: Record "General Posting Setup";
-        GeneralPostingType: Enum "General Posting Type";
-        NonDeductibleVATPct: Decimal;
-        NonDeductibleVATBase: Decimal;
-        NonDeductibleVATAmount: Decimal;
-        DocNo: Code[20];
     begin
         // [SCENARIO 456471] Stan cannot create purchase order with prepayment and Non-Deductible VAT
 
@@ -208,7 +198,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
     [Test]
     procedure CannotPostPrepaymentIfPrepmtGLAccountHasNonDeductibleVATSetup()
     var
-        GLAccount: Record "G/L Account";
         Item: Record Item;
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";

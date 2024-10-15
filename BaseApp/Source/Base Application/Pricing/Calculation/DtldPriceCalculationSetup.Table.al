@@ -20,6 +20,7 @@ table 7008 "Dtld. Price Calculation Setup"
     Caption = 'Detailed Price Calculation Setup';
     DrillDownPageID = "Dtld. Price Calculation Setup";
     LookupPageID = "Dtld. Price Calculation Setup";
+    DataClassification = CustomerContent;
 
     fields
     {

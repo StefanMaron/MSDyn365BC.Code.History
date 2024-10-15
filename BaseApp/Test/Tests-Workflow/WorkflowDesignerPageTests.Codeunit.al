@@ -37,18 +37,18 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] The same workflow step gets changed to use the new event and display the description to the user.
 
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise - Create event
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
 
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
         // Lookup handlerselects WorkflowEvent.Description
 
         // Verify - Event created
@@ -64,8 +64,8 @@ codeunit 134313 "Workflow Designer Page Tests"
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
 
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // Verify - Event changed
         WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
@@ -98,15 +98,15 @@ codeunit 134313 "Workflow Designer Page Tests"
         CreateAnyEventWorkflowStep(FirstWorkflowStep, Workflow, 0);
         CreateAnyEventWorkflowStep(LastWorkflowStep, Workflow, FirstWorkflowStep.ID);
 
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise
         WorkflowEvent.FindFirst();
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
 
-        WorkflowPage.WorkflowSubpage.Last;
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage.Last();
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
         // Lookup handlerselects WorkflowEvent.Description
         WorkflowPage.Close();
 
@@ -134,12 +134,12 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] Event gets create in the workflow step table.
 
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
 
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise
@@ -170,12 +170,12 @@ codeunit 134313 "Workflow Designer Page Tests"
         // and Event gets create in the event in the workflow step table and display the description to the user.
 
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
 
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise
@@ -213,7 +213,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Root Event -> Event 1 -> Event 2
 
         // Setup
-        SetApplicationArea;
+        SetApplicationArea();
         LibraryWorkflow.CreateWorkflow(Workflow);
         CreateAnyEventWorkflowStep(RootWorkflowStep, Workflow, 0);
         RootWorkflowEvent.Get(RootWorkflowStep."Function Name");
@@ -226,10 +226,10 @@ codeunit 134313 "Workflow Designer Page Tests"
         LibraryVariableStorage.Enqueue(RootWorkflowEvent.Description);
         LibraryVariableStorage.Enqueue(WorkflowEvent1.Description);
         LibraryVariableStorage.Enqueue(WorkflowEvent2.Description);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.New;
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage.New();
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // Validate: in page handler.
     end;
@@ -256,7 +256,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Root Event -> Event 1 -> Event 2
 
         // Setup
-        SetApplicationArea;
+        SetApplicationArea();
         LibraryWorkflow.CreateWorkflow(Workflow);
         CreateAnyEventWorkflowStep(RootWorkflowStep, Workflow, 0);
         RootWorkflowEvent.Get(RootWorkflowStep."Function Name");
@@ -266,9 +266,9 @@ codeunit 134313 "Workflow Designer Page Tests"
         LibraryWorkflow.CreateEventPredecessor(WorkflowEvent2."Function Name", WorkflowEvent1."Function Name");
 
         // Exercise
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.New;
+        WorkflowPage.WorkflowSubpage.New();
 
         LibraryVariableStorage.Enqueue(RootWorkflowEvent.Description);
         WorkflowPage.WorkflowSubpage."Event Description".SetValue(CopyStr(RootWorkflowEvent.Description, 8, 8));
@@ -300,11 +300,11 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] REsponse dialog opens.
 
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise
@@ -315,7 +315,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowPage.WorkflowSubpage."Response Description".AssertEquals(SelectResponseTxt);
 
         // Exercise
-        WorkflowPage.WorkflowSubpage."Response Description".AssistEdit;
+        WorkflowPage.WorkflowSubpage."Response Description".AssistEdit();
 
         // Verity
         // Handler is closing the assist
@@ -341,18 +341,18 @@ codeunit 134313 "Workflow Designer Page Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         CreateAnyEventWorkflowStep(WorkflowStep, Workflow, 0);
 
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1000, 2));
         Commit();
 
         // Exercise
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
         // Event Handler will set values
 
         // Verify
         WorkflowStep.Find();
-        WorkflowPage.WorkflowSubpage.Condition.AssertEquals(WorkflowStep.GetConditionAsDisplayText);
+        WorkflowPage.WorkflowSubpage.Condition.AssertEquals(WorkflowStep.GetConditionAsDisplayText());
     end;
 
     [Test]
@@ -379,13 +379,13 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
         CreateAnyResponse(WorkflowResponse);
         LibraryVariableStorage.Enqueue(WorkflowResponse.Description);
-        WorkflowStepResponses.ResponseDescriptionCardControl.Lookup;
+        WorkflowStepResponses.ResponseDescriptionCardControl.Lookup();
         // Handler will select value and close the lookup
 
         // Verify
@@ -418,7 +418,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(EventWorkflowStep."Workflow Code", EventWorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -455,7 +455,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -492,7 +492,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -533,7 +533,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -572,7 +572,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -611,7 +611,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
@@ -654,13 +654,13 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Setup - Page
         TempWorkflowStepBuffer.PopulateTableFromEvent(EventWorkflowStep."Workflow Code", EventWorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
 
         // Exercise
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Verify
-        WorkflowStepResponses.First;
+        WorkflowStepResponses.First();
         WorkflowStepResponses.NextStepDescription.AssertEquals('');
         WorkflowStepResponses.Next();
         WorkflowStepResponses.NextStepDescription.AssertEquals(NextStepTxt);
@@ -688,12 +688,12 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Setup.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 
-        WorkflowResponseOptions.Trap;
+        WorkflowResponseOptions.Trap();
         PAGE.Run(PAGE::"Workflow Response Options", WorkflowStepArgument);
 
         // Exercise.
@@ -743,14 +743,14 @@ codeunit 134313 "Workflow Designer Page Tests"
         CreateAnyResponse(WorkflowResponse3);
 
         TempWorkflowStepBuffer.PopulateTableFromEvent(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        WorkflowStepResponses.Trap;
+        WorkflowStepResponses.Trap();
         PAGE.Run(PAGE::"Workflow Step Responses", TempWorkflowStepBuffer);
 
         // Exercise
         LibraryVariableStorage.Enqueue(WorkflowResponse1.Description);
         LibraryVariableStorage.Enqueue(WorkflowResponse2.Description);
         LibraryVariableStorage.Enqueue(WorkflowResponse3.Description);
-        WorkflowStepResponses.ResponseDescriptionCardControl.Lookup;
+        WorkflowStepResponses.ResponseDescriptionCardControl.Lookup();
 
         // Verify: in handler.
     end;
@@ -768,17 +768,17 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [SCENARIO 431848] When Event is changed and response of old When event has been deleted
 
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // [GIVEN] Create Workflow
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // [THEN] Create event
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
 
         // [VERIFY] Event created
@@ -794,8 +794,8 @@ codeunit 134313 "Workflow Designer Page Tests"
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
 
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // [VERIFY] Event changed, Response Deleted
         WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
@@ -818,17 +818,17 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         // [SCENARIO 431818] When Event is not change and Response will not be deleted
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
 
         // [GIEVN] Create Workflow
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoKey(Workflow.Code);
 
         // [THEN] Create event
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // [VERIFY] Event created
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
@@ -838,17 +838,17 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowStep.TestField("Previous Workflow Step ID", 0);
         WorkflowStep.TestField("Entry Point", false);
         WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
-        ResponseTxtBefore := WorkflowPage.WorkflowSubpage."Response Description".Value;
+        ResponseTxtBefore := WorkflowPage.WorkflowSubpage."Response Description".Value();
 
         // [THEN ] Try to Change event
         CreateAnyEvent(WorkflowEvent);
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // [VERIFY] Verify Event Not changed
         WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
-        ResponseTxtAfter := WorkflowPage.WorkflowSubpage."Response Description".Value;
+        ResponseTxtAfter := WorkflowPage.WorkflowSubpage."Response Description".Value();
         Assert.AreEqual(ResponseTxtBefore, ResponseTxtAfter, ResponseDeletedLbl);
     end;
 
@@ -861,10 +861,10 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         LibraryVariableStorage.Clear();
         WorkflowEvent.DeleteAll();
-        WorkflowEventHandling.CreateEventsLibrary;
+        WorkflowEventHandling.CreateEventsLibrary();
 
         WorkflowResponse.DeleteAll();
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        WorkflowResponseHandling.CreateResponsesLibrary();
     end;
 
     [ModalPageHandler]
@@ -875,15 +875,15 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         LibraryVariableStorage.Dequeue(WhenDescription);
         WhenLookup.FILTER.SetFilter(Description, WhenDescription);
-        WhenLookup.OK.Invoke;
+        WhenLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhenModalPageHandlerLookupValidation(var WhenLookup: TestPage "Workflow Events")
     begin
-        Assert.IsFalse(WhenLookup.Next, 'Only one line should be shown');
-        WhenLookup.OK.Invoke;
+        Assert.IsFalse(WhenLookup.Next(), 'Only one line should be shown');
+        WhenLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -899,15 +899,15 @@ codeunit 134313 "Workflow Designer Page Tests"
         LibraryVariableStorage.Dequeue(WhenDescription2);
 
         WhenLookup.FILTER.SetFilter(Description, RootWhenDescription);
-        Assert.IsTrue(WhenLookup.First, 'Only one line should be shown');
-        Assert.IsFalse(WhenLookup.Next, 'Only one line should be shown');
+        Assert.IsTrue(WhenLookup.First(), 'Only one line should be shown');
+        Assert.IsFalse(WhenLookup.Next(), 'Only one line should be shown');
 
         WhenLookup.FILTER.SetFilter(Description, WhenDescription1);
-        Assert.IsTrue(WhenLookup.First, 'Only one line should be shown');
-        Assert.IsFalse(WhenLookup.Next, 'Only one line should be shown');
+        Assert.IsTrue(WhenLookup.First(), 'Only one line should be shown');
+        Assert.IsFalse(WhenLookup.Next(), 'Only one line should be shown');
 
         WhenLookup.FILTER.SetFilter(Description, WhenDescription2);
-        Assert.IsFalse(WhenLookup.First, 'No line should be shown');
+        Assert.IsFalse(WhenLookup.First(), 'No line should be shown');
     end;
 
     [ModalPageHandler]
@@ -918,9 +918,9 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         LibraryVariableStorage.Dequeue(WhenDescription);
         WhenLookup.FILTER.SetFilter(Description, WhenDescription);
-        Assert.IsTrue(WhenLookup.First, 'Only one line should be shown');
-        Assert.IsFalse(WhenLookup.Next, 'Only one line should be shown');
-        WhenLookup.OK.Invoke;
+        Assert.IsTrue(WhenLookup.First(), 'Only one line should be shown');
+        Assert.IsFalse(WhenLookup.Next(), 'Only one line should be shown');
+        WhenLookup.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -931,15 +931,15 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         LibraryVariableStorage.Dequeue(Amount);
         WorkflowEventSimpleArgs."Purchase Header".SetFilter(Amount, StrSubstNo('>%1', Amount));
-        WorkflowEventSimpleArgs.OK.Invoke;
+        WorkflowEventSimpleArgs.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ThenModalPageHandlerLookupValidation(var WorkflowResponses: TestPage "Workflow Responses")
     begin
-        Assert.IsFalse(WorkflowResponses.Next, 'Only one line should be shown');
-        WorkflowResponses.OK.Invoke;
+        Assert.IsFalse(WorkflowResponses.Next(), 'Only one line should be shown');
+        WorkflowResponses.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -950,7 +950,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         LibraryVariableStorage.Dequeue(ThenDescription);
         WorkflowStepResponses.FILTER.SetFilter(Description, ThenDescription);
-        WorkflowStepResponses.OK.Invoke;
+        WorkflowStepResponses.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -966,22 +966,22 @@ codeunit 134313 "Workflow Designer Page Tests"
         LibraryVariableStorage.Dequeue(ThenDescription3);
 
         WorkflowStepResponses.FILTER.SetFilter(Description, ThenDescription1);
-        Assert.IsTrue(WorkflowStepResponses.First, 'Only one line should be shown');
-        Assert.IsFalse(WorkflowStepResponses.Next, 'Only one line should be shown');
+        Assert.IsTrue(WorkflowStepResponses.First(), 'Only one line should be shown');
+        Assert.IsFalse(WorkflowStepResponses.Next(), 'Only one line should be shown');
 
         WorkflowStepResponses.FILTER.SetFilter(Description, ThenDescription2);
-        Assert.IsFalse(WorkflowStepResponses.First, 'Only one line should be shown');
+        Assert.IsFalse(WorkflowStepResponses.First(), 'Only one line should be shown');
 
         WorkflowStepResponses.FILTER.SetFilter(Description, ThenDescription3);
-        Assert.IsTrue(WorkflowStepResponses.First, 'Only one line should be shown');
-        Assert.IsFalse(WorkflowStepResponses.Next, 'Only one line should be shown');
+        Assert.IsTrue(WorkflowStepResponses.First(), 'Only one line should be shown');
+        Assert.IsFalse(WorkflowStepResponses.Next(), 'Only one line should be shown');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ThenModalPageHandlerOK(var WorkflowStepResponses: TestPage "Workflow Step Responses")
     begin
-        WorkflowStepResponses.OK.Invoke;
+        WorkflowStepResponses.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1018,7 +1018,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);
@@ -1028,7 +1028,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     begin
         WorkflowResponse.Init();
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
-        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
+        WorkflowResponse.Description := LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID();
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);
     end;

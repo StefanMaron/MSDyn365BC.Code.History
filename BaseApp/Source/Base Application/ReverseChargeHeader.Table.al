@@ -5,6 +5,7 @@ table 31093 "Reverse Charge Header"
     ObsoleteState = Removed;
     ObsoleteReason = 'The functionality of Reverse Charge Statement will be removed and this table should not be used. (Obsolete::Removed in release 01.2021)';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

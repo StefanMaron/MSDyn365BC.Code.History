@@ -4,6 +4,7 @@ table 11707 "Issued Bank Statement Line"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -139,13 +140,13 @@ table 11707 "Issued Bank Statement Line"
     begin
         case Type of
             Type::Customer:
-                exit(BankAccReconLine."Account Type"::Customer);
+                exit(BankAccReconLine."Account Type"::Customer.AsInteger());
             Type::Vendor:
-                exit(BankAccReconLine."Account Type"::Vendor);
+                exit(BankAccReconLine."Account Type"::Vendor.AsInteger());
             Type::"Bank Account":
-                exit(BankAccReconLine."Account Type"::"Bank Account");
+                exit(BankAccReconLine."Account Type"::"Bank Account".AsInteger());
             Type::"G/L Account":
-                exit(BankAccReconLine."Account Type"::"G/L Account");
+                exit(BankAccReconLine."Account Type"::"G/L Account".AsInteger());
         end;
     end;
 }

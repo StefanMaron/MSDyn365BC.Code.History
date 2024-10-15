@@ -11,7 +11,7 @@ page 5989 "Service Item Log"
     Editable = false;
     PageType = List;
     SourceTable = "Service Item Log";
-    SourceTableView = order(Descending);
+    SourceTableView = order(descending);
     UsageCategory = Lists;
 
     layout
@@ -34,7 +34,9 @@ page 5989 "Service Item Log"
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ServLogMgt.ServItemEventDescription(""Event No."")"; ServLogMgt.ServItemEventDescription(Rec."Event No."))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Description';

@@ -13,6 +13,7 @@ table 1703 "Deferral Post. Buffer"
     ObsoleteState = Removed;
     ReplicateData = false;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

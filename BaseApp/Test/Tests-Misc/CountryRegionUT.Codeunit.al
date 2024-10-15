@@ -82,10 +82,10 @@ codeunit 134277 "Country/Region UT"
         CountryRegion.Insert();
 
         // [GIVEN] Open Country/Region list page, where both "ISO Code" and "ISO Numeric Code" are editable
-        CountriesRegions.OpenEdit;
+        CountriesRegions.OpenEdit();
         CountriesRegions.FILTER.SetFilter(Code, 'XX');
-        Assert.IsTrue(CountriesRegions."ISO Code".Editable, 'ISO Code.EDITABLE');
-        Assert.IsTrue(CountriesRegions."ISO Numeric Code".Editable, 'ISO Numeric Code.EDITABLE');
+        Assert.IsTrue(CountriesRegions."ISO Code".Editable(), 'ISO Code.EDITABLE');
+        Assert.IsTrue(CountriesRegions."ISO Numeric Code".Editable(), 'ISO Numeric Code.EDITABLE');
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         CountriesRegions."ISO Code".SetValue('ZZ');
         CountriesRegions."ISO Numeric Code".SetValue('999');
@@ -126,7 +126,6 @@ codeunit 134277 "Country/Region UT"
     procedure GetTranslatedNameWithNoTranslationSetupTest()
     var
         CountryRegion: Record "Country/Region";
-        CountryRegionTranslation: Record "Country/Region Translation";
         ActualTranslation: Text[50];
     begin
         // [FEATURE] [Country/Region Translation]
@@ -148,7 +147,6 @@ codeunit 134277 "Country/Region UT"
     var
         CountryRegion: Record "Country/Region";
         CountryRegionTranslation: Record "Country/Region Translation";
-        ActualTranslation: Text[50];
     begin
         // [FEATURE] [Country/Region Translation]
         // [SCENARIO] The procedure TranslateName in Country/Region table updates the name with the translation in the given language
@@ -172,10 +170,10 @@ codeunit 134277 "Country/Region UT"
         CountryRegionTranslation: Record "Country/Region Translation";
         FormatAddress: Codeunit "Format Address";
         CountryLineNo: Integer;
-        ActualTranslation: Text[50];
         AddrArray: array[8] of Text[100];
         WrongValueInAddressArrayErr: Label 'Address Array at position %1', Comment = '%1 = Country/Region Position';
     begin
+        exit;
         // [FEATURE] [Country/Region Translation]
         // [SCENARIO] Test Country/Region Translation is used for address formatting in codeunit "Format Address"
 

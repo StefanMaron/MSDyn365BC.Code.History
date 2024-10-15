@@ -10,6 +10,7 @@ table 132 "Incoming Document Approver"
 {
     Caption = 'Incoming Document Approver';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

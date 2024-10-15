@@ -48,7 +48,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        SetupAssembly;
+        SetupAssembly();
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         LibraryCosting.AdjustCostItemEntries('', '');
 
@@ -64,17 +64,17 @@ codeunit 137312 "SCM Kitting - Item profit"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Validate("Stockout Warning", false);
         AssemblySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Validate("Stockout Warning", false);
         SalesSetup.Validate("Credit Warnings", SalesSetup."Credit Warnings"::"No Warning");
         SalesSetup.Modify(true);
@@ -478,7 +478,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         ActualNoOfRows: Integer;
         NoOfRows: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         TempATOSalesBuffer.Reset();
         TempATOSalesBuffer.SetFilter("Item No.", Item.GetFilter("No."));
         TempATOSalesBuffer.SetFilter(Quantity, '<>%1', 0);
@@ -515,7 +515,7 @@ codeunit 137312 "SCM Kitting - Item profit"
     begin
         ActualNoOfRows := 0;
 
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.FindCurrentRowValue('Type', VarText);
             Evaluate(SalesBufferType, VarText);
 
@@ -532,12 +532,12 @@ codeunit 137312 "SCM Kitting - Item profit"
                     LibraryReportDataset.FindCurrentRowValue('SalesCost', VarDecimal);
                     SalesCost := VarDecimal;
                     Assert.AreNearlyEqual(
-                      ATOSalesBuffer."Sales Cost", SalesCost, 100 * LibraryERM.GetAmountRoundingPrecision, 'Wrong sales cost.');
+                      ATOSalesBuffer."Sales Cost", SalesCost, 100 * LibraryERM.GetAmountRoundingPrecision(), 'Wrong sales cost.');
 
                     LibraryReportDataset.FindCurrentRowValue('SalesAmt', VarDecimal);
                     SalesAmt := VarDecimal;
                     Assert.AreNearlyEqual(
-                      ATOSalesBuffer."Sales Amount", SalesAmt, 100 * LibraryERM.GetAmountRoundingPrecision, 'Wrong sales amt.');
+                      ATOSalesBuffer."Sales Amount", SalesAmt, 100 * LibraryERM.GetAmountRoundingPrecision(), 'Wrong sales amt.');
 
                     LibraryReportDataset.AssertCurrentRowValueEquals('ProfitPct', ATOSalesBuffer."Profit %");
                 end;
@@ -549,8 +549,8 @@ codeunit 137312 "SCM Kitting - Item profit"
     begin
         Commit();
         RunReportAndProcessEntries(TempATOSalesBuffer, Item, true);
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Report should be empty.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), 'Report should be empty.');
     end;
 
     local procedure WithAndWithoutATO(FullPosting: Boolean; IsATO: Boolean; ShouldInvoice: Boolean)
@@ -1104,16 +1104,16 @@ codeunit 137312 "SCM Kitting - Item profit"
         LibraryVariableStorage.Dequeue(DocumentNo);
         PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Shipments"));
         PostedSalesDocumentLines.PostedShpts.FILTER.SetFilter("Document No.", DocumentNo);
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     local procedure GetPostedDocumentLines(No: Code[20])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1216,7 +1216,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         AssembleToOrderSales.ShowChartAs.SetValue(ShowGraphAs);
         AssembleToOrderSales.ShowAsmDetails.SetValue(ShowAsmInfo);
-        AssembleToOrderSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssembleToOrderSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

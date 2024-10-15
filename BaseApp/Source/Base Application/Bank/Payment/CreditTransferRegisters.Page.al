@@ -29,7 +29,9 @@ page 1205 "Credit Transfer Registers"
                     Editable = false;
                     ToolTip = 'Specifies a serial number for a successful credit transfer. Failed file exports are excluded from the sequence of serial numbers. For more information, see the Status field.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(""Created Date-Time"")"; Format(Rec."Created Date-Time"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Created Date-Time';

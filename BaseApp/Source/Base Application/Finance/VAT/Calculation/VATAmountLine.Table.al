@@ -16,6 +16,7 @@ using Microsoft.Service.History;
 table 290 "VAT Amount Line"
 {
     Caption = 'VAT Amount Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -355,14 +356,8 @@ table 290 "VAT Amount Line"
     var
         Currency: Record Currency;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
-#if not CLEAN21
-        CurrExchRate: Record "Currency Exchange Rate";
-#endif
         AllowVATDifference: Boolean;
         GlobalsInitialized: Boolean;
-#if not CLEAN21 
-        InsertLineWithoutVAT: Boolean;
-#endif
 
         Text000: Label '%1% VAT';
         Text001: Label 'VAT Amount';
@@ -426,21 +421,11 @@ table 290 "VAT Amount Line"
             "Inv. Disc. Base Amount" += VATAmountLine."Inv. Disc. Base Amount";
             "Invoice Discount Amount" += VATAmountLine."Invoice Discount Amount";
             Quantity += VATAmountLine.Quantity;
-#if not CLEAN21
-            "Amount Including VAT" += VATAmountLine."Amount Including VAT";
-            if not InsertLineWithoutVAT then begin // NAVCZ
-                "VAT Base" += VATAmountLine."VAT Base";
-                "VAT Difference" += VATAmountLine."VAT Difference";
-                "VAT Amount" := "Amount Including VAT" - "VAT Base";
-                "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
-            end; // NAVCZ
-#else
             "VAT Base" += VATAmountLine."VAT Base";
             "Amount Including VAT" += VATAmountLine."Amount Including VAT";
             "VAT Difference" += VATAmountLine."VAT Difference";
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
-#endif
             NonDeductibleVAT.Increment(Rec, VATAmountLine);
             OnInsertLineOnBeforeModify(Rec, VATAmountLine);
             Modify();
@@ -756,43 +741,6 @@ table 290 "VAT Amount Line"
           Round(CalcValueLCY("VAT Base", PostingDate, CurrencyCode, CurrencyFactor)));
     end;
 
-#if not CLEAN21
-    [Obsolete('The function is not used anymore.', '21.0')]
-    [Scope('OnPrem')]
-    procedure RoundVAT(VATAmount: Decimal): Decimal
-    var
-        GLSetup: Record "General Ledger Setup";
-        Direction: Text[30];
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        GLSetup.TestField("Amount Rounding Precision");
-        case GLSetup."VAT Rounding Type" of
-            GLSetup."VAT Rounding Type"::Nearest:
-                Direction := '=';
-            GLSetup."VAT Rounding Type"::Up:
-                Direction := '>';
-            GLSetup."VAT Rounding Type"::Down:
-                Direction := '<';
-        end;
-
-        exit(Round(VATAmount, GLSetup."Amount Rounding Precision", Direction));
-        // NAVCZ
-    end;
-
-    [Obsolete('The function is not used anymore.', '21.0')]
-    [Scope('OnPrem')]
-    procedure ReverseChargeVAT(): Boolean
-    begin
-        // NAVCZ
-        if FindSet() then
-            repeat
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
-                    exit(true);
-            until Next() = 0;
-        exit(false);
-    end;
-#endif
     procedure DeductVATAmountLine(var VATAmountLineDeduct: Record "VAT Amount Line")
     begin
         if FindSet() then
@@ -814,15 +762,6 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
-#if not CLEAN21
-    [Obsolete('The function is not used anymore.', '21.0')]
-    [Scope('OnPrem')]
-    procedure SetInsertLineWithoutVAT(NewInsertLineWithoutVAT: Boolean)
-    begin
-        // NAVCZ
-        InsertLineWithoutVAT := NewInsertLineWithoutVAT;
-    end;
-#endif
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
     begin
         "Line Amount" += LineAmount;
@@ -1125,42 +1064,6 @@ table 290 "VAT Amount Line"
             NewVATBaseDiscountPerc := VATBaseDiscountPerc;
     end;
 
-#if not CLEAN21
-    internal procedure GetVATBaseLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
-    begin
-        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Base", Factor));
-    end;
-
-    internal procedure GetVATAmountLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
-    begin
-        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Amount", Factor));
-    end;
-
-    internal procedure GetAmountIncludingVATLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
-    begin
-        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "Amount Including VAT", Factor));
-    end;
-
-    internal procedure GetCalculatedVATAmountLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
-    begin
-        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "Calculated VAT Amount", Factor));
-    end;
-
-    internal procedure GetVATDifferenceLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
-    begin
-        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Difference", Factor));
-    end;
-
-    local procedure ExchangeAmtFCYToLCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        if CurrencyCode = '' then
-            exit(Amount);
-        GLSetup.Get();
-        exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(Date, CurrencyCode, Amount, Factor), GLSetup."Amount Rounding Precision"))
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLineAmount(var VATAmountLine: Record "VAT Amount Line"; var LineAmount: Decimal)
     begin

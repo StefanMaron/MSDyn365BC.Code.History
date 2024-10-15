@@ -11,6 +11,7 @@ using System.Email;
 table 1384 "Employee Templ."
 {
     Caption = 'Employee Template';
+    DataClassification = CustomerContent;
 
     fields
     {

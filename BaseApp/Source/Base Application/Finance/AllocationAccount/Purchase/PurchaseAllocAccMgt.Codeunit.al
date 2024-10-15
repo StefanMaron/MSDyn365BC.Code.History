@@ -371,20 +371,20 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         if AllocationLine.Percentage <> 0 then
             LinePercentage := AllocationLine.Percentage
         else
-            LinePercentage := Round(AllocationLine.Quantity / AllocationPurchaseLine.Quantity * 100, AllocationLine.GetQuantityPercision());
+            LinePercentage := Round(AllocationLine.Quantity / AllocationPurchaseLine.Quantity * 100, AllocationLine.GetQuantityPrecision());
 
         PurchaseLine.Quantity := 0;
         PurchaseLine.Validate(Quantity, AllocationLine.Quantity);
-        PurchaseLine."Outstanding Quantity" := Round(AllocationPurchaseLine."Outstanding Quantity" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Quantity Received" := Round(AllocationPurchaseLine."Quantity Received" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Quantity Invoiced" := Round(AllocationPurchaseLine."Quantity Invoiced" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Qty. to Invoice" := Round(AllocationPurchaseLine."Qty. to Invoice" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Qty. to Receive" := Round(AllocationPurchaseLine."Qty. to Receive" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Quantity (Base)" := Round(AllocationPurchaseLine."Quantity (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Outstanding Qty. (Base)" := Round(AllocationPurchaseLine."Outstanding Qty. (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Qty. to Receive (Base)" := Round(AllocationPurchaseLine."Qty. to Receive (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Return Qty. to Ship" := Round(AllocationPurchaseLine."Return Qty. to Ship" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
-        PurchaseLine."Return Qty. to Ship (Base)" := Round(AllocationPurchaseLine."Return Qty. to Ship (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Outstanding Quantity" := Round(AllocationPurchaseLine."Outstanding Quantity" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Quantity Received" := Round(AllocationPurchaseLine."Quantity Received" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Quantity Invoiced" := Round(AllocationPurchaseLine."Quantity Invoiced" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Qty. to Invoice" := Round(AllocationPurchaseLine."Qty. to Invoice" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Qty. to Receive" := Round(AllocationPurchaseLine."Qty. to Receive" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Quantity (Base)" := Round(AllocationPurchaseLine."Quantity (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Outstanding Qty. (Base)" := Round(AllocationPurchaseLine."Outstanding Qty. (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Qty. to Receive (Base)" := Round(AllocationPurchaseLine."Qty. to Receive (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Return Qty. to Ship" := Round(AllocationPurchaseLine."Return Qty. to Ship" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
+        PurchaseLine."Return Qty. to Ship (Base)" := Round(AllocationPurchaseLine."Return Qty. to Ship (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
         PurchaseLine.Modify();
     end;
 
@@ -469,13 +469,13 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     local procedure MoveAmounts(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
     var
         AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
-        AmountRoundingPercision: Decimal;
+        AmountRoundingPrecision: Decimal;
     begin
         PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
 
         if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
-            AmountRoundingPercision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
-            PurchaseLine.Validate("Direct Unit Cost", Round(AllocationLine.Amount / PurchaseLine.Quantity, AmountRoundingPercision));
+            AmountRoundingPrecision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
+            PurchaseLine.Validate("Direct Unit Cost", Round(AllocationLine.Amount / PurchaseLine.Quantity, AmountRoundingPrecision));
             PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
         end else begin
             PurchaseLine.Validate("Direct Unit Cost", AllocationPurchaseLine."Direct Unit Cost");

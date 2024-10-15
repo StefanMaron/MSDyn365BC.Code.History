@@ -8,6 +8,7 @@ table 8620 "Config. Tmpl. Selection Rules"
 {
     Caption = 'Config. Tmpl. Selection Rules';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -28,7 +29,7 @@ table 8620 "Config. Tmpl. Selection Rules"
         }
         field(6; Description; Text[250])
         {
-            CalcFormula = Lookup("Config. Template Header".Description where(Code = field("Template Code"),
+            CalcFormula = lookup("Config. Template Header".Description where(Code = field("Template Code"),
                                                                               "Table ID" = field("Table ID")));
             Caption = 'Description';
             Editable = false;

@@ -98,9 +98,6 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Intermediate Data Import" = Rimd,
-#if not CLEAN21
-                  tabledata "O365 Document Sent History" = R,
-#endif
                   tabledata Opportunity = R,
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Payment Matching Details" = RIMD,

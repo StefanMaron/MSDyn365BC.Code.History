@@ -30,14 +30,14 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Employee "E"
         LibraryLowerPermissions.SetOutsideO365Scope();
-        EmployeeNo := LibraryHumanResource.CreateEmployeeNo;
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNo();
 
         // [GIVEN] Reversal Entry with Source Type = Employee
         ReversalEntry.Init();
         ReversalEntry.Validate("Source Type", ReversalEntry."Source Type"::Employee);
 
         // [WHEN] Validate Source No. = "E" in Reversal Entry
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.Validate("Source No.", EmployeeNo);
 
         // [THEN] Source No. = "E" in Reversal Entry
@@ -58,14 +58,14 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Payment Gen. Journal Line for Employee "AH" (Employee Ledger Entry was created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmployeeLedgerEntry.Get(FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No."));
         EmployeeLedgerEntry.CalcFields(
           Amount, "Debit Amount", "Credit Amount", "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)");
 
         // [WHEN] Copy from Employee Ledger Entry to Reversal Entry
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.CopyFromEmployeeLedgerEntry(EmployeeLedgerEntry);
 
         // [THEN] Fields are copied from  Employee Ledger Entry to Reversal Entry
@@ -104,13 +104,13 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Gen. Journal Line for Employee with Amount = -1000 (Employee Ledger Entry was created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateEmployeeGenJournalLineWithNegativeAmount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreateEmployeeGenJournalLineWithNegativeAmount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmployeeLedgerEntry.Get(FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No."));
         EmployeeLedgerEntry.CalcFields("Credit Amount", "Credit Amount (LCY)");
 
         // [WHEN] Copy from Employee Ledger Entry to Reversal Entry
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.CopyFromEmployeeLedgerEntry(EmployeeLedgerEntry);
 
         // [THEN] Fields Credit Amount and Credit Amount (LCY) are copied from  Employee Ledger Entry to Reversal Entry
@@ -137,18 +137,18 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Payment Gen. Journal Line for Employee "AH" (G/L Registers and Employee Ledger Entry were created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // [GIVEN] Opened page G/L Registers and found last G/L Register on page
-        GLRegisters.OpenEdit;
+        GLRegisters.OpenEdit();
         GLRegisters.GotoKey(FindGLRegisterByEmplLedgEntry(EmplLedgEntryNo));
-        EmployeeLedgerEntries.Trap;
+        EmployeeLedgerEntries.Trap();
 
         // [WHEN] Push "Employee Ledger" on G/L Register page ribbon
-        LibraryLowerPermissions.SetO365BusFull;
-        GLRegisters."Employee Ledger".Invoke;
+        LibraryLowerPermissions.SetO365BusFull();
+        GLRegisters."Employee Ledger".Invoke();
 
         // [THEN] Page Employee Ledger Entries opens having Employee Ledger Entry which was created for Employee "AH"
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -169,7 +169,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Payment Gen. Journal Line for Employee with Document No = "D"
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] Posted Gen. Journal Line for the same Employee with Applied-To Doc. No = "D" (G/L Register 123 was created as result)
@@ -179,7 +179,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // [WHEN] Reverse G/L Register 123
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         asserterror ReversalEntry.ReverseRegister(FindGLRegisterByEmplLedgEntry(EmplLedgEntryNo));
 
         // [THEN] Error "You cannot reverse register No. 123 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction..."
@@ -203,13 +203,13 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Payment Gen. Journal Line for Employee "AH" (G/L Register was created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         LibraryVariableStorage.Enqueue(EmplLedgEntryNo);
 
         // [WHEN] Reverse G/L Register
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.ReverseRegister(FindGLRegisterByEmplLedgEntry(EmplLedgEntryNo));
 
         // [THEN] Page Reverse Entries opens with line, having Entry Type = "Employee" and Account No. = "AH"
@@ -218,7 +218,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         // [THEN] Page Reverse Entries has another line with Entry Type = "G/L Entry", having "Source Type" = Employee and "Source No." = "AH"
         // verification is done in ReverseEntriesModalPageHandlerWithCheckValues
         LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -235,18 +235,18 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [GIVEN] Posted Payment Gen. Journal Line for Employee "AH" (Employee Ledger Entry was created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // [GIVEN] Opened page Employee Ledger Entries and find last Employee Ledger Entry on page
-        EmployeeLedgerEntries.OpenView;
+        EmployeeLedgerEntries.OpenView();
         EmployeeLedgerEntries.GotoKey(EmplLedgEntryNo);
         LibraryVariableStorage.Enqueue(EmplLedgEntryNo);
 
         // [WHEN] Push Reverse Transaction on page Employee Ledger Entries ribbon
-        LibraryLowerPermissions.SetO365BusFull;
-        EmployeeLedgerEntries.ReverseTransaction.Invoke;
+        LibraryLowerPermissions.SetO365BusFull();
+        EmployeeLedgerEntries.ReverseTransaction.Invoke();
 
         // [THEN] Page Reverse Entries opens with line, having Entry Type = "Employee" and Account No. = "AH"
         // verification is done in ReverseEntriesModalPageHandlerWithCheckValues
@@ -255,7 +255,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         // verification is done in ReverseEntriesModalPageHandlerWithCheckValues
 
         LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -273,12 +273,12 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         // [GIVEN] Posted Payment Gen. Journal Line for Employee "AH" with Amount = 1000.0
         // [GIVEN] (G/L Register, Employee Ledger Entry 100 and Detailed Employee Ledger Entry 200 were created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // [GIVEN] Reverse G/L Register
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.ReverseRegister(FindGLRegisterByEmplLedgEntry(EmplLedgEntryNo));
 
         // [GIVEN] Page Reverse Entries opened with Employee type Reversal Entry
@@ -318,12 +318,12 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         // [GIVEN] Posted Gen. Journal Line for Employee "AH" with Amount = -1000.0
         // [GIVEN] (G/L Register, Employee Ledger Entry 100 and Detailed Employee Ledger Entry 200 were created as result)
         LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateEmployeeGenJournalLineWithNegativeAmount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount);
+        CreateEmployeeGenJournalLineWithNegativeAmount(GenJournalLine, LibraryHumanResource.CreateEmployeeNoWithBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         EmplLedgEntryNo := FindEmplLedgEntryByEmployeeNoAndDocNo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // [GIVEN] Reverse G/L Register
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         ReversalEntry.ReverseRegister(FindGLRegisterByEmplLedgEntry(EmplLedgEntryNo));
 
         // [GIVEN] Page Reverse Entries opened with Employee type Reversal Entry
@@ -361,7 +361,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         CreateGenJournalLineWithBalAccount(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee,
           EmployeeNo, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, -LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibraryERM.CreateGLAccountNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
     end;
 
     local procedure CreatePaymentForEmployeeGenJournalLineWithGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20])
@@ -369,7 +369,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         CreateGenJournalLineWithBalAccount(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee,
           EmployeeNo, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
     end;
 
     local procedure CreateGenJournalLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; Amount: Decimal)
@@ -429,7 +429,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         CalcFieldsEmplLedgEntry(ReversalEmployeeLedgerEntry);
     end;
 
-    local procedure FindDetailedEmployeeLedgerEntry(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; EntryType: Integer; EmployeeLedgerEntryNo: Integer)
+    local procedure FindDetailedEmployeeLedgerEntry(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; EmployeeLedgerEntryNo: Integer)
     begin
         DetailedEmployeeLedgerEntry.SetRange("Employee Ledger Entry No.", EmployeeLedgerEntryNo);
         DetailedEmployeeLedgerEntry.SetRange("Entry Type", EntryType);
@@ -456,7 +456,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
             TestField("User ID", UserId);
             TestField("Transaction No.", OriginalEmployeeLedgerEntry."Transaction No." + 1);
             TestField("Journal Batch Name", '');
-            TestField("Source Code", GetSourceCodeSetupReversal);
+            TestField("Source Code", GetSourceCodeSetupReversal());
             TestField(Description, OriginalEmployeeLedgerEntry.Description);
             TestField("Reversed Entry No.", OriginalEmployeeLedgerEntry."Entry No.");
             TestField(Reversed, true);
@@ -600,13 +600,13 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         DummyReversalEntry: Record "Reversal Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        EmployeeLedgerEntry.Get(LibraryVariableStorage.DequeueInteger);
+        EmployeeLedgerEntry.Get(LibraryVariableStorage.DequeueInteger());
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
         // Account Name, G/L Register No., Source Code, Amount, Debit and Credit Amount, Debit and Credit Amount (LCY) are invisible on page
         // Reversal Type and Line No. do not present on page;
         with ReverseTransactionEntries do begin
             FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::Employee));
-            First;
+            First();
             "Entry No.".AssertEquals(EmployeeLedgerEntry."Entry No.");
             "Posting Date".AssertEquals(EmployeeLedgerEntry."Posting Date");
             "Journal Batch Name".AssertEquals(EmployeeLedgerEntry."Journal Batch Name");
@@ -619,11 +619,11 @@ codeunit 134124 "ERM Reverse Employee Ledger"
             "Account No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
 
             FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::"G/L Account"));
-            First;
+            First();
             "Source Type".AssertEquals(DummyReversalEntry."Source Type"::Employee);
             "Source No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
 
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 
@@ -631,7 +631,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
     [Scope('OnPrem')]
     procedure ReverseEntriesModalPageHandlerSimple(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 }
 

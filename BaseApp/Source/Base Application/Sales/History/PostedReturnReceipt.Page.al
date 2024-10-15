@@ -1,4 +1,3 @@
-#if not CLEAN21
 namespace Microsoft.Sales.History;
 
 using Microsoft.CRM.Contact;
@@ -140,16 +139,6 @@ page 6660 "Posted Return Receipt"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s main address.';
                     }
                 }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies a description of the document. The posting description also appers on vendor and G/L entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -188,16 +177,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
-                }
-                field(Correction; Rec.Correction)
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the entry as a corrective entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("No. Printed"; Rec."No. Printed")
                 {
@@ -328,36 +307,6 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                }
-                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies a VAT business posting group code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Customer Posting Group"; Rec."Customer Posting Group")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("Reason Code"; Rec."Reason Code")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the reason code on the entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
             }
             group(Shipping)
@@ -712,4 +661,4 @@ page 6660 "Posted Return Receipt"
     begin
     end;
 }
-#endif
+

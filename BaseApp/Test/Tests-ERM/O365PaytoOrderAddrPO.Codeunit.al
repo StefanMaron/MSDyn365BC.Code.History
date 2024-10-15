@@ -68,7 +68,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Open the Purchase Order, select PayToOption to 'Another Vendor' and select a Vendor
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Another Vendor");
         PurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
@@ -105,7 +105,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Select the PayToOption to Custom Address on the Purchase Order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Another Vendor");
         PurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
@@ -130,7 +130,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
 
         // Exercise - Select the PayToOption to Location on the Purchase Order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Default (Vendor)");
 
@@ -154,7 +154,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
 
         // Exercise - Reopen the created Purchase Order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShioToOption is set to "Default (Company Address)"
@@ -185,7 +185,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Order
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the PayToOption is set to 'Another Vendor'
@@ -244,33 +244,33 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
     local procedure VerifyPayToEditableState(PurchaseOrder: TestPage "Purchase Order"; ExpectedState: Boolean)
     begin
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Name".Editable, StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Name".Editable(), StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Address".Editable, StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Address".Editable(), StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Address 2".Editable, StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Address 2".Editable(), StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to City".Editable, StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to City".Editable(), StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Contact".Editable, StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Contact".Editable(), StrSubstNo(WrongPropertyStateTxt, 'Editable', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Post Code".Editable, StrSubstNo(WrongPropertyStateTxt, ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Post Code".Editable(), StrSubstNo(WrongPropertyStateTxt, ExpectedState));
     end;
 
     local procedure VerifyPayToVisibilityState(PurchaseOrder: TestPage "Purchase Order"; ExpectedState: Boolean)
     begin
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Name".Visible, StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Name".Visible(), StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Address".Visible, StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Address".Visible(), StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Address 2".Visible, StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Address 2".Visible(), StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to City".Visible, StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to City".Visible(), StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Contact".Visible, StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Contact".Visible(), StrSubstNo(WrongPropertyStateTxt, 'Visible', ExpectedState));
         Assert.AreEqual(
-          ExpectedState, PurchaseOrder."Pay-to Post Code".Visible, StrSubstNo(WrongPropertyStateTxt, ExpectedState));
+          ExpectedState, PurchaseOrder."Pay-to Post Code".Visible(), StrSubstNo(WrongPropertyStateTxt, ExpectedState));
     end;
 
     local procedure VerifyPayToAddressValues(PurchaseOrder: TestPage "Purchase Order"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])

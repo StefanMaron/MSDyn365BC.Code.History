@@ -888,28 +888,26 @@ report 702 "Inventory Posting - Test"
 
     local procedure CheckRecurringLine(ItemJnlLine2: Record "Item Journal Line")
     begin
-        with ItemJnlLine2 do
-            if ItemJnlTemplate.Recurring then begin
-                if "Recurring Method" = 0 then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") = '' then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Frequency")));
-                if "Recurring Method" = "Recurring Method"::Variable then
-                    if Quantity = 0 then
-                        AddError(StrSubstNo(Text001, FieldCaption(Quantity)));
-            end else begin
-                if "Recurring Method" <> 0 then
-                    AddError(StrSubstNo(Text016, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") <> '' then
-                    AddError(StrSubstNo(Text016, FieldCaption("Recurring Frequency")));
-            end;
+        if ItemJnlTemplate.Recurring then begin
+            if ItemJnlLine2."Recurring Method" = 0 then
+                AddError(StrSubstNo(Text001, ItemJnlLine2.FieldCaption("Recurring Method")));
+            if Format(ItemJnlLine2."Recurring Frequency") = '' then
+                AddError(StrSubstNo(Text001, ItemJnlLine2.FieldCaption("Recurring Frequency")));
+            if ItemJnlLine2."Recurring Method" = ItemJnlLine2."Recurring Method"::Variable then
+                if ItemJnlLine2.Quantity = 0 then
+                    AddError(StrSubstNo(Text001, ItemJnlLine2.FieldCaption(Quantity)));
+        end else begin
+            if ItemJnlLine2."Recurring Method" <> 0 then
+                AddError(StrSubstNo(Text016, ItemJnlLine2.FieldCaption("Recurring Method")));
+            if Format(ItemJnlLine2."Recurring Frequency") <> '' then
+                AddError(StrSubstNo(Text016, ItemJnlLine2.FieldCaption("Recurring Frequency")));
+        end;
     end;
 
     local procedure MakeRecurringTexts(var ItemJnlLine2: Record "Item Journal Line")
     begin
-        with ItemJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Item No." <> '') and ("Recurring Method" <> 0) then
-                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
+        if (ItemJnlLine2."Posting Date" <> 0D) and (ItemJnlLine2."Item No." <> '') and (ItemJnlLine2."Recurring Method" <> 0) then
+            AccountingPeriod.MakeRecurringTexts(ItemJnlLine2."Posting Date", ItemJnlLine2."Document No.", ItemJnlLine2.Description);
     end;
 
     local procedure CheckDimValuePosting(var ItemJournalLine: Record "Item Journal Line")

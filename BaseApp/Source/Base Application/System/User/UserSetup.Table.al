@@ -16,6 +16,7 @@ table 91 "User Setup"
     DrillDownPageID = "User Setup";
     LookupPageID = "User Setup";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -314,6 +315,10 @@ table 91 "User Setup"
             Caption = 'Service Resp. Ctr. Filter';
             TableRelation = "Responsibility Center";
         }
+        field(5980; "Service Invoice Posting Policy"; Enum "Invoice Posting Policy")
+        {
+            Caption = 'Service Invoice Posting Policy';
+        }	
         field(11700; "Check Payment Orders"; Boolean)
         {
             Caption = 'Check Payment Orders';

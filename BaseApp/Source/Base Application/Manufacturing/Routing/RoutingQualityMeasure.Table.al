@@ -5,6 +5,7 @@ using Microsoft.Manufacturing.Setup;
 table 99000805 "Routing Quality Measure"
 {
     Caption = 'Routing Quality Measure';
+    DataClassification = CustomerContent;
 
     fields
     {

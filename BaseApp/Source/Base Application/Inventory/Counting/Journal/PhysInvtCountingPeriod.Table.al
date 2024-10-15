@@ -4,6 +4,7 @@ table 7381 "Phys. Invt. Counting Period"
 {
     Caption = 'Phys. Invt. Counting Period';
     LookupPageID = "Phys. Invt. Counting Periods";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -16,6 +16,7 @@ table 7320 "Warehouse Shipment Header"
     Caption = 'Warehouse Shipment Header';
     DataCaptionFields = "No.";
     LookupPageID = "Warehouse Shipment List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -28,7 +29,7 @@ table 7320 "Warehouse Shipment Header"
                 TestField(Status, Status::Open);
                 WhseSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(WhseSetup."Whse. Ship Nos.");
+                    NoSeries.TestManual(WhseSetup."Whse. Ship Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -135,7 +136,7 @@ table 7320 "Warehouse Shipment Header"
                     TestField(Status, Status::Open);
                     if "Bin Code" <> '' then begin
                         GetLocation("Location Code");
-                        WhseIntegrationMgt.CheckBinTypeCode(
+                        WhseIntegrationMgt.CheckBinTypeAndCode(
                             Database::"Warehouse Shipment Header", FieldCaption("Bin Code"), "Location Code", "Bin Code", 0);
                         Bin.Get("Location Code", "Bin Code");
                         "Zone Code" := Bin."Zone Code";
@@ -271,14 +272,12 @@ table 7320 "Warehouse Shipment Header"
 
             trigger OnLookup()
             begin
-                with WhseShptHeader do begin
-                    WhseShptHeader := Rec;
-                    WhseSetup.Get();
-                    WhseSetup.TestField("Posted Whse. Shipment Nos.");
-                    if NoSeriesMgt.LookupSeries(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series") then
-                        Validate("Shipping No. Series");
-                    Rec := WhseShptHeader;
-                end;
+                WhseShptHeader := Rec;
+                WhseSetup.Get();
+                WhseSetup.TestField("Posted Whse. Shipment Nos.");
+                if NoSeries.LookupRelatedNoSeries(WhseSetup."Posted Whse. Shipment Nos.", WhseShptHeader."Shipping No. Series") then
+                    WhseShptHeader.Validate(WhseShptHeader."Shipping No. Series");
+                Rec := WhseShptHeader;
             end;
 
             trigger OnValidate()
@@ -286,7 +285,7 @@ table 7320 "Warehouse Shipment Header"
                 if "Shipping No. Series" <> '' then begin
                     WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Shipment Nos.");
-                    NoSeriesMgt.TestSeries(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series");
+                    NoSeries.TestAreRelated(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series");
                 end;
                 TestField("Shipping No.", '');
             end;
@@ -324,17 +323,39 @@ table 7320 "Warehouse Shipment Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
+#if not CLEAN24
         OnBeforeOnInsert(Rec, xRec, WhseSetup, NoSeriesMgt, Location, IsHandled);
+#else
+        OnBeforeOnInsert(Rec, xRec, WhseSetup, Location, IsHandled);
+#endif
         if IsHandled then
             exit;
 
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Ship Nos.");
-            NoSeriesMgt.InitSeries(WhseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := WhseSetup."Whse. Ship Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Ship Nos.", "Posting Date", "No.");
+            end;
+#endif
         end;
 
+#if CLEAN24
+        if NoSeries.IsAutomatic(WhseSetup."Posted Whse. Shipment Nos.") then
+            "Shipping No. Series" := WhseSetup."Posted Whse. Shipment Nos.";
+#else
+#pragma warning disable AL0432
         NoSeriesMgt.SetDefaultSeries("Shipping No. Series", WhseSetup."Posted Whse. Shipment Nos.");
+#pragma warning restore AL0432
+#endif
 
         GetLocation("Location Code");
         Validate("Bin Code", Location."Shipment Bin Code");
@@ -354,7 +375,10 @@ table 7320 "Warehouse Shipment Header"
         WhseSetup: Record "Warehouse Setup";
         WhseShptHeader: Record "Warehouse Shipment Header";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
+        NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
 
         Text000: Label 'You cannot rename a %1.';
@@ -373,16 +397,12 @@ table 7320 "Warehouse Shipment Header"
         WhseShptHeader: Record "Warehouse Shipment Header";
     begin
         WhseSetup.Get();
-        with WhseShptHeader do begin
-            WhseShptHeader := Rec;
-            WhseSetup.TestField("Whse. Ship Nos.");
-            if NoSeriesMgt.SelectSeries(
-                 WhseSetup."Whse. Ship Nos.", OldWhseShptHeader."No. Series", "No. Series")
-            then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WhseShptHeader;
-                exit(true);
-            end;
+        WhseShptHeader := Rec;
+        WhseSetup.TestField("Whse. Ship Nos.");
+        if NoSeries.LookupRelatedNoSeries(WhseSetup."Whse. Ship Nos.", OldWhseShptHeader."No. Series", WhseShptHeader."No. Series") then begin
+            WhseShptHeader."No." := NoSeries.GetNextNo(WhseShptHeader."No. Series");
+            Rec := WhseShptHeader;
+            exit(true);
         end;
 
         OnAfterAssistEdit(OldWhseShptHeader);
@@ -798,10 +818,18 @@ table 7320 "Warehouse Shipment Header"
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
     local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement; var Location: Record Location; var IsHandled: Boolean)
     begin
     end;
+#else
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentStatusOnBeforeCheckPartllyShipped(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")

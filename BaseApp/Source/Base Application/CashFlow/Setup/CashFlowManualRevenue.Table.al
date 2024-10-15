@@ -8,6 +8,7 @@ table 849 "Cash Flow Manual Revenue"
     Caption = 'Cash Flow Manual Revenue';
     DrillDownPageID = "Cash Flow Manual Revenues";
     LookupPageID = "Cash Flow Manual Revenues";
+    DataClassification = CustomerContent;
 
     fields
     {

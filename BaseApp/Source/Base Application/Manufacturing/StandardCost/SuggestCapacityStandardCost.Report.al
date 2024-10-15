@@ -210,26 +210,24 @@ report 5852 "Suggest Capacity Standard Cost"
 
     local procedure InsertStdCostWksh(Type2: Option; No2: Code[20])
     begin
-        with ToStdCostWksh do begin
-            Init();
-            Validate("Standard Cost Worksheet Name", ToStdCostWkshName);
-            Validate(Type, Type2);
-            Validate("No.", No2);
+        ToStdCostWksh.Init();
+        ToStdCostWksh.Validate("Standard Cost Worksheet Name", ToStdCostWkshName);
+        ToStdCostWksh.Validate(Type, Type2);
+        ToStdCostWksh.Validate("No.", No2);
 
-            Validate(
-              "New Standard Cost",
-              RoundAndAdjustAmt("Standard Cost", RoundingMethod[1], AmtAdjustFactor[1]));
-            Validate(
-              "New Indirect Cost %",
-              RoundAndAdjustAmt("Indirect Cost %", RoundingMethod[2], AmtAdjustFactor[2]));
-            Validate(
-              "New Overhead Rate",
-              RoundAndAdjustAmt("Overhead Rate", RoundingMethod[3], AmtAdjustFactor[3]));
+        ToStdCostWksh.Validate(
+            "New Standard Cost",
+            RoundAndAdjustAmt(ToStdCostWksh."Standard Cost", RoundingMethod[1], AmtAdjustFactor[1]));
+        ToStdCostWksh.Validate(
+            "New Indirect Cost %",
+            RoundAndAdjustAmt(ToStdCostWksh."Indirect Cost %", RoundingMethod[2], AmtAdjustFactor[2]));
+        ToStdCostWksh.Validate(
+            "New Overhead Rate",
+            RoundAndAdjustAmt(ToStdCostWksh."Overhead Rate", RoundingMethod[3], AmtAdjustFactor[3]));
 
-            OnInsertStdCostWkshOnBeforeInsert(ToStdCostWksh, RoundingMethod, AmtAdjustFactor);
-            if not Insert(true) then
-                Modify(true);
-        end;
+        OnInsertStdCostWkshOnBeforeInsert(ToStdCostWksh, RoundingMethod, AmtAdjustFactor);
+        if not ToStdCostWksh.Insert(true) then
+            ToStdCostWksh.Modify(true);
     end;
 
     procedure RoundAndAdjustAmt(Amt: Decimal; RoundingMethodCode: Code[10]; AmtAdjustFactor: Decimal): Decimal
@@ -242,23 +240,22 @@ report 5852 "Suggest Capacity Standard Cost"
 
         Amt := Round(Amt * AmtAdjustFactor, 0.00001);
 
-        if RoundingMethodCode <> '' then
-            with RoundingMethod do begin
-                if Amt >= 0 then
-                    Sign := 1
-                else
-                    Sign := -1;
+        if RoundingMethodCode <> '' then begin
+            if Amt >= 0 then
+                Sign := 1
+            else
+                Sign := -1;
 
-                SetRange(Code, RoundingMethodCode);
-                Code := RoundingMethodCode;
-                "Minimum Amount" := Abs(Amt);
-                if Find('=<') then begin
-                    Amt := Amt + Sign * "Amount Added Before";
-                    if Precision > 0 then
-                        Amt := Sign * Round(Abs(Amt), Precision, CopyStr('=><', Type + 1, 1));
-                    Amt := Amt + Sign * "Amount Added After";
-                end;
+            RoundingMethod.SetRange(Code, RoundingMethodCode);
+            RoundingMethod.Code := RoundingMethodCode;
+            RoundingMethod."Minimum Amount" := Abs(Amt);
+            if RoundingMethod.Find('=<') then begin
+                Amt := Amt + Sign * RoundingMethod."Amount Added Before";
+                if RoundingMethod.Precision > 0 then
+                    Amt := Sign * Round(Abs(Amt), RoundingMethod.Precision, CopyStr('=><', RoundingMethod.Type + 1, 1));
+                Amt := Amt + Sign * RoundingMethod."Amount Added After";
             end;
+        end;
 
         exit(Amt);
     end;

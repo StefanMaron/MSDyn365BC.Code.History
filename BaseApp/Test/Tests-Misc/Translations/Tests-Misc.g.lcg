@@ -5,6 +5,51 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3459267938 - NamedType 3239509604" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item tracking is successfully defined for quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BarcodeScannerItemTrackTest - NamedType ScanQtyExceedMaximumMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1863825474 - NamedType 229276628" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The expected value is false but now is true!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpFalseButTrueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1863825474 - NamedType 4069456148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The expected value is true but now is false!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpTrueButFalseErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 423607225 - NamedType 3779438608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ABC00090D]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Check Tests - NamedType EndingNumberTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 423607225 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ABC00010D]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Check Tests - NamedType StartingNumberTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 2310708758 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[County Caption Test]]></Val>
@@ -203,24 +248,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType AttachmentErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4219887268 - NamedType 3648423425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Attachment file error]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType AttachmentFileErrorTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4219887268 - NamedType 4193721674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sorry, we couldn]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType CouldNotFindAFileTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4219887268 - NamedType 2693918483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong attachment's html content]]></Val>
@@ -246,15 +273,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType SendAttachmentErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4219887268 - NamedType 2634390409" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[.DOC]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType WordExtensionTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3808007876 - NamedType 3302565684" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1661,249 +1679,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType AssemblyValueTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1424949952" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Italian domestic code]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc10Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2450858303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[New Zealand NCC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc11Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 4040992194" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Portuguese NCC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc12Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1482888833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Russian CBI code]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc13Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2557947140" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[South African NCC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc14Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 3583855491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Spanish domestic interbanking number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc15Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 879022086" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Swiss BC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc16Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1894728773" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Swiss SIC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc17Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2164849672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[British sorting code]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc18Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2491202904" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Austrian BLZ number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 712762265" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Canadian ARN number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc2Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 3623353946" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[American CHIPS number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc3Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 3566261211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[American CHIPS universal number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc4Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2861466140" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Extensive branch network number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc5Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1845759453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[American Fedwire/ABA routing number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc6Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1182541086" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[German BLZ number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc7Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2735634831" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Hong Kong branch number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc8Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 277613648" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Irish NSC number]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankClearingStandardDesc9Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 3341162253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[International account to account transfer (standard)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 772857228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[International account to account transfer (express)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc2Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1477652299" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[International account to account transfer]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc3Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2266103946" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[International account to account transfer (high value)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc4Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 2929322313" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[International account to account transfer (inter company)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc5Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 402593992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Domestic account to account transfer]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc6Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 344655111" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Domestic account to account transfer (high value)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc7Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 1185511878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Domestic account to account transfer (inter company)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc8Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 620496807 - NamedType 3643533061" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SEPA credit transfer]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Company Init Unit Test - NamedType BankDataConvPmtTypeDesc9Txt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 673198177" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CAPACITJNL]]></Val>
@@ -2194,16 +1969,16 @@
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 4018981531" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[COMPRJOB]]></Val>
+      <Val><![CDATA[COMPRPROJ]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Date Compress Job Ledger]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType DateCompressJLCodeTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Date Compress Project Ledger]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType DateCompressJLCodeTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 1819341689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Date Compress Job Ledge]]></Val>
+      <Val><![CDATA[Date Compress Project Ledger]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2536,16 +2311,16 @@
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 1853729059" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[JOBGLJNL]]></Val>
+      <Val><![CDATA[PROJGLJNL]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Job G/L Journal]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType JobGlJnlCodeTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Project G/L Journal]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType JobGlJnlCodeTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 3124181953" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job G/L Journals]]></Val>
+      <Val><![CDATA[Project G/L Journals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2554,16 +2329,16 @@
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 4176506222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[JOBJNL]]></Val>
+      <Val><![CDATA[PROJJNL]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Job Journal]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType JobJnlCodeTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Project Journal]D;]A;(LookupHint=Codeunit Company Init Unit Test - NamedType JobJnlCodeTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 2768933568" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job Journals]]></Val>
+      <Val><![CDATA[Project Journals]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3175,7 +2950,7 @@
   </Item>
   <Item ItemId=";Codeunit 620496807 - NamedType 3267442898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[JOBGLWIP]]></Val>
+      <Val><![CDATA[PROJGLWIP]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3893,24 +3668,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Migration Wizard Tests - NamedType ThatsItTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3756904442 - NamedType 4198109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Don't show me again]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. BaseApp Test - NamedType DontShowAgainMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3756904442 - NamedType 2715443947" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Show a warning when there are apps installed that may possibly transfer data outside your countries' jurisdiction]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. BaseApp Test - NamedType GeoNotificationDescTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3756904442 - NamedType 3111447672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[c414a6bd-a8f2-4182-9059-0c4e88238046]]></Val>
@@ -3927,24 +3684,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. BaseApp Test - NamedType GeoNotificationsExistingAppsMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3756904442 - NamedType 1550768452" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Data out of geolocation apps]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. BaseApp Test - NamedType GeoNotificationTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3756904442 - NamedType 2619169564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Click here to learn more about what that means]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Out Of Geo. BaseApp Test - NamedType LearnMoreMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3756904442 - NamedType 584935190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4262,13 +4001,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType ConfirmConvertToOrderQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2785749549 - NamedType 807895697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2785749549 - NamedType 2287551259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to open the new order?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType ConfirmOpeningNewOrderAfterQuoteToOrder)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType ConfirmOpeningNewOrderAfterQuoteToOrderQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 240843257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4316,13 +4055,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType PrintedToAttachmentTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2785749549 - Method 4031811529 - NamedType 836342478" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2785749549 - Method 4031811529 - NamedType 3055573370" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[image/png]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - Method GetContentType - NamedType ImageFormatLabel)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - Method GetContentType - NamedType ImageFormatLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 4204627623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4377,15 +4116,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Element Name]D;]A;(LookupHint=Codeunit DocumentSendingPostTests - NamedType ElementNameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3063528946 - NamedType 51371968" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 - %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Customer Name. %2 = Document Type in plural form]D;]A;(LookupHint=Codeunit DocumentSendingPostTests - NamedType EmailSubjectCapPluralTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 320294358" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4476,15 +4206,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Document Type %2 = Invoice No.]D;]A;(LookupHint=Codeunit DocumentSendingPostTests - NamedType ReportAsPdfFileNameMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3063528946 - NamedType 241542996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sales %1.pdf]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Document Type in plural form]D;]A;(LookupHint=Codeunit DocumentSendingPostTests - NamedType ReportAsPdfFileNamePluralMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 2586531808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4586,42 +4307,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType YesUseDefaultSettingsTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1045173997 - NamedType 3779438608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ABC00090D]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType EndingNumberTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1045173997 - NamedType 3104787477" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ABC00020D]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType SecondNumberTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1045173997 - NamedType 3000846211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[X00000000000000001A]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType StartingNumber2Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1045173997 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ABC00010D]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No. Series Tests - NamedType StartingNumberTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 928630992 - NamedType 3199368533" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Handled Error %1]]></Val>
@@ -4629,15 +4314,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(LookupHint=Codeunit Error Message Handling - NamedType HandledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 928630992 - NamedType 2344692173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The TestPage is not open.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Error Message Handling - NamedType TestPageIsNotOpenErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 928630992 - NamedType 917953836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4910,15 +4586,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Field Style Unit Tests - NamedType Unfavorable)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1251554869 - NamedType 2554949208" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[File is not appended.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType AppendedFileErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1251554869 - NamedType 2756047345" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This is the text string that we want to store in a BLOB field.]]></Val>
@@ -4926,15 +4593,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType BLOBExportTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1251554869 - NamedType 3996513838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify a target file name.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType ClientFileErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1251554869 - NamedType 1701179023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4955,15 +4613,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType ExpectedFileNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1251554869 - NamedType 630343346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[File name has been changed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType FileNameChangedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1251554869 - NamedType 1773663085" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Exported file is not empty.]]></Val>
@@ -4980,24 +4629,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType ImportBlobFromServerFailedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1251554869 - NamedType 3970828071" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BLOB exported to incorrect file]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType IncorrectFileNameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1251554869 - NamedType 2975711794" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must specify a source file name.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit File Mgt. Tests - NamedType ServerFileErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1251554869 - NamedType 3870911668" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5070,15 +4701,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inc Doc Attachment Overview UT - NamedType SupportingAttachmentsTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4245486081 - NamedType 3737015943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sessions cannot be started in tests that are run by a TestRunner that has TestIsolation set to Test or Codeunit.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Queue Entry Tests - NamedType BackgroundSessionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4245486081 - NamedType 614457637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5666,15 +5288,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Selections Tests - NamedType EmailAddressErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4238987348 - NamedType 73582795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Invalid Custom Report Selection]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Selections Tests - NamedType InvalidCustomReportSelectionErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4238987348 - NamedType 3570294888" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Layout code should not change.]]></Val>
@@ -5682,15 +5295,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Selections Tests - NamedType LayoutCodeShouldNotChangedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4238987348 - NamedType 2282680506" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No_SalesInvHdr]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Selections Tests - NamedType NoSalesInvHdrTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4238987348 - NamedType 2968334780" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5907,15 +5511,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Expected value]D;]A;(LookupHint=Codeunit Send Job To Calendar - NamedType CouldNotFindValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2602571006 - NamedType 1966604395" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[person@mycompany.org]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Send Job To Calendar - NamedType SMTPSenderTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 646086067 - NamedType 3084977767" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6188,15 +5783,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Charge Extendibility - NamedType QtyToHandleMustBeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3613402004 - NamedType 1229161134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue - NamedType OneRecordWillBeSentQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3613402004 - NamedType 171361402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Timeout exceeded. %1.]]></Val>
@@ -6213,24 +5799,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue SNAP - NamedType StartDateTimeDelayErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 908742608 - NamedType 95063322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GetTimeOut must not be zero.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue SNAP - NamedType Text003)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 908742608 - NamedType 732759939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GetTimeOut must return the value set in the "Timeout" field.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue SNAP - NamedType Text004)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 908742608 - NamedType 1370456556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6746,13 +6314,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Ledger Entries Page - NamedType ExportToPaymentFileConfirmTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 977603404 - NamedType 3780228198" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3359161432 - NamedType 1603251078" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot delete change log entry %1 because G/L entry %2 exists.]]></Val>
+      <Val><![CDATA[TEST_SG]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Ledger Entries Page - NamedType GLEntryExistsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Factboxes Test - NamedType TestSecurityGroupCodeTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3359161432 - NamedType 281118278" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[security group test ID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Factboxes Test - NamedType TestSecurityGroupIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3359161432 - NamedType 455538588" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test AAD group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Factboxes Test - NamedType TestSecurityGroupNameTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 436666293 - NamedType 2103980160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

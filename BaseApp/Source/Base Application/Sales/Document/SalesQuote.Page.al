@@ -1,5 +1,4 @@
-﻿#if not CLEAN21
-namespace Microsoft.Sales.Document;
+﻿namespace Microsoft.Sales.Document;
 
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.Contact;
@@ -251,15 +250,6 @@ page 41 "Sales Quote"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '21.0';
-                    Visible = false;
-                }
                 field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -289,6 +279,12 @@ page 41 "Sales Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
+                }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -386,7 +382,6 @@ page 41 "Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeOnAfterValidate(); // NAVCZ
                         CurrPage.Update();
                     end;
                 }
@@ -574,7 +569,7 @@ page 41 "Sales Quote"
                         group(Control72)
                         {
                             ShowCaption = false;
-                            Visible = NOT (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
+                            Visible = not (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
                             field("Ship-to Code"; Rec."Ship-to Code")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -710,7 +705,7 @@ page 41 "Sales Quote"
                 }
                 group(Control49)
                 {
-                    Enabled = NOT EnableSellToCustomerTemplateCode;
+                    Enabled = not EnableSellToCustomerTemplateCode;
                     ShowCaption = false;
                     field(BillToOptions; BillToOptions)
                     {
@@ -731,7 +726,7 @@ page 41 "Sales Quote"
                     group(Control41)
                     {
                         ShowCaption = false;
-                        Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
+                        Visible = not (BillToOptions = BillToOptions::"Default (Customer)");
 
                         field("Bill-to Name"; Rec."Bill-to Name")
                         {
@@ -866,11 +861,6 @@ page 41 "Sales Quote"
                         }
                     }
                 }
-                field("Your Reference"; Rec."Your Reference")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
-                }
             }
             group("Foreign Trade")
             {
@@ -900,27 +890,10 @@ page 41 "Sales Quote"
                     ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
-                }
-                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT country/region code of customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
                 field("Format Region"; Rec."Format Region")
@@ -1161,7 +1134,7 @@ page 41 "Sales Quote"
                     Enabled = IsCustomerOrContactNotEmpty;
                     Image = Print;
                     ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -1434,7 +1407,7 @@ page 41 "Sales Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1450,7 +1423,7 @@ page 41 "Sales Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1502,20 +1475,6 @@ page 41 "Sales Quote"
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
-                    }
-#endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
                     }
 #endif
                 }
@@ -1594,7 +1553,7 @@ page 41 "Sales Quote"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1726,24 +1685,6 @@ page 41 "Sales Quote"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -1961,12 +1902,6 @@ page 41 "Sales Quote"
                 Rec.SetRange("Sell-to Contact No.");
     end;
 
-    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
-    local procedure CurrencyCodeOnAfterValidate()
-    begin
-        CurrPage.SalesLines.PAGE.UpdateForm(true); // NAVCZ
-    end;
-
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
@@ -2007,7 +1942,7 @@ page 41 "Sales Quote"
 
     local procedure UpdateShipToBillToGroupVisibility()
     begin
-        CustomerMgt.CalculateShipToBillToOptions(ShipToOptions, BillToOptions, Rec);
+        CustomerMgt.CalculateShipBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
     local procedure SetEnableSellToCustomerTemplateCode()
@@ -2056,4 +1991,4 @@ page 41 "Sales Quote"
     begin
     end;
 }
-#endif
+

@@ -105,6 +105,7 @@ page 9062 "User Security Activities"
                     DrillDownPageID = "Integration Synch. Error List";
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowDataIntegrationCues;
+                    StyleExpr = IntegrationErrorsCue;
                 }
                 field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
@@ -113,6 +114,7 @@ page 9062 "User Security Activities"
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
+                    StyleExpr = CoupledErrorsCue;
                 }
             }
             cuegroup("Monitored Fields Changes")
@@ -158,6 +160,7 @@ page 9062 "User Security Activities"
         UserSecurityStatus: Record "User Security Status";
         DataSensitivity: Record "Data Sensitivity";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         EnvironmentInfo: Codeunit "Environment Information";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
@@ -187,9 +190,18 @@ page 9062 "User Security Activities"
 
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
-        ShowIntelligentCloud := not SoftwareAsAService;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+
+        if IntegrationSynchJobErrors.IsEmpty() then
+            IntegrationErrorsCue := 'Favorable'
+        else
+            IntegrationErrorsCue := 'Unfavorable';
+        CRMIntegrationRecord.SetRange(Skipped, true);
+        if CRMIntegrationRecord.IsEmpty() then
+            CoupledErrorsCue := 'Favorable'
+        else
+            CoupledErrorsCue := 'Unfavorable';
 
         if PageNotifier.IsAvailable() then begin
             PageNotifier := PageNotifier.Create();
@@ -222,7 +234,6 @@ page 9062 "User Security Activities"
         SoftwareAsAService: Boolean;
         NumberOfPlans: Integer;
         UnclassifiedFields: Integer;
-        ShowIntelligentCloud: Boolean;
         ShowD365SIntegrationCues: Boolean;
         ShowDataIntegrationCues: Boolean;
         IsAddInReady: Boolean;
@@ -232,6 +243,8 @@ page 9062 "User Security Activities"
 #if not CLEAN22
         LegacyUserGroupsVisible: Boolean;
 #endif
+        IntegrationErrorsCue: Text;
+        CoupledErrorsCue: Text;
 
     local procedure GetNumberOfPlans(): Integer
     var
