@@ -1,4 +1,4 @@
-table 37 "Sales Line"
+﻿table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -172,7 +172,7 @@ table 37 "Sales Line"
                     "Recalculate Invoice Disc." := true;
                 Type := TempSalesLine.Type;
                 "No." := TempSalesLine."No.";
-                OnValidateNoOnCopyFromTempSalesLine(Rec, TempSalesLine);
+                OnValidateNoOnCopyFromTempSalesLine(Rec, TempSalesLine, xRec);
                 if "No." = '' then
                     exit;
 
@@ -314,6 +314,8 @@ table 37 "Sales Line"
                             "Outbound Whse. Handling Time" := Location."Outbound Whse. Handling Time";
                 end else
                     Evaluate("Outbound Whse. Handling Time", '<0D>');
+
+                OnValidateLocationCodeOnAfterSetOutboundWhseHandlingTime(Rec);
 
                 if "Location Code" <> xRec."Location Code" then begin
                     InitItemAppl(true);
@@ -1426,10 +1428,10 @@ table 37 "Sales Line"
                 OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled);
                 if not IsHandled then
                     if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                        "Unit Price" :=
+                        Validate("Unit Price",						
                             Round(
                                 "Unit Price" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
-                                Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
@@ -3165,7 +3167,8 @@ table 37 "Sales Line"
         if Type = Type::"Charge (Item)" then
             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
 
-        CapableToPromise.RemoveReqLines("Document No.", "Line No.", 0, false);
+        if ("Document Type" = "Document Type"::Order) then
+            CapableToPromise.RemoveReqLines("Document No.", "Line No.", 0, false);
 
         if "Line No." <> 0 then begin
             SalesLine2.Reset();
@@ -3600,7 +3603,11 @@ table 37 "Sales Line"
         else
             Reserve := Item.Reserve;
 
-        "Unit of Measure Code" := Item."Sales Unit of Measure";
+        if Item."Sales Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Sales Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
+
         Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
 
@@ -3867,18 +3874,18 @@ table 37 "Sales Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
-    local procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
+    procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
         exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
     end;
 
-    local procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
+    procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
     begin
         if FieldCausedPriceCalculation = 0 then
             FieldCausedPriceCalculation := CurrPriceFieldNo;
     end;
 
-    local procedure ClearFieldCausedPriceCalculation()
+    procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
     end;
@@ -4342,7 +4349,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, IsHandled, CurrFieldNo);
+        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, IsHandled, CurrFieldNo, xRec);
         if IsHandled then
             exit;
 
@@ -7467,7 +7474,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemAvailable(SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    local procedure OnBeforeCheckItemAvailable(SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -7857,7 +7864,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnCopyFromTempSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnValidateNoOnCopyFromTempSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8058,6 +8065,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateDescriptionOnBeforeCannotFindDescrError(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnAfterSetOutboundWhseHandlingTime(var SalesLine: Record "Sales Line")
     begin
     end;
 

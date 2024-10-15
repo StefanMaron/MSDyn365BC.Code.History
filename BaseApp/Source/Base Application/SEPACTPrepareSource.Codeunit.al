@@ -1,4 +1,4 @@
-codeunit 1222 "SEPA CT-Prepare Source"
+﻿codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -29,7 +29,13 @@ codeunit 1222 "SEPA CT-Prepare Source"
     var
         PaymentOrder: Record "Payment Order";
         CarteraDoc: Record "Cartera Doc.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempGenJnlLine.Reset();
         PaymentOrder.Get(FromGenJnlLine.GetFilter("Document No."));
         CarteraDoc.Reset();
@@ -66,6 +72,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

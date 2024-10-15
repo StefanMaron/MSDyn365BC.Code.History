@@ -732,7 +732,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure IsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
     begin
-        Result := PurchInvLine.Type in [PurchInvLine.Type::"Charge (Item)", PurchInvLine.Type::"Fixed Asset", PurchInvLine.Type::"G/L Account", PurchInvLine.Type::Item];
+        Result := PurchInvLine.Type in [PurchInvLine.Type::"Charge (Item)", PurchInvLine.Type::"Fixed Asset", PurchInvLine.Type::Item];
         OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine, Result);
     end;
 

@@ -21,6 +21,8 @@ codeunit 134050 "ERM VAT Tool - Master"
         LibraryResource: Codeunit "Library - Resource";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
 
     local procedure Initialize()
@@ -563,6 +565,53 @@ codeunit 134050 "ERM VAT Tool - Master"
         Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConfigItemTemplate()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        TempRecRef: RecordRef;
+        "Count": Integer;
+    begin
+        // [FEATURE] [[Rapidstart]
+        // [SCENARIO 361083] A configuration item template updates when running VAT Rate Change Tool
+
+        Initialize();
+        ERMVATToolHelper.CreatePostingGroups(false);
+        Count := LibraryRandom.RandIntInRange(3, 5);
+        ConfigTemplateHeader.DeleteAll(true); // remove the existing templates to not affect the test
+        CreateConfigItemTemplates(TempRecRef, Count);
+
+        ERMVATToolHelper.SetupToolOption(
+          VATRateChangeSetup2.FieldNo("Update Item Templates"), VATRateChangeSetup2."Update Item Templates"::Both);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+        ERMVATToolHelper.VerifyRecordsHandled(TempRecRef);
+
+        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPricesInclVATFieldsExistOnTheVATRateChangeToolPage()
+    var
+        VATRateChangeSetup: TestPage "VAT Rate Change Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 361066] The fields related to the unit price including VAT are visible on the VAT Rate Change Tool page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        VATRateChangeSetup.OpenEdit();
+        Assert.IsTrue(VATRateChangeSetup."Update G/L Accounts".Visible(), 'Update G/L Accounts field is not visible');
+        Assert.IsTrue(VATRateChangeSetup."Upd. Unit Price For Item Chrg.".Visible(), 'Upd. Unit Price For Item Chrg. field is not visible');
+        Assert.IsTrue(VATRateChangeSetup."Upd. Unit Price For FA".Visible(), 'Upd. Unit Price For FA field is not visible');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure VATToolGLAccount(FieldOption: Option; "Filter": Boolean; "Count": Integer)
     var
         GLAccount: Record "G/L Account";
@@ -637,6 +686,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
     local procedure VATToolItemTemplate(FieldOption: Option; "Count": Integer)
     var
+        ConfigTemplateHeader: Record "Config. Template Header";
         TempRecRef: RecordRef;
     begin
         Initialize;
@@ -646,6 +696,11 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // SETUP: Create and save data to update in a temporary table.
         CreateItemTemplates(TempRecRef, Count);
+
+        // SETUP: Remove the existing configuration templates to not affect on the results of Item Template test
+        // BUG 361083: Item templates are not update when run the VAT Rate Change tool
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
+        ConfigTemplateHeader.DeleteAll(true);
 
         // SETUP: Update VAT Change Tool Setup table.
         ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Item Templates"), FieldOption);
@@ -1217,6 +1272,44 @@ codeunit 134050 "ERM VAT Tool - Master"
             RecRef.GetTable(ItemTemplate);
             ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
         end;
+    end;
+
+    local procedure CreateConfigItemTemplates(var TempRecRef: RecordRef; "Count": Integer)
+    var
+        Item: Record Item;
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+        i: Integer;
+    begin
+        TempRecRef.Open(DATABASE::"Config. Template Line", true);
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        for i := 1 to Count do begin
+            CreateConfigItemTemplate(TempRecRef, Item.FieldNo("Gen. Prod. Posting Group"), GenProdPostingGroup);
+            CreateConfigItemTemplate(TempRecRef, Item.FieldNo("VAT Prod. Posting Group"), VATProdPostingGroup);
+        end;
+    end;
+
+    local procedure CreateConfigItemTemplate(var TempRecRef: RecordRef; FieldID: Integer; DefaultValue: Text[250])
+    var
+        ConfigTemplateLine: Record "Config. Template Line";
+        RecRef: RecordRef;
+    begin
+        CreateConfigItemTemplateWithFieldID(ConfigTemplateLine, FieldID, DefaultValue);
+        RecRef.GetTable(ConfigTemplateLine);
+        ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+    end;
+
+    local procedure CreateConfigItemTemplateWithFieldID(var ConfigTemplateLine: Record "Config. Template Line"; FieldID: Integer; DefaultValue: Text[250])
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader.Validate("Table ID", DATABASE::Item);
+        ConfigTemplateHeader.Modify(true);
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        ConfigTemplateLine.Validate("Field ID", FieldID);
+        ConfigTemplateLine.Validate("Default Value", DefaultValue);
+        ConfigTemplateLine.Modify(true);
     end;
 
     local procedure CreateItemCharges(var TempRecRef: RecordRef; "Count": Integer)

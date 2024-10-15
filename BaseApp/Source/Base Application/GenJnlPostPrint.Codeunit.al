@@ -32,6 +32,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
     local procedure "Code"()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         HideDialog: Boolean;
         IsHandled: Boolean;
     begin
@@ -47,9 +48,12 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
             OnBeforePostJournalBatch(GenJnlLine, HideDialog);
 
-            if not HideDialog then
+            if not HideDialog then begin
                 if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                     exit;
+                if not GenJnlPostBatch.ConfirmPostingUnvoidableChecks("Journal Batch Name", "Journal Template Name") then
+                    exit;
+            end;
 
             TempJnlBatchName := "Journal Batch Name";
 
@@ -73,9 +77,9 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 if GenJnlsScheduled then
                     Message(JournalsScheduledMsg);
             end else begin
-                if GLReg2.FindFirst then begin
+                if GLReg2.FindFirst() then begin
                     GLReg2.LockTable();
-                    GLReg2.FindLast;
+                    GLReg2.FindLast();
                 end;
 
                 CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);

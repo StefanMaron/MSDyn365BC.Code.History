@@ -193,6 +193,25 @@ page 550 "VAT Rate Change Setup"
                     ToolTip = 'Specifies the VAT rate change for finance charge memos.';
                 }
             }
+            group("Unit Price Incl. VAT")
+            {
+                Caption = 'Unit Price Incl. VAT';
+                field("Update Unit Price For G/L Acc."; "Update Unit Price For G/L Acc.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the unit price must be updated for document lines that have the type G/L Account.';
+                }
+                field("Upd. Unit Price For Item Chrg."; "Upd. Unit Price For Item Chrg.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the unit price must be updated for document lines that have the type Charge (Item).';
+                }
+                field("Upd. Unit Price For FA"; "Upd. Unit Price For FA")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the unit price must be updated for document lines that have the type Fixed Asset.';
+                }
+            }
         }
     }
 

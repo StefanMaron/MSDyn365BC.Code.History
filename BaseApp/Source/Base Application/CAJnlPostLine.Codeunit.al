@@ -249,7 +249,9 @@ codeunit 1102 "CA Jnl.-Post Line"
             CostBudgetEntry."Last Modified By User" := UserId;
             CostBudgetEntry."Allocation Description" := "Allocation Description";
             CostBudgetEntry."Allocation ID" := "Allocation ID";
+            OnBeforeCostBudgetEntryInsert(CostBudgetEntry, CostJnlLine);
             CostBudgetEntry.Insert();
+            OnAfterCostBudgetEntryInsert(CostBudgetEntry, CostJnlLine);
         end;
         CreateCostBudgetRegister;
         NextCostBudgetEntryNo := NextCostBudgetEntryNo + 1;
@@ -287,6 +289,11 @@ codeunit 1102 "CA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCostBudgetEntryInsert(var CostBudgetEntry: Record "Cost Budget Entry"; CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRunWithCheck(var CostJournalLine: Record "Cost Journal Line")
     begin
     end;
@@ -298,6 +305,11 @@ codeunit 1102 "CA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCostEntryInsert(var CostEntry: Record "Cost Entry"; CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCostBudgetEntryInsert(var CostBudgetEntry: Record "Cost Budget Entry"; CostJournalLine: Record "Cost Journal Line")
     begin
     end;
 

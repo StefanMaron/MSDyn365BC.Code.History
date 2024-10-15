@@ -41,6 +41,7 @@ codeunit 5640 "Duplicate Depr. Book"
             if "Duplicate in Depreciation Book" <> '' then begin
                 DeprBook.Get("Duplicate in Depreciation Book");
                 CreateLine(true, GenJnlLine, FAJnlLine2);
+                OnDuplicateGenJnlLineOnAfterCreateLine(GenJnlLine);
                 exit;
             end;
             if "Use Duplication List" then
@@ -490,6 +491,11 @@ codeunit 5640 "Duplicate Depr. Book"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineDuplicate(var GenJournalLine: Record "Gen. Journal Line"; var FAAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDuplicateGenJnlLineOnAfterCreateLine(GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

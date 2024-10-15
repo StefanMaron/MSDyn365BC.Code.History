@@ -1139,6 +1139,8 @@ table 900 "Assembly Header"
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
+	OnBeforeCalcStartDateFromEndDate(Rec);
+		
         exit(
           LeadTimeMgt.PlannedStartingDate(
             "Item No.", "Location Code", "Variant Code", '',
@@ -1151,6 +1153,8 @@ table 900 "Assembly Header"
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
+	OnBeforeCalcEndDateFromStartDate(Rec);
+		
         exit(
           LeadTimeMgt.PlannedEndingDate(
             "Item No.", "Location Code", "Variant Code", '',
@@ -1682,6 +1686,16 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStartDateFromEndDate(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcEndDateFromStartDate(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
 }

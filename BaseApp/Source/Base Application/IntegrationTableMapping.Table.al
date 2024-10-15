@@ -381,6 +381,7 @@ table 5335 "Integration Table Mapping"
 
     procedure SynchronizeNow(ResetLastSynchModifiedOnDateTime: Boolean)
     begin
+        Codeunit.Run(Codeunit::"CRM Integration Management");
         if ResetLastSynchModifiedOnDateTime then begin
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");

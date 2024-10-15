@@ -344,7 +344,13 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         TestBalance: Boolean;
         Balance: Decimal;
         AmountToAdd: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         if ConflictAmountType(AccSchedLine, ColumnLayout."Amount Type", AmountType) then
             exit;
 
@@ -876,6 +882,11 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 AccScheduleLine2.GetFilter("Dimension 4 Filter"),
                 AccSchedManagement.GetDimTotalingFilter(4, AccScheduleLine2."Dimension 4 Totaling"), '&'));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddCostTypeDimensions(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; var AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer"; var IsHandled: Boolean)
+    begin
     end;
 }
 

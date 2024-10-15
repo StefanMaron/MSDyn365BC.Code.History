@@ -268,7 +268,6 @@ page 26 "Vendor Card"
                 field("Tax Area Code"; "Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = true;
                     ToolTip = 'Specifies a tax area code for the company.';
                 }
                 field("Pay-to Vendor No."; "Pay-to Vendor No.")

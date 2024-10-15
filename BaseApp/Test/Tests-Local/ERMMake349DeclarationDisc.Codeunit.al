@@ -59,6 +59,38 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         VerifyAmountOnGeneratedTextFile(FileName, Position, DelChr(Format(Amount), '=', ','));
     end;
 
+    [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,MessageHandler,CustomerVendorWarnings349ModalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure Make349DeclarationReportWithSalesInvoiceThe58positionIsEmpty()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        Position: Integer;
+        FileName: Text[250];
+        FirstLine: Text;
+    begin
+        // [SCENARIO 360639] Verify that the 58th symbol of first line is empty on Report 10710 - Make 349 Declaration for Sales Invoice
+
+        // [GIVEN] Create and Post Sales Invoice.
+        CreateVATPostingSetup(VATPostingSetup);
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
+        CreateAndPostSalesInvoice(CustomerNo, ItemNo);
+
+        // [GIVEN] Generated File Name.
+        FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID);
+        Position := 58;
+
+        // [WHEN] Run report 10710 - "Make 349 Declaration"
+        RunMake349DeclarationReport(FileName);
+
+        // [THEN] Symbol at position 58 of first line is equal to ' '
+        FirstLine := LibraryTextFileValidation.ReadLine(FileName, 1);
+        Assert.AreEqual(FirstLine[Position], ' ', ' ');
+    end;
+
     local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; ItemNo: Code[20]): Decimal
     var
         SalesHeader: Record "Sales Header";

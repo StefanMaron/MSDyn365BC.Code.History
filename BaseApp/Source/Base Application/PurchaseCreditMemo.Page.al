@@ -1619,6 +1619,8 @@
 
     local procedure ValidateShippingOption()
     begin
+        OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
         case ShipToOptions of
             ShipToOptions::"Default (Vendor Address)":
                 begin
@@ -1627,7 +1629,9 @@
                 end;
             ShipToOptions::"Alternate Vendor Address":
                 Validate("Order Address Code", '');
-        end
+        end;
+
+        OnAfterValidateShipToOptions(Rec, ShipToOptions);
     end;
 
     local procedure CalculateCurrentShippingOption()
@@ -1644,6 +1648,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
     begin
     end;
 }

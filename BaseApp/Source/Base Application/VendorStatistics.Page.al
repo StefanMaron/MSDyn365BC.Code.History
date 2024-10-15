@@ -625,7 +625,7 @@ page 152 "Vendor Statistics"
             DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[3], VendDateName[3], CurrentDate, -1);
         end;
 
-        SetRange("Date Filter", 0D, CurrentDate);
+        SetDateFilter();
 
         for i := 1 to 4 do begin
             SetFilter("Date Filter", VendDateFilter[i]);
@@ -680,6 +680,18 @@ page 152 "Vendor Statistics"
         HonoredAmtLCY: array[3] of Decimal;
         HonoredRemainingAmtLCY: array[3] of Decimal;
         DocumentSituationFilter: array[3] of Option " ","Posted BG/PO","Closed BG/PO","BG/PO",Cartera,"Closed Documents";
+
+    local procedure SetDateFilter()
+    begin
+        SetRange("Date Filter", 0D, CurrentDate);
+
+        OnAfterSetDateFilter(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDateFilter(var Vendor: Record Vendor)
+    begin
+    end;
 
     [Scope('OnPrem')]
     procedure UpdateBillStatistics()

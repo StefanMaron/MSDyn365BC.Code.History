@@ -1032,7 +1032,7 @@ report 10710 "Make 349 Declaration"
             DeclarationMediaType::Telematic:
                 DeclarationMT := 'T';
             DeclarationMediaType::"Physical support":
-                DeclarationMT := 'C';
+                DeclarationMT := ' ';
         end;
         if PeriodFreqChange then
             PeriodChangeText := 'X'

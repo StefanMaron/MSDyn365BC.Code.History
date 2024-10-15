@@ -541,8 +541,7 @@ report 1307 "Standard Sales - Credit Memo"
                         VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                     VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                     VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    if ("VAT %" <> 0) or ("VAT Clause Code" <> '') or (Amount <> "Amount Including VAT") then
-                        VATAmountLine.InsertLine;
+                    VATAmountLine.InsertLine();
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -736,7 +735,8 @@ report 1307 "Standard Sales - Credit Memo"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
-                UseTemporary = true;
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
+				UseTemporary = true;
                 column(VATIdentifier_VATClauseLine; "VAT Identifier")
                 {
                 }
