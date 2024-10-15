@@ -776,7 +776,7 @@ page 9302 "Sales Credit Memos"
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(Rec.RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer)
+    protected procedure PostDocument(PostingCodeunitID: Integer)
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         PreAssignedNo: Code[20];

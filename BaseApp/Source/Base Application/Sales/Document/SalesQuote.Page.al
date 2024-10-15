@@ -1867,6 +1867,7 @@ page 41 "Sales Quote"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         Rec.SetSecurityFilterOnRespCenter();
+        OnOpenPageOnAfterSetSecurityFilterOnRespCenter(Rec);
 
         Rec.SetRange("Date Filter", 0D, WorkDate());
 
@@ -2049,5 +2050,10 @@ page 41 "Sales Quote"
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header")
+    begin
+    end;    
 }
 

@@ -177,7 +177,7 @@ page 7121 "Purchase Analysis Lines"
                     Caption = 'Insert &Items';
                     Ellipsis = true;
                     Image = Item;
-                    ToolTip = 'Insert one or more items that you want to include in the sales analysis report.';
+                    ToolTip = 'Insert one or more items that you want to include in the purchase analysis report.';
 
                     trigger OnAction()
                     begin
@@ -190,7 +190,7 @@ page 7121 "Purchase Analysis Lines"
                     Caption = 'Insert &Vendors';
                     Ellipsis = true;
                     Image = Vendor;
-                    ToolTip = 'Insert one or more vendors that you want to include in the sales analysis report.';
+                    ToolTip = 'Insert one or more vendors that you want to include in the purchase analysis report.';
 
                     trigger OnAction()
                     begin
@@ -206,7 +206,7 @@ page 7121 "Purchase Analysis Lines"
                     Caption = 'Insert Ite&m Groups';
                     Ellipsis = true;
                     Image = ItemGroup;
-                    ToolTip = 'Insert one or more item groups that you want to include in the sales analysis report.';
+                    ToolTip = 'Insert one or more item groups that you want to include in the purchase analysis report.';
 
                     trigger OnAction()
                     begin
@@ -219,7 +219,7 @@ page 7121 "Purchase Analysis Lines"
                     Caption = 'Insert &Sales/Purchase Persons';
                     Ellipsis = true;
                     Image = SalesPurchaseTeam;
-                    ToolTip = 'Insert one or more sales people of purchasers that you want to include in the sales analysis report.';
+                    ToolTip = 'Insert one or more sales people of purchasers that you want to include in the purchase analysis report.';
 
                     trigger OnAction()
                     begin

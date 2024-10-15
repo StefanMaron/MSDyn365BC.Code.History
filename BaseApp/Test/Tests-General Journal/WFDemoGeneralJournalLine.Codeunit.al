@@ -19,6 +19,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryJournals: Codeunit "Library - Journals";
         WorkflowSetup: Codeunit "Workflow Setup";
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
@@ -407,6 +408,102 @@ codeunit 134188 "WF Demo General Journal Line"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure RequestorCancelsPurchaseRequestToDirectApprover()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApproverUserSetup: Record "User Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RequestorUserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+    begin
+        // [SCENARIO] Cancel a pending request to approve a journal batch
+        // [GIVEN] Journal batch with line
+        // [GIVEN] Approval entry exists for the journal batch
+        // [WHEN] Requestor clicks the Cancel action
+        // [THEN] Approval entry is canceled
+        Initialize();
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        CheckUserCanCancelTheApprovalRequestForAPurchaseJnlLine(GenJournalBatch, false);
+
+        // Exercise
+        Commit();
+        SendApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        // Verify
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsOpen(ApprovalEntry);
+
+        CheckUserCanCancelTheApprovalRequestForAPurchaseJnlLine(GenJournalBatch, true);
+
+        // Exercise
+        CancelApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        // Verify
+        ApprovalEntry.Reset();
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsCancelled(ApprovalEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure RequestorCancelsSalesRequestToDirectApprover()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApproverUserSetup: Record "User Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RequestorUserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+    begin
+        // [SCENARIO] Cancel a pending request to approve a journal batch
+        // [GIVEN] Journal batch with line
+        // [GIVEN] Approval entry exists for the journal batch
+        // [WHEN] Requestor clicks the Cancel action
+        // [THEN] Approval entry is canceled
+        Initialize();
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        CheckUserCanCancelTheApprovalRequestForASalesJnlLine(GenJournalBatch, false);
+
+        // Exercise
+        Commit();
+        SendApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        // Verify
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsOpen(ApprovalEntry);
+
+        CheckUserCanCancelTheApprovalRequestForASalesJnlLine(GenJournalBatch, true);
+
+        // Exercise
+        CancelApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        // Verify
+        ApprovalEntry.Reset();
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsCancelled(ApprovalEntry);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure DirectApproverApprovesRequestWithComment()
     var
@@ -437,7 +534,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Commit();
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
-        CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 0, false);
+        CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 0, true);
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
@@ -447,7 +544,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // Setup
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
 
-        CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 0, true);
+        CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 1, true);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
         // Exercise
@@ -491,7 +588,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Commit();
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
-        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, false);
+        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, true);
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
@@ -501,7 +598,7 @@ codeunit 134188 "WF Demo General Journal Line"
         // Setup
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
 
-        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, true);
+        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 1, true);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
 
@@ -546,7 +643,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Commit();
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
-        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, false);
+        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, true);
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
@@ -556,7 +653,117 @@ codeunit 134188 "WF Demo General Journal Line"
         // Setup
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
 
-        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, true);
+        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 1, true);
+        CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
+        CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
+
+        // Exercise
+        Approve(ApprovalEntry);
+
+        // Verify
+        ApprovalEntry.Reset();
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsApproved(ApprovalEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectApproverApprovesPurchaseRequestWithComment()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApproverUserSetup: Record "User Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RequestorUserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+    begin
+        // [SCENARIO] Approve a pending request to approve a journal batch
+        // [GIVEN] Journal batch with one line
+        // [GIVEN] Approval entry exists for the journal batch
+        // [WHEN] Direct approver clicks the Approve action
+        // [THEN] Approval entry is approved
+        Initialize();
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        CheckCommentsForDocumentOnPurchaseJournalPage(GenJournalBatch, 0, false);
+
+        // Exercise
+        Commit();
+        SendApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        CheckCommentsForDocumentOnPurchaseJournalPage(GenJournalBatch, 0, true);
+
+        // Verify
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsOpen(ApprovalEntry);
+
+        // Setup
+        AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
+
+        CheckCommentsForDocumentOnPurchaseJournalPage(GenJournalBatch, 1, true);
+        CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
+        CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
+
+        // Exercise
+        Approve(ApprovalEntry);
+
+        // Verify
+        ApprovalEntry.Reset();
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsApproved(ApprovalEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectApproverApprovesSalesRequestWithComment()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApproverUserSetup: Record "User Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RequestorUserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+    begin
+        // [SCENARIO] Approve a pending request to approve a journal batch
+        // [GIVEN] Journal batch with one line
+        // [GIVEN] Approval entry exists for the journal batch
+        // [WHEN] Direct approver clicks the Approve action
+        // [THEN] Approval entry is approved
+        Initialize();
+
+        // Setup
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        CheckCommentsForDocumentOnSalesJournalPage(GenJournalBatch, 0, false);
+
+        // Exercise
+        Commit();
+        SendApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        CheckCommentsForDocumentOnSalesJournalPage(GenJournalBatch, 0, true);
+
+        // Verify
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+
+        VerifyApprovalEntryIsOpen(ApprovalEntry);
+
+        // Setup
+        AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
+
+        CheckCommentsForDocumentOnSalesJournalPage(GenJournalBatch, 1, true);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
 
@@ -996,6 +1203,130 @@ codeunit 134188 "WF Demo General Journal Line"
         CashReceiptJournal.Close();
     end;
 
+    [Test]
+    procedure ApprovalActionsVisibilityOnPurchaseJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApproverUserSetup: Record "User Setup";
+        RequestorUserSetup: Record "User Setup";
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        // [SCENARIO] Visibility of approval actions on a journal batch
+        Initialize();
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        // [GIVEN] Journal batch with one or more lines
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow is disabled
+        CreateDirectApprovalWorkflow(Workflow);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions?
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsFalse(PurchaseJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(PurchaseJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(PurchaseJournal.Approve.Visible(), '');
+        Assert.IsFalse(PurchaseJournal.Reject.Visible(), '');
+        Assert.IsFalse(PurchaseJournal.Delegate.Visible(), '');
+
+        // [THEN] Close the journal
+        PurchaseJournal.Close();
+
+        // [GIVEN] Workflow is enabled
+        EnableWorkflow(Workflow);
+
+        // [WHEN] Approval entry exists for the batch
+        CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions?
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(PurchaseJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(PurchaseJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsTrue(PurchaseJournal.Approve.Visible(), '');
+        Assert.IsTrue(PurchaseJournal.Reject.Visible(), '');
+        Assert.IsTrue(PurchaseJournal.Delegate.Visible(), '');
+
+        // [THEN] Close the journal
+        PurchaseJournal.Close();
+    end;
+
+    [Test]
+    procedure ApprovalActionsVisibilityOnSalesJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApproverUserSetup: Record "User Setup";
+        RequestorUserSetup: Record "User Setup";
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        // [SCENARIO] Visibility of approval actions on a journal batch
+        Initialize();
+
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        // [GIVEN] Journal batch with one or more lines
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow is disabled
+        CreateDirectApprovalWorkflow(Workflow);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        SalesJournal.OpenEdit();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions?
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsFalse(SalesJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(SalesJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(SalesJournal.Approve.Visible(), '');
+        Assert.IsFalse(SalesJournal.Reject.Visible(), '');
+        Assert.IsFalse(SalesJournal.Delegate.Visible(), '');
+
+        // [THEN] Close the journal
+        SalesJournal.Close();
+
+        // [GIVEN] Workflow is enabled
+        EnableWorkflow(Workflow);
+
+        // [WHEN] Approval entry exists for the batch
+        CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        SalesJournal.OpenEdit();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions?
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalLine.Enabled(), 'Send should be disabled');
+        Assert.IsTrue(SalesJournal.CancelApprovalRequestJournalLine.Enabled(), 'Send should be enabled');
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsFalse(SalesJournal.CancelApprovalRequestJournalBatch.Enabled(), 'SendBatch should be disabled');
+        Assert.IsTrue(SalesJournal.Approve.Visible(), '');
+        Assert.IsTrue(SalesJournal.Reject.Visible(), '');
+        Assert.IsTrue(SalesJournal.Delegate.Visible(), '');
+
+        // [THEN] Close the journal
+        SalesJournal.Close();
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -1065,6 +1396,30 @@ codeunit 134188 "WF Demo General Journal Line"
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
+    local procedure CreatePurchaseJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Purchases, Page::"Purchase Journal"));
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          LibraryRandom.RandDecInRange(10000, 50000, 2));
+    end;
+
+    local procedure CreateSalesJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Sales, Page::"Sales Journal"));
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          LibraryRandom.RandDecInRange(10000, 50000, 2));
+    end;
+
     local procedure CreateCashReceiptJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -1123,18 +1478,36 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenView;
+        CashReceiptJournal.OpenView();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke;
+        CashReceiptJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure SendApprovalRequestForPaymentJournal(GenJournalBatchName: Code[20])
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        PaymentJournal.SendApprovalRequestJournalLine.Invoke;
+        PaymentJournal.SendApprovalRequestJournalLine.Invoke();
+    end;
+
+    local procedure SendApprovalRequestForPurchaseJournal(GenJournalBatchName: Code[20])
+    var
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        PurchaseJournal.OpenView();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        PurchaseJournal.SendApprovalRequestJournalLine.Invoke();
+    end;
+
+    local procedure SendApprovalRequestForSalesJournal(GenJournalBatchName: Code[20])
+    var
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        SalesJournal.OpenView();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        SalesJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure SendFilteredApprovalRequest(GenJournalBatchName: Code[20]; LineNo: Integer)
@@ -1169,9 +1542,27 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        PaymentJournal.CancelApprovalRequestJournalLine.Invoke;
+        PaymentJournal.CancelApprovalRequestJournalLine.Invoke();
+    end;
+
+    local procedure CancelApprovalRequestForPurchaseJournal(GenJournalBatchName: Code[20])
+    var
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        PurchaseJournal.OpenView();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        PurchaseJournal.CancelApprovalRequestJournalLine.Invoke();
+    end;
+
+    local procedure CancelApprovalRequestForSalesJournal(GenJournalBatchName: Code[20])
+    var
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        SalesJournal.OpenView();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        SalesJournal.CancelApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure CancelFilteredApprovalRequest(GenJournalBatchName: Code[20]; LineNo: Integer)
@@ -1281,6 +1672,28 @@ codeunit 134188 "WF Demo General Journal Line"
         PaymentJournal.Close();
     end;
 
+    local procedure CheckUserCanCancelTheApprovalRequestForAPurchaseJnlLine(GenJournalBatch: Record "Gen. Journal Batch"; CancelActionExpectedEnabled: Boolean)
+    var
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        PurchaseJournal.OpenView();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseJournal.CancelApprovalRequestJournalLine.Enabled(),
+          'Wrong state for the Cancel action');
+        PurchaseJournal.Close();
+    end;
+
+    local procedure CheckUserCanCancelTheApprovalRequestForASalesJnlLine(GenJournalBatch: Record "Gen. Journal Batch"; CancelActionExpectedEnabled: Boolean)
+    var
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        SalesJournal.OpenView();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesJournal.CancelApprovalRequestJournalLine.Enabled(),
+          'Wrong state for the Cancel action');
+        SalesJournal.Close();
+    end;
+
     local procedure CheckUserCanCancelTheApprovalRequestForACashReceiptJnlLine(GenJournalBatch: Record "Gen. Journal Batch"; CancelActionExpectedEnabled: Boolean)
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
@@ -1376,6 +1789,62 @@ codeunit 134188 "WF Demo General Journal Line"
         end;
 
         PaymentJournalPage.Close();
+    end;
+
+    local procedure CheckCommentsForDocumentOnPurchaseJournalPage(GenJournalBatch: Record "Gen. Journal Batch"; NumberOfExpectedComments: Integer; CommentActionIsVisible: Boolean)
+    var
+        ApprovalComments: TestPage "Approval Comments";
+        PurchaseJournalPage: TestPage "Purchase Journal";
+        NumberOfComments: Integer;
+    begin
+        PurchaseJournalPage.OpenView();
+        PurchaseJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        Assert.AreEqual(CommentActionIsVisible, PurchaseJournalPage.Comments.Visible(), 'The Comments action has the wrong visibility');
+
+        if CommentActionIsVisible then begin
+            ApprovalComments.Trap();
+            PurchaseJournalPage.Comments.Invoke();
+            if ApprovalComments.First() then
+                repeat
+                    NumberOfComments += 1;
+                until ApprovalComments.Next();
+            Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
+
+            ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
+            ApprovalComments.Next();
+            ApprovalComments.Close();
+        end;
+
+        PurchaseJournalPage.Close();
+    end;
+
+    local procedure CheckCommentsForDocumentOnSalesJournalPage(GenJournalBatch: Record "Gen. Journal Batch"; NumberOfExpectedComments: Integer; CommentActionIsVisible: Boolean)
+    var
+        ApprovalComments: TestPage "Approval Comments";
+        SalesJournalPage: TestPage "Sales Journal";
+        NumberOfComments: Integer;
+    begin
+        SalesJournalPage.OpenView();
+        SalesJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        Assert.AreEqual(CommentActionIsVisible, SalesJournalPage.Comments.Visible(), 'The Comments action has the wrong visibility');
+
+        if CommentActionIsVisible then begin
+            ApprovalComments.Trap();
+            SalesJournalPage.Comments.Invoke();
+            if ApprovalComments.First() then
+                repeat
+                    NumberOfComments += 1;
+                until ApprovalComments.Next();
+            Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
+
+            ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
+            ApprovalComments.Next();
+            ApprovalComments.Close();
+        end;
+
+        SalesJournalPage.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)

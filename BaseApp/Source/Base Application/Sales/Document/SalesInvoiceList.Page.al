@@ -832,7 +832,7 @@ page 9301 "Sales Invoice List"
         CustomerSelected := Rec."Sell-to Customer No." <> '';
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer)
+    protected procedure PostDocument(PostingCodeunitID: Integer)
     var
         PreAssignedNo: Code[20];
         xLastPostingNo: Code[20];

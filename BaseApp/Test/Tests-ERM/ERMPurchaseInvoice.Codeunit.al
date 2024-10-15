@@ -3117,6 +3117,42 @@
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyRemitToAddressPopulatedOnPurchaseInvoicePage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RemitAddress: Record "Remit Address";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 480603] Default Remit-to Address is not populating on Purchase Order or Purchase Invoice pages in the Shipment and Payment fasttab
+        Initialize();
+
+        // [GIVEN] Create a new Remit-to address and set Use as default
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+        RemitAddress.Default := true;
+        RemitAddress.Modify(true);
+
+        // [GIVEN] Purchase Order with one Item and Remit-to Code
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Open Purchase Order Page
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.GotoRecord(PurchaseHeader);
+
+        // [VERIFY] Verify: Remit information filled on Purchase Order Page 
+        PurchaseInvoicePage."Remit-to Code".AssertEquals(RemitAddress.Code);
+        PurchaseInvoicePage."Remit-to Name".AssertEquals(RemitAddress.Name);
+        PurchaseInvoicePage."Remit-to Address".AssertEquals(RemitAddress.Address);
+        PurchaseInvoicePage."Remit-to Post Code".AssertEquals(RemitAddress."Post Code");
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

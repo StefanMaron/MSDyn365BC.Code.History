@@ -14,7 +14,6 @@ codeunit 139178 "CRM Connection String"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        ConnStringMustInclPasswordErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         UserNameMustInclDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         IsNotFoundOnThePageErr: Label 'is not found on the page';

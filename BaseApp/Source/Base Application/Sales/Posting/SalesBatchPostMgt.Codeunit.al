@@ -61,7 +61,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchProcessingMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Posting Date", PostingDate);
         BatchProcessingMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
         BatchProcessingMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate);
-        OnRunBatchOnAfterAddParameters(BatchProcessingMgt);
+        OnRunBatchOnAfterAddParameters(BatchProcessingMgt, SalesBatchPostMgt, PostingCodeunitId);
 
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
@@ -83,7 +83,13 @@ codeunit 1371 "Sales Batch Post Mgt."
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunWithUI(SalesHeader, TotalCount, Question, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Confirm(StrSubstNo(Question, SalesHeader.Count, TotalCount), true) then
             exit;
 
@@ -278,8 +284,15 @@ codeunit 1371 "Sales Batch Post Mgt."
             SalesHeader.FieldError("Job Queue Status");
     end;
 
-    local procedure ReleaseSalesHeader(var SalesHeader: Record "Sales Header"): Boolean
+    local procedure ReleaseSalesHeader(var SalesHeader: Record "Sales Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReleaseSalesHeader(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesHeader.Status = SalesHeader.Status::Open then
             if not Codeunit.Run(Codeunit::"Release Sales Document", SalesHeader) then
                 exit(false);
@@ -368,12 +381,22 @@ codeunit 1371 "Sales Batch Post Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
+    local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt."; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt."; PostingCodeunitId: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetICBatchFileName(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleaseSalesHeader(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRunWithUI(var SalesHeader: Record "Sales Header"; TotalCount: Integer; Question: Text; var IsHandled: Boolean)
     begin
     end;
 

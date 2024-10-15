@@ -99,7 +99,7 @@ page 1811 "Setup Email Logging"
             group(Step2)
             {
                 Visible = ClientCredentialsVisible;
-                InstructionalText = 'Specify the ID and secret of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                InstructionalText = 'Specify the ID and secret of the Microsoft Entra application that will be used to connect to Exchange.', Comment = 'Exchange and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 ShowCaption = false;
 
                 group(ClientCredentials)

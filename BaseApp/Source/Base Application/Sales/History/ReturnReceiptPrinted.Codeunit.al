@@ -7,15 +7,25 @@ codeunit 6661 "Return Receipt - Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Rec.Find();
         Rec."No. Printed" := Rec."No. Printed" + 1;
         OnBeforeModify(Rec);
         Rec.Modify();
-        Commit();
+        if not SuppressCommit then
+            Commit();
     end;
+
+    var
+        SuppressCommit: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ReturnReceiptHeader: Record "Return Receipt Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

@@ -879,7 +879,7 @@ page 50 "Purchase Order"
 
                         trigger OnValidate()
                         begin
-                            FillRemitToFields();
+                            FillRemitToFields(true);
                         end;
                     }
                     group("Remit-to information")
@@ -1002,7 +1002,7 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = Prepayments;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for sales.';
+                    ToolTip = 'Specifies the prepayment percentage to use to calculate the prepayment for purchase.';
 
                     trigger OnValidate()
                     begin
@@ -1289,7 +1289,7 @@ page 50 "Purchase Order"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageLink = "Prepayment Order No." = field("No.");
                     RunPageView = sorting("Prepayment Order No.");
-                    ToolTip = 'View related posted sales invoices that involve a prepayment. ';
+                    ToolTip = 'View related posted purchase invoices that involve a prepayment.';
                 }
                 action(PostedPrepaymentCrMemos)
                 {
@@ -1299,7 +1299,7 @@ page 50 "Purchase Order"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageLink = "Prepayment Order No." = field("No.");
                     RunPageView = sorting("Prepayment Order No.");
-                    ToolTip = 'View related posted sales credit memos that involve a prepayment. ';
+                    ToolTip = 'View related posted purchase credit memos that involve a prepayment.';
                 }
             }
             group(Warehouse)
@@ -1551,7 +1551,7 @@ page 50 "Purchase Order"
                     Caption = 'Move Negative Lines';
                     Ellipsis = true;
                     Image = MoveNegativeLines;
-                    ToolTip = 'Prepare to create a replacement sales order in a sales return process.';
+                    ToolTip = 'Prepare to create a replacement purchase order in a purchase return process.';
 
                     trigger OnAction()
                     begin
@@ -1977,7 +1977,7 @@ page 50 "Purchase Order"
                         Caption = 'Prepayment Test &Report';
                         Ellipsis = true;
                         Image = PrepaymentSimulation;
-                        ToolTip = 'Preview the prepayment transactions that will results from posting the sales document as invoiced. ';
+                        ToolTip = 'Preview the prepayment transactions that will results from posting the purchase document as invoiced.';
 
                         trigger OnAction()
                         begin
@@ -2369,6 +2369,7 @@ page 50 "Purchase Order"
         ShowOverReceiptNotification();
         BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        FillRemitToFields(false);
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
@@ -2728,7 +2729,14 @@ page 50 "Purchase Order"
     end;
 
     local procedure ValidateShippingOption()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateShippingOption(Rec, ShipToOptions, IsHandled);
+        if IsHandled then
+            exit;
+
         case ShipToOptions of
             ShipToOptions::"Default (Company Address)",
             ShipToOptions::"Custom Address":
@@ -2762,26 +2770,32 @@ page 50 "Purchase Order"
     end;
 
     local procedure CalculateCurrentShippingAndPayToOption()
+    var
+        IsHandled: Boolean;
     begin
-        case true of
-            Rec."Sell-to Customer No." <> '':
-                ShipToOptions := ShipToOptions::"Customer Address";
-            Rec."Location Code" <> '':
-                ShipToOptions := ShipToOptions::Location;
-            else
-                if Rec.ShipToAddressEqualsCompanyShipToAddress() then
-                    ShipToOptions := ShipToOptions::"Default (Company Address)"
+        IsHandled := false;
+        OnBeforeCalculateCurrentShippingAndPayToOption(Rec, ShipToOptions, PayToOptions, IsHandled);
+        if not IsHandled then begin
+            case true of
+                Rec."Sell-to Customer No." <> '':
+                    ShipToOptions := ShipToOptions::"Customer Address";
+                Rec."Location Code" <> '':
+                    ShipToOptions := ShipToOptions::Location;
                 else
-                    ShipToOptions := ShipToOptions::"Custom Address";
-        end;
+                    if Rec.ShipToAddressEqualsCompanyShipToAddress() then
+                        ShipToOptions := ShipToOptions::"Default (Company Address)"
+                    else
+                        ShipToOptions := ShipToOptions::"Custom Address";
+            end;
 
-        case true of
-            (Rec."Pay-to Vendor No." = Rec."Buy-from Vendor No.") and Rec.BuyFromAddressEqualsPayToAddress():
-                PayToOptions := PayToOptions::"Default (Vendor)";
-            (Rec."Pay-to Vendor No." = Rec."Buy-from Vendor No.") and (not Rec.BuyFromAddressEqualsPayToAddress()):
-                PayToOptions := PayToOptions::"Custom Address";
-            Rec."Pay-to Vendor No." <> Rec."Buy-from Vendor No.":
-                PayToOptions := PayToOptions::"Another Vendor";
+            case true of
+                (Rec."Pay-to Vendor No." = Rec."Buy-from Vendor No.") and Rec.BuyFromAddressEqualsPayToAddress():
+                    PayToOptions := PayToOptions::"Default (Vendor)";
+                (Rec."Pay-to Vendor No." = Rec."Buy-from Vendor No.") and (not Rec.BuyFromAddressEqualsPayToAddress()):
+                    PayToOptions := PayToOptions::"Custom Address";
+                Rec."Pay-to Vendor No." <> Rec."Buy-from Vendor No.":
+                    PayToOptions := PayToOptions::"Another Vendor";
+            end;
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
@@ -2794,7 +2808,7 @@ page 50 "Purchase Order"
         OverReceiptMgt.ShowOverReceiptNotificationFromOrder(Rec."No.");
     end;
 
-    local procedure FillRemitToFields()
+    local procedure FillRemitToFields(ExecuteCurrPageUpdate: Boolean)
     var
         RemitAddress: Record "Remit Address";
     begin
@@ -2803,7 +2817,8 @@ page 50 "Purchase Order"
         if not RemitAddress.IsEmpty() then begin
             RemitAddress.FindFirst();
             FormatAddress.VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
-            CurrPage.Update();
+            if ExecuteCurrPageUpdate then
+                CurrPage.Update();
         end;
     end;
 
@@ -2855,6 +2870,16 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetControlAppearance()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShippingOption(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateCurrentShippingAndPayToOption(var PurchaseHeader: Record "Purchase Header"; var ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; var IsHandled: Boolean)
     begin
     end;
 }

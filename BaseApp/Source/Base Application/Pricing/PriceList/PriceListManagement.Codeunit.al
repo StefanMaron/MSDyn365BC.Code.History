@@ -848,6 +848,8 @@ codeunit 7017 "Price List Management"
         PriceListLine: Record "Price List Line";
         InsertedUpdatedLeft: array[3] of Integer;
     begin
+        OnBeforeImplementNewPrices(PriceWorksheetLine);
+
         PriceWorksheetLine.SetFilter("Price List Code", '<>%1', '');
         if PriceWorksheetLine.FindSet(true) then begin
             repeat
@@ -1037,6 +1039,11 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyLineOnAfterInsertFromPriceListLine(FromPriceListLine: Record "Price List Line"; var ToPriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImplementNewPrices(var PriceWorksheetLine: Record "Price Worksheet Line")
     begin
     end;
 }
