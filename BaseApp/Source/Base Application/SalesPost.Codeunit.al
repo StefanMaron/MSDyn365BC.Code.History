@@ -312,6 +312,7 @@
         PostDocumentLinesMsg: Label 'Post document lines.';
         HideProgressWindow: Boolean;
         OrderArchived: Boolean;
+        ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
 
     local procedure GetZeroSalesLineRecID(SalesHeader: Record "Sales Header"; var SalesLineRecID: RecordId)
     var
@@ -858,7 +859,7 @@
     var
         SalesLineBackup: Record "Sales Line";
     begin
-        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0) and (SalesLine.Amount <> 0)) then
+        if not (SalesHeader.Invoice and (SalesLine."Qty. to Invoice" <> 0)) then
             exit;
 
         ItemJnlRollRndg := true;
@@ -1625,8 +1626,8 @@
             exit;
 
         with SalesLine do begin
-            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
-                TestField(Amount);
+            if Amount = 0 then
+                Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
         end;
@@ -3141,7 +3142,6 @@
         with TempSalesLine do begin
             ResetTempLines(TempSalesLine);
             SetRange(Type, Type::"Charge (Item)");
-            SetFilter("Line Discount %", '<>100');
             if IsEmpty() then
                 exit;
 

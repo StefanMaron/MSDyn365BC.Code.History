@@ -12,6 +12,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
@@ -768,11 +770,37 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         Assert.RecordCount(PurchaseLine, 1);
     end;
 
-    local procedure Initialize()
+    [Test]
+    [Scope('OnPrem')]
+    procedure DescriptionOfRoundingAccountInPostedPrepaymentInvoice()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FETAURE] [Invoice Rounding]
+        // [SCENARIO 397118] System copies "Invoice Rounding" account's description to posted invoice line.
+        Initialize();
+
+        LibraryERM.SetInvRoundingPrecisionLCY(1);
+        LibraryPurchase.SetInvoiceRounding(true);
+
+        PreparePurchOrder(PurchaseHeaderOrder);
+        AddPurchOrderLine(
+          PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+
+        LibraryERMCountryData.UpdateVATPostingSetup();
+
+        PostPurchPrepmtInvoice(PurchaseHeaderOrder);
+
+        VerifyDescriptionOnPostedInvoiceRoundingLine(PurchaseHeaderOrder);
+    end;
+
+    local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
+
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
@@ -780,7 +808,11 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
@@ -1026,6 +1058,16 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         exit(VendorPostingGroup."Payables Account");
     end;
 
+    local procedure GetVendorInvoiceRoundingAccount(var GLAccount: Record "G/L Account"; VendorNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        Vendor.Get(VendorNo);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        GLAccount.Get(VendorPostingGroup."Invoice Rounding Account");
+    end;
+
     local procedure PostPurchPrepmtInvoice(var PurchHeader: Record "Purchase Header")
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
@@ -1086,21 +1128,22 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         end;
     end;
 
-    local procedure UpdateVendorInvoiceRoundingAccount(CustomerPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20])
+    local procedure UpdateVendorInvoiceRoundingAccount(VendorPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
-        CustomerPostingGroup: Record "Customer Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        CustomerPostingGroup.Get(CustomerPostingGroupCode);
+        VendorPostingGroup.Get(VendorPostingGroupCode);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProductPostingGroup.Code);
 
-        CustomerPostingGroup.Validate(
-          "Invoice Rounding Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-        CustomerPostingGroup.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate(Name, LibraryUtility.GenerateGUID());
+        GLAccount.Modify(true);
+        VendorPostingGroup.Validate("Invoice Rounding Account", GLAccount."No.");
+        VendorPostingGroup.Modify(true);
     end;
 
     local procedure UpdateCurrencyInvRoundPrecision(CurrencyCode: Code[10]): Code[10]
@@ -1120,6 +1163,23 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseInvoiceHeader);
         PurchaseInvoice.PurchLines.Last;
+    end;
+
+    local procedure VerifyDescriptionOnPostedInvoiceRoundingLine(PurchaseHeaderOrder: Record "Purchase Header")
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        GLAccountRounding: Record "G/L Account";
+    begin
+        PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeaderOrder."No.");
+        PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchInvHeader.FindFirst();
+
+        GetVendorInvoiceRoundingAccount(GLAccountRounding, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange("No.", GLAccountRounding."No.");
+        PurchInvLine.FindFirst();
+        PurchInvLine.TestField(Description, GLAccountRounding.Name);
     end;
 
     local procedure VerifyZeroVendorAccEntry()

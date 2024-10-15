@@ -80,7 +80,6 @@
         AdjustFinalInvWith100PctPrepmt(TempPurchLineGlobal);
 
         TempVATAmountLineRemainder.DeleteAll();
-        TempPurchLineGlobal.SetUseVATForReverseCharge;
         TempPurchLineGlobal.CalcVATAmountLines(1, PurchHeader, TempPurchLineGlobal, TempVATAmountLine);
 
         PurchaseLinesProcessed := false;
@@ -304,6 +303,7 @@
         HideProgressWindow: Boolean;
         OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
         PostDocumentLinesMsg: Label 'Post document lines.';
+        ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -812,7 +812,7 @@
         PurchaseLineBackup: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0) and (PurchLine.Amount <> 0)) then
+        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
             exit;
 
         IsHandled := false;
@@ -1868,8 +1868,8 @@
             exit;
 
         with PurchaseLine do begin
-            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
-                TestField(Amount);
+            if Amount = 0 then
+                Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
         end;
     end;
@@ -2681,11 +2681,6 @@
             if "Units per Parcel" > 0 then
                 Increment(TotalPurchLine."Units per Parcel", Round(PurchLineQty / "Units per Parcel", 1, '>'));
 
-            if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
-                "Amount Including VAT" := Amount;
-                "VAT %" := 0;
-            end;
-
             xPurchLine := PurchLine;
             PurchLineACY := PurchLine;
             OnRoundAmountOnBeforeCalculateLCYAmounts(xPurchLine, PurchLineACY, PurchHeader);
@@ -2848,10 +2843,7 @@
             Increment(TotalPurchLine.Amount, Amount);
             Increment(TotalPurchLine."VAT Base Amount", "VAT Base Amount");
             Increment(TotalPurchLine."VAT Difference", "VAT Difference");
-            if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then
-                Increment(TotalPurchLine."Amount Including VAT", Amount)
-            else
-                Increment(TotalPurchLine."Amount Including VAT", "Amount Including VAT");
+            Increment(TotalPurchLine."Amount Including VAT", "Amount Including VAT");
             Increment(TotalPurchLine."Line Discount Amount", "Line Discount Amount");
             Increment(TotalPurchLine."Inv. Discount Amount", "Inv. Discount Amount");
             Increment(TotalPurchLine."Inv. Disc. Amount to Invoice", "Inv. Disc. Amount to Invoice");
@@ -3486,7 +3478,6 @@
         with TempPurchLine do begin
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
-            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
@@ -6542,9 +6533,13 @@
                         TempInvoicePostBuffer."VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
                     OnPostInvoicePostingBufferOnAfterVATPostingSetupGet(VATPostingSetup);
 
-                    VATAmount := TempInvoicePostBuffer."VAT Base Amount" * VATPostingSetup."VAT %" / 100;
+                    VATAmount :=
+                        TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                        VATPostingSetup."VAT %" / 100;
 
-                    VATAmountACY := TempInvoicePostBuffer."VAT Base Amount (ACY)" * VATPostingSetup."VAT %" / 100;
+                    VATAmountACY :=
+                        TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
+                        VATPostingSetup."VAT %" / 100;
 
                     TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
                     if TempInvoicePostBufferReverseCharge.Find() then begin
