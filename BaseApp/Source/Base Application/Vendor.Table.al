@@ -2249,7 +2249,7 @@
         LogNotVerified: Boolean;
     begin
         IsHandled := false;
-        OnBeforeVATRegistrationValidation(Rec, IsHandled);
+        OnBeforeVATRegistrationValidation(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -2496,7 +2496,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVATRegistrationValidation(var Vendor: Record Vendor; var IsHandled: Boolean)
+    local procedure OnBeforeVATRegistrationValidation(var Vendor: Record Vendor; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 

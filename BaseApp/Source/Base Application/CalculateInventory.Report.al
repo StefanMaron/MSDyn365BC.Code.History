@@ -342,98 +342,102 @@ report 790 "Calculate Inventory"
         DimValue: Record "Dimension Value";
         DimMgt: Codeunit DimensionManagement;
         NoBinExist: Boolean;
+        ShouldInsertItemJnlLine: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity);
+        IsHandled := false;
+        OnBeforeFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine, IsHandled);
+        if not IsHandled then
+            with ItemJnlLine do begin
+                if NextLineNo = 0 then begin
+                    LockTable();
+                    SetRange("Journal Template Name", "Journal Template Name");
+                    SetRange("Journal Batch Name", "Journal Batch Name");
+                    if FindLast() then
+                        NextLineNo := "Line No.";
 
-        with ItemJnlLine do begin
-            if NextLineNo = 0 then begin
-                LockTable();
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                if FindLast then
-                    NextLineNo := "Line No.";
+                    SourceCodeSetup.Get();
+                end;
+                NextLineNo := NextLineNo + 10000;
+                ShouldInsertItemJnlLine := (Quantity2 <> 0) or ZeroQty;
+                OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ZeroQty, ShouldInsertItemJnlLine);
+                if ShouldInsertItemJnlLine then begin
+                    if (Quantity2 = 0) and Location."Bin Mandatory" and not Location."Directed Put-away and Pick"
+                    then
+                        if not Bin.Get(Location.Code, BinCode2) then
+                            NoBinExist := true;
 
-                SourceCodeSetup.Get();
-            end;
-            NextLineNo := NextLineNo + 10000;
+                    OnInsertItemJnlLineOnBeforeInit(ItemJnlLine);
 
-            if (Quantity2 <> 0) or ZeroQty then begin
-                if (Quantity2 = 0) and Location."Bin Mandatory" and not Location."Directed Put-away and Pick"
-                then
-                    if not Bin.Get(Location.Code, BinCode2) then
-                        NoBinExist := true;
+                    Init;
+                    "Line No." := NextLineNo;
+                    Validate("Posting Date", PostingDate);
+                    if PhysInvQuantity >= Quantity2 then
+                        Validate("Entry Type", "Entry Type"::"Positive Adjmt.")
+                    else
+                        Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
+                    Validate("Document No.", NextDocNo);
+                    Validate("Item No.", ItemNo);
+                    Validate("Variant Code", VariantCode2);
+                    Validate("Location Code", Location.Code);
+                    if not NoBinExist then
+                        Validate("Bin Code", BinCode2)
+                    else
+                        Validate("Bin Code", '');
+                    Validate("Source Code", SourceCodeSetup."Phys. Inventory Journal");
+                    "Qty. (Phys. Inventory)" := PhysInvQuantity;
+                    "Phys. Inventory" := true;
+                    Validate("Qty. (Calculated)", Quantity2);
+                    "Posting No. Series" := ItemJnlBatch."Posting No. Series";
+                    "Reason Code" := ItemJnlBatch."Reason Code";
 
-                OnInsertItemJnlLineOnBeforeInit(ItemJnlLine);
+                    "Phys Invt Counting Period Code" := PhysInvtCountCode;
+                    "Phys Invt Counting Period Type" := CycleSourceType;
 
-                Init;
-                "Line No." := NextLineNo;
-                Validate("Posting Date", PostingDate);
-                if PhysInvQuantity >= Quantity2 then
-                    Validate("Entry Type", "Entry Type"::"Positive Adjmt.")
-                else
-                    Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
-                Validate("Document No.", NextDocNo);
-                Validate("Item No.", ItemNo);
-                Validate("Variant Code", VariantCode2);
-                Validate("Location Code", Location.Code);
-                if not NoBinExist then
-                    Validate("Bin Code", BinCode2)
-                else
-                    Validate("Bin Code", '');
-                Validate("Source Code", SourceCodeSetup."Phys. Inventory Journal");
-                "Qty. (Phys. Inventory)" := PhysInvQuantity;
-                "Phys. Inventory" := true;
-                Validate("Qty. (Calculated)", Quantity2);
-                "Posting No. Series" := ItemJnlBatch."Posting No. Series";
-                "Reason Code" := ItemJnlBatch."Reason Code";
+                    if Location."Bin Mandatory" then
+                        "Dimension Set ID" := 0;
+                    "Shortcut Dimension 1 Code" := '';
+                    "Shortcut Dimension 2 Code" := '';
 
-                "Phys Invt Counting Period Code" := PhysInvtCountCode;
-                "Phys Invt Counting Period Type" := CycleSourceType;
+                    ItemLedgEntry.Reset();
+                    ItemLedgEntry.SetCurrentKey("Item No.");
+                    ItemLedgEntry.SetRange("Item No.", ItemNo);
+                    if ItemLedgEntry.FindLast() then
+                        "Last Item Ledger Entry No." := ItemLedgEntry."Entry No."
+                    else
+                        "Last Item Ledger Entry No." := 0;
 
-                if Location."Bin Mandatory" then
-                    "Dimension Set ID" := 0;
-                "Shortcut Dimension 1 Code" := '';
-                "Shortcut Dimension 2 Code" := '';
+                    OnBeforeInsertItemJnlLine(ItemJnlLine, QuantityOnHandBuffer);
+                    Insert(true);
+                    OnAfterInsertItemJnlLine(ItemJnlLine);
 
-                ItemLedgEntry.Reset();
-                ItemLedgEntry.SetCurrentKey("Item No.");
-                ItemLedgEntry.SetRange("Item No.", ItemNo);
-                if ItemLedgEntry.FindLast then
-                    "Last Item Ledger Entry No." := ItemLedgEntry."Entry No."
-                else
-                    "Last Item Ledger Entry No." := 0;
+                    if Location.Code <> '' then
+                        if Location."Directed Put-away and Pick" then
+                            ReserveWarehouse(ItemJnlLine);
 
-                OnBeforeInsertItemJnlLine(ItemJnlLine, QuantityOnHandBuffer);
-                Insert(true);
-                OnAfterInsertItemJnlLine(ItemJnlLine);
+                    if ColumnDim = '' then
+                        DimEntryNo2 := CreateDimFromItemDefault;
 
-                if Location.Code <> '' then
-                    if Location."Directed Put-away and Pick" then
-                        ReserveWarehouse(ItemJnlLine);
-
-                if ColumnDim = '' then
-                    DimEntryNo2 := CreateDimFromItemDefault;
-
-                if DimBufMgt.GetDimensions(DimEntryNo2, TempDimBufOut) then begin
-                    TempDimSetEntry.Reset();
-                    TempDimSetEntry.DeleteAll();
-                    if TempDimBufOut.Find('-') then begin
-                        repeat
-                            DimValue.Get(TempDimBufOut."Dimension Code", TempDimBufOut."Dimension Value Code");
-                            TempDimSetEntry."Dimension Code" := TempDimBufOut."Dimension Code";
-                            TempDimSetEntry."Dimension Value Code" := TempDimBufOut."Dimension Value Code";
-                            TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                            if TempDimSetEntry.Insert() then;
-                            "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-                            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
-                              "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-                            Modify;
-                        until TempDimBufOut.Next() = 0;
-                        TempDimBufOut.DeleteAll();
+                    if DimBufMgt.GetDimensions(DimEntryNo2, TempDimBufOut) then begin
+                        TempDimSetEntry.Reset();
+                        TempDimSetEntry.DeleteAll();
+                        if TempDimBufOut.Find('-') then begin
+                            repeat
+                                DimValue.Get(TempDimBufOut."Dimension Code", TempDimBufOut."Dimension Value Code");
+                                TempDimSetEntry."Dimension Code" := TempDimBufOut."Dimension Code";
+                                TempDimSetEntry."Dimension Value Code" := TempDimBufOut."Dimension Value Code";
+                                TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
+                                if TempDimSetEntry.Insert() then;
+                                "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
+                                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
+                                  "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                                Modify;
+                            until TempDimBufOut.Next() = 0;
+                            TempDimBufOut.DeleteAll();
+                        end;
                     end;
                 end;
             end;
-        end;
 
         OnAfterFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine);
     end;
@@ -881,13 +885,18 @@ report 790 "Calculate Inventory"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; ZeroQty: Boolean; var ShouldInsertItemJnlLine: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal)
+    local procedure OnBeforeFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

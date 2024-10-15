@@ -589,7 +589,7 @@
                 RefreshTempLines(SalesHeader, TempSalesLineGlobal);
 
             CalcInvDiscount(SalesHeader);
-            OnCheckAndUpdateOnAfterCalcInvDiscount(SalesHeader, TempWhseShptHeader, PreviewMode);
+            OnCheckAndUpdateOnAfterCalcInvDiscount(SalesHeader, TempWhseShptHeader, PreviewMode, TempSalesLineGlobal, SuppressCommit, WhseReceive, WhseShip);
 
             ReleaseSalesDocument(SalesHeader);
             OnCheckAndUpdateOnAfterReleaseSalesDocument(SalesHeader, PreviewMode);
@@ -2007,12 +2007,23 @@
             else begin
                 TestField("No.");
                 TestField(Type);
-                if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
-                    TestField("Gen. Bus. Posting Group");
-                    TestField("Gen. Prod. Posting Group");
-                end;
+                if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+                    TestGenPostingGroups(SalesLine);
             end;
         end;
+    end;
+
+    local procedure TestGenPostingGroups(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestGenPostingGroups(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.TestField("Gen. Bus. Posting Group");
+        SalesLine.TestField("Gen. Prod. Posting Group");
     end;
 
     local procedure UpdateReceiveAndCheckIfInvPutawayExists(var SalesHeader: Record "Sales Header")
@@ -6024,6 +6035,7 @@
                     repeat
                         if ItemLedgEntry.Quantity <> ItemLedgEntry."Invoiced Quantity" then begin
                             ItemLedgEntryNotInvoiced := ItemLedgEntry;
+                            OnGetATOItemLedgEntriesNotInvoicedOnBeforeItemLedgEntryNotInvoicedInsert(ItemLedgEntryNotInvoiced);
                             ItemLedgEntryNotInvoiced.Insert();
                         end;
                     until ItemLedgEntry.Next() = 0;
@@ -6352,6 +6364,7 @@
         with SalesHeader do begin
             SalesShptHeader.Init();
             CalcFields("Work Description");
+            OnInsertShipmentHeaderOnBeforeTransferfieldsToSalesShptHeader(SalesHeader);
             SalesShptHeader.TransferFields(SalesHeader);
             OnInsertShipmentHeaderOnAfterTransferfieldsToSalesShptHeader(SalesHeader, SalesShptHeader);
 
@@ -6470,7 +6483,9 @@
         with SalesHeader do begin
             SalesInvHeader.Init();
             CalcFields("Work Description");
+            OnInsertInvoiceHeaderOnBeforeSalesInvHeaderTransferFields(SalesHeader);
             SalesInvHeader.TransferFields(SalesHeader);
+            OnInsertInvoiceHeaderOnAfterSalesInvHeaderTransferFields(SalesHeader, SalesInvHeader);
 
             SalesInvHeader."No." := "Posting No.";
             if "Document Type" = "Document Type"::Order then begin
@@ -7729,6 +7744,7 @@
                         SalesOrderLine."Prepmt VAT Diff. to Deduct" := 0;
                     end;
                     SalesOrderLine.InitOutstanding();
+                    OnPostUpdateInvoiceLineOnBeforeModifySalesOrderLine(SalesOrderLine, TempSalesLine);
                     SalesOrderLine.Modify();
                     OnPostUpdateInvoiceLineOnAfterModifySalesOrderLine(SalesOrderLine, TempSalesLine);
 
@@ -7791,6 +7807,7 @@
                     OnPostUpdateReturnReceiptLineOnBeforeInitQtyToInvoice(SalesOrderLine, TempSalesLine);
                     SalesOrderLine.InitQtyToInvoice();
                     SalesOrderLine.InitOutstanding();
+                    OnPostUpdateReturnReceiptLineOnBeforeModifySalesOrderLine(SalesOrderLine, TempSalesLine);
                     SalesOrderLine.Modify();
                     OnPostUpdateReturnReceiptLineOnAfterModifySalesOrderLine(SalesOrderLine, TempSalesLine);
                 until Next() = 0;
@@ -8614,7 +8631,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary; WhseReceive: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; WhseShip: Boolean)
+    local procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary; WhseReceive: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; WhseShip: Boolean; InvtPickPutaway: Boolean)
     begin
     end;
 
@@ -9531,7 +9548,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesShptHeaderInsert(SalesShptHeader, SalesHeader, SuppressCommit, IsHandled, TempWhseRcptHeader, WhseReceive, TempWhseShptHeader, WhseShip);
+        OnBeforeSalesShptHeaderInsert(SalesShptHeader, SalesHeader, SuppressCommit, IsHandled, TempWhseRcptHeader, WhseReceive, TempWhseShptHeader, WhseShip, InvtPickPutaway);
         if IsHandled then
             exit;
 
@@ -9777,7 +9794,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertShipmentHeaderOnAfterTransferfieldsToSalesShptHeader(SalesHeader: Record "Sales Header"; SalesShptHeader: Record "Sales Shipment Header")
+    local procedure OnInsertShipmentHeaderOnAfterTransferfieldsToSalesShptHeader(SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertShipmentHeaderOnBeforeTransferfieldsToSalesShptHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9793,6 +9815,15 @@
     begin
     end;
 #endif
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvoiceHeaderOnBeforeSalesInvHeaderTransferFields(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvoiceHeaderOnAfterSalesInvHeaderTransferFields(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSumSalesLines2OnBeforeDivideAmount(var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option; var SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; IncludePrepayments: Boolean)
@@ -9860,6 +9891,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateInvoiceLineOnBeforeModifySalesOrderLine(var SalesOrderLine: Record "Sales Line"; TempSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateInvoiceLineOnAfterInsertSalesOrderHeader(var SalesOrderLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -9884,8 +9920,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCheckAndUpdateOnAfterCalcInvDiscount(SalesHeader: Record "Sales Header"; TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; PreviewMode: Boolean);
+    [IntegrationEvent(true, false)]
+    local procedure OnCheckAndUpdateOnAfterCalcInvDiscount(SalesHeader: Record "Sales Header"; TempWhseShptHeader: Record "Warehouse Shipment Header" temporary; PreviewMode: Boolean; var TempSalesLineGlobal: Record "Sales Line" temporary; SuppressCommit: Boolean; WhseReceive: Boolean; WhseShip: Boolean);
     begin
     end;
 
@@ -10302,6 +10338,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateReturnReceiptLineOnBeforeModifySalesOrderLine(var SalesOrderLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateReturnReceiptLineOnBeforeCalcQuantityInvoiced(var SalesOrderLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -10333,6 +10374,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforePostSalesLineEndLoop(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var LastLineRetrieved: Boolean; SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; RecSalesHeader: Record "Sales Header"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetATOItemLedgEntriesNotInvoicedOnBeforeItemLedgEntryNotInvoicedInsert(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -10413,6 +10459,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTestSalesLineOnAfterTestSalesLineJob(var SalesLine: record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestGenPostingGroups(var SalesLine: record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

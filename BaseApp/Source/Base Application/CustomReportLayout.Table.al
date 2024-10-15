@@ -399,6 +399,8 @@ table 9650 "Custom Report Layout"
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
     begin
+        OnBeforeExportReportLayout(Rec, DefaultFileName, ShowFileDialog);
+
         // Update is needed in case of report layout mismatches word layout
         // Do not update build-in layout as it is read only
         if not "Built-In" then
@@ -544,11 +546,17 @@ table 9650 "Custom Report Layout"
     end;
 
     [Scope('OnPrem')]
-    procedure ExportSchema(DefaultFileName: Text; ShowFileDialog: Boolean): Text
+    procedure ExportSchema(DefaultFileName: Text; ShowFileDialog: Boolean) Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportSchema(Rec, DefaultFileName, ShowFileDialog, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TestField(Type, Type::Word);
 
         if DefaultFileName = '' then
@@ -1059,6 +1067,16 @@ table 9650 "Custom Report Layout"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLayout(var LayoutUpdated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportReportLayout(CustomReportLayout: Record "Custom Report Layout"; var DefaultFileName: Text; ShowFileDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportSchema(CustomReportLayout: Record "Custom Report Layout"; var DefaultFileName: Text; ShowFileDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 
