@@ -15,7 +15,7 @@ page 27001 "SAT Account Codes"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the SAT account.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a description of the SAT account.';

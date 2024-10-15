@@ -1265,6 +1265,20 @@ codeunit 132201 "Library - Inventory"
         end;
     end;
 
+    procedure UndoTransferShipments(TransferOrderNo: Code[20])
+    var
+        TransferShipmentLine: Record "Transfer Shipment Line";
+    begin
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferOrderNo);
+        TransferShipmentLine.SetRange("Correction Line", false);
+        UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+    end;
+
+    procedure UndoTransferShipmentLinesInFilter(var TransferShipmentLine: Record "Transfer Shipment Line")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Undo Transfer Shipment", TransferShipmentLine);
+    end;
+
     procedure ReleaseTransferOrder(var TransferHeader: Record "Transfer Header")
     var
         ReleaseTransferDocument: Codeunit "Release Transfer Document";

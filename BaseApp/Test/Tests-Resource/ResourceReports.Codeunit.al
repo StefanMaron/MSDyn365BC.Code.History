@@ -306,7 +306,7 @@ codeunit 136902 "Resource Reports"
         VerifyResource(Resource);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ResourcePriceListReportHandler')]
     [Scope('OnPrem')]
@@ -447,7 +447,7 @@ codeunit 136902 "Resource Reports"
         ResJournalLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; ResourceNo: Code[20]; WorkTypeCode: Code[10])
     begin
         LibraryResource.CreateResourcePrice(ResourcePrice, ResourcePrice.Type, ResourceNo, WorkTypeCode, '');
@@ -481,7 +481,7 @@ codeunit 136902 "Resource Reports"
         ResourceJournalTest.Run();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure RunResourcePriceListReport(No: Code[20]; CurrencyCode: Code[10])
     var
         Resource: Record Resource;
@@ -569,7 +569,7 @@ codeunit 136902 "Resource Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalPrice_ResJnlLine', ResJournalLine."Total Price");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifyResourcePriceList(ResourcePrice: Record "Resource Price"; ResourceUnitPrice: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile;
@@ -684,7 +684,7 @@ codeunit 136902 "Resource Reports"
         ResourceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourcePriceListReportHandler(var ResourcePriceList: TestRequestPage "Resource - Price List")

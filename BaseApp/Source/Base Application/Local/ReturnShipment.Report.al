@@ -363,7 +363,7 @@ report 10127 "Return Shipment"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(15) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Rcpt.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

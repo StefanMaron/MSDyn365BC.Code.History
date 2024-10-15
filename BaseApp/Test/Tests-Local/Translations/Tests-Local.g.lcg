@@ -3461,15 +3461,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration NA - NamedType OnAfterCalculateSalesTaxStatisticsTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2679767859 - NamedType 2436744075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OnAfterPostGLAndVendor]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Partner Integration NA - NamedType OnAfterPostGLAndVendorTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2679767859 - NamedType 2896623280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[OnBeforeCalculateSalesTaxStats]]></Val>

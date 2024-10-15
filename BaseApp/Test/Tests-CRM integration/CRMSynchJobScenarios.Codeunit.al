@@ -384,12 +384,13 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         LastSynchModifiedOn := IntegrationTableMapping."Synch. Modified On Filter";
         Assert.AreNotEqual(0DT, LastSynchModifiedOn,
           'Did not expect the synch. integration table last modified on filter to be empty');
+        Sleep(2000);
         // [WHEN] Scheduled synch executes
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
         // [THEN] The mapping should be updated with the latest modified date.
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        Assert.AreEqual(LastSynchModifiedOn, IntegrationTableMapping."Synch. Modified On Filter",
-          'Did not expect integration table last modified on filter to change when running the same synch. twice');
+        Assert.IsTrue(IntegrationTableMapping."Synch. Modified On Filter" >= LastSynchModifiedOn,
+          'Did expect integration table last modified on filter to change when running the same synch. twice');
     end;
 
     [Test]

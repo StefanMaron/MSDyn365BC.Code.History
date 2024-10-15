@@ -78,7 +78,7 @@ page 10101 "Sales Tax Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a description of the tax journal line.';
@@ -107,7 +107,7 @@ page 10101 "Sales Tax Journal"
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax jurisdiction that is used for the Tax Area Code field on the purchase or sales lines.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax amount.';

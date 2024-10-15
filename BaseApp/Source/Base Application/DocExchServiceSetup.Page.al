@@ -25,27 +25,6 @@ page 1275 "Doc. Exch. Service Setup"
                     ShowMandatory = true;
                     ToolTip = 'Specifies any text that you have entered to identify your company in document exchange processes.';
                 }
-#if not CLEAN19
-                field(DocExchTenantID; DocExchTenantID)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Doc. Exch. Tenant ID';
-                    Visible = false;
-                    Editable = EditableByNotEnabled;
-                    ExtendedDatatype = Masked;
-                    ShowMandatory = true;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies the tenant in the document exchange service that represents your company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                    ObsoleteTag = '19.0';
-
-                    trigger OnValidate()
-                    begin
-                        SavePassword("Doc. Exch. Tenant ID", DocExchTenantID);
-                    end;
-                }
-#endif
                 field(Sandbox; Sandbox)
                 {
                     Caption = 'Sandbox';
@@ -75,19 +54,6 @@ page 1275 "Doc. Exch. Service Setup"
                         end;
                     end;
                 }
-#if not CLEAN19
-                field(ShowEnableWarning; ShowEnableWarning)
-                {
-                    ShowCaption = false;
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    Visible = false;
-                    Enabled = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
             }
             group(Token)
             {
@@ -190,100 +156,6 @@ page 1275 "Doc. Exch. Service Setup"
             {
                 Caption = 'Authorization';
                 Visible = OAuth2Visible;
-#if not CLEAN19
-                group(Consumer)
-                {
-                    Caption = 'Consumer';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                    ObsoleteTag = '19.0';
-                    field(ConsumerKey; ConsumerKey)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Consumer Key';
-                        Editable = EditableByNotEnabled;
-                        ExtendedDatatype = Masked;
-                        ShowMandatory = true;
-                        ToolTip = 'Specifies the 3-legged OAuth key for the consumer key. This is provided by the document exchange service provider.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                        ObsoleteTag = '19.0';
-
-                        trigger OnValidate()
-                        begin
-                            SavePassword("Consumer Key", ConsumerKey);
-                            if ConsumerKey <> '' then
-                                CheckEncryption();
-                        end;
-                    }
-                    field(ConsumerSecret; ConsumerSecret)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Consumer Secret';
-                        Editable = EditableByNotEnabled;
-                        ExtendedDatatype = Masked;
-                        ShowMandatory = true;
-                        ToolTip = 'Specifies the secret that protects the consumer key that you enter in the Consumer Key field.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                        ObsoleteTag = '19.0';
-
-                        trigger OnValidate()
-                        begin
-                            SavePassword("Consumer Secret", ConsumerSecret);
-                            if ConsumerSecret <> '' then
-                                CheckEncryption();
-                        end;
-                    }
-                }
-                group(Tokens)
-                {
-                    Caption = 'Tokens';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                    ObsoleteTag = '19.0';
-                    field(TokenValue; TokenValue)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Token';
-                        Editable = EditableByNotEnabled;
-                        ExtendedDatatype = Masked;
-                        ShowMandatory = true;
-                        ToolTip = 'Specifies a 3-legged OAuth key for Token. This is provided by the document exchange service provider.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                        ObsoleteTag = '19.0';
-
-                        trigger OnValidate()
-                        begin
-                            SavePassword(Token, TokenValue);
-                            if TokenValue <> '' then
-                                CheckEncryption();
-                        end;
-                    }
-                    field(TokenSecret; TokenSecret)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Token Secret';
-                        Editable = EditableByNotEnabled;
-                        ExtendedDatatype = Masked;
-                        ShowMandatory = true;
-                        ToolTip = 'Specifies the 3-legged OAuth key for the token that you enter in the Token field.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Authentication with OAuth 1.0 is deprecated.';
-                        ObsoleteTag = '19.0';
-
-                        trigger OnValidate()
-                        begin
-                            SavePassword("Token Secret", TokenSecret);
-                            if TokenSecret <> '' then
-                                CheckEncryption();
-                        end;
-                    }
-                }
-#endif
                 field("Client Id"; Rec."Client Id")
                 {
                     Caption = 'Client ID';
@@ -529,14 +401,6 @@ page 1275 "Doc. Exch. Service Setup"
 
     var
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
-#if not CLEAN19
-        ConsumerKey: Text[50];
-        ConsumerSecret: Text[50];
-        TokenValue: Text[50];
-        TokenSecret: Text[50];
-        DocExchTenantID: Text[50];
-        ShowEnableWarning: Text;
-#endif
         Sandbox: Boolean;
         OAuth2Visible: Boolean;
         StatusVisible: Boolean;

@@ -1,4 +1,4 @@
-page 209 "Units of Measure"
+﻿page 209 "Units of Measure"
 {
     AdditionalSearchTerms = 'uom';
     ApplicationArea = Basic, Suite;
@@ -19,7 +19,7 @@ page 209 "Units of Measure"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a code for the unit of measure, which you can select on item and resource cards from where it is copied to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the unit of measure.';
@@ -197,6 +197,38 @@ page 209 "Units of Measure"
                     begin
                         CRMIntegrationManagement.ShowLog(RecordId);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMGotoUnitsOfMeasure_Promoted; CRMGotoUnitsOfMeasure)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
                 }
             }
         }

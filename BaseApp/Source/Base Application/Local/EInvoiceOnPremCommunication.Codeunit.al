@@ -1,0 +1,46 @@
+codeunit 10174 "EInvoice OnPrem Communication" implements "EInvoice Communication"
+{
+    Access = Internal;
+
+    var
+        Parameters: DotNet GenericList1;
+
+    [NonDebuggable]
+    procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: Text)Response: Text;
+    begin
+        if not TryToInvokeMethodWithCertificate(Uri, MethodName, CertBase64, CertPassword, Response) then
+            Error(GetLastErrorText());
+    end;
+
+    [NonDebuggable]
+    procedure SignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: Text)Response: Text;
+    begin
+        if not TryToSignDataWithCertificate(OriginalString, Cert, CertPassword, Response) then
+            Error(GetLastErrorText());
+    end;
+
+    [NonDebuggable]
+    [TryFunction]
+    local procedure TryToInvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: Text; var Response: Text);
+    var
+        SOAPWebServiceInvoker: DotNet SOAPWebServiceInvoker;
+    begin
+        Response := SOAPWebServiceInvoker.InvokeMethodWithCertificate(Uri, MethodName, CertBase64, CertPassword, Parameters);
+    end;
+
+    [NonDebuggable]
+    [TryFunction]
+    local procedure TryToSignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: Text; var Response: Text);
+    var
+        CFDISignatureProvider: DotNet CFDISignatureProvider;
+    begin
+        Response := CFDISignatureProvider.SignDataWithCertificate(OriginalString, Cert, CertPassword);
+    end;
+
+    procedure AddParameters(Parameter: Variant)
+    begin
+        if IsNull(Parameters) then
+            Parameters := Parameters.List();
+        Parameters.Add(Parameter);
+    end;
+}

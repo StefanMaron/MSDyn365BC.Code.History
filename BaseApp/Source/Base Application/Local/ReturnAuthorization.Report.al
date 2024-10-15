@@ -452,7 +452,7 @@ report 10081 "Return Authorization"
         trigger OnOpenPage()
         begin
             /* reactivate when HQ comes up with a code number for return authorizations
-            LogInteraction := SegManagement.FindInteractTmplCode(2) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Blnkt. Ord") <> '';
             */
             LogInteractionEnable := LogInteraction;
 

@@ -15,7 +15,7 @@ page 27014 "SAT Customer Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved customer.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the involved customer.';

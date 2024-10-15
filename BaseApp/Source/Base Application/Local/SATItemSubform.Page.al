@@ -15,7 +15,7 @@ page 27013 "SAT Item Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved item.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the involved item.';

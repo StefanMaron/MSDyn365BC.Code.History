@@ -2208,9 +2208,9 @@
         Assert.IsTrue(CustomerCard."CFDI General Public".Editable, '');
         CustomerCard.Close();
     end;
-    
+
     [Test]
-    [Scope('OnPrem')]    
+    [Scope('OnPrem')]
     procedure FixedAssetCardFields()
     var
         FixedAssetCard: TestPage "Fixed Asset Card";

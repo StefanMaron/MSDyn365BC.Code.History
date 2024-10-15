@@ -393,7 +393,7 @@ codeunit 142060 "ERM Misc. Report"
           StockkeepingUnit."Variant Code");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SalesPromotionRequestPageHandler')]
     [Scope('OnPrem')]
@@ -488,7 +488,7 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, ItemTaxGroupCodeLbl, SalesLine."Tax Group Code");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1751,7 +1751,7 @@ codeunit 142060 "ERM Misc. Report"
           (PurchaseLine."Buy-from Vendor No.", VendorLedgerEntry."Entry No.") - PurchaseLine."Amount Including VAT");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -2247,7 +2247,7 @@ codeunit 142060 "ERM Misc. Report"
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2), '');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateAndModifySalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(
@@ -3016,7 +3016,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemsbySalesTaxGroup.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ListPriceSheetRequestPageHandler(var ListPriceSheet: TestRequestPage "List Price Sheet")
@@ -3214,7 +3214,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesHistory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPromotionRequestPageHandler(var SalesPromotion: TestRequestPage "Sales Promotion")

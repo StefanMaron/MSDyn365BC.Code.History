@@ -12,6 +12,11 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         LibraryUTUtility: Codeunit "Library UT Utility";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -315,6 +320,85 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInvtOrderLine.TestField("Qty. Exp. Calculated", false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemReferenceList2ItemReferencesModalPageHandler')]
+    procedure ItemReferenceOnValidatePhysInvtOrderLine()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInventoryOrderSubf: TestPage "Physical Inventory Order Subf.";
+    begin
+        // [GIVEN] Physical Inventory Order document 
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Validate item reference no using existing refernce no
+        PhysInventoryOrderSubf.OpenEdit();
+        PhysInventoryOrderSubf.GoToRecord(PhysInvtOrderLine);
+        PhysInventoryOrderSubf."Item Reference No.".Value(ItemReference."Reference No.");
+        PhysInventoryOrderSubf.Close();
+
+        // [THEN] Info from item reference is copied
+        TestPhysInvtOrderLineReferenceFields(PhysInvtOrderLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemReferenceList1ItemReferenceModalPageHandler')]
+    procedure ItemReferenceOnLookupPhysInvtOrderLine()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInventoryOrderSubf: TestPage "Physical Inventory Order Subf.";
+    begin
+        // [GIVEN] Physical Inventory Order document 
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Lookup references
+        PhysInventoryOrderSubf.OpenEdit();
+        PhysInventoryOrderSubf.GoToRecord(PhysInvtOrderLine);
+        PhysInventoryOrderSubf."Item Reference No.".Lookup();
+        PhysInventoryOrderSubf.Close();
+
+        // [THEN] Info from item reference is copied
+        TestPhysInvtOrderLineReferenceFields(PhysInvtOrderLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReferenceBarCodeOnValidatePhysInvtOrderLineNonBaseUoM()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        // [GIVEN] Physical Inventory Order document 
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+
+        // [GIVEN] Item Reference for Item exists with non-base UoM code
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 2);
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", '', ItemUnitOfMeasure.Code, "Item Reference Type"::"Bar Code", '', LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference"));
+
+        ItemReference.Validate("Unit of Measure", ItemUnitOfMeasure.Code);
+        ItemReference.Modify(true);
+
+        // [WHEN] Validate item reference no using existing refernce no that has non-base unit of measure
+        asserterror PhysInvtOrderLine.Validate("Item Reference No.", ItemReference."Reference No.");
+
+        // [THEN] Verify error
+        Assert.ExpectedError(ItemReference.FieldCaption("Unit of Measure") + ' must not be ' + ItemReference."Unit of Measure" + ' in ' + ItemReference.TableCaption());
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -362,6 +446,42 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
         DimensionValue.FindFirst();
         exit(DimensionValue.Code);
+    end;
+
+    local procedure CreateDifferentItemReferencesWithSameReferenceNo(var FirstItemReference: Record "Item Reference")
+    var
+        Item: Record Item;
+        AdditionalItemReference: Record "Item Reference";
+    begin
+        FirstItemReference.DeleteAll();
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReference(FirstItemReference, Item."No.", "Item Reference Type"::" ", '');
+        FirstItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference.Description)));
+        FirstItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference."Description 2")));
+        FirstItemReference.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::"Bar Code", '');
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Customer, LibrarySales.CreateCustomerNo());
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Vendor, LibraryPurchase.CreateVendorNo());
+    end;
+
+    local procedure TestPhysInvtOrderLineReferenceFields(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; ItemReference: Record "Item Reference")
+    begin
+        PhysInvtOrderLine.SetRecFilter();
+        PhysInvtOrderLine.FindFirst();
+        PhysInvtOrderLine.TestField("Item No.", ItemReference."Item No.");
+        PhysInvtOrderLine.TestField("Description", ItemReference."Description");
+        PhysInvtOrderLine.TestField("Description 2", ItemReference."Description 2");
+        PhysInvtOrderLine.TestField("Item Reference Type", ItemReference."Reference Type");
+        PhysInvtOrderLine.TestField("Item Reference Type No.", ItemReference."Reference Type No.");
+        PhysInvtOrderLine.TestField("Item Reference Unit of Measure", ItemReference."Unit of Measure");
     end;
 
     [ModalPageHandler]
@@ -434,6 +554,52 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesPageHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemReferenceList1ItemReferenceModalPageHandler(var ItemReferenceList: TestPage "Item Reference List")
+    var
+        ItemNo: Code[20];
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        ItemReferenceListContains(ItemReferenceList, ItemNo);
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        ItemReferenceList.First(); // Return the item reference for the first item
+        ItemReferenceList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemReferenceList2ItemReferencesModalPageHandler(var ItemReferenceList: TestPage "Item Reference List")
+    var
+        ItemNo: Code[20];
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        ItemReferenceListContains(ItemReferenceList, ItemNo);
+        ItemReferenceListContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        ItemReferenceList.First(); // Return the item reference for the first item
+        ItemReferenceList.OK().Invoke();
+    end;
+
+    local procedure ItemReferenceListContains(var ItemReferenceList: TestPage "Item Reference List"; ItemNo: Code[20])
+    begin
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        Assert.IsTrue(ItemReferenceList.First(), 'Item Reference List does not contain entry that should be visible');
+    end;
+
+    local procedure ItemReferenceListNotContains(var ItemReferenceList: TestPage "Item Reference List"; ItemNo: Code[20])
+    begin
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        Assert.IsFalse(ItemReferenceList.First(), 'Item Reference List contains entry that should not be visible');
     end;
 }
 

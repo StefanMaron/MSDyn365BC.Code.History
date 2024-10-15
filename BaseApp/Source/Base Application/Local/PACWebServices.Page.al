@@ -19,7 +19,7 @@ page 10455 "PAC Web Services"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the unique code for the authorized service provider, PAC.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the name of the authorized service provider, PAC.';

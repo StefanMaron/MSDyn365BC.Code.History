@@ -18,7 +18,7 @@ page 10029 "Sales Order Invoice Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -64,7 +64,7 @@ page 10029 "Sales Order Invoice Subform"
                     ToolTip = 'Specifies that the item on the sales line is a catalog item (an item not normally kept in inventory).';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -91,7 +91,7 @@ page 10029 "Sales Order Invoice Subform"
                     ToolTip = 'Specifies the shipping agent''s package number.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

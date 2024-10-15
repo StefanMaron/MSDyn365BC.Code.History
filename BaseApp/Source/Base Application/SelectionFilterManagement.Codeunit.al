@@ -446,6 +446,14 @@ codeunit 46 SelectionFilterManagement
         exit(GetSelectionFilter(RecRef, PurchaseHeader.FieldNo("No.")));
     end;
 
+    procedure GetSelectionFilterForTransferHeader(var TransferHeader: Record "Transfer Header"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(TransferHeader);
+        exit(GetSelectionFilter(RecRef, TransferHeader.FieldNo("No.")));
+    end;
+
     procedure GetSelectionFilterForAggregatePermissionSetRoleId(var AggregatePermissionSet: Record "Aggregate Permission Set"): Text
     var
         RecRef: RecordRef;

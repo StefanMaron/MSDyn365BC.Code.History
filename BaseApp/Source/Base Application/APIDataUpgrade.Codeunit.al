@@ -575,6 +575,8 @@ codeunit 9994 "API Data Upgrade"
         ItemVariant2: Record "Item Variant";
         RecordCount: Integer;
     begin
+        ItemVariant.SetLoadFields("Item No.", "Item Id");
+        ItemVariant2.SetLoadFields("Item No.", "Item Id");
         if ItemVariant.FindSet() then begin
             repeat
                 if Item.Get(ItemVariant."Item No.") then

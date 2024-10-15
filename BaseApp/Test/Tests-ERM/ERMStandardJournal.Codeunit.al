@@ -1,4 +1,4 @@
-﻿codeunit 134921 "ERM Standard Journal"
+codeunit 134921 "ERM Standard Journal"
 {
     Subtype = Test;
     TestPermissions = Disabled;

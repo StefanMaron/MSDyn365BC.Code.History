@@ -1,4 +1,4 @@
-codeunit 141041 "Test Partner Integration NA"
+﻿codeunit 141041 "Test Partner Integration NA"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -25,7 +25,6 @@ codeunit 141041 "Test Partner Integration NA"
         SalesStatsTxt: Label 'OnBeforeSalesStats';
         ServiceStatsTxt: Label 'OnBeforeServiceStats';
         SalesStatsValidateTxt: Label 'OnBeforeServiceValideStats';
-        OnAfterPostGLAndVendorTxt: Label 'OnAfterPostGLAndVendor';
         OnFillInvPostingBufferServAmtsMgtTxt: Label 'OnFillInvPostingBufferServ';
         OnBeforeUpdateSalesTaxOnLinesTxt: Label 'OnBeforeUpdateSalesTaxOnLines';
         OnBeforePostUpdateOrderLineTxt: Label 'OnBeforePostUpdateOrderLine';
@@ -884,31 +883,6 @@ codeunit 141041 "Test Partner Integration NA"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure TestPurchPostOnAfterPostGLAndVendor()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        TestPartnerIntegrationNA: Codeunit "Test Partner Integration NA";
-    begin
-        // [SCENARIO] Calling Purch.-Post will trigger OnAfterPostGLAndVendor.
-
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.SetOutsideO365Scope();
-
-        // [GIVEN] Purchase Header
-        Initialize();
-
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        BindSubscription(TestPartnerIntegrationNA);
-
-        // [WHEN] Purch.-Post.OnRun is called
-        CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
-
-        // [THEN] Integration Events have fired.
-        VerifyDataTypeBuffer(OnAfterPostGLAndVendorTxt);
-    end;
-
-    [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
     procedure TestServiceQuoteOnBeforeCalculateSalesTaxStatistics()
@@ -1615,12 +1589,6 @@ codeunit 141041 "Test Partner Integration NA"
     local procedure OnBeforeCalculateSalesOrderStatsValidate(var i: Integer)
     begin
         InsertDataTypeBuffer(SalesStatsValidateTxt);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostGLAndVendor', '', false, false)]
-    local procedure OnAfterPostGLAndVendorPurchPost(var PurchaseHeader: Record "Purchase Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var ReturnShipmentHeader: Record "Return Shipment Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
-    begin
-        InsertDataTypeBuffer(OnAfterPostGLAndVendorTxt);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Amounts Mgt.", 'OnFillInvPostingBuffer', '', false, false)]

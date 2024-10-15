@@ -1,25 +1,9 @@
+#if not CLEAN22
 codeunit 10147 "E-Invoice Object Factory"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
-    procedure GetSignatureProvider(var ISignatureProvider: DotNet ISignatureProvider)
-    var
-        CFDISignatureProvider: DotNet CFDISignatureProvider;
-    begin
-        if IsNull(ISignatureProvider) then
-            ISignatureProvider := CFDISignatureProvider.CFDISignatureProvider();
-    end;
-
-    procedure GetWebServiceInvoker(var IWebServiceInvoker: DotNet IWebServiceInvoker)
-    var
-        SOAPWebServiceInvoker: DotNet SOAPWebServiceInvoker;
-    begin
-        if IsNull(IWebServiceInvoker) then
-            IWebServiceInvoker := SOAPWebServiceInvoker.SOAPWebServiceInvoker();
-    end;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Codeunit is deprecated, reference barcode libraries directly.';
+    ObsoleteTag = '22.0';
 
     procedure GetBarCodeProvider(var IBarCodeProvider: DotNet IBarcodeProvider)
     var
@@ -35,8 +19,10 @@ codeunit 10147 "E-Invoice Object Factory"
         BlobOutStr: OutStream;
     begin
         GetBarCodeProvider(IBarCodeProvider);
+
         TempBLOB.CreateOutStream(BlobOutStr);
         IBarCodeProvider.GetBarcodeStream(QRCodeInput, BlobOutStr);
     end;
-}
 
+}
+#endif

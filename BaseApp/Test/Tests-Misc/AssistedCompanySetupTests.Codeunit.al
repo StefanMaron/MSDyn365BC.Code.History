@@ -593,25 +593,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure TestEmailLoggingWizardNotVisibleInBasicApplicationArea()
-    begin
-        // [SCENARIO 176085] Setup Email Logging in not Visible in Basic Application Area
-
-        // [GIVEN] Application Area is set to Suite
-        LibraryApplicationArea.EnableFoundationSetup();
-
-        // [WHEN] Assisted Setup is initialized
-        // [THEN] Assisted Setup Setup Email Logging is visible in Assisted Setup
-        CheckWizardVisibility(PAGE::"Setup Email Logging", true);
-
-        // [WHEN] Only Basic Application Area is Enabled
-        LibraryApplicationArea.EnableBasicSetup;
-        // [THEN] Setup Email Logging is not visible in Assisted Setup
-        CheckWizardVisibility(PAGE::"Setup Email Logging", false);
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRegisterExtensionAssistedSetup()
@@ -1117,9 +1098,6 @@ codeunit 139301 "Assisted Company Setup Tests"
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-#if not CLEAN19
-        AssistedCompanySetupWizard."Costing Method".AssertEquals(InventorySetup."Default Costing Method");
-#endif
         InventorySetup.TestField("Default Costing Method", CostingMethod);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
         InventorySetup.TestField("Automatic Cost Posting", true);
@@ -1127,17 +1105,6 @@ codeunit 139301 "Assisted Company Setup Tests"
         InventorySetup.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type"::Item);
     end;
 
-#if not CLEAN19
-    local procedure OpenWizardAndGoToCostAccountingPage(var AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard")
-    begin
-        AssistedCompanySetupWizard.Trap;
-        PAGE.Run(PAGE::"Assisted Company Setup Wizard");
-
-        repeat
-            AssistedCompanySetupWizard.ActionNext.Invoke;
-        until AssistedCompanySetupWizard."Costing Method".Visible = true;
-    end;
-#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeModalPageHandler(var PostCodes: TestPage "Post Codes")

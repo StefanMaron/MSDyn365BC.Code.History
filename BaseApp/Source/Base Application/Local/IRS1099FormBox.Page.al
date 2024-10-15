@@ -18,7 +18,7 @@ page 10015 "IRS 1099 Form-Box"
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the 1099 form and the 1099 box.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies a description of the 1099 code.';

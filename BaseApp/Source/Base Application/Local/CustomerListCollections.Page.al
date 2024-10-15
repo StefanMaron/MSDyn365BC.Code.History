@@ -19,7 +19,7 @@ page 36629 "Customer List - Collections"
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

@@ -28,7 +28,7 @@ codeunit 131101 "Library - Workflow"
     begin
         Workflow.Init();
         Workflow.Code := GenerateRandomWorkflowCode;
-        Workflow.Description := DelChr(LibraryUtility.GenerateRandomText(MaxStrLen(Workflow.Description)), '=', '''()&|<>'); // remove invalid filter chars
+        Workflow.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(Workflow.Description));
         Workflow.Category := CreateWorkflowCategory;
         Workflow.Template := false;
         Workflow.Insert(true);
@@ -697,7 +697,7 @@ codeunit 131101 "Library - Workflow"
     begin
         WorkflowCategory.Code := LibraryUtility.GenerateRandomCode(WorkflowCategory.FieldNo(Code), DATABASE::"Workflow Category");
         WorkflowCategory.Description :=
-          DelChr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowCategory.Description)), '=', '''()&|<>');
+          LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowCategory.Description));
         WorkflowCategory.Insert();
         exit(WorkflowCategory.Code);
     end;

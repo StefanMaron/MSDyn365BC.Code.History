@@ -506,7 +506,7 @@ report 10082 "Return Receipt"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(5) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Shpt. Note") <> '';
     end;
 
     local procedure FormatDocumentFields(ReturnReceiptHeader: Record "Return Receipt Header")

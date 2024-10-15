@@ -568,7 +568,7 @@ report 10069 "Sales Blanket Order"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(2) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Blnkt. Ord") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

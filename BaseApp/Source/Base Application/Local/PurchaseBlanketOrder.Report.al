@@ -486,7 +486,7 @@ report 10119 "Purchase Blanket Order"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(13) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Ord.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

@@ -19,7 +19,7 @@ page 36641 "Order Lines Status Factbox"
                     ToolTip = 'Specifies the type of the document.';
                     Visible = false;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record on the document line. ';
@@ -29,7 +29,7 @@ page 36641 "Order Lines Status Factbox"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ToolTip = 'Specifies a description relating to the order line.';
                     Visible = false;
@@ -96,7 +96,7 @@ page 36641 "Order Lines Status Factbox"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s unit of measure. ';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ToolTip = 'Specifies the quantity associated with the order.';
                     Visible = false;

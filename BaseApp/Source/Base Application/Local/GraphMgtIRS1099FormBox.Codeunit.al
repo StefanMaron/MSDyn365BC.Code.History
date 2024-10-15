@@ -1,45 +1,12 @@
+#if not CLEAN22
 codeunit 10900 "Graph Mgt - IRS 1099 Form-Box"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Thos functionality is deprecated.';
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
     end;
-
-    [Scope('OnPrem')]
-    procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
-    var
-        DummyIRS1099FormBox: Record "IRS 1099 Form-Box";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        IRS1099FormBoxRecordRef: RecordRef;
-    begin
-        IRS1099FormBoxRecordRef.Open(DATABASE::"IRS 1099 Form-Box");
-        GraphMgtGeneralTools.UpdateIntegrationRecords(IRS1099FormBoxRecordRef, DummyIRS1099FormBox.FieldNo(Id), OnlyItemsWithoutId);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnIsIntegrationRecord', '', false, false)]
-    local procedure HandleIsIntegrationRecord(TableID: Integer; var isIntegrationRecord: Boolean)
-    begin
-        if isIntegrationRecord then
-            exit;
-
-        if TableID = DATABASE::"IRS 1099 Form-Box" then
-            isIntegrationRecord := true;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnUpdateReferencedIdField', '', false, false)]
-    local procedure HandleUpdateReferencedIdFieldOnItem(var RecRef: RecordRef; NewId: Guid; var Handled: Boolean)
-    var
-        DummyIRS1099FormBox: Record "IRS 1099 Form-Box";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-    begin
-        GraphMgtGeneralTools.HandleUpdateReferencedIdFieldOnItem(RecRef, NewId, Handled,
-          DATABASE::"IRS 1099 Form-Box", DummyIRS1099FormBox.FieldNo(Id));
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
-    local procedure HandleApiSetup()
-    begin
-        UpdateIntegrationRecords(false);
-    end;
 }
-
+#endif

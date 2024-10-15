@@ -456,7 +456,7 @@ report 10120 "Purchase Credit Memo NA"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(16) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

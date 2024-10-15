@@ -138,6 +138,9 @@ page 810 "Web Services"
                 actionref("<Reload>_Promoted"; "<Reload>")
                 {
                 }
+                actionref(DownloadODataMetadataDocument_Promoted; DownloadODataMetadataDocument)
+                {
+                }
             }
         }
     }

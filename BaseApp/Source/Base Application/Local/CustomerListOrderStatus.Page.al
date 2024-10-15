@@ -22,7 +22,7 @@ page 36631 "Customer List - Order Status"
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

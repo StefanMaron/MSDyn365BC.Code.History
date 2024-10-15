@@ -635,7 +635,7 @@ report 10080 "Sales Shipment per Package"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(5) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Shpt. Note") <> '';
     end;
 
     local procedure InsertTempLine(Comment: Text[80]; IncrNo: Integer)
