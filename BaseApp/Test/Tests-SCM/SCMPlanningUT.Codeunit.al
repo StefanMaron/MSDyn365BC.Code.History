@@ -560,6 +560,80 @@ codeunit 137801 "SCM - Planning UT"
         Assert.ExpectedError(StrSubstNo(NoCannotBeFoundInItemTableErr, Item."No."));
     end;
 
+    [Test]
+    procedure TransferLevelCodesInChainOfSKU()
+    var
+        Item: Record Item;
+        Location: array[4] of Record Location;
+        TransferRoute: Record "Transfer Route";
+        SKU: array[4] of Record "Stockkeeping Unit";
+        TempSKU: Record "Stockkeeping Unit" temporary;
+        i: Integer;
+    begin
+        // [FEATURE] [Stockkeeping Unit] [Transfer]
+        // [SCENARIO 414455] Correct transfer level codes in stockkeeping units that make up a transfer chain.
+        Initialize();
+
+        // [GIVEN] Create 4 stockkeeping units (SKU) "A", "B", "C", "D" at locations with the same codes.
+        LibraryInventory.CreateItem(Item);
+        for i := 1 to ArrayLen(Location) do begin
+            LibraryWarehouse.CreateLocation(Location[i]);
+            LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU[i], Location[i].Code, Item."No.", '');
+        end;
+
+        // [GIVEN] Create transfer routes between locations.
+        LibraryInventory.CreateTransferRoute(TransferRoute, Location[1].Code, Location[2].Code);
+        LibraryInventory.CreateTransferRoute(TransferRoute, Location[2].Code, Location[3].Code);
+        LibraryInventory.CreateTransferRoute(TransferRoute, Location[2].Code, Location[4].Code);
+
+        // [GIVEN] SKU "B" is replenished by transfer from "A", SKUs "C" and "D" are replenished by transfer from "B", see the schema:
+        // [GIVEN]   "A"
+        // [GIVEN]    |
+        // [GIVEN]   "B"
+        // [GIVEN]   / \
+        // [GIVEN] "C" "D"
+        SKU[2].Validate("Replenishment System", SKU[2]."Replenishment System"::Transfer);
+        SKU[2].Validate("Transfer-from Code", SKU[1]."Location Code");
+        SKU[2].Modify(true);
+
+        SKU[3].Validate("Replenishment System", SKU[3]."Replenishment System"::Transfer);
+        SKU[3].Validate("Transfer-from Code", SKU[2]."Location Code");
+        SKU[3].Modify(true);
+
+        SKU[4].Validate("Replenishment System", SKU[4]."Replenishment System"::Transfer);
+        SKU[4].Validate("Transfer-from Code", SKU[2]."Location Code");
+        SKU[4].Modify(true);
+
+        // [GIVEN] Copy SKUs to temporary table.
+        for i := 1 to ArrayLen(SKU) do begin
+            TempSKU := SKU[i];
+            TempSKU.Insert();
+        end;
+
+        // [GIVEN] Set up "Transfer-Level Code" = -1 on the SKU "A".
+        TempSKU.FindFirst();
+        TempSKU."Transfer-Level Code" := -1;
+        TempSKU.Modify();
+
+        // [WHEN] Invoke UpdateTempSKUTransferLevels function for the temporary table.
+        TempSKU.UpdateTempSKUTransferLevels(TempSKU, TempSKU, TempSKU."Location Code");
+
+        // [THEN] Verify Transfer-level codes.
+        // [THEN] SKU's "A" = -1.
+        TempSKU.Get(SKU[1]."Location Code", SKU[1]."Item No.", SKU[1]."Variant Code");
+        TempSKU.TestField("Transfer-Level Code", -1);
+
+        // [THEN] SKU's "B" = -2.
+        TempSKU.Get(SKU[2]."Location Code", SKU[2]."Item No.", SKU[2]."Variant Code");
+        TempSKU.TestField("Transfer-Level Code", -2);
+
+        // [THEN] SKUs' "C" and "D" = -3.
+        TempSKU.Get(SKU[3]."Location Code", SKU[3]."Item No.", SKU[3]."Variant Code");
+        TempSKU.TestField("Transfer-Level Code", -3);
+        TempSKU.Get(SKU[4]."Location Code", SKU[4]."Item No.", SKU[4]."Variant Code");
+        TempSKU.TestField("Transfer-Level Code", -3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
