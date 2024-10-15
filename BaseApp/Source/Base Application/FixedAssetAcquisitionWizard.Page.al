@@ -63,39 +63,8 @@ page 5551 "Fixed Asset Acquisition Wizard"
             group(Step2)
             {
                 Caption = '';
-                Visible = Step = Step::"FA Details";
-                group("Para2.1")
-                {
-                    Caption = 'Provide information about the fixed asset.';
-                    field(AcquisitionCost; Amount)
-                    {
-                        ApplicationArea = FixedAssets;
-                        Caption = 'Acquisition Cost Incl. VAT';
-                        ToolTip = 'Specifies the total amount (including VAT) of the acquisition document.';
-
-                        trigger OnValidate()
-                        begin
-                            ValidateCurrentStep(Step);
-                        end;
-                    }
-                    field(AcquisitionDate; "Posting Date")
-                    {
-                        ApplicationArea = FixedAssets;
-                        Caption = 'Acquisition Date';
-                        ToolTip = 'Specifies the date on which the fixed asset was acquired.';
-
-                        trigger OnValidate()
-                        begin
-                            ValidateCurrentStep(Step);
-                        end;
-                    }
-                }
-            }
-            group(Step3)
-            {
-                Caption = '';
                 Visible = Step = Step::"Register Details";
-                group("Para3.1")
+                group("Para2.1")
                 {
                     Caption = 'Which ledger do you want to post the acquisition to?';
                     field(TypeOfAcquisitions; AcquisitionOptions)
@@ -131,6 +100,14 @@ page 5551 "Fixed Asset Acquisition Wizard"
                             ApplicationArea = FixedAssets;
                             Caption = 'Vendor';
                             ToolTip = 'Specifies the number of the vendor to which a balancing entry for the acquisition line will be posted.';
+
+                            trigger OnValidate()
+                            var
+                                Vendor: Record Vendor;
+                            begin
+                                if Vendor.Get("Bal. Account No.") then
+                                    Validate("Currency Code", Vendor."Currency Code");
+                            end;
                         }
                         field(ExternalDocNo; "External Document No.")
                         {
@@ -159,6 +136,49 @@ page 5551 "Fixed Asset Acquisition Wizard"
                                 ValidateCurrentStep(Step);
                             end;
                         }
+                    }
+                    field(AcquisitionCurrencyCode; "Currency Code")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Currency Code';
+                        ToolTip = 'Specifies the Currency code that will be used for the acquisition line will be posted.';
+                    }
+                }
+            }
+            group(Step3)
+            {
+                Caption = '';
+                Visible = Step = Step::"FA Details";
+                group("Para3.1")
+                {
+                    Caption = 'Provide information about the fixed asset.';
+                    field(AcquisitionCost; Amount)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Acquisition Cost Incl. VAT';
+                        ToolTip = 'Specifies the total amount (including VAT) of the acquisition document.';
+
+                        trigger OnValidate()
+                        begin
+                            ValidateCurrentStep(Step);
+                        end;
+                    }
+                    field(AcquisitionDate; "Posting Date")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Acquisition Date';
+                        ToolTip = 'Specifies the date on which the fixed asset was acquired.';
+
+                        trigger OnValidate()
+                        begin
+                            ValidateCurrentStep(Step);
+                        end;
+                    }
+                    field(CurrencyCode; "Currency Code")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Currency Code';
+                        ToolTip = 'Specifies the Currency code that will be used for the acquisition line will be posted.';
                     }
                 }
             }
@@ -309,7 +329,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
         TempBalancingGenJournalLine: Record "Gen. Journal Line" temporary;
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         ClientTypeManagement: Codeunit "Client Type Management";
-        Step: Option Intro,"FA Details","Register Details",Done,"Already In Journal";
+        Step: Option Intro,"Register Details","FA Details",Done,"Already In Journal";
         TopBannerVisible: Boolean;
         AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
         OpenFAGLJournal: Boolean;
@@ -351,14 +371,14 @@ page 5551 "Fixed Asset Acquisition Wizard"
         case CurrentStep of
             Step::Intro:
                 CurrStepIsValid := true;
-            Step::"FA Details":
-                CurrStepIsValid := (Amount >= 0.0) and ("Posting Date" <> 0D);
             Step::"Register Details":
                 begin
                     CurrStepIsValid := "Bal. Account No." <> '';
                     if AcquisitionOptions = AcquisitionOptions::Vendor then
                         CurrStepIsValid := CurrStepIsValid and ("External Document No." <> '');
                 end;
+            Step::"FA Details":
+                CurrStepIsValid := (Amount >= 0.0) and ("Posting Date" <> 0D);
             Step::Done:
                 CurrStepIsValid := true;
             else

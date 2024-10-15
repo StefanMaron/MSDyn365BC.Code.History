@@ -61,15 +61,26 @@ table 750 "Standard General Journal"
         if StdGenJnl.IsZeroAmountJournal then
             DocumentNo := TryGetNextDocumentNo(StdGenJnl."Journal Template Name", JnlBatchName);
 
-        CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo);
+        CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo, 0D);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by CreateGenJnlFromStdJnlWithDocNo(StdGenJnl, JnlBatchName, DocumentNo, PostingDate).', '19.0')]
     procedure CreateGenJnlFromStdJnlWithDocNo(StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10]; DocumentNo: Code[20])
     begin
         if DocumentNo = '' then
-            CreateGenJnl(StdGenJnl, JnlBatchName, '')
+            CreateGenJnl(StdGenJnl, JnlBatchName, '', 0D)
         else
-            CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo);
+            CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo, 0D);
+    end;
+#endif
+
+    procedure CreateGenJnlFromStdJnlWithDocNo(StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10]; DocumentNo: Code[20]; PostingDate: Date)
+    begin
+        if DocumentNo = '' then
+            CreateGenJnl(StdGenJnl, JnlBatchName, '', PostingDate)
+        else
+            CreateGenJnl(StdGenJnl, JnlBatchName, DocumentNo, PostingDate);
     end;
 
     procedure Initialize(var StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10])
@@ -90,7 +101,7 @@ table 750 "Standard General Journal"
         if GenJnlBatch.FindFirst then;
     end;
 
-    local procedure CopyGenJnlFromStdJnl(StdGenJnlLine: Record "Standard General Journal Line"; DocumentNo: Code[20])
+    local procedure CopyGenJnlFromStdJnl(StdGenJnlLine: Record "Standard General Journal Line"; DocumentNo: Code[20]; PostingDate: date)
     var
         GenJnlManagement: Codeunit GenJnlManagement;
         Balance: Decimal;
@@ -122,13 +133,15 @@ table 750 "Standard General Journal"
             GenJnlLine.Validate("Bal. VAT Amount", StdGenJnlLine."Bal. VAT Amount");
         if DocumentNo <> '' then
             GenJnlLine."Document No." := DocumentNo;
+        if PostingDate <> 0D then
+            GenJnlLine."Posting Date" := PostingDate;
         OnAfterCopyGenJnlFromStdJnl(GenJnlLine, StdGenJnlLine);
         GenJnlLine.Insert(true);
 
         LastGenJnlLine := GenJnlLine;
     end;
 
-    local procedure CreateGenJnl(StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10]; DocumentNo: Code[20])
+    local procedure CreateGenJnl(StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10]; DocumentNo: Code[20]; PostingDate: Date)
     var
         StdGenJnlLine: Record "Standard General Journal Line";
     begin
@@ -140,7 +153,7 @@ table 750 "Standard General Journal"
         if StdGenJnlLine.Find('-') then
             repeat
                 UpdateWindow;
-                CopyGenJnlFromStdJnl(StdGenJnlLine, DocumentNo);
+                CopyGenJnlFromStdJnl(StdGenJnlLine, DocumentNo, PostingDate);
             until StdGenJnlLine.Next() = 0;
     end;
 

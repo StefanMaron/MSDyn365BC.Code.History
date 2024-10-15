@@ -458,25 +458,73 @@ page 9215 "Res. All. per Service  Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
+#if not CLEAN19
                 action(Costs)
                 {
                     ApplicationArea = Service;
                     Caption = 'Costs';
                     Image = ResourceCosts;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("Resource Filter");
                     ToolTip = 'View or change detailed information about costs for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
                 }
                 action(Prices)
                 {
                     ApplicationArea = Service;
                     Caption = 'Prices';
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("Resource Filter");
                     ToolTip = 'View or edit prices for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
+                }
+#endif
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Purchase Prices';
+                    Image = ResourceCosts;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or change detailed information about costs for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        Resource: Record Resource;
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        if Resource.Get(Rec."Resource Filter") then
+                            Resource.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit prices for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        Resource: Record Resource;
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        if Resource.Get(Rec."Resource Filter") then
+                            Resource.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
                 }
             }
             group("Pla&nning")
@@ -535,6 +583,13 @@ page 9215 "Res. All. per Service  Matrix"
         Col3Visible := true;
         Col2Visible := true;
         Col1Visible := true;
+    end;
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
@@ -608,6 +663,7 @@ page 9215 "Res. All. per Service  Matrix"
         Col31Visible: Boolean;
         [InDataSet]
         Col32Visible: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     procedure Load(var NewVerticalRec: Record "Service Header"; var NewHorizontalRec: Record "Service Order Allocation"; NewMatrixColumnCaptions: array[32] of Text[10]; var NewMatrixDateFilters: array[32] of Record Date; Periods: Integer)
     begin

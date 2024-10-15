@@ -281,11 +281,8 @@ report 7000060 "PO - Export N34.1"
                                     ElectPmtMgmt.InsertInterTransferTrailer(TotalDoc33Vend, ElectPmtMgmt.EuroAmount(TotalAmountInter));
                             end;
 
-                            if not SilentMode then
-                                ElectPmtMgmt.InsertGeneralTrailer(TotalDoc10Vend + TotalDoc33Vend, TotalAmountNAC + TotalAmountInter, true, '')
-                            else
-                                ElectPmtMgmt.InsertGeneralTrailer(
-                                  TotalDoc10Vend + TotalDoc33Vend, TotalAmountNAC + TotalAmountInter, false, SilentModeFileName);
+                            ElectPmtMgmt.InsertGeneralTrailer(
+                                TotalDoc10Vend + TotalDoc33Vend, TotalAmountNAC + TotalAmountInter, SilentMode, SilentModeFileName);
                         end;
                     end;
 
@@ -449,6 +446,12 @@ report 7000060 "PO - Export N34.1"
 
         TotalDoc10Vend := 0;
         TotalDoc33Vend := 0;
+    end;
+
+    trigger OnPostReport()
+    begin
+        if not (CurrReport.Preview() or SilentMode) then
+            ElectPmtMgmt.DownloadFile();
     end;
 
     var

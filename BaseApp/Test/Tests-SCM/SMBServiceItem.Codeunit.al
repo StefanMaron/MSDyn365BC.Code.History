@@ -2350,6 +2350,88 @@ codeunit 137510 "SMB Service Item"
         WarehouseShipmentHeader.TestField(Status, WarehouseShipmentHeader.Status::Released);
     end;
 
+    [Test]
+    procedure PurchLineForNonInventoryItemNotBlankedOutOnPostingWhseReceipt()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Purchase] [Warehouse Receipt]
+        // [SCENARIO 398513] "Qty. to Receive" on purchase line for non-inventory item is not blanked out after posting warehouse receipt for another purchase line.
+        Initialize();
+
+        LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WarehouseReceiptHeader.SetRange("Location Code", Location.Code);
+        WarehouseReceiptHeader.FindFirst();
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.TestField("Qty. to Invoice", PurchaseLine.Quantity);
+    end;
+
+    [Test]
+    procedure SalesLineForNonInventoryItemNotBlankedOutOnPostingWhseShipment()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Sales] [Warehouse Shipment]
+        // [SCENARIO 398513] "Qty. to Ship" on sales line for non-inventory item is not blanked out after posting warehouse shipment for another sales line.
+        Initialize();
+
+        LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        SalesLine.Find();
+        SalesLine.TestField("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.TestField("Qty. to Invoice", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         BOMComponent: Record "BOM Component";

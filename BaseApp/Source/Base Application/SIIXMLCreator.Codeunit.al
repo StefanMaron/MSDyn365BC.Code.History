@@ -910,7 +910,7 @@
         if SIIManagement.FindVatEntriesFromLedger(VendorLedgerEntryRecRef, VATEntry) then
             repeat
                 VATAmount := CalcVATAmountExclEC(VATEntry);
-                CuotaDeducible += Sign * Abs(VATAmount);
+                CuotaDeducible += Sign * VATAmount;
                 CalculateNonExemptVATEntries(TempVATEntry, VATEntry, true, VATAmount);
             until VATEntry.Next() = 0;
     end;

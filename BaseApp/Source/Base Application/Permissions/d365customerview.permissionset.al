@@ -13,5 +13,7 @@ permissionset 865 "D365 CUSTOMER, VIEW"
                   tabledata "Reminder/Fin. Charge Entry" = R,
                   tabledata "Service Zone" = R,
                   tabledata "Shipping Agent Services" = R,
+                  tabledata "Transaction Type" = R,
+                  tabledata "Transport Method" = R,
                   tabledata "VAT Registration No. Format" = R;
 }

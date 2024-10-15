@@ -1,7 +1,9 @@
 codeunit 147515 "No Taxable Documents"
 {
     Permissions = TableData "VAT Entry" = rm,
-                  TableData "No Taxable Entry" = rd;
+                  TableData "No Taxable Entry" = rd,
+                  TableData "Cust. Ledger Entry" = d,
+                  TableData "Vendor Ledger Entry" = d;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -29,7 +31,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.PostSalesDocWithNoTaxableVAT(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, false, 0);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
@@ -43,7 +45,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit Memo with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.PostSalesDocWithNoTaxableVAT(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", false, 0);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
@@ -59,7 +61,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 293795] No Taxable Entry is created for Service Invoice with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
           CustLedgerEntry,
           LibrarySII.PostServiceDocWithNonTaxableVAT(ServiceHeader."Document Type"::Invoice,
@@ -78,7 +80,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 293795] No Taxable Entry is created for Service Credit Memo with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
           CustLedgerEntry,
           LibrarySII.PostServiceDocWithNonTaxableVAT(ServiceHeader."Document Type"::"Credit Memo",
@@ -97,7 +99,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
@@ -116,7 +118,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", InvoiceNo);
@@ -134,7 +136,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice posted from Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -155,7 +157,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice posted from bal. Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
@@ -176,7 +178,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit Memo posted from Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -197,7 +199,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit Memo posted from bal. Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
@@ -218,7 +220,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice posted from Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -239,7 +241,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice posted from bal. Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
@@ -260,7 +262,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo posted from Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -281,7 +283,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo posted from bal. Gen. Journal with VAT Calculation type = No Taxable
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
@@ -303,7 +305,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales] [Reverse]
         // [SCENARIO 293795] No Taxable entries created for reversal when Sales Invoice is reversed
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -327,7 +329,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase] [Reverse]
         // [SCENARIO 293795] No Taxable entries created for reversal when Sales Invoice is reversed
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -352,7 +354,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice with VAT Calculation type = Normal
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
@@ -372,7 +374,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice with VAT Calculation type = Normal, No Taxable Type not empty
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
@@ -390,12 +392,12 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.PostSalesDocWithNoTaxableVAT(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, false, 0);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -409,12 +411,12 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit memo with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.PostSalesDocWithNoTaxableVAT(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", false, 0);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -430,15 +432,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Service] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Service Invoice with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
           CustLedgerEntry,
           LibrarySII.PostServiceDocWithNonTaxableVAT(ServiceHeader."Document Type"::Invoice,
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others"));
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -454,15 +456,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Service] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Service Credit Memo with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
           CustLedgerEntry,
           LibrarySII.PostServiceDocWithNonTaxableVAT(ServiceHeader."Document Type"::"Credit Memo",
             VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others"));
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -478,14 +480,14 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -501,14 +503,14 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", InvoiceNo);
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -523,8 +525,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice posted from Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -533,8 +535,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -549,8 +551,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice posted from bal. Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
@@ -559,8 +561,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -575,8 +577,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit Memo posted from Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -585,8 +587,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -601,8 +603,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Credit Memo posted from Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
@@ -611,8 +613,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
     end;
@@ -627,8 +629,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice posted from Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -637,8 +639,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -653,8 +655,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice posted from bal. Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
@@ -663,8 +665,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -679,8 +681,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo posted from Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -689,8 +691,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -705,8 +707,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Credit Memo posted from bal. Gen. Journal with VAT Calculation type = No Taxable
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
@@ -715,8 +717,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
     end;
@@ -733,15 +735,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Sales Invoice with VAT Calculation type = Normal, No Taxable Type not empty
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(SalesHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -CustLedgerEntry.Amount, -CustLedgerEntry."Amount (LCY)");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
@@ -759,15 +761,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 293795] No Taxable Entry is created for Purchase Invoice with VAT Calculation type = Normal, No Taxable Type not empty
         // [SCENARIO 293795] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(PurchaseHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, -VendorLedgerEntry.Amount, -VendorLedgerEntry."Amount (LCY)");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
@@ -784,8 +786,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 314078] No Taxable Entry is not created for Sales Invoice with VAT Calculation type = Normal
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
@@ -793,9 +795,9 @@ codeunit 147515 "No Taxable Documents"
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(SalesHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
@@ -815,8 +817,8 @@ codeunit 147515 "No Taxable Documents"
         // [SCENARIO 314078] No Taxable Entry is created only for Sales Line with VAT Calculation type = Normal, No Taxable Type not empty
         // [SCENARIO 314078] and is not created for normal Sales Line
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
 
         CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
         SalesLineNoTax.SetRange("Document Type", SalesHeader."Document Type");
@@ -829,9 +831,9 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(SalesHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifySalesNoTaxableEntries(CustLedgerEntry, -SalesLineNoTax.Amount, -SalesLineNoTax."Amount Including VAT");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
@@ -851,8 +853,8 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 314078] No Taxable Entry is not created for Purchase Invoice with VAT Calculation type = Normal
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(
@@ -861,9 +863,9 @@ codeunit 147515 "No Taxable Documents"
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(PurchaseHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
@@ -883,8 +885,8 @@ codeunit 147515 "No Taxable Documents"
         // [SCENARIO 314078] No Taxable Entry is created only for Purchase Line with VAT Calculation type = Normal, No Taxable Type not empty
         // [SCENARIO 314078] and is not created for normal Purchase Line
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
 
         CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
         PurchaseLineNoTax.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -898,9 +900,9 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        DeleteNoTaxableEntries;
+        DeleteNoTaxableEntries();
         ResetNoTaxableTypeVATEntries(PurchaseHeader."VAT Bus. Posting Group");
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         VerifyPurchNoTaxableEntries(VendorLedgerEntry, PurchaseLineNoTax.Amount, PurchaseLineNoTax."Amount Including VAT");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
@@ -920,15 +922,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Sales] [Upgrade]
         // [SCENARIO 314078] No Taxable Entry is not created for Sales Invoice posted from Gen. Journal with normal VAT
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
 
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         GLAccount.Get(GenJournalLine."Bal. Account No.");
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
@@ -946,15 +948,15 @@ codeunit 147515 "No Taxable Documents"
         // [FEATURE] [Purchase] [Upgrade]
         // [SCENARIO 314078] No Taxable Entry is not created for Purchase Invoice posted from Gen. Journal with normal VAT
         // [SCENARIO 314078] when run upgrade codeunit "No Taxable Generate Entries"
-        DeleteCVLedgerEntries;
-        LibraryLowerPermissions.SetO365Full;
+        DeleteCVLedgerEntries();
+        LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, -1);
 
-        DeleteNoTaxableEntries;
-        CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
+        DeleteNoTaxableEntries();
+        Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
 
         GLAccount.Get(GenJournalLine."Bal. Account No.");
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");

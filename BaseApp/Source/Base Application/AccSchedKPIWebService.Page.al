@@ -6,6 +6,7 @@ page 197 "Acc. Sched. KPI Web Service"
     Editable = false;
     PageType = List;
     SourceTable = "Acc. Sched. KPI Buffer";
+    SourceTableTemporary = true;
     UsageCategory = Administration;
 
     layout
@@ -119,8 +120,25 @@ page 197 "Acc. Sched. KPI Web Service"
     }
 
     trigger OnOpenPage()
+    var
+        AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer";
+        AccScheduleLine: Record "Acc. Schedule Line";
     begin
         CODEUNIT.Run(CODEUNIT::"Update Acc. Sched. KPI Data");
+        if AccSchedKPIBuffer.FindSet() then
+            repeat
+                AccScheduleLine.SetRange("Schedule Name", AccSchedKPIBuffer."Account Schedule Name");
+                AccScheduleLine.SetRange("Row No.", AccSchedKPIBuffer."KPI Code");
+                if AccScheduleLine.FindFirst() then;
+                if AccScheduleLine.Show = "Acc. Schedule Line Show"::Yes then begin
+                    Init();
+                    "No." += 1;
+                    TransferFields(AccSchedKPIBuffer, false);
+                    Insert();
+                end;
+            until AccSchedKPIBuffer.Next() = 0;
+        Reset();
+        FindFirst();
     end;
 }
 

@@ -592,7 +592,13 @@ table 38 "Purchase Header"
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                OnBeforeValidateLocationCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if ("Location Code" <> xRec."Location Code") and
                    (xRec."Buy-from Vendor No." = "Buy-from Vendor No.")
@@ -1336,7 +1342,7 @@ table 38 "Purchase Header"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnShipToPostCodeOnBeforeOnLookup(Rec, IsHandled);
+                OnShipToPostCodeOnBeforeOnLookup(Rec, IsHandled, PostCode);
                 if IsHandled then
                     exit;
 
@@ -3077,10 +3083,11 @@ table 38 "Purchase Header"
                             PurchLine.FindLast();
                             ExtendedTextAdded := true;
                         end;
+                    RestorePurchCommentLine(TempPurchCommentLine, TempPurchLine."Line No.", PurchLine."Line No.");
                     OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next() = 0;
 
-                RestorePurchCommentLineFromTemp(TempPurchCommentLine);
+                RestorePurchCommentLine(TempPurchCommentLine, 0, 0);
 
                 RecreateItemChargeAssgntPurch(TempItemChargeAssgntPurch, TempPurchLine, TempInteger);
 
@@ -3111,15 +3118,17 @@ table 38 "Purchase Header"
             until PurchCommentLine.Next() = 0;
     end;
 
-    local procedure RestorePurchCommentLineFromTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    local procedure RestorePurchCommentLine(var TempPurchCommentLine: Record "Purch. Comment Line" temporary; OldDocumentLineNo: Integer; NewDocumentLineNo: Integer)
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
         TempPurchCommentLine.SetRange("Document Type", "Document Type");
         TempPurchCommentLine.SetRange("No.", "No.");
+        TempPurchCommentLine.SetRange("Document Line No.", OldDocumentLineNo);
         if TempPurchCommentLine.FindSet() then
             repeat
                 PurchCommentLine := TempPurchCommentLine;
+                PurchCommentLine."Document Line No." := NewDocumentLineNo;
                 PurchCommentLine.Insert();
             until TempPurchCommentLine.Next() = 0;
     end;
@@ -3484,6 +3493,8 @@ table 38 "Purchase Header"
                 PurchLine.Modify(true);
                 PurchLineReserve.VerifyChange(PurchLine, xPurchLine);
             until PurchLine.Next() = 0;
+
+        OnAfterUpdatePurchLinesByFieldNo(Rec, xRec, ChangedFieldNo);
     end;
 
     procedure ConfirmReservationDateConflict()
@@ -5801,6 +5812,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdatePurchLinesByFieldNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; ChangedFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShipToAddress(var PurchHeader: Record "Purchase Header")
     begin
     end;
@@ -6081,6 +6097,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLocationCode(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -6141,7 +6162,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShipToPostCodeOnBeforeOnLookup(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnShipToPostCodeOnBeforeOnLookup(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; PostCode: Record "Post Code")
     begin
     end;
 
@@ -6351,7 +6372,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

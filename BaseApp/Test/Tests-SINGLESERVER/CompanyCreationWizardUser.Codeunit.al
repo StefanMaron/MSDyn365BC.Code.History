@@ -14,11 +14,13 @@ codeunit 139318 "Company Creation Wizard - User"
         LibraryPermissions: Codeunit "Library - Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
+    [Test]
     [Scope('OnPrem')]
     procedure CreateCompanyWithoutUsersTest()
     var
         UserGroupMember: Record "User Group Member";
         Company: Record Company;
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
         NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
         NewCompanyName: Text[30];
@@ -26,25 +28,23 @@ codeunit 139318 "Company Creation Wizard - User"
         // [SCENARIO] Not choosing any user in the Company Creation Wizard creates company without any user
 
         // [GIVEN] Company Creation Wizard is opened
-        NewCompanyName := LibraryUtility.GenerateRandomCode(Company.FieldNo(Name), DATABASE::Company);
 
-        // Add current user as admin
-        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+        NewCompanyName := LibraryUtility.GenerateRandomCode(Company.FieldNo(Name), Database::Company);
 
         // Company Creation Wizard
-        CompanyCreationWizard.Trap;
-        PAGE.Run(PAGE::"Company Creation Wizard");
+        CompanyCreationWizard.Trap();
+        Page.Run(Page::"Company Creation Wizard");
 
-        CompanyCreationWizard.ActionNext.Invoke; // Basic Information page
-        CompanyCreationWizard.ActionBack.Invoke; // Welcome page
-        CompanyCreationWizard.ActionNext.Invoke; // Basic Information page
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
+        CompanyCreationWizard.ActionBack.Invoke(); // Welcome page
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
         CompanyCreationWizard.CompanyName.SetValue(NewCompanyName);
         CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
-        CompanyCreationWizard.ActionNext.Invoke; // Manage Users page
-        CompanyCreationWizard.ActionNext.Invoke; // That's it page
+        CompanyCreationWizard.ActionNext.Invoke(); // Manage Users page
+        CompanyCreationWizard.ActionNext.Invoke(); // That's it page
 
         // [WHEN] Company Creation Wizard is finished without adding any users
-        CompanyCreationWizard.ActionFinish.Invoke;
+        CompanyCreationWizard.ActionFinish.Invoke();
 
         // [THEN] Company is created without any users
         UserGroupMember.SetRange("Company Name", NewCompanyName);
@@ -65,6 +65,7 @@ codeunit 139318 "Company Creation Wizard - User"
         UserGroupMember: Record "User Group Member";
         Company: Record Company;
         AzureADPlan: Codeunit "Azure AD Plan";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
         NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
@@ -73,7 +74,6 @@ codeunit 139318 "Company Creation Wizard - User"
         PlanBID: Guid;
     begin
         // [SCENARIO] Not choosing any user in the Company Creation Wizard creates company with users
-
         // [GIVEN] User, Plan, UserPlan and UserGroupPlan is setup
         NewCompanyName := LibraryUtility.GenerateRandomCode(Company.FieldNo(Name), DATABASE::Company);
 

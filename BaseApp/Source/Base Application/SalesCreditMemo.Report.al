@@ -803,9 +803,14 @@ report 207 "Sales - Credit Memo"
         end;
 
         trigger OnOpenPage()
+        var
+            StdReportWithCaption: Record AllObjWithCaption;
+            ReportManagementCodeunit: Codeunit ReportManagement;
         begin
             LogInteraction := SegManagement.FindInteractTmplCode(6) <> '';
             LogInteractionEnable := LogInteraction;
+            StdReportWithCaption.Get(StdReportWithCaption."Object Type"::Report, Report::"Standard Sales - Credit Memo");
+            ReportManagementCodeunit.SalesCrMemoReportReplacedNotify(Report::"Standard Sales - Credit Memo", StdReportWithCaption."Object Caption", CurrReport."Sales Cr.Memo Header");
         end;
     }
 

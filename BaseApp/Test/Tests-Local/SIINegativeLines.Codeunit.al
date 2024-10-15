@@ -17,6 +17,7 @@ codeunit 147563 "SII Negative Lines"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
@@ -171,8 +172,10 @@ codeunit 147563 "SII Negative Lines"
         PurchaseHeader: Record "Purchase Header";
         PositivePurchaseLine: Record "Purchase Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
+        TotalVATAmount: Decimal;
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 394230] Negative line exports to the SII file for the replacement purchase credit memo when "Do Not Report Negative Lines" option disabled in the SII Setup
@@ -182,15 +185,28 @@ codeunit 147563 "SII Negative Lines"
         // [GIVEN] "Do Not Report Negative Lines" is disabled in the SII setup
         SetDoNotReportNegativeLines(false);
 
-        // [GIVEN] Document with two lines - positive and negative
+        // [GIVEN] Document with two lines - positive (VAT Amount = 16) and negative (VAT Amount = -10)
         PostPurchDocWithPositiveAndNegativeLine(
-          VendorLedgerEntry, PositivePurchaseLine, PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Correction Type"::Replacement);
+          VendorLedgerEntry, PositivePurchaseLine,
+          PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Replacement);
 
         // [WHEN] Create xml for posted document
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
+        // TFS ID 400899: CuotaDeducible xml of purchase replacement credit memo with positive and negative lines has correct value
+        VATEntry.SetRange("Document Type", VendorLedgerEntry."Document Type");
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        VATEntry.FindSet();
+        Assert.RecordCount(VATEntry, 2);
+        repeat
+            TotalVATAmount += VATEntry.Amount;
+        until VATEntry.Next() = 0;
+
         // [THEN] Two "BaseImponible" xml nodes exported
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 2);
+
+        // [THEN] "CuotaDeducible" is 6
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(-TotalVATAmount));
     end;
 
     [Test]
@@ -766,7 +782,8 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, LibraryInventory.CreateItemNo());
         LibrarySales.FindFirstSalesLine(PositiveSalesLine, SalesHeader);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithNewVATProdPostGroup(SalesHeader."VAT Bus. Posting Group"), -1);
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          CreateItemWithNewVATProdPostGroup(SalesHeader."VAT Bus. Posting Group", PositiveSalesLine."VAT %"), -1);
         LibrarySII.UpdateUnitPriceSalesLine(SalesLine, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -780,7 +797,8 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, LibraryInventory.CreateItemNo());
         LibrarySales.FindFirstSalesLine(PositiveSalesLine, SalesHeader);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithNewVATProdPostGroup(SalesHeader."VAT Bus. Posting Group"), -1);
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          CreateItemWithNewVATProdPostGroup(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT %"), -1);
         SalesLine.Validate(
           "VAT Prod. Posting Group", LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", false, 0));
         SalesLine.Modify(true);
@@ -798,7 +816,7 @@ codeunit 147563 "SII Negative Lines"
         LibraryPurchase.FindFirstPurchLine(PositivePurchaseLine, PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group"), -1);
+          CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group", PositivePurchaseLine."VAT %"), -1);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -813,14 +831,14 @@ codeunit 147563 "SII Negative Lines"
         LibraryPurchase.FindFirstPurchLine(PositivePurchaseLine, PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group"), -1);
+          CreateItemWithNewVATProdPostGroup(PurchaseHeader."VAT Bus. Posting Group", PositivePurchaseLine."VAT %"), -1);
         PurchaseLine.Validate(
           "VAT Prod. Posting Group", LibrarySII.CreateSpecificNoTaxableVATSetup(PurchaseHeader."VAT Bus. Posting Group", false, 0));
         PurchaseLine.Modify(true);
-        LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
+        LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateItemWithNewVATProdPostGroup(VATBusPostGroupCode: Code[20]): Code[20]
+    local procedure CreateItemWithNewVATProdPostGroup(VATBusPostGroupCode: Code[20]; VATRate: Decimal): Code[20]
     var
         Item: Record Item;
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -830,6 +848,8 @@ codeunit 147563 "SII Negative Lines"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("VAT %", VATRate + 1);
         VATPostingSetup.Modify(true);
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

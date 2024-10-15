@@ -82,13 +82,16 @@ codeunit 5051 SegManagement
                    ((SegmentLine."Correspondence Type".AsInteger() <> 0) or (InteractTemplate."Correspondence Type (Default)".AsInteger() <> 0))
                 then begin
                     InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
-                    SegmentLine.TestField("Attachment No.");
+                    if InteractLogEntry."Word Template Code" = '' then
+                        SegmentLine.TestField("Attachment No.");
                     TempDeliverySorter."No." := InteractLogEntry."Entry No.";
                     TempDeliverySorter."Attachment No." := InteractLogEntry."Attachment No.";
                     TempDeliverySorter."Correspondence Type" := InteractLogEntry."Correspondence Type";
                     TempDeliverySorter.Subject := InteractLogEntry.Subject;
                     TempDeliverySorter."Send Word Docs. as Attmt." := InteractLogEntry."Send Word Docs. as Attmt.";
                     TempDeliverySorter."Language Code" := SegmentLine."Language Code";
+                    TempDeliverySorter."Word Template Code" := InteractLogEntry."Word Template Code";
+                    TempDeliverySorter."Wizard Action" := InteractTemplate."Wizard Action";
                     OnBeforeDeliverySorterInsert(TempDeliverySorter, SegmentLine);
                     TempDeliverySorter.Insert();
                 end;
@@ -129,6 +132,7 @@ codeunit 5051 SegManagement
 
     procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var InterLogEntryCommentLineTmp: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
     var
+        InteractionTemplate: Record "Interaction Template";
         InteractLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
         MarketingSetup: Record "Marketing Setup";
@@ -136,6 +140,7 @@ codeunit 5051 SegManagement
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         AttachmentManagement: Codeunit AttachmentManagement;
         FileMgt: Codeunit "File Management";
+        WizardAction: Enum "Interaction Template Wizard Action";
         FileName: Text;
         FileExported: Boolean;
     begin
@@ -174,6 +179,10 @@ codeunit 5051 SegManagement
             OnAfterHandleAttachmentFile(SegmentLine, Attachment, FileExported);
         end;
 
+        InteractionTemplate.SetRange(Code, SegmentLine."Interaction Template Code");
+        if InteractionTemplate.FindFirst() then
+            WizardAction := InteractionTemplate."Wizard Action";
+
         if SegmentLine."Line No." = 0 then begin
             NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
 
@@ -182,7 +191,7 @@ codeunit 5051 SegManagement
             InteractLogEntry.CopyFromSegment(SegmentLine);
             InteractLogEntry.Postponed := Postponed;
             OnLogInteractionOnBeforeInteractionLogEntryInsert(InteractLogEntry);
-            InteractLogEntry.Insert
+            InteractLogEntry.Insert();
         end else begin
             InteractLogEntry.Get(SegmentLine."Line No.");
             InteractLogEntry.CopyFromSegment(SegmentLine);
@@ -204,12 +213,15 @@ codeunit 5051 SegManagement
 
         if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
+
+            TempDeliverySorter."Word Template Code" := InteractLogEntry."Word Template Code";
             TempDeliverySorter."No." := InteractLogEntry."Entry No.";
             TempDeliverySorter."Attachment No." := Attachment."No.";
             TempDeliverySorter."Correspondence Type" := InteractLogEntry."Correspondence Type";
             TempDeliverySorter.Subject := InteractLogEntry.Subject;
             TempDeliverySorter."Send Word Docs. as Attmt." := false;
             TempDeliverySorter."Language Code" := SegmentLine."Language Code";
+            TempDeliverySorter."Wizard Action" := WizardAction;
             OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter);
             TempDeliverySorter.Insert();
             AttachmentManagement.Send(TempDeliverySorter);

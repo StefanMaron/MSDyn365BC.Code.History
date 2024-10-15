@@ -548,6 +548,22 @@ page 22 "Customer List"
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    ToolTip = 'View a list of emails that you have sent to this customer.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Customer, Rec.SystemId);
+                    end;
+                }
             }
             group(ActionGroupCRM)
             {
@@ -1396,6 +1412,25 @@ page 22 "Customer List"
                     CurrPage.SetSelectionFilter(Customer);
                     WordTemplateSelectionWizard.SetData(Customer);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category7;
+                ToolTip = 'Send an email to this customer.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Customer, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
                 end;
             }
             action(PaymentRegistration)

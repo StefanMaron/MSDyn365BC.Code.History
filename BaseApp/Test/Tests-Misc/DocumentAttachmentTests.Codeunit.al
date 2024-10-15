@@ -31,6 +31,7 @@ codeunit 134776 "Document Attachment Tests"
         NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         isInitialized: Boolean;
         ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
+        DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
         ConfirmOpeningNewOrderAfterQuoteToOrder: Label 'Do you want to open the new order?';
         SalesInvoiceDocTypeTxt: Label 'Sales Invoice';
         SalesCrMemoDocTypeTxt: Label 'Sales Credit Memo';
@@ -2007,6 +2008,110 @@ codeunit 134776 "Document Attachment Tests"
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchCrMemoHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerDeleteYesDefaultYes')]
+    [Scope('OnPrem')]
+    procedure SalesDocCustomerChangeDeleteAttachments()
+    var
+        SalesHeader: Record "Sales Header";
+        RecRef: RecordRef;
+        SalesDocumentType: Enum "Sales Document Type";
+    begin
+        // [SCENARIO 395462] Changing customer on a sales document with attachments produces a confirm. Choosing YES deletes attachments.
+        Initialize;
+
+        // [GIVEN] A sales order exists with a customer no
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] A document was attached to the sales order
+        RecRef.GetTable(SalesHeader);
+        CreateDocAttach(RecRef, 'attachment.jpeg', false, false);
+
+        // [WHEN] Validate a new Customer in "Sell-to Customer No.", YES is chosen in delete attachments confirm
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Attachment is deleted
+        AssertNoAttachmentsExist(Database::"Sales Header", SalesHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerDeleteNoDefaultYes')]
+    [Scope('OnPrem')]
+    procedure SalesDocCustomerChangeDeleteAttachmentsNO()
+    var
+        SalesHeader: Record "Sales Header";
+        RecRef: RecordRef;
+        SalesDocumentType: Enum "Sales Document Type";
+    begin
+        // [SCENARIO 395462] Changing customer on a sales document with attachments produces a confirm. Choosing NO saves attachments.
+        Initialize;
+
+        // [GIVEN] A sales order exists with a customer no
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] A document was attached to the sales order
+        RecRef.GetTable(SalesHeader);
+        CreateDocAttach(RecRef, 'attachment.jpeg', false, false);
+
+        // [WHEN] Validate a new Customer in "Sell-to Customer No.", NO is chosen in delete attachments confirm
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Attachment still exists for the document
+        CheckDocAttachments(Database::"Sales Header", 1, SalesHeader."No.", 1, 'attachment');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerDeleteYesDefaultYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseDocVendorChangeDeleteAttachments()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RecRef: RecordRef;
+        PurchaseDocumentType: Enum "Purchase Document Type";
+    begin
+        // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing YES deletes attachments.
+        Initialize;
+
+        // [GIVEN] A purchase order exists with a vendor no
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        // [GIVEN] A document was attached to the purchase order
+        RecRef.GetTable(PurchaseHeader);
+        CreateDocAttach(RecRef, 'attachment.jpeg', false, false);
+
+        // [WHEN] Validate a new Vendor in "Buy-from Vendor No.", YES is chosen in delete attachments confirm
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Attachment is deleted
+        AssertNoAttachmentsExist(Database::"Purchase Header", PurchaseHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerDeleteNoDefaultYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseDocVendorChangeDeleteAttachmentsNO()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RecRef: RecordRef;
+        PurchaseDocumentType: Enum "Purchase Document Type";
+    begin
+        // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing NO saves attachments.
+        Initialize;
+
+        // [GIVEN] A purchase order exists with a vendor no
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        // [GIVEN] A document was attached to the purchase order
+        RecRef.GetTable(PurchaseHeader);
+        CreateDocAttach(RecRef, 'attachment.jpeg', false, false);
+
+        // [WHEN] Validate a new Vendor in "Buy-from Vendor No.", NO is chosen in delete attachments confirm
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Attachment still exists for the document
+        CheckDocAttachments(Database::"Purchase Header", 1, PurchaseHeader."No.", 1, 'attachment');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2103,6 +2208,15 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual(RecCount, DocumentAttachment.Count, 'Unexpected document count.');
         Assert.IsTrue(DocumentAttachment.FindFirst, 'Expected record missing');
         Assert.AreEqual(FileName, DocumentAttachment."File Name", 'Unexpected file attached.');
+    end;
+
+    local procedure AssertNoAttachmentsExist(TableId: Integer; RecNo: Code[20])
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.SetRange("Table ID", TableId);
+        DocumentAttachment.SetRange("No.", RecNo);
+        Assert.RecordIsEmpty(DocumentAttachment);
     end;
 
     local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Customer: Record Customer; Item: Record Item; DocType: Enum "Sales Document Type")
@@ -2404,6 +2518,27 @@ codeunit 134776 "Document Attachment Tests"
     begin
         LibraryVariableStorage.Enqueue(Message);
     end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerDeleteYesDefaultYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if StrPos(Question, DeleteAttachmentsConfirmQst) > 0 then
+            Reply := true
+        else
+            Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerDeleteNoDefaultYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if StrPos(Question, DeleteAttachmentsConfirmQst) > 0 then
+            Reply := false
+        else
+            Reply := true;
+    end;
+
 
     [ConfirmHandler]
     [Scope('OnPrem')]

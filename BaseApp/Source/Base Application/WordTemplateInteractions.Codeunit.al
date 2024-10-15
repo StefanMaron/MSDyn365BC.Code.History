@@ -1,0 +1,604 @@
+codeunit 5069 "Word Template Interactions"
+{
+    Access = Internal;
+
+    /// <summary>
+    /// Performs mail merge on the Word templates from the attachments specified by TempDeliverySorterWord
+    /// and sends them according to the correspondence Type.
+    /// </summary>
+    /// <param name="TempDeliverySorterWord">A temporary table containing information about attachments and their recipients.</param>
+    procedure Merge(var TempDeliverySorterWord: Record "Delivery Sorter" temporary)
+    var
+        TempDeliverySorterBuffer: Record "Delivery Sorter" temporary;
+        LastAttachmentNo: Integer;
+        LastCorrType: Enum "Correspondence Type";
+        LastSubject: Text[100];
+        LastSendWordDocsAsAttmt: Boolean;
+        LineCount: Integer;
+        NoOfRecords: Integer;
+        FirstRecord: Boolean;
+    begin
+        Window.Open(
+          MergingInWordTxt +
+          '#1############ @2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\' +
+          '#3############ @4@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\' +
+          '#5############ #6################################');
+
+        Window.Update(1, PreparingTxt);
+        Window.Update(5, ProgramStatusTxt);
+
+        Window.Update(6, PreparingMergeTxt);
+        TempDeliverySorterWord.SetCurrentKey(
+          "Attachment No.", "Correspondence Type", Subject, "Send Word Docs. as Attmt.");
+        TempDeliverySorterWord.SetFilter("Correspondence Type", '<>0');
+        NoOfRecords := TempDeliverySorterWord.Count();
+        TempDeliverySorterWord.Find('-');
+
+        FirstRecord := true;
+        repeat
+            LineCount := LineCount + 1;
+            Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
+            Window.Update(3, Format(TempDeliverySorterWord."Correspondence Type"));
+
+            if not FirstRecord and
+               ((TempDeliverySorterWord."Attachment No." <> LastAttachmentNo) or
+                (TempDeliverySorterWord."Correspondence Type" <> LastCorrType) or
+                (TempDeliverySorterWord.Subject <> LastSubject) or
+                (TempDeliverySorterWord."Send Word Docs. as Attmt." <> LastSendWordDocsAsAttmt))
+            then begin
+                ExecuteMerge(TempDeliverySorterBuffer);
+                TempDeliverySorterBuffer.DeleteAll();
+            end;
+
+            TempDeliverySorterBuffer := TempDeliverySorterWord;
+            TempDeliverySorterBuffer.Insert();
+            LastAttachmentNo := TempDeliverySorterWord."Attachment No.";
+            LastCorrType := TempDeliverySorterWord."Correspondence Type";
+            LastSubject := TempDeliverySorterWord.Subject;
+            LastSendWordDocsAsAttmt := TempDeliverySorterWord."Send Word Docs. as Attmt.";
+
+            FirstRecord := false;
+        until TempDeliverySorterWord.Next() = 0;
+
+        if TempDeliverySorterBuffer.Find('-') then
+            ExecuteMerge(TempDeliverySorterBuffer);
+
+        Window.Close();
+    end;
+
+    local procedure ExecuteMerge(var TempDeliverySorter: Record "Delivery Sorter" temporary)
+    var
+        Attachment: Record Attachment;
+        InteractLogEntry: Record "Interaction Log Entry";
+        TempSegLine: Record "Segment Line" temporary;
+        InteractionMergeData: Record "Interaction Merge Data";
+        WordTemplates: Codeunit "Word Template";
+        FileMgt: Codeunit "File Management";
+        AttachmentWordTemplateFileName: Text;
+        NoOfRecords: Integer;
+        Row: Integer;
+        MailToValue: Text;
+        MergeSourceText: Text;
+        DataSource: Dictionary of [Text, Text];
+        DocumentInStream: InStream;
+    begin
+        Window.Update(6, TransferringDataToMergeTxt);
+
+        if TempDeliverySorter.Find('-') then
+            NoOfRecords := TempDeliverySorter.Count();
+
+        Row := 2;
+
+        if TempDeliverySorter."Word Template Code" <> '' then begin
+            Window.Update(6, MergingTxt);
+
+            repeat
+                InteractLogEntry.Get(TempDeliverySorter."No.");
+                InteractionMergeData.SetRange(ID);
+                InteractionMergeData.Id := CreateGuid();
+                InteractionMergeData."Contact No." := InteractLogEntry."Contact No.";
+                InteractionMergeData."Salesperson Code" := InteractLogEntry."Salesperson Code";
+                InteractionMergeData."Log Entry Number" := InteractLogEntry."Entry No.";
+                InteractionMergeData.Insert();
+
+                MailToValue := GetMailToAddress(InteractLogEntry, TempDeliverySorter);
+
+                if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
+                                                                TempDeliverySorter."Correspondence Type"::Fax] then
+                    InteractionMergeData.Mark(true)
+                else begin
+                    InteractionMergeData.SetRange(ID, InteractionMergeData.ID); // A filter to current Record is needed
+                    WordTemplates.Load(InteractLogEntry."Word Template Code");
+
+                    if TempDeliverySorter."Send Word Docs. as Attmt." then
+                        WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Docx) // Only one document
+                    else
+                        WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Html); // Only one document
+                    WordTemplates.GetDocument(DocumentInStream);
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+                    InteractionMergeData.Delete();
+                end;
+                Row := Row + 1;
+                Window.Update(4, Round(Row / NoOfRecords * 10000, 1));
+            until TempDeliverySorter.Next() = 0;
+
+            if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
+                                                            TempDeliverySorter."Correspondence Type"::Fax] then begin
+                WordTemplates.Load(InteractLogEntry."Word Template Code");
+                InteractionMergeData.MarkedOnly(true);
+                WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::PDF); // Only one document
+                WordTemplates.GetDocument(DocumentInStream);
+                SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+                InteractionMergeData.DeleteAll();
+            end;
+        end else begin
+            Attachment.Get(TempDeliverySorter."Attachment No.");
+            Attachment.CalcFields("Attachment File");
+
+            TempDeliverySorter.SetCurrentKey("Attachment No.", "Correspondence Type", Subject);
+            TempDeliverySorter.Find('-');
+
+            AttachmentWordTemplateFileName := FileMgt.ServerTempFileName('doc');
+            Attachment.Get(TempDeliverySorter."Attachment No.");
+            Attachment.CalcFields("Attachment File");
+            if not IsWordDocumentExtension(Attachment."File Extension") then
+                Error(IncorrectExtensionErr, Attachment."No.");
+
+            if not Attachment.ExportAttachmentToServerFile(AttachmentWordTemplateFileName) then
+                Error(AttachmentFileErr);
+
+            Window.Update(6, MergingTxt);
+            Attachment.CalcFields("Merge Source");
+            if Attachment."Merge Source".HasValue then
+                repeat
+                    InteractLogEntry.Get(TempDeliverySorter."No.");
+
+                    MergeSourceText := GetMergeSourceText(Attachment, TempDeliverySorter."No.", TempDeliverySorter."Correspondence Type".AsInteger());
+                    DataSource := GetDataSource(MergeSourceText);
+                    GetMergedDocumentStream(AttachmentWordTemplateFileName, DataSource, TempDeliverySorter, DocumentInStream);
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, '', InteractLogEntry);
+
+                    Row := Row + 1;
+                    Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
+                until TempDeliverySorter.Next() = 0
+            else
+                repeat
+                    InteractLogEntry.Get(TempDeliverySorter."No.");
+
+                    MailToValue := GetMailToAddress(InteractLogEntry, TempDeliverySorter);
+                    DataSource := GetDataSource(InteractLogEntry, TempSegLine, MailToValue);
+                    GetMergedDocumentStream(AttachmentWordTemplateFileName, DataSource, TempDeliverySorter, DocumentInStream);
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+
+                    Row := Row + 1;
+                    Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
+                until TempDeliverySorter.Next() = 0;
+
+            FileMgt.DeleteServerFile(AttachmentWordTemplateFileName);
+        end;
+
+        // Update delivery status on Interaction Log Entry
+        if TempDeliverySorter.Find('-') then begin
+            InteractLogEntry.LockTable();
+            repeat
+                InteractLogEntry.Get(TempDeliverySorter."No.");
+                InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::" ";
+                InteractLogEntry.Modify();
+            until TempDeliverySorter.Next() = 0;
+            Commit();
+        end;
+    end;
+
+    local procedure GetMailToAddress(var InteractLogEntry: Record "Interaction Log Entry"; var TempDeliverySorter: Record "Delivery Sorter" temporary) MailToValue: Text
+    begin
+        // Specify the recipient of the merged document
+        case TempDeliverySorter."Correspondence Type" of
+            TempDeliverySorter."Correspondence Type"::Fax:
+                MailToValue := AttachmentManagement.InteractionFax(InteractLogEntry);
+            TempDeliverySorter."Correspondence Type"::Email:
+                MailToValue := AttachmentManagement.InteractionEMail(InteractLogEntry);
+            TempDeliverySorter."Correspondence Type"::"Hard Copy":
+                MailToValue := '';
+        end;
+    end;
+
+    local procedure SendMergedDocument(MergedDocumentInStream: InStream; TempDeliverySorter: Record "Delivery Sorter" temporary; ToAddress: Text; InteractionLogEntry: Record "Interaction Log Entry")
+    var
+        Contact: Record Contact;
+        Attachment: Record Attachment;
+        DocumentMailing: Codeunit "Document-Mailing";
+        FileMgt: Codeunit "File Management";
+        DummyTempBlob: Codeunit "Temp Blob";
+        DummyInStream: InStream;
+        TempServerFileName: Text;
+        FileName: Text;
+        SaveToFile: Text;
+        HideDialog: Boolean;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
+    begin
+        HideDialog := not (TempDeliverySorter."Wizard Action" = TempDeliverySorter."Wizard Action"::Open);
+        case TempDeliverySorter."Correspondence Type" of
+            TempDeliverySorter."Correspondence Type"::Fax:
+                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template");
+            TempDeliverySorter."Correspondence Type"::Email:
+                begin
+                    SourceTableIDs.Add(Database::"Interaction Log Entry");
+                    SourceIDs.Add(InteractionLogEntry.SystemId);
+                    SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+                    if Contact.Get(InteractionLogEntry."Contact No.") then begin
+                        SourceTableIDs.Add(Database::Contact);
+                        SourceIDs.Add(Contact.SystemId);
+                        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                    end;
+
+                    Attachment.SetAttachmentFileFromStream(MergedDocumentInStream);
+                    Attachment."Attachment File".CreateInStream(MergedDocumentInStream, TextEncoding::UTF8);
+
+                    if TempDeliverySorter."Send Word Docs. as Attmt." then begin
+                        FileName := TempDeliverySorter.Subject;
+                        if TempDeliverySorter.Subject = '' then
+                            FileName := 'Attachment';
+                        FileName += '.docx';
+
+                        Attachment."File Extension" := 'docx';
+
+                        DocumentMailing.EmailFile(MergedDocumentInStream, FileName, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
+                    end else begin
+                        TempServerFileName := FileMgt.InstreamExportToServerFile(MergedDocumentInStream, 'html');
+
+                        Attachment."File Extension" := 'html';
+
+                        DummyTempBlob.CreateInStream(DummyInStream);
+                        Commit();
+                        DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
+                        FileMgt.DeleteServerFile(TempServerFileName);
+                    end;
+                    Attachment.Insert(true);
+
+                    InteractionLogEntry."Attachment No." := Attachment."No.";
+                    InteractionLogEntry.Modify();
+                end;
+            TempDeliverySorter."Correspondence Type"::"Hard Copy":
+                begin
+                    if TempDeliverySorter.Subject = '' then
+                        SaveToFile := 'default.pdf'
+                    else
+                        SaveToFile := FileMgt.GetSafeFileName(TempDeliverySorter.Subject) + '.pdf';
+                    DownloadFromStream(MergedDocumentInStream, '', '', '', SaveToFile);
+                end;
+        end;
+    end;
+
+    local procedure GetMergedDocumentStream(AttachmentWordTemplateFileName: Text; DataSource: Dictionary of [Text, Text]; TempDeliverySorter: Record "Delivery Sorter"; var MergedDocumentInStream: InStream)
+    begin
+        case TempDeliverySorter."Correspondence Type" of
+            TempDeliverySorter."Correspondence Type"::Fax:
+                MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF);
+            TempDeliverySorter."Correspondence Type"::Email:
+                MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::Html);
+            TempDeliverySorter."Correspondence Type"::"Hard Copy":
+                MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF);
+        end;
+    end;
+
+    /// <summary>
+    /// Download a merged Word template for a given segment line and attachment.
+    /// </summary>
+    /// <param name="SegLine">Specifies the segment line for which the attachment is for.</param>
+    /// <param name="Attachment">Specifies the attachemnt (Word template) to be downloaded.</param>
+    procedure RunMergedDocument(var SegLine: Record "Segment Line"; var Attachment: Record Attachment)
+    var
+        TempInteractLogEntry: Record "Interaction Log Entry" temporary;
+        FileMgt: Codeunit "File Management";
+        AttachmentWordTemplateFileName: Text;
+        MergedDocFilename: Text;
+        MergeSourceText: Text;
+        DataSource: Dictionary of [Text, Text];
+    begin
+        if not IsWordDocumentExtension(Attachment."File Extension") then
+            Error(IncorrectExtensionErr, Attachment."No.");
+
+        AttachmentWordTemplateFileName := FileMgt.ServerTempFileName('doc');
+
+        if not Attachment.ExportAttachmentToServerFile(AttachmentWordTemplateFileName) then
+            Error(AttachmentFileErr);
+
+        Attachment.CalcFields("Merge Source");
+        if Attachment."Merge Source".HasValue then begin
+            MergeSourceText := GetMergeSourceText(Attachment, SegLine."Line No.", 0);
+            DataSource := GetDataSource(MergeSourceText);
+        end else
+            DataSource := GetDataSource(TempInteractLogEntry, SegLine, '');
+
+        MergedDocFilename := 'Attachment for contact ' + Format(SegLine."Contact No.") + '.pdf';
+        DownloadFromStream(GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF), DownloadAttachmentQst, '', '', MergedDocFilename);
+        FileMgt.DeleteServerFile(AttachmentWordTemplateFileName);
+    end;
+
+    local procedure GetMergedDocument(AttachmentWordTemplateFileName: Text; DataSource: Dictionary of [Text, Text]; WordTemplatesSaveFormat: Enum "Word Templates Save Format"): InStream
+    var
+        WordTemplateFile: File;
+        WordTemplateInStream: InStream;
+        DocumentInStream: InStream;
+    begin
+        WordTemplateFile.Open(AttachmentWordTemplateFileName);
+        WordTemplateFile.CreateInStream(WordTemplateInStream);
+        WordTemplate.Load(WordTemplateInStream);
+        WordTemplateFile.Close();
+
+        WordTemplate.Merge(DataSource, WordTemplatesSaveFormat);
+        WordTemplate.GetDocument(DocumentInStream);
+        exit(DocumentInStream);
+    end;
+
+    /// <summary>
+    /// Checks if the provided file extension is a Word document extension.
+    /// </summary>
+    /// <param name="FileExtension">File extension to check.</param>
+    /// <returns>True if the provided extension is a Word document extension, false otherwise.</returns>
+    procedure IsWordDocumentExtension(FileExtension: Text): Boolean
+    begin
+        exit(LowerCase(FileExtension) in ['doc', 'docx', '.doc', '.docx']);
+    end;
+
+    local procedure GetMergeSourceText(var Attachment: Record Attachment; EntryNo: Integer; CorrespondenceType: Option ,"Hard Copy",Email,Fax): Text
+    var
+        InteractLogEntry: Record "Interaction Log Entry";
+        MergeSourceInStream: InStream;
+        CurrentLine: Text;
+        NewLine: Text;
+        LineIsFound: Boolean;
+        HeaderIsReady: Boolean;
+        MergeSourceText: Text;
+    begin
+        Attachment.CalcFields("Merge Source");
+        Attachment."Merge Source".CreateInStream(MergeSourceInStream);
+        repeat
+            MergeSourceInStream.ReadText(CurrentLine);
+            if (StrPos(CurrentLine, '<tr>') > 0) and HeaderIsReady then begin
+                MergeSourceInStream.ReadText(NewLine);
+                if StrPos(NewLine, Format(EntryNo)) > 0 then begin
+                    MergeSourceText += CurrentLine;
+                    MergeSourceText += NewLine;
+                    LineIsFound := true;
+                end;
+            end;
+
+            if not HeaderIsReady then begin
+                MergeSourceText += CurrentLine;
+                if StrPos(CurrentLine, '</tr>') > 0 then
+                    HeaderIsReady := true
+            end
+        until LineIsFound or MergeSourceInStream.EOS();
+
+        if LineIsFound then begin
+            MergeSourceInStream.ReadText(NewLine);
+            while StrPos(NewLine, '</tr>') = 0 do begin
+                CurrentLine := NewLine;
+                MergeSourceInStream.ReadText(NewLine);
+                MergeSourceText += CurrentLine;
+            end;
+            if InteractLogEntry.Get(EntryNo) then
+                case CorrespondenceType of
+                    CorrespondenceType::Fax:
+                        MergeSourceText += '<td>' + AttachmentManagement.InteractionFax(InteractLogEntry) + '</td>';
+                    CorrespondenceType::Email:
+                        MergeSourceText += '<td>' + AttachmentManagement.InteractionEMail(InteractLogEntry) + '</td>';
+                    CorrespondenceType::"Hard Copy":
+                        MergeSourceText += '<td></td>';
+                end;
+            MergeSourceText += NewLine;
+        end;
+        exit(MergeSourceText);
+    end;
+
+    local procedure GetDataSource(MergeSourceText: Text): Dictionary of [Text, Text]
+    var
+        AllValues: List of [Text];
+        DataSource: Dictionary of [Text, Text];
+        DataSourceKey: Text;
+        DataSourceValue: Text;
+        Iterator: Integer;
+    begin
+        AllValues := GetAllValuesFromHtmlTable(MergeSourceText);
+
+        if AllValues.Count() mod 2 = 1 then
+            Error(IncorrectMergeSourceErr);
+
+        for Iterator := 1 to AllValues.Count() / 2 do begin
+            DataSourceKey := AllValues.Get(Iterator);
+            DataSourceValue := AllValues.Get(AllValues.Count() / 2 + Iterator);
+            DataSource.Add(DataSourceKey, DataSourceValue);
+        end;
+
+        exit(DataSource);
+    end;
+
+    local procedure GetAllValuesFromHtmlTable(HtmlText: Text): List of [Text]
+    var
+        TempMatches: Record Matches temporary;
+        TempGroups: Record Groups temporary;
+        Regex: Codeunit Regex;
+        TableCellPattern: Text;
+        AllCellValues: List of [Text];
+    begin
+        TableCellPattern := '<td>((.|[\n\r])*?)<\/td>';
+        Regex.Match(HtmlText, TableCellPattern, TempMatches);
+        repeat
+            Regex.Groups(TempMatches, TempGroups);
+            TempGroups.Get(1); // Group 1
+            AllCellValues.Add(TempGroups.ReadValue());
+        until TempMatches.Next() = 0;
+        exit(AllCellValues);
+    end;
+
+    local procedure GetDataSource(var InteractLogEntry: Record "Interaction Log Entry"; var SegLine: Record "Segment Line"; FaxMailToValue: Text): Dictionary of [Text, Text]
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        Country: Record "Country/Region";
+        Country2: Record "Country/Region";
+        Contact: Record Contact;
+        CompanyInfo: Record "Company Information";
+        RMSetup: Record "Marketing Setup";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Language: Codeunit Language;
+        MainLanguage: Integer;
+        DataSource: Dictionary of [Text, Text];
+        ContactAltAddressCode: Code[10];
+        LineNo: Text;
+        SalesPersonCode: Code[20];
+        ContactNo: Code[20];
+        LanguageCode: Code[10];
+        ActiveDate: Date;
+    begin
+        InitMergeFields(InteractLogEntry, SegLine, ContactAltAddressCode, LineNo, SalesPersonCode, ContactNo, LanguageCode, ActiveDate);
+
+        MainLanguage := GlobalLanguage;
+
+        if LanguageCode = '' then begin
+            RMSetup.Get();
+            if RMSetup."Mergefield Language ID" <> 0 then
+                GlobalLanguage := RMSetup."Mergefield Language ID";
+        end else
+            GlobalLanguage := Language.GetLanguageIdOrDefault(LanguageCode);
+
+
+        CompanyInfo.Get();
+        if not Country2.Get(CompanyInfo."Country/Region Code") then
+            Clear(Country2);
+
+        Contact.Get(ContactNo);
+        if not Country.Get(Contact."Country/Region Code") then
+            Clear(Country);
+
+        if not Salesperson.Get(SalesPersonCode) then
+            Clear(Salesperson);
+
+
+        DataSource.Add(InteractionLogEntry.FieldCaption("Entry No."), LineNo);
+        DataSource.Add(Contact.TableCaption + MailAddressTxt, GetContactAltAddresses(Contact, ContactAltAddressCode, ActiveDate));
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("No."), Contact."No.");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Company Name"), Contact."Company Name");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Name), Contact.Name);
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Name 2"), Contact."Name 2");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Address), Contact.Address);
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Address 2"), Contact."Address 2");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Post Code"), Contact."Post Code");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(City), Contact.City);
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(County), Contact.County);
+        DataSource.Add(Contact.TableCaption + ' ' + Country.TableCaption + ' ' + Country.FieldCaption(Name), Country.Name);
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Job Title"), Contact."Job Title");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Phone No."), Contact."Phone No.");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Fax No."), Contact."Fax No.");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("E-Mail"), Contact."E-Mail");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Mobile Phone No."), Contact."Mobile Phone No.");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("VAT Registration No."), Contact."VAT Registration No.");
+        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Home Page"), Contact."Home Page");
+        DataSource.Add(FormalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Formal, LanguageCode));
+        DataSource.Add(InformalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Informal, LanguageCode));
+        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Code), Salesperson.Code);
+        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Name), Salesperson.Name);
+        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Job Title"), Salesperson."Job Title");
+        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Phone No."), Salesperson."Phone No.");
+        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("E-Mail"), Salesperson."E-Mail");
+
+        if InteractLogEntry.IsEmpty() then begin
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Date), Format(SegLine.Date));
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption("Campaign No."), SegLine."Campaign No.");
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption("Segment No."), SegLine."Segment No.");
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Description), SegLine.Description);
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Subject), SegLine.Subject);
+        end else begin
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Date), Format(InteractLogEntry.Date));
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption("Campaign No."), InteractLogEntry."Campaign No.");
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption("Segment No."), InteractLogEntry."Segment No.");
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Description), InteractLogEntry.Description);
+            DataSource.Add(DocumentTxt + SegLine.FieldCaption(Subject), InteractLogEntry.Subject);
+        end;
+
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption(Name), CompanyInfo.Name);
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Name 2"), CompanyInfo."Name 2");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption(Address), CompanyInfo.Address);
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Address 2"), CompanyInfo."Address 2");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Post Code"), CompanyInfo."Post Code");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption(City), CompanyInfo.City);
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption(County), CompanyInfo.County);
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + Country.TableCaption + ' ' + Country.FieldCaption(Name), Country2.Name);
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo."VAT Registration No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Registration No."), CompanyInfo."Registration No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Phone No."), CompanyInfo."Phone No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Fax No."), CompanyInfo."Fax No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Bank Branch No."), CompanyInfo."Bank Branch No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Bank Name"), CompanyInfo."Bank Name");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Bank Account No."), CompanyInfo."Bank Account No.");
+        DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Giro No."), CompanyInfo."Giro No.");
+        DataSource.Add(FaxMailToTxt, FaxMailToValue);
+
+        GlobalLanguage := MainLanguage;
+
+        exit(DataSource);
+    end;
+
+    local procedure InitMergeFields(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line";
+       var ContactAltAddressCode: Code[10]; var LineNo: Text; var SalesPersonCode: Code[20]; var ContactNo: Code[20]; var LanguageCode: Code[10]; var ActiveDate: Date)
+    begin
+        if InteractionLogEntry.IsEmpty() then begin
+            ContactNo := SegmentLine."Contact No.";
+            SalesPersonCode := SegmentLine."Salesperson Code";
+            LineNo := Format(SegmentLine."Line No.");
+            ContactAltAddressCode := SegmentLine."Contact Alt. Address Code";
+            LanguageCode := SegmentLine."Language Code";
+            ActiveDate := SegmentLine.Date;
+        end else begin
+            ContactNo := InteractionLogEntry."Contact No.";
+            SalesPersonCode := InteractionLogEntry."Salesperson Code";
+            LineNo := Format(InteractionLogEntry."Entry No.");
+            ContactAltAddressCode := InteractionLogEntry."Contact Alt. Address Code";
+            LanguageCode := InteractionLogEntry."Interaction Language Code";
+            ActiveDate := InteractionLogEntry.Date;
+        end;
+    end;
+
+    local procedure GetContactAltAddresses(Contact: Record Contact; ContactAltAddressCode: Code[10]; Date: Date): Text
+    var
+        FormatAddr: Codeunit "Format Address";
+        TypeHelper: Codeunit "Type Helper";
+        ContactAddresses: array[8] of Text[100];
+        Iterator: Integer;
+        Addresses: Text;
+    begin
+        FormatAddr.ContactAddrAlt(ContactAddresses, Contact, ContactAltAddressCode, Date);
+        for Iterator := 1 to 8 do
+            if ContactAddresses[Iterator] <> '' then
+                Addresses += ContactAddresses[Iterator] + TypeHelper.NewLine();
+
+        exit(Addresses.TrimEnd(TypeHelper.NewLine()));
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnBeforeCreateInteractionWordTemplate(var WordTemplateCreationWizard: Page "Word Template Creation Wizard")
+    begin
+    end;
+
+    var
+        WordTemplate: Codeunit "Word Template";
+        AttachmentManagement: Codeunit AttachmentManagement;
+        Window: Dialog;
+        IncorrectExtensionErr: Label 'Attachment %1 must have file extension doc or docx.', Comment = '%1 = Attachment No.';
+        AttachmentFileErr: Label 'Could not get attachment content.';
+        FaxMailToTxt: Label 'FaxMailTo';
+        MailAddressTxt: Label ' Mail Address';
+        DocumentTxt: Label 'Document ';
+        FormalSalutationTxt: Label 'Formal Salutation';
+        InformalSalutationTxt: Label 'Informal Salutation';
+        IncorrectMergeSourceErr: Label 'Incorrect content of the Merge Source';
+        MergingInWordTxt: Label 'Merging Microsoft Word Documents...\\';
+        PreparingTxt: Label 'Preparing';
+        ProgramStatusTxt: Label 'Program status';
+        PreparingMergeTxt: Label 'Preparing Merge...';
+        TransferringDataToMergeTxt: Label 'Transferring data to merge...';
+        MergingTxt: Label 'Merging...';
+        DownloadAttachmentQst: Label 'Download merged attachment?';
+}

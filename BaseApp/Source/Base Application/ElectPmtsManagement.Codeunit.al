@@ -749,7 +749,7 @@ codeunit 10701 "Elect. Pmts Management"
     end;
 
     [Scope('OnPrem')]
-    procedure InsertGeneralTrailer(NoOfRegistersType1: Decimal; TotalAmountRegsType8: Decimal; DownloadToClient: Boolean; ServerFileCopy: Text)
+    procedure InsertGeneralTrailer(NoOfRegistersType1: Decimal; TotalAmountRegsType8: Decimal; SilentMode: Boolean; ServerFileCopy: Text)
     var
         FileMgt: Codeunit "File Management";
     begin
@@ -767,13 +767,13 @@ codeunit 10701 "Elect. Pmts Management"
         PadLine(' ');
         FileHandle.Close;
 
-        if not DownloadToClient then begin
+        if SilentMode then
             FileMgt.CopyServerFile(Filename, ServerFileCopy, true);
-            exit;
-        end;
+    end;
 
-        if not Download(Filename, '', ToFolder, Text1100003, ToFile) then
-            exit;
+    internal procedure DownloadFile()
+    begin
+        if Download(Filename, '', ToFolder, Text1100003, ToFile) then;
     end;
 }
 

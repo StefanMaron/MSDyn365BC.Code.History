@@ -458,6 +458,22 @@ page 27 "Vendor List"
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    ToolTip = 'View a list of emails that you have sent to this vendor.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
+                    end;
+                }
             }
             group("&Purchases")
             {
@@ -1082,6 +1098,25 @@ page 27 "Vendor List"
                     CurrPage.SetSelectionFilter(Vendor);
                     WordTemplateSelectionWizard.SetData(Vendor);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category5;
+                ToolTip = 'Send an email to this vendor.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Vendor, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
                 end;
             }
             group(Display)

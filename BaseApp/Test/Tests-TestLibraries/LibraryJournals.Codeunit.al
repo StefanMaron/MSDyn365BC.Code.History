@@ -2,11 +2,6 @@ codeunit 131306 "Library - Journals"
 {
     // Library containing functions related to various Journals.
 
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
@@ -197,7 +192,10 @@ codeunit 131306 "Library - Journals"
     local procedure SetBillToPayToNo(var GenJournalLine: Record "Gen. Journal Line")
     var
         Customer: Record Customer;
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
+        if LibraryLowerPermissions.HasChangedPermissions() then
+            LibraryLowerPermissions.AddCustomerEdit();
         LibrarySales.CreateCustomer(Customer);
 
         // Bill-to Pay-to No. need to be filled in Gen. Journal Lines for Accounts other than Customer and Vendor in ES.

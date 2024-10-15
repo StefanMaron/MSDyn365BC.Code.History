@@ -96,7 +96,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         BankStmtFormat: Code[20];
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTFooter(OutStream);
@@ -227,7 +227,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // Exercise
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -252,7 +254,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
@@ -285,14 +287,16 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         SetOnMatchOnClosingDocumentNumber();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
         WriteCAMTFooter(OutStream);
 
         // Exercise
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
@@ -350,7 +354,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -380,7 +384,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -408,7 +412,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleOnePmt(CustLedgEntry, OutStream, 1, 2);
@@ -439,7 +443,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         SetOnMatchOnClosingDocumentNumber();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleOnePmt(CustLedgEntry, OutStream, 1, 2);
@@ -452,7 +456,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all customers | gls | banks go to zero
         VerifyCustLedgEntry(CustLedgEntry[1]."Customer No.");
@@ -498,7 +502,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmtWithPmtDisc(CustLedgEntry, OutStream);
@@ -557,7 +561,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleOnePmtWithPmtDisc(CustLedgEntry, CustLedgEntry2, OutStream);
@@ -587,7 +591,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleOnePmtWithPmtDisc(CustLedgEntry, CustLedgEntry2, OutStream);
@@ -644,7 +648,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneFCYSaleOnePmtWithLateDueDatePmtDisc(CustLedgEntry, OutStream);
@@ -673,7 +677,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtWithLateDueDatePmtDisc(
@@ -705,7 +709,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         OutStream: OutStream;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtWithWrongPmtDiscPct(CustLedgEntry, OutStream);
@@ -736,7 +740,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         TransferAmount := 100;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         BankTransfer(BankAcc, OutStream, TransferAmount, BankAcc."No." + ' Transfer');
@@ -770,7 +774,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         TransferAmount := 6 * 100;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         ExtDocNo := LibraryUtility.GenerateGUID;
 
         WriteCAMTHeader(OutStream, '', 'TEST');
@@ -809,7 +813,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         TransferAmount := -6 * 100;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         ExtDocNo1 := LibraryUtility.GenerateGUID;
         ExtDocNo2 := LibraryUtility.GenerateGUID;
         ExtDocNo3 := LibraryUtility.GenerateGUID;
@@ -848,7 +852,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TransactionAmount: Decimal;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
         TransactionAmount := 100;
@@ -886,7 +890,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         TransactionAmount: Decimal;
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
         TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
         TransactionAmount := 100;
@@ -920,7 +924,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // Setup
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
         // Exercise
@@ -950,7 +954,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // Setup
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
         // Exercise
@@ -1000,7 +1004,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // Setup
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         CreateUnpaidDocs(OutStream, CustLedgEntry);
 
         // Exercise
@@ -1049,7 +1053,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // Setup
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
         WriteCAMTFooter(OutStream);
@@ -1091,7 +1095,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         // Setup
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleTwoPmt(CustLedgEntry, OutStream);
         WriteCAMTStmtLine(OutStream, CustLedgEntry."Posting Date", CustLedgEntry."Document No.",
@@ -1150,7 +1154,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         repeat
             Assert.AreEqual(Customer.Name, BankAccReconciliationLine.GetAppliedToName, '');
         until BankAccReconciliationLine.Next = 0;
-        PmtReconJnl.Post.Invoke;
+        PmtReconJnl.Post.Invoke();
 
         // Verify that all customers | gls | banks go to zero
         VerifyCustLedgEntry(CustLedgEntry."Customer No.");
@@ -1171,7 +1175,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         ExcessiveAmount := 1;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtExcessiveAmount(CustLedgEntry, OutStream, ExcessiveAmount);
@@ -1204,7 +1208,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         SetOnMatchOnClosingDocumentNumber();
 
         ExcessiveAmount := 1.23;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtExcessiveAmount(CustLedgEntry, OutStream, ExcessiveAmount);
@@ -1215,7 +1219,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
-        asserterror PmtReconJnl.Accept.Invoke;
+        asserterror PmtReconJnl.Accept.Invoke();
         Assert.ExpectedError(StrSubstNo(ExcessiveAmountErr, Format(ExcessiveAmount)));
     end;
 
@@ -1234,7 +1238,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         ExcessiveAmount := 1;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtExcessiveAmount(CustLedgEntry, OutStream, ExcessiveAmount);
@@ -1270,7 +1274,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         Initialize();
         ExcessiveAmount := 1;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmtExcessiveAmount(CustLedgEntry, OutStream, ExcessiveAmount);
@@ -1328,7 +1332,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // Exercise
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccountLedgerEntries.Trap;
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -1366,7 +1372,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         Initialize();
         SetOnMatchOnClosingDocumentNumber();
 
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         LibrarySales.CreateCustomer(Cust);
         LibrarySales.CreateCustomer(Cust2);
@@ -1383,7 +1389,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         WriteCAMTFooter(OutStream);
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1392,25 +1398,25 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // verify that you got two applied payment entries
         BankAccReconLine.FilterBankRecLines(BankAccRecon);
-        BankAccReconLine.FindFirst;
+        BankAccReconLine.FindFirst();
         AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-        Assert.AreEqual(2, AppliedPmtEntry.Count, '');
+        Assert.AreEqual(2, AppliedPmtEntry.Count(), '');
 
         // verify that you can drill down to correct customer from the first applied entry
         AppliedPmtEntry.Find('-');
         Assert.AreEqual(Cust.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
-        Assert.AreEqual(Cust."No.", CustomerCard."No.".Value, '');
-        CustomerCard.Close;
+        Assert.AreEqual(Cust."No.", CustomerCard."No.".Value(), '');
+        CustomerCard.Close();
 
         // verify that you can drill down to correct customer from the second applied entry
-        AppliedPmtEntry.Next;
+        AppliedPmtEntry.Next();
         Assert.AreEqual(Cust2.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
-        Assert.AreEqual(Cust2."No.", CustomerCard."No.".Value, '');
-        CustomerCard.Close;
+        Assert.AreEqual(Cust2."No.", CustomerCard."No.".Value(), '');
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -1507,7 +1513,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1569,7 +1577,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1602,7 +1612,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1640,7 +1652,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1680,7 +1694,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1713,7 +1729,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1750,7 +1768,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOnePurchOnePmt(CustLedgEntry, VendLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1791,7 +1811,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtTwoPurchTwoPmt(CustLedgEntry, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1834,7 +1856,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -1877,7 +1901,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOnePurchOnePmt(CustLedgEntry, VendLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1923,7 +1949,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtTwoPurchTwoPmt(CustLedgEntry, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -1969,7 +1997,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -2018,7 +2048,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -2078,7 +2110,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
@@ -2135,7 +2169,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
 
@@ -2183,7 +2219,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateCustAndPostSalesInvoice(CustLedgEntry2, '');
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAcc, '');
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
@@ -2244,7 +2282,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOutstream(CustLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAcc, '');
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
@@ -2288,7 +2328,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOnePurchOnePmt(CustLedgEntry, VendLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2343,7 +2385,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOnePurchOnePmt(CustLedgEntry, VendLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2398,7 +2442,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateOneSaleOnePmtOnePurchOnePmt(CustLedgEntry, VendLedgEntry, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2448,7 +2494,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2500,7 +2548,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtTwoPurchTwoPmt(CustLedgEntry, CustLedgEntry2, VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2554,7 +2604,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         SetOnMatchOnClosingDocumentNumber();
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -2604,7 +2656,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CreateTwoSaleTwoPmtOutstream(CustLedgEntry, CustLedgEntry2, OutStream, TempBlobUTF8);
 
         // [WHEN] Statement is imported and customer ledger payment is posted
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
+        LibraryLowerPermissions.AddCustomerEdit();
+        LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
@@ -3808,7 +3862,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     local procedure CreateOneSaleOnePmtOutstream(var CustLedgEntry: Record "Cust. Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmt(CustLedgEntry, OutStream);
@@ -3818,7 +3872,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     local procedure CreateTwoSaleTwoPmtOutstream(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleTwoPmt(CustLedgEntry, CustLedgEntry2, OutStream);
@@ -3830,7 +3884,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmt(CustLedgEntry, OutStream);
@@ -3843,7 +3897,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         OneSaleOnePmt(CustLedgEntry, OutStream);
@@ -3856,7 +3910,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
     begin
         Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        TempBlobUTF8.CreateOutStream(OutStream, TextEncoding::UTF8);
 
         WriteCAMTHeader(OutStream, '', 'TEST');
         TwoSaleTwoPmt(CustLedgEntry, CustLedgEntry2, OutStream);
@@ -3895,6 +3949,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           StatementEndingBalance + OutstdTransactions + OutstdPayments);
         LibraryReportDataset.AssertElementWithValueExists('Difference',
           (GLBalance - (StatementEndingBalance + OutstdTransactions + OutstdPayments)));
+        // Warning HeaderError1 does not exist for Payment Reconciliation (TFS 398635)
+        LibraryReportDataset.AssertElementWithValueNotExist(
+            'HeaderError1', 'Statement Ending Balance is not equal to Total Balance.');
 
         // Verify Totals
         Assert.AreEqual(GLBalance,
