@@ -571,11 +571,13 @@ page 242 "Consolidate Wizard"
 
     local procedure UpdateCurrentRecState()
     begin
-        if Step = 1 then begin
+        if (Step = 1) or (Step = 2) then begin
             if Rec."Default Data Import Method" = Rec."Default Data Import Method"::Database then
                 CompanyName := Rec."Company Name";
             if Rec."Default Data Import Method" = Rec."Default Data Import Method"::API then
                 CompanyName := Rec."External Company Name";
+        end;
+        if Step = 1 then begin
             UpdateCurrentRecAccessGrantedState();
             LastConsolidationEndingDate := ConsolidateBusinessUnits.GetLastConsolidationEndingDate(Rec);
         end;

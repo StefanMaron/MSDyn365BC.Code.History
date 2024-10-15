@@ -118,7 +118,9 @@ using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.Entity;
+#if not CLEAN25
 using Microsoft.Integration.FieldService;
+#endif
 using Microsoft.Integration.Graph;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Integration.PowerBI;
@@ -679,6 +681,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "CRM Transactioncurrency" = RIMD,
                   tabledata "CRM Uom" = RIMD,
                   tabledata "CRM Uomschedule" = RIMD,
+#if not CLEAN25
                   tabledata "FS Connection Setup" = RIMD,
                   tabledata "FS Bookable Resource" = RIMD,
                   tabledata "FS Bookable Resource Booking" = RIMD,
@@ -693,6 +696,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "FS Work Order Service" = RIMD,
                   tabledata "FS Work Order Substatus" = RIMD,
                   tabledata "FS Work Order Type" = RIMD,
+#endif
                   tabledata "CSV Buffer" = RIMD,
                   tabledata "Curr. Exch. Rate Update Setup" = RIMD,
                   tabledata Currency = RIMD,

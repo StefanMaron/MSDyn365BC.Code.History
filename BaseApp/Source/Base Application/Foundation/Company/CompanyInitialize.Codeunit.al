@@ -147,10 +147,16 @@ codeunit 2 "Company-Initialize"
         Text000: Label 'Initializing company...';
         SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
-        SEPA_CT_APCCodeTxt: Label 'SEPACTAPC', Comment = 'No need to translate - but can be translated at will.';
-        SEPA_CT_APCNameTxt: Label 'SEPA Credit Transfer APC';
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
         SEPADDNameTxt: Label 'SEPA Direct Debit';
+        SEPA_CT_APCCodeTxt: Label 'SEPACTAPC', Comment = 'No need to translate - but can be translated at will.';
+        SEPA_CT_APCNameTxt: Label 'SEPA Credit Transfer APC';
+        SEPA_CT_APCCode09Txt: Label 'SEPACTAPC09', Comment = 'No need to translate - but can be translated at will.';
+        SEPA_CT_APCName09Txt: Label 'SEPA Credit Transfer APC 09';
+        SEPACTCode09Txt: Label 'SEPACTPAIN00100109', Locked = true;
+        SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09';
+        SEPADDCode08Txt: Label 'SEPADDPAIN00800108', Locked = true;
+        SEPADDName08Txt: Label 'SEPA Direct Debit pain.008.001.08';
         Text001: Label 'SALES';
         Text002: Label 'Sales';
         Text003: Label 'PURCHASES';
@@ -606,7 +612,43 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"SEPA CT APC-Export File", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCodeTxt, SEPADDNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02", CODEUNIT::"SEPA DD-Check Line");
+            InsertBankExportImportSetup(SEPACTCode09Txt, SEPACTName09Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+            InsertBankExportImportSetup(SEPA_CT_APCCode09Txt, SEPA_CT_APCName09Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT APC-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+            InsertBankExportImportSetup(SEPADDCode08Txt, SEPADDName08Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
         end;
+    end;
+
+    procedure GetSEPACT09Code(): Code[20]
+    begin
+        exit(SEPACTCode09Txt);
+    end;
+
+    procedure GetSEPACTAPC09Code(): Code[20]
+    begin
+        exit(SEPA_CT_APCCode09Txt);
+    end;
+
+    procedure GetSEPADD08Code(): Code[20]
+    begin
+        exit(SEPADDCode08Txt);
+    end;
+
+    procedure GetSEPACT09Name(): Text[100]
+    begin
+        exit(SEPACTName09Txt);
+    end;
+
+    procedure GetSEPACTAPC09Name(): Text[100]
+    begin
+        exit(SEPA_CT_APCName09Txt);
+    end;
+
+    procedure GetSEPADD08Name(): Text[100]
+    begin
+        exit(SEPADDName08Txt);
     end;
 
     local procedure InitDocExchServiceSetup()
@@ -701,7 +743,7 @@ codeunit 2 "Company-Initialize"
         JobWIPMethod.Insert();
     end;
 
-    local procedure InsertBankExportImportSetup(CodeTxt: Text[20]; NameTxt: Text[100]; DirectionOpt: Option; CodeunitID: Integer; XMLPortID: Integer; CheckCodeunitID: Integer)
+    internal procedure InsertBankExportImportSetup(CodeTxt: Text[20]; NameTxt: Text[100]; DirectionOpt: Option; CodeunitID: Integer; XMLPortID: Integer; CheckCodeunitID: Integer)
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin

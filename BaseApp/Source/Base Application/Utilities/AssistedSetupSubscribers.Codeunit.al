@@ -28,7 +28,6 @@ using System.Integration.Excel;
 using System.Media;
 using System.Security.User;
 using System.Apps;
-using Microsoft.Integration.FieldService;
 
 codeunit 1814 "Assisted Setup Subscribers"
 {
@@ -94,7 +93,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         CRMConnectionSetupTitleTxt: Label 'Set up a connection to %1', Comment = '%1 = CRM product name';
         CRMConnectionSetupShortTitleTxt: Label 'Connect to %1', Comment = '%1 = CRM product name', MaxLength = 32;
         CRMConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115256', Locked = true;
-        FSConnectionSetupHelpTxt: Label '', Locked = true; // TO DO: Update this
         CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights. Data is exchanged between the apps for better productivity.';
         CDSConnectionSetupTitleTxt: Label 'Set up a connection to Dataverse';
         CDSConnectionSetupShortTitleTxt: Label 'Connect to Dataverse', MaxLength = 50;
@@ -327,16 +325,6 @@ codeunit 1814 "Assisted Setup Subscribers"
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
                 Page::"CRM Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.SHORT()));
-            GlobalLanguage(CurrentGlobalLanguage);
-        end;
-
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            GuidedExperience.InsertAssistedSetup(STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.FSServiceName()),
-                STRSUBSTNO(CRMConnectionSetupShortTitleTxt, CRMProductName.FSServiceName()), CRMConnectionSetupDescriptionTxt, 10, ObjectType::Page,
-                Page::"FS Connection Setup Wizard", AssistedSetupGroup::Connect, VideoUrlSetupCRMConnectionTxt, VideoCategory::Connect, FSConnectionSetupHelpTxt);
-            GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                Page::"FS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), STRSUBSTNO(CRMConnectionSetupTitleTxt, CRMProductName.FSServiceName()));
             GlobalLanguage(CurrentGlobalLanguage);
         end;
 

@@ -289,6 +289,7 @@ codeunit 378 "Transfer Extended Text"
             exit;
 
         LineSpacing := 10; // New fixed Line Spacing method
+        OnInsertSalesExtTextRetLastOnAfterSetLineSpacing(LineSpacing);
 
         ToSalesLine.Reset();
         ToSalesLine.SetRange("Document Type", SalesLine."Document Type");
@@ -1089,6 +1090,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnJobCheckIfAnyExtTextOnAfterCheckAutoText(var JobPlanningLine: Record "Job Planning Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesExtTextRetLastOnAfterSetLineSpacing(var LineSpacing: Integer)
     begin
     end;
 }

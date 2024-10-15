@@ -119,6 +119,7 @@ codeunit 56 "Sales - Calc Discount By Type"
         InvoiceDiscountValue: Decimal;
         AmountIncludingVATDiscountAllowed: Decimal;
         AmountDiscountAllowed: Decimal;
+        SkipCustInvDiscCheck: Boolean;
     begin
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
             exit(0);
@@ -130,9 +131,12 @@ codeunit 56 "Sales - Calc Discount By Type"
         case SalesHeader."Invoice Discount Calculation" of
             SalesHeader."Invoice Discount Calculation"::"%":
                 begin
-                    // Only if CustInvDisc table is empty header is not updated
-                    if not CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then
-                        exit(0);
+                    SkipCustInvDiscCheck := false;
+                    OnGetCustInvoiceDiscountPctOnCaseInvDiscCalcPercent(SkipCustInvDiscCheck);
+                    if not SkipCustInvDiscCheck then
+                        // Only if CustInvDisc table is empty header is not updated
+                        if not CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then
+                            exit(0);
 
                     exit(SalesHeader."Invoice Discount Value");
                 end;
@@ -160,6 +164,7 @@ codeunit 56 "Sales - Calc Discount By Type"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IsHandled: Boolean;
+        ShouldRedistributeInvDiscAmt: Boolean;
     begin
         IsHandled := false;
         OnBeforeShouldRedistributeInvoiceDiscountAmount(SalesHeader, IsHandled);
@@ -180,7 +185,9 @@ codeunit 56 "Sales - Calc Discount By Type"
                     if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
                         exit(true);
 
-                    exit(not InvoiceDiscIsAllowed(SalesHeader."Invoice Disc. Code"));
+                    ShouldRedistributeInvDiscAmt := not InvoiceDiscIsAllowed(SalesHeader."Invoice Disc. Code");
+                    OnShouldRedistributeInvoiceDiscountAmountOnCaseInvDiscCalculationNone(SalesHeader, ShouldRedistributeInvDiscAmt);
+                    exit(ShouldRedistributeInvDiscAmt);
                 end;
             else
                 exit(true);
@@ -252,6 +259,16 @@ codeunit 56 "Sales - Calc Discount By Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShouldRedistributeInvoiceDiscountAmount(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustInvoiceDiscountPctOnCaseInvDiscCalcPercent(var SkipCustInvDiscCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShouldRedistributeInvoiceDiscountAmountOnCaseInvDiscCalculationNone(SalesHeader: Record "Sales Header"; var ShouldRedistributeInvDiscAmt: Boolean)
     begin
     end;
 }
