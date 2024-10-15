@@ -9,6 +9,9 @@ codeunit 18434 "GST Application Session Mgt."
         GSTTransactionType: Enum "Detail Ledger Transaction Type";
         OnlineCustomerLedgerEntryNo: Integer;
         OnlineVendorLedgerEntryNo: Integer;
+        OnlinePostApplicationLastEntryNo: Integer;
+        GLRegisterLastEntryNo: Integer;
+        IsOnlinePostApplication: Boolean;
         TransactionNo: Integer;
         VendorNo: Code[20];
         CustomerNo: Code[20];
@@ -105,6 +108,36 @@ codeunit 18434 "GST Application Session Mgt."
     procedure GetOnlineVendLedgerEntry(var OnlineVendLedgerEntry: Record "Vendor Ledger Entry")
     begin
         OnlineVendLedgerEntry := OnlineVendorLedgerEntry;
+    end;
+
+    procedure SetOnlinePostApplication(pIsOnlinePostApplication: Boolean)
+    begin
+        IsOnlinePostApplication := pIsOnlinePostApplication;
+    end;
+
+    procedure GetOnlinePostApplication(): Boolean
+    begin
+        exit(IsOnlinePostApplication);
+    end;
+
+    procedure SetOnlinePostApplicationLastEntryNo(pOnlinePostApplicationLastEntryNo: Integer)
+    begin
+        OnlinePostApplicationLastEntryNo := pOnlinePostApplicationLastEntryNo;
+    end;
+
+    procedure GetOnlinePostApplicationLastEntryNo(): Integer
+    begin
+        exit(OnlinePostApplicationLastEntryNo);
+    end;
+
+    procedure SetOnlinePostApplicationLastEntryNoForGLRegister(pGLRegisterLastEntryNo: Integer)
+    begin
+        GLRegisterLastEntryNo := pGLRegisterLastEntryNo;
+    end;
+
+    procedure GetOnlinePostApplicationLastEntryNoForGLRegister(): Integer
+    begin
+        exit(GLRegisterLastEntryNo);
     end;
 
     procedure CreateApplicationGenJournallLine(

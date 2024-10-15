@@ -3328,56 +3328,6 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ErrorThrownWhenQtyIsRoundedTo0OnPlanningComponent()
-    var
-        Item: Record Item;
-        ItemUOM: Record "Item Unit of Measure";
-        NonBaseUOM: Record "Unit of Measure";
-        BaseUOM: Record "Unit of Measure";
-        NonBaseQtyPerUOM: Decimal;
-        BaseQtyPerUOM: Decimal;
-        QtyRoundingPrecision: Decimal;
-        RequisitionLine: Record "Requisition Line";
-        PlanningComponent: Record "Planning Component";
-    begin
-        // [SCENARIO 392868] Throw Error while Rounding Quantity to 0 on planning component based on Rounding Precision.
-        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
-        Initialize();
-        BaseQtyPerUOM := 1;
-        QtyRoundingPrecision := 0.1;
-        NonBaseQtyPerUOM := 3;
-        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
-
-        // [GIVEN] Requisition line.
-        CreateRequisitionLine(RequisitionLine);
-        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", BaseUOM.Code, 0);
-        RequisitionLine.Validate("Starting Date", WorkDate());
-        RequisitionLine.Validate("Ending Date", WorkDate());
-
-        // [WHEN] Planning component for item with Base UoM and quantity 0.01.
-        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
-        PlanningComponent.Validate("Item No.", Item."No.");
-
-        // [THEN] Throw error due to rounding of base quantity to 0 as Quantity Per is "0.01".
-        asserterror PlanningComponent.Validate("Quantity per", 0.01);
-        Assert.ExpectedError(QtyRoundingErr);
-
-        // [WHEN] Planning component for item with Non Base UoM and quantity 0.01 on requisition line.
-        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
-        PlanningComponent.Validate("Unit of Measure Code", NonBaseUOM.Code);
-
-        // [THEN] Throw error due to rounding of non base quantity to 0.
-        asserterror PlanningComponent.Validate("Quantity per", 0.01);
-        Assert.ExpectedError(StrSubstNo(QuantityImbalanceErr,
-                            PlanningComponent.FieldCaption(PlanningComponent."Qty. Rounding Precision"),
-                            'Item',
-                            Item."No.",
-                            PlanningComponent.FieldCaption(PlanningComponent.Quantity),
-                            PlanningComponent.FieldCaption(PlanningComponent."Quantity (Base)")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure QtyAreRoundedWithRoundingPrecisionSpecifiedOnPlanningComponent()
     var
         ItemReqLine: Record Item;
@@ -3419,11 +3369,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [WHEN] Setting "Quantity per" as 16/24 on Planning Component.
         PlanningComponent.Validate("Quantity per", 16 / 24);
 
-        // [THEN] Quantity should be rounded to round(16/24, 0.00001) = 0.66667.
-        Assert.AreEqual(0.66667, PlanningComponent.Quantity, 'PlanningComponent.Quantity is not rounded correctly.');
+        // [THEN] Quantity is not rounded.
+        Assert.AreEqual(16 / 24, PlanningComponent.Quantity, 'PlanningComponent.Quantity must not be rounded.');
 
-        // [THEN] The base quantity should be rounded to round(0.66667 * 24, 1) = 16.
-        Assert.AreEqual(16, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" is not rounded correctly.');
+        // [THEN] The base quantity is not rounded.
+        Assert.AreEqual(16, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" must not be rounded.');
 
         // [THEN] The expected quantity should be rounded to roundup(0.66667 * 4/6, 0.00001) = 0.44445.
         Assert.AreEqual(0.44445, PlanningComponent."Expected Quantity", 'PlanningComponent."Expected Quantity" is not rounded correctly.');
@@ -3474,11 +3424,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [WHEN] Setting "Quantity per" as 16/24 on Planning Component.
         PlanningComponent.Validate("Quantity per", 16 / 24);
 
-        // [THEN] Quantity should be rounded to round(16/24, 0.00001) = 0.66667.
-        Assert.AreEqual(0.66667, PlanningComponent.Quantity, 'PlanningComponent.Quantity is not rounded correctly.');
+        // [THEN] Quantity is not rounded.
+        Assert.AreEqual(16 / 24, PlanningComponent.Quantity, 'PlanningComponent.Quantity must not be rounded.');
 
-        // [THEN] The base quantity should be rounded to round(0.66667 * 24, not specified) = 16.00008.
-        Assert.AreEqual(16.00008, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" is not rounded correctly.');
+        // [THEN] The base quantity is not rounded.
+        Assert.AreEqual(16, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" must not be rounded.');
 
         // [THEN] The expected quantity should be rounded to roundup(0.66667 * 4/6, 0.00001) = 0.44445.
         Assert.AreEqual(0.44445, PlanningComponent."Expected Quantity", 'PlanningComponent."Expected Quantity" is not rounded correctly.');

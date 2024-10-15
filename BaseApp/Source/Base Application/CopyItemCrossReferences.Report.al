@@ -31,18 +31,20 @@ report 5717 "Copy Item Cross References"
                 ItemReference: Record "Item Reference";
             begin
                 ReadRecs += 1;
-                if not ItemReference.Get(
-                    ItemCrossReference."Item No.", ItemCrossReference."Variant Code", ItemCrossReference."Unit of Measure",
-                    ItemCrossReference."Cross-Reference Type", ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Cross-Reference No.")
-                then begin
-                    Clear(ItemReference);
-                    ItemReference.TransferFields(ItemCrossReference, true, true);
-                    ItemReference.SystemId := ItemCrossReference.SystemId;
-                    ItemReference.Insert(false, true);
-                    InsertedRecs += 1;
 
-                    CommitEach1000RecordsInserted();
-                end;
+                if StrLen(ItemCrossReference."Cross-Reference Type No.") <= MaxStrLen(ItemReference."Reference Type No.") then
+                    if not ItemReference.Get(
+                        ItemCrossReference."Item No.", ItemCrossReference."Variant Code", ItemCrossReference."Unit of Measure",
+                        ItemCrossReference."Cross-Reference Type", ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Cross-Reference No.")
+                    then begin
+                        Clear(ItemReference);
+                        ItemReference.TransferFields(ItemCrossReference, true, true);
+                        ItemReference.SystemId := ItemCrossReference.SystemId;
+                        ItemReference.Insert(false, true);
+                        InsertedRecs += 1;
+
+                        CommitEach1000RecordsInserted();
+                    end;
             end;
 
             trigger OnPostDataItem()

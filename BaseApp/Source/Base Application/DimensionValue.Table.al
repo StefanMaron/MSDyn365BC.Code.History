@@ -1,4 +1,4 @@
-table 349 "Dimension Value"
+﻿table 349 "Dimension Value"
 {
     Caption = 'Dimension Value';
     LookupPageID = "Dimension Value List";
@@ -216,6 +216,8 @@ table 349 "Dimension Value"
     end;
 
     trigger OnRename()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         RenameBudgEntryDim;
         RenameAnalysisViewEntryDim;
@@ -226,6 +228,7 @@ table 349 "Dimension Value"
             CostAccMgt.UpdateCostCenterFromDim(Rec, xRec, 3);
             CostAccMgt.UpdateCostObjectFromDim(Rec, xRec, 3);
         end;
+        DimValuePerAccount.RenameDimensionValue("Dimension Code", xRec.Code, Code);
 
         SetLastModifiedDateTime;
     end;
