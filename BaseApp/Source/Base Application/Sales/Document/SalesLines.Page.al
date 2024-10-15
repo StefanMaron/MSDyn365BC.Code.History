@@ -131,7 +131,7 @@ page 516 "Sales Lines"
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
@@ -292,7 +292,7 @@ page 516 "Sales Lines"
 
                     trigger OnAction()
                     var
-                        AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                        AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                     begin
                         if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);

@@ -9,22 +9,18 @@ codeunit 5378 "VS Code Request Helper"
     Access = Internal;
 
     var
+        AllObjWithCaption: Record AllObjWithCaption;
         UriBuilder: Codeunit "Uri Builder";
         VSCodeRequestHelper: DotNet VSCodeRequestHelper;
-        ObjectTypes: Option "Page","Table","PageExtension","TableExtension";
         AlExtensionUriTxt: Label 'vscode://ms-dynamics-smb.al', Locked = true;
         BaseApplicationIdTxt: Label '437dbf0e-84ff-417a-965d-ed2bb9650972', Locked = true;
         SystemApplicationIdTxt: Label '63ca2fa4-4f03-4f2b-a480-172fef340d3f', Locked = true;
         ApplicationIdTxt: Label 'c1335042-3002-4257-bf8a-75c898ccb1b8', Locked = true;
-        CurrentFormId: Guid;
-        CurrentPageId: Integer;
-        CurrentTableId: Integer;
         FilterConditions: Text;
 
     [Scope('OnPrem')]
     local procedure GetUrlToNavigateInVSCode(ObjectType: Option; ObjectId: Integer; ObjectName: Text; ControlName: Text; PageInfoAndFields: Record "Page Info And Fields"): Text
     var
-        Uri: Codeunit Uri;
         Url: Text;
     begin
         UriBuilder.Init(AlExtensionUriTxt + '/navigateTo');
@@ -35,16 +31,14 @@ codeunit 5378 "VS Code Request Helper"
         UriBuilder.AddQueryParameter('appid', GetAppIdForObject(ObjectType, ObjectId));
         if Text.StrLen(ControlName) <> 0 then
             UriBuilder.AddQueryParameter('fieldName', Format(PageInfoAndFields."Field Name"));
-        UriBuilder.AddQueryParameter('dependencies', GetDependencies(PageInfoAndFields."Page ID", PageInfoAndFields."Source Table No.", PageInfoAndFields."Current Form ID"));
+        UriBuilder.SetQuery(UriBuilder.GetQuery() + '&' + VSCodeRequestHelper.GetLaunchInformationQueryPart());
         UriBuilder.AddQueryParameter('sessionId', Format(SessionId()));
+        UriBuilder.AddQueryParameter('dependencies', GetDependencies(PageInfoAndFields."Page ID", PageInfoAndFields."Source Table No.", PageInfoAndFields."Current Form ID"));
 
-        UriBuilder.GetUri(Uri);
-        Url := Uri.GetAbsoluteUri();
-        Url += '&' + VSCodeRequestHelper.GetLaunchInformationQueryPart();
-
-        // If the URL length exceeds 2000 characters then it will crash the page
+        Url := GetAbsoluteUri();
         if DoesExceedCharLimit(Url) then
-            exit('');
+            // If the URL length exceeds 2000 characters then it will crash the page, so we truncate it.
+            exit(AlExtensionUriTxt + '/truncated');
 
         exit(Url);
     end;
@@ -52,19 +46,18 @@ codeunit 5378 "VS Code Request Helper"
     [Scope('OnPrem')]
     procedure GetUrlToNavigatePageInVSCode(PageInfoAndFields: Record "Page Info And Fields"): Text
     begin
-        exit(GetUrlToNavigateInVSCode(ObjectTypes::Page, PageInfoAndFields."Page ID", PageInfoAndFields."Page Name", '', PageInfoAndFields));
+        exit(GetUrlToNavigateInVSCode(AllObjWithCaption."Object Type"::Page, PageInfoAndFields."Page ID", PageInfoAndFields."Page Name", '', PageInfoAndFields));
     end;
 
     [Scope('OnPrem')]
     procedure GetUrlToNavigateFieldInVSCode(PageInfoAndFields: Record "Page Info And Fields"): Text
     begin
-        exit(GetUrlToNavigateInVSCode(ObjectTypes::Table, PageInfoAndFields."Source Table No.", PageInfoAndFields."Source Table Name", PageInfoAndFields."Field Name", PageInfoAndFields));
+        exit(GetUrlToNavigateInVSCode(AllObjWithCaption."Object Type"::Table, PageInfoAndFields."Source Table No.", PageInfoAndFields."Source Table Name", PageInfoAndFields."Field Name", PageInfoAndFields));
     end;
 
     [Scope('OnPrem')]
     local procedure GetAppIdForObject(ObjectType: Option; ObjectId: Integer): Text
     var
-        AllObjWithCaption: Record AllObjWithCaption;
         NavAppInstalledApp: Record "NAV App Installed App";
     begin
         if AllObjWithCaption.ReadPermission() then begin
@@ -94,10 +87,9 @@ codeunit 5378 "VS Code Request Helper"
                 DependencyList.Append(FormatDependency(NavAppInstalledApp));
             until NavAppInstalledApp.Next() = 0;
 
-        if DoesExceedCharLimit(DependencyList.ToText()) then begin
-            Message('Cannot update symbols since there are too many dependencies to download.');
-            exit('');
-        end;
+        if DoesExceedCharLimit(GetAbsoluteUri() + DependencyList.ToText()) then
+            exit('truncated');
+
         exit(DependencyList.ToText());
     end;
 
@@ -122,9 +114,9 @@ codeunit 5378 "VS Code Request Helper"
     local procedure FormatObjectType(ObjectType: Option): Text
     begin
         case ObjectType of
-            ObjectTypes::Page:
+            AllObjWithCaption."Object Type"::Page:
                 exit('page');
-            ObjectTypes::table:
+            AllObjWithCaption."Object Type"::table:
                 exit('table');
             else
                 Error('ObjectType not supported');
@@ -134,19 +126,10 @@ codeunit 5378 "VS Code Request Helper"
     [Scope('OnPrem')]
     procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer; FormId: Guid; var NAVAppInstalledApp: Record "NAV App Installed App")
     var
-        AllObjWithCaption: Record AllObjWithCaption;
         ExtensionExecutionInfo: Record "Extension Execution Info";
         TempGuid: Guid;
         OrFilterFmtLbl: Label '%1|', Locked = true;
     begin
-        if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
-            exit;
-
-        CurrentPageId := PageId;
-        CurrentTableId := TableId;
-        FilterConditions := '';
-        CurrentFormId := FormId;
-
         if AllObjWithCaption.ReadPermission() then begin
             // check if this page was added by extension
             AllObjWithCaption.Reset();
@@ -186,7 +169,7 @@ codeunit 5378 "VS Code Request Helper"
 
             // Add filters for arbitrary code which has executed on the form
             if ExtensionExecutionInfo.ReadPermission() then begin
-                ExtensionExecutionInfo.SetRange("Form ID", CurrentFormId);
+                ExtensionExecutionInfo.SetRange("Form ID", FormId);
                 if ExtensionExecutionInfo.Find('-') then
                     repeat
                         AllObjWithCaption.Reset();
@@ -206,6 +189,15 @@ codeunit 5378 "VS Code Request Helper"
             Clear(TempGuid);
             NAVAppInstalledApp.SetFilter(NAVAppInstalledApp."Package ID", '%1', TempGuid);
         end;
+    end;
+
+    [Scope('OnPrem')]
+    local procedure GetAbsoluteUri(): Text
+    var
+        Uri: Codeunit Uri;
+    begin
+        UriBuilder.GetUri(Uri);
+        exit(Uri.GetAbsoluteUri());
     end;
 
     [Scope('OnPrem')]

@@ -16,4 +16,16 @@ enum 5224 "Employee Gender"
     {
         Caption = 'Male';
     }
+    value(3; "Non-binary")
+    {
+        Caption = 'Non-binary/gender diverse';
+    }
+    value(4; "Self-Described")
+    {
+        Caption = 'Self-Described';
+    }
+    value(5; "I don’t wish to answer")
+    {
+        Caption = 'I don''t wish to answer';
+    }
 }

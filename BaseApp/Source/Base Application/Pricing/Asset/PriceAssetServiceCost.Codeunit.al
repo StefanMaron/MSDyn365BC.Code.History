@@ -74,6 +74,14 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
 
     procedure FillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
     begin
+        if not ServiceCost.Get(PriceCalculationBuffer."Asset No.") then
+            exit;
+
+        if AmountType <> AmountType::Discount then
+            case PriceCalculationBuffer."Price Type" of
+                PriceCalculationBuffer."Price Type"::Sale:
+                    PriceListLine."Unit Price" := ServiceCost."Default Unit Price";
+            end;
     end;
 
     procedure FilterPriceLines(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line") Result: Boolean;

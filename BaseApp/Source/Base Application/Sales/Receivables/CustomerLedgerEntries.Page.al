@@ -46,7 +46,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer entry''s document date.';
-                    Visible = false;
                 }
                 field("Document Type"; Rec."Document Type")
                 {

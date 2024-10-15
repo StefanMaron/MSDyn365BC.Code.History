@@ -401,6 +401,11 @@ page 61 "Applied Customer Entries"
         end;
     end;
 
+    procedure GetCreateCustLedgerEntry(): Record "Cust. Ledger Entry"
+    begin
+        exit(CreateCustLedgEntry);
+    end;
+
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";

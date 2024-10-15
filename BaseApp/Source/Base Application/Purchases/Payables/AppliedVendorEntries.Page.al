@@ -371,6 +371,11 @@ page 62 "Applied Vendor Entries"
             until DtldVendLedgEntry1.Next() = 0;
     end;
 
+    procedure GetCreateVendorLedgerEntry(): Record "Vendor Ledger Entry"
+    begin
+        exit(CreateVendLedgEntry);
+    end;
+
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";

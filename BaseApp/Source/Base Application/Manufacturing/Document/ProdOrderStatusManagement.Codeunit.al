@@ -838,7 +838,10 @@ codeunit 5407 "Prod. Order Status Management"
                     repeat
                         ProdOrderRtngLine.SetRange(Status, Status);
                         ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-                        ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
+                        if "Routing Reference No." <> 0 then
+                            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.")
+                        else
+                            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
                         ProdOrderRtngLine.SetRange("Next Operation No.", '');
                         ProdOrderRtngLine.SetRange("Flushing Method");
                         if not ProdOrderRtngLine.IsEmpty() then begin

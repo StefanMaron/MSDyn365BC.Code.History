@@ -148,6 +148,7 @@ page 1174 "Document Attachment Factbox"
                         end;
 
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        OnBeforeDocumentAttachmentDetailsRunModal(Rec, RecRef, DocumentAttachmentDetails);
                         DocumentAttachmentDetails.RunModal();
                     end;
                 }
@@ -161,6 +162,11 @@ page 1174 "Document Attachment Factbox"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDown(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDocumentAttachmentDetailsRunModal(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; var DocumentAttachmentDetails: Page "Document Attachment Details")
     begin
     end;
 

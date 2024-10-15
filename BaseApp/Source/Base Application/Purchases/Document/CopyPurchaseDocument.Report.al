@@ -277,6 +277,8 @@ report 492 "Copy Purchase Document"
                             FindFromPurchHeaderArchive();
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
                         end;
+                    else
+                        OnValidateDocNoOnCaseElse(FromDocType, FromPurchHeader, FromDocNo, FromDocNoOccurrence, FromDocVersionNo);
                 end;
             end;
         FromPurchHeader."No." := '';
@@ -336,6 +338,8 @@ report 492 "Copy Purchase Document"
             FromDocType::"Arch. Blanket Order",
             FromDocType::"Arch. Return Order":
                 LookupPurchArchive();
+            else
+                OnLookupDocNoOnCaseElse(FromDocType, FromDocNo, PurchHeader, FromDocNoOccurrence, FromDocVersionNo);
         end;
         ValidateDocNo();
     end;
@@ -603,6 +607,16 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupPostedCrMemoOnBeforeOpenPage(var PurchHeader: Record "Purchase Header"; var FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupDocNoOnCaseElse(FromDocumentType: Enum "Purchase Document Type From"; var FromDocumentNo: Code[20]; PurchaseHeader: Record "Purchase Header"; var FromDocumentNoOccurrance: Integer; var FromDocumentVersionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnCaseElse(FromDocumentType: Enum "Purchase Document Type From"; var FromPurchaseHeader: Record "Purchase Header"; FromDocumentNo: Code[20]; var FromDocumentNoOccurrance: Integer; var FromDocumentVersionNo: Integer)
     begin
     end;
 }
