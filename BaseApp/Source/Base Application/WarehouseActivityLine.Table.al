@@ -629,6 +629,13 @@ table 5767 "Warehouse Activity Line"
                                 xRec.DeleteBinContent("Warehouse Action Type"::Place.AsInteger());
                             end;
                         end;
+
+                        if "Action Type" = "Action Type"::Place then
+                            if (("Whse. Document Type" = "Whse. Document Type"::Receipt) and (Bin."Bin Type Code" <> '')) then
+                                if BinType.Get(Bin."Bin Type Code") then
+                                    if BinType.Receive then
+                                        BinType.TestField(Receive, false);
+
                         Dedicated := Bin.Dedicated;
                         if Location."Directed Put-away and Pick" then begin
                             "Bin Ranking" := Bin."Bin Ranking";
