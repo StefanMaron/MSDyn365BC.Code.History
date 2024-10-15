@@ -131,16 +131,10 @@ table 5330 "CRM Connection Setup"
             trigger OnValidate()
             begin
                 if "Is S.Order Integration Enabled" then
-                    if "Authentication Type" = "Authentication Type"::Office365 then
-                        if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short)) then
-                            SetCRMSOPEnabled()
-                        else
-                            Error('')
+                    if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short)) then
+                        SetCRMSOPEnabled()
                     else
-                        if Confirm(StrSubstNo(SetCRMSOPEnableQst, PRODUCTNAME.Short)) then
-                            SetCRMSOPEnabled
-                        else
-                            Error('')
+                        Error('')
                 else
                     SetCRMSOPDisabled;
                 RefreshDataFromCRM;
@@ -219,7 +213,7 @@ table 5330 "CRM Connection Setup"
 
             trigger OnValidate()
             begin
-                UpdateConnectionString;
+                UpdateProxyVersionInConnectionString();
             end;
         }
         field(80; "Auto Create Sales Orders"; Boolean)
@@ -366,7 +360,6 @@ table 5330 "CRM Connection Setup"
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         ConnectionStringPwdOrClientSecretPlaceHolderMissingErr: Label 'The connection string must include either the password placeholder {PASSWORD} or the client secret placeholder {CLIENTSECRET}.', Comment = '{PASSWORD} and {CLIENTSECRET} are locked strings - do not translate them.';
         CannotDisableSalesOrderIntErr: Label 'You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.';
-        SetCRMSOPEnableQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\To enable this setting, you must provide Dynamics CRM administrator credentials (user name and password).\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableNoCredsReqQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableConfirmMsg: Label 'Sales Order Integration with %1 is enabled.', Comment = '%1 = CRM product name';
         SetCRMSOPDisableConfirmMsg: Label 'Sales Order Integration with %1 is disabled.', Comment = '%1 = CRM product name';
@@ -1011,12 +1004,20 @@ table 5330 "CRM Connection Setup"
     var
         CRMOrganization: Record "CRM Organization";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        CRMConnectionSetup: Record "CRM Connection Setup";
         ConnectionName: Text;
     begin
         CreateTempAdminConnection(TempCRMConnectionSetup);
         if (AdminEmail <> '') and (AdminPassword <> '') then begin
             TempCRMConnectionSetup.SetPassword(AdminPassword);
-            TempCRMConnectionSetup.Validate("User Name", AdminEmail);
+            TempCRMConnectionSetup.Validate("User Name", COPYSTR(AdminEmail, 1, MaxStrLen(TempCRMConnectionSetup."User Name")));
+            TempCRMConnectionSetup.SetConnectionString(Rec.GetConnectionString());
+        end
+        else begin
+            CRMConnectionSetup.Get();
+            TempCRMConnectionSetup.Validate("User Name", CRMConnectionSetup."User Name");
+            TempCRMConnectionSetup.SetPassword(CRMConnectionSetup.GetPassword());
+            TempCRMConnectionSetup.SetConnectionString(CRMConnectionSetup.GetConnectionString());
         end;
         ConnectionName := Format(CreateGuid);
         TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
@@ -1069,6 +1070,7 @@ table 5330 "CRM Connection Setup"
         CRMConnectionSetup.Init();
         CalcFields("Server Connection String");
         CRMConnectionSetup.TransferFields(Rec);
+        CRMConnectionSetup.SetConnectionString(Rec.GetConnectionString());
         CRMConnectionSetup."Primary Key" := CopyStr('TEMP' + "Primary Key", 1, MaxStrLen(CRMConnectionSetup."Primary Key"));
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Is User Mapping Required" := false;
@@ -1269,6 +1271,49 @@ table 5330 "CRM Connection Setup"
         else
             ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, "Server Address", ClientIdTok, ClientSecretTok, "Proxy Version");
 
+        SetConnectionString(ConnectionString);
+    end;
+
+    local procedure UpdateProxyVersionInConnectionString() ConnectionString: Text
+    var
+        LeftPart: Text;
+        RightPart: Text;
+        ProxyVersionTok: Text;
+        IndexOfProxyVersion: Integer;
+    begin
+        ProxyVersionTok := 'ProxyVersion=';
+        ConnectionString := GetConnectionString();
+
+        // if the connection string is empty, just initialize it the standard way
+        if ConnectionString = '' then begin
+            ConnectionString := UpdateConnectionString();
+            exit;
+        end;
+
+        IndexOfProxyVersion := ConnectionString.IndexOf(ProxyVersionTok);
+
+        // if there is no proxy version in the connection string, just add it to the end
+        if IndexOfProxyVersion = 0 then begin
+            ConnectionString += ('; ' + ProxyVersionTok + Format("Proxy Version"));
+            SetConnectionString(ConnectionString);
+            exit;
+        end;
+
+        LeftPart := CopyStr(ConnectionString, 1, IndexOfProxyVersion - 1);
+        RightPart := CopyStr(ConnectionString, IndexOfProxyVersion);
+
+        // RightPart starts with ProxyVersion=
+        // if there is no ; in it, then this is the end of the original connection string
+        // just add proxy version to the end of LeftPart
+        if RightPart.IndexOf(';') = 0 then begin
+            ConnectionString := LeftPart + ProxyVersionTok + Format("Proxy Version");
+            SetConnectionString(ConnectionString);
+            exit;
+        end;
+
+        // in the remaining case, ProxyVersion=XYZ is in the middle of the string
+        RightPart := CopyStr(RightPart, RightPart.IndexOf(';'));
+        ConnectionString := LeftPart + ProxyVersionTok + Format("Proxy Version") + RightPart;
         SetConnectionString(ConnectionString);
     end;
 

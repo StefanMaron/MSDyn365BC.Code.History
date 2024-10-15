@@ -214,6 +214,8 @@ codeunit 10500 "IRS 1099 Management"
         exit(i);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure AnyCodeWithUpdatedAmountExceedMinimum.', '19.0')]
     procedure AnyCodeHasAmountExceedMinimum(Codes: array[20] of Code[10]; Amounts: array[20] of Decimal; LastLineNo: Integer): Boolean
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -232,6 +234,27 @@ codeunit 10500 "IRS 1099 Management"
                             exit(true);
             end;
         exit(false);
+    end;
+#endif
+
+    procedure AnyCodeWithUpdatedAmountExceedMinimum(Codes: array[20] of Code[10]; var Amounts: array[20] of Decimal; LastLineNo: Integer) AmountExceeded: Boolean
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+        i: Integer;
+    begin
+        for i := 1 to LastLineNo do
+            if IRS1099FormBox.Get(Codes[i]) then begin
+                if IRS1099FormBox."Minimum Reportable" < 0.0 then
+                    if Amounts[i] <> 0.0 then begin
+                        Amounts[i] := -Amounts[i];
+                        AmountExceeded := true;
+                    end;
+                if IRS1099FormBox."Minimum Reportable" >= 0.0 then
+                    if Amounts[i] <> 0.0 then
+                        if Amounts[i] >= IRS1099FormBox."Minimum Reportable" then
+                            AmountExceeded := true;
+            end;
+        exit(AmountExceeded);
     end;
 
     procedure GetFormattedVendorAddress(Vendor: Record Vendor) FormattedAddress: Text[30]

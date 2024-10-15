@@ -396,5 +396,15 @@ codeunit 138200 "Normal DemoData"
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
         Assert.RecordCount(ConfigTemplateHeader, 3);
     end;
+
+    [Test]
+    procedure GBIsExcludedFromEUCountry()
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        // [SCENARIO 402208] "GB" is excluded from country\region "EU Country/Region Code" field value for all countries
+        CountryRegion.SetRange("EU Country/Region Code", 'GB');
+        Assert.RecordIsEmpty(CountryRegion);
+    end;
 }
 
