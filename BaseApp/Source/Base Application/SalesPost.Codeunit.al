@@ -109,6 +109,7 @@
                     else
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                     SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmtLine);
+                    SalesTaxCalculate.SetTotalTaxAmountRounding(SalesHeader."Sales Tax Amount Rounding");
                     SalesTaxCalculate.DistTaxOverSalesLines(TempSalesLineForSalesTax);
                 end;
         end else begin
@@ -356,6 +357,7 @@
         SalesLinePostCategoryTok: Label 'Sales Line Post', Locked = true;
         SameIdFoundLbl: Label 'Same line id found.', Locked = true;
         EmptyIdFoundLbl: Label 'Empty line id found.', Locked = true;
+        PrepmtTaxRounding: Decimal;
 
     local procedure GetZeroSalesLineRecID(SalesHeader: Record "Sales Header"; var SalesLineRecID: RecordId)
     var
@@ -578,8 +580,17 @@
             ErrorMessageMgt.Finish(RecordId);
 
             // Update
-            if Invoice then
+            if Invoice then begin
+                if "Prepmt. Include Tax" then
+                    PrepmtTaxRounding := "Prepmt. Sales Tax Rounding Amt"
+                else
+                    PrepmtTaxRounding := 0;
+
                 CreatePrepaymentLines(SalesHeader, true);
+
+                if "Prepmt. Include Tax" then
+                    "Prepmt. Sales Tax Rounding Amt" := PrepmtTaxRounding;
+            end;
 
             ModifyHeader := UpdatePostingNos(SalesHeader);
 
@@ -851,6 +862,7 @@
             if TaxOption = TaxOption::SalesTax then
                 if "Tax Area Code" <> '' then begin
                     PostSalesTaxToGL(SalesHeader, LineCount);
+                    "Sales Tax Amount Rounding" := SalesTaxCalculate.GetTotalTaxAmountRounding();
                     if Invoice then
                         TaxAmountDifference.ClearDocDifference(TaxAmountDifference."Document Product Area"::Sales, "Document Type".AsInteger(), "No.");
                 end;
@@ -4308,6 +4320,8 @@
         TempLineFound: Boolean;
         PrepmtAmtToDeduct: Decimal;
         IsHandled: Boolean;
+        PrepmtAmtToDeductInclTax: Decimal;
+        PrepmtAmtToDeductInclTaxRounded: Decimal;
     begin
         IsHandled := false;
         OnBeforeCreatePrepaymentLines(SalesHeader, TempPrepmtSalesLine, CompleteFunctionality, IsHandled);
@@ -4378,22 +4392,26 @@
                             OnCreatePrepaymentLinesOnAfterTempPrepmtSalesLineSetFilters(TempPrepmtSalesLine);
                             TempLineFound := TempPrepmtSalesLine.FindFirst();
                         end;
+
+                        PrepmtAmtToDeductInclTax := ("Prepmt Amt to Deduct" + PrepmtTaxRounding) * (1 + "VAT %" / 100);
+                        PrepmtAmtToDeductInclTaxRounded := CalcAmountIncludingTax("Prepmt Amt to Deduct" + PrepmtTaxRounding);
+                        PrepmtTaxRounding := PrepmtAmtToDeductInclTax - PrepmtAmtToDeductInclTaxRounded;
+
                         if TempLineFound then begin
                             PrepmtAmtToDeduct :=
                               TempPrepmtSalesLine."Prepmt Amt to Deduct" +
                               InsertedPrepmtVATBaseToDeduct(
-                                SalesHeader, TempSalesLine, TempPrepmtSalesLine."Line No.", TempPrepmtSalesLine."Unit Price");
+                                SalesHeader, TempSalesLine, TempPrepmtSalesLine."Line No.",
+                                TempPrepmtSalesLine."Unit Price", PrepmtAmtToDeductInclTaxRounded);
                             VATDifference := TempPrepmtSalesLine."VAT Difference";
-                            if SalesHeader."Prepmt. Include Tax" then
-                                TempPrepmtSalesLine.Validate(
-                                  "Unit Price",
-                                  TempPrepmtSalesLine."Unit Price" + "Prepmt Amt to Deduct" * (1 + "VAT %" / 100))
-                            else
-                                TempPrepmtSalesLine.Validate(
-                                  "Unit Price", TempPrepmtSalesLine."Unit Price" + "Prepmt Amt to Deduct");
+                            if SalesHeader."Prepmt. Include Tax" then begin
+                                PrepmtAmtToDeductInclTaxRounded += TempPrepmtSalesLine."Prepmt Amt to Deduct";
+                                TempPrepmtSalesLine.Validate("Unit Price", TempPrepmtSalesLine."Prepmt Amt to Deduct" + PrepmtAmtToDeductInclTax)
+                            end else
+                                TempPrepmtSalesLine.Validate("Unit Price", TempPrepmtSalesLine."Unit Price" + "Prepmt Amt to Deduct");
                             TempPrepmtSalesLine.Validate("VAT Difference", VATDifference - "Prepmt VAT Diff. to Deduct");
                             if SalesHeader."Prepmt. Include Tax" then
-                                TempPrepmtSalesLine."Prepmt Amt to Deduct" += CalcAmountIncludingTax("Prepmt Amt to Deduct")
+                                TempPrepmtSalesLine."Prepmt Amt to Deduct" := PrepmtAmtToDeductInclTaxRounded
                             else
                                 TempPrepmtSalesLine."Prepmt Amt to Deduct" := PrepmtAmtToDeduct;
                             if "Prepayment %" < TempPrepmtSalesLine."Prepayment %" then
@@ -4416,23 +4434,16 @@
                             TempPrepmtSalesLine.Validate(Quantity, -1);
                             TempPrepmtSalesLine."Qty. to Ship" := TempPrepmtSalesLine.Quantity;
                             TempPrepmtSalesLine."Qty. to Invoice" := TempPrepmtSalesLine.Quantity;
-                            PrepmtAmtToDeduct := InsertedPrepmtVATBaseToDeduct(SalesHeader, TempSalesLine, NextLineNo, 0);
-                            if SalesHeader."Prepmt. Include Tax" then begin
-                                if IsFinalInvoice and ("Prepayment %" = 100) then
-                                    TempPrepmtSalesLine.Validate(
-                                      "Unit Price", "Prepmt. Amount Inv. Incl. VAT" - GetPrepaidSalesAmountInclVAT)
-                                else
-                                    TempPrepmtSalesLine.Validate("Unit Price", "Prepmt Amt to Deduct" * (1 + "VAT %" / 100))
-                            end else
+                            PrepmtAmtToDeduct :=
+                                InsertedPrepmtVATBaseToDeduct(SalesHeader, TempSalesLine, NextLineNo, 0, PrepmtAmtToDeductInclTaxRounded);
+                            if SalesHeader."Prepmt. Include Tax" then
+                                TempPrepmtSalesLine.Validate("Unit Price", PrepmtAmtToDeductInclTax)
+                            else
                                 TempPrepmtSalesLine.Validate("Unit Price", "Prepmt Amt to Deduct");
                             TempPrepmtSalesLine.Validate("VAT Difference", -"Prepmt VAT Diff. to Deduct");
-                            if SalesHeader."Prepmt. Include Tax" then begin
-                                if IsFinalInvoice then
-                                    TempPrepmtSalesLine."Prepmt Amt to Deduct" :=
-                                      "Prepmt. Amount Inv. Incl. VAT" - GetPrepaidSalesAmountInclVAT
-                                else
-                                    TempPrepmtSalesLine."Prepmt Amt to Deduct" := CalcAmountIncludingTax("Prepmt Amt to Deduct")
-                            end else
+                            if SalesHeader."Prepmt. Include Tax" then
+                                TempPrepmtSalesLine."Prepmt Amt to Deduct" := PrepmtAmtToDeductInclTaxRounded
+                            else
                                 TempPrepmtSalesLine."Prepmt Amt to Deduct" := PrepmtAmtToDeduct;
                             TempPrepmtSalesLine."Prepayment %" := "Prepayment %";
                             TempPrepmtSalesLine."Prepayment Line" := true;
@@ -4464,8 +4475,6 @@
             end;
         end;
         DividePrepmtAmountLCY(TempPrepmtSalesLine, SalesHeader);
-        if Is100PctPrepmtInvoice(TempPrepmtSalesLine) then
-            TotalSalesLineLCY."Prepayment %" := 100;
         if TempPrepmtSalesLine.FindSet() then
             repeat
                 TempSalesLineGlobal := TempPrepmtSalesLine;
@@ -4473,7 +4482,7 @@
             until TempPrepmtSalesLine.Next() = 0;
     end;
 
-    local procedure InsertedPrepmtVATBaseToDeduct(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; PrepmtLineNo: Integer; TotalPrepmtAmtToDeduct: Decimal): Decimal
+    local procedure InsertedPrepmtVATBaseToDeduct(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; PrepmtLineNo: Integer; TotalPrepmtAmtToDeduct: Decimal; PrepmtAmtToDeductInclTax: Decimal): Decimal
     var
         PrepmtVATBaseToDeduct: Decimal;
     begin
@@ -4498,7 +4507,7 @@
             if ("Prepmt Amt to Deduct" = 0) or ("Document Type" = "Document Type"::Invoice) then
                 CalcPrepaymentToDeduct;
             if SalesHeader."Prepmt. Include Tax" then
-                "Prepmt Amt to Deduct" := CalcAmountIncludingTax(SalesLine."Prepmt Amt to Deduct");
+                "Prepmt Amt to Deduct" := PrepmtAmtToDeductInclTax;
             "Line Amount" := GetLineAmountToHandleInclPrepmt("Qty. to Invoice");
             "Attached to Line No." := PrepmtLineNo;
             "VAT Base Amount" := PrepmtVATBaseToDeduct;
@@ -4562,6 +4571,7 @@
     var
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Line";
+        TempSalesLineShipmentBuffer: Record "Sales Line" temporary;
         DeductionFactor: Decimal;
         PrepmtVATPart: Decimal;
         PrepmtVATAmtRemainder: Decimal;
@@ -4569,6 +4579,7 @@
         TotalPrepmtAmount: array[2] of Decimal;
         FinalInvoice: Boolean;
         PricesInclVATRoundingAmount: array[2] of Decimal;
+        CurrentLineFinalInvoice: Boolean;
     begin
         if PrepmtSalesLine."Prepayment Line" then begin
             PrepmtVATPart :=
@@ -4578,15 +4589,31 @@
                 Reset;
                 SetRange("Attached to Line No.", PrepmtSalesLine."Line No.");
                 if FindSet(true) then begin
-                    FinalInvoice := IsFinalInvoice;
+                    FinalInvoice := true;
                     repeat
                         SalesLine := TempPrepmtDeductLCYSalesLine;
                         SalesLine.Find();
+
                         if "Document Type" = "Document Type"::Invoice then begin
                             SalesInvoiceLine := SalesLine;
                             GetSalesOrderLine(SalesLine, SalesInvoiceLine);
                             SalesLine."Qty. to Invoice" := SalesInvoiceLine."Qty. to Invoice";
+
+                            TempSalesLineShipmentBuffer := SalesLine;
+                            if TempSalesLineShipmentBuffer.Find() then begin
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" += "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Modify();
+                            end else begin
+                                TempSalesLineShipmentBuffer.Quantity := Quantity;
+                                TempSalesLineShipmentBuffer."Qty. to Invoice" := "Qty. to Invoice";
+                                TempSalesLineShipmentBuffer.Insert();
+                            end;
+                            CurrentLineFinalInvoice := TempSalesLineShipmentBuffer.IsFinalInvoice();
+                        end else begin
+                            CurrentLineFinalInvoice := IsFinalInvoice();
+                            FinalInvoice := FinalInvoice and CurrentLineFinalInvoice;
                         end;
+
                         if (not SalesHeader."Prepmt. Include Tax") and (SalesLine."Qty. to Invoice" <> "Qty. to Invoice") then
                             SalesLine."Prepmt Amt to Deduct" := CalcPrepmtAmtToDeduct(SalesLine, SalesHeader.Ship);
                         DeductionFactor :=
@@ -4595,12 +4622,12 @@
 
                         "Prepmt. VAT Amount Inv. (LCY)" :=
                           CalcRoundedAmount(SalesLine."Prepmt Amt to Deduct" * PrepmtVATPart, PrepmtVATAmtRemainder);
-                        if ("Prepayment %" <> 100) or IsFinalInvoice or ("Currency Code" <> '') then
+                        if ("Prepayment %" <> 100) or CurrentLineFinalInvoice or ("Currency Code" <> '') then
                             CalcPrepmtRoundingAmounts(TempPrepmtDeductLCYSalesLine, SalesLine, DeductionFactor, TotalRoundingAmount);
                         Modify;
 
                         if SalesHeader."Prices Including VAT" then
-                            if (("Prepayment %" <> 100) or IsFinalInvoice) and (DeductionFactor = 1) then begin
+                            if (("Prepayment %" <> 100) or CurrentLineFinalInvoice) and (DeductionFactor = 1) then begin
                                 PricesInclVATRoundingAmount[1] := TotalRoundingAmount[1];
                                 PricesInclVATRoundingAmount[2] := TotalRoundingAmount[2];
                             end;
@@ -4611,10 +4638,16 @@
                             else
                                 TotalPrepmtAmount[1] += "Prepmt. Amount Inv. (LCY)";
                         TotalPrepmtAmount[2] += "Prepmt. VAT Amount Inv. (LCY)";
-                        FinalInvoice := FinalInvoice and IsFinalInvoice;
                     until Next() = 0;
                 end;
             end;
+
+            if FinalInvoice then
+                if TempSalesLineShipmentBuffer.FindSet() then
+                    repeat
+                        if not TempSalesLineShipmentBuffer.IsFinalInvoice() then
+                            FinalInvoice := false;
+                    until not FinalInvoice or (TempSalesLineShipmentBuffer.Next() = 0);
 
             UpdatePrepmtSalesLineWithRounding(
               PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,
@@ -5026,10 +5059,8 @@
             "VAT Base Amount" := Amount;
             Insert;
         end;
-        if not UseExternalTaxEngine then begin
-            SalesTaxCalculate.SetPrepmtPosting(TempSalesLineForSalesTax."Prepayment %" <> 0);
+        if not UseExternalTaxEngine then
             SalesTaxCalculate.AddSalesLine(TempSalesLineForSalesTax);
-        end;
     end;
 
     local procedure TestGetShipmentPPmtAmtToDeduct()
@@ -5931,11 +5962,9 @@
         RemSalesTaxSrcAmt: Decimal;
         TotalTaxAmount: Decimal;
         NewAmountIncludingVAT: Decimal;
-        TaxRoundingAmount: Decimal;
-        TaxRoundingFullPrepmt: Boolean;
     begin
         TaxLineCount := 0;
-        RemSalesTaxAmt := 0;
+        RemSalesTaxAmt := SalesHeader."Sales Tax Amount Rounding";
         RemSalesTaxSrcAmt := 0;
         if TempSalesTaxAmtLine.Find('-') then begin
             repeat
@@ -6033,8 +6062,10 @@
             until TempSalesTaxAmtLine.Next = 0;
 
             // Sales Tax rounding adjustment for Invoice with 100% Prepayment
+            if Is100PctPrepmtInvoice(TempSalesLineGlobal) then
+                TotalSalesLineLCY."Prepayment %" := 100;
             if SalesHeader.Invoice and SalesHeader."Prepmt. Include Tax" and (TotalSalesLineLCY."Prepayment %" = 100) and
-               ((TotalSalesLine."Amount Including VAT" <> 0) or (TotalSalesLineLCY."Amount Including VAT" <> 0))
+                   ((TotalSalesLine."Amount Including VAT" <> 0) or (TotalSalesLineLCY."Amount Including VAT" <> 0))
             then begin
                 PostSalesTaxToGLRounding(SalesHeader, -TotalSalesLine."Amount Including VAT", -TotalSalesLineLCY."Amount Including VAT");
                 TotalSalesLine."Amount Including VAT" := 0;
@@ -6043,28 +6074,18 @@
             end;
 
             NewAmountIncludingVAT := TotalSalesLineLCY.Amount + TotalTaxAmount;
-            if SalesHeader.Invoice and SalesHeader."Prepmt. Include Tax" and
-               ((TotalSalesLineLCY."Prepayment %" <> 0) or (SalesHeader."Prepayment %" <> 0)) and
+            if SalesHeader.Invoice and SalesHeader."Prepmt. Include Tax" and (SalesHeader."Prepayment %" <> 0) and
                (SalesHeader."Currency Code" = '') and (NewAmountIncludingVAT <> 0) and
-               (TotalTaxAmount <> 0) and
+               (TotalSalesLineLCY."Amount Including VAT" <> 0) and (TotalTaxAmount <> 0) and
                (TotalSalesLineLCY."Amount Including VAT" <> NewAmountIncludingVAT)
-            then begin
-                TaxRoundingAmount := NewAmountIncludingVAT - TotalSalesLineLCY."Amount Including VAT";
-                TaxRoundingFullPrepmt :=
-                  (Abs(NewAmountIncludingVAT) <= GLSetup."Amount Rounding Precision") and (TotalSalesLineLCY."Prepayment %" = 100);
-                if not TaxRoundingFullPrepmt then
-                    PostSalesTaxToGLRounding(SalesHeader, TaxRoundingAmount, TaxRoundingAmount)
-                else begin
-                    PostSalesTaxToGLRounding(SalesHeader, -TaxRoundingAmount, -TaxRoundingAmount);
-                    TotalSalesLine.Amount := 0;
-                    TotalSalesLineLCY.Amount := 0;
-                    TotalSalesLine."Amount Including VAT" := 0;
-                    TotalSalesLineLCY."Amount Including VAT" := 0;
-                end;
-            end;
+            then
+                PostSalesTaxToGLRounding(
+                  SalesHeader,
+                  NewAmountIncludingVAT - TotalSalesLineLCY."Amount Including VAT",
+                  NewAmountIncludingVAT - TotalSalesLineLCY."Amount Including VAT");
 
             // Tax rounding
-            if (TotalTaxAmount <> 0) and not TaxRoundingFullPrepmt then begin
+            if TotalTaxAmount <> 0 then begin
                 TotalSalesLineLCY."Amount Including VAT" := NewAmountIncludingVAT;
                 if SalesHeader."Currency Code" = '' then
                     TotalSalesLine."Amount Including VAT" := TotalSalesLineLCY."Amount Including VAT";

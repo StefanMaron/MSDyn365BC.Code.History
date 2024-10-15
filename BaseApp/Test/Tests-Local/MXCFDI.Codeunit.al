@@ -4720,7 +4720,7 @@ codeunit 144001 "MX CFDI"
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Proceeds on Disposal";
         FALedgerEntry."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
-        FALedgerEntry.Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        FALedgerEntry.Amount := -LibraryRandom.RandDecInRange(1000, 2000, 2);
         FALedgerEntry.Insert();
     end;
 

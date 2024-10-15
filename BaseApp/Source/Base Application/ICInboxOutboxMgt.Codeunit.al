@@ -191,6 +191,8 @@
                     end;
                     "IC Transaction No." := OutboxTransaction."Transaction No.";
                     "IC Partner Code" := OutboxTransaction."IC Partner Code";
+                    if "IC Item Reference No." = '' then
+                        "IC Item Reference No." := SalesLine."Item Reference No.";
                     "Transaction Source" := OutboxTransaction."Transaction Source";
                     "Currency Code" := ICOutBoxSalesHeader."Currency Code";
                     if SalesLine.Type = SalesLine.Type::" " then begin
@@ -507,6 +509,8 @@
                     end;
                     "IC Partner Code" := OutboxTransaction."IC Partner Code";
                     "IC Transaction No." := OutboxTransaction."Transaction No.";
+                    if "IC Item Reference No." = '' then
+                        "IC Item Reference No." := PurchLine."Item Reference No.";
                     "Transaction Source" := OutboxTransaction."Transaction Source";
                     "Currency Code" := ICOutBoxPurchHeader."Currency Code";
                     DimMgt.CopyDocDimtoICDocDim(

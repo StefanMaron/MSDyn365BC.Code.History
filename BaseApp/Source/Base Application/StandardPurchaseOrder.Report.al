@@ -662,7 +662,7 @@ report 1322 "Standard Purchase - Order"
                                             BrkIdx := BrkIdx - 1;
                                             BreakdownLabel[BrkIdx] := OtherTaxesLbl;
                                         end else
-                                            BreakdownLabel[BrkIdx] := StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %");
+                                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
                                     end;
                                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
                                     TaxAmount := TaxAmount + TempSalesTaxAmtLine."Tax Amount";

@@ -696,6 +696,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             CRMInvoice.CustomerId := CRMSalesorder.CustomerId;
             CRMInvoice.CustomerIdType := CRMSalesorder.CustomerIdType;
+            DestinationRecordRef.GetTable(CRMInvoice);
+            if CRMSalesorder.OwnerIdType = CRMSalesorder.OwnerIdType::systemuser then
+                CDSIntegrationImpl.SetOwningUser(DestinationRecordRef, CRMSalesOrder.OwnerId, true)
+            else
+                CDSIntegrationImpl.SetOwningTeam(DestinationRecordRef, CRMSalesorder.OwnerId, true);
+            SetCompanyId(DestinationRecordRef);
         end else begin
             CRMInvoice.Name := SalesInvoiceHeader."No.";
             Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
@@ -709,9 +715,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 CRMSynchHelper.CreateCRMPricelevelInCurrency(
                   CRMPricelevel, SalesInvoiceHeader."Currency Code", SalesInvoiceHeader."Currency Factor");
             CRMInvoice.PriceLevelId := CRMPricelevel.PriceLevelId;
+            DestinationRecordRef.GetTable(CRMInvoice);
+            UpdateOwnerIdAndCompanyId(DestinationRecordRef);
         end;
-        DestinationRecordRef.GetTable(CRMInvoice);
-        UpdateOwnerIdAndCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
