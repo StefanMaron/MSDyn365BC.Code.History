@@ -644,6 +644,8 @@ codeunit 6502 "Late Binding Management"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
+        TempReservationEntry.DeleteAll();
+
         ReservationEntry.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', ItemLedgEntryNo, true);
         ReservationEntry.SetRange("Untracked Surplus", false);
         if ReservationEntry.FindSet() then
