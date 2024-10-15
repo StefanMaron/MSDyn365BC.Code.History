@@ -153,7 +153,14 @@ page 7153 "Item Analysis View Entries"
         TempValueEntry: Record "Value Entry" temporary;
 
     local procedure DrillDown()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDown(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SetAnalysisViewEntry(Rec);
         TempValueEntry.FilterGroup(DATABASE::"Item Analysis View Entry"); // Trick: FILTERGROUP is used to transfer an integer value
         PAGE.RunModal(PAGE::"Value Entries", TempValueEntry);
@@ -166,6 +173,11 @@ page 7153 "Item Analysis View Entries"
         TempValueEntry.Reset();
         TempValueEntry.DeleteAll();
         ItemAViewEntryToValueEntries.GetValueEntries(ItemAnalysisViewEntry, TempValueEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDown(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

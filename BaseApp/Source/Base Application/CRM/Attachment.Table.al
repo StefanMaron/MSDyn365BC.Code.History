@@ -131,7 +131,13 @@ table 5062 Attachment
     procedure OpenAttachment(Caption: Text[260]; IsTemporary: Boolean; LanguageCode: Code[10])
     var
         SegmentLine: Record "Segment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenAttachment(Rec, Caption, IsTemporary, LanguageCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsHTML() then begin
             SegmentLine.Init();
             SegmentLine."Language Code" := LanguageCode;
@@ -284,6 +290,7 @@ table 5062 Attachment
             "Storage Type" := "Storage Type"::Embedded;
             "Storage Pointer" := '';
             "File Extension" := CopyStr(UpperCase(FileManagement.GetExtension(FileName)), 1, 250);
+            Modify();
             exit(true);
         end;
 
@@ -798,5 +805,10 @@ table 5062 Attachment
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenAttachment(var Attachment: Record Attachment; var Caption: Text[260]; IsTemporary: Boolean; LanguageCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
 }
 

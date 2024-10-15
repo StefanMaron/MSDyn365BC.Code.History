@@ -793,12 +793,15 @@ table 7022 "Price Worksheet Line"
         "Variant Code" := PriceAsset."Variant Code";
         "Work Type Code" := PriceAsset."Work Type Code";
 
-        "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
         if not GetHeader() or PriceListHeader."Allow Updating Defaults" then
             if "VAT Bus. Posting Gr. (Price)" = '' then begin
                 "Price Includes VAT" := PriceAsset."Price Includes VAT";
                 "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
             end;
+
+        if (PriceListHeader.Code = '') or (IsNullGuid(PriceListHeader.SystemId)) or (not PriceListHeader."Allow Invoice Disc.") then
+            "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
+
         OnAfterCopyFromPriceAsset(PriceAsset, Rec);
     end;
 

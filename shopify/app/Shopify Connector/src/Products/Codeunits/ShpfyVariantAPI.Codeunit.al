@@ -116,6 +116,7 @@ codeunit 30189 "Shpfy Variant API"
 
         ShopLocation.SetRange("Shop Code", Shop.Code);
         ShopLocation.SetRange(Active, true);
+        ShopLocation.SetRange("Default Product Location", true);
         if ShopLocation.FindSet(false, false) then begin
             GraphQuery.Append(', inventoryQuantities: [');
             repeat
