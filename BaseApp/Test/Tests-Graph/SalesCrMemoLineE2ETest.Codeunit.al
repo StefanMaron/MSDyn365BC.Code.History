@@ -578,7 +578,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         SalesHeader: Record "Sales Header";
         Item: Record Item;
         SalesLine: Record "Sales Line";
-        DiscountAmount: Decimal;
+        DiscountAmount, InvDiscAmount : Decimal;
         CreditMemoLineJSON: Text;
         ResponseText: Text;
         SalesQuantity: Integer;
@@ -595,6 +595,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
+        InvDiscAmount := SalesLine."Inv. Discount Amount";
 
         // [WHEN] we PATCH the line
         ModifyCreditMemoLinesThroughAPI(SalesHeader.SystemId, SalesLine."Line No.", CreditMemoLineJSON, ResponseText);
@@ -602,7 +603,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [THEN] Credit Memo discount is kept
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
         LibraryGraphMgt.VerifyIDFieldInJson(ResponseText, 'itemId');
-        VerifyTotals(SalesHeader, DiscountAmount, SalesHeader."Invoice Discount Calculation"::Amount);
+        VerifyTotals(SalesHeader, DiscountAmount - InvDiscAmount, SalesHeader."Invoice Discount Calculation"::Amount);
     end;
 
     [Test]
