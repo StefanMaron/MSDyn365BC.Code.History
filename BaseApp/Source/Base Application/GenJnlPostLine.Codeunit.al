@@ -2281,10 +2281,7 @@
         ApplnRounding: Decimal;
         ApplnRoundingLCY: Decimal;
     begin
-        if ((NewCVLedgEntryBuf."Document Type" <> NewCVLedgEntryBuf."Document Type"::Payment) and
-            (NewCVLedgEntryBuf."Document Type" <> NewCVLedgEntryBuf."Document Type"::Refund)) or
-           (NewCVLedgEntryBuf."Currency Code" = OldCVLedgEntryBuf."Currency Code")
-        then
+        if NewCVLedgEntryBuf."Currency Code" = OldCVLedgEntryBuf."Currency Code" then
             exit;
 
         ApplnRounding := -(NewCVLedgEntryBuf."Remaining Amount" + OldCVLedgEntryBuf."Remaining Amount");
@@ -5287,20 +5284,13 @@
     local procedure GetApplnRoundPrecision(NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"): Decimal
     var
         ApplnCurrency: Record Currency;
-        CurrencyCode: Code[10];
     begin
-        if NewCVLedgEntryBuf."Currency Code" <> '' then
-            CurrencyCode := NewCVLedgEntryBuf."Currency Code"
-        else
-            CurrencyCode := OldCVLedgEntryBuf."Currency Code";
-        if CurrencyCode = '' then
+        if NewCVLedgEntryBuf."Currency Code" = OldCVLedgEntryBuf."Currency Code" then
             exit(0);
-        ApplnCurrency.Get(CurrencyCode);
-        if ApplnCurrency."Appln. Rounding Precision" <> 0 then
-            exit(ApplnCurrency."Appln. Rounding Precision");
 
-        if not ('' in [OldCVLedgEntryBuf."Currency Code", NewCVLedgEntryBuf."Currency Code"]) then
-            exit(0);
+        ApplnCurrency.Initialize(NewCVLedgEntryBuf."Currency Code");
+        if NewCVLedgEntryBuf."Currency Code" <> '' then
+            exit(ApplnCurrency."Appln. Rounding Precision");
 
         GetGLSetup();
         exit(GLSetup."Appln. Rounding Precision");

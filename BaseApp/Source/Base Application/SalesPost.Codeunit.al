@@ -560,8 +560,9 @@
 
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order] then begin
             TempSalesLineGlobal.CalcVATAmountLines(1, SalesHeader, TempSalesLineGlobal, TempVATAmountLine);
-            if TempVATAmountLine.GetTotalAmountInclVAT() < 0 then
-                Error(TotalInvoiceAmountNegativeErr);
+            if TempVATAmountLine.GetTotalLineAmount(false, '') < 0 then
+                if TempVATAmountLine.GetTotalAmountInclVAT() < 0 then
+                    Error(TotalInvoiceAmountNegativeErr);
         end;
     end;
 
