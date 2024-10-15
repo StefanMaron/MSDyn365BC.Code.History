@@ -52,7 +52,7 @@ report 87 "Copy - General Posting Setup"
                     "Purchase Variance Account" := GenPostingSetup."Purchase Variance Account";
                 end;
 
-                OnAfterCopyGenPostingSetup("General Posting Setup", GenPostingSetup);
+                OnAfterCopyGenPostingSetup("General Posting Setup", GenPostingSetup, CopySales, CopyPurchases, CopyInventory, CopyManufacturing);
 
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then
                     Modify;
@@ -200,7 +200,7 @@ report 87 "Copy - General Posting Setup"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterCopyGenPostingSetup(var ToGeneralPostingSetup: Record "General Posting Setup"; FromGeneralPostingSetup: Record "General Posting Setup")
+    local procedure OnAfterCopyGenPostingSetup(var ToGeneralPostingSetup: Record "General Posting Setup"; FromGeneralPostingSetup: Record "General Posting Setup"; var CopySales: Boolean; var CopyPurchases: Boolean; var CopyInventory: Boolean; var CopyManufacturing: Boolean)
     begin
     end;
 }

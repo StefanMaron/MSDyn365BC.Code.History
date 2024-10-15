@@ -134,6 +134,7 @@ codeunit 144018 "ERM REFINV"
         // Verify if new mandatory info is posted when running - Batch Post (2 Sales Invoices and 2 Credit Memos)
         // Setup.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         DocumentNo2 := CreateAndPostSalesInvoice(SalesLine2);
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.

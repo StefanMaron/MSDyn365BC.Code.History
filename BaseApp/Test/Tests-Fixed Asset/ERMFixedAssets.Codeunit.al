@@ -2182,6 +2182,102 @@ codeunit 134451 "ERM Fixed Assets"
         VerifyUndoShipmentLine(PurchaseLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FADefaultEndingBookValue()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 335456] "Ending Book Value" for FA Depreciation Book is defaulted by the "Default Ending Book Value" of the Depreciation Book
+        Initialize;
+
+        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
+        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [WHEN] Create FA Depreciation Book
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        // [THEN] "Ending Book Value" on FA Depreciation Book is set to be equal to "Default Ending Book Value" from Depreciation Book
+        Assert.AreEqual(DepreciationBook."Default Ending Book Value", FADepreciationBook."Ending Book Value", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FANonDefaultEndingBookValue()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        EndingBookValue: Decimal;
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 335456] "Ending Book Value" for FA Depreciation Book is not defaulted by the "Default Ending Book Value" of the Depreciation Book
+        Initialize;
+
+        // [GIVEN] Created Depreciation Book without specified "Default Ending Book Value" (=0), Fixed Asset
+        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, 0);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [WHEN] Create FA Depreciation Book, assign "Ending Book Value"
+        EndingBookValue := LibraryRandom.RandDec(100, 2);
+        CreateFADepreciationBookWEndingBookValue(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code, EndingBookValue);
+
+        // [THEN] "Ending Book Value" on FA Depreciation Book is correct
+        Assert.AreEqual(EndingBookValue, FADepreciationBook."Ending Book Value", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FADefaultFinalRoundingAmount()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 335456] "Final Rounding Amount" for FA Depreciation Book is defaulted by the "Default Final Rounding Amount" of the Depreciation Book
+        Initialize;
+
+        // [GIVEN] Created Depreciation Book with specified "Default Final Rounding Amount", Fixed Asset
+        CreateFixedAssetSetupWDefaultFinalRoundingAmount(DepreciationBook, LibraryRandom.RandDec(100, 2));
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [WHEN] Create FA Depreciation Book
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        // [THEN] "Final Rounding Amount" on FA Depreciation Book is set to be equal to "Default Final Rounding Amount" from Depreciation Book
+        Assert.AreEqual(DepreciationBook."Default Final Rounding Amount", FADepreciationBook."Final Rounding Amount", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FANonDefaultFinalRoundingAmount()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FinalRoundingAmount: Decimal;
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 335456] "Final Rounding Amount" for FA Depreciation Book is not defaulted by the "Default Final Rounding Amount" of the Depreciation Book
+        Initialize;
+
+        // [GIVEN] Created Depreciation Book without specified "Default Final Rounding Amount" (=0), Fixed Asset
+        CreateFixedAssetSetupWDefaultFinalRoundingAmount(DepreciationBook, 0);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [WHEN] Create FA Depreciation Book, assign "Final Rounding Amount"
+        FinalRoundingAmount := LibraryRandom.RandDec(100, 2);
+        CreateFADepreciationBookWFinalRoundingAmount(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code, FinalRoundingAmount);
+
+        // [THEN] "Final Rounding Amount" on FA Depreciation Book is correct
+        Assert.AreEqual(FinalRoundingAmount, FADepreciationBook."Final Rounding Amount", '');
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -2312,6 +2408,34 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFAJournalSetup(FAJournalSetup, DepreciationBook.Code, '');
         UpdateFAJournalSetup(FAJournalSetup);
         UpdateFAPostingTypeSetup(DepreciationBook.Code);
+    end;
+
+    local procedure CreateFixedAssetSetupWDefaultEndingBookValue(var DepreciationBook: Record "Depreciation Book"; DefaultValue: Decimal)
+    begin
+        CreateFixedAssetSetup(DepreciationBook);
+        DepreciationBook.Validate("Default Ending Book Value", DefaultValue);
+        DepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateFixedAssetSetupWDefaultFinalRoundingAmount(var DepreciationBook: Record "Depreciation Book"; DefaultValue: Decimal)
+    begin
+        CreateFixedAssetSetup(DepreciationBook);
+        DepreciationBook.Validate("Default Final Rounding Amount", DefaultValue);
+        DepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateFADepreciationBookWEndingBookValue(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; Value: Decimal)
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
+        FADepreciationBook.Validate("Ending Book Value", Value);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateFADepreciationBookWFinalRoundingAmount(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; Value: Decimal)
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
+        FADepreciationBook.Validate("Final Rounding Amount", Value);
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CreateFAAndDuplListSetup(var FANo: Code[20]; var DeprBookCode: Code[10]; var DuplListDeprBookCode: Code[10]; AcqCostGLIntegration: Boolean)

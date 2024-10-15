@@ -104,7 +104,7 @@ report 117 Reminder
                 column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                 {
                 }
-                column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
+                column(CompanyInfoVATRegNo; CompanyInfo.GetVATRegistrationNumber)
                 {
                 }
                 column(CompanyInfoHomePage; CompanyInfo."Home Page")
@@ -194,7 +194,7 @@ report 117 Reminder
                 column(CustNo_IssueReminderHdrCaption; "Issued Reminder Header".FieldCaption("Customer No."))
                 {
                 }
-                column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+                column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl)
                 {
                 }
                 dataitem(DimensionLoop; "Integer")

@@ -209,9 +209,13 @@ page 9802 "Permission Sets"
                     ToolTip = 'Import a file with permissions.';
 
                     trigger OnAction()
+                    var
+                        PermissionSetBuffer: Record "Permission Set Buffer";
                     begin
+                        PermissionSetBuffer := Rec;
                         XMLPORT.Run(XMLPORT::"Import Tenant Permission Sets", true, true);
                         FillRecordBuffer;
+                        if Get(PermissionSetBuffer.Type, PermissionSetBuffer."Role ID") then;
                     end;
                 }
                 action(ExportPermissionSets)
@@ -234,15 +238,8 @@ page 9802 "Permission Sets"
                         ExportPermissionSets: XMLport "Export Permission Sets";
                         OutStr: OutStream;
                     begin
-                        CurrPage.SetSelectionFilter(Rec);
-                        if FindSet then
-                            repeat
-                                if AggregatePermissionSet.Get(Scope, "App ID", "Role ID") then
-                                    AggregatePermissionSet.Mark(true);
-                            until Next = 0;
-                        Reset;
+                        GetSelectionFilter(AggregatePermissionSet);
 
-                        AggregatePermissionSet.MarkedOnly(true);
                         if EnvironmentInfo.IsSandbox then
                             if Confirm(ExportExtensionSchemaQst) then begin
                                 TempBlob.CreateOutStream(OutStr);
@@ -286,7 +283,10 @@ page 9802 "Permission Sets"
                                 TenantPermission.DeleteAll();
                             until TableMetadata.Next() = 0;
                         end;
-                        Message(StrSubstNo(ObsoletePermissionsMsg, PermissionsCount));
+                        if PermissionsCount > 0 then
+                            Message(StrSubstNo(ObsoletePermissionsMsg, PermissionsCount))
+                        else
+                            Message(NothingToRemoveMsg);
                     end;
                 }
             }
@@ -392,15 +392,20 @@ page 9802 "Permission Sets"
     end;
 
     local procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
+    var
+        PermissionSetBuffer: Record "Permission Set Buffer";
     begin
+        AggregatePermissionSet.Reset();
+        PermissionSetBuffer.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
         if FindSet() then
             repeat
                 if AggregatePermissionSet.Get(Scope, "App ID", "Role ID") then
                     AggregatePermissionSet.Mark(true);
             until Next() = 0;
-        Reset();
         AggregatePermissionSet.MarkedOnly(true);
+        Reset();
+        CopyFilters(PermissionSetBuffer);
     end;
 
     var
@@ -411,7 +416,8 @@ page 9802 "Permission Sets"
         CannotDeletePermissionSetErr: Label 'You can only delete user-created or copied permission sets.';
         ExportExtensionSchemaQst: Label 'Do you want to export permission sets in a schema that is supported by the extension package?';
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
-        ObsoletePermissionsMsg: Label 'The %1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
+        ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
+        NothingToRemoveMsg: Label 'There is nothing to remove.';
         IsOnPrem: Boolean;
 }
 

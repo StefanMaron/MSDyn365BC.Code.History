@@ -203,9 +203,12 @@ codeunit 5813 "Undo Purchase Receipt Line"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemLedgEntryNo: Integer;
         IsHandled: Boolean;
+        NewDocLineNo: Integer;
     begin
         IsHandled := false;
-        OnBeforePostItemJnlLine(PurchRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        OnBeforePostItemJnlLine(PurchRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled, NewDocLineNo);
+        if NewDocLineNo > DocLineNo then
+            DocLineNo := NewDocLineNo;
         if IsHandled then
             exit(ItemLedgEntryNo);
 
@@ -424,7 +427,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJnlLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforePostItemJnlLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean; var NewDocLineNo: Integer)
     begin
     end;
 

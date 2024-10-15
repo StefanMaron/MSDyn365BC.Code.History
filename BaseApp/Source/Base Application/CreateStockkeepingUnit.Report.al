@@ -16,7 +16,13 @@ report 5706 "Create Stockkeeping Unit"
             trigger OnAfterGetRecord()
             var
                 ItemVariant: Record "Item Variant";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeItemOnAfterGetRecord(Item, IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 if SaveFilters then begin
                     LocationFilter := GetFilter("Location Filter");
                     VariantFilter := GetFilter("Variant Filter");
@@ -89,6 +95,8 @@ report 5706 "Create Stockkeeping Unit"
 
             trigger OnPreDataItem()
             begin
+                OnBeforeItemOnPreDataItem(Item);
+
                 Location.SetRange("Use As In-Transit", false);
 
                 DialogWindow.Open(
@@ -213,6 +221,16 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit."Use Cross-Docking" := Item2."Use Cross-Docking";
         OnBeforeStockkeepingUnitInsert(StockkeepingUnit, Item2);
         StockkeepingUnit.Insert(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemOnPreDataItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

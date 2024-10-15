@@ -934,8 +934,14 @@
                             if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                                 PaymentTerms.Get("Payment Terms Code");
                                 if PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
-                                    "Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-                                    "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+                                    IsHandled := false;
+                                    OnValidatePaymentTermsCodeOnBeforeCalculateDueDate(Rec, PaymentTerms, IsHandled);
+                                    if not IsHandled then
+                                        "Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+                                    IsHandled := false;
+                                    OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(Rec, PaymentTerms, IsHandled);
+                                    if not IsHandled then
+                                        "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
                                     "Payment Discount %" := PaymentTerms."Discount %";
                                 end else
                                     "Due Date" := "Document Date";
@@ -2821,6 +2827,7 @@
         Text012: Label '%1 must be positive.';
         Text013: Label 'The %1 must not be more than %2.';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
+        RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -3038,6 +3045,8 @@
         FirstTempDocNo: Code[20];
         LastTempDocNo: Code[20];
     begin
+        if GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true) then
+            exit;
         TestField("Check Printed", false);
 
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -3974,6 +3983,8 @@
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
+        OnBeforeUpdateCountryCodeAndVATRegNo(Rec, xRec);
+
         if No = '' then begin
             "Country/Region Code" := '';
             "VAT Registration No." := '';
@@ -3995,6 +4006,8 @@
                     "VAT Registration No." := Vend."VAT Registration No.";
                 end;
         end;
+
+        OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec);
     end;
 
     procedure JobTaskIsSet(): Boolean
@@ -4577,6 +4590,7 @@
             AccType::Customer:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(Rec, CustLedgEntry);
                         CustLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := CustLedgEntry.FindFirst;
                     end
@@ -4589,6 +4603,7 @@
             AccType::Vendor:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := VendLedgEntry.FindFirst;
                     end
@@ -4601,6 +4616,7 @@
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(Rec, EmplLedgEntry);
                         EmplLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := EmplLedgEntry.FindFirst;
                     end
@@ -6524,6 +6540,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
@@ -6600,6 +6621,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 
@@ -6690,6 +6716,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Employee Ledger Entry");
     begin
     end;
 

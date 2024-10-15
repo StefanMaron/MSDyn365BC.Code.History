@@ -72,6 +72,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         FilterNotBlankErr: Label 'Filters are applied to record %1.';
         NullArgumentErr: Label 'The workflow step should have a null workflow step argument.';
         ParametersTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Table38">SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table39">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>', Locked = true;
+        SalesParametersTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Sales Invoice Step" id="50000"><Options><Field name="&quot;Sales Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Sales Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Sales Line&quot;.Description">Hello, World!</Field><Field name="&quot;Sales Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>', Locked = true;
         ParametersWithoutDataItemsTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options></ReportParameters>', Locked = true;
         PurchaseHeaderBlankParametersTxt: Label 'VERSION(1) SORTING(Document Type,No.)', Locked = true;
         PurchaseHeaderParametersTxt: Label 'VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(>%2))', Locked = true;
@@ -150,6 +151,42 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Verify
         Assert.AreEqual(PurchaseHeader.GetFilters, PurchaseHeaderRecRef.GetFilters, FilterMismatchErr);
         Assert.AreEqual(PurchaseLine.GetFilters, PurchaseLineRecRef.GetFilters, FilterMismatchErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertParamsToFiltersNonStandartDataItemName()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        SalesHeaderRecRef: RecordRef;
+        SalesLineRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // Setup
+        // <DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem>
+        SalesHeader.SetRange("Document Date", WorkDate);
+        SalesHeader.SetFilter(Amount, '>%1', 1000);
+        // <DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem>
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", '1000');
+        SalesLine.SetFilter("Unit Cost", '>%1', 500);
+
+        CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(SalesParametersTxt, WorkDate, 1000));
+
+        // Exercise
+        SalesHeaderRecRef.Open(DATABASE::"Sales Header");
+        SalesLineRecRef.Open(DATABASE::"Sales Line");
+        WorkflowStep.ConvertEventConditionsToFilters(SalesHeaderRecRef);
+        WorkflowStep.ConvertEventConditionsToFilters(SalesLineRecRef);
+
+        // Verify
+        Assert.AreEqual(SalesHeader.GetFilters, SalesHeaderRecRef.GetFilters, FilterMismatchErr);
+        Assert.AreEqual(SalesLine.GetFilters, SalesLineRecRef.GetFilters, FilterMismatchErr);
     end;
 
     [Test]

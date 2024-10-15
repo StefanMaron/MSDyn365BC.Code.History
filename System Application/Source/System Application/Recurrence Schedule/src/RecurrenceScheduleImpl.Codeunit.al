@@ -218,7 +218,7 @@ codeunit 4691 "Recurrence Schedule Impl."
                 MonthlyPattern::"By Weekday":
                     EXIT(CalculateMonthlyByWeekDay(RecurrenceSchedule, DMY2DATE(1, RecurrenceSchedule.Month, DATE2DMY(RecurrenceSchedule."Start Date", 3))));
                 MonthlyPattern::"Specific Day":
-                    EXIT(DMY2DATE(RecurrenceSchedule."Recurs on Day", RecurrenceSchedule.Month));
+                    EXIT(DMY2DATE(RecurrenceSchedule."Recurs on Day", RecurrenceSchedule.Month, Date2DMY(RecurrenceSchedule."Start Date", 3)));
             END;
 
         CASE RecurrenceSchedule."Monthly Pattern" OF

@@ -314,23 +314,27 @@ codeunit 134405 "ERM Payment Method UT"
     procedure NoDefaultPmtMethodCodeInPurchaseCreditMemo()
     var
         PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
         VendorNo: Code[20];
     begin
         // [FEATURE] [UT] [Purchase Header]
-        // [SCENARIO 290597] "Payment Method Code" doesn't get filled from Vendor for Purchase Credit Memo
+        // [SCENARIO 336492] "Payment Method Code" gets filled from Vendor for Purchase Credit Memo
 
         // [GIVEN] "Credit Memo" Purchase header
         PurchaseHeader.Init;
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
+
         // [GIVEN] Vendor with "Payment Method Code" <> ''
         VendorNo := CreateVendor;
 
         // [WHEN] Purchase Header "Bill-to Contact No." validated with Vendor's "No."
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
 
-        // [THEN] PurchaseHeader."Payment Method Code" = ''
-        PurchaseHeader.TestField("Payment Method Code", '');
+        // [THEN] PurchaseHeader."Payment Method Code" = Vendor."Payment Method Code"
+        Vendor.SetFilter("No.", VendorNo);
+        Vendor.FindFirst;
+        PurchaseHeader.TestField("Payment Method Code", Vendor."Payment Method Code");
     end;
 
     [Test]
@@ -338,23 +342,27 @@ codeunit 134405 "ERM Payment Method UT"
     procedure NoDefaultPmtMethodCodeInPurchaseReturnOrder()
     var
         PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
         VendorNo: Code[20];
     begin
         // [FEATURE] [UT] [Purchase Header]
-        // [SCENARIO 290597] "Payment Method Code" doesn't get filled from Vendor for Purchase Return Order
+        // [SCENARIO 336492] "Payment Method Code" gets filled from Vendor for Purchase Return Order
 
         // [GIVEN] "Return Order" Purchase header
         PurchaseHeader.Init;
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Return Order");
         PurchaseHeader.Insert(true);
+
         // [GIVEN] Vendor with "Payment Method Code" <> ''
         VendorNo := CreateVendor;
 
         // [WHEN] Purchase Header "Bill-to Contact No." validated with Vendor's "No."
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
 
-        // [THEN] PurchaseHeader."Payment Method Code" = ''
-        PurchaseHeader.TestField("Payment Method Code", '');
+        // [THEN] PurchaseHeader."Payment Method Code" = Vendor."Payment Method Code"
+        Vendor.SetFilter("No.", VendorNo);
+        Vendor.FindFirst;
+        PurchaseHeader.TestField("Payment Method Code", Vendor."Payment Method Code");
     end;
 
     [Test]

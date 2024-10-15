@@ -324,11 +324,11 @@ report 292 "Copy Sales Document"
 
         case DocType of
             DocType::Quote,
-          DocType::"Blanket Order",
-          DocType::Order,
-          DocType::Invoice,
-          DocType::"Return Order",
-          DocType::"Credit Memo":
+            DocType::"Blanket Order",
+            DocType::Order,
+            DocType::Invoice,
+            DocType::"Return Order",
+            DocType::"Credit Memo":
                 LookupSalesDoc;
             DocType::"Posted Shipment":
                 LookupPostedShipment;
@@ -339,9 +339,9 @@ report 292 "Copy Sales Document"
             DocType::"Posted Credit Memo":
                 LookupPostedCrMemo;
             DocType::"Arch. Quote",
-          DocType::"Arch. Order",
-          DocType::"Arch. Blanket Order",
-          DocType::"Arch. Return Order":
+            DocType::"Arch. Order",
+            DocType::"Arch. Blanket Order",
+            DocType::"Arch. Return Order":
                 LookupSalesArchive;
         end;
         ValidateDocNo;
@@ -349,6 +349,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupSalesDoc()
     begin
+        OnBeforeLookupSalesDoc(FromSalesHeader, SalesHeader);
+
         FromSalesHeader.FilterGroup := 0;
         FromSalesHeader.SetRange("Document Type", CopyDocMgt.SalesHeaderDocType(DocType));
         if SalesHeader."Document Type" = CopyDocMgt.SalesHeaderDocType(DocType) then
@@ -390,6 +392,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupPostedShipment()
     begin
+        OnBeforeLookupPostedShipment(FromSalesShptHeader, SalesHeader);
+
         FromSalesShptHeader."No." := DocNo;
         if (DocNo = '') and (SalesHeader."Sell-to Customer No." <> '') then
             if FromSalesShptHeader.SetCurrentKey("Sell-to Customer No.") then begin
@@ -402,6 +406,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupPostedInvoice()
     begin
+        OnBeforeLookupPostedInvoice(FromSalesInvHeader, SalesHeader);
+
         FromSalesInvHeader."No." := DocNo;
         if (DocNo = '') and (SalesHeader."Sell-to Customer No." <> '') then
             if FromSalesInvHeader.SetCurrentKey("Sell-to Customer No.") then begin
@@ -417,6 +423,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupPostedCrMemo()
     begin
+        OnBeforeLookupPostedCrMemo(FromSalesCrMemoHeader, SalesHeader);
+
         FromSalesCrMemoHeader."No." := DocNo;
         if (DocNo = '') and (SalesHeader."Sell-to Customer No." <> '') then
             if FromSalesCrMemoHeader.SetCurrentKey("Sell-to Customer No.") then begin
@@ -432,6 +440,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupPostedReturn()
     begin
+        OnBeforeLookupPostedReturn(FromReturnRcptHeader, SalesHeader);
+
         FromReturnRcptHeader."No." := DocNo;
         if (DocNo = '') and (SalesHeader."Sell-to Customer No." <> '') then
             if FromReturnRcptHeader.SetCurrentKey("Sell-to Customer No.") then begin
@@ -468,6 +478,31 @@ report 292 "Copy Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDocNo(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupSalesDoc(var FromSalesHeader: Record "Sales Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostedCrMemo(var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostedInvoice(var FromSalesInvHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostedShipment(var FromSalesShptHeader: Record "Sales Shipment Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostedReturn(var FromReturnRcptHeader: Record "Return Receipt Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

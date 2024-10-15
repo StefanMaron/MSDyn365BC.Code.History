@@ -37,6 +37,7 @@ codeunit 144023 "SE Feature Bugs"
         RecordEmptyMsg: Label 'Record Must be Empty.';
         IncorrectPeriodStartDateErr: Label 'Incorrect period start date';
         IncorrectPeriodEndDateErr: Label 'Incorrect period end date';
+        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler')]
@@ -198,7 +199,7 @@ codeunit 144023 "SE Feature Bugs"
         FileName: Text;
     begin
         // [FEATURE] [SIE Import/Export]
-        // [SCENARIO 309471] SIE Import validates VAT and Posting fields from GLAccount
+        // [SCENARIO 309471] SIE Import validates VAT and Posting fields from GLAccount posted in documents having spaces in No.
         Initialize;
 
         // [GIVEN] Post General Journal Line with GLAccount "Acc"
@@ -313,6 +314,11 @@ codeunit 144023 "SE Feature Bugs"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
+
+        // TFS334845: The SIE export file cannot be used if the customer has a space character in a document number.
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateGUID + ' A A', 1, MaxStrLen(GenJournalLine."Document No."));
+        GenJournalLine.Modify(true);
+
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

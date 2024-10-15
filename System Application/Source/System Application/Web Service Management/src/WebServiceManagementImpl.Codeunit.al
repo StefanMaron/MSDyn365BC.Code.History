@@ -60,7 +60,6 @@ codeunit 9751 "Web Service Management Impl."
         WebService: Record "Web Service";
         TenantWebService: Record "Tenant Web Service";
         ODataServiceRootUrl: Text;
-        ODataUrl: Text;
     begin
         if WebServiceAggregate."All Tenants" then begin
             WebService.Init();
@@ -253,7 +252,7 @@ codeunit 9751 "Web Service Management Impl."
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         if AllObjWithCaption.Get(WebServiceAggregate."Object Type", WebServiceAggregate."Object ID") then
-            exit(AllObjWithCaption."Object Caption");
+            exit(CopyStr(AllObjWithCaption."Object Caption", 1, 80));
         exit('');
     end;
 
@@ -272,6 +271,7 @@ codeunit 9751 "Web Service Management Impl."
     var
         WebService: Record "Web Service";
         TenantWebService: Record "Tenant Web Service";
+        AllObj: Record AllObj;
     begin
         Rec.Reset();
         Rec.DeleteAll();
@@ -290,17 +290,18 @@ codeunit 9751 "Web Service Management Impl."
         if TenantWebService.FindSet() then
             repeat
                 Clear(WebService);
-                if not WebService.Get(TenantWebService."Object Type", TenantWebService."Service Name") then begin
-                    WebService.SetRange("Object Type", TenantWebService."Object Type");
-                    WebService.SetRange("Object ID", TenantWebService."Object ID");
-                    WebService.SetRange(Published, false);
+                if AllObj.get(TenantWebService."Object Type", TenantWebService."Object ID") then
+                    if not WebService.Get(TenantWebService."Object Type", TenantWebService."Service Name") then begin
+                        WebService.SetRange("Object Type", TenantWebService."Object Type");
+                        WebService.SetRange("Object ID", TenantWebService."Object ID");
+                        WebService.SetRange(Published, false);
 
-                    if not WebService.FindSet() then begin
-                        Rec.Init();
-                        Rec.TransferFields(TenantWebService);
-                        Rec.Insert();
+                        if WebService.IsEmpty() then begin
+                            Rec.Init();
+                            Rec.TransferFields(TenantWebService);
+                            Rec.Insert();
+                        end
                     end
-                end
             until TenantWebService.Next() = 0;
     end;
 
@@ -312,7 +313,7 @@ codeunit 9751 "Web Service Management Impl."
         if TenantWebService.Find('-') then
             repeat
                 TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId());
-                if TenantWebServiceColumns.FindFirst() then begin
+                if NOT TenantWebServiceColumns.IsEmpty() then begin
                     Rec := TenantWebService;
                     Rec.Insert();
                 end;
@@ -415,14 +416,19 @@ codeunit 9751 "Web Service Management Impl."
             end;
     end;
 
-    procedure AssertServiceNameIsValid(value: Text): Boolean
+    procedure IsServiceNameValid(value: Text): Boolean
     var
         RegEx: DotNet Regex;
         RegexOptions: DotNet RegexOptions;
         NameExp: Text;
     begin
         NameExp := '^' + StartCharacterExpTxt + OtherCharacterExpTxt + '{0,}' + '$';
-        if not RegEx.IsMatch(value, NameExp, RegexOptions.Singleline) then
+        exit(RegEx.IsMatch(value, NameExp, RegexOptions.Singleline));
+    end;
+
+    procedure AssertServiceNameIsValid(value: Text)
+    begin
+        if not IsServiceNameValid(value) then
             Error(WebServiceNameNotValidErr);
     end;
 
@@ -585,7 +591,6 @@ codeunit 9751 "Web Service Management Impl."
         exit(ExternalizeODataObjectName(NavFieldName));
     end;
 
-    [Scope('OnPrem')]
     local procedure ExternalizeODataObjectName(Name: Text) ConvertedName: Text
     var
         CurrentPosition: Integer;

@@ -259,7 +259,8 @@ report 11207 "SIE Export"
             ExportFile.Write('}');
         ExportFile.Write(
           StrSubstNo(
-            '#VER  %1  %2   %3  "%4"', 'A', GLEntry."Document No.", FormatDate(GLEntry."Posting Date"), Ascii2Ansi(GLEntry.Description)));
+            '#VER  %1  "%2"   %3  "%4"',
+            'A', Ascii2Ansi(GLEntry."Document No."), FormatDate(GLEntry."Posting Date"), Ascii2Ansi(GLEntry.Description)));
         ExportFile.Write('{');
         Header := true;
     end;

@@ -11,6 +11,39 @@ page 1190 "Create Payment"
             group(Control6)
             {
                 ShowCaption = false;
+                field("Template Name"; JournalTemplateName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Template Name';
+                    ShowMandatory = true;
+                    TableRelation = "Gen. Journal Template".Name WHERE(Type = CONST(Payments));
+                    ToolTip = 'Specifies the name of the journal template.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        GenJnlTemplate: Record "Gen. Journal Template";
+                        GeneralJournalTemplates: Page "General Journal Templates";
+                    begin
+                        GenJnlTemplate.FilterGroup(2);
+                        GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Payments);
+                        GenJnlTemplate.FilterGroup(0);
+                        GeneralJournalTemplates.SetTableView(GenJnlTemplate);
+                        GeneralJournalTemplates.LookupMode := true;
+                        if GeneralJournalTemplates.RunModal = ACTION::LookupOK then begin
+                            GeneralJournalTemplates.GetRecord(GenJnlTemplate);
+                            JournalTemplateName := GenJnlTemplate.Name;
+                            BatchSelection(JournalTemplateName, JournalBatchName);
+                        end;
+                    end;
+
+                    trigger OnValidate()
+                    var
+                        GenJnlTemplate: Record "Gen. Journal Template";
+                    begin
+                        GenJnlTemplate.Get(JournalTemplateName);
+                        BatchSelection(JournalTemplateName, JournalBatchName);
+                    end;
+                }
                 field("Batch Name"; JournalBatchName)
                 {
                     ApplicationArea = Basic, Suite;
@@ -20,15 +53,28 @@ page 1190 "Create Payment"
                                                                      Recurring = CONST(false));
                     ToolTip = 'Specifies the name of the journal batch.';
 
-                    trigger OnValidate()
+                    trigger OnLookup(var Text: Text): Boolean
                     var
                         GenJournalBatch: Record "Gen. Journal Batch";
+                        GeneralJournalBatches: Page "General Journal Batches";
                     begin
-                        SetJournalTemplate;
-                        if JournalTemplateName <> '' then begin
-                            GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
-                            SetNextNo(GenJournalBatch."No. Series");
+                        GenJournalBatch.FilterGroup(2);
+                        GenJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
+                        GenJournalBatch.FilterGroup(0);
+
+                        GeneralJournalBatches.SetTableView(GenJournalBatch);
+                        GeneralJournalBatches.LookupMode := true;
+                        if GeneralJournalBatches.RunModal = ACTION::LookupOK then begin
+                            GeneralJournalBatches.GetRecord(GenJournalBatch);
+                            JournalBatchName := GenJournalBatch.Name;
+                            BatchSelection(JournalTemplateName, JournalBatchName);
                         end;
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        if JournalBatchName <> '' then
+                            BatchSelection(JournalTemplateName, JournalBatchName);
                     end;
                 }
                 field("Posting Date"; PostingDate)
@@ -76,14 +122,25 @@ page 1190 "Create Payment"
 
     trigger OnOpenPage()
     var
+        GenJnlTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlManagement: Codeunit GenJnlManagement;
     begin
-        SetJournalTemplate;
-        if GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
-            SetNextNo(GenJournalBatch."No. Series")
-        else
-            Clear(JournalBatchName);
         PostingDate := WorkDate;
+
+        if not GenJnlTemplate.Get(JournalTemplateName) then
+            Clear(JournalTemplateName);
+        if not GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
+            Clear(JournalBatchName);
+
+        if JournalTemplateName = '' then
+            if GenJnlManagement.TemplateSelectionSimple(GenJnlTemplate, GenJnlTemplate.Type::Payments, false) then begin
+                JournalTemplateName := GenJnlTemplate.Name;
+                BatchSelection(JournalTemplateName, JournalBatchName);
+            end;
+
+        if JournalBatchName = '' then
+            BatchSelection(JournalTemplateName, JournalBatchName);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -99,6 +156,7 @@ page 1190 "Create Payment"
     end;
 
     var
+        GenJnlManagement: Codeunit GenJnlManagement;
         PostingDate: Date;
         BalAccountNo: Code[20];
         NextDocNo: Code[20];
@@ -129,6 +187,11 @@ page 1190 "Create Payment"
     procedure GetBatchNumber(): Code[10]
     begin
         exit(JournalBatchName);
+    end;
+
+    procedure GetTemplateName(): Code[10]
+    begin
+        exit(JournalTemplateName);
     end;
 
     procedure MakeGenJnlLines(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -165,7 +228,7 @@ page 1190 "Create Payment"
                     TempPaymentBuffer."Dimension Entry No." := 0;
                     TempPaymentBuffer."Global Dimension 1 Code" := '';
                     TempPaymentBuffer."Global Dimension 2 Code" := '';
-                    TempPaymentBuffer."Dimension Set ID" := 0;
+                    TempPaymentBuffer."Dimension Set ID" := VendorLedgerEntry."Dimension Set ID";
                     TempPaymentBuffer."Vendor Ledg. Entry No." := VendorLedgerEntry."Entry No.";
                     TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendorLedgerEntry."Document Type";
 
@@ -268,33 +331,35 @@ page 1190 "Create Payment"
         DimSetIDArr: array[10] of Integer;
     begin
         with GenJnlLine do begin
-            NewDimensionID := "Dimension Set ID";
+            if "Dimension Set ID" = 0 then begin
+                NewDimensionID := "Dimension Set ID";
 
-            DimBuf.Reset;
-            DimBuf.DeleteAll;
-            DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
-            if DimBuf.FindSet then
-                repeat
-                    DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
-                    TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
-                    TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
-                    TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                    TempDimSetEntry.Insert;
-                until DimBuf.Next = 0;
-            NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-            "Dimension Set ID" := NewDimensionID;
+                DimBuf.Reset;
+                DimBuf.DeleteAll;
+                DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
+                if DimBuf.FindSet then
+                    repeat
+                        DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
+                        TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
+                        TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
+                        TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                        TempDimSetEntry.Insert;
+                    until DimBuf.Next = 0;
+                NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
+                "Dimension Set ID" := NewDimensionID;
 
-            CreateDim(
-              DimMgt.TypeToTableID1("Account Type"), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-              DATABASE::Job, "Job No.",
-              DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-              DATABASE::Campaign, "Campaign No.");
-            if NewDimensionID <> "Dimension Set ID" then begin
-                DimSetIDArr[1] := "Dimension Set ID";
-                DimSetIDArr[2] := NewDimensionID;
-                "Dimension Set ID" :=
-                  DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                CreateDim(
+                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DATABASE::Job, "Job No.",
+                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
+                  DATABASE::Campaign, "Campaign No.");
+                if NewDimensionID <> "Dimension Set ID" then begin
+                    DimSetIDArr[1] := "Dimension Set ID";
+                    DimSetIDArr[2] := NewDimensionID;
+                    "Dimension Set ID" :=
+                    DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                end;
             end;
 
             DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
@@ -311,17 +376,6 @@ page 1190 "Create Payment"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
     begin
-    end;
-
-    local procedure SetJournalTemplate()
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        GenJournalTemplate.Reset;
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.SetRange(Recurring, false);
-        if GenJournalTemplate.FindFirst then
-            JournalTemplateName := GenJournalTemplate.Name;
     end;
 
     local procedure SetNextNo(GenJournalBatchNoSeries: Code[20])
@@ -377,6 +431,15 @@ page 1190 "Create Payment"
             MessageToRecipientMsg,
             TempPaymentBuffer."Vendor Ledg. Entry Doc. Type",
             TempPaymentBuffer."Applies-to Ext. Doc. No."));
+    end;
+
+    local procedure BatchSelection(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        GenJnlManagement.CheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
+        GenJournalBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName);
+        SetNextNo(GenJournalBatch."No. Series");
     end;
 }
 

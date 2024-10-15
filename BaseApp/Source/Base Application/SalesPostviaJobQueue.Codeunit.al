@@ -29,7 +29,9 @@ codeunit 88 "Sales Post via Job Queue"
             RecRefToPrint.GetTable(SalesHeader);
             BatchPostingPrintMgt.PrintSalesDocument(RecRefToPrint);
         end;
-        BatchProcessingMgt.ResetBatchID;
+        if not AreOtherJobQueueEntriesScheduled(Rec) then
+            BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(SalesHeader.RecordId);
         SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::" ");
         LockTimeout(SavedLockTimeout);
     end;
@@ -39,6 +41,8 @@ codeunit 88 "Sales Post via Job Queue"
         PostAndPrintDescription: Label 'Post and Print Sales %1 %2.', Comment = '%1 = document type, %2 = document number. Example: Post Sales Order 1234.';
         Confirmation: Label '%1 %2 has been scheduled for posting.', Comment = '%1=document type, %2=number, e.g. Order 123  or Invoice 234.';
         WrongJobQueueStatus: Label '%1 %2 cannot be posted because it has already been scheduled for posting. Choose the Remove from Job Queue action to reset the job queue status and then post again.', Comment = '%1 = document type, %2 = document number. Example: Sales Order 1234 or Invoice 1234.';
+        DefaultCategoryCodeLbl: Label 'SALESBCKGR', Locked = true;
+        DefaultCategoryDescLbl: Label 'Def. Background Sales Posting', Locked = true;
 
     local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option)
     begin
@@ -112,7 +116,7 @@ codeunit 88 "Sales Post via Job Queue"
         SalesSetup.Get;
         with JobQueueEntry do begin
             "Notify On Success" := SalesSetup."Notify On Success";
-            "Job Queue Category Code" := SalesSetup."Job Queue Category Code";
+            "Job Queue Category Code" := GetJobQueueCategoryCode();
         end;
     end;
 
@@ -149,6 +153,40 @@ codeunit 88 "Sales Post via Job Queue"
             if not JobQueueEntry.IsEmpty then
                 JobQueueEntry.DeleteAll(true);
         end;
+    end;
+
+    local procedure AreOtherJobQueueEntriesScheduled(JobQueueEntry: Record "Job Queue Entry"): Boolean
+    var
+        JobQueueEntryFilter: Record "Job Queue Entry";
+        result: Boolean;
+    begin
+        JobQueueEntryFilter.SetFilter("Job Queue Category Code", GetJobQueueCategoryCode());
+        JobQueueEntryFilter.SetFilter(ID, '<>%1', JobQueueEntry.ID);
+        JobQueueEntryFilter.SetRange("Object ID to Run", JobQueueEntry."Object ID to Run");
+        JobQueueEntryFilter.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run");
+        JobQueueEntryFilter.SetRange("User Session ID", JobQueueEntry."User Session ID");
+        JobQueueEntryFilter.SetFilter(
+            Status, '%1|%2|%3|%4',
+            JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold",
+            JobQueueEntry.Status::"On Hold with Inactivity Timeout", JobQueueEntry.Status::Ready);
+        result := not JobQueueEntryFilter.IsEmpty;
+
+        exit(result);
+    end;
+
+    local procedure GetJobQueueCategoryCode(): Code[10]
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobQueueCategory: Record "Job Queue Category";
+    begin
+        SalesReceivablesSetup.Get();
+        if SalesReceivablesSetup."Job Queue Category Code" <> '' then
+            exit(SalesReceivablesSetup."Job Queue Category Code");
+
+        JobQueueCategory.InsertRec(
+            CopyStr(DefaultCategoryCodeLbl, 1, MaxStrLen(JobQueueCategory.Code)),
+            CopyStr(DefaultCategoryDescLbl, 1, MaxStrLen(JobQueueCategory.Description)));
+        exit(JobQueueCategory.Code);
     end;
 
     [IntegrationEvent(false, false)]

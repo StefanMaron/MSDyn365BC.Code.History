@@ -1177,6 +1177,8 @@
 
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and (xRec."No." <> '') then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     procedure UpdateEditableOnRow()
@@ -1197,6 +1199,8 @@
             CurrPage.SaveRecord;
             AutoReserve;
         end;
+
+        OnAfterValidateAutoReserve(Rec);
     end;
 
     local procedure GetTotalSalesHeader()
@@ -1214,11 +1218,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1280,8 +1281,18 @@
                     Type := Type::Item;
     end;
 
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterValidateAutoReserve(var SalesLine: Record "Sales Line")
     begin
     end;
 

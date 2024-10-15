@@ -27,6 +27,7 @@ codeunit 134923 "ERM Finance Performance"
         LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         DimensionValueNotEqualERR: Label 'X-Axis Dimension value for interval no. %1 differs from expected value.';
         AmountNotEqualERR: Label 'Amount does not match expected value for measure %1, X-axis dimension %2.';
         CostAccUpdateMSG: Label 'has been updated in Cost Accounting';
@@ -37,6 +38,7 @@ codeunit 134923 "ERM Finance Performance"
         AccSchedManagement: Codeunit AccSchedManagement;
         DrillDownValERR: Label 'DrillDown page Amount does not match the expected value for Acc. Sched. Line %1,Column Layout %2, Date Filter %3. ';
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         MaxNumberOfMeasures: Label 'The number of measures added should not exceed the number of different colors that can be shown on the chart.';
         ErrMaxNumberOfMeasures: Label 'You cannot add more than %1 measures.';
@@ -1015,6 +1017,47 @@ codeunit 134923 "ERM Finance Performance"
         Assert.RecordIsEmpty(CodeCoverage);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestStandardSalesInvoiceReportBlankOrderNoPerformance()
+    var
+        SalesShipmentBuffer: Record "Sales Shipment Buffer";
+        InvoiceSalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        CodeCoverage: Record "Code Coverage";
+    begin
+        // [FEATURE] [UT] [Report] [Posted Sales Invoice]
+        // [SCENARIO 334288] Printing Posted Sales Invoice with blank "Order No." do not invoke calculation of shipped and invoiced items
+        Initialize;
+
+        // [GIVEN] Post Sales Order "SO" with an Item
+        PostSalesOrderWithItem(SalesHeader, SalesLine);
+
+        // [GIVEN] Post Sales Invoice "SI" with Item Charge assigned to an Item of from the posted "SO", "SI" has blank "Order No." field.
+        PostSalesInvoiceWithItemCharge(SalesHeader, SalesLine, InvoiceSalesLine);
+
+        FindPostedSalesInvoiceForItemCharge(
+          SalesInvoiceHeader, SalesInvoiceLine, InvoiceSalesLine."Sell-to Customer No.", InvoiceSalesLine."No.");
+
+        // [WHEN] Run function from Report 1306 "Standard Sales - Invoice" on a posted "SI", the function collects shipments to a buffer table "Sales Shipment Buffer"
+        CodeCoverageMgt.StartApplicationCoverage;
+        SalesShipmentBuffer.GetLinesForSalesInvoiceLine(SalesInvoiceLine, SalesInvoiceHeader);
+        CodeCoverageMgt.StopApplicationCoverage;
+
+        // [THEN] Assuming that "Order No." is blank at "SI", a function must exit early with no buffer records created
+        FilterCodeCoverageForObject(CodeCoverage, CodeCoverage."Object Type"::Table, DATABASE::"Sales Shipment Buffer");
+        CodeCoverage.SetRange("No. of Hits", 1);
+        CodeCoverage.SetFilter(Line, '%1', '*GenerateBufferFromShipment*');
+        Assert.RecordIsNotEmpty(CodeCoverage);
+        CodeCoverage.SetFilter(Line, '%1', '*exit*');
+        Assert.RecordIsNotEmpty(CodeCoverage);
+
+        Assert.RecordIsEmpty(SalesShipmentBuffer);
+    end;
+
     local procedure Initialize()
     var
         CostAccSetup: Record "Cost Accounting Setup";
@@ -1033,6 +1076,7 @@ codeunit 134923 "ERM Finance Performance"
         IsInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Performance");
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure SetupChartParam(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; ShowPer: Option; PeriodLength: Option; StartDate: Date; EndDate: Date; NoOfPeriods: Integer)
@@ -1115,6 +1159,15 @@ codeunit 134923 "ERM Finance Performance"
     begin
         FilterCodeCoverageForObject(CodeCoverage, CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Lines Instruction Mgt.");
         CodeCoverage.SetFilter("No. of Hits", '>%1', 1);
+    end;
+
+    local procedure FindPostedSalesInvoiceForItemCharge(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; CustomerNo: Code[20]; ChargeItemNo: Code[20])
+    begin
+        SalesInvoiceLine.SetRange("Bill-to Customer No.", CustomerNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
+        SalesInvoiceLine.SetRange("No.", ChargeItemNo);
+        SalesInvoiceLine.FindFirst;
+        SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
     end;
 
     local procedure SetupGLEntries(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; BalAccountNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option)
@@ -1253,6 +1306,34 @@ codeunit 134923 "ERM Finance Performance"
         ChartOfAccsAnalysisView.OpenView;
         ChartOfAccsAnalysisView.FILTER.SetFilter("No.", No);
         ChartOfAccsAnalysisView."Budgeted Amount".DrillDown;
+    end;
+
+    local procedure PostSalesOrderWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure PostSalesInvoiceWithItemCharge(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var InvoiceSalesLine: Record "Sales Line")
+    var
+        InvoiceSalesHeader: Record "Sales Header";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst;
+
+        LibrarySales.CreateSalesHeader(InvoiceSalesHeader, InvoiceSalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        LibrarySales.CreateSalesLine(InvoiceSalesLine, InvoiceSalesHeader, InvoiceSalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, InvoiceSalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
+          SalesShipmentHeader."No.", SalesLine."Line No.", SalesLine."No.");
+        InvoiceSalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        InvoiceSalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(InvoiceSalesHeader, false, true);
     end;
 
     local procedure SetupDrillDownData(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var BusinessChartBuffer: Record "Business Chart Buffer"; TestDrillDownType: Option ColumnFormula,RowFormula,GLAccount,CostType,CashFlowAccount)

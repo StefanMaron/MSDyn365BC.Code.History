@@ -21,6 +21,7 @@ codeunit 134269 "Matching on Payment Discounts"
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         LinesAreAppliedTxt: Label 'are applied';
 
@@ -33,15 +34,17 @@ codeunit 134269 "Matching on Payment Discounts"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Matching on Payment Discounts");
+
         LibraryVariableStorage.Clear;
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
         CloseExistingEntries;
-
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Matching on Payment Discounts");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -50,10 +53,9 @@ codeunit 134269 "Matching on Payment Discounts"
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreatePaymentTerms(PaymentTermsNoDiscount);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTermsDiscount, false);
-
         Commit;
-
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Matching on Payment Discounts");
     end;
 
     [Test]

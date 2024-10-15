@@ -1,9 +1,11 @@
 codeunit 134343 "UI Ledger Entries Page"
 {
     Permissions = TableData "G/L Entry" = i,
-                  TableData "Cust. Ledger Entry" = i,
+                  TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = i,
-                  TableData "Change Log Entry" = i;
+                  TableData "Change Log Entry" = i,
+                  TableData "Issued Reminder Header" = i,
+                  TableData "Issued Fin. Charge Memo Header" = i;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -20,6 +22,7 @@ codeunit 134343 "UI Ledger Entries Page"
         ExportedToPaymentFileEditableErr: Label 'Exported to Payment File field must be editable.';
         DescriptionEditableErr: Label 'Description field must be editable.';
         GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.';
+        LibrarySales: Codeunit "Library - Sales";
 
     [Test]
     [Scope('OnPrem')]
@@ -213,6 +216,66 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntryNo := ChangeLogEntry."Entry No.";
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectShowDocumentForFinanceChargeMemoInCustomerLE()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        IssuedFinanceChargeMemo: TestPage "Issued Finance Charge Memo";
+    begin
+        // [FEATURE] [Finance Charge Memo]
+        // [SCENARIO 337539] Run "Show Document" from Customer Ledger Entries page for Finance Charge Memo
+
+        // [GIVEN] Created Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Created Issued Finance Charge Memo "IFCM"
+        CreateIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader, Customer."No.");
+
+        // [GIVEN] Issued Finance Charge Memo has related Customer Ledger Entry
+        MockCustomerLedgerEntryWithDocNo(
+          CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::"Finance Charge Memo", IssuedFinChargeMemoHeader."No.");
+
+        // [WHEN] Run "Show Document" function
+        IssuedFinanceChargeMemo.Trap;
+        CustLedgerEntry.ShowDoc;
+
+        // [THEN] Page Issued Finance Charge Memo with "IFCM" is opened
+        IssuedFinanceChargeMemo."No.".AssertEquals(IssuedFinChargeMemoHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectShowDocumentForReminderInCustomerLE()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedReminder: TestPage "Issued Reminder";
+    begin
+        // [FEATURE] [Reminder]
+        // [SCENARIO 337539] Run "Show Document" from Customer Ledger Entries page for Reminder
+
+        // [GIVEN] Created Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Created Issued Reminder Header "R"
+        CreateIssuedReminderHeader(IssuedReminderHeader, Customer."No.");
+
+        // [GIVEN] Issued Reminder has related Customer Ledger Entry
+        MockCustomerLedgerEntryWithDocNo(
+          CustLedgerEntry, Customer."No.", CustLedgerEntry."Document Type"::Reminder, IssuedReminderHeader."No.");
+
+        // [WHEN] Run "Show Document" function
+        IssuedReminder.Trap;
+        CustLedgerEntry.ShowDoc;
+
+        // [THEN] Page Issued Reminder with "R" is opened
+        IssuedReminder."No.".AssertEquals(IssuedReminderHeader."No.");
+    end;
+
     local procedure FindChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry"; EntryNo: Integer; FieldNo: Integer)
     begin
         ChangeLogEntry.SetRange("Table No.", DATABASE::"G/L Entry");
@@ -290,6 +353,37 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntry.TestField("New Value", NewDescription);
     end;
 
+    local procedure MockCustomerLedgerEntryWithDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        CustLedgerEntry.Get(MockCustLedgEntry);
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document Type" := DocumentType;
+        CustLedgerEntry."Document No." := DocumentNo;
+        CustLedgerEntry.Modify;
+    end;
+
+    local procedure CreateIssuedFinChargeMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; CustomerNo: Code[20]): Code[20]
+    begin
+        with IssuedFinChargeMemoHeader do begin
+            Init;
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Fin. Charge Memo Header");
+            "Customer No." := CustomerNo;
+            Insert;
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; CustomerNo: Code[20]): Code[20]
+    begin
+        with IssuedReminderHeader do begin
+            Init;
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Issued Reminder Header");
+            "Customer No." := CustomerNo;
+            Insert;
+            exit("No.");
+        end;
+    end;
+    
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Message: Text; var Reply: Boolean)

@@ -39,9 +39,11 @@ codeunit 144026 "SE Customer Reports"
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         BalanceReportErr: Label 'Balance(LCY) %1 must exist in the Report', Comment = '.';
         ValueNotExistErr: Label 'Value must not exist.';
@@ -144,6 +146,31 @@ codeunit 144026 "SE Customer Reports"
         VerifyValueOnReport(GLAccount, false);
     end;
 
+    [Test]
+    [HandlerFunctions('ReminderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReminderReportCompanyInfoVATRegistrationNoCaption()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        CompanyInformation: Record "Company Information";
+    begin
+        // [FEATURE] [RDLC] [Reminder] [Report Layout]
+        // [SCENARIO 337358] Report Reminder prints VAT Registration No. caption for company information section
+        Initialize();
+
+        // [GIVEN] Issued reminder 
+        MockIssuedReminder(IssuedReminderHeader);
+
+        // [WHEN] Reminder is being printed
+        IssuedReminderHeader.SetRecFilter();
+        Commit();
+        REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
+
+        // [THEN] VAT Registration No. caption is printed in company information section
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('CompanyVATRegistrationNoCaption', CompanyInformation.GetVATRegistrationNumberLbl());
+    end;
+
     local procedure Initialize()
     begin
         Clear(LibraryReportValidation);
@@ -154,6 +181,31 @@ codeunit 144026 "SE Customer Reports"
 
         IsInitialized := true;
         Commit;
+    end;
+
+    local procedure MockIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header")
+    var
+        IssuedReminderLine: Record "Issued Reminder Line";
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        IssuedReminderHeader.Init();
+        IssuedReminderHeader."No." :=
+          LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        CustomerPostingGroup."Additional Fee Account" := '';
+        CustomerPostingGroup.Modify();
+        IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;
+        IssuedReminderHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
+        IssuedReminderHeader.Insert();
+        IssuedReminderLine.Init();
+        IssuedReminderLine."Line No." := LibraryUtility.GetNewRecNo(IssuedReminderLine, IssuedReminderLine.FieldNo("Line No."));
+        IssuedReminderLine."Line Type" := IssuedReminderLine."Line Type"::"Reminder Line";
+        IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
+        IssuedReminderLine."Due Date" := IssuedReminderHeader."Due Date";
+        IssuedReminderLine."Remaining Amount" := LibraryRandom.RandIntInRange(10, 100);
+        IssuedReminderLine.Amount := IssuedReminderLine."Remaining Amount";
+        IssuedReminderLine.Type := IssuedReminderLine.Type::"G/L Account";
+        IssuedReminderLine.Insert();
     end;
 
     local procedure CreateAndPostSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -253,6 +305,13 @@ codeunit 144026 "SE Customer Reports"
             Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(Format(GLAccount.Name)), ValueMustExistErr)
         else
             Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(Format(GLAccount.Name)), ValueNotExistErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
+    begin
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

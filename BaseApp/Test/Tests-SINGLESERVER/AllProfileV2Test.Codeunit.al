@@ -847,6 +847,141 @@ codeunit 138698 "AllProfile V2 Test"
         FileManagement.DeleteServerFile(ProfileZipFileName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCannotEditProfilesWithDuplicateIds()
+    var
+        AllProfile: Record "All Profile";
+        ProfileCard: TestPage "Profile Card";
+        DuplicateProfileId: Code[30];
+    begin
+        // [GIVEN] Two profiles with the same ID
+        AllProfile.SetFilter("App ID", '<>%1', AllProfile."App ID");
+        GetRandomAllProfile(AllProfile);
+        DuplicateProfileId := AllProfile."Profile ID";
+        CreateTenantProfile(DuplicateProfileId);
+
+        // [WHEN] The user opens the profile card for some other profile
+        ProfileCard.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetFilter("Profile ID", '<>%1', DuplicateProfileId);
+        GetRandomAllProfile(AllProfile);
+        ProfileCard.GoToRecord(AllProfile);
+
+        // [THEN] Everything is editable and all is good
+        Assert.IsTrue(ProfileCard.RoleCenterIdField.Editable(), 'The profile should be editable!');
+        Assert.IsTrue(ProfileCard.CustomizeRoleAction.Enabled(), 'The profile should be customizable!');
+        ProfileCard.Close();
+
+        // [WHEN] The user opens the profile card for the user created duplicate profile
+        ProfileCard.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetRange("Profile ID", DuplicateProfileId);
+        AllProfile.SetRange("App ID", AllProfile."App ID");
+        AllProfile.FindFirst();
+        ProfileCard.GoToRecord(AllProfile);
+
+        // [THEN] Everything is editable and all is good
+        Assert.IsTrue(ProfileCard.RoleCenterIdField.Editable(), 'The profile should be editable!');
+        Assert.IsTrue(ProfileCard.CustomizeRoleAction.Enabled(), 'The profile should be customizable!');
+        ProfileCard.Close();
+
+        // [WHEN] The user opens the profile card for the non-user-created duplicate profile
+        ProfileCard.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetRange("Profile ID", DuplicateProfileId);
+        AllProfile.SetFilter("App ID", '<>%1', AllProfile."App ID");
+        Assert.RecordCount(AllProfile, 1);
+        AllProfile.FindFirst();
+        ProfileCard.GoToRecord(AllProfile);
+
+        // [THEN] Everything is NOT editable 
+        Assert.IsFalse(ProfileCard.RoleCenterIdField.Editable(), 'The profile should NOT be editable!');
+        Assert.IsFalse(ProfileCard.CustomizeRoleAction.Enabled(), 'The profile should NOT be customizable!');
+        ProfileCard.Close();
+
+        // [WHEN] The user opens the profile card for some other profile AGAIN
+        ProfileCard.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetFilter("Profile ID", '<>%1', DuplicateProfileId);
+        GetRandomAllProfile(AllProfile);
+        ProfileCard.GoToRecord(AllProfile);
+
+        // [THEN] Everything is editable and all is good
+        Assert.IsTrue(ProfileCard.RoleCenterIdField.Editable(), 'The profile should be editable!');
+        Assert.IsTrue(ProfileCard.CustomizeRoleAction.Enabled(), 'The profile should be customizable!');
+        ProfileCard.Close();
+
+        // Cleanup
+        Cleanup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AnyHyperlinkHandler')]
+    procedure TestCannotCustomizeProfilesWithDuplicateIds()
+    var
+        AllProfile: Record "All Profile";
+        ProfileList: TestPage "Profile List";
+        DuplicateProfileId: Code[30];
+    begin
+        // [GIVEN] Two profiles with the same ID
+        AllProfile.SetFilter("App ID", '<>%1', AllProfile."App ID");
+        GetRandomAllProfile(AllProfile);
+        DuplicateProfileId := AllProfile."Profile ID";
+        CreateTenantProfile(DuplicateProfileId);
+
+        // [WHEN] The user opens the profile list and goes to any other profile
+        ProfileList.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetFilter("Profile ID", '<>%1', DuplicateProfileId);
+        GetRandomAllProfile(AllProfile);
+        ProfileList.GoToRecord(AllProfile);
+
+        // [THEN] Customizing works
+        ProfileList.CustomizeRoleAction.Invoke();
+        ProfileList.Close();
+
+        // [WHEN] The user opens the profile list and goes to the user created duplicate profile
+        ProfileList.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetRange("Profile ID", DuplicateProfileId);
+        AllProfile.SetRange("App ID", AllProfile."App ID");
+        AllProfile.FindFirst();
+        ProfileList.GoToRecord(AllProfile);
+
+        // [THEN] Customizing works
+        ProfileList.CustomizeRoleAction.Invoke();
+        ProfileList.Close();
+
+        // [WHEN] The user opens the profile list and goes to the non-user-created duplicate profile
+        ProfileList.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetRange("Profile ID", DuplicateProfileId);
+        AllProfile.SetFilter("App ID", '<>%1', AllProfile."App ID");
+        Assert.RecordCount(AllProfile, 1);
+        AllProfile.FindFirst();
+        ProfileList.GoToRecord(AllProfile);
+
+        // [THEN] Customizing does NOT work
+        asserterror ProfileList.CustomizeRoleAction.Invoke();
+        ProfileList.Close();
+
+        // [WHEN] The user opens the profile list and goes to some other profile AGAIN
+        ProfileList.OpenEdit();
+        Clear(AllProfile);
+        AllProfile.SetFilter("Profile ID", '<>%1', DuplicateProfileId);
+        GetRandomAllProfile(AllProfile);
+        ProfileList.GoToRecord(AllProfile);
+
+        // [THEN] Customizing works
+        ProfileList.CustomizeRoleAction.Invoke();
+        ProfileList.Close();
+
+        // Cleanup
+        Cleanup();
+    end;
+
     // Helper functions
 
     local procedure CreateProfilesAndGetIDs(HowMany: Integer; var ProfileIDs: List of [Text])
@@ -900,14 +1035,12 @@ codeunit 138698 "AllProfile V2 Test"
     var
         AllProfile: Record "All Profile";
         UserPersonalization: Record "User Personalization";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PermissionManager: Codeunit "Permission Manager";
         EmptyGuid: Guid;
     begin
         LibraryVariableStorage.AssertEmpty();
-
-        // Cleanup User Personalization
-        UserPersonalization.ModifyAll("Profile ID", '');
-        UserPersonalization.ModifyAll(Scope, 0);
-        UserPersonalization.ModifyAll("App ID", EmptyGuid);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // Delete any custom profile
         AllProfile.SetRange("App ID", EmptyGuid);
@@ -929,6 +1062,17 @@ codeunit 138698 "AllProfile V2 Test"
         AllProfile.FindFirst();
         AllProfile."Default Role Center" := true;
         AllProfile.Modify(true);
+
+        // Cleanup User Personalization, ensure default profile is loaded for the user
+        Clear(AllProfile);
+        if UserPersonalization.FindSet(true, false) then
+            repeat
+                PermissionManager.GetDefaultProfileID(UserPersonalization."User SID", AllProfile);
+                UserPersonalization.Validate("Profile ID", AllProfile."Profile ID");
+                UserPersonalization.Validate(Scope, AllProfile.Scope);
+                UserPersonalization.Validate("App ID", AllProfile."App ID");
+                UserPersonalization.Modify(true);
+            until UserPersonalization.Next() = 0;
     end;
 
     local procedure EnsureUserPersonalization()
@@ -1147,6 +1291,12 @@ codeunit 138698 "AllProfile V2 Test"
     procedure CustomizeHyperlinkHandler(Message: Text[1024])
     begin
         Assert.IsSubstring(Message, '/?customize&profile=%2F-%2APR0F%C3%8DL%26%2A-%5C');
+    end;
+
+    [HyperlinkHandler]
+    procedure AnyHyperlinkHandler(Message: Text[1024])
+    begin
+        Assert.IsSubstring(Message, 'customize');
     end;
 
     [MessageHandler]
