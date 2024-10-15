@@ -31,6 +31,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         PostCodeTxt: Label 'POSTCODE', Locked = true;
         PostCode2Txt: Label 'POSTCODE2', Locked = true;
         Address2Txt: Label 'Address2', Locked = true;
+        WrongLogEntryOnPageErr: Label 'Unexpected entry in VAT Registration Log page.';
 
     [Test]
     procedure CheckInitDefaultTemplate()
@@ -941,6 +942,50 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('VATRegistrationLogHandler')]
+    procedure TestVatRegistrationLogForContactCreatedByCustManually()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+        CountryRegion: Record "Country/Region";
+        CustomerCard: TestPage "Customer Card";
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 472592] "VAT Registration No." is validated before Country/Region
+        Initialize();
+
+        // [GIVEN] Initialize VAT Registration Default Template 
+        InitDefaultTemplate();
+
+        //[GIVEN] Create customer and mock contact
+        PrepareCustomerLog(Customer, VATRegistrationLog);
+        MockContact(Contact, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+        PrepareContactLog(Contact, VATRegistrationLog);
+
+        // [GIVEN] Create Country and update EU country Code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateEUCountryRegion(CountryRegion.Code);
+
+        // [GIVEN] Open customer card and validate "VAT Registration No."
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToRecord(Customer);
+        CustomerCard."Country/Region Code".SetValue(CountryRegion.Code);
+        CustomerCard."VAT Registration No.".SetValue('');
+        CustomerCard.Close();
+
+        // [GIVEN] Enqueue the VAT Registration No to verify on Handler page
+        LibraryVariableStorage.Enqueue(VATRegistrationLog."VAT Registration No.");
+
+        // [WHEN] Open Contact page and drilldown VAT Registration No. field
+        OpenContactVATRegLog(Contact);
+
+        // [VERIFY] Verify VAT registration log created for contact on Handler Page
+    end;
+
     procedure Initialize()
     var
         VATRegistrationLog: Record "VAT Registration Log";
@@ -1263,6 +1308,16 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         Assert.AreEqual(Expected, VATRegistrationLog.Count, '');
     end;
 
+    local procedure OpenContactVATRegLog(Contact: Record Contact)
+    var
+        ContactCard: TestPage "Contact Card";
+    begin
+        ContactCard.OpenEdit;
+        ContactCard.GotoRecord(Contact);
+        ContactCard."VAT Registration No.".DrillDown;
+        ContactCard.Close();
+    end;
+
     [ModalPageHandler]
     procedure DetailsValidationAcceptAllMPH(var VATRegistrationLogDetails: TestPage "VAT Registration Log Details")
     begin
@@ -1274,6 +1329,17 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
     begin
         VATRegistrationLogDetailsPage.Filter.SetFilter("Field Name", LibraryVariableStorage.DequeueText());
         VATRegistrationLogDetailsPage.Accept.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VATRegistrationLogHandler(var VATRegistrationLog: TestPage "VAT Registration Log")
+    var
+        VATRegistrationNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATRegistrationNo);
+        VATRegistrationLog.First;
+        Assert.AreEqual(VATRegistrationNo, VATRegistrationLog."VAT Registration No.".Value, WrongLogEntryOnPageErr);
+        VATRegistrationLog.OK.Invoke;
     end;
 
     [MessageHandler]

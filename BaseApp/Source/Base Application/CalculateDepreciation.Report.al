@@ -43,29 +43,6 @@
                             TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
                             TempGenJnlLine.Insert();
                         end;
-                    FADeprBook.Get("No.", DeprBookCode);
-                    if DeprUntilDate >= FADeprBook."Depreciation Ending Date" then begin
-                        FADeprBook.CalcFields(Derogatory);
-                        // include last derogatory depreciation amount when calculating final balance
-                        if FADeprBook.Derogatory + TempFAJnlLine.Amount <> 0 then
-                            if not DeprBook."G/L Integration - Derogatory" or "Budgeted Asset" then begin
-                                TempFAJnlLine."FA No." := "No.";
-                                TempFAJnlLine.Description := StrSubstNo(Text10801, DeprUntilDate);
-                                TempFAJnlLine."FA Posting Type" := TempFAJnlLine."FA Posting Type"::Derogatory;
-                                TempFAJnlLine.Amount := -(FADeprBook.Derogatory + TempFAJnlLine.Amount);
-                                TempFAJnlLine."No. of Depreciation Days" := 0;
-                                TempFAJnlLine."Line No." := TempFAJnlLine."Line No." + 1;
-                                TempFAJnlLine.Insert();
-                            end else begin
-                                TempGenJnlLine."Account No." := "No.";
-                                TempGenJnlLine.Description := StrSubstNo(Text10801, DeprUntilDate);
-                                TempGenJnlLine."FA Posting Type" := TempGenJnlLine."FA Posting Type"::Derogatory;
-                                TempGenJnlLine.Amount := -(FADeprBook.Derogatory + TempGenJnlLine.Amount);
-                                TempGenJnlLine."No. of Depreciation Days" := 0;
-                                TempGenJnlLine."Line No." := TempGenJnlLine."Line No." + 1;
-                                TempGenJnlLine.Insert();
-                            end;
-                    end;
                 end;
             }
 
@@ -489,7 +466,6 @@
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         Text10800: Label 'Depreciation cannot be posted on depreciation book %1 because it is set up as derogatory.';
-        Text10801: Label 'Reversal of Derogatory Balance at %1';
 
     protected var
         DeprBookCode: Code[10];

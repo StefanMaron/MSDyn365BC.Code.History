@@ -117,6 +117,8 @@
                 Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
+                SetRcvdFromCountry(Customer."Country/Region Code");
+
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
                    (xRec."Currency Code" <> "Currency Code") or
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
@@ -2222,6 +2224,14 @@
             end;
         }
         field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
@@ -4928,6 +4938,13 @@
             end;
 
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
+    end;
+
+    local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
+    begin
+        if not IsCreditDocType() then
+            exit;
+        Rec."Rcvd.-from Count./Region Code" := RcvdFromCountryRegionCode;
     end;
 
     local procedure UpdateShipToCodeFromCust()
