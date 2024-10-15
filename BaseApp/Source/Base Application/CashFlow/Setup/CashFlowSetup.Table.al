@@ -498,6 +498,30 @@ table 843 "Cash Flow Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    procedure GetMLCredentials(var APIURL: Text[250]; var APIKey: SecretText; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        Value: Text;
+    begin
+        // user-defined credentials
+        if IsAPIUserDefined() then begin
+            IsolatedStorageManagement.Get("Service Pass API Key ID", DATASCOPE::Company, Value);
+            APIKey := CopyStr(Value, 1, 200);
+            if (APIKey.Unwrap() = '') or ("API URL" = '') then
+                exit(false);
+            APIURL := "API URL";
+            UsingStandardCredentials := false;
+            exit(true);
+        end;
+
+        UsingStandardCredentials := true;
+        // if credentials not user-defined retrieve it from Azure Key Vault
+        if EnvironmentInfo.IsSaaS() then
+            exit(RetrieveSaaSMLCredentials(APIURL, APIKey, LimitValue));
+    end;
+
+    [NonDebuggable]
+    [Scope('OnPrem')]
     procedure GetMLCredentials(var APIURL: Text[250]; var APIKey: Text[200]; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -518,6 +542,15 @@ table 843 "Cash Flow Setup"
         // if credentials not user-defined retrieve it from Azure Key Vault
         if EnvironmentInfo.IsSaaS() then
             exit(RetrieveSaaSMLCredentials(APIURL, APIKey, LimitValue));
+    end;
+
+    [NonDebuggable]
+    local procedure RetrieveSaaSMLCredentials(var APIURL: Text[250]; var APIKey: SecretText; var LimitValue: Decimal): Boolean
+    var
+        TimeSeriesManagement: Codeunit "Time Series Management";
+        LimitType: Option;
+    begin
+        exit(TimeSeriesManagement.GetMLForecastCredentials(APIURL, APIKey, LimitType, LimitValue));
     end;
 
     [NonDebuggable]

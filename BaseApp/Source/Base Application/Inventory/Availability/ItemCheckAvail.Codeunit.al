@@ -266,7 +266,7 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit(Result);
 
-        exit(InitialQtyAvailable + ItemNetChange - OldItemNetResChange < 0);
+        exit(InitialQtyAvailable + ItemNetChange < 0);
     end;
 
     local procedure SetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date)
@@ -331,7 +331,7 @@ codeunit 311 "Item-Check Avail."
         AvailableToPromise.CalcQtyAvailabletoPromise(
           Item, GrossReq, SchedRcpt, Item.GetRangeMax("Date Filter"),
           CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
-        InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item));
+        InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item) - OldItemNetResChange);
         GrossReq := ConvertQty(GrossReq);
         ReservedReq := ConvertQty(AvailableToPromise.CalcReservedRequirement(Item) + OldItemNetResChange);
         SchedRcpt := ConvertQty(SchedRcpt);

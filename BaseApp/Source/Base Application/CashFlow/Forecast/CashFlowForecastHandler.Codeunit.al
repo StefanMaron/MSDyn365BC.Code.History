@@ -467,7 +467,7 @@ codeunit 850 "Cash Flow Forecast Handler"
         AzureAIUsage: Codeunit "Azure AI Usage";
         AzureAIService: Enum "Azure AI Service";
         APIURL: Text[250];
-        APIKey: Text[200];
+        APIKey: SecretText;
         LimitValue: Decimal;
         IsInitialized: Boolean;
         TimeSeriesLibState: Option Uninitialized,Initialized,"Data Prepared",Done;
@@ -507,7 +507,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             end;
 
         // Time series Lib
-        if not TimeSeriesManagement.Initialize(APIURL, APIKey, CashFlowSetup.TimeOut, UsingStandardCredentials) then begin
+        if not TimeSeriesManagement.Initialize(APIURL, APIKey.Unwrap(), CashFlowSetup.TimeOut, UsingStandardCredentials) then begin
             TempErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, TimeSeriesManagementInitFailedErr);
             exit(false);
         end;
