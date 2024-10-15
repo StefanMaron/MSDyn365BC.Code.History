@@ -38,6 +38,8 @@ codeunit 2625 "Stat. Acc. Demo Data"
         StatisticalAccount: Record "Statistical Account";
         StatisticalLedgerEntry: Record "Statistical Ledger Entry";
         StatisticalAccJournalLine: Record "Statistical Acc. Journal Line";
+        FinancialReport: Record "Financial Report";
+        RevenuePerEmpAccScheduleLine: Record "Acc. Schedule Line";
     begin
         if not CanSetupDemoData() then
             Error(CompanyMustBeDemoCompanyErr);
@@ -48,6 +50,11 @@ codeunit 2625 "Stat. Acc. Demo Data"
         StatisticalAccount.DeleteAll(false);
         StatisticalLedgerEntry.DeleteAll(false);
         StatisticalAccJournalLine.DeleteAll(false);
+        if FinancialReport.Get(RevenuePerEmployeeNameLbl) then
+            FinancialReport.Delete(true);
+
+        RevenuePerEmpAccScheduleLine.SetRange("Schedule Name", RevenuePerEmployeeNameLbl);
+        RevenuePerEmpAccScheduleLine.DeleteAll();
     end;
 
     internal procedure InsertDemoDataNotification(HostNotification: Notification)

@@ -1549,6 +1549,7 @@
                         "Qty. per Unit of Measure" := 1;
                 end;
 
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, Item);
                 Validate(Quantity);
                 UpdateUnitPriceByField(FieldNo("Unit of Measure Code"), true);
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
@@ -4569,7 +4570,7 @@
                        VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0)
                     then
                         VATAmountLine.InsertNewLine(
-                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "VAT %", "Line Amount" >= 0, false);
+                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "VAT %", "Line Amount" >= 0, false, 0);
 
                     QtyFactor := 0;
                     case QtyType of
@@ -6441,6 +6442,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
 

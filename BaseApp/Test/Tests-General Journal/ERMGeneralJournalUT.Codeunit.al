@@ -5339,6 +5339,41 @@ codeunit 134920 "ERM General Journal UT"
         Assert.AreEqual(CalcDate('<+2M>', WorkDate()), NoSeriesLine[3]."Starting Date", NoSeriesLineStartDateErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure S466305_CanChangeDocumentTypeToBlankInSalesJournalLineWithoutAmount()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GeneralJournalBatches: TestPage "General Journal Batches";
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        // [FEATURE] [Sales Journal]
+        // [SCENARIO 275827] "Document Type" can be changed to blank when Amount = 0.
+        Initialize();
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
+        SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
+
+        // [GIVEN] General Journal Batch is created for Sales Template and selected on General Journal Batches page.
+        PrepareTemplateBatchAndPageWithTypeAndReccuring(GeneralJournalBatches, "Gen. Journal Template Type"::Sales, false);
+
+        // [GIVEN] Sales Journal page is opened from General Journal Batches page.
+        RunEditJournalActionOnSalesJournalPage(SalesJournal, GeneralJournalBatches);
+
+        // [THEN] Set "Document Type" to Invoice.
+        SalesJournal."Document Type".SetValue("Gen. Journal Document Type"::Invoice);
+
+        // [WHEN] Set "Document Type" to blank without error.
+        SalesJournal."Document Type".SetValue("Gen. Journal Document Type"::" ");
+
+        GeneralJournalBatches.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

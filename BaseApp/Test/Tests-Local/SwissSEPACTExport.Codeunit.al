@@ -2784,6 +2784,114 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
     end;
 
+    [Test]
+    procedure PaymentReferenceNonNumericValueInPaymentJournal()
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 466837] Non-numeric values in Payment Reference field in Payment Journal.
+        Initialize();
+
+        // [GIVEN] Opened Payment Journal.
+        PaymentJournal.OpenEdit();
+
+        // [WHEN] Set alphabetical value to Payment Reference field.
+        PaymentJournal."Payment Reference".SetValue('ABC');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('ABC', PaymentJournal."Payment Reference".Value, '');
+
+        // [WHEN] Set special characters as a value to Payment Reference field.
+        PaymentJournal."Payment Reference".SetValue('{!@#}');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('{!@#}', PaymentJournal."Payment Reference".Value, '');
+    end;
+
+    [Test]
+    procedure PaymentReferenceNonNumericValueInPurchaseInvoice()
+    var
+        PurchaseInvoiceCard: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI] [Purchase]
+        // [SCENARIO 466837] Non-numeric values in Payment Reference field in Purchase Invoice.
+        Initialize();
+
+        // [GIVEN] Opened Purchase Invoice card.
+        PurchaseInvoiceCard.OpenNew();
+
+        // [WHEN] Set alphabetical value to Payment Reference field.
+        PurchaseInvoiceCard."Payment Reference".SetValue('ABC');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('ABC', PurchaseInvoiceCard."Payment Reference".Value, '');
+
+        // [WHEN] Set special characters as a value to Payment Reference field.
+        PurchaseInvoiceCard."Payment Reference".SetValue('{!@#}');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('{!@#}', PurchaseInvoiceCard."Payment Reference".Value, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchInvUpdatePaymentRefModalPageHandler')]
+    procedure PaymentReferenceNonNumericValueInPostedPurchaseInvoice()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [FEATURE] [UI] [Purchase]
+        // [SCENARIO 466837] Non-numeric values in Payment Reference field in Posted Purchase Invoice.
+        Initialize();
+
+        // [GIVEN] Opened Posted Purchase Invoice card.
+        PostedPurchaseInvoice.OpenView();
+
+        // [WHEN] Open Update Document page, set alphabetical value to Payment Reference field using PostedPurchInvUpdatePaymentRefModalPageHandler.
+        LibraryVariableStorage.Enqueue('ABC');
+        PostedPurchaseInvoice."Update Document".Invoke();
+
+        // [THEN] The value was set.
+        PurchInvHeader.Get(PostedPurchaseInvoice."No.".Value);
+        Assert.AreEqual('ABC', PurchInvHeader."Payment Reference", '');
+
+        // [WHEN] Open Update Document page, set special characters as a value to Payment Reference field using PostedPurchInvUpdatePaymentRefModalPageHandler.
+        LibraryVariableStorage.Enqueue('{!@#}');
+        PostedPurchaseInvoice."Update Document".Invoke();
+
+        // [THEN] The value was set.
+        PurchInvHeader.Get(PostedPurchaseInvoice."No.".Value);
+        Assert.AreEqual('{!@#}', PurchInvHeader."Payment Reference", '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure PaymentReferenceNonNumericValueInVendorLedgerEntry()
+    var
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+    begin
+        // [FEATURE] [UI] [Purchase]
+        // [SCENARIO 466837] Non-numeric values in Payment Reference field in Vendor Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Opened Vendor Ledger Entries list.
+        VendorLedgerEntries.OpenEdit();
+
+        // [WHEN] Set alphabetical value to Payment Reference field.
+        VendorLedgerEntries."Payment Reference".SetValue('ABC');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('ABC', VendorLedgerEntries."Payment Reference".Value, '');
+
+        // [WHEN] Set special characters as a value to Payment Reference field.
+        VendorLedgerEntries."Payment Reference".SetValue('{!@#}');
+
+        // [THEN] The value was set.
+        Assert.AreEqual('{!@#}', VendorLedgerEntries."Payment Reference".Value, '');
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -3882,6 +3990,13 @@ codeunit 144352 "Swiss SEPA CT Export"
     procedure PaymentJournalModalPageHandler(var PaymentJournal: TestPage "Payment Journal")
     begin
         PaymentJournal.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure PostedPurchInvUpdatePaymentRefModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
+    begin
+        PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate.OK().Invoke();
     end;
 }
 

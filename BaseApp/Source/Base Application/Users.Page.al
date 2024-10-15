@@ -425,8 +425,9 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update users from Microsoft 365';
                 Image = Users;
-                ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Microsoft 365 for all users.';
+                ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Microsoft 365 for all users. Having SUPER permission set for all companies is required to run this action.';
                 Visible = IsSaaS and CanManageUsersOnTenant;
+                Enabled = HasSuperForAllCompanies;
                 AboutTitle = 'Keep in sync with Microsoft 365';
                 AboutText = 'When licenses or user accounts change in the Microsoft 365 admin center, you must sync the changes back to this list.';
 
@@ -563,6 +564,7 @@ page 9800 Users
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        HasSuperForAllCompanies := UserPermissions.IsSuper(UserSecurityId());
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -622,6 +624,7 @@ page 9800 Users
         CanSendEmail: Boolean;
         RestoreUserGroupsToDefaultQst: Label 'Do you want to restore the default permissions for user %1?', Comment = 'Do you want to restore the default permissions for user Annie?';
         CanManageUsersOnTenant: Boolean;
+        HasSuperForAllCompanies: Boolean;
         IsSaaS: Boolean;
 #if not CLEAN22
         LegacyUserGroupsVisible: Boolean;

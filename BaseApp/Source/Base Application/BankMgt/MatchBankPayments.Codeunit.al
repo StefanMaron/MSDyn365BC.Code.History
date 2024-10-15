@@ -83,6 +83,8 @@ codeunit 1255 "Match Bank Payments"
         MissingRelatedPartyTelemetryMsg: Label 'The ledger entries contain the entries that do not exist in master data. This is indication of corrupted ledger entries. Master data type %1.', Locked = true, Comment = '%1 Master Data Type';
         PmtRecNoSeriesNotificationNameLbl: Label 'Payment reconciliation journals need a number series.';
         PmtRecNoSeriesNotificationDescriptionLbl: Label 'Notifies the user that payment reconciliation journals are not assigned to a number series.';
+        EntriesMatchedElsewhereMsg: Label 'There are open %1 ledger entries applied in other journals. The entries were not considered in the automatic application. To consider these entries, unapply them first from the other journals.', Comment = '%1 - either "customer", "vendor" or "employee".';
+        DontShowAgainTxt: Label 'Don''t show again.';
         TotalTimeMatchingCustomerLedgerEntriesPerLine: Duration;
         TotalTimeMatchingVendorLedgerEntriesPerLine: Duration;
         TotalTimeMatchingEmployeeLedgerEntriesPerLine: Duration;
@@ -228,13 +230,86 @@ codeunit 1255 "Match Bank Payments"
 
         MapLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite, ApplyEntries);
 
-        if ApplyEntries then
+        if ApplyEntries then begin
             ApplyLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite);
+            NotifyIfEntriesMatchedElsewhere(BankAccReconciliationLine);
+        end;
     end;
 
     procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
         Code(BankAccReconciliationLine, true);
+    end;
+
+    local procedure NotifyIfEntriesMatchedElsewhere(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        Prefix: Code[50];
+        MaxEntriesToCheck: Integer;
+    begin
+        if not GuiAllowed() then
+            exit;
+        MaxEntriesToCheck := 600;
+        Prefix := BankAccReconciliationLine.GetAppliesToIDForBankStatement();
+        CustLedgerEntry.SetRange(Open, true);
+        CustLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        if CustLedgerEntry.Count() < MaxEntriesToCheck then
+            if CustLedgerEntry.FindSet() then
+                repeat
+                    if CopyStr(CustLedgerEntry."Applies-to ID", 1, StrLen(Prefix)) <> Prefix then begin
+                        LaunchEntriesMatchedElsewhereNotification('customer');
+                        exit;
+                    end;
+                until CustLedgerEntry.Next() = 0;
+        VendorLedgerEntry.SetRange(Open, true);
+        VendorLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        if VendorLedgerEntry.Count() < MaxEntriesToCheck then
+            if VendorLedgerEntry.FindSet() then
+                repeat
+                    if CopyStr(VendorLedgerEntry."Applies-to ID", 1, StrLen(Prefix)) <> Prefix then begin
+                        LaunchEntriesMatchedElsewhereNotification('vendor');
+                        exit;
+                    end;
+                until VendorLedgerEntry.Next() = 0;
+        EmployeeLedgerEntry.SetRange(Open, true);
+        EmployeeLedgerEntry.SetFilter("Applies-to ID", '<>%1', '');
+        if EmployeeLedgerEntry.Count() < MaxEntriesToCheck then
+            if EmployeeLedgerEntry.FindSet() then
+                repeat
+                    if CopyStr(EmployeeLedgerEntry."Applies-to ID", 1, StrLen(Prefix)) <> Prefix then begin
+                        LaunchEntriesMatchedElsewhereNotification('employee');
+                        exit;
+                    end;
+                until EmployeeLedgerEntry.Next() = 0;
+    end;
+
+    local procedure LaunchEntriesMatchedElsewhereNotification(Entity: Text)
+    var
+        MyNotifications: Record "My Notifications";
+        Notification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(EntriesMatchedElsewhereNotificationId()) then
+            exit;
+        Notification.Id := EntriesMatchedElsewhereNotificationId();
+        Notification.Message := StrSubstNo(EntriesMatchedElsewhereMsg, Entity);
+        Notification.Scope := NotificationScope::LocalScope;
+        Notification.AddAction(DontShowAgainTxt, Codeunit::"Match Bank Payments", 'HideEntriesMatchedElsewhereNotification');
+        Notification.Send();
+    end;
+
+    internal procedure HideEntriesMatchedElsewhereNotification(Notification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(EntriesMatchedElsewhereNotificationId()) then
+            MyNotifications.InsertDefault(EntriesMatchedElsewhereNotificationId(), 'name', 'desc', false);
+    end;
+
+    local procedure EntriesMatchedElsewhereNotificationId(): Guid
+    begin
+        exit('625601f1-689d-456f-9966-6756420215e0');
     end;
 
     internal procedure DisableNotification(var MyNotification: Notification)
@@ -382,16 +457,16 @@ codeunit 1255 "Match Bank Payments"
             OnDisableBankLedgerEntriesMatch(DisableBankLedgerEntriesMatch, BankAccReconciliationLine);
 
             if not DisableCustomerLedgerEntriesMatch then
-                InitializeCustomerLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempCustomerLedgerEntryMatchingBuffer);
+                InitializeCustomerLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempCustomerLedgerEntryMatchingBuffer, ApplyEntries);
 
             if not DisableVendorLedgerEntriesMatch then
-                InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer);
+                InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer, ApplyEntries);
 
             if not DisableBankLedgerEntriesMatch then
                 InitializeBankAccLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, ApplyEntries);
 
             if not DisableEmployeeLedgerEntriesMatch then
-                InitializeEmployeeLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempEmployeeLedgerEntryMatchingBuffer);
+                InitializeEmployeeLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempEmployeeLedgerEntryMatchingBuffer, ApplyEntries);
 
             InitializeDirectDebitCollectionEntriesMatchingBuffer(TempDirectDebitCollectionBuffer);
 
@@ -834,6 +909,11 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     procedure InitializeCustomerLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    begin
+        InitializeCustomerLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, false);
+    end;
+
+    procedure InitializeCustomerLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; ApplyEntries: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -849,6 +929,9 @@ codeunit 1255 "Match Bank Payments"
           CustLedgerEntry."Document Type"::"Credit Memo",
           CustLedgerEntry."Document Type"::"Finance Charge Memo",
           CustLedgerEntry."Document Type"::Reminder);
+
+        if ApplyEntries then
+            CustLedgerEntry.SetRange("Applies-to ID", '');
 
         OnInitCustomerLedgerEntriesMatchingBufferSetFilter(CustLedgerEntry, BankAccReconciliationLine);
 
@@ -872,6 +955,11 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     procedure InitializeVendorLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    begin
+        InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, false);
+    end;
+
+    procedure InitializeVendorLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; ApplyEntries: Boolean)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -887,6 +975,9 @@ codeunit 1255 "Match Bank Payments"
           VendorLedgerEntry."Document Type"::"Credit Memo",
           VendorLedgerEntry."Document Type"::"Finance Charge Memo",
           VendorLedgerEntry."Document Type"::Reminder);
+
+        if ApplyEntries then
+            VendorLedgerEntry.SetRange("Applies-to ID", '');
 
         OnInitVendorLedgerEntriesMatchingBufferSetFilter(VendorLedgerEntry, BankAccReconciliationLine);
 
@@ -911,6 +1002,11 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     procedure InitializeEmployeeLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    begin
+        InitializeEmployeeLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, false);
+    end;
+
+    procedure InitializeEmployeeLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; ApplyEntries: Boolean)
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
@@ -918,6 +1014,9 @@ codeunit 1255 "Match Bank Payments"
 
         EmployeeLedgerEntry.SetRange(Open, true);
         EmployeeLedgerEntry.SetRange("Document Type", EmployeeLedgerEntry."Document Type"::" ");
+
+        if ApplyEntries then
+            EmployeeLedgerEntry.SetRange("Applies-to ID", '');
 
         OnInitEmployeeLedgerEntriesMatchingBufferSetFilter(EmployeeLedgerEntry, BankAccReconciliationLine);
 

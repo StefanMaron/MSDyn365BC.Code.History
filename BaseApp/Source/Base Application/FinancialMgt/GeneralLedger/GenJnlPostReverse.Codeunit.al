@@ -148,6 +148,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     var
         GLEntry: Record "G/L Entry";
         ReversedGLEntry: Record "G/L Entry";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         with GLEntry2 do
             if Find('+') then
@@ -164,6 +165,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     GLEntry.Amount := -Amount;
                     GLEntry.Quantity := -Quantity;
                     GLEntry."VAT Amount" := -"VAT Amount";
+                    NonDeductibleVAT.Reverse(GLEntry, GLEntry2);
                     GLEntry."Debit Amount" := -"Debit Amount";
                     GLEntry."Amount (FCY)" := -"Amount (FCY)";
                     GLEntry."Credit Amount" := -"Credit Amount";

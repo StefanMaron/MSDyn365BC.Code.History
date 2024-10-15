@@ -337,7 +337,6 @@
 
                 UpdateDirectUnitCostByField(FieldNo("Location Code"));
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
-                DeleteWarehouseRequest(xRec);
                 OnAfterValidateLocationCode(Rec, xRec);
             end;
         }
@@ -567,6 +566,7 @@
                     Amount := 0;
                     "Amount Including VAT" := 0;
                     "VAT Base Amount" := 0;
+                    NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
                 end;
 
                 UpdateDirectUnitCostByField(FieldNo(Quantity));
@@ -624,6 +624,7 @@
                       Text007,
                       MaxQtyToInvoiceBase());
                 "VAT Difference" := 0;
+                NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
                 CalcInvDiscToInvoice();
                 CalcPrepaymentToDeduct();
 
@@ -1405,12 +1406,14 @@
                         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
                     "VAT Difference" := 0;
+                    NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
                     GetPurchHeader();
                     "VAT %" := VATPostingSetup."VAT %";
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
                         Validate("Allow Invoice Disc.", false);
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
+                    NonDeductibleVAT.SetNonDeductiblePct(Rec);
 
                     IsHandled := false;
                     OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(Rec, VATPostingSetup, IsHandled);
@@ -2257,7 +2260,13 @@
             trigger OnLookup()
             var
                 JobPlanningLine: Record "Job Planning Line";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobPlanningLineNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 JobPlanningLine.SetRange("Job No.", "Job No.");
                 JobPlanningLine.SetRange("Job Task No.", "Job Task No.");
                 case Type of
@@ -3316,6 +3325,46 @@
             Editable = false;
             FieldClass = FlowField;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                NonDeductibleVAT.CheckPrepmtWithNonDeductubleVATInPurchaseLine(Rec);
+                UpdateAmounts();
+            end;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base';
+            Editable = false;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6203; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
+        field(6204; "Prepmt. Non-Deduct. VAT Base"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Prepmt.  Non-Deductible VAT Base';
+            Editable = false;
+        }
+        field(6205; "Prepmt. Non-Deduct. VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Prepmt. on-Deductible VAT Amount';
+            Editable = false;
+        }
         field(6600; "Return Shipment No."; Code[20])
         {
             Caption = 'Return Shipment No.';
@@ -3746,9 +3795,6 @@
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Purchase.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
-
-        DeleteWarehouseRequest(Rec);
-
     end;
 
     trigger OnInsert()
@@ -3759,9 +3805,9 @@
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
-        PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
+        PurchHeader."No." := '';
     end;
 
     trigger OnModify()
@@ -3853,6 +3899,7 @@
         DeferralUtilities: Codeunit "Deferral Utilities";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         FieldCausedPriceCalculation: Integer;
         TrackingBlocked: Boolean;
         GLSetupRead: Boolean;
@@ -4014,6 +4061,7 @@
         "Qty. to Invoice" := MaxQtyToInvoice();
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase();
         "VAT Difference" := 0;
+        NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
 
         OnBeforeCalcInvDiscToInvoice(Rec, CurrFieldNo);
         CalcInvDiscToInvoice();
@@ -4174,6 +4222,7 @@
             if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
                 "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
                 "VAT Difference" := 0;
+                NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             end;
             NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
 
@@ -4862,6 +4911,7 @@
     procedure UpdateAmounts()
     var
         VATBaseAmount: Decimal;
+        NonDeductAmount: Decimal;
         LineAmountChanged: Boolean;
         IsHandled: Boolean;
     begin
@@ -4876,6 +4926,7 @@
         GetPurchHeader();
 
         VATBaseAmount := "VAT Base Amount";
+        NonDeductAmount := NonDeductibleVAT.GetNonDeductibleVATAmount(Rec);
         "Recalculate Invoice Disc." := "Allow Invoice Disc.";
 
         UpdateLineAmount(LineAmountChanged);
@@ -4888,6 +4939,7 @@
         UpdateVATAmounts();
         if VATBaseAmount <> "VAT Base Amount" then
             LineAmountChanged := true;
+        LineAmountChanged := LineAmountChanged or (NonDeductAmount <> NonDeductibleVAT.GetNonDeductibleVATAmount(Rec));
 
         if LineAmountChanged then begin
             UpdateDeferralAmounts();
@@ -5028,6 +5080,7 @@
                                 (TotalAmount + Amount) * (PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
+                            NonDeductibleVAT.Update(Rec, Currency);
                             OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT, PurchLine2);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -5075,6 +5128,7 @@
                                 (TotalAmount + Amount) * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
+                            NonDeductibleVAT.Update(Rec, Currency);
                             OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT, PurchLine2);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -5126,6 +5180,7 @@
         if ("Prepayment %" <> 0) and HasTypeToFillMandatoryFields() then begin
             TestField("Document Type", "Document Type"::Order);
             TestField("No.");
+            NonDeductibleVAT.CheckPrepmtWithNonDeductubleVATInPurchaseLine(Rec);
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
             if GenPostingSetup."Purch. Prepayments Account" <> '' then begin
                 GLAcc.Get(GenPostingSetup."Purch. Prepayments Account");
@@ -6157,7 +6212,9 @@
         NewAmountIncludingVAT: Decimal;
         NewVATBaseAmount: Decimal;
         VATAmount: Decimal;
+        NonDedVATAmount: Decimal;
         VATDifference: Decimal;
+        NonDedVATDifference: Decimal;
         InvDiscAmount: Decimal;
         LineAmountToInvoice: Decimal;
         LineAmountToInvoiceDiscounted: Decimal;
@@ -6238,11 +6295,14 @@
                                 if PurchHeader."Prices Including VAT" then begin
                                     if (VATAmountLine.CalcLineAmount() = 0) or ("Line Amount" = 0) then begin
                                         VATAmount := 0;
+                                        NonDedVATAmount := 0;
                                         NewAmountIncludingVAT := 0;
                                     end else begin
                                         VATAmount :=
                                           TempVATAmountLineRemainder."VAT Amount" +
                                           VATAmountLine."VAT Amount" * CalcLineAmount() / VATAmountLine.CalcLineAmount();
+                                        NonDedVATAmount :=
+                                            NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, CalcLineAmount(), VATAmountLine.CalcLineAmount());
                                         NewAmountIncludingVAT :=
                                           TempVATAmountLineRemainder."Amount Including VAT" +
                                           VATAmountLine."Amount Including VAT" * CalcLineAmount() / VATAmountLine.CalcLineAmount();
@@ -6268,12 +6328,16 @@
                                         IsHandled := false;
                                         OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(Rec, PurchHeader, Currency, VATAmountLine, TempVATAmountLineRemainder, NewVATBaseAmount, VATAmount, IsHandled);
                                         if not IsHandled then
-                                            if VATAmountLine."VAT Base" = 0 then
-                                                VATAmount := 0
-                                            else
+                                            if VATAmountLine."VAT Base" = 0 then begin
+                                                VATAmount := 0;
+                                                NonDedVATAmount := 0;
+                                            end else begin
                                                 VATAmount :=
                                                   TempVATAmountLineRemainder."VAT Amount" +
                                                   VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
+                                                NonDedVATAmount :=
+                                                    NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, NewAmount, VATAmountLine."VAT Base");
+                                            end;
                                     end;
                                     NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
                                 end;
@@ -6287,10 +6351,19 @@
                                     VATDifference :=
                                       TempVATAmountLineRemainder."VAT Difference" +
                                       VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
-                                if LineAmountToInvoice = 0 then
-                                    "VAT Difference" := 0
-                                else
+                                if LineAmountToInvoice = 0 then begin
+                                    "VAT Difference" := 0;
+                                    NonDedVATAmount := 0;
+                                    NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
+                                end else begin
                                     "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                                    NonDedVATAmount :=
+                                        NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(
+                                            TempVATAmountLineRemainder, VATAmountLine, Currency, LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
+                                    NonDeductibleVAT.SetNonDedVATAmountDiffInPurchLine(
+                                        PurchLine, TempVATAmountLineRemainder, NonDedVATDifference, VATAmountLine, Currency,
+                                        LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
+                                end;
                                 OnUpdateVATOnLinesOnAfterCalculateVATDifference(
                                     Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, QtyType);
                             end;
@@ -6300,6 +6373,7 @@
                                 if not "Prepayment Line" then
                                     UpdatePrepmtAmounts();
                                 UpdateBaseAmounts(NewAmount, Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision"), NewVATBaseAmount);
+                                NonDeductibleVAT.SetNonDedVATAmountInPurchLine(PurchLine, NonDedVATAmount);
                                 OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(PurchHeader, PurchLine, TempVATAmountLineRemainder, VATAmountLine, Currency);
                             end;
                             OnUpdateVATOnLinesOnBeforeInitOutstanding(Rec, QtyType);
@@ -6332,6 +6406,7 @@
 
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     var
+        TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         TotalVATAmount: Decimal;
         QtyToHandle: Decimal;
         AmtToHandle: Decimal;
@@ -6362,13 +6437,14 @@
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0)
                         then begin
                             VATAmountLine.InsertNewLine(
-                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "VAT %", "Line Amount" >= 0, false);
+                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "VAT %", "Line Amount" >= 0, false, "Non-Deductible VAT %");
                             OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(PurchLine, VATAmountLine);
                         end;
                         case QtyType of
                             QtyType::General:
                                 begin
                                     VATAmountLine.Quantity += "Quantity (Base)";
+                                    NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, 1, 1);
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                     VATAmountLine.SumLine(
                                       "Line Amount", "Inv. Discount Amount", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
@@ -6400,6 +6476,7 @@
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
+                                    NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, QtyToHandle, Quantity);
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                     if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
                                         VATAmountLine.SumLine(
@@ -7083,6 +7160,7 @@
         "Qty. to Invoice" := MaxQtyToInvoice();
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase();
         "VAT Difference" := 0;
+        NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
 
         OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(Rec, xRec);
 
@@ -8204,12 +8282,14 @@
 
         if "Line Amount" <> xRec."Line Amount" then begin
             "VAT Difference" := 0;
+            NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
         if "Line Amount" <> Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount" then begin
             "Line Amount" :=
               Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount";
             "VAT Difference" := 0;
+            NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
     end;
@@ -8378,22 +8458,6 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
-    end;
-
-    local procedure DeleteWarehouseRequest(PurchaseLine: Record "Purchase Line")
-    var
-        WarehouseRequest: Record "Warehouse Request";
-    begin
-        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        if ((PurchaseLine."Document Type" = "Purchase Document Type"::Order) and (PurchaseLine.Quantity >= 0)) or ((PurchaseLine."Document Type" = "Purchase Document Type"::"Return Order") and (PurchaseLine.Quantity < 0)) then
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound)
-        else
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
-        WarehouseRequest.SetSourceFilter(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.");
-        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
-        WarehouseRequest.SetRange("Location Code", PurchaseLine."Location Code");
-        if not WarehouseRequest.IsEmpty() then
-            WarehouseRequest.DeleteAll(true);
     end;
 
     internal procedure SaveLookupSelection(Selected: RecordRef)
@@ -9343,6 +9407,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateGenProdPostingGroup(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobPlanningLineNo(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

@@ -247,10 +247,6 @@ codeunit 8889 "Email Account Impl."
             ValidatedEmailAddress := EmailAddress;
             if not ConvertEmailAddress(ValidatedEmailAddress) then
                 Error(InvalidEmailAddressErr, EmailAddress);
-
-            // do not allow passing email address together with display name (e. g. "Tom Smith <tsmith@contoso.com>")
-            if not (ValidatedEmailAddress = EmailAddress) then
-                Error(InvalidEmailAddressErr, EmailAddress);
         end;
 
         EmailAccount.OnAfterValidateEmailAddress(EmailAddress, AllowEmptyValue);

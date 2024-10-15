@@ -78,6 +78,37 @@ codeunit 139323 "Onboarding Signal Tests"
         Assert.IsTrue(LibraryOnboardingSignal.IsOnboardingCompleted(Company.Name, OnboardingSignalType::"Test Signal"), 'Test Signal''s status should be true.');
     end;
 
+    [Test]
+    procedure TestCompanySignal()
+    var
+        Company: Record Company;
+        OnboardingSignalImpl: Codeunit "Onboarding Signal";
+        OnboardingSignalType: Enum "Onboarding Signal Type";
+    begin
+        // [SCENARIO] Test if Company Signal is working as expected
+        LibraryOnboardingSignal.InitializeOnboardingSignalTestingEnv();
+        LibraryLowerPermissions.SetO365Basic();
+
+        Company.Get(CompanyName());
+        // [GIVEN] Register Company Signal
+        OnboardingSignalImpl.RegisterNewOnboardingSignal(Company.Name, OnboardingSignalType::Company);
+
+        // [GIVEN] Register a new test onboarding signal
+        OnboardingSignalImpl.RegisterNewOnboardingSignal(Company.Name, OnboardingSignalType::"Test Signal");
+
+        // [THEN] The Company should is not onboarded yet
+        Assert.IsFalse(OnboardingSignalImpl.HasCompanyOnboarded(Company.Name), 'The company is not onboarded yet');
+        Assert.IsFalse(LibraryOnboardingSignal.IsOnboardingCompleted(Company.Name, OnboardingSignalType::Company), 'The Company Signal should be False');
+
+        // [GIVEN] Check if registered signal has met its requirement, check it two times as we do not know the order.
+        OnboardingSignalImpl.CheckAndEmitOnboardingSignals();
+        OnboardingSignalImpl.CheckAndEmitOnboardingSignals();
+
+        // [THEN] The Company should be onboarded now
+        Assert.IsTrue(OnboardingSignalImpl.HasCompanyOnboarded(Company.Name), 'The company should be onboarded');
+        Assert.IsTrue(LibraryOnboardingSignal.IsOnboardingCompleted(Company.Name, OnboardingSignalType::Company), 'The Company Signal should be True');
+    end;
+
     local procedure PopulateOnboardingSignals(CompanyName: Text[30]; IsCompleted: Boolean)
     var
         OnboardingSignal: Record "Onboarding Signal";

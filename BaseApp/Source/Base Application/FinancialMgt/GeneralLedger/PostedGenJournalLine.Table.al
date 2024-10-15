@@ -582,6 +582,15 @@
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
+#if not CLEAN22
+            ObsoleteReason = 'This field will be replaced by IC Account No.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#else
+            ObsoleteReason = 'Replaced by IC Account No.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#endif
         }
         field(117; "IC Partner Transaction No."; Integer)
         {
@@ -643,6 +652,28 @@
             Caption = 'Orig. Pmt. Disc. Possible (LCY)';
             Editable = false;
         }
+        field(130; "IC Account Type"; Enum "IC Journal Account Type")
+        {
+            Caption = 'IC Account Type';
+        }
+        field(131; "IC Account No."; Code[20])
+        {
+            Caption = 'IC Account No.';
+            TableRelation =
+            IF ("IC Account Type" = const("G/L Account")) "IC G/L Account" where("Account Type" = const(Posting), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Account No."), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
+        }
         field(160; "Job Queue Status"; Option)
         {
             Caption = 'Job Queue Status';
@@ -667,7 +698,6 @@
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(172; "Payment Method Code"; Code[10])
         {
@@ -980,6 +1010,45 @@
         field(5702; "Check Transmitted"; Boolean)
         {
             Caption = 'Check Transmitted';
+        }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base';
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount';
+        }
+        field(6203; "Non-Deductible VAT Base LCY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base LCY';
+        }
+        field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount LCY';
+        }
+        field(6205; "Non-Deductible VAT Base ACY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Base ACY';
+        }
+        field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            Caption = 'Non-Deductible VAT Amount ACY';
+        }
+        field(6208; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
         }
         field(8001; "Account Id"; Guid)
         {

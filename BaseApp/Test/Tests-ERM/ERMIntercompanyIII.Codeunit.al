@@ -3313,6 +3313,40 @@ codeunit 134154 "ERM Intercompany III"
         VerifySalesOrder(PurchaseHeader, 55);
     end;
 
+    [Test]
+    procedure IncomingSalesOrderPostedSendsInvoice()
+    var
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        DimensionValue: array[5] of Record "Dimension Value";
+    begin
+        // [SCENARIO] A sales order received from intercompany is posted.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        ICInboxTransaction.DeleteAll();
+
+        CreateCustomerWithICPartner(Customer);
+        CreateSetOfDimValues(DimensionValue);
+        // [GIVEN] A sales order received from intercompany is accepted
+        MockICInboxSalesOrder(ICInboxSalesHeader, DimensionValue, Customer."No.");
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+        SalesHeader."Due Date" := WorkDate();
+        // [WHEN] The sales order is posted
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        // [THEN] The sales invoice is sent back to the originating company
+        ICOutboxTransaction.SetRange("Document Type", ICOutboxTransaction."Document Type"::Invoice);
+        ICOutboxTransaction.SetRange("Source Type", ICOutboxTransaction."Source Type"::"Sales Document");
+        Assert.IsTrue(ICOutboxTransaction.FindFirst(), 'When a sales order received from intercompany is posted it should be sent back as an invoice to the originating company');
+        ICOutboxTransaction.DeleteAll();
+        ICInboxTransaction.DeleteAll();
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

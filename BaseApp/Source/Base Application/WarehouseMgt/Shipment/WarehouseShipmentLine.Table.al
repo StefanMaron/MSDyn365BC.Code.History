@@ -1,4 +1,4 @@
-table 7321 "Warehouse Shipment Line"
+﻿table 7321 "Warehouse Shipment Line"
 {
     Caption = 'Warehouse Shipment Line';
     DrillDownPageID = "Whse. Shipment Lines";
@@ -230,6 +230,8 @@ table 7321 "Warehouse Shipment Line"
 
                 if "Assemble to Order" then
                     ATOLink.UpdateQtyToAsmFromWhseShptLine(Rec);
+
+                OnAfterValidateQtyToShip(Rec, xRec);
             end;
         }
         field(22; "Qty. to Ship (Base)"; Decimal)
@@ -570,6 +572,8 @@ table 7321 "Warehouse Shipment Line"
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
+
         TestField("Qty. per Unit of Measure");
         exit(UOMMgt.CalcBaseQty(
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
@@ -1043,6 +1047,8 @@ table 7321 "Warehouse Shipment Line"
         "Variant Code" := VariantCode;
         "Unit of Measure Code" := UoMCode;
         "Qty. per Unit of Measure" := QtyPerUoM;
+
+        OnAfterSetItemData(Rec);
     end;
 
     procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; ItemDescription2: Text[50]; LocationCode: Code[10]; VariantCode: Code[10]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
@@ -1118,6 +1124,21 @@ table 7321 "Warehouse Shipment Line"
         if Abs(QtyOutstandingBase + "Qty. Shipped (Base)") > Abs("Qty. (Base)") then
             exit("Qty. (Base)" - "Qty. Shipped (Base)");
         exit(QtyOutstandingBase);
+    end;
+
+    internal procedure CheckDirectTransfer(DirectTransfer: Boolean; DoCheck: Boolean): Boolean
+    var
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
+            TransferHeader.Get(Rec."Source No.");
+            if DoCheck then
+                TransferHeader.TestField("Direct Transfer", DirectTransfer)
+            else
+                exit(TransferHeader."Direct Transfer");
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1262,6 +1283,21 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetQuantityBase(var Rec: Record "Warehouse Shipment Line"; var QuantityBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var xWarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemData(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

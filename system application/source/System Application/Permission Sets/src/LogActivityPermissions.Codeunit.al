@@ -17,7 +17,11 @@ codeunit 9802 "Log Activity Permissions"
         EventReceiver: DotNet NavPermissionEventReceiver;
 
     procedure Start()
+    var
+        SessionIdVar: Integer;
     begin
+        SessionIdVar := SessionId();
+        OnBeforeStart(SessionIdVar);
         TempTablePermissionBuffer.DeleteAll();
         if IsNull(EventReceiver) then
             EventReceiver := EventReceiver.NavPermissionEventReceiver(SessionId());
@@ -92,6 +96,8 @@ codeunit 9802 "Log Activity Permissions"
                   GetMaxPermission(TempTablePermissionBuffer."Execute Permission", TempTablePermissionBuffer."Execute Permission"::Indirect);
         end;
         TempTablePermissionBuffer.Modify();
+
+        OnAfterLogTableUsage(TempTablePermissionBuffer);
     end;
 
     internal procedure GetMaxPermission(CurrentPermission: Option; NewPermission: Option): Integer
@@ -120,6 +126,16 @@ codeunit 9802 "Log Activity Permissions"
         if IndirectPermission = 0 then
             exit(DirectPermission);
         exit(IndirectPermission);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStart(var SessionId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogTableUsage(var TempTablePermissionBuffer: Record "Tenant Permission" temporary)
+    begin
     end;
 
     trigger EventReceiver::OnPermissionCheckEvent(sender: Variant; e: DotNet PermissionCheckEventArgs)
