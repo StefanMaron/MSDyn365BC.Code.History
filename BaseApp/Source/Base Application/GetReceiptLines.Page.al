@@ -299,7 +299,7 @@ page 5709 "Get Receipt Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPurchHeader(PurchHeader2, IsHandled);
+        OnBeforeSetPurchHeader(PurchHeader2, IsHandled, PurchHeader);
         if IsHandled then
             exit;
 
@@ -353,7 +353,7 @@ page 5709 "Get Receipt Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPurchHeader(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSetPurchHeader(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

@@ -172,7 +172,7 @@ table 5062 Attachment
         WordTemplateInteractions: Codeunit "Word Template Interactions";
         IsHandled: Boolean;
     begin
-        OnBeforeShowAttachment(SegLine, WordCaption, IsHandled);
+        OnBeforeShowAttachment(SegLine, WordCaption, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -183,6 +183,8 @@ table 5062 Attachment
 
         if "Storage Type" = "Storage Type"::Embedded then
             CalcFields("Attachment File");
+
+        OnShowAttachmentOnAfterCalcAttachmentFile(Rec);
 
         if WordTemplateInteractions.IsWordDocumentExtension("File Extension") then
             WordTemplateInteractions.RunMergedDocument(SegLine, Rec)
@@ -811,7 +813,7 @@ table 5062 Attachment
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text; var IsHandled: Boolean)
+    local procedure OnBeforeShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text; var IsHandled: Boolean; var Attachment: Record Attachment)
     begin
     end;
 
@@ -822,6 +824,11 @@ table 5062 Attachment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeImportAttachmentFromServerFile(var Attachment: Record Attachment; ImportFromFile: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowAttachmentOnAfterCalcAttachmentFile(var Attachment: Record Attachment)
     begin
     end;
 

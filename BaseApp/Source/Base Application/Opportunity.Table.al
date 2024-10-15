@@ -635,6 +635,7 @@ table 5092 Opportunity
         "Contact No." := InteractionLogEntry."Contact No.";
         "Contact Company No." := InteractionLogEntry."Contact Company No.";
         SetDefaultSalesCycle();
+        OnCreateFromCreateFromInteractionLogEntryOnBeforeInsert(Rec, InteractionLogEntry);
         Insert(true);
         CopyCommentLinesFromIntLogEntry(InteractionLogEntry);
     end;
@@ -652,6 +653,7 @@ table 5092 Opportunity
         "Contact No." := SegmentLine."Contact No.";
         "Contact Company No." := SegmentLine."Contact Company No.";
         SetDefaultSalesCycle();
+        OnCreateFromSegmentLineOnBeforeInsert(Rec, SegmentLine);
         Insert(true);
     end;
 
@@ -1257,6 +1259,16 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupCampaignsOnAfterSetFilters(var Opportunity: Record Opportunity; var Campaign: Record Campaign)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateFromCreateFromInteractionLogEntryOnBeforeInsert(var Opportunity: Record Opportunity; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateFromSegmentLineOnBeforeInsert(var Opportunity: Record Opportunity; SegmentLine: Record "Segment Line")
     begin
     end;
 }

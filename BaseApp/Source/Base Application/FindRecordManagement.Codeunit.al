@@ -242,10 +242,13 @@ codeunit 703 "Find Record Management"
         end;
 
         // Try FINDLAST record with similar "Description"
-        if FindRecordWithSimilarName(RecRef, SearchText, SearchFieldNo[2]) then begin
-            Result := SearchFieldRef[1].Value;
-            exit(1);
-        end;
+        IsHandled := false;
+        OnFindRecordByDescriptionAndViewOnBeforeFindRecordWithSimilarName(RecRef, SearchText, SearchFieldNo, IsHandled);
+        if not IsHandled then
+            if FindRecordWithSimilarName(RecRef, SearchText, SearchFieldNo[2]) then begin
+                Result := SearchFieldRef[1].Value;
+                exit(1);
+            end;
 
         // Try find for extension
         MatchCount := 0;
@@ -401,6 +404,11 @@ codeunit 703 "Find Record Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordByDescriptionAndViewOnBeforeFindRecordWithSimilarName(RecRef: RecordRef; var SearchText: Text; var SearchFieldNo: array[4] of Integer; var IsHandled: Boolean)
     begin
     end;
 }

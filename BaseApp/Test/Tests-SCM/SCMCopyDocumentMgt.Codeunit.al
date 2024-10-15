@@ -1298,6 +1298,60 @@ codeunit 137212 "SCM Copy Document Mgt."
         ItemChargeAssignmentSales.TestField("Qty. to Assign", 0.75);
     end;
 
+    [Test]
+    procedure QtyToAssembleToOrderZeroOnSalesOrderCopiedFromDropShipment()
+    var
+        Purchasing: Record Purchasing;
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NewSalesHeader: Record "Sales Header";
+        NewSalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Assemble-to-Order]
+        // [SCENARIO 439592] No error and "Qty. to Assemble to Order" = 0 on a sales order line copied from the existing one for drop shipment.
+        Initialize();
+
+        // [GIVEN] Purchasing code "P" for drop shipment.
+        LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
+
+        // [GIVEN] New assembly item set up for assemble-to-order.
+        // [GIVEN] Set "Purchasing Code" = "P" on the item.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Validate("Purchasing Code", Purchasing.Code);
+        AsmItem.Modify(true);
+
+        // [GIVEN] Create component item and post it to inventory.
+        LibraryAssembly.CreateAssemblyList(AsmItem."Costing Method", AsmItem."No.", true, 1, 0, 0, 1, '', '');
+        CompItem.Get(FindComponentItem(AsmItem."No."));
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", '', '', LibraryRandom.RandIntInRange(100, 200));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order. Ensure that "Purchasing Code" = "P" and "Qty. to Assemble to Order" = 0.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          AsmItem."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        SalesLine.TestField("Purchasing Code", Purchasing.Code);
+        SalesLine.TestField("Qty. to Assemble to Order", 0);
+
+        // [WHEN] Create a new sales order and copy it from the previous one.
+        LibrarySales.CreateSalesHeader(
+          NewSalesHeader, NewSalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Order, SalesHeader."No.", NewSalesHeader);
+
+        // [THEN] The new sales line has "Purchasing Code" = "P" and "Qty. to Assemble to Order" = 0.
+        NewSalesLine.SetRange(Type, NewSalesLine.Type::Item);
+        FindSalesLine(NewSalesHeader, NewSalesLine);
+        NewSalesLine.TestField("Purchasing Code", Purchasing.Code);
+        NewSalesLine.TestField(Quantity, SalesLine.Quantity);
+        NewSalesLine.TestField("Qty. to Assemble to Order", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

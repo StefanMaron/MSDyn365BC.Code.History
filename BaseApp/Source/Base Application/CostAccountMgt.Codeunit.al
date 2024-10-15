@@ -51,7 +51,14 @@ codeunit 1100 "Cost Account Mgt"
         ArrayExceededErr: Label 'You can only indent %1 levels for entities of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
     procedure GetCostTypesFromChartOfAccount()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCostTypesFromChartOfAccount(IsHandled);
+        if IsHandled then
+            exit;
+
         if not Confirm(Text000, true) then
             Error('');
 
@@ -68,46 +75,45 @@ codeunit 1100 "Cost Account Mgt"
         RecsCreated := 0;
         Window.Open(Text002);
 
-        with GLAcc do begin
-            Reset();
-            SetRange("Income/Balance", "Income/Balance"::"Income Statement");
-            if Find('-') then
-                repeat
-                    GetCostType("No.", CostTypeExists);
-                    Window.Update(1, "No.");
-                    NoOfGLAcc := NoOfGLAcc + 1;
+        GLAcc.Reset();
+        GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
+        OnGetCostTypesFromChartDirectOnAfterSetFilters(GLAcc);
+        if GLAcc.Find('-') then
+            repeat
+                GetCostType(GLAcc."No.", CostTypeExists);
+                Window.Update(1, GLAcc."No.");
+                NoOfGLAcc := NoOfGLAcc + 1;
 
-                    CostType.Init();
-                    CostType."No." := "No.";
-                    CostType.Name := Name;
-                    CostType."Search Name" := "Search Name";
-                    CostType.Type := "Account Type";
-                    CostType.Blocked := "Account Type" <> "Account Type"::Posting;
-                    CostType."Cost Center Code" := GetCostCenterCodeFromDefDim(DATABASE::"G/L Account", "No.");
-                    if not CostCenterExists(CostType."Cost Center Code") then
-                        CostType."Cost Center Code" := '';
-                    CostType."Cost Object Code" := GetCostObjectCodeFromDefDim(DATABASE::"G/L Account", "No.");
-                    if not CostObjectExists(CostType."Cost Object Code") then
-                        CostType."Cost Object Code" := '';
-                    CostType."New Page" := "New Page";
-                    if "No. of Blank Lines" > 0 then
-                        CostType."Blank Line" := true;
-                    CostType.Totaling := Totaling;
-                    CostType."Modified Date" := Today;
-                    if "Account Type" = "Account Type"::Posting then
-                        CostType."G/L Account Range" := "No."
-                    else
-                        CostType."G/L Account Range" := '';
-                    OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(GLAcc, CostType, CostTypeExists);
-                    if not CostTypeExists then
-                        if CostType.Insert() then begin
-                            RecsCreated := RecsCreated + 1;
-                            "Cost Type No." := "No.";
-                        end;
-                    Modify();
-                until Next() = 0;
-            Window.Close();
-        end;
+                CostType.Init();
+                CostType."No." := GLAcc."No.";
+                CostType.Name := GLAcc.Name;
+                CostType."Search Name" := GLAcc."Search Name";
+                CostType.Type := GLAcc."Account Type";
+                CostType.Blocked := GLAcc."Account Type" <> GLAcc."Account Type"::Posting;
+                CostType."Cost Center Code" := GetCostCenterCodeFromDefDim(DATABASE::"G/L Account", GLAcc."No.");
+                if not CostCenterExists(CostType."Cost Center Code") then
+                    CostType."Cost Center Code" := '';
+                CostType."Cost Object Code" := GetCostObjectCodeFromDefDim(DATABASE::"G/L Account", GLAcc."No.");
+                if not CostObjectExists(CostType."Cost Object Code") then
+                    CostType."Cost Object Code" := '';
+                CostType."New Page" := GLAcc."New Page";
+                if GLAcc."No. of Blank Lines" > 0 then
+                    CostType."Blank Line" := true;
+                CostType.Totaling := GLAcc.Totaling;
+                CostType."Modified Date" := Today;
+                if GLAcc."Account Type" = GLAcc."Account Type"::Posting then
+                    CostType."G/L Account Range" := GLAcc."No."
+                else
+                    CostType."G/L Account Range" := '';
+                OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(GLAcc, CostType, CostTypeExists);
+                if not CostTypeExists then
+                    if CostType.Insert() then begin
+                        RecsCreated := RecsCreated + 1;
+                        GLAcc."Cost Type No." := GLAcc."No.";
+                    end;
+                GLAcc.Modify();
+            until GLAcc.Next() = 0;
+        Window.Close();
 
         IndentCostTypes(true);
 
@@ -143,19 +149,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         UpdateCostType: Boolean;
     begin
-        if GLAcc."Income/Balance" <> GLAcc."Income/Balance"::"Income Statement" then
-            exit;
-
-        if (CallingTrigger = CallingTrigger::OnModify) and (Format(GLAcc) = Format(xGLAcc)) then
-            exit;
-
-        if not CostAccSetup.Get() then
-            exit;
-
-        if CostType.Get(GLAcc."No.") and (GLAcc."Cost Type No." = '') then
-            exit;
-
-        if not CheckAlignment(GLAcc, CallingTrigger) then
+        if ShouldNotUpdateCostTypeFromGLAcc(GLAcc, xGLAcc, CostAccSetup, CallingTrigger) then
             exit;
 
         case CallingTrigger of
@@ -212,14 +206,28 @@ codeunit 1100 "Cost Account Mgt"
         Message(Text017, CostType.TableCaption(), GLAcc."No.");
     end;
 
+    local procedure ShouldNotUpdateCostTypeFromGLAcc(var GLAcc: Record "G/L Account"; var xGLAcc: Record "G/L Account"; var CostAccSetup: Record "Cost Accounting Setup"; CallingTrigger: Option OnInsert,OnModify,,OnRename) ShouldNotUpdate: Boolean
+    begin
+        ShouldNotUpdate :=
+            (GLAcc."Income/Balance" <> GLAcc."Income/Balance"::"Income Statement") or
+            ((CallingTrigger = CallingTrigger::OnModify) and (Format(GLAcc) = Format(xGLAcc))) or
+            (not CostAccSetup.Get()) or
+            (CostType.Get(GLAcc."No.") and (GLAcc."Cost Type No." = '')) or
+            (not CheckAlignment(GLAcc, CallingTrigger));
+
+        OnAfterShouldNotUpdateCostTypeFromGLAcc(GLAcc, xGLAcc, CostAccSetup, CallingTrigger, ShouldNotUpdate);
+    end;
+
     procedure UpdateCostCenterFromDim(var DimValue: Record "Dimension Value"; var xDimValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
     var
         CostCenter: Record "Cost Center";
+        IsHandled: Boolean;
     begin
         CostAccSetup.Get();
-        if not CanUpdate(CostAccSetup."Align Cost Center Dimension", CostAccSetup."Align Cost Center Dimension"::"No Alignment",
-             CostAccSetup."Align Cost Center Dimension"::Prompt, DimValue, CostAccSetup."Cost Center Dimension", CallingTrigger,
-             CostCenter.TableCaption())
+        if not CanUpdate(
+            CostAccSetup."Align Cost Center Dimension", CostAccSetup."Align Cost Center Dimension"::"No Alignment",
+            CostAccSetup."Align Cost Center Dimension"::Prompt, DimValue, CostAccSetup."Cost Center Dimension", CallingTrigger,
+            CostCenter.TableCaption())
         then
             exit;
 
@@ -247,12 +255,17 @@ codeunit 1100 "Cost Account Mgt"
         end;
 
         IndentCostCenters();
-        Message(Text017, CostCenter.TableCaption(), DimValue.Code);
+
+        IsHandled := false;
+        OnUpdateCostCenterFromDimOnBeforeMessage(IsHandled);
+        if not IsHandled then
+            Message(Text017, CostCenter.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostObjectFromDim(var DimValue: Record "Dimension Value"; var xDimValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
     var
         CostObject: Record "Cost Object";
+        IsHandled: Boolean;
     begin
         CostAccSetup.Get();
         if not CanUpdate(CostAccSetup."Align Cost Object Dimension", CostAccSetup."Align Cost Object Dimension"::"No Alignment",
@@ -285,7 +298,10 @@ codeunit 1100 "Cost Account Mgt"
         end;
 
         IndentCostCenters();
-        Message(Text017, CostObject.TableCaption(), DimValue.Code);
+        IsHandled := false;
+        OnUpdateCostObjectFromDimOnBeforeMessage(IsHandled);
+        if not IsHandled then
+            Message(Text017, CostObject.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostTypeFromDefaultDimension(var DefaultDim: Record "Default Dimension"; var GLAcc: Record "G/L Account"; CallingTrigger: Option OnInsert,OnModify,OnDelete)
@@ -383,6 +399,7 @@ codeunit 1100 "Cost Account Mgt"
                 NoOfCostTypes := NoOfCostTypes + 1;
                 GLAcc.SetFilter("No.", CostType."G/L Account Range");
                 GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
+                OnLinkCostTypesToGLAccountsOnAfterSetFilters(GLAcc);
                 if GLAcc.FindSet() then
                     repeat
                         if GLAcc."Cost Type No." <> '' then begin
@@ -913,6 +930,7 @@ codeunit 1100 "Cost Account Mgt"
                     GLAcc.Reset();
                     GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
                     GLAcc.SetFilter("No.", CostType."G/L Account Range");
+                    OnGetCostTypeOnAfterSetFilters(GLAcc);
                     if GLAcc.FindSet() then
                         repeat
                             if GLAccNo = GLAcc."No." then
@@ -957,6 +975,11 @@ codeunit 1100 "Cost Account Mgt"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetCostTypesFromChartOfAccount(var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCostCenterCodeFromDimSet(DimSetID: Integer; var Result: Code[20]; var IsHandled: Boolean)
     begin
@@ -969,6 +992,36 @@ codeunit 1100 "Cost Account Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(var GLAccount: Record "G/L Account"; var CostType: Record "Cost Type"; var CostTypeExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCostTypeOnAfterSetFilters(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkCostTypesToGLAccountsOnAfterSetFilters(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldNotUpdateCostTypeFromGLAcc(var GLAccount: Record "G/L Account"; var xGLAccount: Record "G/L Account"; var CostAccSetup: Record "Cost Accounting Setup"; CallingTrigger: Option OnInsert,OnModify,,OnRename; var ShouldNotUpdate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostCenterFromDimOnBeforeMessage(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostObjectFromDimOnBeforeMessage(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCostTypesFromChartDirectOnAfterSetFilters(var GLAccount: Record "G/L Account")
     begin
     end;
 }

@@ -344,10 +344,7 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     local procedure CheckMultiLevelStructure(Direction: Option Forward,Backward; MultiLevel: Boolean; LetDueDateDecrease: Boolean)
     var
-        Item: Record Item;
-        SKU: Record "Stockkeeping Unit";
         MultiLevelStructureCreated: Boolean;
-        IncreasePlanningLevel: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -361,22 +358,11 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderComp.SetFilter("Item No.", '<>%1', '');
         if ProdOrderComp.FindSet(true) then
             repeat
-                if ProdOrderComp."Planning Level Code" = 0 then begin
-                    IncreasePlanningLevel := false;
-                    if SKU.Get(ProdOrderComp."Location Code", ProdOrderComp."Item No.", ProdOrderComp."Variant Code") then
-                        IncreasePlanningLevel :=
-                          (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
-                          (SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order")
-                    else begin
-                        Item.Get(ProdOrderComp."Item No.");
-                        IncreasePlanningLevel :=
-                          (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and Item.IsMfgItem();
-                    end;
-                    if IncreasePlanningLevel then begin
+                if ProdOrderComp."Planning Level Code" = 0 then
+                    if ShouldIncreasePlanningLevel(ProdOrderComp) then begin
                         ProdOrderComp."Planning Level Code" := 1;
                         ProdOrderComp.Modify(true);
                     end;
-                end;
                 if ProdOrderComp."Planning Level Code" > 0 then
                     MultiLevelStructureCreated :=
                       MultiLevelStructureCreated or
@@ -384,6 +370,23 @@ codeunit 99000787 "Create Prod. Order Lines"
             until ProdOrderComp.Next() = 0;
         if MultiLevelStructureCreated then
             ReserveMultiLevelStructure(ProdOrderComp);
+    end;
+
+    local procedure ShouldIncreasePlanningLevel(ProdOrderComp: Record "Prod. Order Component") IncreasePlanningLevel: Boolean
+    var
+        Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        if StockkeepingUnit.Get(ProdOrderComp."Location Code", ProdOrderComp."Item No.", ProdOrderComp."Variant Code") then
+            IncreasePlanningLevel :=
+              (StockkeepingUnit."Manufacturing Policy" = StockkeepingUnit."Manufacturing Policy"::"Make-to-Order") and
+              (StockkeepingUnit."Replenishment System" = StockkeepingUnit."Replenishment System"::"Prod. Order")
+        else begin
+            Item.Get(ProdOrderComp."Item No.");
+            IncreasePlanningLevel :=
+              (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and Item.IsMfgItem();
+        end;
+        OnAfterShouldIncreasePlanningLevel(ProdOrderComp, StockkeepingUnit, IncreasePlanningLevel);
     end;
 
     local procedure CheckMakeOrderLine(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; Direction: Option Forward,Backward; MultiLevel: Boolean; LetDueDateDecrease: Boolean): Boolean
@@ -626,6 +629,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReserveMultiLevelStructureComp(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldIncreasePlanningLevel(ProdOrderComp: Record "Prod. Order Component"; StockkeepingUnit: Record "Stockkeeping Unit"; var IncreasePlanningLevel: Boolean)
     begin
     end;
 

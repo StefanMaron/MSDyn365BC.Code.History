@@ -68,7 +68,7 @@ page 975 "Time Sheet Archive Card"
                 ApplicationArea = Comments;
                 Caption = 'Comments';
                 Image = ViewComments;
-                RunObject = Page "Time Sheet Comment Sheet";
+                RunObject = Page "Time Sheet Arc. Comment Sheet";
                 RunPageLink = "No." = FIELD("No."),
                                   "Time Sheet Line No." = CONST(0);
                 ToolTip = 'View comments about the time sheet.';

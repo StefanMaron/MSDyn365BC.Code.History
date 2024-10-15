@@ -1,7 +1,7 @@
 profile "EMPLOYEE"
 {
     Caption = 'Employee';
-    ProfileDescription = 'Gives people who have a license for Teams read-only access to data in Business Central.';
+    ProfileDescription = 'An employee within the organization that does not have a specific role in Business Central, and typically only views data that others have shared with them.';
     RoleCenter = "Blank Role Center";
     Enabled = false;
 }

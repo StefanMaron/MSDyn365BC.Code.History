@@ -181,16 +181,33 @@ page 9837 "Permission Set by User Group"
         }
         area(factboxes)
         {
+#if not CLEAN22
             part(Control23; "Permissions FactBox")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
+                ObsoleteTag = '22.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Permissions';
+                Editable = false;
                 SubPageLink = "Role ID" = FIELD("Role ID");
+                Visible = false;
             }
             part("Tenant Permissions"; "Tenant Permissions FactBox")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
+                ObsoleteTag = '22.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Tenant Permissions';
+                Editable = false;
+                Visible = false;
+            }
+#endif
+            part(ExpandedPermissions; "Expanded Permissions FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Permissions';
                 Editable = false;
                 SubPageLink = "Role ID" = FIELD("Role ID"),
                               "App ID" = FIELD("App ID");
