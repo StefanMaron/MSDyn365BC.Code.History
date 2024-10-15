@@ -13,6 +13,10 @@
         {
             Caption = 'Description';
         }
+        field(3; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';	
+        }
     }
 
     keys

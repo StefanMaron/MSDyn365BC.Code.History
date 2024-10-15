@@ -1,4 +1,4 @@
-codeunit 99000889 AvailabilityManagement
+﻿codeunit 99000889 AvailabilityManagement
 {
     Permissions = TableData "Sales Line" = r,
                   TableData "Purchase Line" = r,
@@ -150,9 +150,9 @@ codeunit 99000889 AvailabilityManagement
 
     procedure CalcCapableToPromise(var OrderPromisingLine: Record "Order Promising Line"; var OrderPromisingID: Code[20])
     var
-        SalesLine: Record "Sales Line";
-        ServLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
+        SalesLine2: Record "Sales Line";
+        ServLine2: Record "Service Line";
+        JobPlanningLine2: Record "Job Planning Line";
         CapableToPromise: Codeunit "Capable to Promise";
         QtyReservedTotal: Decimal;
         OldCTPQty: Decimal;
@@ -168,12 +168,12 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                                SalesLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := SalesLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(SalesLine."Document No.", SalesLine."Line No.", 0, false);
-                                SalesLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - SalesLine."Reserved Quantity";
+                                SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.");
+                                SalesLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := SalesLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(SalesLine2."Document No.", SalesLine2."Line No.", 0, false);
+                                SalesLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - SalesLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromise(
                                     "Item No.", "Variant Code", "Location Code",
@@ -191,12 +191,12 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                ServLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                                ServLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := ServLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(ServLine."Document No.", ServLine."Line No.", 0, false);
-                                ServLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - ServLine."Reserved Quantity";
+                                ServLine2.Get("Source Subtype", "Source ID", "Source Line No.");
+                                ServLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := ServLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(ServLine2."Document No.", ServLine2."Line No.", 0, false);
+                                ServLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - ServLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromise(
                                     "Item No.", "Variant Code", "Location Code",
@@ -214,15 +214,16 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                JobPlanningLine.Reset();
-                                JobPlanningLine.SetRange(Status, "Source Subtype");
-                                JobPlanningLine.SetRange("Job No.", "Source ID");
-                                JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                                JobPlanningLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := JobPlanningLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", 0, false);
-                                JobPlanningLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - JobPlanningLine."Reserved Quantity";
+                                JobPlanningLine2.Reset();
+                                JobPlanningLine2.SetRange(Status, "Source Subtype");
+                                JobPlanningLine2.SetRange("Job No.", "Source ID");
+                                JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
+                                JobPlanningLine2.FindFirst();
+                                JobPlanningLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := JobPlanningLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", 0, false);
+                                JobPlanningLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - JobPlanningLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromise(
                                     "Item No.", "Variant Code", "Location Code",
@@ -328,25 +329,25 @@ codeunit 99000889 AvailabilityManagement
 
     local procedure GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine: Record "Order Promising Line"): Date
     var
-        SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
+        SalesLine2: Record "Sales Line";
+        ServiceLine2: Record "Service Line";
+        JobPlanningLine2: Record "Job Planning Line";
     begin
         with OrderPromisingLine do
             case "Source Type" of
                 "Source Type"::Sales:
-                    if SalesLine.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(SalesLine."Requested Delivery Date");
+                    if SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(SalesLine2."Requested Delivery Date");
                 "Source Type"::"Service Order":
-                    if ServiceLine.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(ServiceLine."Requested Delivery Date");
+                    if ServiceLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(ServiceLine2."Requested Delivery Date");
                 "Source Type"::Job:
                     begin
-                        JobPlanningLine.SetRange(Status, "Source Subtype");
-                        JobPlanningLine.SetRange("Job No.", "Source ID");
-                        JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                        if JobPlanningLine.FindFirst then
-                            exit(JobPlanningLine."Requested Delivery Date");
+                        JobPlanningLine2.SetRange(Status, "Source Subtype");
+                        JobPlanningLine2.SetRange("Job No.", "Source ID");
+                        JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
+                        if JobPlanningLine2.FindFirst() then
+                            exit(JobPlanningLine2."Requested Delivery Date");
                     end;
             end;
         exit(0D);

@@ -353,7 +353,7 @@
         field(52; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(53; "No. Series"; Code[20])
         {

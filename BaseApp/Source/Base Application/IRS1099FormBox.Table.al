@@ -95,8 +95,8 @@ table 10010 "IRS 1099 Form-Box"
                 InsertIRS1099('DIV-07', 'Foreign tax paid', -1.0);
                 InsertIRS1099('DIV-09', 'Cash liquidation distributions', 600.0);
                 InsertIRS1099('DIV-10', 'Noncash liquidation distributions', 600.0);
-                InsertIRS1099('DIV-11', 'Exempt-interest dividends', 0.0);
-                InsertIRS1099('DIV-12', 'Specified private activity bond interest dividends', 0.0);
+                InsertIRS1099('DIV-12', 'Exempt-interest dividends', 0.0);
+                InsertIRS1099('DIV-13', 'Specified private activity bond interest dividends', 0.0);
                 InsertIRS1099('INT', 'Interest Income', 0.0);
                 InsertIRS1099('INT-01', 'Interest income', 10.0);
                 InsertIRS1099('INT-02', 'Early withdrawal penalty', -1.0);
@@ -123,9 +123,9 @@ table 10010 "IRS 1099 Form-Box"
                 InsertIRS1099('MISC-10', 'Gross proceeds paid to an attorney', 0.0);
                 InsertIRS1099('MISC-11', 'Fish purchased for resale', 600.0);
                 InsertIRS1099('MISC-12', 'Section 409A deferrals', 600.0);
-                InsertIRS1099('MISC-13', 'Excess golden parachute payments', 0.0);
-                InsertIRS1099('MISC-14', 'Nonqualified deferred compensation', 0.0);
-                InsertIRS1099('MISC-15', 'State tax withheld', 0.0);
+                InsertIRS1099('MISC-14', 'Excess golden parachute payments', 0.0);
+                InsertIRS1099('MISC-15', 'Nonqualified deferred compensation', 0.0);
+                InsertIRS1099('MISC-16', 'State tax withheld', 0.0);
                 InsertIRS1099('NEC-01', 'Nonemployee compensation', 600.0);
                 InsertIRS1099(
                   'NEC-02', 'Payer made direct sales totaling $5,000 or more of consumer products to recipient for resale', 5000.0);

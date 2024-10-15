@@ -2885,6 +2885,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IRS 1099 Upgrade Test - NamedType Upgrade2021Lbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4088299161 - NamedType 211352020" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[2022]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IRS 1099 Upgrade Test - NamedType Upgrade2022Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4088299161 - NamedType 2081159471" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.]]></Val>
