@@ -98,6 +98,7 @@ page 12112 "Withholding Tax Card"
                 field("Non-Taxable Income Type"; "Non-Taxable Income Type")
                 {
                     ApplicationArea = Basic, Suite;
+                    OptionCaption = ' ,,,5,6,7';
                     ToolTip = 'Specifies the type of non-taxable income.';
                 }
             }

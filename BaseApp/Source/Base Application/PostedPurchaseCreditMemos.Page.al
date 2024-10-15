@@ -1,4 +1,4 @@
-﻿page 147 "Posted Purchase Credit Memos"
+page 147 "Posted Purchase Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Credit Memos';
@@ -70,9 +70,10 @@
                         DoDrillDown;
                     end;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; "Document Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Remaining Amount';
                     ToolTip = 'Specifies the amount that remains to be paid for the posted purchase invoice that relates to this purchase credit memo.';
                 }
                 field(Paid; Paid)

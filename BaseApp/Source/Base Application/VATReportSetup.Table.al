@@ -106,6 +106,10 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Spesometro Communication ID';
         }
+        field(12151; "Filter Datifattura Lines"; Boolean)
+        {
+            Caption = 'Filter Datifattura Lines';
+        }
     }
 
     keys

@@ -357,6 +357,40 @@ codeunit 144094 "UT PAG Withhold"
         ComputedWithholdingTaxPage.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonTaxableIncomeTypeUT()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 331670] Withholding tax card has only following options for Non-Taxable Income Visible: ' ,5,6,7' and they are equal to corresponding Tab values
+        Initialize;
+
+        // [GIVEN] Withholding Tax Card page was open
+        WithholdingTaxCard.OpenNew;
+
+        // [THEN] There are 4 options visible in the Non-Taxable Income Type
+        Assert.AreEqual(4, WithholdingTaxCard."Non-Taxable Income Type".OptionCount, 'There must be exactly 4 options in this field');
+
+        // [THEN] Empty option equals to tab empty option
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(1));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::" ");
+
+        // [THEN] First option is tab option "5"
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(2));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"5");
+
+        // [THEN] Second option is tab option "6"
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(3));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"6");
+
+        // [THEN] Third option is tab option "7"
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(4));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"7");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

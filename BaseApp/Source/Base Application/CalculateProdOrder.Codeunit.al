@@ -386,6 +386,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
+        OnCalculateRoutingFromActualOnAfterSetProdOrderRoutingLineFilters(ProdOrderRoutingLine);
         repeat
             if CalcStartEndDate and not ProdOrderRoutingLine."Schedule Manually" then
                 if ((Direction = Direction::Forward) and (ProdOrderRoutingLine."Previous Operation No." <> '')) or
@@ -544,7 +545,10 @@ codeunit 99000773 "Calculate Prod. Order"
     begin
         ProdOrderLine := ProdOrderLine2;
 
-        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry);
+        IsHandled := false;
+        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry, Direction, CalcRouting, CalcComponents, DeleteRelations, LetDueDateDecrease, IsHandled);
+        if IsHandled then
+            exit;
 
         if ProdOrderLine.Status = ProdOrderLine.Status::Released then begin
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
@@ -901,7 +905,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry")
+    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -962,6 +966,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateProdOrderDatesOnSetBeforeDueDate(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingFromActualOnAfterSetProdOrderRoutingLineFilters(var ProdOrderRoutingLine: Record "Prod. Order Routing Line");
     begin
     end;
 

@@ -199,11 +199,16 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     local procedure CheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item)
+    var
+        IsHandled: Boolean;
     begin
         with PhysInvtOrderLine do begin
             CheckLine;
             Item.Get("Item No.");
             Item.TestField(Blocked, false);
+
+            IsHandled := false;
+            OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, PhysInvtOrderLine2, ErrorText, IsHandled);
             if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
                  "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
             then
@@ -495,6 +500,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
                       ItemJnlLine, OriginalQuantityBase, OriginalQuantityBase, false); // Negative
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"; var ErrorText: Text[250]; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

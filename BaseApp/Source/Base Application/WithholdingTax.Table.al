@@ -162,8 +162,8 @@ table 12116 "Withholding Tax"
         field(53; "Non-Taxable Income Type"; Option)
         {
             Caption = 'Non-Taxable Income Type';
-            OptionCaption = ' ,1,2,5,6';
-            OptionMembers = " ","1","2","5","6";
+            OptionCaption = ' ,1,2,5,6,7';
+            OptionMembers = " ","1","2","5","6","7";
         }
     }
 

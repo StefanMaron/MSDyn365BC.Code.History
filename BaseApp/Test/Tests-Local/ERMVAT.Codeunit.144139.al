@@ -58,6 +58,7 @@ codeunit 144139 "ERM VAT"
         CaptionMsg: Label 'Caption must be same.';
         EntryDoesNotExistErr: Label '%1 with filters %2 does not exist.';
         WrongValueErr: Label 'Wrong value of field %2 in table %1.';
+        LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
 
     [Test]
@@ -560,6 +561,288 @@ codeunit 144139 "ERM VAT"
         Assert.ExpectedError('There is no Vendor Ledger Entry within the filter.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInSalesOrderWithSellToByFrom()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [VAT]
+        // [SCENARIO 332002] In new sales order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Sell-to/Buy-from No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with sales type was created.
+        CreateVateRegisterWithSalesType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Sales Order "S" was created.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "S"
+        SalesHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "S"
+        Assert.AreEqual(SalesHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'SalesHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "S"
+        Assert.AreEqual(SalesHeader."Operation Type", NoSeries.Code, 'SalesHeader."Operation Type"');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInPurchaseOrderWithSellToByFrom()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [VAT]
+        // [SCENARIO 332002] In new purchase order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Sell-to/Buy-from No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with purchase type was created.
+        CreateVateRegisterWithPurchaseType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Purchase);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Purch. Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Purchase Order "P" was created.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "P"
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "P"
+        Assert.AreEqual(PurchaseHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'PurchaseHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "P"
+        Assert.AreEqual(PurchaseHeader."Operation Type", NoSeries.Code, 'PurchaseHeader."Operation Type"');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInServiceOrderWithSellToByFrom()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service] [VAT]
+        // [SCENARIO 332002] In new service order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Sell-to/Buy-from No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with sales type was created.
+        CreateVateRegisterWithSalesType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Servise Order "S" was created.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "S"
+        ServiceHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "S"
+        Assert.AreEqual(ServiceHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'PurchaseHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "S"
+        Assert.AreEqual(ServiceHeader."Operation Type", NoSeries.Code, 'PurchaseHeader."Operation Type"');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInSalesOrderWithBillToPayTo()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [VAT]
+        // [SCENARIO 332002] In new sales order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Bill-to/Pay-to No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with sales type was created.
+        CreateVateRegisterWithSalesType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Sales Order "S" was created.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "S"
+        SalesHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        SalesHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "S"
+        Assert.AreEqual(SalesHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'SalesHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "S"
+        Assert.AreEqual(SalesHeader."Operation Type", NoSeries.Code, 'SalesHeader."Operation Type"');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInPurchaseOrderWithBillToPayTo()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [VAT]
+        // [SCENARIO 332002] In new purchase order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Bill-to/Pay-to No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with purchase type was created.
+        CreateVateRegisterWithPurchaseType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Purchase);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Purch. Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Purchase Order "P" was created.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "P"
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "P"
+        Assert.AreEqual(PurchaseHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'PurchaseHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "P"
+        Assert.AreEqual(PurchaseHeader."Operation Type", NoSeries.Code, 'PurchaseHeader."Operation Type"');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangedVATBusPostingGroupInServiceOrderWithBillToPayTo()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATRegister: Record "VAT Register";
+        NoSeries: Record "No. Series";
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service] [VAT]
+        // [SCENARIO 332002] In new service order VAT Bus. Posting Group is changed to new custom created.
+        // [GIVEN] The field "Bill-to/Sell-to VAT Calc." from General Ledger Setup was set up to "Bill-to/Pay-to No.";
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] VAT Register "V" with sales type was created.
+        CreateVateRegisterWithSalesType(VATRegister);
+
+        // [GIVEN] No Series "N" was created with assigned "V".
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
+        NoSeries.Validate("No. Series Type", NoSeries."No. Series Type"::Sales);
+        NoSeries.Validate("VAT Register", VATRegister.Code);
+        NoSeries.Modify(true);
+
+        // [GIVEN] VATBusinessPostingGroup "VB" was created with "N" as "Default Sales Operation Type".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", NoSeries.Code);
+        VATBusinessPostingGroup.Modify(true);
+
+        // [GIVEN] Servise Order "S" was created.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] "VAT Bus. Posting Group" is changed to "VB" in "S"
+        ServiceHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        ServiceHeader.Modify(true);
+
+        // [THEN] "VAT Bus. Posting Group" should be "VB" in "S"
+        Assert.AreEqual(ServiceHeader."VAT Bus. Posting Group", VATBusinessPostingGroup.Code, 'PurchaseHeader."VAT Bus. Posting Group"');
+
+        // [THEN] "Operation Type" should be "N" in "S"
+        Assert.AreEqual(ServiceHeader."Operation Type", NoSeries.Code, 'PurchaseHeader."Operation Type"');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1002,6 +1285,28 @@ codeunit 144139 "ERM VAT"
         ServiceInvoiceLine.SetRange("No.", No);
         ServiceInvoiceLine.FindFirst;
         ServiceInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
+    end;
+
+    local procedure CreateVateRegisterWithSalesType(var VATRegister: Record "VAT Register")
+    begin
+        with VATRegister do begin
+            Init;
+            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
+            Description := Code;
+            Type := Type::Sale;
+            Insert;
+        end;
+    end;
+
+    local procedure CreateVateRegisterWithPurchaseType(var VATRegister: Record "VAT Register")
+    begin
+        with VATRegister do begin
+            Init;
+            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
+            Description := Code;
+            Type := Type::Purchase;
+            Insert;
+        end;
     end;
 
     [RequestPageHandler]

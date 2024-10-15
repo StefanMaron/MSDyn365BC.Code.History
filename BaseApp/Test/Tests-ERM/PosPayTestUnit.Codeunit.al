@@ -11,6 +11,8 @@ codeunit 134800 "Pos. Pay Test Unit"
 
     var
         LibraryRandom: Codeunit "Library - Random";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
+        Assert: Codeunit Assert;
 
     [Test]
     [Scope('OnPrem')]
@@ -293,6 +295,28 @@ codeunit 134800 "Pos. Pay Test Unit"
         // [THEN] Validation
         CheckLedgerEntry.TestField("Data Exch. Entry No.", DataExch."Entry No.");
         CheckLedgerEntry.TestField("Data Exch. Voided Entry No.", DataExch."Entry No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCheckLedgerEntryGetPayeeEmployee()
+    var
+        Employee: Record Employee;
+        CheckLedgerEntry: Record "Check Ledger Entry";
+    begin
+        // [SCENARIO 327363] GetPayee function of "Check Ledger Entry" returns employee's full name if "Bal. Account Type" is "Employee" and "Bal. Account No." has been specified
+        // [FEATURE] [UT] [Check Ledger Entry] [Employee]
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee."First Name" := 'A';
+        Employee."Middle Name" := 'B';
+        Employee."Last Name" := 'C';
+        Employee.Modify;
+
+        CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Employee;
+        CheckLedgerEntry."Bal. Account No." := Employee."No.";
+
+        Assert.AreEqual('A B C', CheckLedgerEntry.GetPayee, 'Invalid GetPayee function resuly');
+        Assert.AreEqual('A B C', Employee.FullName, 'Employee name must not be blank');
     end;
 }
 

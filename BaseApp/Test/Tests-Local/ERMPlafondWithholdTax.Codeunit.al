@@ -359,6 +359,41 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         WithholdingTax.TestField("Non Taxable Amount", Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorBillWithhTaxPostedVendorBillListNo()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 331142] "Vendor Bill List" and "Vendor Bill No." are not blank on Vendor Ledger Entry after Issued Vendor Bill is posted
+        Initialize;
+
+        // [GIVEN] Posted Purchase Invoice with Withholding Tax
+        CreateVendorWithholdCode(Vendor);
+        CreateAndPostPurchaseInvoiceForVendor(PurchaseHeader, Vendor."No.", Vendor."Withholding Tax Code");
+
+        // [GIVEN] Issued Vendor Bill for Purchase Invoice
+        VendorBillHeader.Get(CreateVendorBillHeader);
+        RunSuggestVendorBills(VendorBillHeader, Vendor."No.");
+        LibraryITLocalization.IssueVendorBill(VendorBillHeader);
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.FindFirst;
+
+        // [WHEN] Post Issued Vendor Bill
+        LibraryITLocalization.PostIssuedVendorBill(VendorBillHeader);
+
+        // [THEN] "Vendor Bill List" and "Vendor Bill No." are not blank on Vendor Ledger Entry
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.TestField("Vendor Bill List", VendorBillHeader."Vendor Bill List No.");
+        VendorLedgerEntry.TestField("Vendor Bill No.", VendorBillLine."Vendor Bill No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

@@ -57,27 +57,10 @@ page 5756 "Transfer Shipment Statistics"
     }
 
     trigger OnAfterGetRecord()
-    var
-        TransShptLine: Record "Transfer Shipment Line";
     begin
         ClearAll;
 
-        TransShptLine.SetRange("Document No.", "No.");
-
-        if TransShptLine.Find('-') then
-            repeat
-                LineQty := LineQty + TransShptLine.Quantity;
-                TotalNetWeight :=
-                  TotalNetWeight + (TransShptLine.Quantity * TransShptLine."Net Weight");
-                TotalGrossWeight :=
-                  TotalGrossWeight + (TransShptLine.Quantity * TransShptLine."Gross Weight");
-                TotalVolume :=
-                  TotalVolume + (TransShptLine.Quantity * TransShptLine."Unit Volume");
-                if TransShptLine."Units per Parcel" > 0 then
-                    TotalParcels :=
-                      TotalParcels +
-                      Round(TransShptLine.Quantity / TransShptLine."Units per Parcel", 1, '>');
-            until TransShptLine.Next = 0;
+        CalculateTotals();
     end;
 
     var
@@ -86,5 +69,39 @@ page 5756 "Transfer Shipment Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        TransShptLine: Record "Transfer Shipment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransShptLine.SetRange("Document No.", "No.");
+        if TransShptLine.Find('-') then
+            repeat
+                LineQty += TransShptLine.Quantity;
+                TotalNetWeight += TransShptLine.Quantity * TransShptLine."Net Weight";
+                TotalGrossWeight += TransShptLine.Quantity * TransShptLine."Gross Weight";
+                TotalVolume += TransShptLine.Quantity * TransShptLine."Unit Volume";
+                if TransShptLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(TransShptLine.Quantity / TransShptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    TransShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until TransShptLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(TransferShipmentHeader: Record "Transfer Shipment Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferShipmentLine: Record "Transfer Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

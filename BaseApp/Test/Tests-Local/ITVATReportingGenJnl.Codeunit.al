@@ -339,7 +339,6 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     end;
 
     [Test]
-    [HandlerFunctions('DocumentNoIsBlankMessageHandler')]
     [Scope('OnPrem')]
     procedure GenJnlManualInclude()
     var
@@ -1318,12 +1317,6 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
 
         VATTransRepAmount.DeleteAll(true);
         EnableUnrealizedVAT(false);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure DocumentNoIsBlankMessageHandler(Message: Text[1024])
-    begin
     end;
 }
 

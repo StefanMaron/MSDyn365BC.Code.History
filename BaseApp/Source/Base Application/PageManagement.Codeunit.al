@@ -178,7 +178,15 @@ codeunit 700 "Page Management"
     end;
 
     procedure GetConditionalListPageID(RecRef: RecordRef): Integer
+    var
+        PageID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetConditionalListPageID(RecRef, PageID, IsHandled);
+        if IsHandled then
+            exit;
+
         case RecRef.Number of
             DATABASE::"Sales Header":
                 exit(GetSalesHeaderListPageID(RecRef));
@@ -445,6 +453,11 @@ codeunit 700 "Page Management"
             exit('');
 
         exit(PageMetadata.Caption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetConditionalListPageID(RecRef: RecordRef; var PageID: Integer; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

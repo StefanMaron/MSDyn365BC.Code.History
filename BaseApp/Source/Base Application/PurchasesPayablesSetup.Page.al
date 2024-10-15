@@ -153,6 +153,12 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies if posted purchase documents can be deleted. If you select this check box, posted purchase documents cannot be deleted.';
                 }
+                field("Notify On Occur. Date Change"; "Notify On Occur. Date Change")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posting Date after Operation Occurred Date notification';
+                    ToolTip = 'Specifies that you will get a notification when changing the Posting Date field to a date later than currently in the Operation Occurred Date field.';
+                }
             }
             group("Number Series")
             {

@@ -1,4 +1,4 @@
-﻿page 144 "Posted Sales Credit Memos"
+page 144 "Posted Sales Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Sales Credit Memos';
@@ -65,10 +65,11 @@
                         DoDrillDown;
                     end;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; "Document Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
+                    Caption = 'Remaining Amount';
+                    ToolTip = 'Specifies the amount that remains to be paid for the posted sales credit memo.';
                 }
                 field(Paid; Paid)
                 {

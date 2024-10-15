@@ -1216,6 +1216,8 @@ table 246 "Requisition Line"
             Caption = 'Starting Time';
 
             trigger OnValidate()
+            var
+                ShouldSetDueDate: Boolean;
             begin
                 TestField(Type, Type::Item);
                 if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
@@ -1224,7 +1226,12 @@ table 246 "Requisition Line"
                     CalcEndingDate('');
 
                 CheckEndingDate(ValidateFields);
-                SetDueDate;
+
+                ShouldSetDueDate := true;
+                OnValidateStartingTimeOnBeforeSetDueDate(Rec, ShouldSetDueDate);
+                if ShouldSetDueDate then
+                    SetDueDate;
+
                 SetActionMessage;
                 UpdateDatetime;
             end;
@@ -1252,6 +1259,8 @@ table 246 "Requisition Line"
             Caption = 'Ending Time';
 
             trigger OnValidate()
+            var
+                ShouldSetDueDate: Boolean;
             begin
                 TestField(Type, Type::Item);
                 if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
@@ -1259,8 +1268,11 @@ table 246 "Requisition Line"
                 else
                     CalcStartingDate('');
 
-                if (CurrFieldNo in [FieldNo("Ending Date"), FieldNo("Ending Date-Time")]) and (CurrentFieldNo <> FieldNo("Due Date")) then
+                ShouldSetDueDate := (CurrFieldNo in [FieldNo("Ending Date"), FieldNo("Ending Date-Time")]) and (CurrentFieldNo <> FieldNo("Due Date"));
+                OnValidateEndingTimeOnBeforeSetDueDate(Rec, ShouldSetDueDate);
+                if ShouldSetDueDate then
                     SetDueDate;
+
                 SetActionMessage;
                 if "Ending Time" = 0T then begin
                     MfgSetup.Get;
@@ -2093,7 +2105,13 @@ table 246 "Requisition Line"
     local procedure CheckEndingDate(ShowWarning: Boolean)
     var
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckEndingDate(Rec, ShowWarning, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckDateConflict.ReqLineCheck(Rec, ShowWarning);
         ReserveReqLine.VerifyChange(Rec, xRec);
     end;
@@ -3017,6 +3035,7 @@ table 246 "Requisition Line"
         Item.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
         SetRange("Planning Line Origin", "Planning Line Origin"::" ");
         SetFilter("Quantity (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;
@@ -3414,6 +3433,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEndingDate(var RequisitionLine: Record "Requisition Line"; var ShowWarning: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultBin(var RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean)
     begin
     end;
@@ -3470,6 +3494,16 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDescriptionFromSalesLine(var RequisitionLine: Record "Requisition Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateEndingTimeOnBeforeSetDueDate(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingTimeOnBeforeSetDueDate(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean);
     begin
     end;
 

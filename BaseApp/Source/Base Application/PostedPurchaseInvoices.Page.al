@@ -1,4 +1,4 @@
-﻿page 146 "Posted Purchase Invoices"
+page 146 "Posted Purchase Invoices"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Invoices';
@@ -226,9 +226,10 @@
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; "Document Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Remaining Amount';
                     ToolTip = 'Specifies the amount that remains to be paid for the posted purchase invoice.';
                 }
                 field(Closed; Closed)

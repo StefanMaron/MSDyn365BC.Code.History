@@ -96,6 +96,16 @@ codeunit 143005 "Library - IT Datifattura"
         CompanyInformation.Modify(true);
     end;
 
+    [Scope('OnPrem')]
+    procedure SetFilterDatifatturaLines(NewValue: Boolean)
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get;
+        VATReportSetup.Validate("Filter Datifattura Lines", NewValue);
+        VATReportSetup.Modify;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 12182, 'OnBeforeSaveFileOnClient', '', false, false)]
     local procedure SetFileNameOnBeforeSaveFileOnClient(var NewServerFilePath: Text)
     var

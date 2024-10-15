@@ -433,7 +433,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>= iif(isnothing(Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5__Control1130209.Value), "  ", Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5__Control1130209.Value)</Value>
+                                  <Value>= iif(isnothing(Fields!CompanyInformation_1_Control1130209.Value), "  ", Fields!CompanyInformation_1_Control1130209.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -588,7 +588,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PrintCompanyInformations2.Value and not isnothing(Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5__Control1130209.Value)</Value>
+                                  <Value>=Fields!PrintCompanyInformations2.Value and not isnothing(Fields!CompanyInformation_1_Control1130209.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -2142,7 +2142,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=iif(isnothing(First(Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5_.Value)), "  ", First(Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5_.Value))</Value>
+                                  <Value>=iif(isnothing(First(Fields!CompanyInformation_1_Control1130214.Value)), "  ", First(Fields!CompanyInformation_1_Control1130214.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -2297,7 +2297,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>= (not isnothing(Fields!CompanyInformation_1____________CompanyInformation_2____________CompanyInformation_3______________Text1046_____CompanyInformation_5_.Value)) And Fields!PrintCompanyInformations1.Value</Value>
+                                  <Value>= (not isnothing(Fields!CompanyInformation_1_Control1130214.Value)) And Fields!PrintCompanyInformations1.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -3969,8 +3969,8 @@ End Function</Code>
         <Field Name="PrintCompanyInformations1">
           <DataField>PrintCompanyInformations1</DataField>
         </Field>
-        <Field Name="DataItem1130214">
-          <DataField>DataItem1130214</DataField>
+        <Field Name="CompanyInformation_1_Control1130214">
+          <DataField>CompanyInformation_1_Control1130214</DataField>
         </Field>
         <Field Name="STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216">
           <DataField>STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216</DataField>
@@ -4125,8 +4125,8 @@ End Function</Code>
         <Field Name="Text10382">
           <DataField>Text10382</DataField>
         </Field>
-        <Field Name="DataItem1130209">
-          <DataField>DataItem1130209</DataField>
+        <Field Name="CompanyInformation_1_Control1130209">
+          <DataField>CompanyInformation_1_Control1130209</DataField>
         </Field>
         <Field Name="CompanyInformation_6__Control1130212">
           <DataField>CompanyInformation_6__Control1130212</DataField>

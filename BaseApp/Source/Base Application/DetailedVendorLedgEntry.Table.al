@@ -205,6 +205,16 @@ table 380 "Detailed Vendor Ledg. Entry"
             Caption = 'Ledger Entry Amount';
             Editable = false;
         }
+        field(12103; "Original Document Type"; Option)
+        {
+            Caption = 'Original Document Type';
+            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
+            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        }
+        field(12104; "Original Document No."; Code[20])
+        {
+            Caption = 'Original Document No.';
+        }
     }
 
     keys
@@ -262,6 +272,7 @@ table 380 "Detailed Vendor Ledg. Entry"
     trigger OnInsert()
     begin
         SetLedgerEntryAmount;
+        SetOriginalDocumentInfo;
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)
@@ -311,6 +322,16 @@ table 380 "Detailed Vendor Ledg. Entry"
         SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
         CalcSums("Amount (LCY)");
         exit("Amount (LCY)");
+    end;
+
+    local procedure SetOriginalDocumentInfo();
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        if VendorLedgerEntry.Get("Vendor Ledger Entry No.") then begin
+            "Original Document Type" := VendorLedgerEntry."Document Type";
+            "Original Document No." := VendorLedgerEntry."Document No.";
+        end;
     end;
 }
 

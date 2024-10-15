@@ -388,6 +388,10 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Prevent Posted Doc. Deletion';
             InitValue = true;
         }
+        field(12182; "Notify On Occur. Date Change"; Boolean)
+        {
+            Caption = 'Notify On Occur. Date Change';
+        }
     }
 
     keys

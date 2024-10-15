@@ -619,6 +619,15 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Fiscal Code';
         }
+        field(12190; "Document Remaining Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Original Document Type" = CONST("Credit Memo"), "Original Document No." = FIELD("No.")));
+            Caption = 'Document Remaining Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys

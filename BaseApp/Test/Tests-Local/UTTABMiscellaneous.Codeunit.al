@@ -56,6 +56,10 @@ codeunit 144126 "UT TAB Miscellaneous"
         RecordExistErr: Label 'Record must not exist.';
         ValueMatchErr: Label 'Values must match.';
         LibraryTablesUT: Codeunit "Library - Tables UT";
+        ValidatePostingDateQst: Label 'Operation Occurred Date will be modified according to Posting Date. Do you want to continue?';
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryService: Codeunit "Library - Service";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -465,6 +469,294 @@ codeunit 144126 "UT TAB Miscellaneous"
           ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Bank Account"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateSalesDisabled()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [UI] [Sales]
+        // [SCENARIO 326053] When the option is disabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - no confirm
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was disabled in setup
+        SetOccurredDateChangeNotifySales(false);
+
+        // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000.
+        SalesHeader.Validate("Posting Date", SalesHeader."Posting Date" + LibraryRandom.RandInt(10));
+
+        // [THEN] The value of Operation Occurred Date is changed
+        SalesHeader.TestField("Operation Occurred Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateSalesConfirmed()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [UI] [Sales]
+        // [SCENARIO 326053] When the option is enabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifySales(true);
+
+        // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000. YES is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(true);
+        SalesHeader.Validate("Posting Date", SalesHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is changed
+        SalesHeader.TestField("Operation Occurred Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateSalesNotConfirmed()
+    var
+        SalesHeader: Record "Sales Header";
+        OldOperationOccurredDate: Date;
+    begin
+        // [UI] [Sales]
+        // [SCENARIO 326053] When the option is enabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifySales(true);
+
+        // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        OldOperationOccurredDate := SalesHeader."Operation Occurred Date";
+
+        // [WHEN] Validate Posting Date to 20.01.2000. NO is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(false);
+        SalesHeader.Validate("Posting Date", SalesHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is not changed
+        SalesHeader.TestField("Operation Occurred Date", OldOperationOccurredDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDatePurchDisabled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [UI] [Purchase]
+        // [SCENARIO 326053] When the option is disabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was disabled in setup
+        SetOccurredDateChangeNotifyPurchase(false);
+
+        // [GIVEN] Purchase Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000. YES is clicked in confirm
+        PurchaseHeader.Validate("Posting Date", PurchaseHeader."Posting Date" + LibraryRandom.RandInt(10));
+
+        // [THEN] The value of Operation Occurred Date is changed
+        PurchaseHeader.TestField("Operation Occurred Date", PurchaseHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDatePurchConfirmed()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [UI] [Purchase]
+        // [SCENARIO 326053] When the option is enabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifyPurchase(true);
+
+        // [GIVEN] Purchase Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000. YES is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseHeader.Validate("Posting Date", PurchaseHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is changed
+        PurchaseHeader.TestField("Operation Occurred Date", PurchaseHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDatePurchNotConfirmed()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        OldOperationOccurredDate: Date;
+    begin
+        // [UI] [Purchases]
+        // [SCENARIO 326053] When the option is enabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifyPurchase(true);
+
+        // [GIVEN] Purchase Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        OldOperationOccurredDate := PurchaseHeader."Operation Occurred Date";
+
+        // [WHEN] Validate Posting Date to 20.01.2000. NO is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(false);
+        PurchaseHeader.Validate("Posting Date", PurchaseHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is not changed
+        PurchaseHeader.TestField("Operation Occurred Date", OldOperationOccurredDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateServiceDisabled()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [UI] [Service]
+        // [SCENARIO 326053] When the option is disabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify disabled was enabled in setup
+        SetOccurredDateChangeNotifyService(false);
+
+        // [GIVEN] Service Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000. YES is clicked in confirm
+        ServiceHeader.Validate("Posting Date", ServiceHeader."Posting Date" + LibraryRandom.RandInt(10));
+
+        // [THEN] The value of Operation Occurred Date is changed
+        ServiceHeader.TestField("Operation Occurred Date", ServiceHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateServiceConfirmed()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [UI] [Service]
+        // [SCENARIO 326053] When the option is enabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifyService(true);
+
+        // [GIVEN] Service Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 20.01.2000. YES is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(true);
+        ServiceHeader.Validate("Posting Date", ServiceHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is changed
+        ServiceHeader.TestField("Operation Occurred Date", ServiceHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateServiceNotConfirmed()
+    var
+        ServiceHeader: Record "Service Header";
+        OldOperationOccurredDate: Date;
+    begin
+        // [UI] [Service]
+        // [SCENARIO 326053] When the option is enabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
+        Initialize;
+
+        // [GIVEN] Occurred Date Change Notify option was enabled in setup
+        SetOccurredDateChangeNotifyService(true);
+
+        // [GIVEN] Service Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, '');
+        OldOperationOccurredDate := ServiceHeader."Operation Occurred Date";
+
+        // [WHEN] Validate Posting Date to 20.01.2000. NO is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(false);
+        ServiceHeader.Validate("Posting Date", ServiceHeader."Posting Date" + LibraryRandom.RandInt(10));
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is not changed
+        ServiceHeader.TestField("Operation Occurred Date", OldOperationOccurredDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateSalesToEarlierDateConfirmed()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [UI] [Sales]
+        // [SCENARIO 326053] When Posting Date is validated to a date earlier than Operation Occurred Date - confirm pops up, when yes - Validate
+        Initialize;
+
+        // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 10.01.2000. YES is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(true);
+        SalesHeader."Document Date" := SalesHeader."Posting Date" - LibraryRandom.RandInt(10);
+        SalesHeader.Validate("Posting Date", SalesHeader."Document Date");
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] The value of Operation Occurred Date is changed
+        SalesHeader.TestField("Operation Occurred Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithDequeue')]
+    [Scope('OnPrem')]
+    procedure NotificationOnValidatePostingDateSalesToEarlierDateNotConfirmed()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [UI] [Sales]
+        // [SCENARIO 326053] When Posting Date is validated to a date earlier than Operation Occurred Date - confirm pops up, when no - Error
+        Initialize;
+
+        // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Validate Posting Date to 10.01.2000. NO is clicked in confirm
+        LibraryVariableStorage.Enqueue(ValidatePostingDateQst);
+        LibraryVariableStorage.Enqueue(false);
+        SalesHeader."Document Date" := SalesHeader."Posting Date" - LibraryRandom.RandInt(10);
+        asserterror SalesHeader.Validate("Posting Date", SalesHeader."Document Date");
+        // UI handled by ConfirmHandlerWithDequeue
+
+        // [THEN] There is a validation error
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('Posting Date cannot be less than Operation Occurred Date.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -542,6 +834,33 @@ codeunit 144126 "UT TAB Miscellaneous"
         exit(SalesHeader."No.");
     end;
 
+    local procedure SetOccurredDateChangeNotifySales(NewValue: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Validate("Notify On Occur. Date Change", NewValue);
+        SalesReceivablesSetup.Modify;
+    end;
+
+    local procedure SetOccurredDateChangeNotifyPurchase(NewValue: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Validate("Notify On Occur. Date Change", NewValue);
+        PurchasesPayablesSetup.Modify;
+    end;
+
+    local procedure SetOccurredDateChangeNotifyService(NewValue: Boolean)
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Validate("Notify On Occur. Date Change", NewValue);
+        ServiceMgtSetup.Modify;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -566,6 +885,14 @@ codeunit 144126 "UT TAB Miscellaneous"
         LibraryVariableStorage.Dequeue(No);
         ListOfBankReceipts."Customer Bill Header".SetFilter("No.", No);
         ListOfBankReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithDequeue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, ValueMatchErr);
+        Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 }
 

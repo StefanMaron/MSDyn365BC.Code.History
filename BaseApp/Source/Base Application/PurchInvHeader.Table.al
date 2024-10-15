@@ -647,6 +647,15 @@ table 122 "Purch. Inv. Header"
             Caption = 'Bank Account';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Buy-from Vendor No."));
         }
+        field(12190; "Document Remaining Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Original Document Type" = CONST(Invoice), "Original Document No." = FIELD("No.")));
+            Caption = 'Document Remaining Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys

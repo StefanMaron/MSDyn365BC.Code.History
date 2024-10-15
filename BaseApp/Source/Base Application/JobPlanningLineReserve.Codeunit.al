@@ -95,7 +95,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckReservedQtyBase(JobPlanningLine, IsHandled);
+        OnBeforeCheckReservedQtyBase(JobPlanningLine, IsHandled, QuantityBase);
         if IsHandled then
             exit;
 
@@ -388,7 +388,7 @@ codeunit 1032 "Job Planning Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckReservedQtyBase(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckReservedQtyBase(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; var QuantityBase: Decimal)
     begin
     end;
 }

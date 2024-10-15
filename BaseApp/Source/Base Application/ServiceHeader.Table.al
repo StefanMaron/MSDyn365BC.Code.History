@@ -119,6 +119,7 @@ table 5900 "Service Header"
                         end;
 
                 Commit;
+                Validate("Ship-to Code", Cust."Ship-to Code");
                 if Cust."Bill-to Customer No." <> '' then
                     Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
                 else begin
@@ -128,7 +129,6 @@ table 5900 "Service Header"
                     SkipBillToContact := false;
                 end;
 
-                Validate("Ship-to Code", '');
                 Validate("Service Zone Code");
 
                 if not SkipContact then
@@ -486,6 +486,8 @@ table 5900 "Service Header"
             trigger OnValidate()
             var
                 NoSeries: Record "No. Series";
+                LocalApplicationManagement: Codeunit LocalApplicationManagement;
+                RecordRef: RecordRef;
             begin
                 if ("Posting No." <> '') and ("Posting No. Series" <> '') then begin
                     NoSeries.Get("Posting No. Series");
@@ -523,16 +525,9 @@ table 5900 "Service Header"
                         else
                             Error(Text1130017, FieldCaption("Posting Date"), FieldCaption("Document Date"));
                     end;
-                    if "Operation Occurred Date" > "Posting Date" then begin
-                        if HideValidationDialog then
-                            Confirmed := true
-                        else
-                            Confirmed := Confirm(Text1130016, false, FieldCaption("Operation Occurred Date"), FieldCaption("Posting Date"));
-                        if Confirmed then
-                            Validate("Operation Occurred Date", "Posting Date")
-                        else
-                            Error(Text1130017, FieldCaption("Posting Date"), FieldCaption("Operation Occurred Date"));
-                    end;
+                    RecordRef.GetTable(Rec);
+                    LocalApplicationManagement.ValidateOperationOccurredDate(RecordRef, HideValidationDialog);
+                    RecordRef.SetTable(Rec);
                 end;
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
@@ -547,8 +542,6 @@ table 5900 "Service Header"
                     if "Currency Factor" <> xRec."Currency Factor" then
                         ConfirmUpdateCurrencyFactor;
                 end;
-
-                Validate("Operation Occurred Date", "Posting Date");
             end;
         }
         field(22; "Posting Description"; Text[100])
@@ -1348,11 +1341,16 @@ table 5900 "Service Header"
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
+            var
+                VATBusinessPostingGroup: Record "VAT Business Posting Group";
             begin
                 if not CheckVATExemption then
                     "VAT Bus. Posting Group" := xRec."VAT Bus. Posting Group";
                 if "VAT Bus. Posting Group" <> xRec."VAT Bus. Posting Group" then
                     RecreateServLines(FieldCaption("VAT Bus. Posting Group"));
+
+                VATBusinessPostingGroup.Get("VAT Bus. Posting Group");
+                Validate("Operation Type", VATBusinessPostingGroup."Default Sales Operation Type");
             end;
         }
         field(117; Reserve; Option)
@@ -2916,6 +2914,7 @@ table 5900 "Service Header"
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
+        FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
@@ -4717,6 +4716,23 @@ table 5900 "Service Header"
         "Currency Code" := xRec."Currency Code";
         "Posting Date" := xRec."Posting Date";
         Modify;
+    end;
+
+    procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetFullDocTypeTxt(Rec, FullDocTypeTxt, IsHandled);
+
+        if IsHandled then
+            exit;
+
+        FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -7,8 +7,8 @@ codeunit 2158 "O365 Document Send Mgt"
     end;
 
     var
-        RoleCenterEmailErrorIDTxt: Label 'c3c760b9-6405-aaaa-b2a6-1affb70c38bf', Comment = '{LOCKED}';
-        DocumentPageEmailErrorIDTxt: Label '9c8d5ebc-8c62-45a7-bc77-e260691e6de0', Comment = '{LOCKED}';
+        RoleCenterEmailErrorIDTxt: Label 'c3c760b9-6405-aaaa-b2a6-1affb70c38bf', Locked = true;
+        DocumentPageEmailErrorIDTxt: Label '9c8d5ebc-8c62-45a7-bc77-e260691e6de0', Locked = true;
         ShowDocumentsActionLbl: Label 'Show documents';
         IgnoreTheseFailuresActionLbl: Label 'Ignore';
         EmailSetupActionLbl: Label 'Set up email';
@@ -22,8 +22,8 @@ codeunit 2158 "O365 Document Send Mgt"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ResendDocumentFromUIMsg: Label 'To resend this document, use the action in the document page.';
         SMTPMail: Codeunit "SMTP Mail";
-        DocumentIdMissingTelemetryErr: Label 'No document record ID could be retrieved from notification.', Comment = '{LOCKED}';
-        DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Comment = '{LOCKED}';
+        DocumentIdMissingTelemetryErr: Label 'No document record ID could be retrieved from notification.', Locked = true;
+        DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Locked = true;
 
     local procedure ShowSendFailedNotificationForDocument(DocumentType: Option; DocumentNo: Code[20]; Posted: Boolean; DocumentRecordId: RecordID; ShowActions: Boolean)
     var

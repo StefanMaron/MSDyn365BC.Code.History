@@ -1,4 +1,4 @@
-﻿page 143 "Posted Sales Invoices"
+page 143 "Posted Sales Invoices"
 {
     AdditionalSearchTerms = 'posted bill';
     ApplicationArea = Basic, Suite;
@@ -74,9 +74,10 @@
                         DoDrillDown;
                     end;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; "Document Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Remaining Amount';
                     ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
                 }
                 field("Sell-to Post Code"; "Sell-to Post Code")

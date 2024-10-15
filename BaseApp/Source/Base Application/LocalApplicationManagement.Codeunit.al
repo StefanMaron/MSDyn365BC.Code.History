@@ -55,6 +55,8 @@ codeunit 12104 LocalApplicationManagement
         EvenCharacter: Code[100];
         AddRepError: Boolean;
         SkipMsgDisplay: Boolean;
+        FieldModifyQst: Label '%1 will be modified according to %2. Do you want to continue?', Comment = '%1=Field name, %2=Another field name';
+        ValueLessThanAnotherErr: Label '%1 cannot be less than %2.', Comment = '%1=Field name, %2=Another field name';
 
     [Scope('OnPrem')]
     procedure CheckDigit(FiscalCode: Code[20])
@@ -385,5 +387,73 @@ codeunit 12104 LocalApplicationManagement
     begin
         SkipMsgDisplay := SkipMsgDisplay2;
     end;
+    [Scope('OnPrem')]
+    procedure ValidateOperationOccurredDate(var RecordRef: RecordRef; HideValidationDialog: Boolean)
+    var
+        PostingDateFieldRef: FieldRef;
+        OccurredDateFieldRef: FieldRef;
+        PostingDate: Date;
+        OperationOccuredDate: Date;
+    begin
+        PostingDateFieldRef := RecordRef.Field(20);
+        OccurredDateFieldRef := RecordRef.Field(12101);
+
+        PostingDate := PostingDateFieldRef.Value;
+        OperationOccuredDate := OccurredDateFieldRef.Value;
+
+        if OperationOccuredDate = 0D then
+            OccurredDateFieldRef.Validate(PostingDate);
+        if OperationOccuredDate > PostingDate then
+            ValidateOccurredDateIfConfirm(PostingDateFieldRef, OccurredDateFieldRef, HideValidationDialog);
+        if OperationOccuredDate < PostingDate then
+            if GetNotifyOnOccurredDateChangeSetup(RecordRef) then
+                ValidateOccurredDateIfConfirm(PostingDateFieldRef, OccurredDateFieldRef, HideValidationDialog)
+            else
+                OccurredDateFieldRef.Validate(PostingDate);
+
+        OperationOccuredDate := OccurredDateFieldRef.Value;
+        if OperationOccuredDate > PostingDate then
+            Error(ValueLessThanAnotherErr, PostingDateFieldRef.Caption, OccurredDateFieldRef.Caption);
+    end;
+
+    local procedure ValidateOccurredDateIfConfirm(PostingDateFieldRef: FieldRef; OccurredDateFieldRef: FieldRef; HideValidationDialog: Boolean)
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        Confirmed: Boolean;
+    begin
+        if HideValidationDialog then
+            Confirmed := true
+        else
+            Confirmed := ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(FieldModifyQst, OccurredDateFieldRef.Caption, PostingDateFieldRef.Caption), true);
+        if Confirmed then
+            OccurredDateFieldRef.Validate(PostingDateFieldRef.Value);
+    end;
+
+    local procedure GetNotifyOnOccurredDateChangeSetup(RecordRef: RecordRef): Boolean
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        case RecordRef.Number of
+            DATABASE::"Sales Header":
+                begin
+                    SalesReceivablesSetup.Get;
+                    exit(SalesReceivablesSetup."Notify On Occur. Date Change");
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    PurchasesPayablesSetup.Get;
+                    exit(PurchasesPayablesSetup."Notify On Occur. Date Change");
+                end;
+            DATABASE::"Service Header":
+                begin
+                    ServiceMgtSetup.Get;
+                    exit(ServiceMgtSetup."Notify On Occur. Date Change");
+                end;
+        end;
+    end;
+
 }
 

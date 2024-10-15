@@ -187,6 +187,44 @@ codeunit 144562 "IT - Datifattura Split VAT"
         Assert.AreEqual('00000', DotNetXmlNode.InnerText, CAPTok);
     end;
         
+    [Test]
+    [HandlerFunctions('DatifatturaSuggestLinesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestPaymentLinesCanBeFiltered()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VATReportMediator: Codeunit "VAT Report Mediator";
+    begin
+        // [FEATURE]
+        // [SCENARIO 331749] Suggest Lines shows request page to filter entries when using 'Filter Datifattura Entries' option in setup
+        Initialize;
+
+        // [GIVEN] Filter Datifattura Lines was enabled in VAT Reporting Setup
+        LibraryITDatifattura.SetFilterDatifatturaLines(true);
+
+        // [GIVEN] Vendor was created
+        LibraryITDatifattura.CreateVendor(Vendor);
+
+        // [GIVEN] Purchase invoice was created and posted for Vendor
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] VATReportHeader was created for the dates of the invoice
+        LibraryVATUtils.CreateVATReportHeader(
+          VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
+          WorkDate, WorkDate);
+
+        Commit;
+
+        // [WHEN] Suggest Lines for Datifattura report
+        VATReportMediator.GetLines(VATReportHeader);
+
+        // [THEN] Request page with filters is open
+        // UI Handled by DatifatturaSuggestLinesRequestPageHandler
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -272,6 +310,13 @@ codeunit 144562 "IT - Datifattura Split VAT"
     [Scope('OnPrem')]
     procedure MessageHandler(MessageText: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure DatifatturaSuggestLinesRequestPageHandler(var DatifatturaSuggestLinesRequestPage: TestRequestPage "Datifattura Suggest Lines")
+    begin
+        DatifatturaSuggestLinesRequestPage.OK.Invoke;
     end;
 }
 

@@ -21,7 +21,7 @@ codeunit 740 "VAT Report Mediator"
 
         VATReportHeader.SetRange("No.", VATReportHeader."No.");
         if VATReportHeader.isDatifattura then
-            REPORT.RunModal(REPORT::"Datifattura Suggest Lines", false, false, VATReportHeader)
+            REPORT.RunModal(REPORT::"Datifattura Suggest Lines", ShowRequestPage(VATReportHeader), false, VATReportHeader)
         else
             REPORT.RunModal(REPORT::"VAT Report Suggest Lines", false, false, VATReportHeader);
     end;
@@ -77,6 +77,14 @@ codeunit 740 "VAT Report Mediator"
     procedure Submit(VATReportHeader: Record "VAT Report Header")
     begin
         VATReportReleaseReopen.Submit(VATReportHeader);
+    end;
+
+    local procedure ShowRequestPage(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        VATReportSetup.Get;
+        exit(VATReportSetup."Filter Datifattura Lines" and VATReportHeader.isDatifattura)
     end;
 }
 

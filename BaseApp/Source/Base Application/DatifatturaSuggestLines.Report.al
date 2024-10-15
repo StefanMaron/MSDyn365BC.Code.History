@@ -8,6 +8,7 @@ report 12195 "Datifattura Suggest Lines"
     {
         dataitem(VATReportHeader; "VAT Report Header")
         {
+            DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
             var
@@ -25,6 +26,7 @@ report 12195 "Datifattura Suggest Lines"
         dataitem(VATInvoices; "VAT Entry")
         {
             DataItemTableView = SORTING(Type, "Bill-to/Pay-to No.") ORDER(Ascending) WHERE("Document Type" = FILTER(Invoice | "Credit Memo"));
+            RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group";
 
             trigger OnAfterGetRecord()
             begin

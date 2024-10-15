@@ -86,7 +86,7 @@ report 12108 "VAT Register Grouped"
             column(PrintCompanyInformations1; PrintCompanyInformations)
             {
             }
-            column(DataItem1130214; CompanyInformation[1] + '    ' + CompanyInformation[2] + '    ' + CompanyInformation[3] + '    ' + Text1046 + CompanyInformation[5])
+            column(CompanyInformation_1_Control1130214; CompanyInformation[1] + '    ' + CompanyInformation[2] + '    ' + CompanyInformation[3] + '    ' + Text1046 + CompanyInformation[5])
             {
             }
             column(STRSUBSTNO_Text1038_FORMAT_CurrReport_PAGENO_1___Control1130216; StrSubstNo(Text10381Lbl, Format(CurrReport.PageNo - 1)))
@@ -232,7 +232,7 @@ report 12108 "VAT Register Grouped"
             column(Text10382; Text10381Lbl)
             {
             }
-            column(DataItem1130209; CompanyInformation[1] + '    ' + CompanyInformation[2] + '    ' + CompanyInformation[3] + '    ' + Text1046 + CompanyInformation[5])
+            column(CompanyInformation_1_Control1130209; CompanyInformation[1] + '    ' + CompanyInformation[2] + '    ' + CompanyInformation[3] + '    ' + Text1046 + CompanyInformation[5])
             {
             }
             column(CompanyInformation_6__Control1130212; CompanyInformation[6])

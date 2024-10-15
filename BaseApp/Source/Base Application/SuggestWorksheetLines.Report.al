@@ -729,14 +729,14 @@ report 840 "Suggest Worksheet Lines"
         AzureAICorrectionTaxDescriptionTxt: Label 'Correction of tax amount due to posted %1', Comment = '%1 = RECEIVABLES or PAYABLES';
         AzureAIOrdersCorrectionDescriptionTxt: Label 'Correction due to %1', Comment = '%1 = SALES or PURCHASE';
         AzureAIOrdersTaxCorrectionDescriptionTxt: Label 'Correction of tax amount due to %1', Comment = '%1 = SALES ORDERS or PURCHASE ORDERS';
-        XRECEIVABLESTxt: Label 'RECEIVABLES', Comment = '{locked}';
-        XPAYABLESTxt: Label 'PAYABLES', Comment = '{locked}';
+        XRECEIVABLESTxt: Label 'RECEIVABLES', Locked = true;
+        XPAYABLESTxt: Label 'PAYABLES', Locked = true;
         XPAYABLESCORRECTIONTxt: Label 'Payables Correction';
         XRECEIVABLESCORRECTIONTxt: Label 'Receivables Correction';
         XSALESORDERSTxt: Label 'Sales Orders';
         XPURCHORDERSTxt: Label 'Purchase Orders';
-        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Comment = '{locked}';
-        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Comment = '{locked}';
+        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Locked = true;
+        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Locked = true;
         XTAXPAYABLESCORRECTIONTxt: Label 'Tax from Purchase entries';
         XTAXRECEIVABLESCORRECTIONTxt: Label 'Tax from Sales entries';
         XTAXSALESORDERSTxt: Label 'Tax from Sales Orders';

@@ -319,7 +319,7 @@ codeunit 12173 "Vendor Bill List - Post"
         end;
         GenJnlLine."Applies-to Occurrence No." := VendorBillLine."Document Occurrence";
         GenJnlLine."Allow Application" := true;
-        if VendorBillLine."Amount to Pay" <> VendorBillLine."Remaining Amount" then begin
+        if VendorBillLine."Amount to Pay" + VendorBillLine."Withholding Tax Amount" <> VendorBillLine."Remaining Amount" then begin
             VendLedgEntry."Vendor Bill List" := '';
             VendLedgEntry."Vendor Bill No." := '';
             VendLedgEntry.Modify;

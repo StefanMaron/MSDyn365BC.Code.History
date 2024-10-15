@@ -45,11 +45,23 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Purchase Return Orders';
                     RunObject = page "Purchase Return Order List";
                 }
+                action("Subcontracting Orders")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Subcontracting Orders';
+                    RunObject = page 35490;
+                }
                 action("Transfer Orders")
                 {
                     ApplicationArea = Location;
                     Caption = 'Transfer Orders';
                     RunObject = page "Transfer Orders";
+                }
+                action("Subcontracting Transfer Orders")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Subcontracting Transfer Orders';
+                    RunObject = page 35491;
                 }
                 action("Invoices")
                 {
@@ -262,9 +274,9 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     // action("Order")
                     // {
-                    //	ApplicationArea = Suite;
-                    //	Caption = 'Order';
-                    //	RunObject = codeunit 8815;
+                    //     ApplicationArea = Suite;
+                    //     Caption = 'Order';
+                    //     RunObject = codeunit 8815;
                     // }
                     action("Purchasing Deferral Summary")
                     {
@@ -307,6 +319,12 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Sales Orders';
                     RunObject = page "Sales Order List";
                 }
+                action("Subcontracting Orders1")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Subcontracting Orders';
+                    RunObject = page 35490;
+                }
                 action("Blanket Orders1")
                 {
                     ApplicationArea = Suite;
@@ -348,6 +366,12 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Location;
                     Caption = 'Transfer Orders';
                     RunObject = page "Transfer Orders";
+                }
+                action("Subcontracting Transfer Orders1")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Subcontracting Transfer Orders';
+                    RunObject = page 35491;
                 }
                 action("Requisition Worksheets")
                 {
@@ -715,6 +739,7 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Journal Templates")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
                     RunObject = page "Item Journal Templates";
                 }
@@ -726,16 +751,19 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Disc. Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
                     RunObject = page "Item Disc. Groups";
                 }
                 action("Item Tracking Codes")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Tracking Codes';
                     RunObject = page "Item Tracking Codes";
                 }
                 action("Inventory Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Setup';
                     RunObject = page "Inventory Setup";
                 }

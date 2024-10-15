@@ -213,6 +213,16 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Bank Receipt';
         }
+        field(12103; "Original Document Type"; Option)
+        {
+            Caption = 'Original Document Type';
+            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
+            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
+        }
+        field(12104; "Original Document No."; Code[20])
+        {
+            Caption = 'Original Document No.';
+        }
     }
 
     keys
@@ -290,6 +300,7 @@ table 379 "Detailed Cust. Ledg. Entry"
     trigger OnInsert()
     begin
         SetLedgerEntryAmount;
+        SetOriginalDocumentInfo;
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)
@@ -339,6 +350,16 @@ table 379 "Detailed Cust. Ledg. Entry"
         SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
         CalcSums("Amount (LCY)");
         exit("Amount (LCY)");
+    end;
+
+    local procedure SetOriginalDocumentInfo();
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if CustLedgerEntry.Get("Cust. Ledger Entry No.") then begin
+            "Original Document Type" := CustLedgerEntry."Document Type";
+            "Original Document No." := CustLedgerEntry."Document No.";
+        end;
     end;
 }
 

@@ -19,6 +19,7 @@ codeunit 134043 "ERM Additional Currency"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.';
         FiscalPostingDateTok: Label 'C%1', Locked = true;
@@ -1072,11 +1073,13 @@ codeunit 134043 "ERM Additional Currency"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Additional Currency");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         // Lazy Setup.
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Additional Currency");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -1090,6 +1093,7 @@ codeunit 134043 "ERM Additional Currency"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Additional Currency");
     end;
 
     local procedure ApplyAndPostCreditMemo(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; CurrencyCode2: Code[10])

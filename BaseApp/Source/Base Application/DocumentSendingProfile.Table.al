@@ -155,8 +155,8 @@ table 60 "Document Sending Profile"
         JobQuotesTxt: Label 'Job Quotes';
         PurchaseOrdersTxt: Label 'Purchase Orders';
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
-        CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents use different document sending profiles. Choose one of the following options: ';
-        VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents use different document sending profiles. Choose one of the following options: ';
+        CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
+        VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
 
     procedure GetDefaultForCustomer(CustomerNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")
     var

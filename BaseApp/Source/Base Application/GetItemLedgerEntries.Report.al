@@ -1107,6 +1107,7 @@ report 594 "Get Item Ledger Entries"
                                         ValueEntry."Cost Amount (Actual)", AddCurrencyFactor);
                         end;
                 end;
+            OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
             CalcTotalItemChargeAmt;
         end;
 
@@ -1540,6 +1541,11 @@ report 594 "Get Item Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSumTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
     begin
     end;
 }

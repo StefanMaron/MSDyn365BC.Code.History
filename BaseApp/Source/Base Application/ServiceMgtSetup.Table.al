@@ -326,6 +326,10 @@ table 5911 "Service Mgt. Setup"
                 end;
             end;
         }
+        field(12182; "Notify On Occur. Date Change"; Boolean)
+        {
+            Caption = 'Notify On Occur. Date Change';
+        }
     }
 
     keys

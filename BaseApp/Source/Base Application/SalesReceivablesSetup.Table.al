@@ -518,6 +518,10 @@ table 311 "Sales & Receivables Setup"
                 end;
             end;
         }
+        field(12182; "Notify On Occur. Date Change"; Boolean)
+        {
+            Caption = 'Notify On Occur. Date Change';
+        }
     }
 
     keys

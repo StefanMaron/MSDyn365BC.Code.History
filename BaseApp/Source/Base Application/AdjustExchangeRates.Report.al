@@ -1883,10 +1883,15 @@ report 595 "Adjust Exchange Rates"
     var
         CurrencyToAdd: Record Currency;
     begin
-        CurrencyToAdd.Get(CurrencyCode);
-        Currency2 := CurrencyToAdd;
-        Currency2."Currency Factor" := CurrencyFactor;
-        Currency2.Insert;
+        if Currency2.get(CurrencyCode) then begin
+            Currency2."Currency Factor" := CurrencyFactor;
+            Currency2.modify;
+        end else begin
+            CurrencyToAdd.Get(CurrencyCode);
+            Currency2 := CurrencyToAdd;
+            Currency2."Currency Factor" := CurrencyFactor;
+            Currency2.Insert;
+        end;
     end;
 
     local procedure InitDtldCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")

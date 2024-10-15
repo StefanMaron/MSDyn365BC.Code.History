@@ -195,6 +195,7 @@ table 740 "VAT Report Header"
         TestField(Status, Status::Open);
         VATReportLine.SetRange("VAT Report No.", "No.");
         VATReportLine.DeleteAll;
+        RemoveECSLLinesAndRelation;
     end;
 
     trigger OnInsert()
@@ -301,6 +302,23 @@ table 740 "VAT Report Header"
     procedure isDatifattura(): Boolean
     begin
         exit("VAT Report Config. Code" = "VAT Report Config. Code"::Datifattura);
+    end;
+
+    local procedure RemoveECSLLinesAndRelation()
+    var
+        ECSLVATReportLine: Record "ECSL VAT Report Line";
+        ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
+    begin
+        if "VAT Report Config. Code" <> "VAT Report Config. Code"::"VAT Transactions Report" then
+            exit;
+
+        ECSLVATReportLineRelation.SetRange("ECSL Report No.", "No.");
+        if not ECSLVATReportLineRelation.IsEmpty then
+            ECSLVATReportLineRelation.DeleteAll(true);
+
+        ECSLVATReportLine.SetRange("Report No.", "No.");
+        if not ECSLVATReportLine.IsEmpty then
+            ECSLVATReportLine.DeleteAll(true);
     end;
 }
 

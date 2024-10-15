@@ -163,6 +163,8 @@ table 36 "Sales Header"
                         else
                             Confirmed := Confirm(ConfirmChangeQst, false, BillToCustomerTxt);
                         if Confirmed then begin
+                            OnValidateBillToCustomerNoOnAfterConfirmed(Rec);
+
                             SalesLine.SetRange("Document Type", "Document Type");
                             SalesLine.SetRange("Document No.", "No.");
 
@@ -449,6 +451,8 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             var
+                LocalApplicationManagement: Codeunit LocalApplicationManagement;
+                RecordRef: RecordRef;
                 IsHandled: Boolean;
             begin
                 TestField("Posting Date");
@@ -481,16 +485,9 @@ table 36 "Sales Header"
                                 Error(Text1130017, FieldCaption("Posting Date"), FieldCaption("Document Date"));
                         end;
                     end;
-                    if "Operation Occurred Date" > "Posting Date" then begin
-                        if GetHideValidationDialog or not GuiAllowed then
-                            Confirmed := true
-                        else
-                            Confirmed := Confirm(Text1130016, false, FieldCaption("Operation Occurred Date"), FieldCaption("Posting Date"));
-                        if Confirmed then
-                            Validate("Operation Occurred Date", "Posting Date")
-                        else
-                            Error(Text1130017, FieldCaption("Posting Date"), FieldCaption("Operation Occurred Date"));
-                    end;
+                    RecordRef.GetTable(Rec);
+                    LocalApplicationManagement.ValidateOperationOccurredDate(RecordRef, GetHideValidationDialog);
+                    RecordRef.SetTable(Rec);
                 end;
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
@@ -503,7 +500,6 @@ table 36 "Sales Header"
                     if "Currency Factor" <> xRec."Currency Factor" then
                         ConfirmUpdateCurrencyFactor;
                 end;
-                Validate("Operation Occurred Date", "Posting Date");
 
                 if "Posting Date" <> xRec."Posting Date" then
                     if DeferralHeadersExist then
@@ -1558,12 +1554,17 @@ table 36 "Sales Header"
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
+            var
+                VATBusinessPostingGroup: Record "VAT Business Posting Group";
             begin
                 TestStatusOpen;
                 if not CheckVATExemption then
                     "VAT Bus. Posting Group" := xRec."VAT Bus. Posting Group";
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
+
+                VATBusinessPostingGroup.Get("VAT Bus. Posting Group");
+                Validate("Operation Type", VATBusinessPostingGroup."Default Sales Operation Type");
             end;
         }
         field(117; Reserve; Option)
@@ -3120,6 +3121,7 @@ table 36 "Sales Header"
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         StatusCheckSuspended: Boolean;
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
+        FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
 
     procedure InitInsert()
     var
@@ -3902,7 +3904,7 @@ table 36 "Sales Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure ShippedSalesLinesExist(): Boolean
+    procedure ShippedSalesLinesExist(): Boolean
     begin
         SalesLine.Reset;
         SalesLine.SetRange("Document Type", "Document Type");
@@ -3911,7 +3913,7 @@ table 36 "Sales Header"
         exit(SalesLine.FindFirst);
     end;
 
-    local procedure ReturnReceiptExist(): Boolean
+    procedure ReturnReceiptExist(): Boolean
     begin
         SalesLine.Reset;
         SalesLine.SetRange("Document Type", "Document Type");
@@ -3924,6 +3926,8 @@ table 36 "Sales Header"
     var
         ReservMgt: Codeunit "Reservation Management";
     begin
+        OnBeforeDeleteSalesLines(SalesLine);
+
         if SalesLine.FindSet then begin
             ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type", "No.", GetHideValidationDialog);
             repeat
@@ -4280,6 +4284,8 @@ table 36 "Sales Header"
             end else
                 Error(Text039, Cont."No.", Cont.Name);
         end;
+
+        OnAfterUpdateBillToCust(SalesHeader, Cont);
     end;
 
     local procedure UpdateSellToCustTemplateCode()
@@ -4989,6 +4995,18 @@ table 36 "Sales Header"
         TypeText := Format("Document Type");
 
         OnAfterGetDocTypeText(Rec, TypeText);
+    end;
+
+    procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetFullDocTypeTxt(Rec, FullDocTypeTxt, IsHandled);
+
+        if IsHandled then
+            exit;
+
+        FullDocTypeTxt := SelectStr("Document Type" + 1, FullSalesTypesTxt);
     end;
 
     procedure LinkSalesDocWithOpportunity(OldOpportunityNo: Code[20])
@@ -6871,6 +6889,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var SalesHeader: Record "Sales Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -7046,6 +7069,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBillToCust(var SalesHeader: Record "Sales Header"; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSellToCont(var SalesHeader: Record "Sales Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
@@ -7086,6 +7114,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnAfterConfirmed(var SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalcDueDate(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7117,6 +7150,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateShippingAgentCodeOnBeforeUpdateLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFullDocTypeTxt(var SalesHeader: Record "Sales Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
     end;
 }

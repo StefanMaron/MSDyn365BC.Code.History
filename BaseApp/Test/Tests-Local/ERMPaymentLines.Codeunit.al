@@ -60,6 +60,7 @@ codeunit 144164 "ERM Payment Lines"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Payment Lines]
     end;
 
     var
@@ -76,6 +77,7 @@ codeunit 144164 "ERM Payment Lines"
         WrongBalanceErr: Label 'Wrong balance on page.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         PmtTermsDoesNotExistErr: Label 'The Payment Terms does not exist';
 
@@ -1211,6 +1213,152 @@ codeunit 144164 "ERM Payment Lines"
         VerifyPaymentLinesExist(PaymentLines."Sales/Purchase"::Purchase, PurchHeader."Document Type", PurchHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnPurchInvoiceWithMultipleVLE();
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        DocumentAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Payment Terms] [UI]
+        // [SCENARIO 314721] Posted Purchase Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
+        Initialize;
+
+        // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
+
+        // [WHEN] Purchase Header was posted
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [THEN] Posted Purchase Invoice header has Remaining Amount = "100" on Posted Purchase Invoices page
+        VerifyRemainingAmountOnPurchaseInvoice(PurchInvHeader."No.", DocumentAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnPurchCrMemoWithMultipleVLE();
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        DocumentAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [Payment Terms] [UI]
+        // [SCENARIO 314721] Posted Purchase Credit Memo has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
+        Initialize;
+
+        // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreatePurchaseDocument(
+            PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode, '');
+
+        // [WHEN] Purchase Header was posted
+        PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [THEN] Posted Purchase Credit Memo header has Remaining Amount = "100" on Posted Purchase Credit Memos page
+        VerifyRemainingAmountOnPurchaseCrMemo(PurchCrMemoHdr."No.", -DocumentAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnSalesInvoiceWithMultipleCLE();
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Payment Terms] [UI]
+        // [SCENARIO 314721] Posted Sales Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
+        Initialize;
+
+        // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
+
+        // [WHEN] Sales Header was posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [THEN] Posted Sales Invoice header has Remaining Amount = "100" on Posted Sales Invoices page
+        VerifyRemainingAmountOnSalesInvoice(SalesInvoiceHeader."No.", DocumentAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnSalesCrMemoWithMultipleCLE();
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DocumentAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Payment Terms] [UI]
+        // [SCENARIO 314721] Posted Sales Credit Memo has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
+        Initialize;
+
+        // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode);
+
+        // [WHEN] Sales Header was posted
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [THEN] Posted Sales Credit Memo header has Remaining Amount = "100" on Posted Sales Credit Memos page
+        VerifyRemainingAmountOnSalesCrMemo(SalesCrMemoHeader."No.", -DocumentAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnPurchInvoiceWithMultipleVLEAfterApplyPayment();
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        DocumentAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Payment Terms] [Apply] [UI]
+        // [SCENARIO 314721] Posted Purchase Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos. and Payment is applied after
+        Initialize;
+
+        // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
+
+        // [GIVEN] Purchase Header was posted
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [WHEN] Payment for "33" is applied
+        PaymentAmount := Round(DocumentAmount / 3);
+        CreateApplyAndPostVendorPayment(
+          PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."No.", PurchaseHeader."Document Type"::Invoice, PaymentAmount);
+
+        // [THEN] Posted Purchase Invoice header has Remaining Amount = "67" on Posted Purchase Invoices page
+        VerifyRemainingAmountOnPurchaseInvoice(PurchInvHeader."No.", DocumentAmount - PaymentAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountIsCorrectOnSalesInvoiceWithMultipleCLEAfterApplyPayment();
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice] [Payment Terms] [Apply] [UI]
+        // [SCENARIO 314721] Posted Sales Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
+        Initialize;
+
+        // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
+        DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
+
+        // [GIVEN] Sales Header was posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Payment for "-33" is applied
+        PaymentAmount := -Round(DocumentAmount / 3);
+        CreateApplyAndPostCustomerPayment(
+          SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."No.",
+          SalesHeader."Document Type"::Invoice, PaymentAmount);
+
+        // [THEN] Posted Sales Invoice header has Remaining Amount = "67" on Posted Sales Invoices page
+        VerifyRemainingAmountOnSalesInvoice(SalesInvoiceHeader."No.", DocumentAmount + PaymentAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1282,6 +1430,35 @@ codeunit 144164 "ERM Payment Lines"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, Invoice);  // True for Ship
     end;
 
+    local procedure CreateApplyAndPostCustomerPayment(CustomerNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Option; PmtAmount: Decimal): Code[20];
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        EXIT(
+          CreateAndPostGenJournalLine(
+            GenJournalLine."Account Type"::Customer, CustomerNo, PmtAmount,
+            GenJournalLine."Document Type"::Payment, AppliesToDocumentType, AppliesToDocumentNo));
+    end;
+
+    local procedure CreateApplyAndPostVendorPayment(VendorNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Option; PmtAmount: Decimal): Code[20];
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        EXIT(
+          CreateAndPostGenJournalLine(
+            GenJournalLine."Account Type"::Vendor, VendorNo, PmtAmount,
+            GenJournalLine."Document Type"::Payment, AppliesToDocumentType, AppliesToDocumentNo));
+    end;
+
+    local procedure CreateAndPostGenJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; DocumentType: Option; AppliesToDocType: Option; AppliesToDocNo: Code[20]): Code[20];
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJournalLineWithAppliesTo(GenJournalLine, DocumentType, AccountType, AccountNo, Amount, AppliesToDocType, AppliesToDocNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        EXIT(GenJournalLine."Document No.");
+    end;
+
     local procedure CreateCurrencyWithExchangeRate(): Code[10]
     var
         Currency: Record Currency;
@@ -1317,6 +1494,14 @@ codeunit 144164 "ERM Payment Lines"
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
         GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
         GenJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGenJournalLineWithAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20]);
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
         GenJournalLine.Modify(true);
     end;
 
@@ -1722,6 +1907,46 @@ codeunit 144164 "ERM Payment Lines"
     begin
         FilterPaymentLines(PaymentLines, EntryType, DocType, DocNo);
         Assert.RecordIsEmpty(PaymentLines);
+    end;
+
+    local procedure VerifyRemainingAmountOnSalesInvoice(DocumentNo: Code[20]; Amount: Decimal);
+    var
+        PostedSalesInvoicesPage: TestPage "Posted Sales Invoices";
+    begin
+        PostedSalesInvoicesPage.OPENVIEW;
+        PostedSalesInvoicesPage.FILTER.SETFILTER("No.", DocumentNo);
+        PostedSalesInvoicesPage."Remaining Amount".ASSERTEQUALS(Amount);
+        PostedSalesInvoicesPage.CLOSE;
+    end;
+
+    local procedure VerifyRemainingAmountOnSalesCrMemo(DocumentNo: Code[20]; Amount: Decimal);
+    var
+        PostedSalesCreditMemosPage: TestPage "Posted Sales Credit Memos";
+    begin
+        PostedSalesCreditMemosPage.OPENVIEW;
+        PostedSalesCreditMemosPage.FILTER.SETFILTER("No.", DocumentNo);
+        PostedSalesCreditMemosPage."Remaining Amount".ASSERTEQUALS(Amount);
+        PostedSalesCreditMemosPage.CLOSE;
+    end;
+
+    local procedure VerifyRemainingAmountOnPurchaseInvoice(DocumentNo: Code[20]; Amount: Decimal);
+    var
+        PostedPurchaseInvoicesPage: TestPage "Posted Purchase Invoices";
+    begin
+        PostedPurchaseInvoicesPage.OPENVIEW;
+        PostedPurchaseInvoicesPage.FILTER.SETFILTER("No.", DocumentNo);
+        PostedPurchaseInvoicesPage."Remaining Amount".ASSERTEQUALS(Amount);
+        PostedPurchaseInvoicesPage.CLOSE;
+    end;
+
+    local procedure VerifyRemainingAmountOnPurchaseCrMemo(DocumentNo: Code[20]; Amount: Decimal);
+    var
+        PostedPurchaseCreditMemosPage: TestPage "Posted Purchase Credit Memos";
+    begin
+        PostedPurchaseCreditMemosPage.OPENVIEW;
+        PostedPurchaseCreditMemosPage.FILTER.SETFILTER("No.", DocumentNo);
+        PostedPurchaseCreditMemosPage."Remaining Amount".ASSERTEQUALS(Amount);
+        PostedPurchaseCreditMemosPage.CLOSE;
     end;
 
     [ModalPageHandler]
