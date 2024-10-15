@@ -394,7 +394,13 @@ codeunit 229 "Document-Print"
         ReportSelection: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessPrintSalesOrder(SalesHeader, Usage, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
             exit;
 
@@ -1159,6 +1165,11 @@ codeunit 229 "Document-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnDoPrintPurchaseHeaderToDocumentAttachmentOnBeforeRunSaveAsDocumentAttachment(var PurchaseHeader: Record "Purchase Header"; ReportUsage: Integer; ShowNotificationAction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessPrintSalesOrder(var SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction"; var IsHandled: Boolean)
     begin
     end;
 }

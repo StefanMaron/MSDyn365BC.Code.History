@@ -144,6 +144,7 @@ codeunit 1005 "Job Calculate Batches"
     var
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
+        ForceDateUpdate: Boolean;
     begin
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
@@ -167,7 +168,9 @@ codeunit 1005 "Job Calculate Batches"
         if JobPlanningLine.Find('-') then
             repeat
                 JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
-                if JobPlanningLine."Qty. Transferred to Invoice" = 0 then begin
+                ForceDateUpdate := false;
+                OnChangeCurrencyDatesOnBeforeChangeCurrencyDate(JobPlanningLine, ForceDateUpdate);
+                if (JobPlanningLine."Qty. Transferred to Invoice" = 0) or ForceDateUpdate then begin
                     JobPlanningLine.TestField("Planning Date");
                     JobPlanningLine.TestField("Currency Date");
                     if FixedDate > 0D then begin
@@ -527,6 +530,11 @@ codeunit 1005 "Job Calculate Batches"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertDiffBuffer(var JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line"; var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; LineType: Option Schedule,Usage; CurrencyType: Option LCY,FCY)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeCurrencyDatesOnBeforeChangeCurrencyDate(var JobPlanningLine: Record "Job Planning Line"; var ForceDateUpdate: Boolean)
     begin
     end;
 }

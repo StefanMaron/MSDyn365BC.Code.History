@@ -1391,6 +1391,8 @@ table 1003 "Job Planning Line"
         JobUsageLink: Record "Job Usage Link";
         IsHandled: Boolean;
     begin
+        ConfirmDeletion();
+
         ValidateModification(true, 0);
         CheckRelatedJobPlanningLineInvoice();
 
@@ -1504,6 +1506,7 @@ table 1003 "Job Planning Line"
         JobUsageLinkErr: Label 'This %1 cannot be deleted because linked project ledger entries exist.', Comment = '%1 = Project Planning Line table name';
         BypassQtyValidation: Boolean;
         SkipCheckForMultipleJobsOnSalesLine: Boolean;
+        CalledFromHeader: Boolean;
         LinkedJobLedgerErr: Label 'You cannot change this value because linked project ledger entries exist.';
         LineTypeErr: Label 'The %1 cannot be of %2 %3 because it is transferred to an invoice.', Comment = 'The Project Planning Line cannot be of Line Type Schedule, because it is transferred to an invoice.';
         QtyToTransferToInvoiceErr: Label '%1 may not be lower than %2 and may not exceed %3.', Comment = '%1 = Qty. to Transfer to Invoice field name; %2 = First value in comparison; %3 = Second value in comparison';
@@ -1517,6 +1520,7 @@ table 1003 "Job Planning Line"
         NegativeQtyToAssembleErr: Label ' must be positive.', Comment = 'Qty. to Assemble can''t be negative';
         DifferentQtyToAssembleErr: Label ' must be equal to %1.', Comment = 'Qty. to Assemble must be equal to Quantity, %1 = Quantity';
         CannotBeMoreErr: Label 'cannot be more than %1', Comment = '%1 = Quantity';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption("Qty. Posted"), %4 = "Qty. Posted", %5 = TableCaption';
 
     protected var
         Job: Record Job;
@@ -1608,20 +1612,20 @@ table 1003 "Job Planning Line"
     begin
         IsHandled := false;
         OnBeforeCopyFromResource(Rec, xRec, IsHandled);
-        if IsHandled then
-            exit;
-
-        Res.Get("No.");
-        Res.CheckResourcePrivacyBlocked(false);
-        Res.TestField(Blocked, false);
-        Res.TestField("Gen. Prod. Posting Group");
-        if Description = '' then
-            Description := Res.Name;
-        if "Description 2" = '' then
-            "Description 2" := Res."Name 2";
-        "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
-        "Resource Group No." := Res."Resource Group No.";
-        Validate("Unit of Measure Code", Res."Base Unit of Measure");
+        if not IsHandled then begin
+            Res.Get("No.");
+            Res.CheckResourcePrivacyBlocked(false);
+            Res.TestField(Blocked, false);
+            Res.TestField("Gen. Prod. Posting Group");
+            if Description = '' then
+                Description := Res.Name;
+            if "Description 2" = '' then
+                "Description 2" := Res."Name 2";
+            "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
+            "Resource Group No." := Res."Resource Group No.";
+            Validate("Unit of Measure Code", Res."Base Unit of Measure");
+        end;
+        OnAfterCopyFromResource(Rec, Job, Res);
     end;
 
     local procedure CopyFromItem()
@@ -2407,7 +2411,14 @@ table 1003 "Job Planning Line"
     end;
 
     procedure UpdateQtyToTransfer()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateQtyToTransfer(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Contract Line" then begin
             CalcFields("Qty. Transferred to Invoice");
             Validate("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice");
@@ -2836,6 +2847,8 @@ table 1003 "Job Planning Line"
             ToJobPlanningLine.Validate("Currency Factor", FromJobPlanningLine."Currency Factor");
             ToJobPlanningLine.Validate("Unit Cost", FromJobPlanningLine."Unit Cost");
             ToJobPlanningLine.Validate("Unit Price", FromJobPlanningLine."Unit Price");
+            if FromJobPlanningLine."Line Discount %" <> 0 then
+                ToJobPlanningLine.Validate("Line Discount %", FromJobPlanningLine."Line Discount %");
         end;
 
         OnAfterInitFromJobPlanningLine(ToJobPlanningLine, FromJobPlanningLine);
@@ -2935,9 +2948,8 @@ table 1003 "Job Planning Line"
 
     local procedure FindBinFromJobTask(var NewBinCode: Code[20]): Boolean
     begin
-        if JobTask.IsEmpty() then
-            JobTask.Get(Rec."Job No.", Rec."Job Task No.");
-        if JobTask."Bin Code" <> '' then begin
+        if JobTask.Get(Rec."Job No.", Rec."Job Task No.") and (JobTask."Bin Code" <> '')
+            and ("Location Code" = JobTask."Location Code") then begin
             NewBinCode := JobTask."Bin Code";
             exit(true);
         end;
@@ -3246,6 +3258,30 @@ table 1003 "Job Planning Line"
     procedure GetSkipCheckForMultipleJobsOnSalesLine(): Boolean
     begin
         exit(SkipCheckForMultipleJobsOnSalesLine);
+    end;
+
+    local procedure ConfirmDeletion()
+    begin
+        if CalledFromHeader then
+            exit;
+
+        if "Qty. Posted" < "Qty. Picked" then
+            if not Confirm(
+                StrSubstNo(
+                    ConfirmDeleteQst,
+                    FieldCaption("Qty. Picked"),
+                    "Qty. Picked",
+                    FieldCaption("Qty. Posted"),
+                    "Qty. Posted",
+                    TableCaption),
+                false)
+            then
+                Error('');
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3625,6 +3661,16 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddItems(var JobPlanningLine: Record "Job Planning Line"; SelectionFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromResource(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyToTransfer(var JobPlanningLine: Record "Job Planning Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

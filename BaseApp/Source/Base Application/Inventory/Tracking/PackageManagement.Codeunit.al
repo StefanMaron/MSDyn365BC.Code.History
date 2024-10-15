@@ -1007,6 +1007,12 @@ codeunit 6516 "Package Management"
         ItemTrackingSetup."Package No." := ItemTracingBuffer."Package No.";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterTrackingMismatch', '', false, false)]
+    local procedure ItemTrackingSetupOnAfterTrackingMismatch(ItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingMismatch: Boolean)
+    begin
+        IsTrackingMismatch := IsTrackingMismatch or ItemTrackingSetup."Package No. Mismatch";
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterSpecificTracking', '', false, false)]
     local procedure ItemTrackingSetupOnAfterSpecificTracking(ItemTrackingSetup: Record "Item Tracking Setup"; var IsSpecificTracking: Boolean)
     begin
@@ -2038,19 +2044,6 @@ codeunit 6516 "Package Management"
     local procedure ItemTrackingDataCollectionOnCreateEntrySummary2OnAfterSetFilters(var TempGlobalEntrySummary: Record "Entry Summary"; var TempReservEntry: Record "Reservation Entry")
     begin
         // reserved for future use
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnRetrieveLookupDataOnAfterBuildNonSerialDataSet', '', false, false)]
-    local procedure ItemTrackingDataCollectionOnRetrieveLookupDataOnAfterBuildNonSerialDataSet(var ItemLedgEntry: Record "Item Ledger Entry"; var TempReservEntry: Record "Reservation Entry"; var Sender: Codeunit "Item Tracking Data Collection"; var TempTrackingSpecification: Record "Tracking Specification")
-    begin
-        ItemLedgEntry.ClearTrackingFilter();
-        TempReservEntry.ClearTrackingFilter();
-        if TempTrackingSpecification."Package No." <> '' then begin
-            ItemLedgEntry.SetRange("Package No.", TempTrackingSpecification."Package No.");
-            TempReservEntry.SetRange("Package No.", TempTrackingSpecification."Package No.");
-            Sender.TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
-            Sender.TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
-        end;
     end;
 
     // ItemJnlPostLine.Codeunit.al

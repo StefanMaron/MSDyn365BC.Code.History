@@ -578,6 +578,9 @@ codeunit 423 "Change Log Management"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary then
+            exit;
+
         TranslationHelper.SetGlobalLanguageToDefault();
 
         AddChangeLogSetupFieldToDimensions(Rec, Dimensions);
@@ -596,6 +599,9 @@ codeunit 423 "Change Log Management"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary then
+            exit;
+
         TranslationHelper.SetGlobalLanguageToDefault();
 
         AddChangeLogSetupFieldToDimensions(Rec, Dimensions);
@@ -614,6 +620,9 @@ codeunit 423 "Change Log Management"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary then
+            exit;
+
         TranslationHelper.SetGlobalLanguageToDefault();
 
         AddChangeLogSetupFieldToDimensions(Rec, Dimensions);
@@ -629,6 +638,9 @@ codeunit 423 "Change Log Management"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary then
+            exit;
+
         TranslationHelper.SetGlobalLanguageToDefault();
 
         AddChangeLogSetupFieldToDimensions(Rec, Dimensions);

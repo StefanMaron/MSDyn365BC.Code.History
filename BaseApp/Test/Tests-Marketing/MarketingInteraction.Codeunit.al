@@ -3043,6 +3043,101 @@ codeunit 136208 "Marketing Interaction"
                 InteractionLogEntry.TableCaption));
     end;
 
+    [Test]
+    [HandlerFunctions('ModalPageHandlerCreateInteraction,ModalPageHandlerCreateInteractionComments')]
+    [Scope('OnPrem')]
+    procedure CreateInteractionFromInteractionLogEntriesPageWithComments()
+    var
+        Contact: Record Contact;
+        InteractionGroup: Record "Interaction Group";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntries: TestPage "Interaction Log Entries";
+    begin
+        // [SCENARIO 492286] When Adding comments to Interaction, all of the comments are displayed/saved
+        Initialize();
+
+        // [GIVEN] Create Interaction Group and Contact
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryVariableStorage.Enqueue(Contact."No.");
+
+        // [GIVEN] Open Interaction Log Entries page and Invoke Create Interaction Action
+        InteractionLogEntries.OpenNew();
+        InteractionLogEntries."Create &Interaction".Invoke();
+
+        // [WHEN] Interaction log entry is created
+        InteractionLogEntry.SetFilter("Contact No.", Contact."No.");
+        InteractionLogEntry.FindFirst();
+        Assert.RecordIsNotEmpty(InteractionLogEntry);
+
+        // [THEN] Three comments created for Interaction Log Entry
+        VerifyInterLogEntryCommentCount(InteractionLogEntry."Entry No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalPageHandlerCreateInteraction,ModalPageHandlerCreateInteractionComments')]
+    [Scope('OnPrem')]
+    procedure CreateInteractionLogWithCommentsForOpportunity()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Opportunity: Record Opportunity;
+        OpportunityCard: TestPage "Opportunity Card";
+    begin
+        // [SCENARIO 492286] When Adding comments to an Interaction of opportunity, all of the comments are displayed/saved
+        Initialize();
+
+        // [GIVEN] Create opportunity XXX
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
+        LibraryVariableStorage.Enqueue(Contact."No.");
+
+        // [GIVEN] Open opportunity card page and Invoke Create Interaction Action
+        OpportunityCard.OpenEdit();
+        OpportunityCard.GotoRecord(Opportunity);
+        OpportunityCard."Create &Interaction".Invoke();
+
+        // [WHEN] Interaction log entry is created
+        InteractionLogEntry.SetFilter("Contact No.", Contact."No.");
+        InteractionLogEntry.FindFirst();
+        Assert.RecordIsNotEmpty(InteractionLogEntry);
+
+        // [THEN] Verify: 3 comments created for Interaction Log Entry
+        VerifyInterLogEntryCommentCount(InteractionLogEntry."Entry No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ModalPageHandlerCreateInteraction,ModalPageHandlerCreateInteractionComments')]
+    [Scope('OnPrem')]
+    procedure CreateInteractionLogWithCommentsForTask()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Task: Record "To-do";
+        TaskCard: TestPage "Task Card";
+    begin
+        // [SCENARIO 492286] When Adding comments to an Interction of Task, all of the comments are displayed/saved
+        Initialize();
+
+        // [GIVEN] Task with Type 'Meeting'
+        LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting.AsInteger());
+
+        // [GIVEN] Task Card page opened
+        TaskCard.OpenEdit();
+        TaskCard.FILTER.SetFilter("No.", Task."No.");
+        LibraryVariableStorage.Enqueue(Task."Contact No.");
+
+        // [WHEN] Task Status is set to Complete
+        TaskCard.Status.SetValue(Task.Status::Completed);
+
+        // [WHEN] Interaction log entry is created
+        InteractionLogEntry.SetFilter("Contact No.", Task."Contact No.");
+        InteractionLogEntry.FindFirst();
+        Assert.RecordIsNotEmpty(InteractionLogEntry);
+
+        // [THEN] Verify: 3 comments created for Interaction Log Entry
+        VerifyInterLogEntryCommentCount(InteractionLogEntry."Entry No.");
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -4326,6 +4421,49 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         Attachment.Get(InteractionLogEntry."Attachment No.");
         Assert.AreNotEqual('', Format(Attachment."Attachment File"), AttachmentFileShouldNotBeBlankErr);
     end;
+
+    local procedure VerifyInterLogEntryCommentCount(InteractionLogEntryNo: Integer)
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+    begin
+        InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntryNo);
+        Assert.IsTrue(InterLogEntryCommentLine.Count() = 3, '');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalPageHandlerCreateInteraction(var CreateInteraction: TestPage "Create Interaction")
+    var
+        InteractionTemplate: Record "Interaction Template";
+        InterLogEntryCommentSheet: TestPage "Inter. Log Entry Comment Sheet";
+        ContactNo: Code[20];
+    begin
+        InterLogEntryCommentSheet.Trap();
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        ContactNo := LibraryVariableStorage.DequeueText();
+        CreateInteraction."Wizard Contact Name".SetValue(ContactNo);
+        CreateInteraction."Interaction Template Code".SetValue(InteractionTemplate.Code);
+        CreateInteraction.Description.SetValue(InteractionTemplate.Code);
+
+        // Invoke Comments on each step
+        CreateInteraction."Co&mments".Invoke();
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction."Co&mments".Invoke();
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction."Co&mments".Invoke();
+        CreateInteraction.FinishInteraction.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalPageHandlerCreateInteractionComments(var InterLogEntryCommentSheet: TestPage "Inter. Log Entry Comment Sheet")
+    begin
+        InterLogEntryCommentSheet.Last();
+        InterLogEntryCommentSheet.Next();
+        InterLogEntryCommentSheet.Date.SetValue(WorkDate());
+        InterLogEntryCommentSheet.Comment.SetValue(LibraryRandom.RandText(20));
+    end;
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)

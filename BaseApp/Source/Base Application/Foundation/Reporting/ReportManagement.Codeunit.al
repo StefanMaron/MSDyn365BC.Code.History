@@ -349,7 +349,7 @@ codeunit 44 ReportManagement
     /// <param name="DocumentStream">Output stream that will contain the rendered output documents.</param>
     /// <param name="IsHandled">Will be set to true if the procedure call handled the merge.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnCustomDocumentMergerEx(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; ObjectPayload: JsonObject; XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream; var IsHandled: Boolean)
+    local procedure OnCustomDocumentMergerEx(ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; ObjectPayload: JsonObject; var XmlData: InStream; LayoutData: InStream; var DocumentStream: OutStream; var IsHandled: Boolean)
     begin
     end;
 

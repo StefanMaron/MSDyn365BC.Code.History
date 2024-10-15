@@ -435,6 +435,34 @@ report 11005 "VAT Statement Germany"
                                 VATEntry.CalcSums("Unrealized Base", "Add.-Currency Unrealized Base");
                                 Amount := ConditionalAdd(0, VATEntry."Unrealized Base", VATEntry."Add.-Currency Unrealized Base");
                             end;
+                        VATStmtLine2."Amount Type"::"Non-Deductible Amount":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Non-Deductible Base":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Full Amount":
+                            begin
+                                VATEntry.CalcSums(Amount, "Additional-Currency Amount", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount :=
+                                    ConditionalAdd(
+                                        0,
+                                        VATEntry.Amount + VATEntry."Non-Deductible VAT Amount",
+                                        VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
+                            end;
+                        VATStmtLine2."Amount Type"::"Full Base":
+                            begin
+                                VATEntry.CalcSums(Base, "Additional-Currency Base", "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount :=
+                                    ConditionalAdd(
+                                        0,
+                                        VATEntry.Base + VATEntry."Non-Deductible VAT Base",
+                                        VATEntry."Additional-Currency Base" + VATEntry."Non-Deductible VAT Base ACY");
+                            end;
                         else
                             VATStmtLine2.TestField("Amount Type");
                     end;
@@ -493,6 +521,14 @@ report 11005 "VAT Statement Germany"
                 TotalUnrealizedAmount := TotalUnrealizedAmount + Amount;
             VATStmtLine2."Amount Type"::"Unrealized Base":
                 TotalUnrealizedBase := TotalUnrealizedBase + Amount;
+            VATStmtLine2."Amount Type"::"Non-Deductible Base":
+                TotalBase := TotalBase + Amount;
+            VATStmtLine2."Amount Type"::"Non-Deductible Amount":
+                TotalAmount := TotalAmount + Amount;
+            VATStmtLine2."Amount Type"::"Full Base":
+                TotalBase := TotalBase + Amount;
+            VATStmtLine2."Amount Type"::"Full Amount":
+                TotalAmount := TotalAmount + Amount;
         end;
     end;
 

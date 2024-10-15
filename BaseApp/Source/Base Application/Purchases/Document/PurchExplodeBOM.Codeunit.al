@@ -155,7 +155,7 @@ codeunit 73 "Purch.-Explode BOM"
                     if not ItemTranslation.Get(FromBOMComp."No.", FromBOMComp."Variant Code", PurchHeader."Language Code") then
                         ToPurchLine.Description := FromBOMComp.Description;
 
-                OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
+                OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp, PurchHeader);
                 ToPurchLine.Insert();
                 OnAfterInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
 
@@ -244,7 +244,7 @@ codeunit 73 "Purch.-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertExplodedPurchLine(var ToPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; FromBOMComp: Record "BOM Component")
+    local procedure OnBeforeInsertExplodedPurchLine(var ToPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; FromBOMComp: Record "BOM Component"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

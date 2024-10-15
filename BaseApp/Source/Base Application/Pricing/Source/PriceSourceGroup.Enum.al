@@ -24,7 +24,7 @@ enum 7002 "Price Source Group" implements "Price Source Group"
     }
     value(31; Job)
     {
-        Caption = 'Job';
+        Caption = 'Project';
         Implementation = "Price Source Group" = "Price Source Group - Job";
     }
 }

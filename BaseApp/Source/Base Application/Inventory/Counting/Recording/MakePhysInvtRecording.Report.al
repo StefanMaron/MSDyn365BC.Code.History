@@ -198,7 +198,7 @@ report 5881 "Make Phys. Invt. Recording"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckOrderLineOnAfterSetFilters(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnCheckOrderLineOnAfterSetFilters(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
@@ -218,7 +218,7 @@ report 5881 "Make Phys. Invt. Recording"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPhysInvtOrderLineOnAfterInsertRecordingLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    local procedure OnPhysInvtOrderLineOnAfterInsertRecordingLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 }
