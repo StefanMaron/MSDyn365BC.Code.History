@@ -71,7 +71,6 @@ codeunit 5771 "Whse.-Sales Release"
 
         WhseRqst.Reset();
         WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange(Type, WhseRqst.Type);
         WhseRqst.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WhseRqst.SetRange("Document Status", SalesHeader.Status::Open);
         if not WhseRqst.IsEmpty() then
