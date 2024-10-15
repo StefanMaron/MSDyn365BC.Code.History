@@ -77,10 +77,10 @@ codeunit 5912 "ServLedgEntries-Post"
             if "Contract No." <> '' then
                 if ServOrderMgt.InServiceContract(TempServLine) then begin
                     ServLedgEntry."Service Contract No." := "Contract No.";
-                    ServLedgEntry."Contract Group Code" := ServContract."Contract Group Code";
-                    if ServContract.Get(ServContract."Contract Type"::Contract, "Contract No.") then
-                        ServLedgEntry."Serv. Contract Acc. Gr. Code" :=
-                          ServContract."Serv. Contract Acc. Gr. Code";
+                    if ServContract.Get(ServContract."Contract Type"::Contract, "Contract No.") then begin
+                        ServLedgEntry."Serv. Contract Acc. Gr. Code" := ServContract."Serv. Contract Acc. Gr. Code";
+                        ServLedgEntry."Contract Group Code" := ServContract."Contract Group Code";
+                    end
                 end else
                     Error(
                       Text001,
