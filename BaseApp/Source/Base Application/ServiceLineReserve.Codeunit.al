@@ -497,6 +497,10 @@ codeunit 99000842 "Service Line-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(ServiceLine);
             ServiceLine.Find();
+            if ServiceLine.UpdatePlanned() then begin
+                ServiceLine.Modify(true);
+                Commit();
+            end;
             QtyPerUOM := ServiceLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;

@@ -3587,6 +3587,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jnl Bank Charges Tests - NamedType FromStateCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1890882134 - NamedType 2768564497" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You Can not have multiple Bank Charges, when Bank Charge Boolean in General Journal Line is True.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jnl Bank Charges Tests - NamedType GSTBankChargeBoolErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1890882134 - NamedType 3370095908" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GSTGroupCode]]></Val>
@@ -3648,6 +3657,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jnl Bank Charges Tests - NamedType NoSeriesLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1890882134 - NamedType 3429370730" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SecondBankCharge]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jnl Bank Charges Tests - NamedType SecondBankChargeLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1890882134 - NamedType 2570334075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

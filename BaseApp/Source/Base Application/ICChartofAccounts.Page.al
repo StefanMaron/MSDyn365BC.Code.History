@@ -103,8 +103,12 @@ page 605 "IC Chart of Accounts"
                     ToolTip = 'Create intercompany G/L accounts from G/L accounts.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
                         CopyFromChartOfAccounts();
+                        FeatureTelemetry.LogUptake('0000IL7', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
                     end;
                 }
                 action("In&dent IC Chart of Accounts")
@@ -133,8 +137,12 @@ page 605 "IC Chart of Accounts"
                     ToolTip = 'Import an intercompany chart of accounts from a file.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
                         ImportFromXML();
+                        FeatureTelemetry.LogUptake('0000IL8', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
                     end;
                 }
                 action("E&xport")
@@ -146,8 +154,12 @@ page 605 "IC Chart of Accounts"
                     ToolTip = 'Export the intercompany chart of accounts to a file.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
                         ExportToXML();
+                        FeatureTelemetry.LogUptake('0000IL9', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
                     end;
                 }
             }
@@ -185,6 +197,14 @@ page 605 "IC Chart of Accounts"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
+    begin
+        FeatureTelemetry.LogUptake('0000ILA', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
+    end;
 
     trigger OnAfterGetRecord()
     begin
