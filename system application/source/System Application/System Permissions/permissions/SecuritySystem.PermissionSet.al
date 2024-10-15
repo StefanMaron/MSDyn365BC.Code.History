@@ -3,17 +3,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-permissionset 160 SECURITY
+permissionset 162 "SECURITY (System)"
 {
-    Access = Public;
-    Assignable = true;
-    Caption = 'Assign permissions to users';
+    Access = Internal;
+    Assignable = false;
 
     IncludedPermissionSets = "Company - Edit",
                              "Permissions & Licenses - Edit",
-                             "Azure AD Plan - Admin",
-                             "Session - Edit",
-                             "LOGIN";
+                             "Session - Edit";
 
     Permissions = system "Tools, Security, Roles" = X,
                   tabledata "Add-in" = imd,

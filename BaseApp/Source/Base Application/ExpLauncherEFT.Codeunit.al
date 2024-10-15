@@ -77,8 +77,10 @@ codeunit 10320 "Exp. Launcher EFT"
 
                 // This should only be called from a test codeunit, calling CreateExportFile MUST pass in a FALSE parameter
                 DataExchDef.Get(DataExchDefCode);
-                if DataExchDef."Ext. Data Handling Codeunit" > 0 then
+                if DataExchDef."Ext. Data Handling Codeunit" > 0 then begin
                     DataExch.Get(DataExchEntryCodeDetail);
+                    Codeunit.Run(DataExchDef."Ext. Data Handling Codeunit", DataExch);
+                end;
 
                 if DataExchDef."User Feedback Codeunit" > 0 then begin
                     DataExch.Get(DataExchEntryCodeDetail);

@@ -2474,6 +2474,50 @@
         Assert.ExpectedErrorCode('TestField');
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    procedure ExtDataHandlingCodeunitOnEFTFileExport()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        GenerateEFT: Codeunit "Generate EFT";
+        EFTValues: Codeunit "EFT Values";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        DataExchDefCode: Code[20];
+        IsCodeunitRun: Boolean;
+    begin
+        // [SCENARIO 442042] "Ext. Data Handling Codeunit" of Data Exchange Definition on EFT file export.
+        Initialize();
+        BindSubscription(ERMElectronicFundsTransfer);
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Data Exchange Definition "DE" for US with "Ext. Data Handling Codeunit" = "Read Data Exch. from Stream".
+        DataExchDefCode := CreateDataExchDefForUS();
+        UpdateExtDataHandlingCodOnDataExchDef(DataExchDefCode, Codeunit::"Read Data Exch. from Stream");
+
+        // [GIVEN] Vendor with Bank account.
+        // [GIVEN] Bank Import/Export Setup "BS" with Data Exch. Definition "DE".
+        // [GIVEN] Bank Account with Payment Export Format = "BS".
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(DataExchDefCode), '', '');
+
+        // [GIVEN] Exported payment journal line.
+        CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+
+        // [WHEN] Generate EFT file.
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", LibraryRandom.RandDate(10), TempEFTExportWorkset, EFTValues);
+
+        // [THEN] Codeunit "Read Data Exch. from Stream" was run.
+        IsCodeunitRun := ERMElectronicFundsTransfer.DequeueFromLibraryVariableStorage();
+        Assert.IsTrue(IsCodeunitRun, '');
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -3179,6 +3223,11 @@
         EFTExport.Insert();
     end;
 
+    procedure DequeueFromLibraryVariableStorage() Variable: Variant
+    begin
+        LibraryVariableStorage.Dequeue(Variable);
+    end;
+
     local procedure DuplicateDataExchangeDefinition(var DataExchDef: Record "Data Exch. Def"; var BankExportImportSetupTarget: Record "Bank Export/Import Setup"; DataExchDefCodeSource: Code[20])
     var
         DataExchLineDefSource: Record "Data Exch. Line Def";
@@ -3766,6 +3815,15 @@
                 DataExchColumnDef, DATABASE::"ACH RB Detail", ACHRBDetail.FieldNo("Payment Date"));
     end;
 
+    local procedure UpdateExtDataHandlingCodOnDataExchDef(DataExchDefCode: Code[20]; ExtDataHandlingCodeunitNo: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+    begin
+        DataExchDef.Get(DataExchDefCode);
+        DataExchDef.Validate("Ext. Data Handling Codeunit", ExtDataHandlingCodeunitNo);
+        DataExchDef.Modify(true);
+    end;
+
     local procedure InsertEntryDetailSequenceNo(DataExchDef: Record "Data Exch. Def")
     var
         DataExchLineDef: Record "Data Exch. Line Def";
@@ -4012,6 +4070,15 @@
     begin
         TempACHCecobanDetail := ACHCecobanDetail;
         if TempACHCecobanDetail.Insert() then;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Read Data Exch. from Stream", 'OnGetDataExchFileContentEvent', '', false, false)]
+    local procedure EnqueueBoolOnGetDataExchFileContent(DataExchIdentifier: Record "Data Exch."; var TempBlobResponse: Codeunit "Temp Blob"; var Handled: Boolean)
+    var
+        IsCodeunitRun: Boolean;
+    begin
+        IsCodeunitRun := true;
+        LibraryVariableStorage.Enqueue(IsCodeunitRun);
     end;
 }
 

@@ -58,8 +58,8 @@ page 6665 "Return Receipt Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
-
+        ClearAll();
+        CalculateTotals();
     end;
 
     var
@@ -68,6 +68,22 @@ page 6665 "Return Receipt Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        ReturnRcptLine: Record "Return Receipt Line";
+    begin
+        ReturnRcptLine.SetRange("Document No.", Rec."No.");
+        if ReturnRcptLine.Find('-') then
+            repeat
+                LineQty += ReturnRcptLine.Quantity;
+                TotalNetWeight += ReturnRcptLine.Quantity * ReturnRcptLine."Net Weight";
+                TotalGrossWeight += ReturnRcptLine.Quantity * ReturnRcptLine."Gross Weight";
+                TotalVolume += ReturnRcptLine.Quantity * ReturnRcptLine."Unit Volume";
+                if ReturnRcptLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(ReturnRcptLine.Quantity / ReturnRcptLine."Units per Parcel", 1, '>');
+            until ReturnRcptLine.Next = 0;
+    end;
 
 #if not CLEAN20
     [Obsolete('Event is never raised', '20.0')]

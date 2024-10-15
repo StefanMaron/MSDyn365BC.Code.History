@@ -265,7 +265,6 @@ page 7011 "Purchase Price List Lines"
 
     trigger OnAfterGetRecord()
     begin
-        Rec.SyncDropDownLookupFields();
         UpdateSourceType();
         SetSourceNoEnabled();
         LineToVerify := Rec.IsLineToVerify();

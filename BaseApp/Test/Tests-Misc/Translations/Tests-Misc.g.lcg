@@ -2831,13 +2831,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType PdfTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3063528946 - NamedType 388206071" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3063528946 - NamedType 3309847819" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.]]></Val>
+      <Val><![CDATA[Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionCustomerQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3063528946 - NamedType 25665603" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit DocumentSendingPostTests - NamedType ProfileSelectionVendorQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 2488362900" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

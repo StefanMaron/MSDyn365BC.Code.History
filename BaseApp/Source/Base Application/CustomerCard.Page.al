@@ -38,8 +38,16 @@
 
                     trigger OnValidate()
                     begin
+                        Validate("CFDI Customer Name", Name);
                         CurrPage.Update(true);
                     end;
+                }
+                field("CFDI Customer Name"; Rec."CFDI Customer Name")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Promoted;
+                    ShowMandatory = true;
+                    ToolTip = 'Specifies the customer''s name that will be reported in CFDI electronic invoicing.';
                 }
                 field("Name 2"; "Name 2")
                 {

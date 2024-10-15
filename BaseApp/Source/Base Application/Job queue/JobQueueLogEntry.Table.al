@@ -124,6 +124,16 @@ table 474 "Job Queue Log Entry"
             Caption = 'System Task Id';
             DataClassification = SystemMetadata;
         }
+        field(32; "User Session ID"; Integer)
+        {
+            Caption = 'User Session ID';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(40; "User Service Instance ID"; Integer)
+        {
+            Caption = 'User Service Instance ID';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
     }
 
     keys

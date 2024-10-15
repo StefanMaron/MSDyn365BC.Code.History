@@ -1718,6 +1718,10 @@
             OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
             OptionMembers = "Diario","Semanal","Quincenal","Mensual"; 
         }
+        field(27007; "CFDI Customer Name"; Text[300])
+        {
+            Caption = 'CFDI Customer Name';
+        }
 
     }
 
