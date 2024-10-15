@@ -41,7 +41,7 @@ codeunit 137035 "SCM PS Bugs-I"
         OutputIsMissingQst: Label 'Some output is still missing. Do you still want to finish the order?';
         ConsumptionIsMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
-        OustandingPickLineExistsErr: Label 'Pick Qty. (Base) must be equal to ''0''';
+        OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1120,7 +1120,40 @@ codeunit 137035 "SCM PS Bugs-I"
         asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] The error is raised pointing to the outstanding pick line that prevents changing status.
-        Assert.ExpectedError(OustandingPickLineExistsErr);
+        Assert.ExpectedError(StrSubstNo(OustandingPickLineExistsErr, ProductionOrder."No."));
+    end;
+
+    [Test]
+    procedure NoOutstandingInvtPickOfComponentCanExistWhenFinishingProdOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Production Order] [Production Order Status] [Consumption] [Inventory Pick] [UT]
+        // [SCENARIO 284740] Finishing production order is interrupted with error if outstanding inventory pick line exists for a prod. order component.
+        Initialize(false);
+
+        // [GIVEN] Released production order.
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
+
+        // [GIVEN] Nothing is left to output in the order.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
+        ProdOrderLine."Remaining Quantity" := 0;
+        ProdOrderLine.Modify();
+
+        // [GIVEN] First prod. order component is not consumed and does not have outstanding pick lines.
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
+
+        // [GIVEN] Second prod. order component is not consumed. An outstanding inventory pick is created for this component.
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
+        MockInvtPickForProdOrderComponent(ProdOrderComponent);
+
+        // [WHEN] Change status of the production order to "Finished".
+        asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The error is raised pointing to the outstanding inventory pick line that prevents finishing the order.
+        Assert.ExpectedError(StrSubstNo(OustandingPickLineExistsErr, ProductionOrder."No."));
     end;
 
     [Test]
@@ -1601,6 +1634,21 @@ codeunit 137035 "SCM PS Bugs-I"
         WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
         WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
         WarehouseActivityLine."Qty. Outstanding (Base)" := ProdOrderComponent."Remaining Qty. (Base)";
+        WarehouseActivityLine.Insert();
+    end;
+
+    local procedure MockInvtPickForProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::"Invt. Pick";
+        WarehouseActivityLine."Source Type" := DATABASE::"Prod. Order Component";
+        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseActivityLine."Source No." := ProdOrderComponent."Prod. Order No.";
+        WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
+        WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
+        WarehouseActivityLine."Qty. Outstanding (Base)" := ProdOrderComponent."Remaining Qty. (Base)";
+        WarehouseActivityLine."Action Type" := WarehouseActivityLine."Action Type"::Take;
         WarehouseActivityLine.Insert();
     end;
 

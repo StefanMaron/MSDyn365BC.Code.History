@@ -205,7 +205,7 @@
   </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 854651776" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?]]></Val>
+      <Val><![CDATA[The depreciation has been calculated.\\1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -286,7 +286,7 @@
   </Item>
   <Item ItemId=";Codeunit 147039743 - NamedType 1939496348" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Disposal must not be negative on %1 for %2 %3 = %4 in %5 = %6.]]></Val>
+      <Val><![CDATA[Disposal must not be positive on %1 for %2 %3 = %4 in %5 = %6.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

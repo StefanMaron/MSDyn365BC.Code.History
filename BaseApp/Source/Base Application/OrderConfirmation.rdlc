@@ -8287,7 +8287,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!SalesLineAmtFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                       <TextDecoration>None</TextDecoration>
                                                     </Style>
                                                   </TextRun>
@@ -8494,7 +8494,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!SalesLineInvDiscAmtFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8852,7 +8852,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!SalsLinAmtExclLineDiscAmtFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -9219,7 +9219,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!SalsLinAmtExclLineDiscAmtFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -9428,7 +9428,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!VATAmountFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -9787,7 +9787,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!SalesLineAmtExclLineDiscFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -10298,7 +10298,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!VATDiscountAmountFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -10658,7 +10658,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!TotalAmountInclVATFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -11073,7 +11073,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!VATAmountFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -11435,7 +11435,7 @@ Cstr(Fields!CompanyInfoRegHomeCity.Value)
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!VATBaseAmountFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

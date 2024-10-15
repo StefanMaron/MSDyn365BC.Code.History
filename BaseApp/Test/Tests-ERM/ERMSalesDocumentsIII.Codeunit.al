@@ -4706,7 +4706,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [FEATURE] [Shipping Agent] [UT]
         // [SCENARIO 386459] GetTrackingInternetAddr doesn't add "http://" if address already contains "https://"
         Initialize();
-        
+
         // [GIVEN] Create Shipping agent with "Internet address" starting with "https://"
         InternetAddress := 'https://' + InternetURLTxt;
         CreateShippingAgent(ShippingAgent, InternetAddress, PackageTrackingNo);
@@ -5130,6 +5130,235 @@ codeunit 134387 "ERM Sales Documents III"
 
         CustomerTemplCard.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler')]
+    procedure GetShipmentLinesWithItemChargeNormalOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Shipment Lines" ignores the order of given shipment lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Sales order with item and charge item for the customer "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales lines with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithItemAndChargeItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Sales order shipped only
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Sales invoice for customer "X"
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        // [WHEN] Call "Get Shipment Lines" with reversed order
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, true);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler')]
+    procedure GetShipmentLinesWithItemChargeReversedOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Shipment Lines" ignores the order of given shipment lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Sales order with item and charge item for the customer "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales lines with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithItemAndChargeItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Sales order shipped only
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Sales invoice for customer "X"
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        // [WHEN] Call "Get Shipment Lines" with reversed order
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, false);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler')]
+    procedure GetShipmentLinesWithItemChargeFirstNormalOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Shipment Lines" ignores the order of given shipment lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Sales order with charge item and item for the customer "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales line with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithChargeItemAndItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Sales order shipped only
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Sales invoice for customer "X"
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        // [WHEN] Call "Get Shipment Lines" with reversed order
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, true);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler')]
+    procedure GetShipmentLinesWithItemChargeFirstReversedOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Shipment Lines" ignores the order of given shipment lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Sales order with charge item and item for the customer "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales line with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithChargeItemAndItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Sales order shipped only
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Sales invoice for customer "X"
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        // [WHEN] Call "Get Shipment Lines" with reversed order
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, false);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,MessageHandler')]
+    procedure GetShipmentLinesFromEmptyFilteredRecord()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        SalesLineInvoice: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge] [FCY]
+        // [SCENARIO 385039] "Get Shipment Lines" does not insert lines into invoice when invoice's currency differs from shipment's currency
+        Initialize();
+
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithChargeItemAndItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+        SalesHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        SalesHeaderInvoice.Modify(true);
+
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, false);
+
+        SalesLineInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLineInvoice.SetRange("Document No.", SalesHeaderInvoice."No.");
+        Assert.RecordIsEmpty(SalesLineInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,ConfirmHandlerTrue')]
+    procedure GetShipmentLinesWithItemCharge_Shipment_UndoShipment_Shipment()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Shipment Lines] [Order] [Invoice] [Item Charge] [Undo Shipment]
+        // [SCENARIO 385039] "Get Shipment Lines" doesn't pull item charge assignment from undone shipment lines
+        Initialize();
+
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreateSalesOrderWithChargeItemAndItem(SalesHeaderOrder, SalesLineItem, SalesLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        UndoShipment(SalesHeaderOrder);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderOrder, SalesLineChargeItem."No.", QtyToAssign);
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        GetShipmentLinesWithOrder(SalesHeaderInvoice, SalesHeaderOrder, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
     local procedure Initialize()
@@ -5569,6 +5798,59 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.SetRecFilter;
     end;
 
+    local procedure CreateSalesOrderWithItemAndChargeItem(var SalesHeaderOrder: Record "Sales Header"; var SalesLineItem: Record "Sales Line"; var SalesLineChargeItem: Record "Sales Line"; QtyToAssign: Decimal)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeaderOrder, SalesLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
+        LibrarySales.CreateSalesLine(
+          SalesLineChargeItem, SalesHeaderOrder,
+          SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+
+        LibraryVariableStorage.Enqueue(QtyToAssign);
+        SalesLineChargeItem.ShowItemChargeAssgnt();
+        SalesLineChargeItem.Modify(true);
+
+        Commit();
+
+        SalesLineChargeItem.Find();
+        SalesLineChargeItem.CalcFields("Qty. to Assign");
+        SalesLineChargeItem.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure CreateSalesOrderWithChargeItemAndItem(var SalesHeaderOrder: Record "Sales Header"; var SalesLineItem: Record "Sales Line"; var SalesLineChargeItem: Record "Sales Line"; QtyToAssign: Decimal)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLineChargeItem, SalesHeaderOrder,
+          SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeaderOrder, SalesLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
+
+        LibraryVariableStorage.Enqueue(QtyToAssign);
+        SalesLineChargeItem.ShowItemChargeAssgnt();
+        SalesLineChargeItem.Modify(true);
+
+        Commit();
+
+        SalesLineChargeItem.Find();
+        SalesLineChargeItem.CalcFields("Qty. to Assign");
+        SalesLineChargeItem.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure GetShipmentLinesWithOrder(SalesHeaderInvoice: Record "Sales Header"; SalesHeaderOrder: Record "Sales Header"; ReversedOrder: Boolean)
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentLine.Ascending(ReversedOrder);
+        SalesShipmentLine.SetCurrentKey("Document No.", "Line No.");
+        SalesShipmentLine.SetRange("Order No.", SalesHeaderOrder."No.");
+
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+    end;
+
     local procedure GetStatusStyleText(Status: Enum "Sales Document Status"): Text
     var
         SalesHeader: Record "Sales Header";
@@ -5933,6 +6215,15 @@ codeunit 134387 "ERM Sales Documents III"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure UndoShipment(SalesHeaderOrder: Record "Sales Header")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.SetRange("Order No.", SalesHeaderOrder."No.");
+
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
     local procedure VerifyCreditMemo(DocumentNo: Code[20]; ReturnOrderNo: Code[20]; ReturnOrderNoSeries: Code[20]; ReturnReasonCode: Code[10])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -6163,6 +6454,19 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.Insert();
 
         SalesHeader.TestField("Transaction Type", '');
+    end;
+
+    local procedure VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeader: Record "Sales Header"; ChargeItemNo: Code[20]; ExpectedQtyToAssign: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("No.", ChargeItemNo);
+
+        SalesLine.FindFirst();
+        SalesLine.CalcFields("Qty. to Assign");
+        SalesLine.TestField("Qty. to Assign", ExpectedQtyToAssign);
     end;
 
     local procedure SalesDocLineQtyValidation(DocType: Enum "Sales Document Type")
@@ -6474,6 +6778,14 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         CustomerLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
         CustomerLookup.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentSalesModalPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentSales.OK.Invoke();
     end;
 }
 
