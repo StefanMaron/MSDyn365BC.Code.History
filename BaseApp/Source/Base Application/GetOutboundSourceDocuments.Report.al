@@ -287,15 +287,16 @@ report 7304 "Get Outbound Source Documents"
 
     local procedure IsPickToBeMadeForAsmLine(AsmLine: Record "Assembly Line"): Boolean
     begin
-        with AsmLine do begin
-            GetLocation("Location Code");
+        if not AsmLine.IsInventoriableItem() then
+            exit(false);
 
-            CalcFields("Pick Qty.");
-            if Location."Require Shipment" then
-                exit(Quantity > "Qty. Picked" + "Pick Qty.");
+        GetLocation(AsmLine."Location Code");
 
-            exit("Quantity to Consume" > "Qty. Picked" + "Pick Qty.");
-        end;
+        AsmLine.CalcFields("Pick Qty.");
+        if Location."Require Shipment" then
+            exit(AsmLine.Quantity > AsmLine."Qty. Picked" + AsmLine."Pick Qty.");
+
+        exit(AsmLine."Quantity to Consume" > AsmLine."Qty. Picked" + AsmLine."Pick Qty.");
     end;
 
     local procedure ProcessAsmLineFromAsmLine(AsmLine: Record "Assembly Line")

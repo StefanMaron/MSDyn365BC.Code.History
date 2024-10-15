@@ -82,13 +82,18 @@ page 1233 "Positive Pay Export"
                 trigger OnAction()
                 var
                     CheckLedgerEntry: Record "Check Ledger Entry";
+                    ExpPositivePayHandler: Codeunit "Exp. Positive Pay Handler";
                 begin
                     CheckLedgerEntry.SetCurrentKey("Bank Account No.", "Check Date");
                     CheckLedgerEntry.SetRange("Bank Account No.", "No.");
                     CheckLedgerEntry.SetRange("Check Date", LastUploadDateEntered, CutoffUploadDate);
                     if BankPaymentType <> Enum::"Bank Payment Type"::" " then
                         CheckLedgerEntry.SetRange("Bank Payment Type", BankPaymentType);
+
+                    ExpPositivePayHandler.SetCheckLedgerEntryView(CheckLedgerEntry.GetView(false));
+                    BindSubscription(ExpPositivePayHandler);
                     CheckLedgerEntry.ExportCheckFile();
+                    UnbindSubscription(ExpPositivePayHandler);
                     UpdateSubForm();
                 end;
             }

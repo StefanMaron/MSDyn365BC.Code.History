@@ -576,6 +576,7 @@ codeunit 5703 "Catalog Item Management"
         OnBeforeInitItemFromTemplate(Item, NonstockItem, IsHandled);
         if not IsHandled then begin
             ItemTempl.Get(NonstockItem."Item Templ. Code");
+            Item.Type := ItemTempl.Type;
             Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
             Item."Costing Method" := ItemTempl."Costing Method";
             Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";

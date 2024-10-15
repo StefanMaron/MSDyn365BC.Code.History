@@ -28,8 +28,13 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
         with TransHeader do begin
             CheckBeforeTransferPost();
-
             CheckDim();
+
+            WhseReference := "Posting from Whse. Ref.";
+            "Posting from Whse. Ref." := 0;
+
+            WhseShip := TempWhseShptHeader.FindFirst();
+            InvtPickPutaway := WhseReference <> 0;
 
             TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
@@ -44,11 +49,13 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 Error(NothingToPostErr);
 
             GetLocation("Transfer-from Code");
-            if Location."Bin Mandatory" or Location."Require Shipment" then
-                WhseShip := true;
+            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+                WhsePosting := true;
 
+            // Require Receipt is not supported here, only Bin Mandatory
             GetLocation("Transfer-to Code");
-            if Location."Bin Mandatory" or Location."Require Receive" then
+            Location.TestField("Require Receive", false);
+            if Location."Bin Mandatory" then
                 WhseReceive := true;
 
             Window.Open('#1#################################\\' + PostingLinesMsg);
@@ -75,8 +82,17 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 RecordLinkManagement.CopyLinks(Rec, DirectTransHeader);
             end;
 
+            if WhseShip then begin
+                WhseShptHeader.Get(TempWhseShptHeader."No.");
+                WhsePostShipment.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, DirectTransHeader."No.", "Posting Date");
+            end;
+
             // Insert shipment lines
             LineCount := 0;
+            if WhseShip then
+                PostedWhseShptLine.LockTable();
+            if InvtPickPutaway then
+                WhseRqst.LockTable();
             DirectTransLine.LockTable();
             TransLine.SetRange(Quantity);
             if TransLine.FindSet() then
@@ -95,6 +111,14 @@ codeunit 5856 "TransferOrder-Post Transfer"
             MakeInventoryAdjustment();
 
             LockTable();
+            if WhseShip then
+                WhseShptLine.LockTable();
+
+            if WhseShip then begin
+                WhsePostShipment.PostUpdateWhseDocuments(WhseShptHeader);
+                TempWhseShptHeader.Delete();
+            end;
+
             "Last Shipment No." := DirectTransHeader."No.";
             "Last Receipt No." := DirectTransHeader."No.";
             Modify();
@@ -117,17 +141,29 @@ codeunit 5856 "TransferOrder-Post Transfer"
         Location: Record Location;
         InvtSetup: Record "Inventory Setup";
         ItemJnlLine: Record "Item Journal Line";
+        WhseRqst: Record "Warehouse Request";
+        PostedWhseShptHeader: Record "Posted Whse. Shipment Header";
+        PostedWhseShptLine: Record "Posted Whse. Shipment Line";
+        TempWhseSplitSpecification: Record "Tracking Specification" temporary;
         TempHandlingSpecification: Record "Tracking Specification" temporary;
+        TempWhseShptHeader: Record "Warehouse Shipment Header" temporary;
         NoSeriesLine: Record "No. Series Line";
         GLEntry: Record "G/L Entry";
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        WhseShptLine: Record "Warehouse Shipment Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        WhsePostShipment: Codeunit "Whse.-Post Shipment";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
-        WhseShip: Boolean;
+        InvtPickPutaway: Boolean;
+        SuppressCommit: Boolean;
         WhseReceive: Boolean;
+        WhseShip: Boolean;
+        WhsePosting: Boolean;
+        WhseReference: Integer;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
         NothingToPostErr: Label 'There is nothing to post.';
@@ -243,7 +279,19 @@ codeunit 5856 "TransferOrder-Post Transfer"
             OriginalQuantityBase := TransLine."Quantity (Base)";
             PostItemJnlLine(TransLine, DirectTransHeader, DirectTransLine);
             DirectTransLine."Item Shpt. Entry No." := InsertShptEntryRelation(DirectTransLine);
-            if WhseShip then
+            if WhseShip then begin
+                WhseShptLine.SetCurrentKey("No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                WhseShptLine.SetRange("No.", WhseShptHeader."No.");
+                WhseShptLine.SetRange("Source Type", DATABASE::"Transfer Line");
+                WhseShptLine.SetRange("Source No.", TransLine."Document No.");
+                WhseShptLine.SetRange("Source Line No.", TransLine."Line No.");
+                if WhseShptLine.FindFirst() then begin
+                    WhseShptLine.TestField("Qty. to Ship", TransLine.Quantity);
+                    WhsePostShipment.CreatePostedShptLine(
+                        WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
+                end;
+            end;
+            if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 0);
             if WhseReceive then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 1);
@@ -305,19 +353,36 @@ codeunit 5856 "TransferOrder-Post Transfer"
     var
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WhseSplitSpecification: Boolean;
     begin
+        if WhsePosting then begin
+            TempWhseSplitSpecification.Reset();
+            TempWhseSplitSpecification.DeleteAll();
+        end;
+
         TempHandlingSpecification2.Reset();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
             TempHandlingSpecification2.SetRange("Buffer Status", 0);
             if TempHandlingSpecification2.Find('-') then begin
                 repeat
+                    WhseSplitSpecification := WhsePosting or WhseShip or InvtPickPutaway;
+                    if WhseSplitSpecification then
+                        if ItemTrackingMgt.GetWhseItemTrkgSetup(DirectTransLine."Item No.") then begin
+                            TempWhseSplitSpecification := TempHandlingSpecification2;
+                            TempWhseSplitSpecification."Source Type" := DATABASE::"Transfer Line";
+                            TempWhseSplitSpecification."Source ID" := TransLine."Document No.";
+                            TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
+                            TempWhseSplitSpecification.Insert();
+                        end;
+
                     ItemEntryRelation.Init();
                     ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
                     ItemEntryRelation.TransferFieldsDirectTransLine(DirectTransLine);
                     ItemEntryRelation.Insert();
                     TempHandlingSpecification := TempHandlingSpecification2;
                     TempHandlingSpecification.SetSource(
-                      DATABASE::"Transfer Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.", '', DirectTransLine."Line No.");
+                        DATABASE::"Transfer Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.", '', DirectTransLine."Line No.");
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
                     TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next() = 0;
@@ -362,6 +427,18 @@ codeunit 5856 "TransferOrder-Post Transfer"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    procedure SetWhseShptHeader(var WhseShptHeader2: Record "Warehouse Shipment Header")
+    begin
+        WhseShptHeader := WhseShptHeader2;
+        TempWhseShptHeader := WhseShptHeader;
+        TempWhseShptHeader.Insert();
+    end;
+
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
     end;
 
     local procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempHandlingSpecification: Record "Tracking Specification" temporary; Direction: Integer)

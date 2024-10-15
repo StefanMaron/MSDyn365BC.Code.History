@@ -25,6 +25,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         WorkDate2: Date;
         Initialized: Boolean;
@@ -1582,6 +1583,78 @@ codeunit 137908 "SCM Assembly Order"
         validateCount(AssemblyHeader."No.", 0);
 
         asserterror Error('') // roll back
+    end;
+
+    [Test]
+    procedure DoNotRefreshLinesWhenAssemblyOrderIsReleased()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 445426] Do not allow to refresh lines when the assembly order is released.
+        Initialize();
+
+        AssemblyHeader.Init();
+        AssemblyHeader."Document Type" := "Assembly Document Type"::Order;
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader.Status := AssemblyHeader.Status::Released;
+        AssemblyHeader.Insert();
+
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
+        asserterror AssemblyOrder."Refresh Lines".Invoke();
+
+        Assert.ExpectedError('Status must be equal');
+    end;
+
+    [Test]
+    procedure AssembleToOrderSetsLocationForNonInventoryItem()
+    var
+        AssemblyItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ATOLink: Record "Assemble-to-Order Link";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO] When using assemble-to-order for an assembly item containing non-inventory items in its BOM,
+        // the location code is set for the generated assembly lines.
+
+        // [GIVEN] an assemble-to-order item with an assembly BOM containing a non-inventory item.
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", AssemblyItem."Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Modify(true);
+
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        LibraryAssembly.CreateAssemblyListComponent(
+            "BOM Component Type"::Item, NonInventoryItem."No.", AssemblyItem."No.", '',
+            BOMComponent."Resource Usage Type", 1, true);
+
+        // [GIVEN] A location requiring pick & shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+
+        // [WHEN] Creating a sales order containing the assembly item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Shipment Date", CalcDate('<+1W>', WorkDate()));
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyItem."No.", 1);
+
+        // [THEN] An assembly order is automatically created.
+        Assert.IsTrue(ATOLink.AsmExistsForSalesLine(SalesLine), 'Expected Assemble-to-Order link to be created');
+
+        // [THEN] The location code is set for the non-inventory item.
+        AssemblyLine.SetRange("Document Type", ATOLink."Assembly Document Type");
+        AssemblyLine.SetRange("Document No.", ATOLink."Assembly Document No.");
+        AssemblyLine.SetRange("No.", NonInventoryItem."No.");
+        AssemblyLine.FindFirst();
+        Assert.AreEqual(AssemblyLine."Location Code", Location.Code, 'Expected location to be set.');
+        Assert.AreEqual(AssemblyLine.Quantity, 1, 'Expected quantity to be 1.');
     end;
 
     [ModalPageHandler]
