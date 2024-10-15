@@ -37,11 +37,16 @@ page 368 "Order Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address.';
                 }
-                field(County; County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'State / ZIP Code';
-                    ToolTip = 'Specifies the state or postal code as part of the address.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'State / ZIP Code';
+                        ToolTip = 'Specifies the state or postal code as part of the address.';
+                    }
                 }
                 field("Post Code"; "Post Code")
                 {
@@ -52,6 +57,11 @@ page 368 "Order Address"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                    end;
                 }
                 field(Contact; Contact)
                 {
@@ -132,5 +142,14 @@ page 368 "Order Address"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+    end;
+
+    var
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
 }
 

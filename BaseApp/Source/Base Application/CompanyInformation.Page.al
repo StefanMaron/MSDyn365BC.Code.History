@@ -40,12 +40,16 @@ Page 1 "Company Information"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s city.';
                 }
-                field(County; County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the state, province or county of the company''s address.';
+                    ShowCaption = false;
                     Visible = CountyVisible;
+                    field(County; County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the state, province or county of the company''s address.';
+                    }
                 }
                 field("Post Code"; "Post Code")
                 {
@@ -63,6 +67,11 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        CountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                    end;
                 }
                 field("Contact Person"; "Contact Person")
                 {
@@ -324,12 +333,12 @@ Page 1 "Company Information"
                     field("SCT Permission Type"; "SCT Permission Type")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the type of permission provided by Secretaría de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
+                        ToolTip = 'Specifies the type of permission provided by Secretarï¿½a de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
                     }
                     field("SCT Permission Number"; "SCT Permission Number")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the permission number as defined by the Secretaría de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
+                        ToolTip = 'Specifies the permission number as defined by the Secretarï¿½a de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
                     }
                 }
             }

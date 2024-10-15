@@ -62,6 +62,12 @@ codeunit 6516 "Package Management"
         TrackingSpecification."New Package No." := FromTrackingSpecification."Package No.";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterCopyNewTrackingFromNewTrackingSpec', '', false, false)]
+    local procedure TrackingSpecificationCopyNewTrackingFromNewTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+        TrackingSpecification."New Package No." := FromTrackingSpecification."New Package No.";
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterCopyTrackingFromEntrySummary', '', false, false)]
     local procedure TrackingSpecificationCopyTrackingFromEntrySummary(var TrackingSpecification: Record "Tracking Specification"; EntrySummary: Record "Entry Summary")
     begin
@@ -2112,9 +2118,8 @@ codeunit 6516 "Package Management"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Available - Item Ledg. Entries", 'OnAfterSetFilters', '', false, false)]
-    local procedure AvailableItemLedgEntriesOnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry")
+    local procedure AvailableItemLedgEntriesOnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management")
     var
-        ReservMgt: Codeunit "Reservation Management";
         FieldFilter: Text;
     begin
         if ReservationEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive(), "Item Tracking Type"::"Package No.") then

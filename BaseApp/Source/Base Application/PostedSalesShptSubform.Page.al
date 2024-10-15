@@ -47,9 +47,9 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -443,13 +443,10 @@
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
         IsFoundation: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -526,13 +523,6 @@
         Clear(DimMgt);
 
         OnAfterSetDimensionsVisibility();
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

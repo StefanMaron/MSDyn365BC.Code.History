@@ -523,6 +523,14 @@
         {
             Caption = 'Shipment Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD(Code));
+
+            trigger OnValidate()
+            begin
+                if "Shipment Bin Code" <> '' then begin
+                    Bin.Get(Code, "Shipment Bin Code");
+                    Bin.TestField(Dedicated, false);
+                end;
+            end;
         }
         field(7326; "Cross-Dock Bin Code"; Code[20])
         {
@@ -648,6 +656,10 @@
         {
             Caption = 'SAT Suburb ID';
             TableRelation = "SAT Suburb";
+        }
+        field(27030; "ID Ubicacion"; Integer)
+        {
+            Caption = 'ID Ubicacion';
         }
     }
 
@@ -983,6 +995,24 @@
         end;
 
         FindFirst;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetSATAddress() LocationAddress: Text
+    var
+        SATState: Record "SAT State";
+        SATMunicipality: Record "SAT Municipality";
+        SATLocality: Record "SAT Locality";
+        SATSuburb: Record "SAT Suburb";
+    begin
+        if SATState.Get("SAT State Code") then
+            LocationAddress := SATState.Description;
+        if SATMunicipality.Get("SAT Municipality Code") then
+            LocationAddress += ' ' + SATMunicipality.Description;
+        if SATLocality.Get("SAT Locality Code") then
+            LocationAddress += ' ' + SATLocality.Description;
+        if SATSuburb.Get("SAT Suburb ID") then
+            LocationAddress += ' ' + SATSuburb.Description;
     end;
 
     [IntegrationEvent(false, false)]

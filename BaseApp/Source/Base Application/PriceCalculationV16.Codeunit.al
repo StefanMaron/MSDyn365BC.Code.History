@@ -224,7 +224,14 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     end;
 
     local procedure PickBestLine(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line"; var BestPriceListLine: Record "Price List Line"; var FoundBestLine: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePickBestLine(AmountType, PriceListLine, BestPriceListLine, FoundBestLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsImprovedLine(PriceListLine, BestPriceListLine) or not IsDegradedLine(PriceListLine, BestPriceListLine) then begin
             if IsImprovedLine(PriceListLine, BestPriceListLine) and not IsDegradedLine(PriceListLine, BestPriceListLine) then
                 Clear(BestPriceListLine);
@@ -426,6 +433,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPickBestLine(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line"; var BestPriceListLine: Record "Price List Line"; var FoundBestLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickBestLine(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line"; var BestPriceListLine: Record "Price List Line"; var FoundBestLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 

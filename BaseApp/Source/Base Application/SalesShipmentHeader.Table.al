@@ -665,6 +665,19 @@
             Caption = 'Transit-to Location';
             TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
         }
+        field(10056; "Medical Insurer Name"; Text[50])
+        {
+            Caption = 'Medical Insurer Name';
+        }
+        field(10057; "Medical Ins. Policy Number"; Text[30])
+        {
+            Caption = 'Medical Ins. Policy Number';
+        }
+        field(10058; "SAT Weight Unit Of Measure"; Code[10])
+        {
+            Caption = 'SAT Weight Unit Of Measure';
+            TableRelation = "SAT Weight Unit of Measure";
+        }
     }
 
     keys

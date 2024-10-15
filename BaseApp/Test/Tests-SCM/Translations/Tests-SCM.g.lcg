@@ -13109,6 +13109,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -III - NamedType VersionsWillBeClosedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3754174171 - NamedType 3029696696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to Entry must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -IV - NamedType AppliesToEntryMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3754174171 - NamedType 828998297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You do not have enough inventory to meet the demand for items in one or more lines]]></Val>

@@ -2621,6 +2621,7 @@ codeunit 134141 "ERM Bank Reconciliation"
             BankAccountStatement.TestField("Balance Last Statement", -EndingBalanceBefore);
             BankAccountStatement.TestField("Statement Ending Balance", -EndingBalance);
         end;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2690,6 +2691,83 @@ codeunit 134141 "ERM Bank Reconciliation"
         VerifyUndoneCheckLedgerEntryManyToOne(BankAccount."No.", DocumentNo, NewStatementNo);
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PostAndReconcilePageHandler')]
+    [Scope('OnPrem')]
+    procedure PostBankReconciliationWhenSatementNoExist()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        DocumentNo: array[2] of Code[20];
+        InvoiceNo: Code[20];
+        BankPaymentAmount: Decimal;
+        CheckPaymentAmount: Decimal;
+        InvoiceAmount: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 420266] Bank account ledger entry has proper Statement No. while posting when same Statement No. already exist
+        Initialize();
+
+        // [GIVEN] Create bank account
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create and post check payment "CP"
+        DocumentNo[1] := CreatePaymentJournalLineWithVendorAndBank(GenJournalLine, LibraryPurchase.CreateVendorNo(), BankAccount."No.");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify();
+        CheckPaymentAmount := GenJournalLine.Amount;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] Create and post bank payment "BP"
+        DocumentNo[2] := CreatePaymentJournalLineWithVendorAndBank(GenJournalLine, LibraryPurchase.CreateVendorNo(), BankAccount."No.");
+        BankPaymentAmount := GenJournalLine.Amount;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create and post invoice "I"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.CalcFields(Amount);
+        InvoiceAmount := PurchaseHeader.Amount;
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create bank reconciliation 1 for payments "CP" and "BP"
+        CreateBankReconciliation(BankAccReconciliation[1], BankAccount."No.", BankAccReconciliation[1]."Statement Type"::"Bank Reconciliation");
+        SuggestBankRecLines(BankAccReconciliation[1], true);
+
+        // [GIVEN] Create Payment Application to invoice "I" and post it
+        CreateBankReconciliation(BankAccReconciliation[2], BankAccount."No.", BankAccReconciliation[2]."Statement Type"::"Payment Application");
+        CreateBankAccReconciliationLine(
+            BankAccReconciliation[2], BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor,
+            PurchaseHeader."Buy-from Vendor No.", -InvoiceAmount, WorkDate);
+        LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
+        LibraryVariableStorage.Enqueue(InvoiceNo);
+        MatchBankReconLineManually(BankAccReconciliationLine);
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation[2], BankAccReconciliationLine."Statement Amount");
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation[2]);
+
+        // [WHEN] Bank reconciliation 1 is being posted and created statement 2
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation[1], -(CheckPaymentAmount + BankPaymentAmount));
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation[1]);
+
+        // [THEN] Bank and check ledger entries "CP" applied to statement 2
+        BankAccountStatement.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountStatement.FindLast();
+
+        FindBankLedgerEntry(BankAccountLedgerEntry, BankAccount."No.", DocumentNo[1]);
+        BankAccountLedgerEntry.TestField("Statement No.", BankAccountStatement."Statement No.");
+        FindCheckLedgerEntry(CheckLedgerEntry, BankAccount."No.", DocumentNo[1]);
+        CheckLedgerEntry.TestField("Statement No.", BankAccountStatement."Statement No.");
+
+        // [THEN] Bank ledger entry "BP" applied to statement 2
+        FindBankLedgerEntry(BankAccountLedgerEntry, BankAccount."No.", DocumentNo[2]);
+        BankAccountLedgerEntry.TestField("Statement No.", BankAccountStatement."Statement No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -2726,9 +2804,6 @@ codeunit 134141 "ERM Bank Reconciliation"
             BankAccReconciliation, BankAccReconciliationLine,
             BankAccReconciliationLine."Account Type"::Vendor, Vendor."No.",
             GenJournalLine.Amount, GenJournalLine."Posting Date");
-
-        LibraryVariableStorage.Enqueue(Vendor."No.");
-        LibraryVariableStorage.Enqueue(GenJournalLine."Document No.");
 
         BankAccReconciliationTestPage.OpenEdit();
         BankAccReconciliationTestPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
@@ -3558,10 +3633,22 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
+        FindBankLedgerEntry(BankAccountLedgerEntry, BankAccountNo, DocumentNo);
+        BankAccountLedgerEntry.TestField("Remaining Amount", ExpectedRemainingAmount);
+    end;
+
+    local procedure FindBankLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; DocumentNo: Code[20])
+    begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.FindFirst();
-        BankAccountLedgerEntry.TestField("Remaining Amount", ExpectedRemainingAmount);
+    end;
+
+    local procedure FindCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocumentNo: Code[20])
+    begin
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Document No.", DocumentNo);
+        CheckLedgerEntry.FindFirst();
     end;
 
     local procedure VerifyUndoneCheckLedgerEntry(BankAccountNo: Code[20]; DocumentNo: Code[20]; NewStatementNo: Code[20])

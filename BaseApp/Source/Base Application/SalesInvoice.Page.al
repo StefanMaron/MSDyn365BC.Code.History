@@ -56,14 +56,8 @@
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
-                    var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
 
@@ -352,8 +346,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
-                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Shipment Date"; "Shipment Date")
@@ -389,12 +382,7 @@
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
-                    var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
                 }
@@ -738,18 +726,12 @@
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
-                            var
-                                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                             begin
                                 if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
 
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                                CurrPage.Update(false);
+                                CurrPage.Update();
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -967,6 +949,21 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
                 }
+                field("Medical Insurer Name"; "Medical Insurer Name")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the insurer that covers potential damage to the environment if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("Medical Ins. Policy Number"; "Medical Ins. Policy Number")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the insurance policy number if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("SAT Weight Unit Of Measure"; "SAT Weight Unit Of Measure")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the unit of measurement of the weight of the goods and / or merchandise that are moved in this transport.';
+                }
             }
         }
         area(factboxes)
@@ -1098,6 +1095,7 @@
                         PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         ShowDocumentStatisticsPage();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action("Co&mments")

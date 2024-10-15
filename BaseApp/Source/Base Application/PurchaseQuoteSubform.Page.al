@@ -93,9 +93,9 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the cross-referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -147,6 +147,7 @@
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                         NoOnAfterValidate();
                     end;
@@ -992,7 +993,6 @@
         SetOpenPage();
 
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
@@ -1014,10 +1014,7 @@
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         SuppressTotals: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         ExcelFileNameTxt: Label 'Purchase Quote %1 - Lines', Comment = '%1 = document number, ex. 10000';
-
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";
@@ -1035,6 +1032,7 @@
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
 
     local procedure SetOpenPage()
@@ -1225,13 +1223,6 @@
         Clear(DimMgt);
 
         OnAfterSetDimensionsVisibility();
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure SetDefaultType()

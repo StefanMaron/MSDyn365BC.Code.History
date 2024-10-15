@@ -983,6 +983,7 @@ page 50 "Purchase Order"
                         PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         ShowDocumentStatisticsPage();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

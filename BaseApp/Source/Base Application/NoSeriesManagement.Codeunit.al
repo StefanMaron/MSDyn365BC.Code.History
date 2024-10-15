@@ -268,6 +268,17 @@ codeunit 396 NoSeriesManagement
         exit(NoSeriesLine."Last No. Used");
     end;
 
+    procedure FindNoSeriesLine(var NoSeriesLineResult: Record "No. Series Line"; NoSeriesCode: Code[20]; SeriesDate: Date): Boolean
+    begin
+        SetNoSeriesLineFilter(NoSeriesLineResult, NoSeriesCode, SeriesDate);
+        exit(NoSeriesLineResult.FindFirst());
+    end;
+
+    procedure IsCurrentNoSeriesLine(NoSeriesLineIn: Record "No. Series Line"): Boolean
+    begin
+        exit((NoSeriesLineIn."Series Code" = LastNoSeriesLine."Series Code") and (NoSeriesLineIn."Line No." = LastNoSeriesLine."Line No."));
+    end;
+
     local procedure ModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line")
     var
         IsHandled: Boolean;

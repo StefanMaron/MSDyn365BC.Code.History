@@ -625,7 +625,7 @@ report 7305 "Whse.-Source - Create Document"
         AssignedID: Code[50];
         WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order";
         SortActivity: Enum "Whse. Activity Sorting Method";
-        SourceTableCaption: Text[30];
+        SourceTableCaption: Text;
         CreateErrorText: Text[80];
         Text000: Label '%1 activity no. %2 has been created.';
         Text001: Label '%1 activities no. %2 to %3 have been created.';
@@ -1249,7 +1249,7 @@ report 7305 "Whse.-Source - Create Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSortWhseDocsForPrints(WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order"; FirstActivityNo: Code[20]; LastActivityNo: Code[20]; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean; var HideNothingToHandleErr: Boolean)
+    local procedure OnBeforeSortWhseDocsForPrints(WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order"; var FirstActivityNo: Code[20]; var LastActivityNo: Code[20]; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean; var HideNothingToHandleErr: Boolean)
     begin
     end;
 

@@ -1977,9 +1977,9 @@
 #endif
                 action("Item Re&ferences")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Re&ferences';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     RunObject = Page "Item Reference Entries";
                     RunPageLink = "Item No." = FIELD("No.");
@@ -2685,7 +2685,6 @@
         IntegrationTableMapping: Record "Integration Table Mapping";
         GLSetup: Record "General Ledger Setup";
         EnvironmentInfo: Codeunit "Environment Information";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
         OnBeforeOnOpenPage(Rec);
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
@@ -2695,7 +2694,9 @@
         GLSetup.Get();
         UseVAT := GLSetup."VAT in Use";
         SetOverReceiptControlsVisibility();
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+#if not CLEAN19
+        ItemReferenceVisible := true;
+#endif        
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('ITEM-PRODUCT') then
@@ -2760,8 +2761,10 @@
         IsInventoriable: Boolean;
         ExpirationCalculationEditable: Boolean;
         OverReceiptAllowed: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
         ExtendedPriceEnabled: Boolean;
         [InDataSet]
         TimeBucketEnable: Boolean;
@@ -2808,7 +2811,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-        
+
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 

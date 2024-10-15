@@ -88,7 +88,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
                     end;
             end;
-            OnAfterFindSalesLinePrice(SalesLine, SalesHeader, TempSalesPrice, ResPrice, CalledByFieldNo);
+            OnAfterFindSalesLinePrice(SalesLine, SalesHeader, TempSalesPrice, ResPrice, CalledByFieldNo, FoundSalesPrice);
         end;
     end;
 
@@ -707,7 +707,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                 LineAmount := "Unit Price" * (1 - LineDiscPerCent / 100)
             else
                 LineAmount := "Unit Price";
-        OnAfterCalcLineAmount(SalesPrice, LineAmount);
+        OnAfterCalcLineAmount(SalesPrice, LineAmount, LineDiscPerCent);
     end;
 
     procedure GetSalesLinePrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -1679,7 +1679,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcLineAmount(SalesPrice: Record "Sales Price"; var LineAmount: Decimal)
+    local procedure OnAfterCalcLineAmount(SalesPrice: Record "Sales Price"; var LineAmount: Decimal; var LineDiscPerCent: Decimal)
     begin
     end;
 
@@ -1719,7 +1719,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindSalesLinePrice(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var SalesPrice: Record "Sales Price"; var ResourcePrice: Record "Resource Price"; CalledByFieldNo: Integer)
+    local procedure OnAfterFindSalesLinePrice(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var SalesPrice: Record "Sales Price"; var ResourcePrice: Record "Resource Price"; CalledByFieldNo: Integer; FoundSalesPrice: Boolean)
     begin
     end;
 

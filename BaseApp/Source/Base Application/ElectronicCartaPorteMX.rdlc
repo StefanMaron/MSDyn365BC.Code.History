@@ -1093,7 +1093,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Origen</Value>
+                                      <Value EvaluationMode="Auto">Tipo de UbicaciÝn</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1129,7 +1129,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Destino</Value>
+                                      <Value EvaluationMode="Auto">ID UbicaciÝn</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1280,7 +1280,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!StartDateTime.Value, "DataSet_Result")</Value>
+                                      <Value EvaluationMode="Auto">Origen</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1309,14 +1309,14 @@
                         </TablixCell>
                         <TablixCell>
                           <CellContents>
-                            <Textbox Name="Textbox49">
+                            <Textbox Name="IDUbicacionOrigen">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto" />
+                                      <Value EvaluationMode="Auto">=Fields!IDUbicacionOrigen.Value</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1329,7 +1329,7 @@
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <rd:DefaultName>Textbox49</rd:DefaultName>
+                              <rd:DefaultName>IDUbicacionOrigen</rd:DefaultName>
                               <Style>
                                 <Border>
                                   <Color>LightGrey</Color>
@@ -1465,7 +1465,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto" />
+                                      <Value EvaluationMode="Auto">Destino</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1494,14 +1494,14 @@
                         </TablixCell>
                         <TablixCell>
                           <CellContents>
-                            <Textbox Name="Textbox54">
+                            <Textbox Name="IDUbicacionDestino">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!FinishDateTime.Value, "DataSet_Result")</Value>
+                                      <Value EvaluationMode="Auto">=Fields!IDUbicacionDestino.Value</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1514,7 +1514,7 @@
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <rd:DefaultName>Textbox54</rd:DefaultName>
+                              <rd:DefaultName>IDUbicacionDestino</rd:DefaultName>
                               <Style>
                                 <Border>
                                   <Color>LightGrey</Color>
@@ -4079,6 +4079,12 @@ End Function
         </Field>
         <Field Name="LocationToAddress">
           <DataField>LocationToAddress</DataField>
+        </Field>
+        <Field Name="IDUbicacionOrigen">
+          <DataField>IDUbicacionOrigen</DataField>
+        </Field>
+        <Field Name="IDUbicacionDestino">
+          <DataField>IDUbicacionDestino</DataField>
         </Field>
         <Field Name="VehicleLicencePlate">
           <DataField>VehicleLicencePlate</DataField>
