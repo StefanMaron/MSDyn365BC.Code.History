@@ -1,4 +1,4 @@
-codeunit 9998 "Upgrade Tag Definitions"
+﻿codeunit 9998 "Upgrade Tag Definitions"
 {
     // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
     // Tags must be the same in all branches
@@ -108,6 +108,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDeferralSourceCodeUpdateTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -908,6 +909,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
     begin
         exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
+    end;
+
+    internal procedure GetDeferralSourceCodeUpdateTag(): Code[250]
+    begin
+        exit('MS-422924-GetDeferralSourceCodeUpdateTag-20230124');
     end;
 }
 

@@ -328,6 +328,12 @@ page 26 "Vendor Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the default price calculation method.';
                 }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the registration number of the vendor. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 group("Posting Details")
                 {
                     Caption = 'Posting Details';

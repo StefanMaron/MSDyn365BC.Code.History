@@ -591,7 +591,8 @@
             end;
             OnCopySalesDocUpdateHeaderOnAfterSetStatusOpen(ToSalesHeader, OldSalesHeader);
             if MoveNegLines or IncludeHeader then
-                Validate("Location Code");
+                if not IsCreditDocType() then
+                    Validate("Location Code");
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
             Validate("Payment Terms Code");
             Validate("Operation Type");
