@@ -48,7 +48,6 @@
         CheckTransmittedErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty', Locked = true;
         CheckExportedErr: Label 'Check Exported must be true.';
         DocumentNoBlankErr: Label 'Document No. must be blank.';
-        JulainDateErr: Label 'Format of File date must be Julain Date.';
         IsInitialized: Boolean;
 
     [Test]
@@ -2742,46 +2741,66 @@
     end;
 
     [Test]
-    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
-    procedure JulianDateFormatOnEFTExportCA()
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportElecPaymentsWordRequestPageHandler')]
+    procedure CompanyLogoAndAddrIsDisplayedInExportElecPaymentsWordReportOnlyWhenSetToTrueInReqPage()
     var
         Vendor: Record Vendor;
-        VendorBankAccount: Record "Vendor Bank Account";
         BankAccount: Record "Bank Account";
-        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
-        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
-        GenerateEFT: Codeunit "Generate EFT";
-        EFTValues: Codeunit "EFT Values";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        SettleDate: Date;
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        CompanyInformation: Record "Company Information";
     begin
-        // [SCENARIO 527241] Julian date format for Canada EFT is not properly formatting/displaying the year.
+        // [SCENARIO 543593] Company Logo and Company Address is displayed in "ExportElecPayments - Word" report
+        // only when Stan sets Print Company Address and Print Company Logo as true on request page.
         Initialize();
 
-        // [GIVEN] Create the format of Export Report.
-        BindSubscription(ERMElectronicFundsTransfer);
-        TestClientTypeSubscriber.SetClientType(ClientType::Web);
-        BindSubscription(TestClientTypeSubscriber);
-        CreateExportReportSelection(Layout::RDLC);
-
-        // [GIVEN] Create Vendor and Vendor Bank Account.
-        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
-
-        // [GIVEN] Create Bank Account for Canada and its Format.
+        // [GIVEN] Create Bank Account With Export Setup.
         CreateBankAccountForCountry(
-            BankAccount, BankAccount."Export Format"::CA, CreateBankExportImportSetup(CreateDataExchDefForCA()),
-            LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+            BankAccount,
+            BankAccount."Export Format"::US,
+            CreateBankExportImportSetup(CreateDataExchDefForUS()),
+            '',
+            '');
 
-        // [GIVEN] Exported payment journal line with filled in all business data.
-        CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+        // [GIVEN] Create Vendor with Bank Account.
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
 
-        // [WHEN] Generate EFT file.
-        SettleDate := LibraryRandom.RandDate(10);
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", SettleDate, TempEFTExportWorkset, EFTValues);
-        ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
 
-        // [THEN] File Creation Date must be in Julian Date Format.
-        Assert.AreEqual(TempACHRBHeader."File Creation Date", CalculateJulianDate((Today())), JulainDateErr);
+        // [GIVEN] Create Payment Journal Lines for Vendor.
+        CreateVendorPaymentLine(
+            GenJournalLine,
+            GenJournalBatch,
+            VendorBankAccount."Vendor No.",
+            VendorBankAccount.Code,
+            BankAccount."No.");
+
+        // [GIVEN] Run "ExportElecPayments - Word" report.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        RunReportExportElecPaymentsWord(GenJournalLine, true);
+
+        // [GIVEN] Find Company Information.
+        CompanyInformation.Get();
+        CompanyInformation.CalcFields(Picture);
+
+        // [WHEN] Report is printed.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('Gen__Journal_Line___Document_No__', GenJournalLine."Document No.");
+        LibraryReportDataset.GetNextRow();
+
+        // [THEN] Company Picture is displayed in the report.
+        LibraryReportDataset.CurrentRowHasElement('CompanyPicture');
+
+        // [THEN] Address of Company Information is displyed in the report.
+        LibraryReportDataset.AssertCurrentRowValueEquals('CompanyAddress_1_', CompanyInformation.Name);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -4656,6 +4675,18 @@
         ExportElecPaymentsWord.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExportElecPaymentsWordRequestPageHandler(var ExportElecPaymentsWord: TestRequestPage "ExportElecPayments - Word")
+    begin
+        ExportElecPaymentsWord.BankAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText());
+        ExportElecPaymentsWord.PrintCompanyAddress.SetValue(LibraryVariableStorage.DequeueBoolean());
+        ExportElecPaymentsWord.PrintCompanyLogo.SetValue(LibraryVariableStorage.DequeueBoolean());
+        ExportElecPaymentsWord.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
     [ReportHandler]
     [Scope('OnPrem')]
     procedure ExportElectronicPaymentsRH(var ExportElectronicPayments: Report "Export Electronic Payments")
@@ -4822,7 +4853,7 @@
     begin
         ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
         TempACHRBHeader.TestField("File Creation Number", FileCreationNo);
-        TempACHRBHeader.TestField("File Creation Date", CalculateJulianDate(Today()));
+        TempACHRBHeader.TestField("File Creation Date", ExportEFTRB.JulianDate(Today()));
         TempACHRBHeader.TestField("Settlement Date", SettleDate);
         TempACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(SettleDate)); // TFS 401126
 
@@ -4959,33 +4990,6 @@
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.ApplyEntries.Invoke();
         PaymentJournal.Close();
-    end;
-
-    local procedure CalculateJulianDate(NormalDate: Date): Integer
-    var
-        Year: Integer;
-        Day: Integer;
-        CalculatedDate: Integer;
-    begin
-        Year := Date2DMY(NormalDate, 3);
-        Day := (NormalDate - DMY2Date(1, 1, Year)) + 1;
-        Evaluate(CalculatedDate, GetFormattedJulainDate(Format(Day), Format(Year)));
-        exit(CalculatedDate);
-    end;
-
-    local procedure GetFormattedJulainDate(Day: Text; Year: Text): Text
-    var
-        ReturnDate: Text;
-    begin
-        case StrLen(Day) of
-            1:
-                ReturnDate := Year + '00' + Day;
-            2:
-                ReturnDate := Year + '0' + Day;
-            else
-                ReturnDate := Year + Day;
-        end;
-        exit(ReturnDate);
     end;
 
     [ConfirmHandler]

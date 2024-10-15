@@ -2526,7 +2526,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2624,7 +2624,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2836,7 +2836,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', CFDINamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2925,7 +2925,7 @@ codeunit 10145 "E-Invoice Mgt."
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                SATClassificationCode := SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(XMLDoc, XMLCurrNode, 'BienesTransp', SATClassificationCode);
@@ -3197,7 +3197,7 @@ codeunit 10145 "E-Invoice Mgt."
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
+                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
                 // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|');
                 // NoIdentificacion
@@ -3306,7 +3306,7 @@ codeunit 10145 "E-Invoice Mgt."
 
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
+                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
                 // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|');
                 // NoIdentificacion
@@ -3503,7 +3503,7 @@ codeunit 10145 "E-Invoice Mgt."
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // ClaveProdServ
+                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|'); // NoIdentificacion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
                 WriteOutStr(OutStream, SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code") + '|'); // ClaveUnidad
@@ -3566,7 +3566,7 @@ codeunit 10145 "E-Invoice Mgt."
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                SATClassificationCode := SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 WriteOutStr(OutStream, SATClassificationCode + '|'); // BienesTransp
                 WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
@@ -6544,19 +6544,17 @@ IsVATExemptLine(TempDocumentLine));
         exit(false);
     end;
 
-    local procedure MapServiceTypeToTempDocType(Type: Enum "Service Line Type"): Integer
-    var
-        TrueType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
+    local procedure MapServiceTypeToTempDocType(Type: Enum "Service Line Type") LineType: Enum "Sales Line Type"
     begin
         case Type of
             Type::Item:
-                exit(TrueType::Item);
+                exit(LineType::Item);
             Type::Resource:
-                exit(TrueType::Resource);
+                exit(LineType::Resource);
             Type::"G/L Account":
-                exit(TrueType::"G/L Account");
+                exit(LineType::"G/L Account");
             else
-                exit(TrueType::" ");
+                exit(LineType::" ");
         end;
     end;
 

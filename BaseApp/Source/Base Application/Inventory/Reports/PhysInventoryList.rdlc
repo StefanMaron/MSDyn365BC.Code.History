@@ -922,7 +922,7 @@
                                     <FontStyle>Normal</FontStyle>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>#,##0</Format>
+                                    <Format>=Fields!QtyCalculated_ItemJnlLinFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

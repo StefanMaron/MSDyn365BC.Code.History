@@ -1110,8 +1110,10 @@ report 402 "Purchase Document - Test"
                                     else
                                         SalesTaxCalculate.EndSalesTaxCalculation("Purchase Header"."Posting Date");
                                     SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
-                                    VATAmount := TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
-                                    VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase();
+                                    if "Purchase Header"."Currency Code" = '' then begin
+                                        VATAmount := TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
+                                        VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase();
+                                    end;
                                 end;
                                 if SalesTax then
                                     TaxText := TempSalesTaxAmountLine.TaxAmountText()
@@ -1427,7 +1429,7 @@ report 402 "Purchase Document - Test"
                         {
                             AutoFormatType = 1;
                         }
-                        column(SalesTaxAmountLine__Tax_Base_Amount_; TempSalesTaxAmountLine."Tax Base Amount")
+                        column(SalesTaxAmountLine__Tax_Base_Amount_; TaxBaseAmount)
                         {
                             AutoFormatType = 1;
                         }
@@ -1496,6 +1498,8 @@ report 402 "Purchase Document - Test"
                         }
 
                         trigger OnAfterGetRecord()
+                        var
+                            TaxAmount: Decimal;
                         begin
                             if Number = 1 then
                                 TempSalesTaxAmountLine.Find('-')
@@ -1504,13 +1508,19 @@ report 402 "Purchase Document - Test"
 
                             if SalesTaxCountry = SalesTaxCountry::CA then
                                 TempSalesTaxAmountLine."Tax Amount" := Round(TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision")
-                            else begin
-                                TempSalesTaxAmountLine."Tax Amount" += RemSalesTaxAmt;
-                                RemSalesTaxAmt :=
-                                  TempSalesTaxAmountLine."Tax Amount" - Round(
-                                    TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
-                                TempSalesTaxAmountLine."Tax Amount" := Round(TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
-                            end;
+                            else
+                                if "Purchase Header"."Currency Code" = '' then begin
+                                    TaxBaseAmount := TempSalesTaxAmountLine."Tax Base Amount";
+                                    TempSalesTaxAmountLine."Tax Amount" += RemSalesTaxAmt;
+                                    RemSalesTaxAmt :=
+                                      TempSalesTaxAmountLine."Tax Amount" - Round(
+                                        TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
+                                    TempSalesTaxAmountLine."Tax Amount" := Round(TempSalesTaxAmountLine."Tax Amount", GLSetup."Amount Rounding Precision");
+                                end else begin
+                                    TaxBaseAmount := TempSalesTaxAmountLine."Tax Base Amount FCY";
+                                    TaxAmount := TaxAmount + (TempSalesTaxAmountLine."Tax Base Amount FCY" * TempSalesTaxAmountLine."Tax %" / 100);
+                                    TempSalesTaxAmountLine."Tax Amount" := Round(TaxAmount, GLSetup."Amount Rounding Precision");
+                                end;
                         end;
 
                         trigger OnPreDataItem()
@@ -1520,6 +1530,14 @@ report 402 "Purchase Document - Test"
                             SetRange(Number, 1, TempSalesTaxAmountLine.Count);
                             TempSalesTaxAmountLine.Reset();
                             RemSalesTaxAmt := 0;
+                        end;
+
+                        trigger OnPostDataItem()
+                        begin
+                            if "Purchase Header"."Currency Code" <> '' then begin
+                                VATAmount := TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
+                                VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase();
+                            end;
                         end;
                     }
                     dataitem("Item Charge Assignment (Purch)"; "Item Charge Assignment (Purch)")
@@ -2105,6 +2123,7 @@ report 402 "Purchase Document - Test"
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
+        TaxBaseAmount: Decimal;
         ErrorCounter: Integer;
         OrigMaxLineNo: Integer;
         InvOnNextPostReq: Boolean;

@@ -43,6 +43,7 @@ codeunit 142066 "UT REP Sales Tax"
         QtyErr: Label 'Quantity is not correct in %1';
         AmountIncludingVATErr: Label 'Amount Including VAT is not correct in %1';
         IncorrectLineCountErr: Label 'Service Invoice-Sales Tax report prints incorrect entries';
+        TaxAmountNotEqualTotalErr: Label 'Tax Amount is not equal to Total in Test Report';
 
     [Test]
     [HandlerFunctions('SalesTaxesCollectedRequestPageHandler')]
@@ -1680,6 +1681,64 @@ codeunit 142066 "UT REP Sales Tax"
         Assert.AreEqual(ServiceInvoiceLine.Count, LibraryReportDataset.RowCount(), IncorrectLineCountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseDocumentTestReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalTaxAmtInPurchDocTestreportIsPrintedInFCYWhenCurrecyCodeIsNotBlankInPO()
+    var
+        Vendor: Record Vendor;
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        CurrencyCode: Code[10];
+        VATAmount: Decimal;
+        VATAmount2: Decimal;
+    begin
+        // [SCENARIO 542503] Total Tax Amount in Purchase Document - Test report shows Sum of Tax Amount 
+        // In FCY when Currency Code is not blank in Purchase Order.
+        Initialize();
+
+        // [GIVEN] Create a Currency and Exchange Rate.
+        CurrencyCode := CreateCurrencyWithExchangeRate();
+
+        // [GIVEN] Create a Tax Area.
+        LibraryERM.CreateTaxArea(TaxArea);
+
+        // [GIVEN] Create a Tax Group.
+        LibraryERM.CreateTaxGroup(TaxGroup);
+
+        // [GIVEN] Create a Tax Area Setup with Values.
+        CreateTaxAreaSetupWithValues(TaxDetail, TaxArea.Code, TaxGroup.Code, 3);
+
+        // [GIVEN] Create a Vendor with Tax Area Code.
+        Vendor.Get(CreateVendorWithTaxArea(TaxArea.Code));
+
+        // [GIVEN] Create a Purchase Header and Validate Tax Area Code and Currency Code.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Tax Area Code", TaxArea.Code);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line [1] with Direct Unit Cost.
+        CreatePurchaseLineWithDirectUnitCost(PurchaseLine[1], PurchaseHeader, TaxGroup);
+
+        // [GIVEN] Create Purchase Line [2] with Direct Unit Cost.
+        CreatePurchaseLineWithDirectUnitCost(PurchaseLine[2], PurchaseHeader, TaxGroup);
+
+        // [GIVEN] Run Purchase Document - Test report.
+        RunDocumentTestReport(PurchaseHeader."Document Type", PurchaseHeader."No.", REPORT::"Purchase Document - Test");
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [WHEN] Generate and save VAT Amount of both Purchase Lines in two different Variables.
+        VATAmount := PurchaseLine[1]."Amount Including VAT" - PurchaseLine[1].Amount;
+        VATAmount2 := PurchaseLine[2]."Amount Including VAT" - PurchaseLine[2].Amount;
+
+        // [THEN] Sum of Tax Amount in Purchase Document - Test report is equal to sum of VATAmount and VATAmount2.
+        Assert.AreEqual(VATAmount + VATAmount2, SumTaxAmountInTestReport(), TaxAmountNotEqualTotalErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2345,6 +2404,95 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceInvoiceHeader.FindFirst();
     end;
 
+    local procedure CreateCurrencyWithExchangeRate(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Modify(true);
+
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateItemWithTaxGroup(TaxGroupCode: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Validate("VAT Prod. Posting Group", '');
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateVendorWithTaxArea(TaxAreaCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
+        GeneralPostingSetup.FindFirst();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", '');
+        Vendor.Validate("Tax Liable", true);
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup());
+        Vendor.Modify(true);
+
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateTaxAreaSetupWithValues(var TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxBelowMax: Decimal)
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Modify(true);
+
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
+        TaxDetail.Modify(true);
+
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
+    end;
+
+    local procedure CreatePurchaseLineWithDirectUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; TaxGroup: Record "Tax Group")
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            CreateItemWithTaxGroup(TaxGroup.Code),
+            LibraryRandom.RandInt(0));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure RunDocumentTestReport(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ReportType: Integer)
+    begin
+        Commit();
+
+        LibraryVariableStorage.Enqueue(DocumentType);
+        LibraryVariableStorage.Enqueue(DocumentNo);
+        REPORT.Run(ReportType);
+    end;
+
+    local procedure SumTaxAmountInTestReport(): Decimal
+    begin
+        exit(LibraryReportDataset.Sum('SalesTaxAmountLine__Tax_Amount__Control1020000'));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
@@ -2657,6 +2805,22 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+    
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentTestReqPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
+    var
+        DocumentType: Variant;
+        No: Variant;
+        DocumentType2: Option;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentType);
+        LibraryVariableStorage.Dequeue(No);
+        DocumentType2 := DocumentType;
+        PurchaseDocumentTest."Purchase Header".SetFilter("Document Type", Format(DocumentType2));
+        PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

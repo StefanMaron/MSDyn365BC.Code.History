@@ -266,16 +266,13 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnAfterGetRecord()
                         begin
                             CompanyInfo.Get();
-                            CompanyInfo.CalcFields(Picture);
-                            FormatAddress.Company(CompanyAddress, CompanyInfo);
-                            if CompanyAddress[5] <> '' then
-                                CompanyAddress[5] := StrSubstNo(', %1', CompanyAddress[5]);
-                        end;
-
-                        trigger OnPreDataItem()
-                        begin
-                            if not PrintCompany then
-                                CurrReport.Break();
+                            if PrintCompanyPicture then
+                                CompanyInfo.CalcFields(Picture);
+                            if PrintCompanyAdd then begin
+                                FormatAddress.Company(CompanyAddress, CompanyInfo);
+                                if CompanyAddress[5] <> '' then
+                                    CompanyAddress[5] := StrSubstNo(', %1', CompanyAddress[5]);
+                            end;
                         end;
                     }
                     dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
@@ -608,11 +605,17 @@ report 11383 "ExportElecPayments - Word"
                         MinValue = 0;
                         ToolTip = 'Specifies the number of copies of each document (in addition to the original) that you want to print.';
                     }
-                    field(PrintCompanyAddress; PrintCompany)
+                    field(PrintCompanyAddress; PrintCompanyAdd)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Print Company Address';
                         ToolTip = 'Specifies if your company address is printed at the top of the sheet, because you do not use pre-printed paper. Leave this check box blank to omit your company''s address.';
+                    }
+                    field(PrintCompanyLogo; PrintCompanyPicture)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Print Company Logo';
+                        ToolTip = 'Specifies if your company logo is printed at the top of the sheet, because you do not use pre-printed paper. Leave this check box blank to omit your company''s logo.';
                     }
                     group(OutputOptions)
                     {
@@ -712,7 +715,8 @@ report 11383 "ExportElecPayments - Word"
             BankAccount.TestField("Last Remittance Advice No.");
         end;
 
-        FormatAddress.Company(CompanyAddress, CompanyInformation)
+        if PrintCompanyAdd then
+            FormatAddress.Company(CompanyAddress, CompanyInformation);
     end;
 
     var
@@ -747,7 +751,8 @@ report 11383 "ExportElecPayments - Word"
         BankAccountIs: Option Acnt,BalAcnt;
         NoCopies: Integer;
         CopyTxt: Code[10];
-        PrintCompany: Boolean;
+        PrintCompanyAdd: Boolean;
+        PrintCompanyPicture: Boolean;
         CompanyAddress: array[8] of Text[100];
         PayeeAddress: array[8] of Text[100];
         PayeeType: Option Vendor,Customer;
