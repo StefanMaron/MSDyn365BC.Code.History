@@ -200,14 +200,14 @@ report 81 "Import Budget from Excel"
         BusUnitDimCode := 'BUSINESSUNIT_TAB220';
         TempDim.Init();
         TempDim.Code := BusUnitDimCode;
-        TempDim."Code Caption" := UpperCase(BusUnit.TableCaption);
+        TempDim."Code Caption" := BusUnit.TableCaption;
         TempDim.Insert();
 
         if Dim.Find('-') then begin
             repeat
                 TempDim.Init();
                 TempDim := Dim;
-                TempDim."Code Caption" := UpperCase(TempDim."Code Caption");
+                TempDim."Code Caption" := TempDim."Code Caption";
                 TempDim.Insert();
             until Dim.Next() = 0;
         end;
@@ -270,6 +270,7 @@ report 81 "Import Budget from Excel"
         Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique.';
         Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
         Text026: Label 'Dates have not been recognized in the Excel worksheet.';
+        TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
         ExcelBuf: Record "Excel Buffer";
         Dim: Record Dimension;
         TempDim: Record Dimension temporary;
@@ -330,7 +331,7 @@ report 81 "Import Budget from Excel"
                 RecNo := RecNo + 1;
                 Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
                 TempDim.SetRange(
-                  "Code Caption", UpperCase(CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption"))));
+                  "Code Caption", CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption")));
                 case true of
                     ExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
                         begin
@@ -343,9 +344,10 @@ report 81 "Import Budget from Excel"
                                 Error(Text011);
                         end;
                     TempDim.FindFirst and (ExcelBuf."Row No." <> HeaderRowNo):
-                        if HeaderRowNo <> 0 then
-                            Session.LogMessage('0000G7G', DimensionValueCodeEqualToDimensionCodeTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt)
-                        else begin
+                        if HeaderRowNo <> 0 then begin
+                            Session.LogMessage('0000G7G', DimensionValueCodeEqualToDimensionCodeTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
+                            Error(TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr, Format(TempDim.Code));
+                        end else begin
                             IncreaseAndCheckCountDim(CountDim);
                             DimCode[CountDim] := TempDim.Code;
                             DimRowNo := ExcelBuf."Row No.";
