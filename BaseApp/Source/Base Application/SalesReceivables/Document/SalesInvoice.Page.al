@@ -1810,9 +1810,17 @@ page 43 "Sales Invoice"
     end;
 
     trigger OnDeleteRecord(): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
         CurrPage.SaveRecord();
-        exit(ConfirmDeletion());
+
+        OnBeforeOnDeleteRecord(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result)
+        else
+            exit(ConfirmDeletion());
     end;
 
     trigger OnInit()
@@ -1958,10 +1966,14 @@ page 43 "Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1982,14 +1994,19 @@ page 43 "Sales Invoice"
             exit;
 
         if OfficeMgt.IsAvailable() then begin
-            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
+            if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+            else begin
+                SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+                SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+            end;
             if SalesInvoiceHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
         end else
             case Navigate of
                 "Navigate After Posting"::"Posted Document":
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                        ShowPostedConfirmationMessage();
+                        ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
                 "Navigate After Posting"::"New Document":
                     if DocumentIsPosted then begin
                         SalesHeader.Init();
@@ -2015,13 +2032,18 @@ page 43 "Sales Invoice"
         CurrPage.Update(false);
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
         ICFeedback: Codeunit "IC Feedback";
     begin
-        SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+        else begin
+            SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+            SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        end;
         if SalesInvoiceHeader.FindFirst() then begin
             ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Invoice, SalesInvoiceHeader."No.");
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
@@ -2171,6 +2193,11 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDeleteRecord(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

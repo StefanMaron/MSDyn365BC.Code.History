@@ -116,11 +116,17 @@
     end;
 
     [Scope('OnPrem')]
-    procedure CheckPaymentLine(DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; PaymentLine: Record "Payment Line"; var AppliesToEntryNo: Integer): Boolean
+    procedure CheckPaymentLine(DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; PaymentLine: Record "Payment Line"; var AppliesToEntryNo: Integer) Result: Boolean
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPaymentLine(DirectDebitCollectionEntry, PaymentLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PaymentLine."Account Type" <> PaymentLine."Account Type"::Customer then
             DirectDebitCollectionEntry.InsertPaymentFileError(AccTypeErr);
 
@@ -145,6 +151,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPaymentLine(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var PaymentLine: Record "Payment Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

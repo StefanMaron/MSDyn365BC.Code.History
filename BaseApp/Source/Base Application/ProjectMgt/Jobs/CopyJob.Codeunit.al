@@ -121,6 +121,7 @@ codeunit 1006 "Copy Job"
         TargetJobPlanningLine: Record "Job Planning Line";
         SourceJob: Record Job;
         NextPlanningLineNo: Integer;
+        IsHandled: Boolean;
     begin
         SourceJob.Get(SourceJobTask."Job No.");
 
@@ -150,41 +151,48 @@ codeunit 1006 "Copy Job"
         if SourceJobPlanningLine.FindSet() then
             repeat
                 with TargetJobPlanningLine do begin
-                    Init();
-                    Validate("Job No.", TargetJobTask."Job No.");
-                    Validate("Job Task No.", TargetJobTask."Job Task No.");
-                    if NextPlanningLineNo = 0 then
-                        NextPlanningLineNo := FindLastJobPlanningLine(TargetJobPlanningLine);
-                    NextPlanningLineNo += 10000;
-                    Validate("Line No.", NextPlanningLineNo);
-                    TransferFields(SourceJobPlanningLine, false);
-                    "Remaining Qty." := 0;
-                    "Remaining Qty. (Base)" := 0;
-                    "Remaining Total Cost" := 0;
-                    "Remaining Total Cost (LCY)" := 0;
-                    "Remaining Line Amount" := 0;
-                    "Remaining Line Amount (LCY)" := 0;
-                    "Qty. Posted" := 0;
-                    "Qty. to Transfer to Journal" := 0;
-                    "Posted Total Cost" := 0;
-                    "Posted Total Cost (LCY)" := 0;
-                    "Posted Line Amount" := 0;
-                    "Posted Line Amount (LCY)" := 0;
-                    "Qty. to Transfer to Invoice" := 0;
-                    "Qty. to Invoice" := 0;
-                    "Ledger Entry No." := 0;
-                    "Ledger Entry Type" := "Ledger Entry Type"::" ";
-                    OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
-                    Insert(true);
-                    OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
-                    if Type <> Type::Text then begin
-                        ExchangeJobPlanningLineAmounts(TargetJobPlanningLine, SourceJob."Currency Code");
-                        if not CopyQuantity then
-                            Validate(Quantity, 0)
-                        else
-                            Validate(Quantity);
-                        OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
-                        Modify();
+                    IsHandled := false;
+                    OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInit(TargetJobPlanningLine, SourceJobPlanningLine, TargetJobTask, IsHandled);
+                    if not IsHandled then begin
+                        Init();
+                        Validate("Job No.", TargetJobTask."Job No.");
+                        Validate("Job Task No.", TargetJobTask."Job Task No.");
+                        if NextPlanningLineNo = 0 then
+                            NextPlanningLineNo := FindLastJobPlanningLine(TargetJobPlanningLine);
+                        NextPlanningLineNo += 10000;
+                        Validate("Line No.", NextPlanningLineNo);
+                        TransferFields(SourceJobPlanningLine, false);
+                    if not CopyPrices then
+                        UpdateAllAmounts();
+
+                        "Remaining Qty." := 0;
+                        "Remaining Qty. (Base)" := 0;
+                        "Remaining Total Cost" := 0;
+                        "Remaining Total Cost (LCY)" := 0;
+                        "Remaining Line Amount" := 0;
+                        "Remaining Line Amount (LCY)" := 0;
+                        "Qty. Posted" := 0;
+                        "Qty. to Transfer to Journal" := 0;
+                        "Posted Total Cost" := 0;
+                        "Posted Total Cost (LCY)" := 0;
+                        "Posted Line Amount" := 0;
+                        "Posted Line Amount (LCY)" := 0;
+                        "Qty. to Transfer to Invoice" := 0;
+                        "Qty. to Invoice" := 0;
+                        "Ledger Entry No." := 0;
+                        "Ledger Entry Type" := "Ledger Entry Type"::" ";
+                        OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
+                        Insert(true);
+                        OnCopyJobPlanningLinesOnAfterTargetJobPlanningLineInsert(TargetJobPlanningLine, SourceJobPlanningLine);
+                        if Type <> Type::Text then begin
+                            ExchangeJobPlanningLineAmounts(TargetJobPlanningLine, SourceJob."Currency Code");
+                            if not CopyQuantity then
+                                Validate(Quantity, 0)
+                            else
+                                Validate(Quantity);
+                            OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
+                            Modify();
+                        end;
                     end;
                 end;
                 OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(TargetJobPlanningLine, SourceJobPlanningLine);
@@ -457,6 +465,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobTasksOnAfterSourceJobTaskSetFilters(var SourceJobTask: Record "Job Task"; SourceJob: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyJobPlanningLinesOnBeforeTargetJobPlanningLineInit(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line"; TargetJobTask: Record "Job Task"; var IsHandled: Boolean);
     begin
     end;
 }

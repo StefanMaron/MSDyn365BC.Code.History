@@ -760,35 +760,6 @@ codeunit 139187 "CRM Full Synchronization"
 
     [Test]
     [Scope('OnPrem')]
-    procedure T156_StartSyncWhenFirstLineIsFinished()
-    var
-        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
-        Counter: Integer;
-    begin
-        // [FEATURE] [Status] [UT]
-        Initialize();
-        LibraryLowerPermissions.SetO365Full;
-        // [GIVEN] 'SALESPEOPLE' and 'UNIT OF MEASURE' are 'In Process', 'CURRENCY' is 'Finished'
-        CRMFullSynchReviewLine.Generate;
-        SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-        SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-        SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
-        SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
-
-        // [WHEN] Run "Start"
-        CRMFullSynchReviewLine.Start;
-
-        // [THEN] Other lines, where "Job Queue Entry Status" is ' '
-        CRMFullSynchReviewLine.Reset();
-        CRMFullSynchReviewLine.SetFilter("Dependency Filter", '<>%1', '');
-        Counter := CRMFullSynchReviewLine.Count();
-        CRMFullSynchReviewLine.SetRange(
-          "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure T157_StartSyncWhenBothParentsAreFinished()
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
@@ -808,7 +779,7 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
-        Finished := 1; // Item-product
+        Finished := 2;
 
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;

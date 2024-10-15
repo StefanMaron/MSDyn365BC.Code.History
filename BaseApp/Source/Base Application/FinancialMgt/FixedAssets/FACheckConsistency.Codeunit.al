@@ -355,7 +355,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreatePostingTypeError(FAJnlLine, FALedgEntry2, DeprBook, IsHandled);
+        OnBeforeCreatePostingTypeError(FAJnlLine, FALedgEntry2, DeprBook, IsHandled, NewAmount);
         if IsHandled then
             exit;
 
@@ -437,11 +437,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePostingTypeError(
-        FAJnlLine: Record "FA Journal Line";
-        FALedgEntry2: Record "FA Ledger Entry";
-        DeprBook: Record "Depreciation Book";
-        var IsHandled: Boolean)
+    local procedure OnBeforeCreatePostingTypeError(FAJnlLine: Record "FA Journal Line"; FALedgEntry2: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; var IsHandled: Boolean; NewAmount: Decimal)
     begin
     end;
 }

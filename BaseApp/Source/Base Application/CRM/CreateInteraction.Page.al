@@ -5,7 +5,7 @@ page 5077 "Create Interaction"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PageType = Card;
+    PageType = NavigatePage;
     ShowFilter = false;
     SourceTable = "Segment Line";
 
@@ -16,7 +16,10 @@ page 5077 "Create Interaction"
             group(General)
             {
                 Caption = 'General';
-                field("Wizard Contact Name"; Rec."Wizard Contact Name")
+                Visible = Step = Step::"Step 1";
+
+                field("Wizard Contact Name";
+                Rec."Wizard Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
@@ -64,14 +67,18 @@ page 5077 "Create Interaction"
                     ToolTip = 'Specifies the type of the interaction.';
 
                     trigger OnValidate()
+                    var
                     begin
                         UpdateUIFlags();
 
-                        if Campaign.Get("Campaign No.") then
-                            "Campaign Description" := Campaign.Description;
+                        if Campaign.Get(Rec."Campaign No.") then
+                            Rec."Campaign Description" := Campaign.Description;
 
-                        if "Attachment No." <> xRec."Attachment No." then
+                        if Rec."Attachment No." <> xRec."Attachment No." then
                             AttachmentReload();
+
+                        InteractionTemplate.Get(Rec."Interaction Template Code");
+                        Rec."Correspondence Type" := InteractionTemplate."Correspondence Type (Default)";
                     end;
                 }
                 field(Description; Rec.Description)
@@ -127,10 +134,45 @@ page 5077 "Create Interaction"
                     end;
                 }
             }
+            group(MidDetails)
+            {
+                ShowCaption = false;
+                Visible = Step = Step::"Step 2";
+
+                field(Step2InstructionTxt; Step2InstructionTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                }
+                field(Step2OpenInstructionTxt; Step2OpenInstructionTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                }
+                field(Step2ImportInstructionTxt; Step2ImportInstructionTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                }
+                field(Step2MergeInstructionTxt; Step2MergeInstructionTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                }
+                field("Wizard Action"; InteractionTemplate."Wizard Action")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Wizard Action';
+                    Editable = false;
+                    ToolTip = 'Specifies the action that is performed for the interaction.';
+                }
+            }
             group(InteractionDetails)
             {
                 Caption = 'Interaction Details';
                 Enabled = IsMainInfoSet;
+                Visible = Step = Step::"Step 3";
+
                 field("Correspondence Type"; Rec."Correspondence Type")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -258,8 +300,8 @@ page 5077 "Create Interaction"
                     begin
                         FilterContactCompanyOpportunities(Opportunity);
                         if PAGE.RunModal(0, Opportunity) = ACTION::LookupOK then begin
-                            Validate("Opportunity No.", Opportunity."No.");
-                            "Opportunity Description" := Opportunity.Description;
+                            Rec.Validate("Opportunity No.", Opportunity."No.");
+                            Rec."Opportunity Description" := Opportunity.Description;
                         end;
                     end;
                 }
@@ -295,9 +337,77 @@ page 5077 "Create Interaction"
 
                 trigger OnAction()
                 begin
-                    FinishSegLineWizard(true);
-                    IsFinished := true;
+                    Rec.FinishSegLineWizard(true);
                     CurrPage.Close();
+                end;
+            }
+            action(CancelInteraction)
+            {
+                ApplicationArea = All;
+                Caption = 'Cancel';
+                ToolTip = 'Cancel the interaction';
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    Rec.FinishSegLineWizard(false);
+                    CurrPage.Close();
+                end;
+            }
+            action(Back)
+            {
+                ApplicationArea = All;
+                Caption = 'Back';
+                ToolTip = 'Go back to the previous step';
+                Visible = Step <> Step::"Step 1";
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    if Step = Step::"Step 2" then
+                        Step := Step::"Step 1"
+                    else
+                        if Step = Step::"Step 3" then
+                            Step := Step::"Step 2";
+                end;
+            }
+            action(NextInteraction)
+            {
+                ApplicationArea = All;
+                Caption = 'Next';
+                ToolTip = 'Go to the next step';
+                Visible = Step <> Step::"Step 3";
+                InFooterBar = true;
+
+                trigger OnAction()
+                var
+                begin
+                    case Step of
+                        Step::"Step 1":
+                            begin
+                                ValidateStep1();
+                                Step := Step::"Step 2";
+                            end;
+                        Step::"Step 2":
+                            begin
+                                ProcessStep();
+                                Step := Step::"Step 3";
+                            end;
+                    end;
+                end;
+            }
+            action(FinishInteraction)
+            {
+                ApplicationArea = All;
+                Caption = 'Finish';
+                Image = Approve;
+                ToolTip = 'Finish the interaction.';
+                Visible = Step = Step::"Step 3";
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    ProcessStep();
                 end;
             }
         }
@@ -350,28 +460,27 @@ page 5077 "Create Interaction"
         SetContactEditable();
         UpdateUIFlags();
 
-        if SalesPurchPerson.Get(GetFilter("Salesperson Code")) then
+        if SalespersonPurchaser.Get(Rec.GetFilter("Salesperson Code")) then
             SalespersonCodeEditable := false;
 
         AttachmentReload();
 
-        IsFinished := false;
         CurrPage.Update(false);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if IsFinished then
-            exit;
-
-        FinishSegLineWizard(CloseAction in [ACTION::OK, ACTION::LookupOK]);
+            ProcessStep3();
     end;
 
     var
-        SalesPurchPerson: Record "Salesperson/Purchaser";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
-        Task: Record "To-do";
+        InteractionTemplate: Record "Interaction Template";
+        ToDoTask: Record "To-do";
         ClientTypeManagement: Codeunit "Client Type Management";
+        Step: Option "Step 1","Step 2","Step 3";
         HTMLContentBodyText: Text;
         [InDataSet]
         CampaignDescriptionEditable: Boolean;
@@ -382,8 +491,14 @@ page 5077 "Create Interaction"
         HTMLAttachment: Boolean;
         UntitledTxt: Label 'untitled';
         IsOnMobile: Boolean;
-        IsFinished: Boolean;
         IsContactEditable: Boolean;
+        IsFinished: Boolean;
+        Step2InstructionTxt: Label 'When you click Next, if your interaction template is set up to:';
+        Step2OpenInstructionTxt: Label '- Open, then the relevant attachment is opened.';
+        Step2ImportInstructionTxt: Label '- Import, then the Import File dialog box is displayed.';
+        Step2MergeInstructionTxt: Label '- Merge, then the Word Template will be merged without opening.';
+        InteractionTemplateCodeMandatoryErr: Label 'Interaction Template Code is mandatory.';
+        DescriptionMandatoryErr: Label 'Description is mandatory.';
 
     protected var
         IsMainInfoSet: Boolean;
@@ -397,12 +512,12 @@ page 5077 "Create Interaction"
             CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
         if Contact.Get(GetFilter("Contact No.")) then
             CaptionStr := CopyStr(CaptionStr + ' ' + Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
-        if SalesPurchPerson.Get(GetFilter("Salesperson Code")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + SalesPurchPerson.Code + ' ' + SalesPurchPerson.Name, 1, MaxStrLen(CaptionStr));
-        if Campaign.Get(GetFilter("Campaign No.")) then
+        if SalespersonPurchaser.Get(Rec.GetFilter("Salesperson Code")) then
+            CaptionStr := CopyStr(CaptionStr + ' ' + SalespersonPurchaser.Code + ' ' + SalespersonPurchaser.Name, 1, MaxStrLen(CaptionStr));
+        if Campaign.Get(Rec.GetFilter("Campaign No.")) then
             CaptionStr := CopyStr(CaptionStr + ' ' + Campaign."No." + ' ' + Campaign.Description, 1, MaxStrLen(CaptionStr));
-        if Task.Get(GetFilter("To-do No.")) then
-            CaptionStr := CopyStr(CaptionStr + ' ' + Task."No." + ' ' + Task.Description, 1, MaxStrLen(CaptionStr));
+        if ToDoTask.Get(Rec.GetFilter("To-do No.")) then
+            CaptionStr := CopyStr(CaptionStr + ' ' + ToDoTask."No." + ' ' + ToDoTask.Description, 1, MaxStrLen(CaptionStr));
 
         if CaptionStr = '' then
             CaptionStr := UntitledTxt;
@@ -426,8 +541,8 @@ page 5077 "Create Interaction"
 
     local procedure SetContactNo(Contact: Record Contact)
     begin
-        Validate("Contact No.", Contact."No.");
-        "Wizard Contact Name" := Contact.Name;
+        Rec.Validate("Contact No.", Contact."No.");
+        Rec."Wizard Contact Name" := Contact.Name;
     end;
 
     local procedure SetContactEditable()
@@ -435,6 +550,41 @@ page 5077 "Create Interaction"
         IsContactEditable := (GetFilter("Contact No.") = '') and (GetFilter("Contact Company No.") = '');
 
         OnAfterSetContactEditable(Rec, IsContactEditable);
+    end;
+
+    local procedure ProcessStep()
+    begin
+        case Step of
+            Step::"Step 1":
+                begin
+                    ValidateStep1();
+                    Step := Step::"Step 2";
+                end;
+            Step::"Step 2":
+                begin
+                    Rec.HandleTrigger();
+                    Step := Step::"Step 3";
+                end;
+            Step::"Step 3":
+                begin
+                    IsFinished := true;
+                    CurrPage.Close();
+                end;
+        end;
+    end;
+
+    local procedure ValidateStep1()
+    begin
+        if Rec."Interaction Template Code" = '' then
+            Error(InteractionTemplateCodeMandatoryErr);
+        if Rec.Description = '' then
+            Error(DescriptionMandatoryErr);
+    end;
+
+    local procedure ProcessStep3()
+    var
+    begin
+        Rec.FinishSegLineWizard(true);
     end;
 
     [IntegrationEvent(false, false)]

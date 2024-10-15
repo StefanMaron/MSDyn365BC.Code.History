@@ -767,6 +767,7 @@ table 753 "Standard Item Journal Line"
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;
     begin
+        OnBeforeApplyPrice(Rec);
         GetPriceCalculationHandler(PriceType, PriceCalculation);
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         PriceCalculation.GetLine(Line);
@@ -849,7 +850,14 @@ table 753 "Standard Item Journal Line"
 #endif
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;	
     begin
+    	IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+    
 #if not CLEAN20
         RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
 #endif
@@ -1066,6 +1074,16 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterCopyItemValues(var StandardItemJournalLine: Record "Standard Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyPrice(var StandardItemJournalLine: Record "Standard Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var StandardItemJournalLine: Record "Standard Item Journal Line"; CurrentFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
     begin
     end;
 }
