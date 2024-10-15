@@ -308,7 +308,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
         case ItemJnlLine."Entry Type" of // Need to check if the item and location require warehouse handling
             ItemJnlLine."Entry Type"::Output:
-                if WhseOrderHandlingRequired(ItemJnlLine, Location) then begin
+                if WhseOrderHandlingRequired(ItemJnlLine, Location) and CheckWarehouseLastOutputOperation(ItemJnlLine) then begin
                     if (ItemJnlLine.Quantity < 0) and (ItemJnlLine."Applies-to Entry" = 0) then begin
                         ReservationEntry.InitSortingAndFilters(false);
                         ItemJnlLine.SetReservationFilters(ReservationEntry);

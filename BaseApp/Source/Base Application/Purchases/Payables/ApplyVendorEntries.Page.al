@@ -679,8 +679,13 @@ page 233 "Apply Vendor Entries"
     end;
 
     trigger OnModifyRecord(): Boolean
+    var
+        IsHandled: Boolean;
     begin
-        CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
+        IsHandled := false;
+        OnModifyRecordOnBeforeRunCodeunitVendEntryEdit(CalcType, AppliedVendLedgEntry, IsHandled);
+        if not IsHandled then
+            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
         if Rec."Applies-to ID" <> xRec."Applies-to ID" then
             CalcApplnAmount();
         exit(false);
@@ -724,39 +729,43 @@ page 233 "Apply Vendor Entries"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         RaiseError: Boolean;
+        IsHandled: Boolean;
     begin
-        if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush();
-        if ApplnType = ApplnType::"Applies-to Doc. No." then begin
-            if OK then begin
-                RaiseError := TempApplyingVendLedgEntry."Posting Date" < Rec."Posting Date";
-                OnBeforeEarlierPostingDateError(TempApplyingVendLedgEntry, Rec, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
-                if RaiseError then begin
-                    OK := false;
-                    Error(
-                      EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
-                      Rec."Document Type", Rec."Document No.");
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(CloseAction, TempApplyingVendLedgEntry, ApplnType, Rec, CalcType, IsHandled);
+        if not IsHandled then begin
+            if CloseAction = ACTION::LookupOK then
+                LookupOKOnPush();
+            if ApplnType = ApplnType::"Applies-to Doc. No." then begin
+                if OK then begin
+                    RaiseError := TempApplyingVendLedgEntry."Posting Date" < Rec."Posting Date";
+                    OnBeforeEarlierPostingDateError(TempApplyingVendLedgEntry, Rec, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
+                    if RaiseError then begin
+                        OK := false;
+                        Error(
+                          EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
+                          Rec."Document Type", Rec."Document No.");
+                    end;
+
+                    OnQueryClosePageOnAfterEarlierPostingDateTest(TempApplyingVendLedgEntry, Rec, CalcType, OK);
+                end;
+                if OK then begin
+                    if Rec."Amount to Apply" = 0 then
+                        Rec."Amount to Apply" := Rec."Remaining Amount";
+                    RunVendEntryEdit(Rec);
+                end;
+            end;
+
+            if CheckActionPerformed() then begin
+                Rec := TempApplyingVendLedgEntry;
+                Rec."Applying Entry" := false;
+                if AppliesToID = '' then begin
+                    Rec."Applies-to ID" := '';
+                    Rec."Amount to Apply" := 0;
                 end;
 
-                OnQueryClosePageOnAfterEarlierPostingDateTest(TempApplyingVendLedgEntry, Rec, CalcType, OK);
-            end;
-            if OK then begin
-                if Rec."Amount to Apply" = 0 then
-                    Rec."Amount to Apply" := Rec."Remaining Amount";
                 RunVendEntryEdit(Rec);
             end;
-        end;
-
-        if CheckActionPerformed() then begin
-            Rec := TempApplyingVendLedgEntry;
-            Rec."Applying Entry" := false;
-            if AppliesToID = '' then begin
-                Rec."Applies-to ID" := '';
-                Rec."Amount to Apply" := 0;
-            end;
-
-
-            RunVendEntryEdit(Rec);
         end;
     end;
 
@@ -1720,6 +1729,16 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetVendApplIdOnAfterSetFilter(var RecVendorLedgerEntry: Record "Vendor Ledger Entry"; CurrentRec: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordOnBeforeRunCodeunitVendEntryEdit(VendorApplyCalculationType: Enum "Vendor Apply Calculation Type"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnQueryClosePage(CloseAction: Action; ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; ApplnType: Enum "Vendor Apply-to Type"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; var IsHandled: Boolean)
     begin
     end;
 }

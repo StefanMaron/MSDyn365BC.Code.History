@@ -1816,6 +1816,7 @@ page 44 "Sales Credit Memo"
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
+        NotSkipped: Boolean;
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
         PreAssignedNo := Rec."No.";
@@ -1839,7 +1840,11 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
-        Rec.SetTrackInfoForCancellation();
+        NotSkipped := false;
+        OnPostDocumentOnBeforeSetTrackInfoForCancellation(Rec, NotSkipped);
+        if NotSkipped then
+            Rec.SetTrackInfoForCancellation();
+        Rec.UpdateSalesOrderLineIfExist();
 
         if OfficeMgt.IsAvailable() then begin
             if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
@@ -2042,6 +2047,11 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnBeforeSetTrackInfoForCancellation(var SalesHeader: Record "Sales Header"; var NotSkipped: Boolean)
     begin
     end;
 }

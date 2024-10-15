@@ -632,6 +632,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         GenPostingSetup: Record "General Posting Setup";
         Item: Record Item;
+        IsHandled: Boolean;
     begin
         if SalesInvoiceLine."VAT Calculation Type" = SalesInvoiceLine."VAT Calculation Type"::"Sales Tax" then
             exit;
@@ -647,11 +648,15 @@ codeunit 1303 "Correct Posted Sales Invoice"
             if HasLineDiscountSetup(SalesInvoiceLine) then
                 if "Sales Line Disc. Account" <> '' then
                     TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
-            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
-                Item.Get(SalesInvoiceLine."No.");
-                if Item.IsInventoriableType() then
-                    TestGLAccount(GetCOGSAccount(), SalesInvoiceLine);
-            end;
+
+            IsHandled := false;
+            OnTestGenPostingSetupOnBeforeTestTypeItem(SalesInvoiceLine, IsHandled);
+            if not IsHandled then
+                if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
+                    Item.Get(SalesInvoiceLine."No.");
+                    if Item.IsInventoriableType() then
+                        TestGLAccount(GetCOGSAccount(), SalesInvoiceLine);
+                end;
         end;
     end;
 
@@ -1295,6 +1300,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAndProcessJobPlanningLines(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestGenPostingSetupOnBeforeTestTypeItem(SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -28,10 +28,16 @@ codeunit 394 "FinChrgMemo-Make"
         HeaderExists: Boolean;
         OverDue: Boolean;
 
-    procedure "Code"(): Boolean
+    procedure "Code"() Result: Boolean
     var
         CustIsBlocked: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCode(Cust, CustLedgEntry, FinChrgMemoHeaderReq, FinChrgMemoHeader, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with FinChrgMemoHeader do
             if "No." <> '' then begin
                 HeaderExists := true;
@@ -304,6 +310,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinChrgMemoCheckOnBeforeMakeLines(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

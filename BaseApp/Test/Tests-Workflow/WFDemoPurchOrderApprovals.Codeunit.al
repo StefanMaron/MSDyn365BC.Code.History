@@ -893,6 +893,42 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         CheckDetailTextForDocumentOnApprovalEntriesPage(ApprovalEntry, PurchaseHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyStatusMustBeOpenOfOnlyOneApprovalEntriesForWorkflowUserGroup()
+    var
+        Workflow: Record Workflow;
+        ApprovalEntry: Record "Approval Entry";
+        PurchaseHeader: Record "Purchase Header";
+        CurrentUserSetup: Record "User Setup";
+        UserSetup: array[10] of Record "User Setup";
+        NoOfUser: Integer;
+    begin
+        // [SCENARIO 492509] Verify that the status must be open for only one approval entry for the Workflow User Group.
+        Initialize();
+
+        // [GIVEN] A generated number of users should be added to the workflow user group.
+        NoOfUser := LibraryRandom.RandIntInRange(7, 10);
+
+        // [GIVEN] Created a workflow for the purchase order with an approval-type workflow user group.
+        CreatePurchaseOrderDocApprovalWorkflow(Workflow, CurrentUserSetup, UserSetup, NoOfUser);
+
+        // [GIVEN] Create a purchase document.
+        CreatePurchDocument(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
+
+        // [WHEN] Send a purchase order for approval.
+        SendPurchaseOrderForApproval(PurchaseHeader);
+
+        // [GIVEN] Verify that the status of the purchase order is pending approval.
+        VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
+
+        // [VERIFY] Verify that the status must be open for only one approval entry for the Workflow User Group.
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetRange("Record ID to Approve", PurchaseHeader.RecordId());
+        Assert.RecordCount(ApprovalEntry, 1);
+    end;
+
     local procedure SendDocumentForApproval(var Workflow: Record Workflow; var CurrentUserSetup: Record "User Setup"; var IntermediateApproverUserSetup: Record "User Setup"; var FinalApproverUserSetup: Record "User Setup"; var PurchHeader: Record "Purchase Header")
     var
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -1229,6 +1265,35 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
         PurchaseLine.Validate("Direct Unit Cost", Amount);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderDocApprovalWorkflow(
+        var Workflow: Record Workflow;
+        var CurrentUserSetup: Record "User Setup";
+        var UserSetup: array[10] of Record "User Setup";
+        NoOfUsers: Integer)
+    var
+        WorkflowUserGroup: Record "Workflow User Group";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        i: Integer;
+    begin
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode());
+        LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, Format(UserId()));
+        LibraryDocumentApprovals.CreateWorkflowUserGroup(WorkflowUserGroup);
+        for i := 1 to NoOfUsers - 1 do
+            LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup[i]);
+
+        for i := 1 to NoOfUsers do
+            if i = 3 then
+                LibraryDocumentApprovals.CreateWorkflowUserGroupMember(WorkflowUserGroup.Code, CurrentUserSetup."User ID", i)
+            else
+                if i > 3 then
+                    LibraryDocumentApprovals.CreateWorkflowUserGroupMember(WorkflowUserGroup.Code, UserSetup[i - 1]."User ID", i)
+                else
+                    LibraryDocumentApprovals.CreateWorkflowUserGroupMember(WorkflowUserGroup.Code, UserSetup[i]."User ID", i);
+
+        LibraryWorkflow.SetWorkflowGroupApprover(Workflow.Code, WorkflowUserGroup.Code);
+        LibraryWorkflow.EnableWorkflow(Workflow);
     end;
 
     [PageHandler]

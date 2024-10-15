@@ -1807,6 +1807,57 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
+#if not CLEAN23
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyRemainingAmountLCYOnCarteraDoc()
+    var
+        Vendor: Record Vendor;
+        PaymentMethod: Record "Payment Method";
+        PurchaseHeader: Record "Purchase Header";
+        CarteraDoc: Record "Cartera Doc.";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 492832] Verify the Remaining Amount LCY in the Cartera Document match with the Vendor Ledger Entries Remaining Amount LCY in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Create Currency Code with three different exchange rates
+        CurrencyCode := SetupCurrencyWithExchRates();
+
+        // [GIVEN] Vendor with Cartera Payment Method "P1"
+        CreateCarteraPaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Catera Vendor
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor, CurrencyCode, PaymentMethod.Code);
+
+        // [GIVEN] Cartera Document is posted for the Vendor
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run Adjust Exch. Rate Report
+        RunAdjustExchRate(CurrencyCode, WorkDate());
+        RunAdjustExchRate(CurrencyCode, CalcDate('<+1M>', WorkDate()));
+        RunAdjustExchRate(CurrencyCode, CalcDate('<+2M>', WorkDate()));
+
+        // [THEN] Find Vendor Ledger Entry
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
+
+        // [THEN] Find Cartera Document
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
+        CarteraDoc.FindFirst();
+
+        // [VERIFY] Vendor Ledger Entry and Cartera Doc. "Remaining Amt. (LCY)" will be equal
+        Assert.AreEqual(-VendorLedgerEntry."Remaining Amt. (LCY)", CarteraDoc."Remaining Amt. (LCY)", 'Amount must be equal');
+    end;
+#endif
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -2356,6 +2407,49 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrders.GotoRecord(PostedPaymentOrder);
         PostedPaymentOrders.Docs.TotalSettlement.Invoke;
     end;
+
+    local procedure CreateCarteraPaymentMethod(var PaymentMethod: Record "Payment Method")
+    begin
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        PaymentMethod.Validate("Invoices to Cartera", true);
+        PaymentMethod.Validate("Collection Agent", PaymentMethod."Collection Agent"::Bank);
+        PaymentMethod.Validate("Submit for Acceptance", true);
+        PaymentMethod.Modify(true);
+    end;
+
+    local procedure SetupCurrencyWithExchRates(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrExchRateAmount: Decimal;
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
+        Currency.Get(CurrencyCode);
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+1M>', WorkDate()), 1 / (CurrExchRateAmount + 20), 1 / (CurrExchRateAmount + 20));
+        LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<+2M>', WorkDate()), 1 / (CurrExchRateAmount + 40), 1 / (CurrExchRateAmount + 40));
+        exit(Currency.Code);
+    end;
+
+#if not CLEAN23
+    local procedure RunAdjustExchRate("Code": Code[10]; EndDate: Date)
+    begin
+        RunAdjustExchRateForDocNo(Code, Code, EndDate);
+    end;
+
+    local procedure RunAdjustExchRateForDocNo(DocumentNo: Code[20]; CurrencyCode: Code[10]; EndDate: Date)
+    var
+        Currency: Record Currency;
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        AdjustExchangeRates.SetTableView(Currency);
+        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'TEXT', EndDate, DocumentNo, true, false);
+        AdjustExchangeRates.UseRequestPage(false);
+        AdjustExchangeRates.Run();
+    end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

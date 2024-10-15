@@ -1944,6 +1944,8 @@ report 595 "Adjust Exchange Rates"
                 (VendLedgerEntry."Debit Amount (LCY)" < 0) or
                 (VendLedgerEntry."Credit Amount (LCY)" < 0);
 
+            CreateVendCarteraDocuments(VendLedgerEntry, CurrAdjAmount, OldAdjAmount);
+
             if OldAdjAmount > 0 then
                 case true of
                     (CurrAdjAmount > 0):
@@ -2020,8 +2022,6 @@ report 595 "Adjust Exchange Rates"
                             Adjust := false;
                         end;
                 end;
-
-            CreateVendCarteraDocuments(VendLedgerEntry, CurrAdjAmount, OldAdjAmount);
 
             if not Adjust then begin
                 TempDtldVendLedgEntry."Amount (LCY)" := CurrAdjAmount;

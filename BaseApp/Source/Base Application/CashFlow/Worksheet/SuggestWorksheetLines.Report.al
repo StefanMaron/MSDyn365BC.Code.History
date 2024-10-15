@@ -1061,8 +1061,10 @@ report 840 "Suggest Worksheet Lines"
                 else
                     "Payment Terms Code" := PurchHeader."Payment Terms Code";
 
-                if ("Amount (LCY)" <> 0) and not PaymentMethod."Create Bills" then
+                if ("Amount (LCY)" <> 0) and not PaymentMethod."Create Bills" then begin
+                    OnInsertCFLineForPurchaseLineOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, PurchHeader, "Purchase Line");		
                     InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+		        end;
             end;
     end;
 
@@ -1554,7 +1556,7 @@ report 840 "Suggest Worksheet Lines"
 
     local procedure InsertOrModifyCFLine(InsertConditionHasBeenMetAlready: Boolean)
     begin
-        CFWorksheetLine2."Amount (LCY)" += TempCFWorksheetLine."Amount (LCY)";
+        CFWorksheetLine2."Amount (LCY)" := TempCFWorksheetLine."Amount (LCY)";
         if InsertConditionHasBeenMetAlready then
             TempCFWorksheetLine.Modify()
         else
@@ -2292,6 +2294,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTempCFWorksheetLineOnBeforeCalculateCFAmountAndCFDate(TempCashFlowWorksheetLine: Record "Cash Flow Worksheet Line" temporary; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCFLineForPurchaseLineOnBeforeInsertTempCFWorksheetLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

@@ -1443,6 +1443,103 @@ codeunit 147305 "Cartera Posting"
         Assert.AreEqual(BankAccountLedgerEntry."Dimension Set ID", DimSetId, BankAccountLedgerEntry.FieldCaption("Dimension Set ID"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyGLRegisterIsCreatedWhenPostedSalesInvoiceApplywithPaymentforMultiplePostingGroups()
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        GLRegister: Record "G/L Register";
+        SalesHeader: Record "Sales Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustomerPostingGroup, CustomerPostingGroup2 : Record "Customer Posting Group";
+        SalesInvoiceNo, PaymentDocNo : Code[20];
+        TotalAmount: Decimal;
+        LastGLRegisterNo: Integer;
+    begin
+        // [SCENARIO 492112] Verify a new ledger entry for the applied payment and invoice if we use multiple posting groups for customers.
+        Initialize();
+
+        // [GIVEN] Set "Allow Multiple Posting Groups" to true.
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create a customer and set "Allow Multiple Posting Groups" to true.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify();
+
+        // [GIVEN] Get a customer posting group.
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        //[GIVEN] Save "GL Register" in a variable.
+        GLRegister.FindLast();
+        LastGLRegisterNo := GLRegister."No.";
+
+        // [GIVEN] Create a sales invoice.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader,
+            SalesLine,
+            "Sales Document Type"::Invoice,
+            Customer."No.",
+            '',
+            LibraryRandom.RandInt(10),
+            '',
+            0D);
+
+        // [GIVEN] Create another customer posting group.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup2);
+
+        // [GIVEN] Create an "Alt. Customer Posting Group."
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup2.Code);
+
+        // [GIVEN] Update a customer posting group in the sales header.
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup2.Code);
+        SalesHeader.Modify();
+
+        // [GIVEN] Update a unit price in the sales line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify();
+
+        // [GIVEN] Save the invoice amount in a variable.
+        SalesHeader.CalcFields("Amount Including VAT");
+        TotalAmount := SalesHeader."Amount Including VAT";
+
+        // [GIVEN] Post a sales document.
+        SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create a general journal line with "Document Type" = Payment.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            -TotalAmount);
+
+        // [GIVEN] Update Bal Account No. in the general journal line.
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Modify();
+
+        // [GIVEN] Post payment.
+        PaymentDocNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Apply for payment with the invoice and post the application.
+        ApplyAndPostCustomerEntry(
+            PaymentDocNo,
+            SalesInvoiceNo,
+            -TotalAmount,
+            "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Document Type"::Invoice);
+
+        // [VERIFY] Verify a new ledger entry for the applied payment and invoice if we use multiple posting groups for customers.
+        GLRegister.SetFilter("No.", '%1..', LastGLRegisterNo + 1);
+        Assert.RecordCount(GLRegister, LibraryRandom.RandIntInRange(3, 3));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -3509,6 +3606,35 @@ codeunit 147305 "Cartera Posting"
         VATEntry: Record "VAT Entry";
     begin
         exit(StrSubstNo(FieldErr, FieldCaption, VATEntry.TableCaption()))
+    end;
+
+    local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        SalesReceivablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.FindSet();
+        repeat
+            CustLedgerEntry2.CalcFields("Remaining Amount");
+            CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
+            CustLedgerEntry2.Modify(true);
+        until CustLedgerEntry2.Next() = 0;
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
     [ModalPageHandler]

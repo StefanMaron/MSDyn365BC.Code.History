@@ -259,7 +259,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             ShouldCreateWhseJnlLine := true;
             OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine, ServShptHeader, ServiceLine, TempWhseJnlLine, WhsePosting);
 
-            if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and (Quantity <> 0) then begin
+            if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and ServiceLine.IsInventoriableItem() and (Quantity <> 0) then begin
                 GetLocation(ServiceLine."Location Code", Location);
                 if ((ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::"Credit Memo"]) and
                     Location."Directed Put-away and Pick") or

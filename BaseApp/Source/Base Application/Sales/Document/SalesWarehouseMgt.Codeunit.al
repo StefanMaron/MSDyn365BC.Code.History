@@ -517,7 +517,7 @@ codeunit 5991 "Sales Warehouse Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitNewWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; AssembleToOrder: Boolean; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; var IsHandled: Boolean; var Return: Boolean)
+    local procedure OnAfterInitNewWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; AssembleToOrder: Boolean; var WhseShptLineQty: Decimal; var WhseShptLineQtyBase: Decimal; var IsHandled: Boolean; var Return: Boolean)
     begin
     end;
 

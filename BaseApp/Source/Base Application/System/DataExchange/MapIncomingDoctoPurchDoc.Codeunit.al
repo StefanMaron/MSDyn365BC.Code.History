@@ -687,12 +687,19 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
 
         LineNo := 10000;
         PurchaseLine.SetRecFilter();
-        PurchaseLine.SetRange("Line No.");
-        if PurchaseLine.FindLast() then
-            LineNo := LineNo + PurchaseLine."Line No.";
+        LineNo := LineNo + GetLastLineNo(PurchaseHeader);
         PurchaseLine.Validate("Line No.", LineNo);
-
         PurchaseLine.Insert(true);
+    end;
+
+    local procedure GetLastLineNo(PurchaseHeader: Record "Purchase Header"): Integer
+    var
+        PurchLine: Record "Purchase Line";
+    begin
+        PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchLine.FindLast() then
+            exit(PurchLine."Line No.");
     end;
 
     [IntegrationEvent(false, false)]

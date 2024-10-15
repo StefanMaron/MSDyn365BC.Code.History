@@ -239,6 +239,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     case true of
                         TempCustLedgerEntry.Get("Entry No."):
                             begin
+                                OnReverseGLEntryOnBeforeTempCustLedgEntryCheckDimComb(GLEntry2, TempCustLedgerEntry);
                                 CheckDimComb("Entry No.", "Dimension Set ID",
                                   Database::Customer, TempCustLedgerEntry."Customer No.",
                                   Database::"Salesperson/Purchaser", TempCustLedgerEntry."Salesperson Code");
@@ -336,8 +337,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(NewCustLedgerEntry, CustLedgerEntry, GenJnlPostLine);
 
         if NextDtldCustLedgEntryEntryNo = 0 then begin
+            OnReverseCustLedgEntryOnBeforeFindLastDetailedCustLedgEntry(DetailedCustLedgEntry);
             DetailedCustLedgEntry.FindLast();
             NextDtldCustLedgEntryEntryNo := DetailedCustLedgEntry."Entry No." + 1;
+            OnReverseCustLedgEntryOnAfterAssignNextDtldCustLedgEntryEntryNo(DetailedCustLedgEntry, NextDtldCustLedgEntryEntryNo);
         end;
         DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -613,29 +616,33 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         NewDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         IsHandled: Boolean;
     begin
-        CustLedgerEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-        CustLedgerEntry."Closed by Entry No." := CustLedgerEntry2."Entry No.";
-        CustLedgerEntry."Closed at Date" := CustLedgerEntry2."Posting Date";
-        CustLedgerEntry."Closed by Amount" := -CustLedgerEntry2."Remaining Amount";
-        CustLedgerEntry."Closed by Amount (LCY)" := -CustLedgerEntry2."Remaining Amt. (LCY)";
-        CustLedgerEntry."Closed by Currency Code" := CustLedgerEntry2."Currency Code";
-        CustLedgerEntry."Closed by Currency Amount" := -CustLedgerEntry2."Remaining Amount";
-        CustLedgerEntry.Open := false;
-        CustLedgerEntry.Modify();
-        OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(CustLedgerEntry);
-
-        NewDetailedCustLedgEntry := DetailedCustLedgEntry2;
-        NewDetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
-        NewDetailedCustLedgEntry."Entry Type" := NewDetailedCustLedgEntry."Entry Type"::Application;
-        NewDetailedCustLedgEntry."Applied Cust. Ledger Entry No." := AppliedEntryNo;
-        NewDetailedCustLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDetailedCustLedgEntry."User ID"));
-        NewDetailedCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
-        NewDetailedCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
-        NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
         IsHandled := false;
-        OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDetailedCustLedgEntry, DetailedCustLedgEntry2, IsHandled, GenJnlPostLine, NextDtldCustLedgEntryEntryNo);
-        if not IsHandled then
-            NewDetailedCustLedgEntry.Insert(true);
+        OnBeforeApplyCustLedgEntryByReversal(CustLedgerEntry, CustLedgerEntry2, DetailedCustLedgEntry2, AppliedEntryNo, NextDtldCustLedgEntryEntryNo, GenJnlPostLine, IsHandled);
+        if not IsHandled then begin
+            CustLedgerEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+            CustLedgerEntry."Closed by Entry No." := CustLedgerEntry2."Entry No.";
+            CustLedgerEntry."Closed at Date" := CustLedgerEntry2."Posting Date";
+            CustLedgerEntry."Closed by Amount" := -CustLedgerEntry2."Remaining Amount";
+            CustLedgerEntry."Closed by Amount (LCY)" := -CustLedgerEntry2."Remaining Amt. (LCY)";
+            CustLedgerEntry."Closed by Currency Code" := CustLedgerEntry2."Currency Code";
+            CustLedgerEntry."Closed by Currency Amount" := -CustLedgerEntry2."Remaining Amount";
+            CustLedgerEntry.Open := false;
+            CustLedgerEntry.Modify();
+            OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(CustLedgerEntry);
+
+            NewDetailedCustLedgEntry := DetailedCustLedgEntry2;
+            NewDetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
+            NewDetailedCustLedgEntry."Entry Type" := NewDetailedCustLedgEntry."Entry Type"::Application;
+            NewDetailedCustLedgEntry."Applied Cust. Ledger Entry No." := AppliedEntryNo;
+            NewDetailedCustLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDetailedCustLedgEntry."User ID"));
+            NewDetailedCustLedgEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
+            NewDetailedCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
+            NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
+            IsHandled := false;
+            OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDetailedCustLedgEntry, DetailedCustLedgEntry2, IsHandled, GenJnlPostLine, NextDtldCustLedgEntryEntryNo);
+            if not IsHandled then
+                NewDetailedCustLedgEntry.Insert(true);
+        end;
 
         OnApplyCustLedgEntryByReversalOnAfterInsertDtldCustLedgEntry(NewDetailedCustLedgEntry, CustLedgerEntry2);
     end;
@@ -1124,6 +1131,26 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseVATEntryOnAfterInsert(var NewVATEntry: Record "VAT Entry"; VATEntry: Record "VAT Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnBeforeFindLastDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnAfterAssignNextDtldCustLedgEntryEntryNo(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var NextDtldCustLedgEntryEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseGLEntryOnBeforeTempCustLedgEntryCheckDimComb(var GLEntry: Record "G/L Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyCustLedgEntryByReversal(CustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry2: Record "Cust. Ledger Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; AppliedEntryNo: Integer; var NextDtldCustLedgEntryEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; IsHandled: Boolean)
     begin
     end;
 }

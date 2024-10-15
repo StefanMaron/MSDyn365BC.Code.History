@@ -46,6 +46,7 @@ codeunit 5051 SegManagement
         CampaignNo: Code[20];
         ShowIsNotEmptyError: Boolean;
         ShouldModifyAttachment: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeLogSegment(SegmentHeader, Deliver, Followup);
         LoggedSegment.LockTable();
@@ -57,6 +58,11 @@ codeunit 5051 SegManagement
             Error(LoggedSegmentExistsErr, LoggedSegment.TableCaption(), SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
+
+        IsHandled := false;
+        OnLogSegmentOnBeforeInitLoggedSegment(SegmentHeader, Deliver, Followup, IsHandled);
+        if IsHandled then
+            exit;
 
         LoggedSegment.Reset();
         LoggedSegment.Init();
@@ -181,12 +187,18 @@ codeunit 5051 SegManagement
         WizardAction: Enum "Interaction Template Wizard Action";
         FileName: Text;
         FileExported: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeLogInteraction(SegmentLine, AttachmentTemp, TempInterLogEntryCommentLine, Deliver, Postponed);
 
         TestFieldsFromLogInteraction(SegmentLine, Deliver, Postponed);
         if (SegmentLine."Campaign No." <> '') and (not Postponed) then
             SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, 0);
+
+        IsHandled := false;
+        OnLogInteractionOnBeforeCheckAttachmentFileValue(SegmentLine, AttachmentTemp, TempInterLogEntryCommentLine, Deliver, Postponed, NextInteractLogEntryNo, IsHandled);
+        if IsHandled then
+            exit(NextInteractLogEntryNo);
 
         if AttachmentTemp."Attachment File".HasValue() then begin
             Attachment.LockTable();
@@ -279,7 +291,7 @@ codeunit 5051 SegManagement
             CheckSegmentLine(SegmentLine, Deliver);
     end;
 
-    procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20]): Integer
+    procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20]) Result: Integer
     var
         InteractionTemplate: Record "Interaction Template";
         TempSegmentLine: Record "Segment Line" temporary;
@@ -290,6 +302,7 @@ codeunit 5051 SegManagement
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         InteractTmplCode: Code[10];
         ContNo: Code[20];
+        IsHandled: Boolean;
     begin
         InteractTmplCode := FindInteractionTemplateCode("Interaction Log Entry Document Type".FromInteger(DocumentType));
         OnLogDocumentOnAfterFindInteractTmplCode(InteractTmplCode, Attachment, DocumentType);
@@ -332,6 +345,11 @@ codeunit 5051 SegManagement
                     exit;
             end;
         end;
+
+        IsHandled := false;
+        OnLogDocumentOnBeforeTempSegmentLineInit(AccountTableNo, AccountNo, ContNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         TempSegmentLine.Init();
         TempSegmentLine."Document Type" := "Interaction Log Entry Document Type".FromInteger(DocumentType);
@@ -890,6 +908,21 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnBeforeFollowupSegmentHeaderInsert(var SegmentHeader: Record "Segment Header"; LoggedSegment: Record "Logged Segment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogDocumentOnBeforeTempSegmentLineInit(AccountTableNo: Integer; AccountNo: Code[20]; var ContNo: Code[20]; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInteractionOnBeforeCheckAttachmentFileValue(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean; var NextInteractLogEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnBeforeInitLoggedSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
