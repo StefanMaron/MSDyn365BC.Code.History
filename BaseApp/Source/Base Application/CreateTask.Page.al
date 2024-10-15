@@ -100,10 +100,14 @@ page 5097 "Create Task"
                     begin
                         if not "Team To-do" then begin
                             "Team Code" := '';
+                            SalespersonCodeEnable := true;
                             if Type = Type::Meeting then begin
                                 ClearDefaultAttendeeInfo;
                                 AssignDefaultAttendeeInfo;
                             end;
+                        end else begin
+                            SalespersonCodeEnable := false;
+                            "Salesperson Code" := '';
                         end;
                     end;
                 }
