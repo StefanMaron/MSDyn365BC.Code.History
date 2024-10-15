@@ -170,6 +170,7 @@
     [Scope('OnPrem')]
     procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         GenJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);

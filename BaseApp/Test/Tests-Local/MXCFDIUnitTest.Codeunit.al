@@ -1508,6 +1508,145 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesLineRetention.TestField("Retention Attached to Line No.", SalesLine."Line No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesInvoiceWithRetentionRecalculateLinesFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesHeaderNew: Record "Sales Header";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Sales Invoice with retention lines is copied with Recalculate Lines = false
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        LibrarySales.CreateSalesHeader(SalesHeaderNew, SalesHeaderNew."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+
+        LibrarySales.CopySalesDocument(SalesHeaderNew, "Sales Document Type From"::Invoice, SalesHeader."No.", true, false);
+
+        VerifyCopyOfRetentionLines(SalesHeaderNew, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesInvoiceWithRetentionRecalculateLinesTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesHeaderNew: Record "Sales Header";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Sales Invoice with retention lines is copied with Recalculate Lines = true
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        LibrarySales.CreateSalesHeader(SalesHeaderNew, SalesHeaderNew."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+
+        LibrarySales.CopySalesDocument(SalesHeaderNew, "Sales Document Type From"::Invoice, SalesHeader."No.", true, true);
+
+        VerifyCopyOfRetentionLines(SalesHeaderNew, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyPostedSalesInvoiceWithRetentionRecalculateLinesFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeaderNew: Record "Sales Header";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Posted Sales Invoice with retention lines is copied with Recalculate Lines = false
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        LibrarySales.CreateSalesHeader(SalesHeaderNew, SalesHeaderNew."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        LibrarySales.CopySalesDocument(SalesHeaderNew, "Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", true, false);
+
+        VerifyCopyOfRetentionLines(SalesHeaderNew, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyPostedSalesInvoiceWithRetentionRecalculateLinesTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeaderNew: Record "Sales Header";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Posted Sales Invoice with retention lines is copied with Recalculate Lines = true
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        LibrarySales.CreateSalesHeader(SalesHeaderNew, SalesHeaderNew."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        LibrarySales.CopySalesDocument(SalesHeaderNew, "Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", true, true);
+
+        VerifyCopyOfRetentionLines(SalesHeaderNew, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelSalesInvoiceWithRetention()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Cancel Posted Sales Invoice with retention lines
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        Clear(SalesHeader);
+
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
+        SalesCrMemoHeader.FindFirst;
+        VerifyCancelOfRetentionLines(SalesCrMemoHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateCorrCreditMemoFromSalesInvoiceWithRetention()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Retention] [Copy Document]
+        // [SCENARIO 403133] Corrective credit memo for Posted Sales Invoice with retention lines
+        Initialize();
+
+        CreateSalesInvoiceWithRetentionLines(SalesHeader, SalesLineRetention1, SalesLineRetention2);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        Clear(SalesHeader);
+
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+
+        SalesHeader.SetRange("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
+        SalesHeader.FindFirst;
+        VerifyCopyOfRetentionLines(SalesHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1517,6 +1656,8 @@ codeunit 144000 "MX CFDI Unit Test"
         UpdateCompanyInfo;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySales.SetStockoutWarning(false);
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         IsInitialized := true;
         Commit();
@@ -1599,6 +1740,32 @@ codeunit 144000 "MX CFDI Unit Test"
         CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeCreditMemo);
         CFDIRelationDocuments."Related Doc. No.".SetValue(CrMemoNo);
         CFDIRelationDocuments.Close;
+    end;
+
+    local procedure CreateSalesInvoiceWithRetentionLines(var SalesHeader: Record "Sales Header"; var SalesLineRetention1: Record "Sales Line"; var SalesLineRetention2: Record "Sales Line")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeader."CFDI Purpose" := Format(LibraryRandom.RandIntInRange(10000, 9999));
+        SalesHeader."CFDI Relation" := Format(LibraryRandom.RandIntInRange(10000, 9999));
+        SalesHeader.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLineRetention1, SalesHeader, SalesLineRetention1.Type::Item, LibraryInventory.CreateItemNo, -1);
+        SalesLineRetention1.Validate("Retention Attached to Line No.", SalesLine."Line No.");
+        SalesLineRetention1.Validate("Retention VAT %", LibraryRandom.RandIntInRange(10, 20));
+        SalesLineRetention1.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLineRetention2, SalesHeader, SalesLineRetention2.Type::Item, LibraryInventory.CreateItemNo, -1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+        SalesLineRetention2.Validate("Retention Attached to Line No.", SalesLine."Line No.");
+        SalesLineRetention2.Validate("Retention VAT %", LibraryRandom.RandIntInRange(10, 20));
+        SalesLineRetention2.Modify(true);
     end;
 
     local procedure GetCFDIRelatedDocTypeInvoice(): Integer
@@ -1901,6 +2068,50 @@ codeunit 144000 "MX CFDI Unit Test"
             Assert.AreEqual(CustDocLineFieldValue, DocLineFieldRef.Value, '');
             Assert.IsTrue(DocLineFieldRef.Length >= CustDocLineFieldRef.Length, '');
         until Field.Next = 0;
+    end;
+
+    local procedure VerifyCopyOfRetentionLines(SalesHeader: Record "Sales Header"; RetentionVATPct1: Decimal; RetentionVATPct2: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineRetention: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SalesLine.SetRange("Retention Attached to Line No.", 0);
+        SalesLineRetention.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLineRetention.SetRange("Document No.", SalesHeader."No.");
+        SalesLineRetention.SetFilter("Retention Attached to Line No.", '<>0');
+
+        SalesLine.FindFirst();
+        SalesLineRetention.FindFirst();
+        SalesLineRetention.TestField("Retention Attached to Line No.", SalesLine."Line No.");
+        SalesLineRetention.TestField("Retention VAT %", RetentionVATPct1);
+        SalesLine.FindLast();
+        SalesLineRetention.FindLast();
+        SalesLineRetention.TestField("Retention Attached to Line No.", SalesLine."Line No.");
+        SalesLineRetention.TestField("Retention VAT %", RetentionVATPct2);
+    end;
+
+    local procedure VerifyCancelOfRetentionLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; RetentionVATPct1: Decimal; RetentionVATPct2: Decimal)
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        SalesCrMemoLineRetention: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+        SalesCrMemoLine.SetRange("Retention Attached to Line No.", 0);
+        SalesCrMemoLineRetention.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLineRetention.SetFilter("Retention Attached to Line No.", '<>0');
+
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLineRetention.FindFirst();
+        SalesCrMemoLineRetention.TestField("Retention Attached to Line No.", SalesCrMemoLine."Line No.");
+        SalesCrMemoLineRetention.TestField("Retention VAT %", RetentionVATPct1);
+        SalesCrMemoLine.FindLast();
+        SalesCrMemoLineRetention.FindLast();
+        SalesCrMemoLineRetention.TestField("Retention Attached to Line No.", SalesCrMemoLine."Line No.");
+        SalesCrMemoLineRetention.TestField("Retention VAT %", RetentionVATPct2);
     end;
 
     [ConfirmHandler]

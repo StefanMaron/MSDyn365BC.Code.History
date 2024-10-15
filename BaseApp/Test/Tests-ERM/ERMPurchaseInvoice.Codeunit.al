@@ -1106,6 +1106,15 @@ codeunit 134328 "ERM Purchase Invoice"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure TotalsShouldBeRecalculatedByPriceInclVAT()
+    begin
+        // [FEATURE] [Totals] [UI]
+        // [SCENARIO 401966] Changing "Price Incl VAT" forces the totals calculation.
+        // Disabled in N/A
+    end;
+
+    [Test]
     [HandlerFunctions('QuantityOnGetReceiptLinesPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure GetReceiptLinesAfterPartialPosting()
