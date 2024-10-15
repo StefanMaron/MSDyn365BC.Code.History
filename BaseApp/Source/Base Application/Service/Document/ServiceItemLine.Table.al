@@ -1042,6 +1042,7 @@ table 5901 "Service Item Line"
                 SetFilterForType();
                 if ServLine.Find('-') then
                     repeat
+                        ServLine.SetCalledFromServiceItemLine(true);
                         ServLine.Validate("Fault Reason Code", "Fault Reason Code");
                         ServLine.Modify();
                     until ServLine.Next() = 0;

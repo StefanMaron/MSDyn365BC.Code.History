@@ -34,6 +34,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     local procedure "Code"()
     var
         GlobalWhseEntry: Record "Warehouse Entry";
+        LastWhseEntryNo: Integer;
     begin
         OnBeforeCode(WhseJnlLine, WhseEntryNo);
 
@@ -42,10 +43,10 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 exit;
             TestField("Item No.");
             GetLocation("Location Code");
-            if WhseEntryNo = 0 then begin
-                GlobalWhseEntry.LockTable();
-                WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
-            end;
+            GlobalWhseEntry.LockTable();
+            LastWhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
+            if LastWhseEntryNo > WhseEntryNo then
+                WhseEntryNo := LastWhseEntryNo;
 
             OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
 

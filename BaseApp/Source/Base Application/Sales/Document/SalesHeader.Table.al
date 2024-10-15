@@ -772,7 +772,8 @@ table 36 "Sales Header"
 
                 UpdateShipToAddress();
                 UpdateOutboundWhseHandlingTime();
-                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                if Rec."Location Code" <> xRec."Location Code" then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])

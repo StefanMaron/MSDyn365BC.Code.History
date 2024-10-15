@@ -26,11 +26,11 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
-        DimensionHeaderError: Label 'The dimensions used in %1 %2 are invalid', Locked = true;
-        DimensionLineError: Label 'The dimensions used in %1 %2, line no. %3 are invalid', Locked = true;
-        DimensionValueCodeError: Label '%1 must be %2.';
-        QuantityReceivedError: Label '%1 must be %2 in %3.';
-        VendorLedgerEntryErr: Label 'Field Open in Vendor Ledger Entries should be %1 for Document No. = %2';
+        DimensionHeaderErr: Label 'The dimensions used in %1 %2 are invalid', Locked = true;
+        DimensionLineErr: Label 'The dimensions used in %1 %2, line no. %3 are invalid', Locked = true;
+        DimensionValueCodeErr: Label '%1 must be %2.', Comment = '%1 = dimension value field, %2 = dimension value code';
+        QuantityReceivedErr: Label '%1 must be %2 in %3.', Comment = '%1 = quantity field, %2 = quantity value, %3 = purchase line';
+        VendorLedgerEntryErr: Label 'Field Open in Vendor Ledger Entries should be %1 for Document No. = %2', Comment = '%1 = open field, %2 = document no. value';
         UpdateFromHeaderLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         UpdateLineDimQst: Label 'You have changed one or more dimensions on the';
         DimensionSetIDErr: Label 'Invalid Dimension Set ID';
@@ -90,7 +90,7 @@ codeunit 134476 "ERM Dimension Purchase"
           DimensionValueCode,
           DimensionSetEntry."Dimension Value Code",
           StrSubstNo(
-            DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Value Code"), DimensionSetEntry."Dimension Value Code"));
+            DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Value Code"), DimensionSetEntry."Dimension Value Code"));
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [THEN] Verify error occurs "Invalid Dimension" on Posting Purchase Invoice.
         Assert.ExpectedError(
-          StrSubstNo(DimensionHeaderError, PurchaseHeader."Document Type", PurchaseHeader."No."));
+          StrSubstNo(DimensionHeaderErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [THEN] Verify error occurs "Invalid Dimension" on Posting Purchase Invoice.
         Assert.ExpectedError(
-          StrSubstNo(DimensionLineError, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No."));
+          StrSubstNo(DimensionLineErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No."));
     end;
 
     [Test]
@@ -774,9 +774,9 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.Dimensions.Invoke;
+        PurchaseOrder.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
@@ -811,9 +811,9 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        asserterror PurchaseOrder.Dimensions.Invoke;
+        asserterror PurchaseOrder.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForPurchaseHeaderDimUpdate
@@ -902,10 +902,10 @@ codeunit 134476 "ERM Dimension Purchase"
         // [GIVEN] Purchase Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.First;
-        PurchaseOrder.PurchLines.Dimensions.Invoke;
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
 
@@ -937,10 +937,10 @@ codeunit 134476 "ERM Dimension Purchase"
         // [GIVEN] Purchase Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.First;
-        asserterror PurchaseOrder.PurchLines.Dimensions.Invoke;
+        PurchaseOrder.PurchLines.First();
+        asserterror PurchaseOrder.PurchLines.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
 
@@ -960,8 +960,8 @@ codeunit 134476 "ERM Dimension Purchase"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         Vendor: Record Vendor;
-        DimMgt: Codeunit DimensionManagement;
-        GlobalDimension: array[2] of Code[10];
+        DimensionManagement: Codeunit DimensionManagement;
+        GlobalDimension: array[2] of Code[20];
         CombinedDimensionSetID: Integer;
         DimensionSetID: array[10] of Integer;
     begin
@@ -987,7 +987,7 @@ codeunit 134476 "ERM Dimension Purchase"
         // [THEN] Dimension set of Purchase Line is equal to combination of Default Dimensions of Vendor and Dimension Set of Sales Line.
         DimensionSetID[1] := PurchaseHeader."Dimension Set ID";
         DimensionSetID[2] := SalesLine."Dimension Set ID";
-        CombinedDimensionSetID := DimMgt.GetCombinedDimensionSetID(DimensionSetID, GlobalDimension[1], GlobalDimension[2]);
+        CombinedDimensionSetID := DimensionManagement.GetCombinedDimensionSetID(DimensionSetID, GlobalDimension[1], GlobalDimension[2]);
 
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         Assert.AreEqual(CombinedDimensionSetID, PurchaseLine."Dimension Set ID", '');
@@ -1004,7 +1004,6 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
         ExpectedVATAmount: array[5] of Decimal;
@@ -1059,7 +1058,6 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         Index: Integer;
         DocumentNo: Code[20];
         ExpectedVATAmount: array[5] of Decimal;
@@ -1110,13 +1108,11 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         Vendor: Record Vendor;
         Currency: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRate: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1176,13 +1172,11 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1245,13 +1239,11 @@ codeunit 134476 "ERM Dimension Purchase"
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
         CurrencyACY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         ExchangeRateACY: Decimal;
         Index: Integer;
@@ -1320,13 +1312,11 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         Index: Integer;
         DocumentNo: Code[20];
@@ -1389,13 +1379,11 @@ codeunit 134476 "ERM Dimension Purchase"
         Vendor: Record Vendor;
         CurrencyFCY: Record Currency;
         CurrencyACY: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: array[5] of Record "Dimension Value";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: array[5] of Record "Purchase Line";
-        VATEntry: Record "VAT Entry";
         ExchangeRateFCY: Decimal;
         ExchangeRateACY: Decimal;
         Index: Integer;
@@ -1685,10 +1673,7 @@ codeunit 134476 "ERM Dimension Purchase"
         PurchaseHeader: Record "Purchase Header";
         DimensionValue: Record "Dimension Value";
         Location: Record Location;
-        DimensionSetEntry: Record "Dimension Set Entry";
         PurchaseQuote: TestPage "Purchase Quote";
-        PurchaseOrder: TestPage "Purchase Order";
-        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
     begin
         // [SCENARIO 454238] Header Dimensions will be deleted in a purchase order when you select ship to location.
         Initialize();
@@ -1773,7 +1758,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [VERIFY] Verify Dimension are puled from Account Type to Purchase Line
         Assert.AreEqual(PurchaseLine."Shortcut Dimension 1 Code", DimensionValue.Code,
-            StrSubstNo(DimensionValueCodeError, PurchaseLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
+            StrSubstNo(DimensionValueCodeErr, PurchaseLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
     end;
 
     [Test]
@@ -2027,6 +2012,62 @@ codeunit 134476 "ERM Dimension Purchase"
         Assert.AreEqual(ExpectedDimID, ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ChangeDimensionConfirmHandler,ChangeLocationMessageHandler')]
+    procedure VerifyDimensionsAreNotReInitializedIfLocationIsNotChanged()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        Location: array[2] of Record Location;
+        DimensionValue: array[2] of Record "Dimension Value";
+        ShiptoAddress: array[2] of Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+        i: Integer;
+    begin
+        // [SCENARIO 504598] Verify dimensions are not re-initialized on validate ship-to code if location is not changed
+        Initialize();
+
+        // [GIVEN] Create vendor with default global dimension value
+        CreateVendorWithDefaultGlobalDimValue(Vendor, DimensionValue[1]);
+
+        // [GIVEN] Create customer
+        LibrarySales.CreateCustomer(Customer);
+
+        //[GIVEN] Create dimension value for global dimension 1 code
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create two locations with default dimension
+        // [GIVEN] Create two shipping addresses with the locations for the customer
+        for i := 1 to 2 do begin
+            CreateLocationWithDefaultDimension(Location[i], DimensionValue[i]);
+            CreateShipToAddressWithLocation(ShiptoAddress[i], Customer."No.", Location[i].Code);
+        end;
+
+        // [GIVEN] Create purchase order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", '');
+
+        // [GIVEN] Change dimension value on purchase header
+        ChangeDimensionOnDocument(PurchaseHeader, DimensionValue[2].Code); // -> ChangeDimensionConfirmHandler
+
+        // [GIVEN] Change ship-to code on purchase header
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::"Customer Address", '');
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShiptoAddress[1].Code);
+
+        // [GIVEN] Change location code on purchase header
+        PurchaseHeader.Validate("Location Code", Location[2].Code);
+
+        // [WHEN] Change ship-to code on purchase header
+        PurchaseHeader.Validate("Ship-to Code", ShiptoAddress[2].Code);
+
+        // [THEN] Verify dimensions are not re-initialized on purchase header and purchase lines
+        VerifyDimensionOnPurchaseOrder(PurchaseHeader, DimensionValue[2]."Dimension Code");
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -2212,7 +2253,6 @@ codeunit 134476 "ERM Dimension Purchase"
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
         // Use Random because value is not important.
@@ -2283,8 +2323,8 @@ codeunit 134476 "ERM Dimension Purchase"
     begin
         // Use Random because value is not important.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -2413,9 +2453,9 @@ codeunit 134476 "ERM Dimension Purchase"
 
     local procedure CreatePartlyReceiptPurchOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInDecimalRange(10, 20, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInDecimalRange(10, 20, 2));
         UpdatePartialQuantityToReceive(PurchaseLine);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2423,10 +2463,10 @@ codeunit 134476 "ERM Dimension Purchase"
 
     local procedure CreateGlobal1DimensionValue(var DimensionValue: Record "Dimension Value"): Code[20]
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get();
-        LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
 
@@ -2499,7 +2539,6 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionLine: Record "Requisition Line";
-        LibraryPlanning: Codeunit "Library - Planning";
     begin
         ReqWkshTemplate.SetRange(Type, RequisitionWkshName."Template Type"::"Req.");
         ReqWkshTemplate.FindFirst();
@@ -2588,16 +2627,12 @@ codeunit 134476 "ERM Dimension Purchase"
     end;
 
     local procedure UpdatePartialQuantityToReceive(PurchaseLine: Record "Purchase Line")
-    var
-        LibraryUtility: Codeunit "Library - Utility";
     begin
-        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity * LibraryUtility.GenerateRandomFraction());
         PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header")
-    var
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         PurchaseHeader.Validate(
           "Vendor Invoice No.",
@@ -2646,7 +2681,7 @@ codeunit 134476 "ERM Dimension Purchase"
         GLAccount: Record "G/L Account";
         DimensionValue: Record "Dimension Value";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount."No.", DimensionCode, DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
@@ -2762,7 +2797,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(
           DimensionCode, DimensionSetEntry."Dimension Code",
-          StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
     end;
 
     local procedure VerifyQuantityReceivedOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
@@ -2772,7 +2807,7 @@ codeunit 134476 "ERM Dimension Purchase"
         FindPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
         Assert.AreEqual(
           Quantity, PurchaseLine."Quantity Received",
-          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Quantity Received"), Quantity, PurchaseLine.TableCaption()));
+          StrSubstNo(QuantityReceivedErr, PurchaseLine.FieldCaption("Quantity Received"), Quantity, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyReceiptLineOnPostedPurchaseReceipt(PurchaseLine: Record "Purchase Line")
@@ -2798,7 +2833,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(
           DimensionCode, DimensionSetEntry."Dimension Code",
-          StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
     end;
 
     local procedure VerifyUndoReceiptLineOnPostedReceipt(DocumentNo: Code[20]; Quantity: Decimal)
@@ -2809,7 +2844,7 @@ codeunit 134476 "ERM Dimension Purchase"
         PurchRcptLine.FindLast();
         Assert.AreEqual(
           Quantity, -PurchRcptLine.Quantity,
-          StrSubstNo(QuantityReceivedError, PurchRcptLine.FieldCaption(Quantity), Quantity, PurchRcptLine.TableCaption()));
+          StrSubstNo(QuantityReceivedErr, PurchRcptLine.FieldCaption(Quantity), Quantity, PurchRcptLine.TableCaption()));
     end;
 
     local procedure VerifyQuantitytoReceiveOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
@@ -2819,7 +2854,7 @@ codeunit 134476 "ERM Dimension Purchase"
         FindPurchaseLine(PurchaseLine, DocumentType, DocumentNo);
         Assert.AreEqual(
           Quantity, PurchaseLine."Qty. to Receive",
-          StrSubstNo(QuantityReceivedError, PurchaseLine.FieldCaption("Qty. to Receive"), Quantity, PurchaseLine.TableCaption()));
+          StrSubstNo(QuantityReceivedErr, PurchaseLine.FieldCaption("Qty. to Receive"), Quantity, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryOpen(DocumentNo: Code[20]; Open: Boolean)
@@ -2836,9 +2871,9 @@ codeunit 134476 "ERM Dimension Purchase"
     local procedure VerifyDimensionOnDimSet(DimSetID: Integer; DimensionValue: Record "Dimension Value")
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-        DimMgt: Codeunit DimensionManagement;
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimMgt.GetDimensionSet(TempDimensionSetEntry, DimSetID);
+        DimensionManagement.GetDimensionSet(TempDimensionSetEntry, DimSetID);
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         TempDimensionSetEntry.FindFirst();
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
@@ -2850,6 +2885,8 @@ codeunit 134476 "ERM Dimension Purchase"
         VATEntryAmount: array[5] of Decimal;
         VATEntryAmountACY: array[5] of Decimal;
         Index: Integer;
+        IncorrectAmountErr: Label 'Incorrect Amount in "VAT Entry"[%1]', Locked = true;
+        IncorrectAdditionalCurrAmountErr: Label 'Incorrect Additional-Currency Amount in "VAT Entry"[%1]', Locked = true;
     begin
 
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -2865,8 +2902,8 @@ codeunit 134476 "ERM Dimension Purchase"
         until VATEntry.Next() = 0;
 
         for Index := 1 to ArrayLen(ExpectedVATAmount) do begin
-            Assert.AreEqual(ExpectedVATAmount[Index], VATEntryAmount[Index], StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
-            Assert.AreEqual(ExpectedVATAmountACY[Index], VATEntryAmountACY[Index], StrSubstNo('Incorrect Additional-Currency Amount in "VAT Entry"[%1]', Index));
+            Assert.AreEqual(ExpectedVATAmount[Index], VATEntryAmount[Index], StrSubstNo(IncorrectAmountErr, Index));
+            Assert.AreEqual(ExpectedVATAmountACY[Index], VATEntryAmountACY[Index], StrSubstNo(IncorrectAdditionalCurrAmountErr, Index));
         end;
     end;
 
@@ -2921,7 +2958,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.Filter.SetFilter("No.", VendorNo);
     end;
 
@@ -3056,15 +3093,15 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionValue: array[3] of Record "Dimension Value"): Code[20]
     var
         Vendor: Record Vendor;
-        Purchaser: Record "Salesperson/Purchaser";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         DefaultDimension: Record "Default Dimension";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        LibrarySales.CreateSalesperson(Purchaser);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryDimension.CreateDefaultDimension(
-            DefaultDimension, Database::"Salesperson/Purchaser", Purchaser.Code, Dimension[1].Code, DimensionValue[1].Code);
+            DefaultDimension, Database::"Salesperson/Purchaser", SalespersonPurchaser.Code, Dimension[1].Code, DimensionValue[1].Code);
 
-        Vendor.Validate("Purchaser Code", Purchaser.Code);
+        Vendor.Validate("Purchaser Code", SalespersonPurchaser.Code);
         Vendor.Modify(true);
         LibraryDimension.CreateDefaultDimension(
             DefaultDimension, Database::Vendor, Vendor."No.", Dimension[2].Code, DimensionValue[2].Code);
@@ -3147,18 +3184,18 @@ codeunit 134476 "ERM Dimension Purchase"
 
     local procedure RunCopyPurchaseDoc(
         DocumentNo: Code[20];
-        NewPurchHeader: Record "Purchase Header";
+        NewPurchaseHeader: Record "Purchase Header";
         DocType: Enum "Purchase Document Type From";
         IncludeHeader: Boolean;
         RecalculateLines: Boolean)
     var
-        CopyPurchDoc: Report "Copy Purchase Document";
+        CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
-        Clear(CopyPurchDoc);
-        CopyPurchDoc.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
-        CopyPurchDoc.SetPurchHeader(NewPurchHeader);
-        CopyPurchDoc.UseRequestPage(false);
-        CopyPurchDoc.RunModal();
+        Clear(CopyPurchaseDocument);
+        CopyPurchaseDocument.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
+        CopyPurchaseDocument.SetPurchHeader(NewPurchaseHeader);
+        CopyPurchaseDocument.UseRequestPage(false);
+        CopyPurchaseDocument.RunModal();
     end;
 
     local procedure VerifyPostedPurchaseInvoiceLineContainsNewDimensionValue(PostedInvoiceNo: Code[20]; ItemNo: Code[20]; DimensionValueCode: Code[20])
@@ -3171,7 +3208,7 @@ codeunit 134476 "ERM Dimension Purchase"
         Assert.AreEqual(
             DimensionValueCode,
             PurchInvLine."Shortcut Dimension 1 Code",
-            StrSubstNo(DimensionValueCodeError, DimensionValueCode, PurchInvLine.FieldCaption("Shortcut Dimension 1 Code")));
+            StrSubstNo(DimensionValueCodeErr, DimensionValueCode, PurchInvLine.FieldCaption("Shortcut Dimension 1 Code")));
     end;
 
     local procedure VerifyPostedGLEntryContainsNewDimensionValue(PostedInvoiceNo: Code[20]; DimensionValueCode: Code[20])
@@ -3185,7 +3222,39 @@ codeunit 134476 "ERM Dimension Purchase"
         Assert.AreEqual(
             DimensionValueCode,
             GLEntry."Global Dimension 1 Code",
-            StrSubstNo(DimensionValueCodeError, DimensionValueCode, GLEntry.FieldCaption("Global Dimension 1 Code")));
+            StrSubstNo(DimensionValueCodeErr, DimensionValueCode, GLEntry.FieldCaption("Global Dimension 1 Code")));
+    end;
+
+    local procedure ChangeDimensionOnDocument(var PurchaseHeader: Record "Purchase Header"; DimensionValueCode: Code[20])
+    begin
+        PurchaseHeader.ValidateShortcutDimCode(1, DimensionValueCode);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure VerifyDimensionOnPurchaseOrder(PurchaseHeader: Record "Purchase Header"; DimensionCode: Code[20])
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Verify the dimension on purchase header
+        DimensionSetEntry.Get(PurchaseHeader."Dimension Set ID", DimensionCode);
+        Assert.AreEqual(
+          DimensionCode, DimensionSetEntry."Dimension Code",
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+
+        // Verify the dimension on purchase line
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        DimensionSetEntry.Get(PurchaseLine."Dimension Set ID", DimensionCode);
+        Assert.AreEqual(
+          DimensionCode, DimensionSetEntry."Dimension Code",
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+    end;
+
+    local procedure CreateShipToAddressWithLocation(var ShiptoAddress: Record "Ship-to Address"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateShipToAddress(ShiptoAddress, VendorNo);
+        ShiptoAddress.Validate("Location Code", LocationCode);
+        ShiptoAddress.Modify();
     end;
 
     [ConfirmHandler]
@@ -3210,8 +3279,22 @@ codeunit 134476 "ERM Dimension Purchase"
             Question = UpdateFromHeaderLinesQst:
                 Reply := true;
             StrPos(Question, UpdateLineDimQst) <> 0:
-                Reply := LibraryVariableStorage.DequeueBoolean;
+                Reply := LibraryVariableStorage.DequeueBoolean();
         end;
+    end;
+
+    [ConfirmHandler]
+    procedure ChangeDimensionConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        ChangeDimensionsQst: Label 'You may have changed a dimension', Locked = true;
+    begin
+        Reply := Question.Contains(ChangeDimensionsQst);
+    end;
+
+    [MessageHandler]
+    procedure ChangeLocationMessageHandler(Message: Text[1024])
+    begin
+        // Just for handle the message.
     end;
 
     [MessageHandler]
@@ -3241,10 +3324,10 @@ codeunit 134476 "ERM Dimension Purchase"
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.New;
-        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.New();
+        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3252,7 +3335,7 @@ codeunit 134476 "ERM Dimension Purchase"
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
-        SalesList.OK.Invoke();
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]

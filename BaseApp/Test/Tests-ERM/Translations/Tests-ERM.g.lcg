@@ -3350,7 +3350,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType BlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType BlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2921628094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3359,7 +3359,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType DatesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table name, %2 = date field, %3 = table name, %4 = date field]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType DatesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 679529918" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3368,7 +3368,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICCustomerBlockedAllErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Customer no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICCustomerBlockedAllErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 4153389416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3377,7 +3377,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICGLAccountBlockErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = GL account no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICGLAccountBlockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2743000076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3386,7 +3386,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICPartnerBlockErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICPartnerBlockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2892882952" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3458,7 +3458,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType SameICPartnerErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code, %2 = customer no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType SameICPartnerErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 1838629515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3467,7 +3467,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType TableFieldErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table name, %2 = field name]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType TableFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 3800651618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3476,7 +3476,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = field name, %2 = field value, %3 = table name]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2784494499" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3485,7 +3485,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType WrongCompanyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code, %2 = IC partner code]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType WrongCompanyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 689671132 - NamedType 908971242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
