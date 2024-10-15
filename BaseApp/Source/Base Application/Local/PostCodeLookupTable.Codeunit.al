@@ -1,5 +1,6 @@
 codeunit 11402 "Post Code Lookup - Table"
 {
+    Permissions = tabledata "Post Code Range" = R;
 
     trigger OnRun()
     begin

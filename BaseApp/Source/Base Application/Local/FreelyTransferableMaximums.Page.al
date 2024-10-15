@@ -23,7 +23,7 @@ page 11406 "Freely Transferable Maximums"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code that the freely transferable maximum applies to.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum amount that can be transferred without reason given.';

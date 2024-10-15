@@ -36,7 +36,7 @@ page 11416 "Elec. Tax Decl. Response Msgs."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the subject of the response message.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Processing Status';

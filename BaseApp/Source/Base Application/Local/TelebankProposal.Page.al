@@ -129,7 +129,7 @@ page 11000001 "Telebank Proposal"
                     TableRelation = "Direct Debit Collection".Identifier WHERE(Identifier = FIELD("Direct Debit Mandate ID"));
                     ToolTip = 'Specifies the direct debit mandate of the customer that this collection proposal is for.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";

@@ -11,7 +11,12 @@ codeunit 44 ReportManagement
         NoWritePermissionsErr: Label 'Unable to set the default printer. You need the Write permission for the Printer Selection table.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetPrinterName', '', false, false)]
-    local procedure GetPrinterName(ReportID: Integer; var PrinterName: Text[250])
+    local procedure GetPrinterNameSubscriber(ReportID: Integer; var PrinterName: Text[250])
+    begin
+        GetPrinterName(ReportID, PrinterName);
+    end;
+
+    procedure GetPrinterName(ReportID: Integer; var PrinterName: Text[250])
     var
         PrinterSelection: Record "Printer Selection";
     begin
@@ -311,7 +316,7 @@ codeunit 44 ReportManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
+    procedure OnSelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
     begin
     end;
 

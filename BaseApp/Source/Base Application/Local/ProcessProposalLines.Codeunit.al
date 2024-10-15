@@ -158,7 +158,6 @@ codeunit 11000000 "Process Proposal Lines"
             Error(Text1000006);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckAProposalLine(CheckRecord: Record "Proposal Line") res: Boolean
     var
         TranMode: Record "Transaction Mode";
@@ -603,13 +602,11 @@ codeunit 11000000 "Process Proposal Lines"
         ProposalLine.Delete(true);
     end;
 
-    [Scope('OnPrem')]
     procedure FinalError() Res: Text[125]
     begin
         exit(Errortext);
     end;
 
-    [Scope('OnPrem')]
     procedure FinalWarning() Res: Text[125]
     begin
         exit(Warningstext);

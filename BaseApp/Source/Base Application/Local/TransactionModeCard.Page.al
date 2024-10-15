@@ -26,7 +26,7 @@ page 11000011 "Transaction Mode Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of order the transaction mode will be used for.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the transaction mode.';

@@ -16,8 +16,8 @@ codeunit 144070 Digipoort
         DigipoortStatusURLSetupErr: Label 'Digipoort Status URL must have a value in Elec. Tax Declaration Setup: ';
         DigipoortClientCertNameSetupErr: Label 'Digipoort Client Cert. Name must have a value in Elec. Tax Declaration Setup';
         DigipoortServiceCertNameSetupErr: Label 'Digipoort Service Cert. Name must have a value in Elec. Tax Declaration Setup';
-        InvalidDeliverUriFormatErr: Label 'A call to Microsoft.Dynamics.NL.DigipoortServices.Deliver failed with this message: Invalid URI: The format of the URI could not be determined.';
-        InvalidGetStatusUriFormatErr: Label 'A call to Microsoft.Dynamics.NL.DigipoortServices.GetStatus failed with this message: Invalid URI: The format of the URI could not be determined.';
+        InvalidDeliverUriFormatErr: Label 'Invalid URI: The format of the URI could not be determined.';
+        InvalidGetStatusUriFormatErr: Label 'Invalid URI: The format of the URI could not be determined.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

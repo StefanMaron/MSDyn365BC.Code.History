@@ -12,12 +12,12 @@ page 11409 "Gen. Journal Templ. List (CBG)"
             repeater(Control1000000)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the entry.';

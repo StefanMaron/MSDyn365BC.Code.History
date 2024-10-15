@@ -611,13 +611,8 @@ codeunit 144018 "ERM MISC"
         asserterror RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Testfield error occurs: "Transaction Specification must have a value"
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Specification"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Specification"));
-#endif
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Specification"));
     end;
-
 
     [Test]
     [HandlerFunctions('IntrastatChecklistRPH')]
@@ -992,90 +987,6 @@ codeunit 144018 "ERM MISC"
           FileTempBlob, PadStr('', 17, ' '), '  ', '+');
     end;
 
-    [Test]
-    [HandlerFunctions('IntrastatFormRPH')]
-    procedure IntrastatFormForTransactionTypeForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments]
-        // [SCENARIO 444687] Report 501 "Intrastat - Form" does not check "Transaction Type" for shipments.
-        Initialize();
-
-        // [GIVEN] Shipment intrastat journal line with blank "Transaction Type".
-        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run "Intrastat - Form" report.
-        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
-
-        // [THEN] No errors are thrown.
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatFormRPH')]
-    procedure IntrastatFormForTransactionTypeForReceipts()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
-        // [SCENARIO 451331] Report 501 "Intrastat - Form" does not check "Transaction Type" for receipts.
-        Initialize();
-
-        // [GIVEN] Receipt intrastat journal line with blank "Transaction Type".
-        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run "Intrastat - Form" report
-        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
-
-        // [THEN] No errors are thrown.
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatChecklistRPH')]
-    procedure IntrastatChecklistReportForTransactionTypeForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipments]
-        // [SCENARIO 451331] Report 502 "Intrastat - Checklist" does not check "Transaction Type" for shipments.
-        Initialize();
-
-        // [GIVEN] Shipment intrastat journal line with blank "Transaction Type".
-        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run "Intrastat - Checklist" report.
-        RunIntrastatChecklistReport(IntrastatJnlLine);
-
-        // [THEN] No errors are thrown.
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatChecklistRPH')]
-    procedure IntrastatChecklistReportForTransactionTypeForReceipts()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
-        // [SCENARIO 451331] Report 502 "Intrastat - Checklist" does not check "Transaction Type" for receipts.
-        Initialize();
-
-        // [GIVEN] Receipt intrastat journal line with blank "Transaction Type".
-        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run "Intrastat - Checklist" report.
-        RunIntrastatChecklistReport(IntrastatJnlLine);
-
-        // [THEN] No errors are thrown.
-    end;
-
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -1102,19 +1013,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     local procedure EnableAdvancedChecklist()
-#if not CLEAN19
-    var
-        IntrastatSetup: Record "Intrastat Setup";
     begin
-        if not IntrastatSetup.Get() then
-            IntrastatSetup.Insert();
-        IntrastatSetup."Use Advanced Checklist" := true;
-        IntrastatSetup."Report Receipts" := true;
-        IntrastatSetup."Report Shipments" := true;
-        IntrastatSetup.Modify();
-#else
-    begin
-#endif
     end;
 
     local procedure GetEntryExitPointFromDeclarationFile(var FileTempBlob: Codeunit "Temp Blob"): Text[12]

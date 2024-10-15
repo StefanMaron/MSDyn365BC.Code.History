@@ -260,7 +260,7 @@
                 GenJnlLine: Record "Gen. Journal Line" temporary;
             begin
                 CreateGenJournalLine(GenJnlLine);
-                GenJnlLine."Lookup Applies-to Doc. No."();
+                LookupAppliesToDocNo(GenJnlLine);
                 ReadGenJournalLine(GenJnlLine);
             end;
 
@@ -681,13 +681,13 @@
         CBGStatement: Record "CBG Statement";
         JrnlTemplate: Record "Gen. Journal Template";
         DimManagement: Codeunit DimensionManagement;
+        GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         TypeHelper: Codeunit "Type Helper";
         DateParseErr: Label 'Could not read a date from text ''%1'' using format %2.', Comment = '%1=a string representing a date like 081001,%2=a string representing a format like yyMMdd';
         FinancialInterfaceTelebank: Codeunit "Financial Interface Telebank";
         PostingDateEarlierErr: Label 'You cannot apply to an entry with a posting date before the posting date of the entry that you want to apply.';
 
-    [Scope('OnPrem')]
     procedure InitRecord(LastRecord: Record "CBG Statement Line")
     begin
         OnBeforeInitRecord(Rec, LastRecord, CBGStatement);
@@ -715,7 +715,6 @@
         "Amount incl. VAT" := LastRecord."Amount incl. VAT";
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateLineBalance()
     begin
         if ((Amount > 0) and (not Correction)) or
@@ -988,6 +987,235 @@
                     GenJournalLine.Validate("VAT Amount", -Rec."Credit VAT");
     end;
 
+    procedure LookupAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        AccType: Enum "Gen. Journal Account Type";
+        AccNo: Code[20];
+    begin
+        if GenJnlLine."Bal. Account Type" in
+            ["Gen. Journal Account Type"::Customer, "Gen. Journal Account Type"::Vendor, "Gen. Journal Account Type"::Employee]
+        then begin
+            AccNo := GenJnlLine."Bal. Account No.";
+            AccType := GenJnlLine."Bal. Account Type";
+        end else begin
+            AccNo := GenJnlLine."Account No.";
+            AccType := GenJnlLine."Account Type";
+        end;
+
+        case AccType of
+            AccType::Customer:
+                LookupAppliesToDocNoForCustomer(GenJnlLine, AccNo);
+            AccType::Vendor:
+                LookupAppliesToDocNoForVendor(GenJnlLine, AccNo);
+            AccType::Employee:
+                LookupAppliesToDocNoForEmployee(GenJnlLine, AccNo);
+        end;
+
+        if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
+            exit;
+    end;
+
+    local procedure LookupAppliesToDocNoForCustomer(var GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        ApplyCustEntries: Page "Apply Customer Entries";
+    begin
+        CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
+        CustLedgEntry.SetRange("Customer No.", AccNo);
+        CustLedgEntry.SetRange(Open, true);
+#if not CLEAN22
+        GenJnlLine.InvokeOnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(CustLedgEntry, GenJnlLine);
+#endif
+        OnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(CustLedgEntry, GenJnlLine);
+        if GenJnlLine."Applies-to Doc. No." <> '' then begin
+            CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+            CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+            if CustLedgEntry.Find('-') then;
+            CustLedgEntry.SetRange("Document Type");
+            CustLedgEntry.SetRange("Document No.");
+        end else
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                if CustLedgEntry.Find('-') then;
+                CustLedgEntry.SetRange("Applies-to ID");
+            end else
+                if GenJnlLine."Applies-to Doc. Type" <> GenJnlLine."Applies-to Doc. Type"::" " then begin
+                    CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+                    if CustLedgEntry.Find('-') then;
+                    CustLedgEntry.SetRange("Document Type");
+                end else
+                    if GenJnlLine.Amount <> 0 then begin
+                        CustLedgEntry.SetRange(Positive, GenJnlLine.Amount < 0);
+                        if CustLedgEntry.Find('-') then;
+                        CustLedgEntry.SetRange(Positive);
+                    end;
+        ApplyCustEntries.SetGenJnlLine(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."));
+        ApplyCustEntries.SetTableView(CustLedgEntry);
+        ApplyCustEntries.SetRecord(CustLedgEntry);
+        ApplyCustEntries.LookupMode(true);
+        if ApplyCustEntries.RunModal() = ACTION::LookupOK then begin
+            ApplyCustEntries.GetRecord(CustLedgEntry);
+            CustLedgEntry.CalcFields("Remaining Amount");
+            Clear(ApplyCustEntries);
+            if GenJnlLine."Currency Code" <> CustLedgEntry."Currency Code" then
+                if GenJnlLine.Amount = 0 then
+                    GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code")
+                else
+                    GenJnlApply.CheckAgainstApplnCurrency(
+                        GenJnlLine."Currency Code", CustLedgEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
+            if GenJnlLine.Amount = 0 then begin
+                if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment) and
+                    ((CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) or
+                    (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo")) and
+                    (GenJnlLine."Posting Date" <= CustLedgEntry."Pmt. Discount Date")
+                then
+                    GenJnlLine.Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Original Pmt. Disc. Possible")
+                else
+                    GenJnlLine.Amount := -CustLedgEntry."Remaining Amount";
+                if GenJnlLine."Bal. Account Type" in ["Gen. Journal Account Type"::Customer, "Gen. Journal Account Type"::Vendor] then
+                    GenJnlLine.Amount := -GenJnlLine.Amount;
+                GenJnlLine.Validate(Amount);
+            end;
+            GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
+            GenJnlLine."Applies-to Doc. No." := CustLedgEntry."Document No.";
+#if not CLEAN22
+            GenJnlLine.InvokeOnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(CustLedgEntry, GenJnlLine);
+#endif
+            OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(CustLedgEntry, GenJnlLine);
+            GenJnlLine."Applies-to ID" := '';
+        end else
+            Clear(ApplyCustEntries);
+    end;
+
+    local procedure LookupAppliesToDocNoForVendor(var GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        ApplyVendEntries: Page "Apply Vendor Entries";
+    begin
+        VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
+        VendLedgEntry.SetRange("Vendor No.", AccNo);
+        VendLedgEntry.SetRange(Open, true);
+#if not CLEAN22
+        GenJnlLine.InvokeOnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(VendLedgEntry, GenJnlLine);
+#endif
+        OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(VendLedgEntry, GenJnlLine);
+        if GenJnlLine."Applies-to Doc. No." <> '' then begin
+            VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+            VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+            if VendLedgEntry.Find('-') then;
+            VendLedgEntry.SetRange("Document Type");
+            VendLedgEntry.SetRange("Document No.");
+        end else
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                if VendLedgEntry.Find('-') then;
+                VendLedgEntry.SetRange("Applies-to ID");
+            end else
+                if GenJnlLine."Applies-to Doc. Type" <> GenJnlLine."Applies-to Doc. Type"::" " then begin
+                    VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+                    if VendLedgEntry.Find('-') then;
+                    VendLedgEntry.SetRange("Document Type");
+                end else
+                    if GenJnlLine.Amount <> 0 then begin
+                        VendLedgEntry.SetRange(Positive, GenJnlLine.Amount < 0);
+                        if VendLedgEntry.Find('-') then;
+                        VendLedgEntry.SetRange(Positive);
+                    end;
+        ApplyVendEntries.SetGenJnlLine(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."));
+        ApplyVendEntries.SetTableView(VendLedgEntry);
+        ApplyVendEntries.SetRecord(VendLedgEntry);
+        ApplyVendEntries.LookupMode(true);
+        if ApplyVendEntries.RunModal() = ACTION::LookupOK then begin
+            ApplyVendEntries.GetRecord(VendLedgEntry);
+            VendLedgEntry.CalcFields("Remaining Amount");
+            Clear(ApplyVendEntries);
+            if GenJnlLine."Currency Code" <> VendLedgEntry."Currency Code" then
+                if GenJnlLine.Amount = 0 then
+                    GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code")
+                else
+                    GenJnlApply.CheckAgainstApplnCurrency(
+                        GenJnlLine."Currency Code", VendLedgEntry."Currency Code", GenJnlLine."Account Type"::Vendor, true);
+            if GenJnlLine.Amount = 0 then begin
+                if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment) and
+                    ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) or
+                    (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo")) and
+                    (GenJnlLine."Posting Date" <= VendLedgEntry."Pmt. Discount Date")
+                then
+                    GenJnlLine.Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Original Pmt. Disc. Possible")
+                else
+                    GenJnlLine.Amount := -VendLedgEntry."Remaining Amount";
+                if GenJnlLine."Bal. Account Type" in ["Gen. Journal Account Type"::Customer, "Gen. Journal Account Type"::Vendor] then
+                    GenJnlLine.Amount := -GenJnlLine.Amount;
+                GenJnlLine.Validate(Amount);
+            end;
+            GenJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
+            GenJnlLine."Applies-to Doc. No." := VendLedgEntry."Document No.";
+#if not CLEAN22
+            GenJnlLine.InvokeOnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(VendLedgEntry, GenJnlLine);
+#endif
+            OnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(VendLedgEntry, GenJnlLine);
+            GenJnlLine."Applies-to ID" := '';
+        end else
+            Clear(ApplyVendEntries);
+    end;
+
+    local procedure LookupAppliesToDocNoForEmployee(var GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        ApplyEmployeeEntries: Page "Apply Employee Entries";
+    begin
+        EmployeeLedgerEntry.SetCurrentKey("Employee No.", Open, Positive);
+        EmployeeLedgerEntry.SetRange("Employee No.", AccNo);
+        EmployeeLedgerEntry.SetRange(Open, true);
+        if GenJnlLine."Applies-to Doc. No." <> '' then begin
+            EmployeeLedgerEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+            EmployeeLedgerEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+            if EmployeeLedgerEntry.Find('-') then;
+            EmployeeLedgerEntry.SetRange("Document Type");
+            EmployeeLedgerEntry.SetRange("Document No.");
+        end else
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                EmployeeLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                if EmployeeLedgerEntry.Find('-') then;
+                EmployeeLedgerEntry.SetRange("Applies-to ID");
+            end else
+                if GenJnlLine."Applies-to Doc. Type" <> GenJnlLine."Applies-to Doc. Type"::" " then begin
+                    EmployeeLedgerEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+                    if EmployeeLedgerEntry.Find('-') then;
+                    EmployeeLedgerEntry.SetRange("Document Type");
+                end else
+                    if GenJnlLine.Amount <> 0 then begin
+                        EmployeeLedgerEntry.SetRange(Positive, GenJnlLine.Amount < 0);
+                        if EmployeeLedgerEntry.Find('-') then;
+                        EmployeeLedgerEntry.SetRange(Positive);
+                    end;
+        ApplyEmployeeEntries.SetGenJnlLine(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."));
+        ApplyEmployeeEntries.SetTableView(EmployeeLedgerEntry);
+        ApplyEmployeeEntries.SetRecord(EmployeeLedgerEntry);
+        ApplyEmployeeEntries.LookupMode(true);
+        if ApplyEmployeeEntries.RunModal() = ACTION::LookupOK then begin
+            ApplyEmployeeEntries.GetRecord(EmployeeLedgerEntry);
+            EmployeeLedgerEntry.CalcFields("Remaining Amount");
+            Clear(ApplyEmployeeEntries);
+            if GenJnlLine."Currency Code" <> EmployeeLedgerEntry."Currency Code" then
+                if GenJnlLine.Amount = 0 then
+                    GenJnlLine.Validate("Currency Code", EmployeeLedgerEntry."Currency Code")
+                else
+                    GenJnlApply.CheckAgainstApplnCurrency(
+                      GenJnlLine."Currency Code", EmployeeLedgerEntry."Currency Code", GenJnlLine."Account Type"::Employee, true);
+            if GenJnlLine.Amount = 0 then begin
+                GenJnlLine.Amount := -EmployeeLedgerEntry."Remaining Amount";
+                if GenJnlLine."Bal. Account Type" = "Gen. Journal Account Type"::Employee then
+                    GenJnlLine.Amount := -GenJnlLine.Amount;
+                GenJnlLine.Validate(Amount);
+            end;
+            GenJnlLine."Applies-to Doc. Type" := EmployeeLedgerEntry."Document Type";
+            GenJnlLine."Applies-to Doc. No." := EmployeeLedgerEntry."Document No.";
+            GenJnlLine."Applies-to ID" := '';
+        end else
+            Clear(ApplyEmployeeEntries);
+    end;
+
     local procedure CheckAccountNo()
     var
         IsHandled: Boolean;
@@ -1050,7 +1278,6 @@
         OnAfterReadGenJournalLine(Rec, GenJnlLine);
     end;
 
-    [Scope('OnPrem')]
     procedure OpenAccountCard()
     var
         GLAcc: Record "G/L Account";
@@ -1090,7 +1317,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure OpenAccountEntries()
     var
         GLEntry: Record "G/L Entry";
@@ -1146,7 +1372,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldCBGStatementLine: Record "CBG Statement Line"): Boolean
     var
         CBGStatLine: Record "CBG Statement Line";
@@ -1165,7 +1390,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GenerateDocumentNo()
     var
         JournalTemplate: Record "Gen. Journal Template";
@@ -1194,7 +1418,6 @@
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetCBGStatementHeader()
     begin
         if (CBGStatement."Journal Template Name" <> "Journal Template Name") or
@@ -1203,7 +1426,6 @@
             CBGStatement.Get("Journal Template Name", "No.");
     end;
 
-    [Scope('OnPrem')]
     procedure IdentificationLookup()
     var
         PaymentHistLine: Record "Payment History Line";
@@ -1232,7 +1454,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CalculateVAT()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1336,7 +1557,6 @@
                   FieldCaption("Account Type"));
     end;
 
-    [Scope('OnPrem')]
     procedure "New Applies-to ID"() ID: Code[20]
     var
         CBGStatementln: Record "CBG Statement Line";
@@ -1456,26 +1676,22 @@
             DefaultDimSource, GenJournalTemplate."Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNo: Integer; var ShortcutDimCode: Code[20])
     begin
         DimManagement.ValidateShortcutDimValues(FieldNo, ShortcutDimCode, "Dimension Set ID");
     end;
 
-    [Scope('OnPrem')]
     procedure LookupShortcutDimCode(FieldNo: Integer; var ShortcutDimCode: Code[20])
     begin
         DimManagement.LookupDimValueCode(FieldNo, ShortcutDimCode);
         ValidateShortcutDimCode(FieldNo, ShortcutDimCode);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimManagement.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
         "Dimension Set ID" := DimManagement.EditDimensionSet(
@@ -1483,7 +1699,6 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-    [Scope('OnPrem')]
     procedure GetDate(String: Text; Position: Integer; Length: Integer; ExpectedFormat: Text) Result: Date
     var
         DateString: Text;
@@ -1496,13 +1711,11 @@
         Result := DateVar;
     end;
 
-    [Scope('OnPrem')]
     procedure GetText(String: Text[1024]; Position: Integer; Length: Integer): Text[1024]
     begin
         exit(DelChr(CopyStr(String, Position, Length), '<>'));
     end;
 
-    [Scope('OnPrem')]
     procedure GetDecimal(String: Text[1024]; Position: Integer; Length: Integer; DecimalSeparator: Code[1]) Result: Decimal
     var
         DecimalText: Text[30];
@@ -1864,6 +2077,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateIdentificationOnBeforeCheck(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

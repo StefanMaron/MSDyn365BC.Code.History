@@ -68,7 +68,7 @@ page 11000007 "Payment History List"
                         PaymentHistory.RunModal();
                     end;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

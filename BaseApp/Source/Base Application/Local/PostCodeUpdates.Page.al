@@ -17,7 +17,7 @@ page 11408 "Post Code Updates"
             repeater(Control1000000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

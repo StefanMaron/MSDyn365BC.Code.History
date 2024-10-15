@@ -63,7 +63,7 @@ page 11404 "Cash Journal Subform"
                     ToolTip = 'Specifies the number of the document that will be applied to, if the journal line will be applied to an already-posted sales or purchase document.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the entry.';
@@ -202,7 +202,7 @@ page 11404 "Cash Journal Subform"
                     ToolTip = 'Specifies that this is a corrective entry.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT), that the statement line consists of.';

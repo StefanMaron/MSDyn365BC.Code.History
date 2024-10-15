@@ -209,7 +209,6 @@ table 11000001 "Payment History"
         Text1000000: Label '%1 cannot be renamed';
         PaymentHistLine: Record "Payment History Line";
 
-    [Scope('OnPrem')]
     procedure ExportToPaymentFile()
     var
         GenJnlLine: Record "Gen. Journal Line";

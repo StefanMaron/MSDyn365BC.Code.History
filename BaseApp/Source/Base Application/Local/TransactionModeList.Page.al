@@ -26,7 +26,7 @@ page 11000010 "Transaction Mode List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code you want attached to the transaction mode.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the transaction mode.';

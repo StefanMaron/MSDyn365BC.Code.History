@@ -35,7 +35,7 @@ page 9125 "Item Application FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies which type of transaction that the entry is created from.';
             }
-            field(Quantity; Quantity)
+            field(Quantity; Rec.Quantity)
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the number of units of the item in the item entry.';

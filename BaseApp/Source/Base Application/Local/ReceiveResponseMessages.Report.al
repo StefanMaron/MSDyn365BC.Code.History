@@ -13,19 +13,15 @@ report 11408 "Receive Response Messages"
             var
                 ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.";
                 ErrorLog: Record "Elec. Tax Decl. Error Log";
-                EnvironmentInfo: Codeunit "Environment Information";
                 ElecTaxDeclarationMgt: Codeunit "Elec. Tax Declaration Mgt.";
                 DotNet_SecureString: Codeunit DotNet_SecureString;
-                StatusService: DotNet DigipoortServices;
+                DigipoortCommunication: Codeunit "Digipoort Communication";
                 Request: DotNet getStatussenProcesRequest;
                 StatusResultatQueue: DotNet Queue;
                 StatusResultat: DotNet StatusResultaat;
                 MessageBLOB: OutStream;
-                DotNetSecureString: DotNet SecureString;
                 ClientCertificateBase64: Text;
                 ServiceCertificateBase64: Text;
-                ClientCertificateInStream: InStream;
-                ServiceCertificateInStream: InStream;
                 NextNo: Integer;
                 FoundXmlContent: Boolean;
                 StatusDetails: Text;
@@ -53,31 +49,17 @@ report 11408 "Receive Response Messages"
                     autorisatieAdres := 'http://geenausp.nl'
                 end;
 
-                if ElecTaxDeclarationSetup."Use Certificate Setup" then begin
+                if ElecTaxDeclarationSetup."Use Certificate Setup" then
                     ElecTaxDeclarationMgt.InitCertificatesWithPassword(ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
-                    DotNet_SecureString.GetSecureString(DotNetSecureString);
-                    StatusResultatQueue := StatusService.GetStatus(Request,
-                        ElecTaxDeclarationSetup."Digipoort Status URL",
-                        ClientCertificateBase64,
-                        DotNetSecureString,
-                        ServiceCertificateBase64,
-                        30);
-                end else
-                    if EnvironmentInfo.IsSaaS() then begin
-                        ClientCertificateTempBlob.CreateInStream(ClientCertificateInStream, TEXTENCODING::Windows);
-                        ServiceCertificateTempBlob.CreateInStream(ServiceCertificateInStream, TEXTENCODING::Windows);
-                        StatusResultatQueue := StatusService.GetStatus(Request,
-                            ElecTaxDeclarationSetup."Digipoort Status URL",
-                            ClientCertificateInStream,
-                            ClientCertificatePassword,
-                            ServiceCertificateInStream,
-                            30);
-                    end else
-                        StatusResultatQueue := StatusService.GetStatus(Request,
-                            ElecTaxDeclarationSetup."Digipoort Status URL",
-                            ElecTaxDeclarationSetup."Digipoort Client Cert. Name",
-                            ElecTaxDeclarationSetup."Digipoort Service Cert. Name",
-                            30);
+
+                DigipoortCommunication.GetStatus(Request,
+                    StatusResultatQueue,
+                    ElecTaxDeclarationSetup."Digipoort Status URL",
+                    ClientCertificateBase64,
+                    DotNet_SecureString,
+                    ServiceCertificateBase64,
+                    30,
+                    ElecTaxDeclarationSetup."Use Certificate Setup");
 
                 Window.Update(1, WindowStatusProcessingMsg);
                 ElecTaxDeclResponseMsg.Reset();

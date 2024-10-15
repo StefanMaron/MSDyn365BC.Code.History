@@ -96,7 +96,7 @@
     begin
         Initialize();
 
-        // [GIVEN] Intrastat Journal Line with blank Transaction Type.
+        // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -104,10 +104,11 @@
           FindOrCreateIntrastatTransportMethod, '', FindOrCreateIntrastatEntryExitPoint);
         Commit();
 
-        // [WHEN] Run Intrastat Make Disk Tax Auth report.
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        // Exercise
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob);
 
-        // [THEN] No error is thrown.
+        // Verify
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
     end;
 
     [Test]
@@ -346,8 +347,6 @@
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
-        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -524,6 +523,22 @@
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
+    end;
+
+    local procedure VerifyTestfieldChecklistError(FieldName: Text)
+    begin
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(FieldName);
+    end;
+
+    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(AdvChecklistErr);
+        VerifyBatchError(IntrastatJnlLine, FieldName);
     end;
 
     local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)

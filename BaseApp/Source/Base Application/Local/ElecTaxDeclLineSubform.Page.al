@@ -14,7 +14,7 @@ page 11413 "Elec. Tax Decl. Line Subform"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the XML element or XML attribute.';

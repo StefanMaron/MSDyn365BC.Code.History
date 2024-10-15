@@ -14,7 +14,7 @@ page 11000013 "Objects (Telebanking)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the object.';
@@ -25,7 +25,7 @@ page 11000013 "Objects (Telebanking)"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the object.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the object.';

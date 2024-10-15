@@ -41,7 +41,7 @@ page 11000014 "CBG Statement Line Add. Info."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of information that will be stored in the Text field.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the various types of information stored in this field during the import of an electronic bank statement.';

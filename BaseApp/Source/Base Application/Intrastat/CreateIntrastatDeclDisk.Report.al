@@ -1,9 +1,13 @@
-﻿report 11413 "Create Intrastat Decl. Disk"
+﻿#if not CLEAN22
+report 11413 "Create Intrastat Decl. Disk"
 {
     // // Note: Intrastat Jnl. Batch dataitem has MaxIteration = 1
 
     Caption = 'Create Intrastat Decl. Disk';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     dataset
     {
@@ -290,10 +294,6 @@
     begin
         IntrastatFileWriter.Initialize(false, false, 0);
 
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
-
         CounterpartyInfo := true;
     end;
 
@@ -309,9 +309,6 @@
 
     var
         CompanyInfo: Record "Company Information";
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         IntrastatFileWriter: Codeunit "Intrastat File Writer";
         PhoneNo: Text[15];
@@ -330,22 +327,7 @@
 
     local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-#if CLEAN19
         IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Create Intrastat Decl. Disk", true);
-#else
-        if IntrastatSetup."Use Advanced Checklist" then
-            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Create Intrastat Decl. Disk", true)
-        else begin
-            IntrastatJnlLine.TestField("Item No.");
-            IntrastatJnlLine.TestField("Tariff No.");
-            IntrastatJnlLine.TestField("Country/Region Code");
-            IntrastatJnlLine.TestField("Transport Method");
-            IntrastatJnlLine.TestField("Net Weight");
-            IntrastatJnlLine.TestField("Total Weight");
-            if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment then
-                IntrastatJnlLine.TestField("Transaction Specification");
-        end;
-#endif
     end;
 
     local procedure SetBatchIsExported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -451,4 +433,4 @@
     end;
 #endif
 }
-
+#endif

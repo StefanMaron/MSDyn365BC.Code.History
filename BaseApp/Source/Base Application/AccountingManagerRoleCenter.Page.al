@@ -237,6 +237,7 @@ page 9001 "Accounting Manager Role Center"
             separator(Action60)
             {
             }
+#if not CLEAN22
             action("&Intrastat - Checklist")
             {
                 ApplicationArea = Basic, Suite;
@@ -244,6 +245,9 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "Intrastat - Checklist";
                 ToolTip = 'View a checklist that you can use to find possible errors before printing and also as documentation for what is printed. You can use the report to check the Intrastat journal before you use the Intrastat - Make Disk Tax Auth batch job.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
             action("Intrastat - For&m")
             {
@@ -252,10 +256,18 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "Intrastat - Form";
                 ToolTip = 'View all the information that must be transferred to the printed Intrastat form.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
+
             separator(Action4)
             {
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Action4 will be removed as part of the effort of moving Intrastat, use another anchor instead.';
             }
+#endif
             action("Cost Accounting P/L Statement")
             {
                 ApplicationArea = CostAccounting;
@@ -494,6 +506,7 @@ page 9001 "Accounting Manager Role Center"
                                         Recurring = CONST(false));
                     ToolTip = 'Post financial transactions directly to general ledger accounts and other accounts, such as bank, customer, vendor, and employee accounts. Posting with a general journal always creates entries on general ledger accounts. This is true even when, for example, you post a journal line to a customer account, because an entry is posted to a general ledger receivables account through a posting group.';
                 }
+#if not CLEAN22
                 action("Intrastat Journals")
                 {
                     ApplicationArea = BasicEU;
@@ -501,7 +514,11 @@ page 9001 "Accounting Manager Role Center"
                     Image = "Report";
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Bank/Giro Journals")
                 {
                     ApplicationArea = Basic, Suite;
@@ -997,6 +1014,7 @@ page 9001 "Accounting Manager Role Center"
             separator(Action73)
             {
             }
+#if not CLEAN22
             action("Intrastat &Journal")
             {
                 ApplicationArea = BasicEU;
@@ -1004,7 +1022,11 @@ page 9001 "Accounting Manager Role Center"
                 Image = Journal;
                 RunObject = Page "Intrastat Jnl. Batches";
                 ToolTip = 'Report your trade with other EU countries/regions for Intrastat reporting.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
+#endif
             action("Calc. and Pos&t VAT Settlement")
             {
                 ApplicationArea = Basic, Suite;

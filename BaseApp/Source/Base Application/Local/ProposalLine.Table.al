@@ -624,14 +624,6 @@ table 11000000 "Proposal Line"
         PostCodeMgt: Codeunit "Post Code Management";
         BankShouldBeEmployeeNoErr: Label 'The value in the Bank field must be the same as in the Account No. field, which is the employee number.';
 
-    [Obsolete('Replaced by GetSourceName', '15.4')]
-    [Scope('OnPrem')]
-    procedure NoSourceName() Name: Text[50]
-    begin
-        exit(CopyStr(GetSourceName(), 1, MaxStrLen(Name)));
-    end;
-
-    [Scope('OnPrem')]
     procedure GetSourceName() Name: Text
     var
         Custm: Record Customer;

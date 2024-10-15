@@ -29,7 +29,7 @@ page 11000006 "Payment History Line Overview"
                     ToolTip = 'Specifies the line''s number.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the payment history line.';
@@ -52,7 +52,7 @@ page 11000006 "Payment History Line Overview"
                     ToolTip = 'Specifies the currency code that the entry is linked to.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies total amount (including VAT) for the entry.';

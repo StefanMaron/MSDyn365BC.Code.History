@@ -14,7 +14,7 @@ page 11000009 "Payment History Line Detail"
             group(General)
             {
                 Caption = 'General';
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the payment history line.';
@@ -49,7 +49,7 @@ page 11000009 "Payment History Line Detail"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the order type of the payment history line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies total amount (including VAT) for the entry.';

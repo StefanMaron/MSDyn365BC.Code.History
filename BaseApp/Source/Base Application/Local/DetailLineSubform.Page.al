@@ -12,7 +12,7 @@ page 11000003 "Detail Line Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the detail line.';
@@ -41,7 +41,7 @@ page 11000003 "Detail Line Subform"
                     ToolTip = 'Specifies the amount (including VAT) you want to pay or collect.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";
@@ -82,7 +82,7 @@ page 11000003 "Detail Line Subform"
                     ToolTip = 'Specifies the total of the remaining amounts of all linked employee ledger, vendor ledger or customer ledger entries.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the detail line.';

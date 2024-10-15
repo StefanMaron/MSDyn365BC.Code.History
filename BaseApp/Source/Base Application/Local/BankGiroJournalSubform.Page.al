@@ -73,7 +73,7 @@ page 11401 "Bank/Giro Journal Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an ID number to link the statement line to a payment history line that was sent to and possibly received from the bank.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry.';
@@ -236,7 +236,7 @@ page 11401 "Bank/Giro Journal Subform"
                     ToolTip = 'Specifies that this is a corrective entry.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT), that the statement line consists of.';

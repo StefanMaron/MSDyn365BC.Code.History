@@ -1,5 +1,10 @@
+#if not CLEAN22
 codeunit 11403 "Intrastat Local Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+
     trigger OnRun()
     begin
     end;
@@ -54,4 +59,4 @@ codeunit 11403 "Intrastat Local Mgt."
         end;
     end;
 }
-
+#endif

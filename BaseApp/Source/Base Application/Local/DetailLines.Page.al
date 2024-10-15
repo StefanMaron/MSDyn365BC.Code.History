@@ -52,7 +52,7 @@ page 11000004 "Detail Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the order type of the payment history line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount (including VAT) you want to pay or collect.';

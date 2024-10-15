@@ -64,7 +64,7 @@ codeunit 135548 "API Routes E2E"
         asserterror LibraryGraphMgt.PostToWebServiceAndCheckResponseCode(TargetURL, '{"route":"new"}', ResponseText, 405);
 
         // [THEN] Expecting response code 405
-        Assert.ExpectedError('(405) Method Not Allowed.');
+        Assert.ExpectedError('405 (MethodNotAllowed)');
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 135548 "API Routes E2E"
         asserterror LibraryGraphMgt.PatchToWebServiceAndCheckResponseCode(TargetURL, '{"route":"changed"}', ResponseText, 405);
 
         // [THEN] Expecting response code 405
-        Assert.ExpectedError('(405) Method Not Allowed.');
+        Assert.ExpectedError('405 (MethodNotAllowed)');
     end;
 
     [Test]
@@ -100,7 +100,7 @@ codeunit 135548 "API Routes E2E"
         asserterror LibraryGraphMgt.DeleteFromWebServiceAndCheckResponseCode(TargetURL, '', ResponseText, 400);
 
         // [THEN] Expecting response code 400
-        Assert.ExpectedError('(400) Bad Request.');
+        Assert.ExpectedError('400 (BadRequest)');
     end;
 }
 

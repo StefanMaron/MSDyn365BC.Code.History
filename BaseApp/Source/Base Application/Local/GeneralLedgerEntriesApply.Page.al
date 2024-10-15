@@ -1,8 +1,12 @@
+#if not CLEAN22
 page 11310 "General Ledger Entries Apply"
 {
     Caption = 'Apply General Ledger Entries';
     DataCaptionExpression = Header;
     PageType = Worksheet;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
+    ObsoleteTag = '22.0';
     Permissions = TableData "G/L Entry" = rm,
                   TableData "G/L Entry Application Buffer" = rim;
     SourceTable = "G/L Entry Application Buffer";
@@ -54,7 +58,7 @@ page 11310 "General Ledger Entries Apply"
                     ToolTip = 'Specifies the number of the account that the entry has been posted to.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry.';
@@ -95,7 +99,7 @@ page 11310 "General Ledger Entries Apply"
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the entry.';
@@ -549,3 +553,4 @@ page 11310 "General Ledger Entries Apply"
     end;
 }
 
+#endif

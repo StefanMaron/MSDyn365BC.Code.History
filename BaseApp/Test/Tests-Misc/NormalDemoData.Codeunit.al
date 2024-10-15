@@ -322,6 +322,7 @@ codeunit 138200 "Normal DemoData"
         Assert.RecordIsNotEmpty(DefaultDimension);
     end;
 
+#if not CLEAN22
     [Test]
     procedure AdvancedIntrastatChecklist()
     var
@@ -350,6 +351,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;
+#endif
 
     [Test]
     procedure AccountScheduleHideCurrencySymbol()
@@ -390,6 +392,7 @@ codeunit 138200 "Normal DemoData"
         ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
 
+#if not CLEAN22
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -419,6 +422,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklist.SetRange("Reversed Filter Expression", Reverse);
         Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
     end;
+#endif
 
     [Test]
     procedure GBIsExcludedFromEUCountry()

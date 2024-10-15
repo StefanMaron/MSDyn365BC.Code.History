@@ -485,14 +485,6 @@ table 11000002 "Payment History Line"
         end;
     end;
 
-    [Obsolete('Replaced by GetSourceName', '15.4')]
-    [Scope('OnPrem')]
-    procedure NoSourceName() Name: Text[50]
-    begin
-        exit(CopyStr(GetSourceName(), 1, MaxStrLen(Name)));
-    end;
-
-    [Scope('OnPrem')]
     procedure GetSourceName() Name: Text
     var
         Custm: Record Customer;

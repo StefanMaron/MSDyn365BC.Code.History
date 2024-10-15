@@ -19,7 +19,7 @@ page 11000015 "Import Protocols"
                     ApplicationArea = All;
                     ToolTip = 'Specifies an import protocol code that you want attached to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of what the import protocol stands for.';

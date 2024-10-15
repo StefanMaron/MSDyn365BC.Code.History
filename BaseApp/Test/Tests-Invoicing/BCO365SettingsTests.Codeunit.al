@@ -50,7 +50,7 @@ codeunit 138949 "BC O365 Settings Tests"
         CompanyInfoRecRef1.GetTable(CompanyInformation);
         CompanyInfoRecRef2.GetTable(GlobalTempCompanyInformation);
         SetTempFieldsToExclude(TempField);
-        Assert.RecordsAreEqualExceptCertainFields(CompanyInfoRecRef1,CompanyInfoRecRef2,TempField,'Records are different.');
+        Assert.RecordsAreEqualExceptCertainFields(CompanyInfoRecRef1, CompanyInfoRecRef2, TempField, 'Records are different.');
 
         // [THEN] The Business Information is updated in the page
         OpenSettingsAndVerifyBusinessInformation(GlobalTempCompanyInformation);
@@ -210,7 +210,7 @@ codeunit 138949 "BC O365 Settings Tests"
         TempField.Insert();
         TempField."No." := DummyCompanyInformation.FieldNo("Created DateTime");
         TempField.Insert();
-        TempField."No." := DummyCompanyInformation.FieldNo(Id);
+        TempField."No." := DummyCompanyInformation.FieldNo(SystemId);
         TempField.Insert();
     end;
 

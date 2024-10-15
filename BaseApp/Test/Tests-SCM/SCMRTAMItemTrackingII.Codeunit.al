@@ -3004,6 +3004,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         ProdItem: Record Item;
         CompItem: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
         ProductionBOMHeader: Record "Production BOM Header";
         ItemJournalLine: Record "Item Journal Line";
         ReservationEntry: Record "Reservation Entry";
@@ -3027,7 +3028,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [GIVEN] Lot-tracked production item "P" and component item "C".
         LibraryItemTracking.CreateLotItem(CompItem);
+        ItemTrackingCode.Get(CompItem."Item Tracking Code");
+        UpdateItemTrackingCode(ItemTrackingCode, ItemTrackingCodeSerialSpecific.FieldNo("Lot Warehouse Tracking"), false);
         LibraryItemTracking.CreateLotItem(ProdItem);
+        ItemTrackingCode.Get(ProdItem."Item Tracking Code");
+        UpdateItemTrackingCode(ItemTrackingCode, ItemTrackingCodeSerialSpecific.FieldNo("Lot Warehouse Tracking"), false);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."Base Unit of Measure", CompItem."No.");
         UpdateProductionBOMNoOnItem(ProdItem, ProductionBOMHeader."No.");
 
@@ -3170,15 +3175,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure ItemTrackingCodeSetup()
     begin
         CreateItemTrackingCode(ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("SN Specific Tracking"), true);  // Tracking for SN Specific Tracking.
-        CreateItemTrackingCode(
-          ItemTrackingCodeSerialSpecificWithWarehouse, ItemTrackingCodeSerialSpecificWithWarehouse.FieldNo("SN Specific Tracking"), true);
-        UpdateItemTrackingCode(
-          ItemTrackingCodeSerialSpecificWithWarehouse, ItemTrackingCodeSerialSpecific.FieldNo("SN Warehouse Tracking"), true);
+        UpdateItemTrackingCode(ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("SN Warehouse Tracking"), false);
+        CreateItemTrackingCode(ItemTrackingCodeSerialSpecificWithWarehouse, ItemTrackingCodeSerialSpecificWithWarehouse.FieldNo("SN Specific Tracking"), true);
         CreateItemTrackingCode(ItemTrackingCodeLotSpecific, ItemTrackingCodeLotSpecific.FieldNo("Lot Specific Tracking"), true);  // Tracking for Lot Specific Tracking.
-        CreateItemTrackingCode(
-          ItemTrackingCodeLotSpecificWithWarehouse, ItemTrackingCodeLotSpecificWithWarehouse.FieldNo("Lot Specific Tracking"), true);
-        UpdateItemTrackingCode(
-          ItemTrackingCodeLotSpecificWithWarehouse, ItemTrackingCodeLotSpecificWithWarehouse.FieldNo("Lot Warehouse Tracking"), true);
+        UpdateItemTrackingCode(ItemTrackingCodeLotSpecific, ItemTrackingCodeLotSpecificWithWarehouse.FieldNo("Lot Warehouse Tracking"), false);
+        CreateItemTrackingCode(ItemTrackingCodeLotSpecificWithWarehouse, ItemTrackingCodeLotSpecificWithWarehouse.FieldNo("Lot Specific Tracking"), true);
     end;
 
     local procedure OutputJournalSetup()

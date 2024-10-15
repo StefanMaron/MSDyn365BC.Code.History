@@ -47,7 +47,7 @@ page 11411 "Elec. Tax Declaration Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the response message from the Tax authority.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the electronic declaration.';

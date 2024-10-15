@@ -54,7 +54,7 @@ codeunit 144051 "ERM EVAT"
         ICPCannotExportErr: Label 'You cannot export a Elec. Tax Declaration Header of Declaration Type ICP';
         StatusMustBeCreatedErr: Label 'Status must be equal to ''Created''';
         CannotDeleteSubmittedErr: Label 'You cannot delete a Elec. Tax Declaration Header if Status is Submitted';
-        DigipoortError: Label 'A call to Microsoft.Dynamics.NL.DigipoortServices.Deliver failed with this message:';
+        DigipoortError: Label 'Cannot find the X.509 certificate using the following search criteria: StoreName ''My'', StoreLocation ''LocalMachine'', F';
         LibraryPermissions: Codeunit "Library - Permissions";
         FileMgt: Codeunit "File Management";
         LibraryXMLRead: Codeunit "Library - XML Read";
@@ -495,41 +495,6 @@ codeunit 144051 "ERM EVAT"
     [Test]
     [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure DigipoortNoCertificates()
-    var
-        ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
-        ElecTaxDeclSetup: Record "Elec. Tax Declaration Setup";
-        VATStatementName: Record "VAT Statement Name";
-        ElecTaxDeclCard: TestPage "Elec. Tax Declaration Card";
-        No: Code[20];
-    begin
-        // Purpose: Verify an error is shown if no certificate name is supplied during setup
-        Initialize();
-
-        // Setup
-        ElecTaxDeclSetup.Get();
-        ElecTaxDeclSetup."Digipoort Client Cert. Name" := 'abcde';
-        ElecTaxDeclSetup."Digipoort Service Cert. Name" := 'abcde';
-        ElecTaxDeclSetup.Modify();
-
-        VATStatementName.FindFirst();
-        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
-        LibraryVariableStorage.Enqueue(VATStatementName.Name);
-        No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
-
-        // Exercise: Try to submit
-        ElecTaxDeclCard.OpenEdit;
-        ElecTaxDeclCard.FILTER.SetFilter("No.", No);
-        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke;
-        ElecTaxDeclCard.Close();
-
-        // Verify: An exception is thrown by Digipoort add-in
-        Assert.ExpectedError(DigipoortError);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure DigipoortWrongCertificates()
     var
         ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
@@ -545,6 +510,8 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclSetup.Get();
         ElecTaxDeclSetup."Digipoort Client Cert. Name" := 'abcdefg';
         ElecTaxDeclSetup."Digipoort Service Cert. Name" := 'qwerty';
+        ElecTaxDeclSetup."Digipoort Delivery URL" := 'http://testurl';
+        ElecTaxDeclSetup."Digipoort Status URL" := 'http://testurl';
         ElecTaxDeclSetup.Modify();
 
         VATStatementName.FindFirst();
@@ -903,30 +870,6 @@ codeunit 144051 "ERM EVAT"
         LibraryXMLRead.VerifyAttributeValueInSubtree(TagName, ElementName, 'contextRef', 'Msg');
 
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'yes');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DigipoortDLLExists()
-    var
-        Digpoort: DotNet DigipoortServices;
-        PatchedXML: Text;
-    begin
-        // Purpose is to produce an error in the associated Digipoort DLL to verify its existence (and test the xml patch up).
-        Initialize();
-
-        PatchedXML := Digpoort.PatchUpTruncatedXML('<xml><roo');
-        Assert.AreEqual('<vroot><xml></xml></vroot>', PatchedXML, ValuesMustBeEqual);
-
-        PatchedXML := Digpoort.PatchUpTruncatedXML('<results xmlns="http://nl"><xbrl><messages xmlns:bd-ob="http:"><msg id="1"');
-        Assert.AreEqual(
-          '<vroot><results xmlns="http://nl"><xbrl><messages xmlns:bd-ob="http:"></messages></xbrl></results></vroot>', PatchedXML,
-          ValuesMustBeEqual);
-
-        PatchedXML := Digpoort.PatchUpTruncatedXML('<results xmlns="http://nl"><xbrl><messages xmlns:bd-ob="http:"><msg id="1">Trunc');
-        Assert.AreEqual(
-          '<vroot><results xmlns="http://nl"><xbrl><messages xmlns:bd-ob="http:"><msg id="1">Trunc</msg></messages></xbrl></results></vroot>',
-          PatchedXML, ValuesMustBeEqual);
     end;
 
     [Test]

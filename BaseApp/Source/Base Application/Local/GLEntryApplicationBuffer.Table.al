@@ -1,4 +1,4 @@
-table 11307 "G/L Entry Application Buffer"
+﻿table 11307 "G/L Entry Application Buffer"
 {
     Caption = 'G/L Entry Application Buffer';
     DrillDownPageID = "General Ledger Entries";

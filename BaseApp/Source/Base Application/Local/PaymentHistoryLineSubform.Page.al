@@ -25,7 +25,7 @@ page 11000008 "Payment History Line Subform"
                     Editable = false;
                     ToolTip = 'Specifies the line''s number.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the payment history line.';
@@ -65,7 +65,7 @@ page 11000008 "Payment History Line Subform"
                     Editable = false;
                     ToolTip = 'Specifies the number of the account you want to perform payments to, or collections from.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

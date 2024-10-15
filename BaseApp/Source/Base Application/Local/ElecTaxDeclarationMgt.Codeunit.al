@@ -49,9 +49,8 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     [NonDebuggable]
     procedure SubmitDeclaration(XmlContent: Text; MessageType: Text; IdentityType: Text; IdentityNumber: Text; Reference: Text; RequestUrl: Text; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
     var
+        DigipoortCommunication: Codeunit "Digipoort Communication";
         Window: Dialog;
-        DotNetSecureString: DotNet SecureString;
-        DeliveryService: DotNet DigipoortServices;
         Request: DotNet aanleverRequest;
         Response: DotNet aanleverResponse;
         Identity: DotNet identiteitType;
@@ -90,14 +89,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         if GuiAllowed then
             Window.Update(1, WindowStatusSendMsg);
 
-        DotNet_SecureString.GetSecureString(DotNetSecureString);
-
-        Response := DeliveryService.Deliver(Request,
-            RequestUrl,
-            ClientCertificateBase64,
-            DotNetSecureString,
-            ServiceCertificateBase64,
-            30);
+        DigipoortCommunication.Deliver(Request, Response, RequestUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, false);
 
         Fault := Response.statusFoutcode();
 
@@ -174,11 +166,10 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     [NonDebuggable]
     procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg."; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text)
     var
+        DigipoortCommunication: Codeunit "Digipoort Communication";
         Request: DotNet getStatussenProcesRequest;
-        StatusService: DotNet DigipoortServices;
         StatusResultatQueue: DotNet Queue;
         StatusResultat: DotNet StatusResultaat;
-        DotNetSecureString: DotNet SecureString;
         MessageBLOB: OutStream;
         FoundXmlContent: Boolean;
         StatusDetails: Text;
@@ -191,14 +182,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         Request.kenmerk := MessageID;
         Request.autorisatieAdres := 'http://geenausp.nl';
 
-        DotNet_SecureString.GetSecureString(DotNetSecureString);
-        StatusResultatQueue := StatusService.GetStatus(
-                Request,
-                ResponseUrl,
-                ClientCertificateBase64,
-                DotNetSecureString,
-                ServiceCertificateBase64,
-                30);
+        DigipoortCommunication.GetStatus(Request, StatusResultatQueue, ResponseUrl, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64, 30, false);
 
         Window.Update(1, WindowStatusProcessingMsg);
         ElecTaxDeclResponseMsg.Reset();

@@ -18,7 +18,7 @@ page 11000012 "Export Protocols"
                     ApplicationArea = All;
                     ToolTip = 'Specifies an export protocol code that you want attached to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of what the export protocol stands for.';

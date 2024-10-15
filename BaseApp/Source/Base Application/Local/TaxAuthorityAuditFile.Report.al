@@ -146,8 +146,6 @@ report 11412 "Tax Authority - Audit File"
         GLSetup.Get();
         GLSetup.TestField("LCY Code");
         CompanyInfo.Get();
-        if StrLen(FormatVATRegNo(CompanyInfo."VAT Registration No.")) > 15 then
-            Error(Text007, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption());
     end;
 
     trigger OnPostReport()
@@ -172,13 +170,17 @@ report 11412 "Tax Authority - Audit File"
         XmlWriter := XmlWriter.Create(ServerFileName, XmlWriterSettings);
 
         XmlWriter.WriteStartDocument();
-        StartElement('auditfile');
+        XmlWriter.WriteStartElement('auditfile', XAFNameSpaceTxt);
         FlushOutput();
 
         WriteHeader();
-        WriteGLAccounts();
+
+        StartElement('company');
+        WriteCompanyInformation();
         WriteCustomersVendors();
+        WriteGLAccounts();
         WriteTransactions();
+        EndElement('company');
 
         EndElement('auditfile');
         XmlWriter.WriteEndDocument();
@@ -263,8 +265,6 @@ report 11412 "Tax Authority - Audit File"
         Text004: Label 'Start Date cannot be higher than End Date.';
         Text005: Label 'End Date cannot be higher than today.';
         Text006: Label 'Start/End Date must be within one fiscal year.';
-        Text007: Label 'Length of %1 in %2  must not exceed 15 characters.';
-        Text008: Label 'Length of %1 in %2 %3 must not exceed 15 characters.';
         Text009: Label 'Processing Data @1@@@@@@@@@@@@@\\Exporting Data  @2@@@@@@@@@@@@@ ';
         Text010: Label 'Start Date cannot be blank.';
         Text011: Label 'End Date cannot be blank.';
@@ -273,6 +273,7 @@ report 11412 "Tax Authority - Audit File"
         [InDataSet]
         ExcludeBalanceEnable: Boolean;
         ClientFileTxt: Label 'Audit.xaf', Locked = true;
+        XAFNameSpaceTxt: Label 'http://www.auditfiles.nl/XAF/3.2', Locked = true;
         FileName: Text;
 
     local procedure BufferGLAccount(AcctNo: Code[20])
@@ -320,13 +321,13 @@ report 11412 "Tax Authority - Audit File"
             TempAuditFileBuffer.JournalDescription := SourceCode.Description;
 
         // Transaction data
-        TempAuditFileBuffer.TransactionID := Format("G/L Entry"."Transaction No.", 20);
+        TempAuditFileBuffer.TransactionID := Format("G/L Entry"."Transaction No.", 0, 9);
         TempAuditFileBuffer.TransactionDate := "G/L Entry"."Posting Date";
         TempAuditFileBuffer.TransactionDescription := "G/L Entry".Description;
-        TempAuditFileBuffer.Period := Format(PeriodNumber, 5);
+        TempAuditFileBuffer.Period := Format(PeriodNumber, 0, 9);
 
         // Line data
-        TempAuditFileBuffer.RecordID := Format("G/L Entry"."Entry No.", 20);
+        TempAuditFileBuffer.RecordID := Format("G/L Entry"."Entry No.", 0, 9);
         TempAuditFileBuffer."Account ID" :=
           CopyStr("G/L Entry"."G/L Account No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
         TempAuditFileBuffer."Source ID" :=
@@ -348,12 +349,9 @@ report 11412 "Tax Authority - Audit File"
         TempAuditFileBuffer.Insert();
     end;
 
-    local procedure StartElement(QualifiedName: Text[80])
-    var
-        NamespaceURI: Text[80];
-        LocalName: Text[80];
+    local procedure StartElement(LocalName: Text[80])
     begin
-        XmlWriter.WriteStartElement(LocalName, QualifiedName, NamespaceURI);
+        XmlWriter.WriteStartElement(LocalName);
     end;
 
     local procedure EndElement(QualifiedName: Text[80])
@@ -366,27 +364,58 @@ report 11412 "Tax Authority - Audit File"
         XmlWriter.WriteElementString(QualifiedName, Value);
     end;
 
+    local procedure WriteElementWithValue(LocalName: Text[80]; Value: Text[1024])
+    begin
+        if Value <> '' then
+            XmlWriter.WriteElementString(LocalName, Value);
+    end;
+
     local procedure WriteHeader()
     var
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
         StartElement('header');
-        WriteElement('auditfileVersion', 'CLAIR2.00.00');
-        WriteElement('companyID', CopyStr(CompanyName, 1, 20));
-        WriteElement('taxRegistrationNr', CompanyInfo."VAT Registration No.");
-        WriteElement('companyName', ConvertStr(CompanyInfo.Name, '.,', '  '));
-        WriteElement('companyAddress', CompanyInfo.Address);
-        WriteElement('companyCity', CompanyInfo.City);
-        WriteElement('companyPostalCode', CopyStr(CompanyInfo."Post Code", 1, 10));
         WriteElement('fiscalYear', Format(StartDate, 0, '<YEAR4>'));
         WriteElement('startDate', FormatDate(StartDate));
         WriteElement('endDate', FormatDate(EndDate));
-        WriteElement('currencyCode', CopyStr(GLSetup."LCY Code", 1, 3));
+        WriteElement('curCode', CopyStr(GLSetup."LCY Code", 1, 3));
         WriteElement('dateCreated', FormatDate(Today));
-        WriteElement('productID', 'Microsoft Dynamics NAV');
-        WriteElement('productVersion', CopyStr(ApplicationSystemConstants.ApplicationVersion(), 1, 20));
+        WriteElement('softwareDesc', 'Microsoft Dynamics NAV');
+        WriteElement('softwareVersion', CopyStr(ApplicationSystemConstants.ApplicationVersion(), 1, 20));
         EndElement('header');
         FlushOutput();
+    end;
+
+    local procedure WriteCompanyInformation()
+    var
+        CountryRegion: Record "Country/Region";
+        ShipToCountryRegion: Record "Country/Region";
+    begin
+        if CountryRegion.Get(CompanyInfo."Country/Region Code") then;
+        if ShipToCountryRegion.Get(CompanyInfo."Ship-to Country/Region Code") then;
+
+        WriteElement('companyIdent', CopyStr(CompanyName, 1, 35));
+        WriteElement('companyName', ConvertStr(CompanyInfo.Name, '.,', '  '));
+        WriteElementWithValue('taxRegistrationCountry', CountryRegion."ISO Code");
+        WriteElement('taxRegIdent', CompanyInfo."VAT Registration No.");
+
+        StartElement('streetAddress');
+        WriteElement('streetname', CompanyInfo."Ship-to Address");
+        WriteElement('number', '');
+        WriteElement('numberExtension', '');
+        WriteElement('city', CompanyInfo."Ship-to City");
+        WriteElement('postalCode', CopyStr(CompanyInfo."Ship-to Post Code", 1, 10));
+        WriteElementWithValue('country', ShipToCountryRegion."ISO Code");
+        EndElement('streetAddress');
+
+        StartElement('postalAddress');
+        WriteElement('streetname', CompanyInfo.Address);
+        WriteElement('number', '');
+        WriteElement('numberExtension', '');
+        WriteElement('city', CompanyInfo.City);
+        WriteElement('postalCode', CopyStr(CompanyInfo."Post Code", 1, 10));
+        WriteElementWithValue('country', CountryRegion."ISO Code");
+        EndElement('postalAddress');
     end;
 
     local procedure WriteGLAccounts()
@@ -396,19 +425,18 @@ report 11412 "Tax Authority - Audit File"
         TempAuditFileBuffer.Reset();
         TempAuditFileBuffer.SetRange(Rectype, TempAuditFileBuffer.Rectype::"G/L Account");
         StartElement('generalLedger');
-        WriteElement('taxonomy', '');
 
-        if TempAuditFileBuffer.Find('-') then
+        if TempAuditFileBuffer.FindSet() then
             repeat
                 StartElement('ledgerAccount');
                 if GLAcc.Get(TempAuditFileBuffer.Code) then begin
-                    WriteElement('accountID', CopyStr(TempAuditFileBuffer.Code, 1, 15));
-                    WriteElement('accountDesc', GLAcc.Name);
+                    WriteElement('accID', TempAuditFileBuffer.Code);
+                    WriteElement('accDesc', GLAcc.Name);
                     case GLAcc."Income/Balance" of
                         GLAcc."Income/Balance"::"Income Statement":
-                            WriteElement('accountType', 'Winst en Verlies');
+                            WriteElement('accTp', 'P');     // Profit and Loss
                         GLAcc."Income/Balance"::"Balance Sheet":
-                            WriteElement('accountType', 'Balans');
+                            WriteElement('accTp', 'B');     // Balance
                     end;
                     WriteElement('leadCode', GLAcc."No.");
                     WriteElement('leadDescription', GLAcc.Name);
@@ -426,81 +454,135 @@ report 11412 "Tax Authority - Audit File"
         Cust: Record Customer;
         Vend: Record Vendor;
         BankAcc: Record "Bank Account";
-        Country: Record "Country/Region";
+        CountryRegion: Record "Country/Region";
+        ShipToCountryRegion: Record "Country/Region";
+        ShipToAddress: Record "Ship-to Address";
+        CustBankAccount: Record "Customer Bank Account";
+        VendBankAccount: Record "Vendor Bank Account";
+        CustBankAccountNo: Text;
+        VendBankAccountNo: Text;
     begin
         TempAuditFileBuffer.Reset();
         TempAuditFileBuffer.SetFilter(Rectype, '%1|%2|%3', TempAuditFileBuffer.Rectype::Customer,
           TempAuditFileBuffer.Rectype::Vendor, TempAuditFileBuffer.Rectype::"Bank Account");
         StartElement('customersSuppliers');
 
-        if TempAuditFileBuffer.Find('-') then
+        if TempAuditFileBuffer.FindSet() then
             repeat
                 StartElement('customerSupplier');
-                WriteElement('custSupID', CopyStr(GetFormatedCustSupID(TempAuditFileBuffer.Rectype, TempAuditFileBuffer.Code), 1, 15));
+                WriteElement('custSupID', CopyStr(GetFormatedCustSupID(TempAuditFileBuffer.Rectype, TempAuditFileBuffer.Code), 1, 35));
                 case TempAuditFileBuffer.Rectype of
                     TempAuditFileBuffer.Rectype::Customer:
                         if Cust.Get(TempAuditFileBuffer.Code) then begin
-                            if StrLen(FormatVATRegNo(Cust."VAT Registration No.")) > 15 then
-                                Error(Text008, Cust.FieldCaption("VAT Registration No."), Cust.TableCaption(), Cust."No.");
-                            WriteElement('type', 'Debiteur');
-                            WriteElement('taxRegistrationNr', Cust."VAT Registration No.");
-                            WriteElement('companyName', Cust.Name);
-                            WriteElement('contact', Cust.Contact);
-                            StartElement('streetAddress');
-                            WriteElement('address', Cust.Address);
-                            WriteElement('city', Cust.City);
-                            WriteElement('postalCode', CopyStr(Cust."Post Code", 1, 10));
-                            if Country.Get(Cust."Country/Region Code") then
-                                WriteElement('country', Country.Name)
-                            else
-                                WriteElement('country', '');
-                            EndElement('streetAddress');
+                            WriteElement('custSupName', CopyStr(Cust.Name, 1, 50));
+                            WriteElement('contact', CopyStr(Cust.Contact, 1, 50));
                             WriteElement('telephone', Cust."Phone No.");
                             WriteElement('fax', Cust."Fax No.");
                             WriteElement('eMail', DelChr(Cust."E-Mail"));
                             WriteElement('website', DelChr(Cust."Home Page", '<>', ' '));
+
+                            Clear(CountryRegion);
+                            if CountryRegion.Get(Cust."Country/Region Code") then;
+                            WriteElementWithValue('taxRegistrationCountry', CountryRegion."ISO Code");
+
+                            WriteElement('taxRegIdent', Cust."VAT Registration No.");
+                            WriteElement('custSupTp', 'C'); // C - Customer
+                            WriteElement('custCreditLimit', FormatAmount(Cust."Credit Limit (LCY)"));
+
+                            ShipToAddress.SetRange("Customer No.", Cust."No.");
+                            if ShipToAddress.FindSet() then
+                                repeat
+                                    Clear(ShipToCountryRegion);
+                                    if ShipToCountryRegion.Get(ShipToAddress."Country/Region Code") then;
+                                    StartElement('streetAddress');
+                                    WriteElement('streetname', ShipToAddress.Address);
+                                    WriteElement('number', '');
+                                    WriteElement('numberExtension', '');
+                                    WriteElement('city', ShipToAddress.City);
+                                    WriteElement('postalCode', CopyStr(ShipToAddress."Post Code", 1, 10));
+                                    WriteElementWithValue('country', ShipToCountryRegion."ISO Code");
+                                    EndElement('streetAddress');
+                                until ShipToAddress.Next() = 0;
+
+                            StartElement('postalAddress');
+                            WriteElement('streetname', Cust.Address);
+                            WriteElement('number', '');
+                            WriteElement('numberExtension', '');
+                            WriteElement('city', Cust.City);
+                            WriteElement('postalCode', CopyStr(Cust."Post Code", 1, 10));
+                            WriteElementWithValue('country', CountryRegion."ISO Code");
+                            EndElement('postalAddress');
+
+                            CustBankAccount.SetRange("Customer No.", Cust."No.");
+                            if CustBankAccount.FindSet() then
+                                repeat
+                                    CustBankAccountNo := CustBankAccount.GetBankAccountNo();
+                                    StartElement('bankAccount');
+                                    WriteElement('bankAccNr', CopyStr(CustBankAccountNo, 1, 35));
+                                    WriteElement('bankIdCd', CustBankAccount."SWIFT Code");
+                                    EndElement('bankAccount');
+                                until CustBankAccount.Next() = 0;
                         end;
                     TempAuditFileBuffer.Rectype::Vendor:
                         if Vend.Get(TempAuditFileBuffer.Code) then begin
-                            if StrLen(FormatVATRegNo(Vend."VAT Registration No.")) > 15 then
-                                Error(Text008, Vend.FieldCaption("VAT Registration No."), Vend.TableCaption(), Vend."No.");
-                            WriteElement('type', 'Crediteur');
-                            WriteElement('taxRegistrationNr', Vend."VAT Registration No.");
-                            WriteElement('companyName', Vend.Name);
-                            WriteElement('contact', Vend.Contact);
-                            StartElement('streetAddress');
-                            WriteElement('address', Vend.Address);
-                            WriteElement('city', Vend.City);
-                            WriteElement('postalCode', CopyStr(Vend."Post Code", 1, 10));
-                            if Country.Get(Vend."Country/Region Code") then
-                                WriteElement('country', Country.Name)
-                            else
-                                WriteElement('country', '');
-                            EndElement('streetAddress');
+                            WriteElement('custSupName', CopyStr(Vend.Name, 1, 50));
+                            WriteElement('contact', CopyStr(Vend.Contact, 1, 50));
                             WriteElement('telephone', Vend."Phone No.");
                             WriteElement('fax', Vend."Fax No.");
                             WriteElement('eMail', DelChr(Vend."E-Mail"));
                             WriteElement('website', DelChr(Vend."Home Page", '<>', ' '));
+
+                            Clear(CountryRegion);
+                            if CountryRegion.Get(Vend."Country/Region Code") then;
+                            WriteElementWithValue('taxRegistrationCountry', CountryRegion."ISO Code");
+
+                            WriteElement('taxRegIdent', Vend."VAT Registration No.");
+                            WriteElement('custSupTp', 'S'); // S - Supplier
+
+                            StartElement('postalAddress');
+                            WriteElement('streetname', Vend.Address);
+                            WriteElement('number', '');
+                            WriteElement('numberExtension', '');
+                            WriteElement('city', Vend.City);
+                            WriteElement('postalCode', CopyStr(Vend."Post Code", 1, 10));
+                            WriteElementWithValue('country', CountryRegion."ISO Code");
+                            EndElement('postalAddress');
+
+                            VendBankAccount.SetRange("Vendor No.", Vend."No.");
+                            if VendBankAccount.FindSet() then
+                                repeat
+                                    VendBankAccountNo := VendBankAccount.GetBankAccountNo();
+                                    StartElement('bankAccount');
+                                    WriteElement('bankAccNr', CopyStr(VendBankAccountNo, 1, 35));
+                                    WriteElement('bankIdCd', VendBankAccount."SWIFT Code");
+                                    EndElement('bankAccount');
+                                until VendBankAccount.Next() = 0;
                         end;
                     TempAuditFileBuffer.Rectype::"Bank Account":
                         if BankAcc.Get(TempAuditFileBuffer.Code) then begin
-                            WriteElement('type', 'Filiaal');
-                            WriteElement('taxRegistrationNr', '');
-                            WriteElement('companyName', BankAcc.Name);
-                            WriteElement('contact', BankAcc.Contact);
-                            StartElement('streetAddress');
-                            WriteElement('address', BankAcc.Address);
-                            WriteElement('city', BankAcc.City);
-                            WriteElement('postalCode', CopyStr(BankAcc."Post Code", 1, 10));
-                            if Country.Get(BankAcc."Country/Region Code") then
-                                WriteElement('country', Country.Name)
-                            else
-                                WriteElement('country', '');
-                            EndElement('streetAddress');
+                            WriteElement('custSupName', CopyStr(BankAcc.Name, 1, 50));
+                            WriteElement('contact', CopyStr(BankAcc.Contact, 1, 50));
                             WriteElement('telephone', BankAcc."Phone No.");
                             WriteElement('fax', BankAcc."Fax No.");
                             WriteElement('eMail', DelChr(BankAcc."E-Mail"));
                             WriteElement('website', DelChr(BankAcc."Home Page", '<>', ' '));
+                            WriteElement('custSupTp', 'O'); // O - Other, not Customer or Supplier
+
+                            Clear(CountryRegion);
+                            if CountryRegion.Get(BankAcc."Country/Region Code") then;
+                            StartElement('postalAddress');
+                            WriteElement('streetname', BankAcc.Address);
+                            WriteElement('number', '');
+                            WriteElement('numberExtension', '');
+                            WriteElement('city', BankAcc.City);
+                            WriteElement('postalCode', CopyStr(BankAcc."Post Code", 1, 10));
+                            WriteElementWithValue('country', CountryRegion."ISO Code");
+                            EndElement('postalAddress');
+
+                            StartElement('bankAccount');
+                            WriteElement('bankAccNr', CopyStr(BankAcc.GetBankAccountNo(), 1, 35));
+                            WriteElement('bankIdCd', BankAcc."SWIFT Code");
+                            EndElement('bankAccount');
                         end;
                 end;
                 EndElement('customerSupplier');
@@ -514,6 +596,8 @@ report 11412 "Tax Authority - Audit File"
     var
         OldJournalID: Text[20];
         OldTransactionID: Text[20];
+        TrLineAmount: Decimal;
+        TrLineType: Text[1];
         FirstLoop: Boolean;
         JournalElementStarted: Boolean;
         TransactionElementStarted: Boolean;
@@ -524,11 +608,11 @@ report 11412 "Tax Authority - Audit File"
         TempAuditFileBuffer.SetRange(Rectype, TempAuditFileBuffer.Rectype::Transaction);
 
         StartElement('transactions');
-        WriteElement('numberEntries', Format(TotalEntries));
+        WriteElement('linesCount', Format(TotalEntries));
         WriteElement('totalDebit', FormatAmount(TotalDebit));
         WriteElement('totalCredit', FormatAmount(TotalCredit));
 
-        if TempAuditFileBuffer.Find('-') then
+        if TempAuditFileBuffer.FindSet() then
             repeat
                 if FirstLoop or (OldJournalID <> TempAuditFileBuffer.JournalID) then begin
                     FirstLoop := false;
@@ -542,8 +626,8 @@ report 11412 "Tax Authority - Audit File"
                         EndElement('journal');
                     StartElement('journal');
                     JournalElementStarted := true;
-                    WriteElement('journalID', TempAuditFileBuffer.JournalID);
-                    WriteElement('description', TempAuditFileBuffer.JournalDescription);
+                    WriteElement('jrnID', TempAuditFileBuffer.JournalID);
+                    WriteElement('desc', TempAuditFileBuffer.JournalDescription);
                 end;
                 if OldTransactionID <> TempAuditFileBuffer.TransactionID then begin
                     OldTransactionID := TempAuditFileBuffer.TransactionID;
@@ -551,34 +635,42 @@ report 11412 "Tax Authority - Audit File"
                         EndElement('transaction');
                     StartElement('transaction');
                     TransactionElementStarted := true;
-                    WriteElement('transactionID', TempAuditFileBuffer.TransactionID);
-                    WriteElement('description', TempAuditFileBuffer.TransactionDescription);
-                    WriteElement('period', TempAuditFileBuffer.Period);
-                    WriteElement('transactionDate', FormatDate(TempAuditFileBuffer.TransactionDate));
+                    WriteElement('nr', TempAuditFileBuffer.TransactionID);
+                    WriteElement('desc', TempAuditFileBuffer.TransactionDescription);
+                    WriteElement('periodNumber', TempAuditFileBuffer.Period);
+                    WriteElement('trDt', FormatDate(TempAuditFileBuffer.TransactionDate));
                 end;
-                StartElement('line');
-                WriteElement('recordID', TempAuditFileBuffer.RecordID);
-                WriteElement('accountID', TempAuditFileBuffer."Account ID");
+                StartElement('trLine');
+                WriteElement('nr', TempAuditFileBuffer.RecordID);
+                WriteElement('accID', TempAuditFileBuffer."Account ID");
+                WriteElement('docRef', TempAuditFileBuffer."Document ID");
+                WriteElement('effDate', FormatDate(TempAuditFileBuffer.EffectiveDate));
+                WriteElement('desc', TempAuditFileBuffer.LineDescription);
+                if TempAuditFileBuffer.DebitAmount <> 0 then begin
+                    TrLineAmount := TempAuditFileBuffer.DebitAmount;
+                    TrLineType := 'D';      // Debit amount type
+                end else
+                    if TempAuditFileBuffer.CreditAmount <> 0 then begin
+                        TrLineAmount := TempAuditFileBuffer.CreditAmount;
+                        TrLineType := 'C';  // Credit amount type
+                    end;
+                WriteElement('amnt', FormatAmount(TrLineAmount));
+                WriteElement('amntTp', TrLineType);
                 if TempAuditFileBuffer."Source ID" <> '' then
                     WriteElement('custSupID', TempAuditFileBuffer."Source ID");
-                WriteElement('documentID', TempAuditFileBuffer."Document ID");
-                WriteElement('effectiveDate', FormatDate(TempAuditFileBuffer.EffectiveDate));
-                WriteElement('description', TempAuditFileBuffer.LineDescription);
-                if TempAuditFileBuffer.DebitAmount <> 0 then
-                    WriteElement('debitAmount', FormatAmount(TempAuditFileBuffer.DebitAmount));
-                if TempAuditFileBuffer.CreditAmount <> 0 then
-                    WriteElement('creditAmount', FormatAmount(TempAuditFileBuffer.CreditAmount));
                 if TempAuditFileBuffer.CostDescription <> '' then
-                    WriteElement('costDesc', TempAuditFileBuffer.CostDescription);
+                    WriteElement('costID', TempAuditFileBuffer.CostDescription);
                 if TempAuditFileBuffer.ProductDescription <> '' then
-                    WriteElement('productDesc', TempAuditFileBuffer.ProductDescription);
+                    WriteElement('prodID', TempAuditFileBuffer.ProductDescription);
                 if TempAuditFileBuffer.VATAmount <> 0 then begin
                     StartElement('vat');
-                    WriteElement('vatCode', TempAuditFileBuffer.VATCode);
-                    WriteElement('vatAmount', FormatAmount(TempAuditFileBuffer.VATAmount));
+                    WriteElement('vatID', TempAuditFileBuffer.VATCode);
+                    WriteElement('vatPerc', FormatVATAmount(TempAuditFileBuffer."VAT %"));
+                    WriteElement('vatAmnt', FormatAmount(TempAuditFileBuffer.VATAmount));
+                    WriteElement('vatAmntTp', TrLineType);
                     EndElement('vat');
                 end;
-                EndElement('line');
+                EndElement('trLine');
                 UpdateWindow(2);
                 FlushOutput();
             until TempAuditFileBuffer.Next() = 0;
@@ -597,7 +689,12 @@ report 11412 "Tax Authority - Audit File"
 
     local procedure FormatAmount(InAmount: Decimal): Text[30]
     begin
-        exit(ConvertStr(Format(InAmount, 0, '<sign><integer><decimal,3>'), ',', '.'));
+        exit(Format(InAmount, 0, '<Precision,:2><Standard Format,9>'));
+    end;
+
+    local procedure FormatVATAmount(InAmount: Decimal): Text[10]
+    begin
+        exit(Format(InAmount, 0, '<Precision,:3><Standard Format,9>'));
     end;
 
     local procedure WriteAccountBeginBalance()
@@ -618,7 +715,7 @@ report 11412 "Tax Authority - Audit File"
         TempAuditFileBuffer.Period := '0';
 
         // Line data
-        TempAuditFileBuffer.RecordID := Format(FindBeginBalanceEntryNo("G/L Account"."No."), 20);
+        TempAuditFileBuffer.RecordID := Format(FindBeginBalanceEntryNo("G/L Account"."No."), 0, 9);
         TempAuditFileBuffer."Account ID" :=
           CopyStr("G/L Account"."No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
         TempAuditFileBuffer.EffectiveDate := StartDate;
@@ -715,11 +812,6 @@ report 11412 "Tax Authority - Audit File"
         if Rectype = AuditFileBuffer.Rectype::" " then
             exit(CustomerSupID);
         exit(StrSubstNo('%1%2', Format(Rectype, 0, 2), CustomerSupID));
-    end;
-
-    local procedure FormatVATRegNo(VATRegNo: Text[20]): Text
-    begin
-        exit(DelChr(VATRegNo, '=', '.'));
     end;
 }
 

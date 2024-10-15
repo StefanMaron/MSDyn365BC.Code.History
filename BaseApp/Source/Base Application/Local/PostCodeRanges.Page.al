@@ -23,7 +23,7 @@ page 11407 "Post Code Ranges"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city linked to the postal code in the postal code field.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of house number range.';

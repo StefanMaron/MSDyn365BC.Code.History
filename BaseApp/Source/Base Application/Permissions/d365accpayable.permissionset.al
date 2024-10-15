@@ -29,9 +29,6 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Item Analysis View Entry" = RIM,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = Rm,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Ledger Entry" = Rimd,

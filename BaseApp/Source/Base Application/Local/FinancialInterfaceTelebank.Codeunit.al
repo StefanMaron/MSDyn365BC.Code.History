@@ -254,7 +254,6 @@ codeunit 11000001 "Financial Interface Telebank"
         SetApplyCVLedgerEntries(PaymentHistLine, CBGStatementline."Applies-to ID", true, false);
     end;
 
-    [Scope('OnPrem')]
     procedure "Initialize GJLine"(var GenJnlLine: Record "Gen. Journal Line")
     begin
         OnBeforeInitializeGJLine(GenJnlLine, "Journal template");
@@ -265,7 +264,6 @@ codeunit 11000001 "Financial Interface Telebank"
         GenJnlLine.Init();
     end;
 
-    [Scope('OnPrem')]
     procedure ProcessGLJL(var GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
@@ -276,7 +274,6 @@ codeunit 11000001 "Financial Interface Telebank"
             exit;
 
         GenJnlLine.Insert();
-        // GenJnlPostLineCu.RUN(FDBR);
     end;
 
     [Scope('OnPrem')]

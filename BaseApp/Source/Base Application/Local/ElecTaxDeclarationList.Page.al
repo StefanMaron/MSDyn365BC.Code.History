@@ -45,7 +45,7 @@ page 11412 "Elec. Tax Declaration List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unique identification for the electronic declaration.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the electronic declaration.';

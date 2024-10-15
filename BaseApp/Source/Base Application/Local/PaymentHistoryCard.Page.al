@@ -28,7 +28,7 @@ page 11000005 "Payment History Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the export protocol used to export the payment history.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the payment history.';
