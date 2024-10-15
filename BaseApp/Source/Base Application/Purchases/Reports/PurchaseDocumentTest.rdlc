@@ -14887,7 +14887,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Sum(Fields!SalesTaxAmountLine__Tax_Amount_.Value)</Value>
+                                                    <Value>=Fields!SalesTaxAmountLine__Tax_Amount____ExchangeFactor.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -14982,7 +14982,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Sum(Fields!SalesTaxAmountLine__Tax_Amount____ExchangeFactor.Value)</Value>
+                                                    <Value>=Fields!SalesTaxAmountLine__Tax_Amount____ExchangeFactor.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>

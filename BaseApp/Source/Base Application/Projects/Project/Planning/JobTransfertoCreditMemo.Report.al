@@ -198,8 +198,15 @@ report 1092 "Job Transfer to Credit Memo"
     procedure SetCustomer(JobPlanningLine: Record "Job Planning Line")
     var
         JobTask: Record "Job Task";
+        IsHandled: Boolean;
     begin
         Job.Get(JobPlanningLine."Job No.");
+
+        IsHandled := false;
+        OnBeforeSetCustomer(JobPlanningLine, BillToCustomerNo, IsHandled);
+        if IsHandled then
+            exit;
+
         BillToCustomerNo := Job."Bill-to Customer No.";
 
         if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
@@ -213,6 +220,11 @@ report 1092 "Job Transfer to Credit Memo"
     procedure SetPostingDate(PostingDate2: Date)
     begin
         PostingDate := PostingDate2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCustomer(var JobPlanningLine: Record "Job Planning Line"; var BillToCustomerNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

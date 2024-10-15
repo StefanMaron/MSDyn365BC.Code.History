@@ -2266,15 +2266,16 @@
     procedure FixedAssetGetSATClassification()
     var
         FixedAsset: Record "Fixed Asset";
+        SalesLine: Record "Sales Line";
         SATUtilities: Codeunit "SAT Utilities";
     begin
-        // [SCENARIO 433795] SATUtilities.GetSATItemClassification returns a value from Fixed Asset Card
+        // [SCENARIO 433795] SATUtilities.GetSATClassification returns a value from Fixed Asset Card
         FixedAsset.Init();
         FixedAsset."No." := LibraryUtility.GenerateGUID();
         FixedAsset."SAT Classification Code" := LibraryUtility.GenerateGUID();
         FixedAsset.Insert();
         Assert.AreEqual(
-          FixedAsset."SAT Classification Code", SATUtilities.GetSATItemClassification(4, FixedAsset."No."), ExpectedError);
+          FixedAsset."SAT Classification Code", SATUtilities.GetSATClassification(SalesLine.Type::"Fixed Asset", FixedAsset."No."), ExpectedError);
     end;
 
     [Test]
@@ -2312,15 +2313,16 @@
     procedure GLAccountGetSATClassification()
     var
         GLAccount: Record "G/L Account";
+        SalesLine: Record "Sales Line";
         SATUtilities: Codeunit "SAT Utilities";
     begin
-        // [SCENARIO 491617] SATUtilities.GetSATItemClassification returns a value for G/L Account
+        // [SCENARIO 491617] SATUtilities.GetSATClassification returns a value for G/L Account
         GLAccount.Init();
         GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount."SAT Classification Code" := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
         Assert.AreEqual(
-          GLAccount."SAT Classification Code", SATUtilities.GetSATItemClassification(1, GLAccount."No."), ExpectedError);
+          GLAccount."SAT Classification Code", SATUtilities.GetSATClassification(SalesLine.Type::"G/L Account", GLAccount."No."), ExpectedError);
     end;
 
     [Test]

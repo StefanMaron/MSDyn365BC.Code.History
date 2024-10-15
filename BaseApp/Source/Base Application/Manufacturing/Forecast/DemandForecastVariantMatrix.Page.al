@@ -957,12 +957,12 @@ page 2900 "Demand Forecast Variant Matrix"
         else
             ProductionForecastEntry.SetRange("Production Forecast Name");
         if Rec."Location Code" <> '' then
-            ProductionForecastEntry.SetFilter("Location Code", Rec."Location Code")
+            ProductionForecastEntry.SetRange("Location Code", Rec."Location Code")
         else
             ProductionForecastEntry.SetRange("Location Code");
 
         if Rec."Variant Code" <> '' then
-            ProductionForecastEntry.SetFilter("Variant Code", Rec."Variant Code")
+            ProductionForecastEntry.SetRange("Variant Code", Rec."Variant Code")
         else
             ProductionForecastEntry.SetRange("Variant Code");
 
