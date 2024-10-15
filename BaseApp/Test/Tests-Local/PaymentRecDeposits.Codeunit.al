@@ -59,12 +59,14 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding deposits are included and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           DepositHeader."Total Deposit Amount",
           0,
           BankAccRecon."Statement Ending Balance",
-          DepositHeader."Total Deposit Amount");
+          DepositHeader."Total Deposit Amount",
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -102,12 +104,14 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions and deposits are included and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           CustAmount + DepositHeader."Total Deposit Amount",
           0,
           BankAccRecon."Statement Ending Balance",
-          CustAmount + DepositHeader."Total Deposit Amount");
+          CustAmount + DepositHeader."Total Deposit Amount",
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -141,12 +145,14 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify deposits are not included in the outstanding when applied and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           0,
           0,
           BankAccRecon."Statement Ending Balance",
-          DepositHeader."Total Deposit Amount");
+          DepositHeader."Total Deposit Amount",
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -192,12 +198,14 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify only not applied transactions show as outstanding and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         LibraryVariableStorage.AssertEmpty;
         VerifyBankAccReconReportData(
           AmountArray[2],
           0,
           BankAccRecon."Statement Ending Balance",
-          AmountArray[1] + AmountArray[2] + AmountArray[3]);
+          AmountArray[1] + AmountArray[2] + AmountArray[3],
+          BankAccRecon."Total Difference");
     end;
 
     local procedure Initialize()
@@ -586,7 +594,7 @@ codeunit 142059 "Payment Rec Deposits"
         LibraryCAMTFileMgt.WriteCAMTFooter(OutStream);
     end;
 
-    local procedure VerifyBankAccReconReportData(OutstdTransactions: Decimal; OutstdPayments: Decimal; StatementEndingBalance: Decimal; GLBalance: Decimal)
+    local procedure VerifyBankAccReconReportData(OutstdTransactions: Decimal; OutstdPayments: Decimal; StatementEndingBalance: Decimal; GLBalance: Decimal; SumOfDifferences: Decimal)
     var
         DepositTotal: Decimal;
     begin
@@ -596,8 +604,7 @@ codeunit 142059 "Payment Rec Deposits"
         LibraryReportDataset.AssertElementWithValueExists('Ending_GL_Balance', GLBalance);
         LibraryReportDataset.AssertElementWithValueExists('Adjusted_Statement_Ending_Balance',
           StatementEndingBalance + OutstdTransactions + OutstdPayments);
-        LibraryReportDataset.AssertElementWithValueExists('Difference',
-          (GLBalance - (StatementEndingBalance + OutstdTransactions + OutstdPayments)));
+        LibraryReportDataset.AssertElementWithValueExists('Sum_Of_Differences', SumOfDifferences);
 
         // Verify Totals
         Assert.AreEqual(GLBalance,

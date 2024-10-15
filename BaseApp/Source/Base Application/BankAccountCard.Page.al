@@ -302,6 +302,10 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the last bank account statement that was reconciled with this bank account.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Last Payment Statement No."; "Last Payment Statement No.")
                 {

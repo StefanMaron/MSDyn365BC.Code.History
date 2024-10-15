@@ -293,6 +293,8 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     local procedure InsertItemJnlLine(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; Quantity2: Decimal; QuantityBase2: Decimal; UOM2: Code[10]; EntryType2: Option "Negative Adjmt.","Positive Adjmt.")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeFunctionInsertItemJnlLine(
           TempBinContentBuffer."Item No.", TempBinContentBuffer."Variant Code", TempBinContentBuffer."Location Code",
@@ -323,15 +325,17 @@ report 7315 "Calculate Whse. Adjustment"
                     QuantityBase2 := -QuantityBase2;
                 end;
 
-                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine, ItemJnlBatch, SourceCodeSetup);
-                Validate("Document No.", NextDocNo);
-                Validate("Item No.", TempBinContentBuffer."Item No.");
-                Validate("Variant Code", TempBinContentBuffer."Variant Code");
-                Validate("Location Code", TempBinContentBuffer."Location Code");
-                Validate("Source Code", SourceCodeSetup."Item Journal");
-                Validate("Unit of Measure Code", UOM2);
+                IsHandled := false;
+                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine, ItemJnlBatch, SourceCodeSetup, IsHandled, TempBinContentBuffer, NextDocNo, UOM2);
+                if not IsHandled then begin
+                    Validate("Document No.", NextDocNo);
+                    Validate("Item No.", TempBinContentBuffer."Item No.");
+                    Validate("Variant Code", TempBinContentBuffer."Variant Code");
+                    Validate("Location Code", TempBinContentBuffer."Location Code");
+                    Validate("Source Code", SourceCodeSetup."Item Journal");
+                    Validate("Unit of Measure Code", UOM2);
+                end;
                 "Posting No. Series" := ItemJnlBatch."Posting No. Series";
-
                 Validate(Quantity, Quantity2);
                 "Quantity (Base)" := QuantityBase2;
                 "Invoiced Qty. (Base)" := QuantityBase2;
@@ -550,7 +554,7 @@ report 7315 "Calculate Whse. Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; SourceCodeSetup: Record "Source Code Setup")
+    local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean; var TempBinContentBuffer: Record "Bin Content Buffer" temporary; NextDocNo: Code[20]; UOM2: Code[10])
     begin
     end;
 

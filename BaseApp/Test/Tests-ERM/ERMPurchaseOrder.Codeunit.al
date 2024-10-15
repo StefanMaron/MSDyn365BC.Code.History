@@ -33,6 +33,7 @@
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryResource: Codeunit "Library - Resource";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         isInitialized: Boolean;
         FieldError: Label 'Number of Lines for %1 and %2  must be Equal.';
         CurrencyError: Label '%1 must be Equal in %2.';
@@ -81,6 +82,7 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DisposedErr: Label '%1 is disposed.';
         RoundingTo0Err: Label 'Rounding of the field';
+        ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
 
     [Test]
     [Scope('OnPrem')]
@@ -6573,7 +6575,7 @@
             LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         end;
     end;
-    
+
     [Test]
     procedure LocationForNonInventoryItemsAllowed()
     var
@@ -6766,6 +6768,55 @@
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", '');
         Assert.RecordCount(PurchaseLine, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyItemRefernceNotUpdateToDefaultOnLocationCodeChange()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        Location: Record Location;
+        Location1: Record Location;
+        ItemReference: Record "Item Reference";
+        ItemRefNoBefore: Code[20];
+        ItemReferenceNoAfter: Code[20];
+    begin
+        // [SCENARIO 439502] Item Reference No. field on Purchase line is reverted after adding/changing the location.
+        Initialize();
+
+        // [GIVEN] Create Locations
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryWareHouse.CreateLocation(Location1);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Order with Location Code
+        CreatePurchaseHeader(PurchaseHeader, PurchaseLine."Document Type"::Order);
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Item reference with Reference Type- "Vendor"," ".
+        CreateTwoItemReferences(ItemReference, PurchaseHeader, Item);
+
+        // [THEN] Filter Item Reference to Blank Reference Type
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::" ");
+
+        // [GIVEN] Create Purchase Line with item reference no set to reference type " ".
+        // [GIVEN] Change the reference no. to any other reference no. from default.
+        CreatePurchaseLineWithItemreferenceNo(PurchaseLine, PurchaseHeader, Item, ItemReference);
+
+        // [THEN] Save the value of Item Reference No on ItemRefNoBefore variable
+        ItemRefNoBefore := PurchaseLine."Item Reference No.";
+
+        // [THEN] Change the Location Code on Purchase Line.
+        PurchaseLine.Validate("Location Code", Location1.Code);
+
+        // [THEN] Save the value of Item Reference No on ItemReferenceNoAfter variable
+        ItemReferenceNoAfter := PurchaseLine."Item Reference No.";
+
+        // [VERIFY] Item reference No will remains unchanged, on updating the Location Code.
+        Assert.AreEqual(ItemRefNoBefore, ItemReferenceNoAfter, StrSubstNo(ItemRefrenceNoErr, ItemRefNoBefore));
     end;
 
     local procedure Initialize()
@@ -9694,6 +9745,35 @@
         ReturnShipmentLine.Type := ReturnShipmentLine.Type::Resource;
         ReturnShipmentLine."No." := LibraryResource.CreateResourceNo();
         ReturnShipmentLine.Insert();
+    end;
+
+    local procedure CreateTwoItemReferences(var ItemReference: Record "Item Reference"; PurchaseHeader: Record "Purchase Header"; Item: Record Item)
+    begin
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ItemReference."Reference Type"::Vendor, PurchaseHeader."Buy-from Vendor No.");
+        ItemReference.Validate("Reference No.", Item."No.");
+        ItemReference.Insert(true);
+
+        LibraryItemReference.CreateItemReference(
+                  ItemReference, Item."No.", ItemReference."Reference Type"::" ", '');
+        ItemReference.Validate("Reference No.", Item."No.");
+        ItemReference.Insert(true);
+    end;
+
+    local procedure CreatePurchaseLineWithItemreferenceNo(
+        var PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        ItemReference: Record "Item Reference")
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item, Item."No.",
+            LibraryRandom.RandInt(10));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        PurchaseLine.Modify(true);
     end;
 
 #if not CLEAN19

@@ -754,10 +754,10 @@
                     TempPrepmtVATAmountLine.DeductVATAmountLine(TempPrePmtVATAmountLineDeduct);
                     PurchasePostPrepayments.UpdateVATOnLines("Purchase Header", TempPrepmtPurchLine, TempPrepmtVATAmountLine, 0);
                     PurchasePostPrepayments.BuildInvLineBuffer("Purchase Header", TempPrepmtPurchLine, 0, TempPrepaymentInvLineBuffer);
-                    PrepmtVATAmount := TempPrepmtVATAmountLine.GetTotalVATAmount;
-                    PrepmtVATBaseAmount := TempPrepmtVATAmountLine.GetTotalVATBase;
-                    PrepmtTotalAmountInclVAT := TempPrepmtVATAmountLine.GetTotalAmountInclVAT;
-
+                    PrepmtVATAmount := TempPrepmtVATAmountLine.GetTotalVATAmount();
+                    PrepmtVATBaseAmount := TempPrepmtVATAmountLine.GetTotalVATBase();
+                    PrepmtTotalAmountInclVAT := TempPrepmtVATAmountLine.GetTotalAmountInclVAT();
+                    TaxAmount := VATAmount;
                     TotalAmount := TotalSubTotal + TotalInvoiceDiscountAmount + TaxAmount;
                 end;
             }

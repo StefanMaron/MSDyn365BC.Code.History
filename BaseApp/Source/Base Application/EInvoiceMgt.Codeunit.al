@@ -1977,7 +1977,7 @@
             AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
-            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
             AddAttribute(
                 XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code"));
@@ -2079,7 +2079,7 @@
             AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
-            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
             AddAttribute(
                 XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code"));
@@ -2168,7 +2168,7 @@
             AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
-            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
             AddAttribute(
                 XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code"));
@@ -2309,7 +2309,7 @@
             AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
-            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer.Name);
+            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
             AddAttribute(
                 XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code"));
@@ -2377,7 +2377,8 @@
         AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC No.");
-        AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', TempDocumentHeader."Bill-to/Pay-To Name");
+        GetCustomer(TempDocumentHeader."Bill-to/Pay-To No.");
+        AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer."CFDI Customer Name");
         AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', TempDocumentHeader."CFDI Purpose");
         AddAttribute(
             XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
@@ -2706,7 +2707,7 @@
 
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
-            WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
             WriteOutStr(OutStream,
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code") + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
@@ -2803,7 +2804,7 @@
 
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
-            WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
             WriteOutStr(OutStream,
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code") + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
@@ -2879,7 +2880,7 @@
 
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
-            WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
             WriteOutStr(OutStream,
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code") + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
@@ -2985,7 +2986,7 @@
 
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
-            WriteOutStr(OutStream, RemoveInvalidChars(Customer.Name) + '|'); // Nombre
+            WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
             WriteOutStr(OutStream,
                 GetSATPostalCode(Customer."Location Code", Customer."Post Code") + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
@@ -3037,7 +3038,8 @@
 
         // Customer information (Receptor)
         WriteOutStr(OutStream, CompanyInfo."RFC No." + '|'); // Rfc
-        WriteOutStr(OutStream, RemoveInvalidChars(TempDocumentHeader."Bill-to/Pay-To Name") + '|'); // Nombre
+        GetCustomer(TempDocumentHeader."Bill-to/Pay-To No.");
+        WriteOutStr(OutStream, RemoveInvalidChars(Customer."CFDI Customer Name") + '|'); // Nombre
         WriteOutStr(OutStream,
             GetSATPostalCode(
                 TempDocumentHeader."Location Code", TempDocumentHeader."Sell-to/Buy-from Post Code") + '|'); // DomicilioFiscalReceptor
@@ -4640,7 +4642,7 @@
             AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', TempCustomer."RFC No.");
-            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', TempCustomer.Name);
+            AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', TempCustomer."CFDI Customer Name");
             AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', DomicilioFiscalReceptor);
             if SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code") <> 'MEX' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'ResidenciaFiscal', SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code"));
@@ -4825,7 +4827,7 @@
 
             // Receptor
             WriteOutStr(OutStream, TempCustomer."RFC No." + '|');// ReceptorCustomerRfcNo.
-            WriteOutStr(OutStream, TempCustomer.Name + '|'); // Nombre
+            WriteOutStr(OutStream, TempCustomer."CFDI Customer Name" + '|'); // Nombre
             WriteOutStr(OutStream, DomicilioFiscalReceptor + '|');// DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code") + '|');// ResidenciaFiscal

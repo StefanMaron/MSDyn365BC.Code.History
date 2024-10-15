@@ -511,7 +511,6 @@ page 7022 "Price Worksheet"
 
     trigger OnAfterGetRecord()
     begin
-        Rec.SyncDropDownLookupFields();
         UpdateSourceType();
         SetFieldsStyle();
     end;
