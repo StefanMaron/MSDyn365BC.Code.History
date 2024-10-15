@@ -1131,6 +1131,7 @@ table 21 "Cust. Ledger Entry"
         "Corrected Invoice No." := GenJnlLine."Corrected Invoice No.";
         "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
         "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
+        "ID Type" := GenJnlLine."ID Type";
 
         OnAfterCopyCustLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

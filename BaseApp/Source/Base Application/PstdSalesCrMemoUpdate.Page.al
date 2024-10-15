@@ -98,6 +98,12 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the Correction Type.';
                 }
+                field("Corrected Invoice No."; "Corrected Invoice No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
+                }
             }
         }
     }
@@ -135,6 +141,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Operation Description 2" <> xSalesCrMemoHeader."Operation Description 2") or
           ("Special Scheme Code" <> xSalesCrMemoHeader."Special Scheme Code") or
           ("Cr. Memo Type" <> xSalesCrMemoHeader."Cr. Memo Type") or
+          ("Corrected Invoice No." <> xSalesCrMemoHeader."Corrected Invoice No.") or
           ("Correction Type" <> xSalesCrMemoHeader."Correction Type");
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);

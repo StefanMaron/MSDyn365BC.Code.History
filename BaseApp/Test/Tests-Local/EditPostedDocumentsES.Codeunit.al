@@ -1,5 +1,7 @@
 codeunit 147330 "Edit Posted Documents ES"
 {
+    Permissions = TableData "Sales Invoice Header" = ri,
+                  TableData "Purch. Inv. Header" = ri;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -759,6 +761,180 @@ codeunit 147330 "Edit Posted Documents ES"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedSalesInvoicesCheckLookupValueModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure LookupCorrectedInvoiceNoFromPostedSalesCreditMemoPage()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 405655] Stan can lookup posted sales invoices from the "Corrected Invoice No." field of the "Posted Sales Credit Memo - Edit"chec page
+
+        Initialize;
+        SalesInvoiceHeader.Get(CreateAndPostSalesInvoice);
+        SalesCrMemoHeader.Get(CreateAndPostSalesCreditMemoForCustomer(SalesInvoiceHeader."Bill-to Customer No."));
+
+        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
+        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
+        PostedSalesCreditMemo."Update Document".Invoke;
+
+        // Verification performs withing handlers: PostedSalesCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedSalesInvoicesCheckLookupValueModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedPurchInvoicesCheckLookupValueModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure LookupCorrectedInvoiceNoFromPostedPurchCreditMemoPage()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 405655] Stan can lookup posted purchase invoices from the "Corrected Invoice No." field of the "Posted Purchase Credit Memo - Edit" page
+
+        Initialize;
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoice);
+        PurchCrMemoHdr.Get(CreateAndPostPurchaseCreditMemoForVendor(PurchInvHeader."Pay-to Vendor No."));
+
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
+        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
+        PostedPurchaseCreditMemo."Update Document".Invoke;
+
+        // Verification performs withing handlers: PostedPurchCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedPurchInvoicesCheckLookupValueModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateCorrInvNoCancelModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCorrInvNoCancel()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 405655] Corrected Invoice No. is not set in case Stan presses Cancel on "Pstd. Sales Cr. Memo - Update" modal page.
+
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+
+        // [GIVEN] Opened "Pstd. Sales Cr. Memo - Update" page.
+        // [GIVEN] "Corrected Invoice No." is set
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Corrected Invoice No.");
+        PostedDocNo := CreateAndPostSalesCreditMemo();
+
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo.Filter.SetFilter("No.", PostedDocNo);
+        PostedSalesCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Press Cancel on the page.
+        // [THEN] Corrected Invoice No. is not changed
+        Assert.AreNotEqual(SalesCrMemoHeader."Corrected Invoice No.", PostedSalesCreditMemo."Corrected Invoice No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesCrMemoUpdateCorrInvNoOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCorrInvNoOK()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales Credit Memo] [Permissions]
+        // [SCENARIO 405655] Corrected Invoice No. is set in case Stan presses OK on "Pstd. Sales Cr. Memo - Update" modal page.
+
+        Initialize();
+        PrepareValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+
+        // [GIVEN] Opened "Pstd. Sales Cr. Memo - Update" page. A user with "D365 Sales Doc, Post" permission set.
+        // [GIVEN] "Corrected Invoice No." is set
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Corrected Invoice No.");
+        PostedDocNo := CreateAndPostSalesCreditMemo();
+        LibraryLowerPermissions.SetSalesDocsPost();
+
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo.Filter.SetFilter("No.", PostedDocNo);
+        PostedSalesCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Press OK on the page.
+        // [THEN] Corrected Invoice No. is changed
+        Assert.AreEqual(SalesCrMemoHeader."Corrected Invoice No.", PostedSalesCreditMemo."Corrected Invoice No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateCorrInvNoCancelModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateCorrInvNoCancel()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Credit Memo]
+        // [SCENARIO 405655] Corrected Invoice No. not set in case Stan presses Cancel on "Posted Purch. Cr.Memo - Update" modal page.
+
+        Initialize();
+        PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+
+        // [GIVEN] Opened "Posted Purch. Cr.Memo - Update" page.
+        // [GIVEN] "Corrected Invoice No." is set
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Corrected Invoice No.");
+        PostedDocNo := CreateAndPostPurchaseCreditMemo();
+
+        PostedPurchaseCreditMemo.OpenView();
+        PostedPurchaseCreditMemo.Filter.SetFilter("No.", PostedDocNo);
+        PostedPurchaseCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Press Cancel on the page.
+        // [THEN] Corrected Invoice No. is not changed
+        Assert.AreNotEqual(PurchCrMemoHdr."Corrected Invoice No.", PostedPurchaseCreditMemo."Corrected Invoice No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchCrMemoUpdateCorrInvNoOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateCorrInvNoOK()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Credit Memo] [Permissions]
+        // [SCENARIO 405655] Corrected Invoice No. is set in case Stan presses OK on "Posted Purch. Cr.Memo - Update" modal page.
+
+        Initialize();
+        PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+
+        // [GIVEN] Opened "Posted Purch. Cr.Memo - Update" page. A user with "D365 Purch Doc, Post" permission set.
+        // [GIVEN] "Corrected Invoice No." is set
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Corrected Invoice No.");
+        PostedDocNo := CreateAndPostPurchaseCreditMemo();
+        LibraryLowerPermissions.SetPurchDocsPost();
+
+        PostedPurchaseCreditMemo.OpenView();
+        PostedPurchaseCreditMemo.Filter.SetFilter("No.", PostedDocNo);
+        PostedPurchaseCreditMemo."Update Document".Invoke();
+
+        // [WHEN] Press OK on the page.
+        // [THEN] Corrected Invoice No. is changed
+        Assert.AreEqual(PurchCrMemoHdr."Corrected Invoice No.", PostedPurchaseCreditMemo."Corrected Invoice No.".Value, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents ES");
@@ -790,6 +966,14 @@ codeunit 147330 "Edit Posted Documents ES"
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
+    local procedure CreateAndPostSalesCreditMemoForCustomer(CustNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, CustNo);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
     local procedure CreateAndPostPurchaseInvoice() PostedDocNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -804,6 +988,14 @@ codeunit 147330 "Edit Posted Documents ES"
     begin
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
+    local procedure CreateAndPostPurchaseCreditMemoForVendor(VendNo: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseCreditMemoForVendorNo(PurchaseHeader, VendNo);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
     end;
 
     local procedure CreateAndPostServiceInvoice() PostedDocNo: Code[20]
@@ -885,19 +1077,33 @@ codeunit 147330 "Edit Posted Documents ES"
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesCrMemoHeader.Init();
         SalesCrMemoHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
         SalesCrMemoHeader."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
         SalesCrMemoHeader."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
+        SalesInvoiceHeader.Init();
+        SalesInvoiceHeader."No." :=
+          LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        SalesInvoiceHeader.Insert();
+        SalesCrMemoHeader."Corrected Invoice No." := SalesInvoiceHeader."No.";
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchCrMemoHdr.Init();
         PurchCrMemoHdr."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
         PurchCrMemoHdr."Cr. Memo Type" := LibraryRandom.RandIntInRange(1, 5);
         PurchCrMemoHdr."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
+        PurchInvHeader.Init();
+        PurchInvHeader."No." :=
+          LibraryUtility.GenerateRandomCode(PurchInvHeader.FieldNo("No."), DATABASE::"Purch. Inv. Header");
+        PurchInvHeader.Insert();
+        PurchCrMemoHdr."Corrected Invoice No." := PurchInvHeader."No.";
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -972,11 +1178,27 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCorrInvNoOKModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PstdSalesCrMemoUpdate."Corrected Invoice No.".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure PostedSalesCrMemoUpdateInvDetailsCancelModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
     begin
         PstdSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateCorrInvNoCancelModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PstdSalesCrMemoUpdate."Corrected Invoice No.".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -992,11 +1214,27 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateCorrInvNoOKModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Corrected Invoice No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure PostedPurchCrMemoUpdateCancelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
         PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateCorrInvNoCancelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Corrected Invoice No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -1084,6 +1322,15 @@ codeunit 147330 "Edit Posted Documents ES"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure PostedSalesCrMemoUpdateLookupCorrInvNolModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
+    begin
+        PstdSalesCrMemoUpdate."Corrected Invoice No.".Lookup();
+        PstdSalesCrMemoUpdate."Corrected Invoice No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate.Cancel.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure PostedPurchInvoiceUpdateOperationDescrOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
         PostedPurchInvoiceUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
@@ -1111,6 +1358,15 @@ codeunit 147330 "Edit Posted Documents ES"
     procedure PostedPurchCrMemoUpdateOperationDescrCancelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
         PostedPurchCrMemoUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchCrMemoUpdateLookupCorrInvNolModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
+    begin
+        PostedPurchCrMemoUpdate."Corrected Invoice No.".Lookup();
+        PostedPurchCrMemoUpdate."Corrected Invoice No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -1144,5 +1400,27 @@ codeunit 147330 "Edit Posted Documents ES"
     begin
         PostedServCrMemoUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
         PostedServCrMemoUpdate.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoicesCheckLookupValueModalPageHandler(var PostedSalesInvoices: TestPage "Posted Sales Invoices")
+    var
+        InvNo: Text;
+    begin
+        InvNo := LibraryVariableStorage.PeekText(1);
+        PostedSalesInvoices."No.".AssertEquals(InvNo);
+        PostedSalesInvoices.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchInvoicesCheckLookupValueModalPageHandler(var PostedPurchaseInvoices: TestPage "Posted Purchase Invoices")
+    var
+        InvNo: Text;
+    begin
+        InvNo := LibraryVariableStorage.PeekText(1);
+        PostedPurchaseInvoices."No.".AssertEquals(InvNo);
+        PostedPurchaseInvoices.OK.Invoke();
     end;
 }

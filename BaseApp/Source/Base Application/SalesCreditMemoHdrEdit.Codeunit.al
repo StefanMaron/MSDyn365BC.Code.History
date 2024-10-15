@@ -18,6 +18,7 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
+        SalesCrMemoHeader."Corrected Invoice No." := "Corrected Invoice No.";
         OnBeforeSalesCrMemoHeaderModify(SalesCrMemoHeader, Rec);
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();
