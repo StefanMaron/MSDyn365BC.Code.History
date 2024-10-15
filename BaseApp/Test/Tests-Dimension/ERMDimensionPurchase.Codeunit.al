@@ -1078,7 +1078,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.94, 5.93, 5.94, 5.93);
         InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
 
         VerifyVATEntriesAmountAndAmountACY(
@@ -1199,8 +1199,8 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 153, 112.7, 112.9, 112.7, 112.9);
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.94, 5.93, 5.94, 5.93);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 153, 112.9, 112.7, 112.9, 112.7);
 
         VerifyVATEntriesAmountAndAmountACY(
             VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
@@ -1267,7 +1267,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.86, 112.67, 112.86, 112.67);
         InitializeExpectedVATAmounts(ExpectedVATAmountACY, 8.1, 5.9, 5.9, 6, 5.9);
 
         VerifyVATEntriesAmountAndAmountACY(
@@ -1343,9 +1343,92 @@ codeunit 134476 "ERM Dimension Purchase"
 
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
-        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 1988.4, 1465.8, 1465.6, 1465.8, 1465.6);
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.86, 112.67, 112.86, 112.67);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 1988.4, 1467.2, 1464.7, 1467.2, 1464.7);
 
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceMultipleLinesAndDimensionsWithReverseChargeVATFCY()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding] [FCY]
+        // [SCENARIO 401316] System calculates VAT Amount in currency's values and then converts to LCY amounts for Normal VAT
+
+        Initialize();
+
+        CurrencyCode := CreateCurrencyWithRelationalExchangeRate(4.3976);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        CreateDocument258and350(PurchaseHeader, Vendor, GLAccount);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 35.4, 26.12, 26.08, 26.12, 26.08);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+
+        VerifyVATEntriesAmountAndAmountACY(
+          VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceMultipleLinesAndDimensionsWithNormalVATFCY()
+    var
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Normal VAT] [VAT] [Dimension] [Rounding] [FCY]
+        // [SCENARIO 401316] System calculates VAT Amount in currency's values and then converts to LCY amounts for Reverse Charge VAT
+
+        Initialize();
+
+        CurrencyCode := CreateCurrencyWithRelationalExchangeRate(4.3976);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        CreateDocument258and350(PurchaseHeader, Vendor, GLAccount);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 35.4, 26.12, 26.08, 26.12, 26.08);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
         VerifyVATEntriesAmountAndAmountACY(
             VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
     end;
@@ -1355,17 +1438,17 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Purchase");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Purchase");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         IsInitialized := true;
         Commit();
 
@@ -1423,6 +1506,45 @@ codeunit 134476 "ERM Dimension Purchase"
             TempDimensionSetEntry := DimensionSetEntry;
             TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next = 0;
+    end;
+
+    local procedure CreateCurrencyWithRelationalExchangeRate(RelationalExchangeRate: Decimal): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
+        CurrencyExchangeRate.Modify(true);
+
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateDocument258and350(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; var GLAccount: Record "G/L Account")
+    var
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        Index: Integer;
+    begin
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
     end;
 
     local procedure CreateDimensionForSalesLine(var SalesLine: Record "Sales Line"): Code[20]
