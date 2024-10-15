@@ -4,6 +4,8 @@ codeunit 11000010 "Check SEPA ISO20022"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
+
         // Check whether the currency being used is Euro
         GLSetup.Get();
         case GLSetup."Local Currency" of
@@ -63,6 +65,7 @@ codeunit 11000010 "Check SEPA ISO20022"
 
         // Check Our Bank Account
         BankAcc.Get("Our Bank No.");
+        OnAfterBankAccGet(BankAcc);
 
         if BankAcc."Country/Region Code" = '' then begin
             "Error Message" := StrSubstNo(Text004, BankAcc.FieldCaption("Country/Region Code"), FieldCaption("Our Bank No."), "Our Bank No.");
@@ -133,6 +136,8 @@ codeunit 11000010 "Check SEPA ISO20022"
                         exit;
                     end;
             end;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -151,5 +156,20 @@ codeunit 11000010 "Check SEPA ISO20022"
         Text007: Label '%1 is invisible- and capital transactions, %2 must be filled in.';
         Text008: Label '%1 is transfer or sundry, %2 and %3 must be filled in.';
         Text009: Label '%1 cannot be %2 for %3:%4.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ProposalLine: Record "Proposal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var ProposalLine: Record "Proposal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBankAccGet(var BankAcc: Record "Bank Account")
+    begin
+    end;
 }
 

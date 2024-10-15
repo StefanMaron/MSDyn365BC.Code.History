@@ -56,7 +56,7 @@ page 7202 "CDS Admin Credentials"
             TempCDSConnectionSetup."User Name" := Email;
             TempCDSConnectionSetup.SetPassword(Password);
             CDSIntegrationImpl.UpdateConnectionString(TempCDSConnectionSetup);
-            CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password);
+            CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password, '');
         end;
     end;
 }

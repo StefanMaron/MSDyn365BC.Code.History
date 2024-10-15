@@ -282,6 +282,8 @@ codeunit 11000001 "Financial Interface Telebank"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
+        OnBeforeSetApplyCVLedgerEntries(PaymentHistoryLine, AppliesToID, Post, Check);
+
         // Use detail lines to apply
         DetailLine.SetCurrentKey("Our Bank", Status, "Connect Batches");
         DetailLine.SetRange("Our Bank", PaymentHistoryLine."Our Bank");
@@ -393,6 +395,11 @@ codeunit 11000001 "Financial Interface Telebank"
             ErrorMessages.Run;
             Error('');
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetApplyCVLedgerEntries(var PaymentHistoryLine: Record "Payment History Line"; var AppliesToID: Code[50]; var Post: Boolean; var Check: Boolean)
+    begin
     end;
 }
 

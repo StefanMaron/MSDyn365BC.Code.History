@@ -29,6 +29,8 @@ report 11408 "Receive Response Messages"
                 if "Message ID" = '' then
                     CurrReport.Skip();
 
+                SendTraceTag('0000CJG', DigipoortTok, VERBOSITY::Normal, ReceiveResponseMsg, DATACLASSIFICATION::SystemMetadata);
+
                 Window.Update(1, WindowStatusDeletingMsg);
                 ElecTaxDeclResponseMsg.SetRange("Declaration Type", "Declaration Type");
                 ElecTaxDeclResponseMsg.SetRange("Declaration No.", "No.");
@@ -97,9 +99,11 @@ report 11408 "Receive Response Messages"
                                     FoundXmlContent := true;
                                 end;
 
-                            if FoundXmlContent then
-                                "Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen("Status Description"))
-                            else begin
+                            if FoundXmlContent then begin
+                                "Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen("Status Description"));
+                                SendTraceTag('0000CJH', DigipoortTok, VERBOSITY::Normal, ReceiveResponseSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                            end else begin
+                                SendTraceTag('0000CJI', DigipoortTok, VERBOSITY::Error, ReceiveResponseErrMsg, DATACLASSIFICATION::SystemMetadata);
                                 if StatusErrorDescription <> '' then
                                     "Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen("Status Description"))
                                 else
@@ -110,8 +114,10 @@ report 11408 "Receive Response Messages"
                             Status := Status::Received;
                             Insert(true);
                         end;
-                    end else
+                    end else begin
+                        SendTraceTag('0000CEJ', DigipoortTok, VERBOSITY::Error, UnknownStatusCodeErr, DATACLASSIFICATION::SystemMetadata);
                         Error(StatusResultat.statusFoutcode.foutbeschrijving);
+                    end;
                 end;
             end;
         }
@@ -197,5 +203,11 @@ report 11408 "Receive Response Messages"
         ServiceCertificateFileName: Text;
         ClientCertificatePassword: Text;
         ImportFileTxt: Label 'Select a file to import.';
+        // fault model labels
+        DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
+        ReceiveResponseMsg: Label 'Receiving response', Locked = true;
+        ReceiveResponseSuccessMsg: Label 'Response successfully received', Locked = true;
+        ReceiveResponseErrMsg: Label 'The response contains a error', Locked = true;
+        UnknownStatusCodeErr: Label 'Unknown response status code', Locked = true;
 }
 

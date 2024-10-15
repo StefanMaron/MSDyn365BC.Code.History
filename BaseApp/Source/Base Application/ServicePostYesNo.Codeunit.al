@@ -91,7 +91,13 @@
         TempServLine: Record "Service Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         ServicePostYesNo: Codeunit "Service-Post (Yes/No)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePreviewDocument(ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         BindSubscription(ServicePostYesNo);
         ServicePostYesNo.SetPreviewContext(ServHeader);
         GenJnlPostPreview.Preview(ServicePostYesNo, TempServLine);
@@ -144,6 +150,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostDocumentWithLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreviewDocument(var ServHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

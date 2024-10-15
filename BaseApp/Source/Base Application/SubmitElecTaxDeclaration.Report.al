@@ -55,6 +55,8 @@ report 11405 "Submit Elec. Tax Declaration"
                     exit;
                 end;
 
+                SendTraceTag('0000CEK', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationMsg, DATACLASSIFICATION::SystemMetadata);
+
                 Window.Update(1, WindowStatusBuildingMsg);
                 Request := Request.aanleverRequest;
                 Response := Response.aanleverResponse;
@@ -105,8 +107,10 @@ report 11405 "Submit Elec. Tax Declaration"
                         30);
 
                 Fault := Response.statusFoutcode;
-                if Fault.foutcode <> '' then
+                if Fault.foutcode <> '' then begin
+                    SendTraceTag('0000CEL', DigipoortTok, VERBOSITY::Error, StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), DATACLASSIFICATION::SystemMetadata);
                     Error(SubmitErr, "No.", Fault.foutcode, Fault.foutbeschrijving);
+                end;
 
                 Window.Update(1, WindowStatusSaveMsg);
                 "Message ID" := Response.kenmerk;
@@ -118,6 +122,7 @@ report 11405 "Submit Elec. Tax Declaration"
                 Commit();
 
                 Window.Close;
+                SendTraceTag('0000CEM', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationSuccessMsg, DATACLASSIFICATION::SystemMetadata);
                 Message(StrSubstNo(SubmitSuccessMsg, "No."));
             end;
 
@@ -187,7 +192,6 @@ report 11405 "Submit Elec. Tax Declaration"
         CompanyInfo.TestField("VAT Registration No.");
 
         ElecTaxDeclarationSetup.Get();
-        ElecTaxDeclarationSetup.TestField("Use Certificate Setup", false);
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
 
         Window.Open(WindowStatusMsg);
@@ -212,6 +216,11 @@ report 11405 "Submit Elec. Tax Declaration"
         ClientCertificateFileName: Text;
         ServiceCertificateFileName: Text;
         ClientCertificatePassword: Text;
+        // fault model labels
+        DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
+        SubmitDeclarationMsg: Label 'Submitting tax declaration', Locked = true;
+        SubmitDeclarationSuccessMsg: Label 'Tax declaration successfully submitted', Locked = true;
+        SubmitDeclarationErrMsg: Label 'Tax declaration submission failed with StatusCode: %1', Locked = true;
 
     local procedure AddDeclarationLine(Parent: DotNet XmlNode; ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line")
     var

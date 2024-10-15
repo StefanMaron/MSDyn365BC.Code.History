@@ -432,6 +432,7 @@ table 11307 "G/L Entry Application Buffer"
                 AppliedAmount := -GLEntryApplicationBuffer."Remaining Amount";
                 TotalAppliedAmount := TotalAppliedAmount + AppliedAmount;
                 RealEntryChanged(GLEntryApplicationBuffer, GLEntry);
+                OnApplyOnBeforeUpdateTables(Rec, GLEntryApplicationBuffer, GLEntry, AppliedAmount, TotalAppliedAmount, BaseEntryNo);
                 UpdateTempTable(GLEntryApplicationBuffer, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
                 UpdateRealTable(GLEntry, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
             until GLEntryApplicationBuffer.Next = 0;
@@ -535,6 +536,11 @@ table 11307 "G/L Entry Application Buffer"
            (GlEntry."Closed by Amount" <> GLEntryApplicationBuffer."Closed by Amount")
         then
             Error(AnotherUserModifiedTheRecordErr, TableCaption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforeUpdateTables(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var OrigGLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; GLEntry: Record "G/L Entry"; AppliedAmount: Decimal; TotalAppliedAmount: Decimal; BaseEntryNo: Integer)
+    begin
     end;
 }
 

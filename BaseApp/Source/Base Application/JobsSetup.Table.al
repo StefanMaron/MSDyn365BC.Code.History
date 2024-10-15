@@ -55,6 +55,12 @@ table 315 "Jobs Setup"
             AccessByPermission = TableData Item = R;
             Caption = 'Automatic Update Job Item Cost';
         }
+        field(7000; "Price List Nos."; Code[20])
+        {
+            Caption = 'Price List Nos.';
+            TableRelation = "No. Series";
+            DataClassification = CustomerContent;
+        }
     }
 
     keys

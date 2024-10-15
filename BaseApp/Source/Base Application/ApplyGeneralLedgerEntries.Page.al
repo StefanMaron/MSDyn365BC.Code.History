@@ -293,6 +293,7 @@ page 11309 "Apply General Ledger Entries"
                         TempGLEntryBuf.Copy(Rec);
                         Apply(TempGLEntryBuf);
                         ShowTotalAppliedAmount := 0;
+                        OnAfterPostApplication(Rec, TempGLEntryBuf);
                     end;
                 }
                 action(UndoApplication)
@@ -437,7 +438,13 @@ page 11309 "Apply General Ledger Entries"
         Window: Dialog;
         NoOfRecords: Integer;
         LineCount: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetAllEntries(Rec, TempGLEntryBuf, GLAccNo, DynamicCaption, IncludeEntryFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         GLEntry.SetCurrentKey("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         if GLEntry.Find('-') then begin
@@ -470,11 +477,19 @@ page 11309 "Apply General Ledger Entries"
         // By default only show open entries when applying
         SetCurrentKey("Closed by Entry No.");
         IncludeEntryFilter := IncludeEntryFilter::All;
+        OnAfterSetAppliedEntries(Rec, OrgGLEntry, TempGLEntryBuf, DynamicCaption, IncludeEntryFilter);
     end;
 
     [Scope('OnPrem')]
     procedure SetIncludeEntryFilter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetIncludeEntryFilter(Rec, IncludeEntryFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         SetCurrentKey("G/L Account No.", "Posting Date", "Entry No.", Open);
         case IncludeEntryFilter of
             IncludeEntryFilter::All:
@@ -486,7 +501,7 @@ page 11309 "Apply General Ledger Entries"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;
@@ -552,6 +567,26 @@ page 11309 "Apply General Ledger Entries"
     begin
         xRec := Rec;
         UpdateAmounts;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAppliedEntries(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; OrgGLEntry: Record "G/L Entry"; var TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary; var DynamicCaption: Text[100]; var IncludeEntryFilter: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostApplication(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAllEntries(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary; var GLAccNo: Code[20]; var DynamicCaption: Text[100]; var IncludeEntryFilter: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetIncludeEntryFilter(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var IncludeEntryFilter: Option; var IsHandled: Boolean)
+    begin
     end;
 }
 

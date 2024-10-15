@@ -73,24 +73,5 @@ page 5054 "Company Details"
     actions
     {
     }
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        Rec := Contact;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        Contact := Rec;
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            Modify;
-    end;
-
-    var
-        Contact: Record Contact;
 }
 

@@ -82,6 +82,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
                     PriceListLine."Unit Cost" := Item."Last Direct Cost";
                 end;
         end;
+        OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
     end;
 
     local procedure CopyCostFromSKU(PriceCalculationBuffer: Record "Price Calculation Buffer"; var UnitCost: Decimal)
@@ -138,5 +139,10 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
             PriceType::Sale:
                 exit(Item."Sales Unit of Measure");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    begin
     end;
 }

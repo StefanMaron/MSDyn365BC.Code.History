@@ -23,8 +23,12 @@ report 11406 "Process Response Messages"
                 Index: Integer;
                 NextErrorNo: Integer;
             begin
-                if not ElecTaxDeclHeader.Get("Declaration Type", "Declaration No.") then
+                SendTraceTag('0000CED', DigipoortTok, VERBOSITY::Normal, ProcessingResponseMsg, DATACLASSIFICATION::SystemMetadata);
+
+                if not ElecTaxDeclHeader.Get("Declaration Type", "Declaration No.") then begin
+                    SendTraceTag('0000CEE', DigipoortTok, VERBOSITY::Error, StrSubstNo(HeaderNotFoundErrMsg, "Declaration Type"), DATACLASSIFICATION::SystemMetadata);
                     Error(HeaderNotFoundErr, "Declaration Type", "Declaration No.");
+                end;
 
                 ErrorLog.Reset();
                 ErrorLog.SetRange("Declaration Type", "Declaration Type");
@@ -56,13 +60,20 @@ report 11406 "Process Response Messages"
 
                 case "Status Code" of
                     '210', '220', '311', '410', '510', '710':
-                        ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Error;
+                        begin
+                            ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Error;
+                            SendTraceTag('0000CEF', DigipoortTok, VERBOSITY::Error, StrSubstNo(ErrorStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                        end;
                     '230', '321', '420', '720':
-                        if ElecTaxDeclHeader.Status <> ElecTaxDeclHeader.Status::Error then
+                        if ElecTaxDeclHeader.Status <> ElecTaxDeclHeader.Status::Error then begin
                             ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Warning;
+                            SendTraceTag('0000CEG', DigipoortTok, VERBOSITY::Warning, StrSubstNo(WarningStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                        end;
                     '100':
-                        if not (ElecTaxDeclHeader.Status in [ElecTaxDeclHeader.Status::Error, ElecTaxDeclHeader.Status::Warning]) then
+                        if not (ElecTaxDeclHeader.Status in [ElecTaxDeclHeader.Status::Error, ElecTaxDeclHeader.Status::Warning]) then begin
                             ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Acknowledged;
+                            SendTraceTag('0000CEH', DigipoortTok, VERBOSITY::Normal, StrSubstNo(AcknowledgeStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                        end;
                 end;
 
                 ElecTaxDeclHeader."Date Received" := Today;
@@ -72,6 +83,8 @@ report 11406 "Process Response Messages"
                 Modify(true);
 
                 ElecTaxDeclHeader.Modify(true);
+
+                SendTraceTag('0000CEI', DigipoortTok, VERBOSITY::Normal, ResponseProcessedSuccessMsg, DATACLASSIFICATION::SystemMetadata);
             end;
         }
     }
@@ -95,6 +108,14 @@ report 11406 "Process Response Messages"
     var
         ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
         HeaderNotFoundErr: Label 'Elec. Tax Declaration header %1,%2 could not be found.';
+        // fault model labels
+        DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
+        ProcessingResponseMsg: Label 'Processing response message', Locked = true;
+        ResponseProcessedSuccessMsg: Label 'Response message succesfully processed', Locked = true;
+        HeaderNotFoundErrMsg: Label 'Error while processing response: Elec. Tax Declaration header %1 could not be found.', Locked = true;
+        ErrorStatusCodeMsg: Label 'Error for declaration type %1, status code %2', Locked = true;
+        WarningStatusCodeMsg: Label 'Warning for declaration type %1, status code %2', Locked = true;
+        AcknowledgeStatusCodeMsg: Label 'Declaration type %1 acknowledged, status code: %2', Locked = true;
 
     local procedure GetAttributeValue(var XMLNode: DotNet XmlNode; "Key": Text): Text
     var

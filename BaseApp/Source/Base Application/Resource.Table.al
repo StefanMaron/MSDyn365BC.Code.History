@@ -271,7 +271,7 @@ table 156 Resource
         }
         field(27; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST(Resource),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST(Resource),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -306,7 +306,7 @@ table 156 Resource
         }
         field(41; Capacity; Decimal)
         {
-            CalcFormula = Sum ("Res. Capacity Entry".Capacity WHERE("Resource No." = FIELD("No."),
+            CalcFormula = Sum("Res. Capacity Entry".Capacity WHERE("Resource No." = FIELD("No."),
                                                                     Date = FIELD("Date Filter")));
             Caption = 'Capacity';
             DecimalPlaces = 0 : 5;
@@ -314,7 +314,7 @@ table 156 Resource
         }
         field(42; "Qty. on Order (Job)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Order),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Order),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "No." = FIELD("No."),
@@ -326,7 +326,7 @@ table 156 Resource
         }
         field(43; "Qty. Quoted (Job)"; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Quote),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE(Status = CONST(Quote),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "No." = FIELD("No."),
@@ -338,7 +338,7 @@ table 156 Resource
         }
         field(44; "Usage (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Res. Ledger Entry"."Quantity (Base)" WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry"."Quantity (Base)" WHERE("Entry Type" = CONST(Usage),
                                                                            Chargeable = FIELD("Chargeable Filter"),
                                                                            "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                            "Resource No." = FIELD("No."),
@@ -351,7 +351,7 @@ table 156 Resource
         field(45; "Usage (Cost)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = Sum ("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Usage),
                                                                       Chargeable = FIELD("Chargeable Filter"),
                                                                       "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                       "Resource No." = FIELD("No."),
@@ -363,7 +363,7 @@ table 156 Resource
         field(46; "Usage (Price)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = Sum ("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Usage),
+            CalcFormula = Sum("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Usage),
                                                                        Chargeable = FIELD("Chargeable Filter"),
                                                                        "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                        "Resource No." = FIELD("No."),
@@ -374,7 +374,7 @@ table 156 Resource
         }
         field(47; "Sales (Qty.)"; Decimal)
         {
-            CalcFormula = - Sum ("Res. Ledger Entry"."Quantity (Base)" WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry"."Quantity (Base)" WHERE("Entry Type" = CONST(Sale),
                                                                             "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                             "Resource No." = FIELD("No."),
                                                                             "Posting Date" = FIELD("Date Filter")));
@@ -386,7 +386,7 @@ table 156 Resource
         field(48; "Sales (Cost)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = - Sum ("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry"."Total Cost" WHERE("Entry Type" = CONST(Sale),
                                                                        "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                        "Resource No." = FIELD("No."),
                                                                        "Posting Date" = FIELD("Date Filter")));
@@ -397,7 +397,7 @@ table 156 Resource
         field(49; "Sales (Price)"; Decimal)
         {
             AutoFormatType = 2;
-            CalcFormula = - Sum ("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Sale),
+            CalcFormula = - Sum("Res. Ledger Entry"."Total Price" WHERE("Entry Type" = CONST(Sale),
                                                                         "Unit of Measure Code" = FIELD("Unit of Measure Filter"),
                                                                         "Resource No." = FIELD("No."),
                                                                         "Posting Date" = FIELD("Date Filter")));
@@ -508,7 +508,7 @@ table 156 Resource
         }
         field(900; "Qty. on Assembly Order"; Decimal)
         {
-            CalcFormula = Sum ("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
                                                                                  Type = CONST(Resource),
                                                                                  "No." = FIELD("No."),
                                                                                  "Due Date" = FIELD("Date Filter")));
@@ -568,7 +568,7 @@ table 156 Resource
         }
         field(5900; "Qty. on Service Order"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE(Posted = CONST(false),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE(Posted = CONST(false),
                                                                                   "Resource No." = FIELD("No."),
                                                                                   "Allocation Date" = FIELD("Date Filter"),
                                                                                   Status = CONST(Active)));
@@ -584,7 +584,7 @@ table 156 Resource
         }
         field(5902; "In Customer Zone"; Boolean)
         {
-            CalcFormula = Exist ("Resource Service Zone" WHERE("Resource No." = FIELD("No."),
+            CalcFormula = Exist("Resource Service Zone" WHERE("Resource No." = FIELD("No."),
                                                                "Service Zone Code" = FIELD("Service Zone Filter")));
             Caption = 'In Customer Zone';
             Editable = false;
@@ -639,14 +639,6 @@ table 156 Resource
         ResCapacityEntry.SetCurrentKey("Resource No.");
         ResCapacityEntry.SetRange("Resource No.", "No.");
         ResCapacityEntry.DeleteAll();
-
-        ResCost.SetRange(Type, ResCost.Type::Resource);
-        ResCost.SetRange(Code, "No.");
-        ResCost.DeleteAll();
-
-        ResPrice.SetRange(Type, ResPrice.Type::Resource);
-        ResPrice.SetRange(Code, "No.");
-        ResPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Resource);
         CommentLine.SetRange("No.", "No.");
@@ -729,8 +721,6 @@ table 156 Resource
         Res: Record Resource;
         ResCapacityEntry: Record "Res. Capacity Entry";
         CommentLine: Record "Comment Line";
-        ResCost: Record "Resource Cost";
-        ResPrice: Record "Resource Price";
         SalesOrderLine: Record "Sales Line";
         ExtTextHeader: Record "Extended Text Header";
         PostCode: Record "Post Code";

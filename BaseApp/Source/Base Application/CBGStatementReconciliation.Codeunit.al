@@ -65,6 +65,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
         NumberOfDocumentNumbers := NumberOfDocumentNumbers + 1;
+        OnMatchCBGStatementOnBeforeCBGStatementLineFind(CBGStatementLine, CBGStatement);
         if CBGStatementLine.Find('-') then begin
             NumberOfLines := CBGStatementLine.Count();
             StatusWindowOpen;
@@ -75,6 +76,8 @@ codeunit 11000006 "CBG Statement Reconciliation"
             until CBGStatementLine.Next = 0;
             StatusWindowClose;
         end;
+
+        OnAfterMatchCBGStatement(CBGStatement);
     end;
 
     [Scope('OnPrem')]
@@ -86,6 +89,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
         EntriesCount: Integer;
         EntryNo: Integer;
         strFilter: Text[250];
+        IsHandled: Boolean;
     begin
         MakeTempfile;
         NumberOfLinesProcessed := NumberOfLinesProcessed + 1;
@@ -128,9 +132,14 @@ codeunit 11000006 "CBG Statement Reconciliation"
                 end;
             end;
         end;
+
+        IsHandled := false;
+        OnMatchCBGStatementLineOnAfterCheckIdentificationFilled(CBGStatement, CBGStatementLine, PaymentHistoryFound, NumberOfLinesApplied, NumberOfLinesChanged, RecChanged, IsHandled);
+
         if (not PaymentHistoryFound) and
            (CBGStatementLine.Identification = '') and
-           (CBGStatementLine."Reconciliation Status" <> CBGStatementLine."Reconciliation Status"::Applied)
+           (CBGStatementLine."Reconciliation Status" <> CBGStatementLine."Reconciliation Status"::Applied) and
+            not IsHandled
         then begin
             if CBGStatementLine."Account No." <> '' then begin
                 case CBGStatementLine."Account Type" of
@@ -623,7 +632,22 @@ codeunit 11000006 "CBG Statement Reconciliation"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterMatchCBGStatement(var CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAccount(var CBGStatementLine: Record "CBG Statement Line"; var Identification: Code[80]; var NumberOfLinesChanged: Integer; var RecChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchCBGStatementOnBeforeCBGStatementLineFind(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchCBGStatementLineOnAfterCheckIdentificationFilled(CBGStatement: Record "CBG Statement"; var CBGStatementLine: Record "CBG Statement Line"; PaymentHistoryFound: Boolean; var NumberOfLinesApplied: Integer; var NumberOfLinesChanged: Integer; var RecChanged: Boolean; var IsHandled: Boolean)
     begin
     end;
 

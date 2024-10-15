@@ -53,6 +53,7 @@ codeunit 144051 "ERM EVAT"
         StatusMustBeCreatedErr: Label 'Status must be equal to ''Created''';
         CannotDeleteSubmittedErr: Label 'You cannot delete a Elec. Tax Declaration Header if Status is Submitted';
         DigipoortError: Label 'A call to Microsoft.Dynamics.NL.DigipoortServices.Deliver failed with this message:';
+        LibraryPermissions: Codeunit "Library - Permissions";
         FileMgt: Codeunit "File Management";
         LibraryXMLRead: Codeunit "Library - XML Read";
         AgentConAddressErr: Label 'Agent Contact Address must have a value in Elec. Tax Declaration Setup';
@@ -991,6 +992,32 @@ codeunit 144051 "ERM EVAT"
         VATEntry.Delete();
     end;
 
+    [Test]
+    [HandlerFunctions('CancelSubmitElecTaxDeclarationReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SubmitElecTaxDeclarationReportDoesNotRequireUseCertificateSetupOption()
+    var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
+        SubmitElecTaxDeclaration: Report "Submit Elec. Tax Declaration";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 354933] Stan can run the "Submit Elec. Tax Declaration" report with option "Use Certificate Setup" disabled
+
+        Initialize;
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Validate("Client Certificate Code", MockIsolatedCertificate);
+        ElecTaxDeclarationSetup.Validate("Service Certificate Code", MockIsolatedCertificate);
+        ElecTaxDeclarationSetup.Validate("Use Certificate Setup", true);
+        ElecTaxDeclarationSetup.Validate("Digipoort Delivery URL", LibraryUtility.GenerateGUID);
+        ElecTaxDeclarationSetup.Validate("Digipoort Status URL", LibraryUtility.GenerateGUID);
+        ElecTaxDeclarationSetup.Modify(true);
+        Commit;
+        // We do not actually run the report but only check the OnInitReport trigger, then cancel the report by CancelSubmitElecTaxDeclarationReportRequestPageHandler
+        SubmitElecTaxDeclaration.Run;
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
     local procedure Initialize()
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
@@ -1242,6 +1269,17 @@ codeunit 144051 "ERM EVAT"
         CountryRegion.Code := CountryRegionCode;
         CountryRegion."EU Country/Region Code" := EUCountryRegionCode;
         CountryRegion.Insert();
+    end;
+
+    local procedure MockIsolatedCertificate(): Code[20]
+    var
+        IsolatedCertificate: Record "Isolated Certificate";
+    begin
+        IsolatedCertificate.Init;
+        IsolatedCertificate.Code :=
+          LibraryUtility.GenerateRandomCode20(IsolatedCertificate.FieldNo(Code), DATABASE::"Isolated Certificate");
+        IsolatedCertificate.Insert;
+        exit(IsolatedCertificate.Code);
     end;
 
     local procedure FindRowOnVATStatementReport(RowNo: Code[20]): Boolean
@@ -1517,6 +1555,13 @@ codeunit 144051 "ERM EVAT"
         File.Close;
 
         exit(FileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CancelSubmitElecTaxDeclarationReportRequestPageHandler(var SubmitElecTaxDeclaration: TestRequestPage "Submit Elec. Tax Declaration")
+    begin
+        SubmitElecTaxDeclaration.Cancel.Invoke;
     end;
 }
 

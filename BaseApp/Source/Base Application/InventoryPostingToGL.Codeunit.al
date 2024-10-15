@@ -27,6 +27,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 StrSubstNo(Text000, "Entry Type", "Source No.", "Posting Date"),
                 1, MaxStrLen(GenJnlLine.Description)),
               false);
+
+        OnAfterRun(Rec);
     end;
 
     var
@@ -869,6 +871,7 @@ codeunit 5802 "Inventory Posting To G/L"
             TempInvtPostToGLTestBuf.Amount := "Cost Amount (Actual)";
             TempInvtPostToGLTestBuf."Value Entry No." := "Entry No.";
             TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
+            OnInsertTempInvtPostToGLTestBufOnBeforeInsert(TempInvtPostToGLTestBuf, ValueEntry);
             TempInvtPostToGLTestBuf.Insert();
         end;
     end;
@@ -909,7 +912,7 @@ codeunit 5802 "Inventory Posting To G/L"
         PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true);
     end;
 
-    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[50]; PostPerPostGrp: Boolean)
+    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100]; PostPerPostGrp: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1037,6 +1040,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := GlobalInvtPostBuf."Gen. Bus. Posting Group";
                 TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := GlobalInvtPostBuf."Gen. Prod. Posting Group";
             end;
+            OnInsertTempInvtPostToGLTestBufOnBeforeTempInvtPostToGLTestBufInsert(TempInvtPostToGLTestBuf, GenJnlLine, ValueEntry);
             TempInvtPostToGLTestBuf.Insert();
         end;
     end;
@@ -1200,6 +1204,11 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRun(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetAccNo(var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean)
     begin
     end;
@@ -1286,6 +1295,16 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ValueEntry: Record "Value Entry"; PostPerPostGroup: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempInvtPostToGLTestBufOnBeforeInsert(var TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempInvtPostToGLTestBufOnBeforeTempInvtPostToGLTestBufInsert(var TempInvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer" temporary; GenJournalLine: Record "Gen. Journal Line"; ValueEntry: Record "Value Entry")
     begin
     end;
 

@@ -21,6 +21,15 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         WindowStatusProcessingMsg: Label 'Processing data';
         WindowStatusDeletingMsg: Label 'Removing old status data';
         BlobContentStatusMsg: Label 'Extended content';
+        // fault model labels
+        DigipoortTok: Label 'DigipoortTelemetryCategoryTok', Locked = true;
+        SubmitDeclarationMsg: Label 'Submitting tax declaration', Locked = true;
+        SubmitDeclarationSuccessMsg: Label 'Tax declaration successfully submitted', Locked = true;
+        SubmitDeclarationErrMsg: Label 'Tax declaration submission failed with StatusCode: %1', Locked = true;
+        ReceiveResponseMsg: Label 'Receiving response', Locked = true;
+        ReceiveResponseSuccessMsg: Label 'Response successfully received', Locked = true;
+        ReceiveResponseErrMsg: Label 'The response contains a error', Locked = true;
+        UnknownStatusCodeErr: Label 'Unknown response status code', Locked = true;
 
     [NonDebuggable]
     procedure SubmitDeclaration(VATReportHeader: Record "VAT Report Header"; VATReportArchive: Record "VAT Report Archive"; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text): Text
@@ -40,6 +49,8 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         RequestInStream: InStream;
         RequestText: Text;
     begin
+        SendTraceTag('0000CJ9', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationMsg, DATACLASSIFICATION::SystemMetadata);
+
         Window.Open(WindowStatusMsg);
         Window.Update(1, WindowStatusBuildingMsg);
         Request := Request.aanleverRequest();
@@ -86,9 +97,12 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
             30);
 
         Fault := Response.statusFoutcode();
-        if Fault.foutcode() <> '' then
+        if Fault.foutcode() <> '' then begin
+            SendTraceTag('0000CJA', DigipoortTok, VERBOSITY::Error, StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), DATACLASSIFICATION::SystemMetadata);
             Error(SubmitErr, VATReportHeader."No.", Fault.foutcode(), Fault.foutbeschrijving());
+        end;
         Window.Close();
+        SendTraceTag('0000CJB', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationSuccessMsg, DATACLASSIFICATION::SystemMetadata);
         exit(Response.kenmerk());
     end;
 
@@ -113,6 +127,8 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         with VATReportHeader do begin
             if "Message Id" = '' then
                 exit;
+
+            SendTraceTag('0000CJC', DigipoortTok, VERBOSITY::Normal, ReceiveResponseMsg, DATACLASSIFICATION::SystemMetadata);
 
             Window.Open(DialogTxt);
             Window.Update(1, WindowStatusDeletingMsg);
@@ -174,19 +190,24 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
                             FoundXmlContent := true;
                         end;
 
-                    if FoundXmlContent then
-                        ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
-                    else
+                    if FoundXmlContent then begin
+                        ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
+                        SendTraceTag('0000CJD', DigipoortTok, VERBOSITY::Normal, ReceiveResponseSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                    end else begin
+                        SendTraceTag('0000CJE', DigipoortTok, VERBOSITY::Error, ReceiveResponseErrMsg, DATACLASSIFICATION::SystemMetadata);
                         if StatusErrorDescription <> '' then
                             ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
                         else
                             ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusDetails, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
+                    end;
 
                     ElecTaxDeclResponseMsg."Date Sent" := Format(StatusResultat.tijdstempelStatus());
                     ElecTaxDeclResponseMsg.Status := ElecTaxDeclResponseMsg.Status::Received;
                     ElecTaxDeclResponseMsg.Insert(true);
-                end else
+                end else begin
+                    SendTraceTag('0000CJF', DigipoortTok, VERBOSITY::Error, UnknownStatusCodeErr, DATACLASSIFICATION::SystemMetadata);
                     Error(StatusResultat.statusFoutcode().foutbeschrijving());
+                end;
             end;
             Window.Close();
         end;

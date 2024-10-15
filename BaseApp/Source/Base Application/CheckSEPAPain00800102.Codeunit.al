@@ -9,6 +9,8 @@ codeunit 11000011 "Check SEPA Pain 008.001.02"
         TransactionMode: Record "Transaction Mode";
         CheckSEPA: Codeunit "Check SEPA ISO20022";
     begin
+        OnBeforeOnRun(Rec);
+
         if "Account Type" = "Account Type"::Customer then begin
             TransactionMode.Get(TransactionMode."Account Type"::Customer, "Transaction Mode");
             if TransactionMode."Partner Type" = TransactionMode."Partner Type"::" " then begin
@@ -34,6 +36,7 @@ codeunit 11000011 "Check SEPA Pain 008.001.02"
             end;
 
             DirectDebitMandate.Get("Direct Debit Mandate ID");
+            OnAfterDirectDebitMandateGet(DirectDebitMandate);
             if not DirectDebitMandate.IsMandateActive("Transaction Date") then begin
                 "Error Message" := InvalidMandateDatesErr;
                 exit;
@@ -60,6 +63,7 @@ codeunit 11000011 "Check SEPA Pain 008.001.02"
                 exit;
         end;
 
+        OnBeforeCheckSEPARun(Rec);
         CheckSEPA.Run(Rec);
     end;
 
@@ -89,6 +93,21 @@ codeunit 11000011 "Check SEPA Pain 008.001.02"
         end;
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ProposalLine: Record "Proposal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSEPARun(var ProposalLine: Record "Proposal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDirectDebitMandateGet(var DirectDebitMandate: Record "SEPA Direct Debit Mandate")
+    begin
     end;
 }
 

@@ -50,8 +50,13 @@ table 7200 "CDS Connection Setup"
 
             trigger OnValidate()
             begin
-                if not "Is Enabled" then
+                if not "Is Enabled" then begin
+                    SendTraceTag('0000CDG', CategoryTok, Verbosity::Normal, CDSConnDisabledTxt, DataClassification::SystemMetadata);
                     exit;
+                end;
+
+                SendTraceTag('0000CDS', CategoryTok, Verbosity::Normal, CDSConnEnabledTxt, DataClassification::SystemMetadata);
+
 
                 if IsTemporary() then begin
                     CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
@@ -153,6 +158,26 @@ table 7200 "CDS Connection Setup"
             Caption = 'Business Unit Name';
             DataClassification = OrganizationIdentifiableInformation;
         }
+        field(153; "Client Id"; Text[250])
+        {
+            Caption = 'Client Id';
+            DataClassification = EndUserIdentifiableInformation;
+
+            trigger OnValidate()
+            begin
+                CDSIntegrationImpl.UpdateConnectionString(Rec);
+            end;
+        }
+        field(154; "Client Secret Key"; Guid)
+        {
+            Caption = 'Client Secret Key';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(155; "Redirect URL"; Text[250])
+        {
+            Caption = 'Redirect URL';
+            DataClassification = OrganizationIdentifiableInformation;
+        }
     }
 
     keys
@@ -180,21 +205,28 @@ table 7200 "CDS Connection Setup"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         PasswordChanged: Boolean;
+        ClientSecretChanged: Boolean;
         BusinessUnitChanged: Boolean;
         IsEnabledChanged: Boolean;
     begin
         if IsTemporary() then
             exit;
 
-        GetConfigurationUpdates(PasswordChanged, BusinessUnitChanged, IsEnabledChanged);
+        GetConfigurationUpdates(PasswordChanged, BusinessUnitChanged, IsEnabledChanged, ClientSecretChanged);
 
         if PasswordChanged then
             CDSConnectionSetup.DeletePassword();
 
-        GetConfigurationUpdates(PasswordChanged, BusinessUnitChanged, IsEnabledChanged);
+        if ClientSecretChanged then
+            CDSConnectionSetup.DeleteClientSecret();
+
+        GetConfigurationUpdates(PasswordChanged, BusinessUnitChanged, IsEnabledChanged, ClientSecretChanged);
 
         if PasswordChanged then
             CDSConnectionSetup.DeletePassword();
+
+        if ClientSecretChanged then
+            CDSConnectionSetup.DeleteClientSecret();
 
         if BusinessUnitChanged then
             CDSIntegrationImpl.ModifyBusinessUnitCoupling(Rec);
@@ -212,6 +244,7 @@ table 7200 "CDS Connection Setup"
             exit;
 
         DeletePassword();
+        DeleteClientSecret();
         CDSIntegrationImpl.DeleteBusinessUnitCoupling(Rec);
         DisableConnection();
     end;
@@ -227,16 +260,18 @@ table 7200 "CDS Connection Setup"
         CDSIntegrationMgt.OnEnableIntegration();
     end;
 
-    local procedure GetConfigurationUpdates(var PasswordChanged: Boolean; var BusinessUnitChanged: Boolean; var IsEnabledChanged: Boolean)
+    local procedure GetConfigurationUpdates(var PasswordChanged: Boolean; var BusinessUnitChanged: Boolean; var IsEnabledChanged: Boolean; var ClientSecretChanged: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         PasswordChanged := "User Password Key" <> xRec."User Password Key";
+        ClientSecretChanged := "Client Secret Key" <> xRec."Client Secret Key";
         BusinessUnitChanged := "Business Unit Id" <> xRec."Business Unit Id";
         IsEnabledChanged := "Is Enabled" <> xRec."Is Enabled";
         if not (PasswordChanged or BusinessUnitChanged or IsEnabledChanged) then
             if CDSConnectionSetup.Get() then begin
                 PasswordChanged := "User Password Key" <> CDSConnectionSetup."User Password Key";
+                ClientSecretChanged := "Client Secret Key" <> xRec."Client Secret Key";
                 BusinessUnitChanged := "Business Unit Id" <> CDSConnectionSetup."Business Unit Id";
                 IsEnabledChanged := "Is Enabled" <> CDSConnectionSetup."Is Enabled";
             end;
@@ -304,6 +339,63 @@ table 7200 "CDS Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure SetClientSecret(ClientSecretText: Text)
+    var
+        DummyCDSConnectionSetup: Record "CDS Connection Setup";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+    begin
+        if IsTemporary() then begin
+            TempClientSecret := ClientSecretText;
+            exit;
+        end;
+
+        if IsNullGuid("Client Secret Key") then begin
+            "Client Secret Key" := CreateGuid();
+            if DummyCDSConnectionSetup.Get("Primary Key") then
+                Modify()
+            else
+                Insert();
+        end;
+
+        IsolatedStorageManagement.Set(Format("Client Secret Key"), ClientSecretText, DATASCOPE::Company);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetClientSecret(): Text
+    var
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        Value: Text;
+    begin
+        if IsTemporary() then
+            exit(TempClientSecret);
+
+        if not IsNullGuid("Client Secret Key") then
+            if IsolatedStorageManagement.Get("Client Secret Key", DATASCOPE::Company, Value) then
+                exit(Value);
+
+        exit('');
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure DeleteClientSecret()
+    var
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+    begin
+        if IsTemporary() then begin
+            Clear(TempClientSecret);
+            exit;
+        end;
+
+        if IsNullGuid("Client Secret Key") then
+            exit;
+
+        IsolatedStorageManagement.Delete(Format("Client Secret Key"), DATASCOPE::Company);
+    end;
+
+    [Scope('OnPrem')]
     procedure SynchronizeNow(DoFullSynch: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -331,7 +423,8 @@ table 7200 "CDS Connection Setup"
         ProgressWindow.Close();
     end;
 
-    local procedure EnableIntegrationTables()
+    [Scope('OnPrem')]
+    procedure EnableIntegrationTables()
     var
         IntegrationRecord: Record "Integration Record";
         IntegrationManagement: Codeunit "Integration Management";
@@ -421,5 +514,9 @@ table 7200 "CDS Connection Setup"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         TempUserPassword: Text;
+        TempClientSecret: Text;
         ProcessDialogMapTitleMsg: Label 'Synchronizing @1', Comment = '@1 Progress dialog map no.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CDSConnDisabledTxt: Label 'CDS connection has been disabled.', Locked = true;
+        CDSConnEnabledTxt: Label 'CDS connection has been enabled.', Locked = true;
 }

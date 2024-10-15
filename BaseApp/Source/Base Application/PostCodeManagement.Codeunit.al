@@ -66,6 +66,8 @@ codeunit 11401 "Post Code Management"
             FaxNo[StrLen(FaxNo)] = '-':
                 FaxNo := StrSubstNo('%1-', NewFaxNo);
         end;
+
+        OnAfterFindStreetNameFromAddress(Address, Address2, PostCode, City, CountryCode, PhoneNo, FaxNo);
     end;
 
     local procedure ParseAddress(var NewAddress: Text[100]; var NewHouseNo: Text[50]; var NewPostCode: Code[20]): Boolean
@@ -176,6 +178,11 @@ codeunit 11401 "Post Code Management"
         Length := StrLen(String);
         for i := 1 to Length do
             String[i] := StringCopy[Length - i + 1];
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindStreetNameFromAddress(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[50]; var CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
+    begin
     end;
 }
 

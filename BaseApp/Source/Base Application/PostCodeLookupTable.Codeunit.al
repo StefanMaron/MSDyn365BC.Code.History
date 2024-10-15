@@ -40,6 +40,8 @@ codeunit 11402 "Post Code Lookup - Table"
                 ForcePopup := true;
             end;
 
+        OnFindStreetNameFromAddressOnBeforeSelectPostCodeRange(PostCodeRange, ForcePopup);
+
         if not SelectPostCodeRange(PostCodeRange, ForcePopup) then
             exit(false);
 
@@ -49,9 +51,10 @@ codeunit 11402 "Post Code Lookup - Table"
         exit(true);
     end;
 
-    local procedure SelectPostCodeRange(var PostCodeRange: Record "Post Code Range"; ForcePopup: Boolean): Boolean
+    local procedure SelectPostCodeRange(var PostCodeRange: Record "Post Code Range"; ForcePopup: Boolean) Result: Boolean
     var
         PostCodeRange2: Record "Post Code Range";
+        IsHandled: Boolean;
     begin
         if PostCodeRange.IsEmpty then
             exit(false);
@@ -65,7 +68,22 @@ codeunit 11402 "Post Code Lookup - Table"
                 exit(true);
         end;
 
+        IsHandled := false;
+        OnSelectPostCodeRangeOnBeforeRunPage(PostCodeRange, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(PAGE.RunModal(0, PostCodeRange) = ACTION::LookupOK);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindStreetNameFromAddressOnBeforeSelectPostCodeRange(var PostCodeRange: Record "Post Code Range"; var ForcePopup: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectPostCodeRangeOnBeforeRunPage(var PostCodeRange: Record "Post Code Range"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

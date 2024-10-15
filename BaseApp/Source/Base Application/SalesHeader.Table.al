@@ -82,7 +82,7 @@
                 Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
                 if not ApplicationAreaMgmt.IsSalesTaxEnabled then
                     Cust.TestField("Gen. Bus. Posting Group");
-                OnAfterCheckSellToCust(Rec, xRec, Cust);
+                OnAfterCheckSellToCust(Rec, xRec, Cust, CurrFieldNo);
 
                 CopySellToCustomerAddressFieldsFromCustomer(Cust);
 
@@ -831,7 +831,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -934,7 +934,7 @@
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -958,7 +958,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
@@ -968,7 +968,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -1912,7 +1912,7 @@
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max ("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No."),
                                                                                       Posted = CONST(false)));
             Caption = 'Last Email Sent Time';
@@ -1920,7 +1920,7 @@
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup ("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
                                                                                        "Document No." = FIELD("No."),
                                                                                        Posted = CONST(false),
                                                                                        "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -1931,7 +1931,7 @@
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist ("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "Document No." = FIELD("No."),
                                                                     Posted = CONST(false),
                                                                     "Job Last Status" = CONST(Finished)));
@@ -1940,7 +1940,7 @@
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup ("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
                                                                                          "Document No." = FIELD("No."),
                                                                                          Posted = CONST(false),
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -1992,7 +1992,7 @@
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY) Incl. VAT';
             Editable = false;
@@ -2000,7 +2000,7 @@
         }
         field(301; "Amt. Ship. Not Inv. (LCY) Base"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                   "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY)';
             Editable = false;
@@ -2036,7 +2036,7 @@
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Sum("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
                                                                          "Document Type" = FIELD("Document Type")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
@@ -2044,7 +2044,7 @@
         }
         field(5043; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                           "No." = FIELD("No."),
                                                                           "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -2138,7 +2138,6 @@
 
             trigger OnValidate()
             var
-                ContBusinessRelation: Record "Contact Business Relation";
                 Cont: Record Contact;
                 Opportunity: Record Opportunity;
                 IsHandled: Boolean;
@@ -2178,12 +2177,8 @@
                     end;
                 end;
 
-                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') then begin
-                    Cont.Get("Sell-to Contact No.");
-                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
-                        if (ContBusinessRelation."Contact No." <> Cont."Company No.") and (ContBusinessRelation."Contact No." <> Cont."No.") then
-                            Error(Text038, Cont."No.", Cont.Name, "Sell-to Customer No.");
-                end;
+                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') then
+                    CheckContactRelatedToCustomerCompany("Sell-to Contact No.", "Sell-to Customer No.", CurrFieldNo);
 
                 if "Sell-to Contact No." <> '' then
                     if Cont.Get("Sell-to Contact No.") then
@@ -2224,7 +2219,6 @@
 
             trigger OnValidate()
             var
-                ContBusinessRelation: Record "Contact Business Relation";
                 Cont: Record Contact;
                 IsHandled: Boolean;
             begin
@@ -2253,12 +2247,8 @@
                     end;
                 end;
 
-                if ("Bill-to Customer No." <> '') and ("Bill-to Contact No." <> '') then begin
-                    Cont.Get("Bill-to Contact No.");
-                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
-                        if (ContBusinessRelation."Contact No." <> Cont."Company No.") and (ContBusinessRelation."Contact No." <> Cont."No.") then
-                            Error(Text038, Cont."No.", Cont.Name, "Bill-to Customer No.");
-                end;
+                if ("Bill-to Customer No." <> '') and ("Bill-to Contact No." <> '') then
+                    CheckContactRelatedToCustomerCompany("Bill-to Contact No.", "Bill-to Customer No.", CurrFieldNo);
 
                 UpdateBillToCust("Bill-to Contact No.");
             end;
@@ -2386,7 +2376,7 @@
         field(5751; "Shipped Not Invoiced"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped Not Invoiced" = FILTER(<> 0)));
             Caption = 'Shipped Not Invoiced';
@@ -2395,7 +2385,7 @@
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                        "Document No." = FIELD("No."),
                                                                        Type = FILTER(<> " "),
                                                                        "Location Code" = FIELD("Location Filter")));
@@ -2417,7 +2407,7 @@
         field(5755; Shipped; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped (Base)" = FILTER(<> 0)));
             Caption = 'Shipped';
@@ -2426,7 +2416,7 @@
         }
         field(5756; "Last Shipment Date"; Date)
         {
-            CalcFormula = Lookup ("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
+            CalcFormula = Lookup("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
             Caption = 'Last Shipment Date';
             FieldClass = FlowField;
         }
@@ -2500,7 +2490,7 @@
         field(5795; "Late Order Shipping"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Sell-to Customer No." = FIELD("Sell-to Customer No."),
                                                     "Document No." = FIELD("No."),
                                                     "Shipment Date" = FIELD("Date Filter"),
@@ -2547,7 +2537,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateReturnReceiptNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Return Receipt No. Series" <> '' then begin
                     GetSalesSetup;
                     SalesSetup.TestField("Posted Return Receipt Nos.");
@@ -2877,6 +2874,7 @@
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
+        RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -3264,6 +3262,7 @@
 
                 SalesLine.Init();
                 SalesLine."Line No." := 0;
+                OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(TempSalesLine);
                 TempSalesLine.FindSet();
                 ExtendedTextAdded := false;
                 SalesLine.BlockDynamicTracking(true);
@@ -3314,7 +3313,7 @@
                 TempItemChargeAssgntSales.DeleteAll();
             end;
         end else
-            Rec := xRec;
+            Error(RecreateSalesLinesCancelErr, ChangedFieldName);
 
         SalesLine.BlockDynamicTracking(false);
     end;
@@ -3949,9 +3948,13 @@
 
         if Cont.Type = Cont.Type::Person then
             ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
-        if not ContactBusinessRelationFound then
-            ContactBusinessRelationFound :=
-              ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
+        if not ContactBusinessRelationFound then begin
+            IsHandled := false;
+            OnUpdateSellToCustOnBeforeFindContactBusinessRelation(Cont, ContBusinessRelation, ContactBusinessRelationFound, IsHandled);
+            IF not IsHandled THEN
+                ContactBusinessRelationFound :=
+                    ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
+        end;
 
         if ContactBusinessRelationFound then begin
             if ("Sell-to Customer No." <> '') and ("Sell-to Customer No." <> ContBusinessRelation."No.") then
@@ -3971,9 +3974,7 @@
             Validate("Sell-to Phone No.", Cont."Phone No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
-                if Cont."Company No." <> '' then
-                    SearchContact.Get(Cont."Company No.")
-                else
+                if not GetContactAsCompany(Cont, SearchContact) then
                     SearchContact := Cont;
                 "Sell-to Customer Name" := SearchContact."Company Name";
                 "Sell-to Customer Name 2" := SearchContact."Name 2";
@@ -4005,14 +4006,10 @@
 
         if "Document Type" = "Document Type"::Quote then begin
             if Customer.Get("Sell-to Customer No.") or Customer.Get(ContBusinessRelation."No.") then begin
-                if Customer."Copy Sell-to Addr. to Qte From" = Customer."Copy Sell-to Addr. to Qte From"::Company then begin
-                    if Cont."Company No." <> '' then
-                        Cont.Get(Cont."Company No.");
-                end;
-            end else begin
-                if Cont."Company No." <> '' then
-                    Cont.Get(Cont."Company No.");
-            end;
+                if Customer."Copy Sell-to Addr. to Qte From" = Customer."Copy Sell-to Addr. to Qte From"::Company then
+                    GetContactAsCompany(Cont, Cont);
+            end else
+                GetContactAsCompany(Cont, Cont);
             "Sell-to Address" := Cont.Address;
             "Sell-to Address 2" := Cont."Address 2";
             "Sell-to City" := Cont.City;
@@ -4059,10 +4056,13 @@
 
         if Cont.Type = Cont.Type::Person then
             ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
-        if not ContactBusinessRelationFound then
-            ContactBusinessRelationFound :=
-              ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
-
+        if not ContactBusinessRelationFound then begin
+            IsHandled := false;
+            OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Cont, ContBusinessRelation, ContactBusinessRelationFound, IsHandled);
+            IF not IsHandled THEN
+                ContactBusinessRelationFound :=
+                    ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
+        end;
         if ContactBusinessRelationFound then begin
             if "Bill-to Customer No." = '' then begin
                 SkipBillToContact := true;
@@ -4074,11 +4074,8 @@
                     Error(Text037, Cont."No.", Cont.Name, "Bill-to Customer No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
-                if Cont."Company No." <> '' then
-                    SearchContact.Get(Cont."Company No.")
-                else
-                    SearchContact.Get(Cont."No.");
-
+                if not GetContactAsCompany(Cont, SearchContact) then
+                    SearchContact := Cont;
                 "Bill-to Name" := SearchContact."Company Name";
                 "Bill-to Name 2" := SearchContact."Name 2";
                 "Bill-to Address" := SearchContact.Address;
@@ -4257,7 +4254,13 @@
     procedure ShowDocDim()
     var
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDocDim(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
@@ -4412,6 +4415,16 @@
     procedure GetCustomerGlobalLocationNumberLbl(): Text
     begin
         exit('');
+    end;
+
+    procedure GetStatusStyleText() StatusStyleText: Text
+    begin
+        if Status = Status::Open then
+            StatusStyleText := 'Favorable'
+        else
+            StatusStyleText := 'Strong';
+
+        OnAfterGetStatusStyleText(Rec, StatusStyleText);
     end;
 
     local procedure CreateTempAdjmtValueEntries(var TempValueEntry: Record "Value Entry" temporary; ItemLedgEntryNo: Integer)
@@ -4573,13 +4586,20 @@
             until SalesLine.Next() = 0;
     end;
 
-    procedure QtyToShipIsZero(): Boolean
+    procedure QtyToShipIsZero() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeQtyToShipIsZero(Rec, SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Qty. to Ship", '<>0');
-        exit(SalesLine.IsEmpty);
+        Result := SalesLine.IsEmpty();
     end;
 
     procedure IsApprovedForPosting() Approved: Boolean
@@ -4783,6 +4803,16 @@
         OnAfterCheckShippingAdvice(Rec, Result);
         if not Result then
             Error(ShippingAdviceErr);
+    end;
+
+    local procedure GetContactAsCompany(Contact: Record Contact; var SearchContact: Record Contact): Boolean;
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetContactAsCompany(Contact, SearchContact, IsHandled);
+        if not IsHandled then
+            if Contact."Company No." <> '' then
+                exit(SearchContact.Get(Contact."Company No."));
     end;
 
     local procedure GetFilterCustNo(): Code[20]
@@ -5701,6 +5731,8 @@
 
     procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
     begin
+        OnBeforeInitFromSalesHeader(Rec, SourceSalesHeader);
+
         "Document Date" := SourceSalesHeader."Document Date";
         "Shipment Date" := SourceSalesHeader."Shipment Date";
         "Shortcut Dimension 1 Code" := SourceSalesHeader."Shortcut Dimension 1 Code";
@@ -5823,15 +5855,23 @@
 
     local procedure SetDefaultSalesperson()
     var
+        UserSetupSalespersonCode: Code[20];
+    begin
+        UserSetupSalespersonCode := GetUserSetupSalespersonCode;
+        if UserSetupSalespersonCode <> '' then
+            if Salesperson.Get(UserSetupSalespersonCode) then
+                if not Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
+                    Validate("Salesperson Code", UserSetupSalespersonCode);
+    end;
+
+    local procedure GetUserSetupSalespersonCode(): Code[20]
+    var
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(UserId) then
             exit;
 
-        if UserSetup."Salespers./Purch. Code" <> '' then
-            if Salesperson.Get(UserSetup."Salespers./Purch. Code") then
-                if not Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
-                    Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
     procedure SelltoCustomerNoOnAfterValidate(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
@@ -6048,15 +6088,20 @@
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    var
+        UserSetupSalespersonCode: Code[20];
     begin
+        UserSetupSalespersonCode := GetUserSetupSalespersonCode;
         if SalesPersonCodeToCheck <> '' then begin
             if Salesperson.Get(SalesPersonCodeToCheck) then
-                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
-                    SalesPersonCodeToAssign := ''
-                else
+                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then begin
+                    if UserSetupSalespersonCode = '' then
+                        SalesPersonCodeToAssign := ''
+                end else
                     SalesPersonCodeToAssign := SalesPersonCodeToCheck;
         end else
-            SalesPersonCodeToAssign := '';
+            if UserSetupSalespersonCode = '' then
+                SalesPersonCodeToAssign := '';
     end;
 
     procedure ValidateSalesPersonOnSalesHeader(SalesHeader2: Record "Sales Header"; IsTransaction: Boolean; IsPostAction: Boolean)
@@ -6187,6 +6232,23 @@
         CopySalesDocument.RunModal;
     end;
 
+    local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrFieldNo: Integer);
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Contact.Get(ContactNo);
+        if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Customer, CustomerNo) then
+            if (ContBusRel."Contact No." <> Contact."Company No.") and (ContBusRel."Contact No." <> Contact."No.") then
+                Error(Text038, Contact."No.", Contact.Name, CustomerNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
     begin
@@ -6213,7 +6275,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckSellToCust(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; Customer: Record Customer)
+    local procedure OnAfterCheckSellToCust(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; Customer: Record Customer; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6279,6 +6341,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocTypeText(var SalesHeader: Record "Sales Header"; var TypeText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetStatusStyleText(SalesHeader: Record "Sales Header"; var StatusStyleText: Text)
     begin
     end;
 
@@ -6428,6 +6495,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetContactAsCompany(Contact: Record Contact; var SearchContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
@@ -6464,6 +6536,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFromSalesHeader(var SalesHeader: Record "Sales Header"; SourceSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -6518,12 +6595,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeQtyToShipIsZero(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateReturnReceiptNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6798,12 +6890,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Contact: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnAfterSetFromSearchContact(var SalesHeader: Record "Sales Header"; var SearchContact: Record Contact)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnBeforeFindContactBusinessRelation(Cont: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6869,6 +6971,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCust(var SalesHeader: Record "Sales Header"; ContactNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContactRelatedToCustomerCompany(SalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

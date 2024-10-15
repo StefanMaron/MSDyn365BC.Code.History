@@ -60,7 +60,13 @@ report 1095 "Update Job Item Cost"
                         Item: Record Item;
                         JobLedgerEntryCostValue: Decimal;
                         JobLedgerEntryCostValueACY: Decimal;
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnItemLedgerEntryOnAfterGetRecord("Item Ledger Entry", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
+
                         SetValueEntryFilters(ValueEntry, "Item Ledger Entry", "Job Ledger Entry");
 
                         if ValueEntry.IsEmpty then begin
@@ -279,6 +285,11 @@ report 1095 "Update Job Item Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostTotalCostAdjustmentOnBeforeJobLedgEntryModify(var JobLedgerEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemLedgerEntryOnAfterGetRecord(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

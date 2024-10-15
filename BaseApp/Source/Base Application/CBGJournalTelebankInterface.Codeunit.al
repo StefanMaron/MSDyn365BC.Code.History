@@ -45,19 +45,36 @@ codeunit 11000002 "CBG Journal Telebank Interface"
                             CBGStatementLine."Journal Template Name" := "Journal Template Name";
                             CBGStatementLine."No." := "No.";
                         end;
-                        CBGStatementLine.Init();
-                        CBGStatementLine.InitRecord(CBGStatementLine);
-                        CBGStatementLine.Validate(Identification, PaymentHistLine.Identification);
-                        CBGStatementLine.Insert(true);
-                        CBGStatementLine."Amount Settled" := CBGStatementLine.Amount;
-                        CBGStatementLine.Validate(Amount);
-                        CBGStatementLine.Validate("Shortcut Dimension 1 Code", PaymentHistLine."Global Dimension 1 Code");
-                        CBGStatementLine.Validate("Shortcut Dimension 2 Code", PaymentHistLine."Global Dimension 2 Code");
-                        CBGStatementLine.Modify(true);
+                        InsertCBGStatementLine(CBGStatementLine, CBGStatement, PaymentHistLine);
                     until PaymentHistLine.Next = 0;
                 end;
             end;
         end;
+    end;
+
+    local procedure InsertCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement"; PaymentHistLine: Record "Payment History Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertCBGStatementLine(CBGStatementLine, CBGStatement, PaymentHistLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        CBGStatementLine.Init();
+        CBGStatementLine.InitRecord(CBGStatementLine);
+        CBGStatementLine.Validate(Identification, PaymentHistLine.Identification);
+        CBGStatementLine.Insert(true);
+        CBGStatementLine."Amount Settled" := CBGStatementLine.Amount;
+        CBGStatementLine.Validate(Amount);
+        CBGStatementLine.Validate("Shortcut Dimension 1 Code", PaymentHistLine."Global Dimension 1 Code");
+        CBGStatementLine.Validate("Shortcut Dimension 2 Code", PaymentHistLine."Global Dimension 2 Code");
+        CBGStatementLine.Modify(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement"; PaymentHistoryLine: Record "Payment History Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

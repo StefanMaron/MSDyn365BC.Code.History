@@ -1042,7 +1042,7 @@ page 233 "Apply Vendor Entries"
           CurrExchRate.ApplnExchangeAmtFCYToFCY(
             ApplnDate, "Currency Code", ApplnCurrencyCode, AmountToApply, ValidExchRate);
 
-        OnAfterCalcApplnAmountToApply(Rec, AmountToApply);
+        OnAfterCalcApplnAmountToApply(Rec, AmountToApply, ApplnAmountToApply);
         exit(ApplnAmountToApply);
     end;
 
@@ -1361,7 +1361,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcApplnAmountToApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplnAmountToApply: Decimal)
+    local procedure OnAfterCalcApplnAmountToApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplnAmountToApply: Decimal; var ApplnAmtToApply: Decimal)
     begin
     end;
 

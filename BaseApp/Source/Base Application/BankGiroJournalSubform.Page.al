@@ -435,7 +435,13 @@ page 11401 "Bank/Giro Journal Subform"
         GenJnlLine: Record "Gen. Journal Line" temporary;
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         IDCreated: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStartApplieFunction(Rec, CBGStatement, IsHandled);
+        if IsHandled then
+            exit;
+
         CreateGenJournalLine(GenJnlLine);
         if GenJnlLine."Applies-to ID" = '' then begin
             GenJnlLine."Applies-to ID" := "New Applies-to ID";
@@ -505,6 +511,11 @@ page 11401 "Bank/Giro Journal Subform"
         xRec := Rec;
         VATStatusEnable := "Account Type" = "Account Type"::"G/L Account";
         StatusVATAmountEnable := "Account Type" = "Account Type"::"G/L Account";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartApplieFunction(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatement: Record "CBG Statement"; var IsHandled: Boolean)
+    begin
     end;
 }
 

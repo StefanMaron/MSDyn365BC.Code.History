@@ -64,6 +64,8 @@ codeunit 11000007 "Check BTL91"
             "Error Message" := StrSubstNo(Text1000007, FieldCaption("Transfer Cost Domestic"), FieldCaption("Transfer Cost Foreign"));
             exit;
         end;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -75,5 +77,10 @@ codeunit 11000007 "Check BTL91"
         Text1000006: Label 'When %1 is empty, %3 and %4 must be entered.';
         Text1000007: Label 'When %1 is Beneficiary, %1 and %2 must be equal';
         Text1000008: Label '%1 must not exceed 11 characters.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var ProposalLine: Record "Proposal Line")
+    begin
+    end;
 }
 

@@ -30,7 +30,13 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         DataExch: Record "Data Exch.";
         PrePostProcessXMLImport: Codeunit "Pre & Post Process XML Import";
         ImpBankTransDataUpdates: Codeunit "Imp. Bank Trans. Data Updates";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePreProcess(BankAccReconciliationLine, IsHandled);
+        if IsHandled then
+            exit;
+
         DataExch.Get(BankAccReconciliationLine."Data Exch. Entry No.");
         PrePostProcessXMLImport.PreProcessFile(DataExch, StatementIDTxt);
         PrePostProcessXMLImport.PreProcessBankAccount(
@@ -44,7 +50,13 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         PrePostProcessXMLImport: Codeunit "Pre & Post Process XML Import";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostProcess(BankAccReconciliationLine, IsHandled);
+        if IsHandled then
+            exit;
+
         DataExch.Get(BankAccReconciliationLine."Data Exch. Entry No.");
         BankAccReconciliation.Get(
           BankAccReconciliationLine."Statement Type",
@@ -56,6 +68,16 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
           BankAccReconciliation.FieldNo("Statement Ending Balance"), 'CLBD', BalTypeTxt, ClosingBalTxt, CrdDbtIndTxt, 4);
         PrePostProcessXMLImport.PostProcessStatementDate(DataExch, RecRef, BankAccReconciliation.FieldNo("Statement Date"),
           StatementDateTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreProcess(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostProcess(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

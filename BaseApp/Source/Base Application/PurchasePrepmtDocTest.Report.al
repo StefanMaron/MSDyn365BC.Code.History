@@ -1,4 +1,4 @@
-report 412 "Purchase Prepmt. Doc. - Test"
+﻿report 412 "Purchase Prepmt. Doc. - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchasePrepmtDocTest.rdlc';
@@ -835,14 +835,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 CheckVend("Buy-from Vendor No.", FieldCaption("Buy-from Vendor No."));
                 CheckVend("Pay-to Vendor No.", FieldCaption("Pay-to Vendor No."));
 
-                case true of
-                    "Posting Date" = 0D:
-                        AddError(StrSubstNo(Text006, FieldCaption("Posting Date")));
-                    "Posting Date" <> NormalDate("Posting Date"):
-                        AddError(StrSubstNo(Text009, FieldCaption("Posting Date")));
-                    GenJnlCheckLine.DateNotAllowed("Posting Date"):
-                        AddError(StrSubstNo(Text010, FieldCaption("Posting Date")));
-                end;
+                CheckPostingDate("Purchase Header");
 
                 PurchSetup.Get();
 
@@ -1045,6 +1038,28 @@ report 412 "Purchase Prepmt. Doc. - Test"
               StrSubstNo(Text008, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption, VendNo));
     end;
 
+    local procedure CheckPostingDate(PurchaseHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+        PostingDateError: Text[250];
+    begin
+        IsHandled := false;
+        OnBeforeCheckPostingDate(PurchaseHeader, PostingDateError, IsHandled);
+        if IsHandled then begin
+            AddError(PostingDateError);
+            exit;
+        end;
+
+        case true of
+            PurchaseHeader."Posting Date" = 0D:
+                AddError(StrSubstNo(Text006, PurchaseHeader.FieldCaption("Posting Date")));
+            PurchaseHeader."Posting Date" <> NormalDate(PurchaseHeader."Posting Date"):
+                AddError(StrSubstNo(Text009, PurchaseHeader.FieldCaption("Posting Date")));
+            GenJnlCheckLine.DateNotAllowed(PurchaseHeader."Posting Date"):
+                AddError(StrSubstNo(Text010, PurchaseHeader.FieldCaption("Posting Date")));
+        end;
+    end;
+
     local procedure MergeText(DimSetEntry: Record "Dimension Set Entry"): Boolean
     begin
         if (StrLen(DimText) + StrLen(StrSubstNo('%1 - %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")) + 2) >
@@ -1064,6 +1079,11 @@ report 412 "Purchase Prepmt. Doc. - Test"
     begin
         DocumentType := NewDocumentType;
         ShowDim := NewShowDim;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDate(var PurchaseHeader: Record "Purchase Header"; var PostingDateError: Text[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 
