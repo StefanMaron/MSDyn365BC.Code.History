@@ -749,6 +749,14 @@
         {
             Caption = 'Transit-to Location';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            ObsoleteReason = 'Replaced with SAT Address ID.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif             
         }
         field(10059; "SAT International Trade Term"; Code[10])
         {
@@ -794,6 +802,19 @@
         field(27008; "Marked as Canceled"; Boolean)
         {
             Caption = 'Marked as Canceled';
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 

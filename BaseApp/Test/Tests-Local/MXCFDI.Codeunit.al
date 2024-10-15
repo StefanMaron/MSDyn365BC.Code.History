@@ -4307,6 +4307,7 @@
     procedure SalesInvoiceNormalVATRequestStamp()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
         TempBlob: Codeunit "Temp Blob";
@@ -4319,6 +4320,10 @@
 
         // [GIVEN] Posted Sales Invoice with Amount = 100, VAT Amount = 10
         SalesInvoiceHeader.Get(CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
+        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
+        // [GIVEN] Customer."Post Code" is filled in with 12345
+        Customer."Post Code" := Format(LibraryRandom.RandIntInRange(10000, 20000));
+        Customer.Modify();
 
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
@@ -4331,6 +4336,10 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
+        // [THEN] 'DomicilioFiscalReceptor' is exported from Customer."Post Code" = 12345 (TFS 477864)
+        VerifyPartyInformation(
+          OriginalStr, Customer."RFC No.", Customer."CFDI Customer Name",
+          Customer."Post Code", Customer."SAT Tax Regime Classification", 18, 21);
         // [THEN] XML Document has node 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with VAT data for the line
         // [THEN] and attributes 'Importe' = 10, 'TipoFactor' = 'Tasa', 'Impuesto' = '003', 'Base' = 100.
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
@@ -4338,7 +4347,7 @@
         SalesInvoiceLine."Amount Including VAT" := SalesInvoiceLine.Amount * (1 + SalesInvoiceLine."VAT %" / 100);
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 0);
+          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 1, 0);
 
         // [THEN] Total VAT Amount is exported as attribute 'cfdi:Impuestos/TotalImpuestosTrasladados' = 10
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
@@ -4346,7 +4355,7 @@
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, SalesInvoiceLine."VAT %",
-          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1, 0);
+          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1, 1);
         VerifyTotalImpuestos(
           OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 42);
     end;
@@ -5445,7 +5454,7 @@
 
         // [THEN] Error Messages page is opened with logged errors for missed values
         ErrorMessages.Description.AssertEquals(
-          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Transit-to Location"), SalesInvoiceHeader.RecordId));
+          StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("SAT Address ID"), SalesInvoiceHeader.RecordId));
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("SAT International Trade Term"), SalesInvoiceHeader.RecordId));
@@ -5502,14 +5511,17 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
+        // [THEN] 'DomicilioFiscalReceptor' is exported from SAT Address Id (TFS 477864)
+        VerifyPartyInformation(
+          OriginalStr, Customer."RFC No.", Customer."CFDI Customer Name", GetSATPostalCode(SalesInvoiceHeader."SAT Address ID"), Customer."SAT Tax Regime Classification", 18, 21);
         // [THEN] Comercio Exterior node has TipoCambioUSD = 20, TotalUSD = 100 (2000 / 20)
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
-          SalesInvoiceHeader."Exchange Rate USD", SalesInvoiceHeader.Amount / SalesInvoiceHeader."Exchange Rate USD", 43);
+          SalesInvoiceHeader."Exchange Rate USD", SalesInvoiceHeader.Amount / SalesInvoiceHeader."Exchange Rate USD", 44);
         // [THEN] ComercioExterior/Mercancia has CantidadAduana = 2, ValorUnitarioAduana = 50 (1000 / 20), ValorDolares = 100 (2000 / 20) (TFS 472803)          
         VerifyComercioExteriorLine(
           OriginalStr, SalesLine, SalesLine.Quantity,
-          ROUND(SalesLine."Unit Price" / ExchRateAmount, 0.01, '<'), SalesLine.Amount / ExchRateAmount, 65, 0);
+          ROUND(SalesLine."Unit Price" / ExchRateAmount, 0.01, '<'), SalesLine.Amount / ExchRateAmount, 66, 0);
     end;
 
     [Test]
@@ -5567,9 +5579,9 @@
         // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.87, ValorDolares = 59.48
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
-          SalesInvoiceHeader."Exchange Rate USD", 85.26, 59);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.88, 25.78, 81, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.87, 59.48, 87, 1);
+          SalesInvoiceHeader."Exchange Rate USD", 85.26, 60);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.88, 25.78, 82, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.87, 59.48, 88, 1);
     end;
 
     [Test]
@@ -5627,9 +5639,9 @@
         // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 14.51, ValorDolares = 58.06
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
-          SalesInvoiceHeader."Exchange Rate USD", 83.22, 59);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.58, 25.16, 81, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.51, 58.06, 87, 1);
+          SalesInvoiceHeader."Exchange Rate USD", 83.22, 60);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 12.58, 25.16, 82, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 14.51, 58.06, 88, 1);
     end;
 
     [Test]
@@ -5687,9 +5699,9 @@
         // [THEN] Line2 'cce11:Mercancia' node has CantidadAduana = 4, ValorUnitarioAduana = 17.07, ValorDolares = 68.31
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
-          SalesInvoiceHeader."Exchange Rate USD", 97.91, 59);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 14.8, 29.6, 81, 0);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 17.07, 68.31, 87, 1);
+          SalesInvoiceHeader."Exchange Rate USD", 97.91, 60);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 2, 14.8, 29.6, 82, 0);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine2, 4, 17.07, 68.31, 88, 1);
     end;
 
     [Test]
@@ -5745,8 +5757,8 @@
         // [THEN] One line 'cce11:Mercancia' node has CantidadAduana = 6, ValorUnitarioAduana = 15.24, ValorDolares = 91.49
         VerifyComercioExteriorHeader(
           OriginalStr, SalesInvoiceHeader."SAT International Trade Term",
-          SalesInvoiceHeader."Exchange Rate USD", 91.49, 59);
-        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 6, 15.24, 91.49, 81, 0);
+          SalesInvoiceHeader."Exchange Rate USD", 91.49, 60);
+        VerifyComercioExteriorLine(OriginalStr, SalesLine1, 6, 15.24, 91.49, 82, 0);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('cfdi:Complemento/cce11:ComercioExterior/cce11:Mercancias/cce11:Mercancia', 1);
     end;
 
@@ -5883,14 +5895,12 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        VerifyPartyInformation(
+          OriginalStr,
+          Customer."RFC No.", '', GetSATPostalCode(SalesShipmentHeader."SAT Address ID"), CompanyInformation."SAT Tax Regime Classification", 15, 17);
         VerifyCartaPorteXMLValues(
             OriginalStr, SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", 28);
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', Customer."RFC No.");
-        Assert.AreEqual(Customer."RFC No.", SelectStr(15, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', Location.GetSATPostalCode());
-        Assert.AreEqual(Location.GetSATPostalCode(), SelectStr(16, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', CompanyInformation."SAT Tax Regime Classification");
-        Assert.AreEqual(CompanyInformation."SAT Tax Regime Classification", SelectStr(17, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenFiscalReceptor', OriginalStr));
     end;
 
     [Test]
@@ -5929,14 +5939,12 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        VerifyPartyInformation(
+          OriginalStr,
+          CompanyInformation."RFC Number", CompanyInformation.Name, GetSATPostalCodeFromLocation(TransferShipmentHeader."Transfer-to Code"), CompanyInformation."SAT Tax Regime Classification", 14, 17);
         VerifyCartaPorteXMLValues(
           OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", 28);
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', CompanyInformation."RFC Number");
-        Assert.AreEqual(CompanyInformation."RFC Number", SelectStr(14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', Location.GetSATPostalCode());
-        Assert.AreEqual(Location.GetSATPostalCode(), SelectStr(16, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', CompanyInformation."SAT Tax Regime Classification");
-        Assert.AreEqual(CompanyInformation."SAT Tax Regime Classification", SelectStr(17, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenFiscalReceptor', OriginalStr));
     end;
 
     [Test]
@@ -6663,6 +6671,28 @@
         LibraryERM.CreatePostCode(PostCode);
         PostCode."Time Zone" := TimeZoneID;
         PostCode.Modify();
+    end;
+
+    local procedure CreateSATAddress(): Integer
+    var
+        SATAddress: Record "SAT Address";
+        SATState: Record "SAT State";
+        SATLocality: Record "SAT Locality";
+        SATMunicipality: Record "SAT Municipality";
+        SATSuburb: Record "SAT Suburb";
+    begin
+        SATAddress.Init();
+        SATState.Next(LibraryRandom.RandInt(SATState.Count()));
+        SATMunicipality.Next(LibraryRandom.RandInt(SATMunicipality.Count()));
+        SATLocality.Next(LibraryRandom.RandInt(SATLocality.Count()));
+        SATSuburb.Next(LibraryRandom.RandInt(SATSuburb.Count()));
+        SATAddress."SAT State Code" := SATState.Code;
+        SATAddress."SAT Municipality Code" := SATMunicipality.Code;
+        SATAddress."SAT Locality Code" := SATLocality.Code;
+        SATAddress."SAT Suburb ID" := SATSuburb.ID;
+        SATAddress."Country/Region Code" := 'TEST';
+        SATAddress.Insert();
+        exit(SATAddress.Id);
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostingGroup: Code[20]; VATPct: Decimal; IsVATExempt: Boolean; IsNoTaxable: Boolean): Code[20]
@@ -7753,6 +7783,24 @@
         end;
     end;
 
+    local procedure GetSATPostalCode(SATAddressID: Integer): Code[20]
+    var
+        SATAddress: Record "SAT Address";
+    begin
+        if SATAddress.Get(SATAddressID) then
+            exit(SATAddress.GetSATPostalCode());
+        exit('');
+    end;
+
+    local procedure GetSATPostalCodeFromLocation(LocationCode: Code[10]): Code[20]
+    var
+        Location: Record Location;
+    begin
+        if Location.Get(LocationCode) then
+            exit(Location.GetSATPostalCode());
+        exit('');
+    end;
+
     local procedure GetTaxCodeTraslado(VATPct: Decimal): Text
     begin
         if VATPct in [0, 16] then
@@ -7867,12 +7915,9 @@
         SalesHeader.Validate("SAT International Trade Term", SATInternationalTradeTerm.Code);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         SalesHeader.Validate("Location Code", Location.Code);
-        LibraryWarehouse.CreateLocationWithAddress(Location);
-        SalesHeader.Validate("Transit-to Location", Location.Code);
+        SalesHeader."SAT Address ID" := CreateSATAddress();
         SalesHeader.Modify(true);
         UpdateLocationForCartaPorte(SalesHeader."Location Code");
-        UpdateLocationForCartaPorte(SalesHeader."Transit-to Location");
-        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateSalesLineForeingTrade(SalesLine: Record "Sales Line")
@@ -7966,11 +8011,9 @@
         SalesShipmentHeader."SAT Weight Unit Of Measure" := 'XAG';
         LibraryWarehouse.CreateLocationWithAddress(Location);
         SalesShipmentHeader."Location Code" := Location.Code;
-        LibraryWarehouse.CreateLocationWithAddress(Location);
-        SalesShipmentHeader."Transit-to Location" := Location.Code;
+        SalesShipmentHeader."SAT Address ID" := CreateSATAddress();
         SalesShipmentHeader.Modify();
         UpdateLocationForCartaPorte(SalesShipmentHeader."Location Code");
-        UpdateLocationForCartaPorte(SalesShipmentHeader."Transit-to Location");
         CreateTransportOperator(DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.");
     end;
 
@@ -7993,20 +8036,9 @@
     local procedure UpdateLocationForCartaPorte(LocationCode: Code[20])
     var
         Location: Record Location;
-        SATState: Record "SAT State";
-        SATLocality: Record "SAT Locality";
-        SATMunicipality: Record "SAT Municipality";
-        SATSuburb: Record "SAT Suburb";
     begin
         Location.Get(LocationCode);
-        SATState.Next(LibraryRandom.RandInt(SATState.Count()));
-        SATMunicipality.Next(LibraryRandom.RandInt(SATMunicipality.Count()));
-        SATLocality.Next(LibraryRandom.RandInt(SATLocality.Count()));
-        SATSuburb.Next(LibraryRandom.RandInt(SATSuburb.Count()));
-        Location."SAT State Code" := SATState.Code;
-        Location."SAT Municipality Code" := SATMunicipality.Code;
-        Location."SAT Locality Code" := SATLocality.Code;
-        Location."SAT Suburb ID" := SATSuburb.ID;
+        Location."SAT Address ID" := CreateSATAddress();
         Location.Address := LibraryUtility.GenerateGUID();
         Location."Country/Region Code" := 'TEST';
         Location.Modify();
@@ -8071,6 +8103,28 @@
           UpperCase(UnitOfMeasureCode),
           SelectStr(23 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, ConceptoUnidadFieldTxt, OriginalString));
+    end;
+
+    local procedure VerifyPartyInformation(OriginalStr: Text; RFCNumber: Text[30]; ReceptorName: Text[300]; SATPostalCode: Code[20]; SATTaxRegime: Text[10]; StartPosition1: Integer; StartPosition2: Integer)
+    begin
+        // Rfc
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', RFCNumber);
+        Assert.AreEqual(RFCNumber, SelectStr(StartPosition1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
+        // Nombre
+        if ReceptorName <> '' then begin
+            StartPosition1 += 1;
+            LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Nombre', ReceptorName);
+            Assert.AreEqual(ReceptorName, SelectStr(StartPosition1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Nombre', OriginalStr));
+        end;
+        // DomicilioFiscalReceptor
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', SATPostalCode);
+        Assert.AreEqual(SATPostalCode, SelectStr(StartPosition1 + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
+        // ResidenciaFiscal
+        // NumRegIDTrib
+        // RegimenFiscalReceptor
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', SATTaxRegime);
+        Assert.AreEqual(SATTaxRegime, SelectStr(StartPosition2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenFiscalReceptor', OriginalStr));
+        // UsoCFDI
     end;
 
     local procedure VerifyCFDIRelation(OriginalString: Text; CFDIRelation: Code[10]; RelationIdx: Integer)

@@ -36,6 +36,7 @@ codeunit 134159 "Test Price Calculation - V16"
             Comment = '%1 - a date value';
         GetPriceFieldMismatchErr: Label 'The %1 in the selected price line must be %2.',
             Comment = '%1 - a field caption, %2 - a value of the field';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
@@ -4915,6 +4916,86 @@ codeunit 134159 "Test Price Calculation - V16"
         InvtDocumentLine.TestField("Unit Amount", PriceListLine."Direct Unit Cost" * 5);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure WhenTheCampaignNoInTheHeaderIsUpdatedCheckTheDirectUnitCostInThePurchaseLine()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Campaign: Record Campaign;
+        PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO 480343] Verify the direct unit cost in the line when changing the campaign number in the purchase order.
+        Initialize();
+
+        // [GIVEN] Create a vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a campaign and update the starting and ending date.
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", CalcDate('<-CM>', WorkDate()));
+        Campaign.Validate("Ending Date", CalcDate('<CM>', WorkDate()));
+        Campaign.Modify();
+
+        // [GIVEN] Create a Price List Header with the Campaign.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Purchase,
+            "Price Source Type"::Campaign,
+            Campaign."No.");
+
+        // [GIVEN] Create a Price List Line with an Item.
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine,
+            PriceListHeader,
+            "Price Amount Type"::Price,
+            "Price Asset Type"::Item,
+            Item."No.");
+
+        // [GIVEN] Update the Direct Unit Cost in Price List Line.
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        PriceListLine.Validate("Allow Invoice Disc.", false);
+        PriceListLine.Validate("Allow Line Disc.", false);
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Update Status to Active in Price List Header.
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+
+        // [WHEN] Update a Campaign No. in the Purchase Header.
+        PurchaseHeader.Validate("Campaign No.", Campaign."No.");
+        PurchaseHeader.Modify(true);
+
+        // [VERIFY] Verify the direct unit cost in the line when changing the campaign number in the purchase order.
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(
+            PriceListLine."Direct Unit Cost",
+            PurchaseLine."Direct Unit Cost",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                PurchaseLine.FieldCaption("Direct Unit Cost"),
+                PriceListLine."Direct Unit Cost",
+                PurchaseLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5721,6 +5802,13 @@ codeunit 134159 "Test Price Calculation - V16"
     procedure ConfirmNoHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := true;
     end;
 
     [MessageHandler]
