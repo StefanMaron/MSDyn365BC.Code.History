@@ -1,4 +1,4 @@
-table 248 "VAT Reg. No. Srv Config"
+﻿table 248 "VAT Reg. No. Srv Config"
 {
     Caption = 'VAT Reg. No. Srv Config';
 
@@ -15,6 +15,11 @@ table 248 "VAT Reg. No. Srv Config"
         field(3; "Service Endpoint"; Text[250])
         {
             Caption = 'Service Endpoint';
+        }
+        field(10; "Default Template Code"; Code[20])
+        {
+            Caption = 'Default Template Code';
+            TableRelation = "VAT Reg. No. Srv. Template";
         }
     }
 

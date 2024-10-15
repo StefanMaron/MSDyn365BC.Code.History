@@ -198,7 +198,7 @@ page 9053 "WMS Ship & Receive Activities"
 
         SetRange("Date Filter", 0D, WorkDate);
         SetRange("Date Filter2", WorkDate, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         LocationCode := GetEmployeeLocation(UserId);
         SetFilter("Location Filter", LocationCode);

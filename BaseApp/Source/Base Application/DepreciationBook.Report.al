@@ -1153,9 +1153,18 @@ report 12119 "Depreciation Book"
     end;
 
     local procedure CalcDepreciationPercent()
+    var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+        TotalEndingAppreciationAmount: Decimal;
     begin
+        TotalEndingAppreciationAmount := TotalEndingAmounts[4];
+
+        if FAPostingTypeSetup.Get(DeprBook.Code, FAPostingTypeSetup."FA Posting Type"::Appreciation) then
+            if not FAPostingTypeSetup."Part of Depreciable Basis" then
+                TotalEndingAppreciationAmount := 0;
+
         AntAccDepreciation := NetChangeAmounts[5] + NetChangeAmounts[6];
-        if (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAmounts[4]) = 0 then
+        if (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAppreciationAmount) = 0 then
             if ReclassAmount[4] = 0 then begin
                 BasicDepreciationPerc := 0;
                 AntAccDepreciationPerc := 0;
@@ -1165,14 +1174,14 @@ report 12119 "Depreciation Book"
             if IsReclassifiedFA("Fixed Asset"."No.", DeprBookCode, true) then
                 BasicDepreciationPerc :=
                   Abs(Round((NetChangeAmounts[2] + ReclassDeprAmount) /
-                      (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAmounts[4]) * 100, 0.01))
+                      (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAppreciationAmount) * 100, 0.01))
             else
                 BasicDepreciationPerc :=
                   Abs(Round((NetChangeAmounts[2] + ReclassDeprAmount + ReclassAmount[5]) /
-                      (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAmounts[4]) * 100, 0.01));
+                      (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAppreciationAmount) * 100, 0.01));
             AntAccDepreciationPerc :=
               Abs(Round(AntAccDepreciation /
-                  (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAmounts[4]) * 100, 0.01));
+                  (TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAppreciationAmount) * 100, 0.01));
         end;
     end;
 }
