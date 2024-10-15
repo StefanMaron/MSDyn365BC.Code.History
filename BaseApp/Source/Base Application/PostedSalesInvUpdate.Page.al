@@ -49,6 +49,20 @@ page 1355 "Posted Sales Inv. - Update"
                     ToolTip = 'Specifies the payment of the sales invoice.';
                 }
             }
+            group("Electronic Document")
+            {
+                Caption = 'Electronic Document';
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
+            }
         }
     }
 
@@ -74,7 +88,9 @@ page 1355 "Posted Sales Inv. - Update"
     local procedure RecordChanged() IsChanged: Boolean
     begin
         IsChanged := ("Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
-          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference");
+          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference") or
+          ("CFDI Cancellation Reason Code" <> xSalesInvoiceHeader."CFDI Cancellation Reason Code") or
+          ("Substitution Document No." <> xSalesInvoiceHeader."Substitution Document No.");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;

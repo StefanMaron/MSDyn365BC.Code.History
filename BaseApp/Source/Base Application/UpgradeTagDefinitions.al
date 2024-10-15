@@ -542,7 +542,7 @@ codeunit 9998 "Upgrade Tag Definitions"
 
     internal procedure GetDataverseAuthenticationUpgradeTag(): Code[250];
     begin
-        exit('MS-423171-DataverseAuthentication-20220125');
+        exit('MS-423171-DataverseAuthentication-20220127');
     end;
 
     [Obsolete('Function will be removed', '19.0')]

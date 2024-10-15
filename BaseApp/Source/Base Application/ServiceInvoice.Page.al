@@ -180,6 +180,11 @@ page 5933 "Service Invoice"
                     QuickEntry = false;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
             }
             part(ServLines; "Service Invoice Subform")
             {

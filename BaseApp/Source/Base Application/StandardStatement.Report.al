@@ -324,6 +324,7 @@ report 1316 "Standard Statement"
                                     CustBalance := CustBalance + Amount;
                                     IsNewCustCurrencyGroup := IsFirstPrintLine;
                                     IsFirstPrintLine := false;
+                                    ClearCompanyPicture();
                                 end;
                             end;
 
@@ -360,6 +361,11 @@ report 1316 "Standard Statement"
                         column(EntriesExistsl_CustLedgEntryFooterCaption; EntriesExists)
                         {
                         }
+
+                        trigger OnAfterGetRecord()
+                        begin
+                            ClearCompanyPicture();
+                        end;
                     }
                     dataitem(OverdueVisible; "Integer")
                     {
@@ -448,6 +454,7 @@ report 1316 "Standard Statement"
                                     CurrReport.Skip();
 
                                 CustBalance2 := CustBalance2 + CustLedgEntry."Remaining Amount";
+                                ClearCompanyPicture();
                             end;
 
                             trigger OnPreDataItem()
@@ -620,6 +627,7 @@ report 1316 "Standard Statement"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
+                                ClearCompanyPicture();
                                 if not TempAgingBandBuf.Find('-') then
                                     CurrReport.Break();
                             end else
@@ -869,6 +877,9 @@ report 1316 "Standard Statement"
 
         trigger OnOpenPage()
         begin
+            if CurrReport.UseRequestPage then
+                InitInteractionLog();
+            LogInteractionEnable := LogInteraction;
             InitRequestPageDataInternal;
         end;
     }
@@ -1019,6 +1030,7 @@ report 1316 "Standard Statement"
         BodyLbl: Label 'Thank you for your business. Your statement is attached to this message.';
         TelemetryCategoryTxt: Label 'Report', Locked = true;
         CustomerStatementReportGeneratedTxt: Label 'Customer Statement report generated.', Locked = true;
+        FirstRecordPrinted: Boolean;
 
     protected var
         CustBalance: Decimal;
@@ -1157,13 +1169,15 @@ report 1316 "Standard Statement"
         if (not PrintAllHavingEntry) and (not PrintAllHavingBal) then
             PrintAllHavingBal := true;
 
-        LogInteraction := SegManagement.FindInteractTmplCode(7) <> '';
-        LogInteractionEnable := LogInteraction;
-
         if Format(PeriodLength) = '' then
             Evaluate(PeriodLength, '<1M+CM>');
 
         ShowPrintIfEmailIsMissing := SupportedOutputMethod = SupportedOutputMethod::Email;
+    end;
+
+    local procedure InitInteractionLog()
+    begin
+        LogInteraction := SegManagement.FindInteractTmplCode(7) <> '';
     end;
 
     local procedure VerifyDates()
@@ -1200,6 +1214,17 @@ report 1316 "Standard Statement"
         Dimensions.Add('ReportDuration', Format(ReportDuration));
         Dimensions.Add('NumberOfLines', Format(NumberOfLines));
         Session.LogMessage('0000FJK', CustomerStatementReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    local procedure ClearCompanyPicture()
+    begin
+        if FirstRecordPrinted then begin
+            Clear(CompanyInfo.Picture);
+            Clear(CompanyInfo1.Picture);
+            Clear(CompanyInfo2.Picture);
+            Clear(CompanyInfo3.Picture);
+        end;
+        FirstRecordPrinted := true;
     end;
 
     [IntegrationEvent(false, false)]

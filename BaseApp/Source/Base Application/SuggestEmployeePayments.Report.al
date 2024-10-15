@@ -398,6 +398,8 @@ report 394 "Suggest Employee Payments"
         EmployeeLedgerEntry.SetFilter("Global Dimension 1 Code", Employee.GetFilter("Global Dimension 1 Filter"));
         EmployeeLedgerEntry.SetFilter("Global Dimension 2 Code", Employee.GetFilter("Global Dimension 2 Filter"));
 
+        OnGetEmplLedgEntriesOnAfterSetFilters(EmployeeLedgerEntry, Positive, SkipExportedPayments);
+
         if EmployeeLedgerEntry.FindSet then
             repeat
                 SaveAmount;
@@ -839,6 +841,11 @@ report 394 "Suggest Employee Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterCopyEmployeeLedgerEntryFields(var TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary; EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmplLedgEntriesOnAfterSetFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; Positive: Boolean; SkipExportedPayments: Boolean);
     begin
     end;
 }

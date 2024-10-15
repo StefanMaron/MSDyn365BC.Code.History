@@ -833,7 +833,12 @@ table 5994 "Service Cr.Memo Header"
         field(27003; "Substitution Document No."; Code[20])
         {
             Caption = 'Substitution Document No.';
-            TableRelation = "Service Cr.Memo Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+            TableRelation = "Service Cr.Memo Header" WHERE("Electronic Document Status" = FILTER("Stamp Received"));
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 

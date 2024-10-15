@@ -84,6 +84,7 @@ table 174 "Standard Purchase Line"
                             "Unit of Measure Code" := Item."Purch. Unit of Measure";
                             Description := Item.Description;
                             "Variant Code" := '';
+                            OnAfterValidateItemNo(Rec, Item);
                         end;
                     Type::Resource:
                         begin
@@ -92,6 +93,7 @@ table 174 "Standard Purchase Line"
                             Resource.TestField("Gen. Prod. Posting Group");
                             Description := Resource.Name;
                             "Unit of Measure Code" := Resource."Base Unit of Measure";
+                            OnAfterValidateResourceNo(Rec, Resource);
                         end;
                     Type::"Fixed Asset":
                         begin
@@ -99,11 +101,13 @@ table 174 "Standard Purchase Line"
                             FA.TestField(Inactive, false);
                             FA.TestField(Blocked, false);
                             Description := FA.Description;
+                            OnAfterValidateFANo(Rec, FA);
                         end;
                     Type::"Charge (Item)":
                         begin
                             ItemCharge.Get("No.");
                             Description := ItemCharge.Description;
+                            OnAfterValidateItemChargeNo(Rec, ItemCharge);
                         end;
                 end;
             end;
@@ -319,6 +323,26 @@ table 174 "Standard Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateGLAccountNo(var StandardPurchaseLine: Record "Standard Purchase Line"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemNo(var StandardPurchaseLine: Record "Standard Purchase Line"; Item: Record "Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateResourceNo(var StandardPurchaseLine: Record "Standard Purchase Line"; Resource: Record "Resource")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateFANo(var StandardPurchaseLine: Record "Standard Purchase Line"; FixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemChargeNo(var StandardPurchaseLine: Record "Standard Purchase Line"; ItemCharge: Record "Item Charge")
     begin
     end;
 

@@ -193,7 +193,13 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     local procedure CalcActualOutputCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntryNo: Integer)
     var
         OutputValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddCosts(InvtAdjmtEntryOrder, ItemLedgerEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with OutputValueEntry do begin
             SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
             if Find('-') then
@@ -421,6 +427,11 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActualCapacityCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntryNo: Integer; isHandled: Boolean)
     begin
     end;
 

@@ -18,7 +18,8 @@
                   TableData "Sales Line Discount" = rd,
 #endif
                   TableData "Sales Price Access" = rd,
-                  TableData "Sales Discount Access" = rd;
+                  TableData "Sales Discount Access" = rd,
+                  tabledata "Customer Templ." = rm;
 
     fields
     {
@@ -1621,7 +1622,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                          "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -1633,7 +1634,7 @@
         field(10022; "Balance on Date (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                  "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -1692,6 +1693,16 @@
         {
             Caption = 'CFDI Relation';
             TableRelation = "SAT Relationship Type";
+        }
+        field(27002; "SAT Tax Regime Classification"; Code[10])
+        {
+            Caption = 'SAT Tax Regime Classification';
+            TableRelation = "SAT Tax Scheme";
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 
@@ -2084,7 +2095,13 @@
         ContactBusinessRelation: Record "Contact Business Relation";
         Cont: Record Contact;
         TempCust: Record Customer temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupContactList(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.FilterGroup(2);
         if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "No.") then
             Cont.SetRange("Company No.", ContactBusinessRelation."Contact No.")
@@ -3443,6 +3460,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupContactList(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

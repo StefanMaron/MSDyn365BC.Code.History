@@ -296,7 +296,7 @@ report 121 "Customer - Balance to Date"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
-                        ToolTip = 'Specifies the last date until which information in the report is shown. If left blank, the report shows information until the present time.';
+                        ToolTip = 'Specifies the last date until which information in the report is shown.';
                         ShowMandatory = true;
                     }
                     field(PrintAmountInLCY; PrintAmountInLCY)
