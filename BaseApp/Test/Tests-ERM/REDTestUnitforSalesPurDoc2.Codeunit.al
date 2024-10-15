@@ -850,6 +850,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralTemplate: Record "Deferral Template";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        SourceCodeSetup: Record "Source Code Setup";
         TempGLEntry: Record "G/L Entry" temporary;
         DeferralTemplateCode: Code[10];
         DocumentNo: Code[20];
@@ -885,9 +886,11 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] "DefAcc" has Amount 90; "GL1" has Amount 70; "GL2" has Amount 140;
         // [THEN] Deferral amounts posted on deferral date 01.02.18 (Beginning of Next Period):
         // [THEN] "DefAcc" has Amount -90; "GL1" has Amount 30; "GL2" has Amount 60;
+        // [THEN] Deferral entries has marked with deferral code from Source Code Setup (TFS 422924)
+        SourceCodeSetup.Get();
         VerifyDeferralGLEntries(
           TempGLEntry,
-          DocumentNo, PurchaseHeader."Posting Date", DeferralTemplate."Deferral Account", 15, 1);
+          DocumentNo, PurchaseHeader."Posting Date", DeferralTemplate."Deferral Account", SourceCodeSetup."Purchase Deferral", 15, 1);
     end;
 
     [Test]
@@ -897,6 +900,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralTemplate: Record "Deferral Template";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SourceCodeSetup: Record "Source Code Setup";
         TempGLEntry: Record "G/L Entry" temporary;
         DeferralTemplateCode: Code[10];
         DocumentNo: Code[20];
@@ -932,9 +936,11 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] "DefAcc" has Amount -90; "GL1" has Amount -70; "GL2" has Amount -140;
         // [THEN] Deferral amounts posted on deferral date 01.02.18 (Beginning of Next Period):
         // [THEN] "DefAcc" has Amount 90; "GL1" has Amount -30; "GL2" has Amount -60;
+        // [THEN] Deferral entries has marked with deferral code from Source Code Setup (TFS 422924)
+        SourceCodeSetup.Get();
         VerifyDeferralGLEntries(
           TempGLEntry,
-          DocumentNo, SalesHeader."Posting Date", DeferralTemplate."Deferral Account", 15, -1);
+          DocumentNo, SalesHeader."Posting Date", DeferralTemplate."Deferral Account", SourceCodeSetup."Sales Deferral", 15, -1);
     end;
 
     [Test]
@@ -1700,7 +1706,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VerifyGLEntrySumByDescription(GLEntry, DeferralGLAccountNo, DocDescription, Sign * TotalDefAmount);
     end;
 
-    local procedure VerifyDeferralGLEntries(var TempGLEntry: Record "G/L Entry" temporary; DocumentNo: Code[20]; StartingDate: Date; DeferralGLAccountNo: Code[20]; ExpectedCount: Integer; Sign: Integer)
+    local procedure VerifyDeferralGLEntries(var TempGLEntry: Record "G/L Entry" temporary; DocumentNo: Code[20]; StartingDate: Date; DeferralGLAccountNo: Code[20]; DeferralSourceCode: Code[10]; ExpectedCount: Integer; Sign: Integer)
     var
         GLEntry: Record "G/L Entry";
         PostedDeferralLine: Record "Posted Deferral Line";
@@ -1708,6 +1714,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         Assert.RecordCount(GLEntry, ExpectedCount);
+        GLEntry.SetRange("Source Code", DeferralSourceCode);
+        Assert.RecordCount(GLEntry, ExpectedCount - 5);
+        GLEntry.SetRange("Source Code");
         PostedDeferralLine.SetRange("Document No.", DocumentNo);
         PostedDeferralLine.CalcSums(Amount);
         DeferralAmount := PostedDeferralLine.Amount;
