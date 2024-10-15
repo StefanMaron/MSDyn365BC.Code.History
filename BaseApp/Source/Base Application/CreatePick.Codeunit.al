@@ -2231,7 +2231,14 @@
     end;
 
     local procedure ValidateQtyForSN(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateQtyForSN(WhseItemTrackingLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not (WhseItemTrackingLine."Quantity (Base)" in [-1, 0, 1]) then
             Error(ValidValuesIfSNDefinedErr, WhseItemTrackingLine.FieldCaption("Quantity (Base)"), WhseItemTrackingLine."Quantity (Base)");
 
@@ -3749,6 +3756,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyForSN(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
     begin
     end;
 

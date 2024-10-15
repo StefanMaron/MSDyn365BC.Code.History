@@ -200,6 +200,7 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
     var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
         PostCodeCheck: Codeunit "Post Code Check";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
@@ -214,6 +215,8 @@ codeunit 97 "Blanket Purch. Order to Order"
             PurchOrderHeader.InitRecord;
             PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             PurchOrderHeader.Insert(true);
 
             PostCodeCheck.MoveAllAddressID(
