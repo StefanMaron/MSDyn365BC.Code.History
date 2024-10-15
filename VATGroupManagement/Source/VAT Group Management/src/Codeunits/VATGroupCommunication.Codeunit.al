@@ -9,6 +9,7 @@ using System.Azure.KeyVault;
 using System.Environment;
 using System.Security.Authentication;
 using System.Text;
+using System.Telemetry;
 
 codeunit 4700 "VAT Group Communication"
 {
@@ -280,10 +281,13 @@ codeunit 4700 "VAT Group Communication"
     [NonDebuggable]
     local procedure PrepareHeaders(HttpRequestMessage: HttpRequestMessage; IsBatch: Boolean)
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         Base64Convert: Codeunit "Base64 Convert";
         HttpRequestHeaders: HttpHeaders;
         Base64AuthHeader: SecretText;
     begin
+        FeatureTelemetry.LogUptake('0000NG8', FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000NG9', FeatureName(), 'Submitting VAT return to group representative.');
         HttpRequestMessage.GetHeaders(HttpRequestHeaders);
 
         HttpRequestHeaders.Add('Accept', 'application/json');
@@ -381,5 +385,10 @@ codeunit 4700 "VAT Group Communication"
     begin
         Scopes.Add(ResourceURL + BCReadWriteScopeTok);
         Scopes.Add(ResourceURL + BCUserImpersonationScopeTok);
+    end;
+
+    internal procedure FeatureName(): Text
+    begin
+        exit('VAT Group Management');
     end;
 }

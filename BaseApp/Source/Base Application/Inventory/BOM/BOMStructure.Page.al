@@ -36,7 +36,7 @@ page 5870 "BOM Structure"
                     begin
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal() = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = Action::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -170,7 +170,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByEvent());
+                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByEvent());
                     end;
                 }
                 action(Period)
@@ -182,7 +182,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByPeriod());
+                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByPeriod());
                     end;
                 }
                 action(Variant)
@@ -194,7 +194,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByVariant());
+                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByVariant());
                     end;
                 }
                 action(Location)
@@ -207,7 +207,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByLocation());
+                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByLocation());
                     end;
                 }
                 action(Lot)
@@ -230,7 +230,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ItemAvail(ItemAvailFormsMgt.ByBOM());
+                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByBOM());
                     end;
                 }
             }
@@ -309,14 +309,15 @@ page 5870 "BOM Structure"
 
     var
         Item: Record Item;
-        AsmHeader: Record "Assembly Header";
+        AssemblyHeader: Record "Assembly Header";
         ProdOrderLine: Record "Prod. Order Line";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
         IsParentExpr: Boolean;
         HasWarning: Boolean;
-
         CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
+#pragma warning disable AA0074
         Text001: Label 'There are no warnings.';
+#pragma warning restore AA0074
 
     protected var
         ItemFilter: Code[250];
@@ -331,7 +332,7 @@ page 5870 "BOM Structure"
 
     procedure InitAsmOrder(NewAsmHeader: Record "Assembly Header")
     begin
-        AsmHeader := NewAsmHeader;
+        AssemblyHeader := NewAsmHeader;
         ShowBy := ShowBy::Assembly;
     end;
 
@@ -350,19 +351,19 @@ page 5870 "BOM Structure"
 
     local procedure GenerateBOMTree()
     var
-        CalcBOMTree: Codeunit "Calculate BOM Tree";
+        CalculateBOMTree: Codeunit "Calculate BOM Tree";
         RaiseError: Boolean;
         ErrorText: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGenerateBOMTree(Rec, Item, AsmHeader, ProdOrderLine, ShowBy.AsInteger(), ItemFilter, IsHandled);
+        OnBeforeGenerateBOMTree(Rec, Item, AssemblyHeader, ProdOrderLine, ShowBy.AsInteger(), ItemFilter, IsHandled);
         if IsHandled then
             exit;
 
         Item.SetFilter("No.", ItemFilter);
         Item.SetRange("Date Filter", 0D, WorkDate());
-        CalcBOMTree.SetItemFilter(Item);
+        CalculateBOMTree.SetItemFilter(Item);
         case ShowBy of
             ShowBy::Item:
                 begin
@@ -372,12 +373,12 @@ page 5870 "BOM Structure"
                     OnRefreshPageOnBeforeRaiseError(Item, RaiseError, ErrorText);
                     if RaiseError then
                         Error(ErrorText);
-                    CalcBOMTree.GenerateTreeForItems(Item, Rec, 0);
+                    CalculateBOMTree.GenerateTreeForItems(Item, Rec, 0);
                 end;
             ShowBy::Production:
-                CalcBOMTree.GenerateTreeForProdLine(ProdOrderLine, Rec, 0);
+                CalculateBOMTree.GenerateTreeForProdLine(ProdOrderLine, Rec, 0);
             ShowBy::Assembly:
-                CalcBOMTree.GenerateTreeForAsm(AsmHeader, Rec, 0);
+                CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, Rec, 0);
         end;
     end;
 
@@ -388,7 +389,7 @@ page 5870 "BOM Structure"
         if Rec.IsLineOk(true, TempBOMWarningLog) then
             Message(Text001)
         else
-            PAGE.RunModal(PAGE::"BOM Warning Log", TempBOMWarningLog);
+            Page.RunModal(Page::"BOM Warning Log", TempBOMWarningLog);
     end;
 
     local procedure ShowWarningsForAllLines()
@@ -398,23 +399,23 @@ page 5870 "BOM Structure"
         if Rec.AreAllLinesOk(TempBOMWarningLog) then
             Message(Text001)
         else
-            PAGE.RunModal(PAGE::"BOM Warning Log", TempBOMWarningLog);
+            Page.RunModal(Page::"BOM Warning Log", TempBOMWarningLog);
     end;
 
-    local procedure ItemAvail(AvailType: Option)
+    local procedure ShowItemAvailability(AvailType: Option)
     var
-        Item: Record Item;
+        ItemForShowAvailability: Record Item;
     begin
         Rec.TestField(Type, Rec.Type::Item);
 
-        Item.Get(Rec."No.");
-        Item.SetFilter("No.", Rec."No.");
-        Item.SetRange("Date Filter", 0D, Rec."Needed by Date");
-        Item.SetFilter("Variant Filter", Rec."Variant Code");
+        ItemForShowAvailability.Get(Rec."No.");
+        ItemForShowAvailability.SetRange("No.", Rec."No.");
+        ItemForShowAvailability.SetRange("Date Filter", 0D, Rec."Needed by Date");
+        ItemForShowAvailability.SetFilter("Variant Filter", Rec."Variant Code");
         if ShowBy <> ShowBy::Item then
-            Item.SetFilter("Location Filter", Rec."Location Code");
+            ItemForShowAvailability.SetFilter("Location Filter", Rec."Location Code");
 
-        ItemAvailFormsMgt.ShowItemAvailFromItem(Item, AvailType);
+        ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Item, AvailType);
     end;
 
     [IntegrationEvent(false, false)]

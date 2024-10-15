@@ -88,6 +88,8 @@ codeunit 137069 "SCM Production Orders"
         FlowFieldErr: Label 'Quantities are not correctly calculated from the flow fields in demand forecast matrix.';
         ItemShouldExistErr: Label 'Item %1 should exist in Production Forecast Matrix';
         NonEditableErr: Label 'The value must be editable.';
+        InvalidDateFilterTxt: Label '100-100-2026..101-101-2026', Locked = true;
+        DateFilterErrMsg: Label 'The current format of date filter %1 is not valid. Do you want to remove it?', Comment = '%1 = Date Filter';
 
     [Test]
     [HandlerFunctions('MessageHandlerSimple')]
@@ -4474,6 +4476,44 @@ codeunit 137069 "SCM Production Orders"
         // [VERIFY] Verify: Remaining Quantity for which Consumption has been posted
         FindProdOrderComponentWithVariantCode(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.", ItemVariant.Code);
         Assert.AreEqual(ExpectedQty, ProdOrderComponent."Remaining Quantity", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmQstHandlerTRUE')]
+    [Scope('OnPrem')]
+    procedure NoDateFormatErrorWhenDateFilterIsInvalid()
+    var
+        Item: Record Item;
+        ProductionForecastName: Record "Production Forecast Name";
+        DemandForecastCard: TestPage "Demand Forecast Card";
+    begin
+        // [SCENARIO 468058] No Date Format error on Demand Forecasting page when the region is changed
+        Initialize();
+
+        // [GIVEN] Create Item, and a Demand Forecast
+        LibraryInventory.CreateItem(Item);
+        CreateDemandForecastCard(DemandForecastCard);
+
+        // [GIVEN] Get the Production Forecast Name Record and close the Demand Forecast Card page
+        ProductionForecastName.Get(DemandForecastCard.Name.Value);
+        DemandForecastCard.Close();
+
+        // [GIVEN] Create  Date Filter format which is not supported in current localization
+        ProductionForecastName."Date Filter" := InvalidDateFilterTxt;
+        ProductionForecastName.Modify();
+
+        // [GIVEN] Enqueue the confirmation message 
+        LibraryVariableStorage.Enqueue(DateFilterErrMsg);
+
+        // [WHEN] Run to check the date filter is valid or not.
+        ProductionForecastName.CheckDateFilterIsValid();
+
+        // [WHEN] Open Demand Forecast Page in view only mode
+        DemandForecastCard.OpenView();
+        DemandForecastCard.GoToRecord(ProductionForecastName);
+
+        // [THEN] Verify the Date Filter is blank on the record.
+        DemandForecastCard."Date Filter".AssertEquals('');
     end;
 
     local procedure Initialize()

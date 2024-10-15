@@ -880,6 +880,8 @@ page 9255 "Tasks Matrix"
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
+    var
+        SkipRun: Boolean;
     begin
         Task.SetRange(Date, MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End");
         case TableOption of
@@ -900,7 +902,10 @@ page 9255 "Tasks Matrix"
         Task.SetFilter(Priority, Rec.GetFilter("Priority Filter"));
         Task.SetFilter("System To-do Type", Rec.GetFilter("System Task Type Filter"));
 
-        PAGE.RunModal(PAGE::"Task List", Task);
+        SkipRun := false;
+        OnMatrixOnDrillDownOnBeforeRunTaskList(Rec, Task, SkipRun);
+        if not SkipRun then
+            PAGE.RunModal(PAGE::"Task List", Task);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(Matrix_ColumnOrdinal: Integer)
@@ -954,6 +959,11 @@ page 9255 "Tasks Matrix"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetFilters(var RMMatrixManagement: Record "RM Matrix Management"; var Task: Record "To-do"; TableOption: Option Salesperson,Team,Campaign,Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnDrillDownOnBeforeRunTaskList(var RMMatrixManagement: Record "RM Matrix Management"; var Task: Record "To-do"; var SkipRun: Boolean)
     begin
     end;
 }
