@@ -21,7 +21,7 @@
             column(CompanyInformation_RFCNo_Caption; CompanyInformation_RFCNoLbl)
             {
             }
-            column(CompanyInformation_RFCNo; CompanyInformation."RFC No.")
+            column(CompanyInformation_RFCNo; CompanyInformation."RFC Number")
             {
             }
             column(CompanyInformation_SATPostalCode; CompanyInformation."SAT Postal Code")
