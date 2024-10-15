@@ -152,7 +152,7 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-398253-RemoveLocalPermissionSet-20210503')
     end;
-    
+
     [Obsolete('Function will be removed', '16.0')]
     procedure GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
     begin
@@ -909,6 +909,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
     begin
         exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
+    end;
+
+    procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
+    begin
+        exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
     end;
 }
 
