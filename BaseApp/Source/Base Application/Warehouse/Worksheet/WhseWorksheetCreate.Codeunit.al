@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Warehouse.Worksheet;
 
 using Microsoft.Assembly.Document;
+using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
@@ -474,10 +475,10 @@ codeunit 7311 "Whse. Worksheet-Create"
         AvailQtyToPickBase: Decimal;
         IsHandled: Boolean;
     begin
-        AvailQtyToPickBase := WhseWkshLine."Qty. to Handle (Base)"; // When "Always Create Pick Line" is false, then "Qty. to Handle (Base)" is set to maximum available quantity for the item in the location
+        AvailQtyToPickBase := AvailableQtyToPickBase(WhseWkshLine, WhseWkshLine."Qty. to Handle (Base)"); // When "Always Create Pick Line" is false, then "Qty. to Handle (Base)" is set to maximum available quantity for the item in the location
         if Location.Get(WhseWkshLine."Location Code") then
             if Location."Always Create Pick Line" then
-                AvailQtyToPickBase := WhseWkshLine.CalcAvailableQtyBase(); // Set the Qty. to handle to the available quantity for "Always Create Pick Line" when transferring warehouse shipment lines to warehouse worksheet lines
+                AvailQtyToPickBase := AvailableQtyToPickBase(WhseWkshLine, WhseWkshLine.CalcAvailableQtyBase()); // Set the Qty. to handle to the available quantity for "Always Create Pick Line" when transferring warehouse shipment lines to warehouse worksheet lines
 
         IsHandled := false;
         OnAdjustQtyToHandleOnBeforeAssignQtyToHandle(WhseWkshLine, AvailQtyToPickBase, IsHandled);
@@ -487,6 +488,15 @@ codeunit 7311 "Whse. Worksheet-Create"
         WhseWkshLine."Qty. to Handle" := TypeHelper.Minimum(AvailQtyToPickBase, WhseWkshLine."Qty. Outstanding");
         WhseWkshLine."Qty. to Handle (Base)" := WhseWkshLine.CalcBaseQty(WhseWkshLine."Qty. to Handle");
         WhseWkshLine.CalcReservedNotFromILEQty(AvailQtyToPickBase, WhseWkshLine."Qty. to Handle", WhseWkshLine."Qty. to Handle (Base)");
+    end;
+
+    procedure AvailableQtyToPickBase(WhseWkshLine: Record "Whse. Worksheet Line"; QtyBase: Decimal): Decimal
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+    begin
+        if WhseWkshLine."Qty. per Unit of Measure" <> 0 then
+            exit(Round(QtyBase / WhseWkshLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+        exit(0);
     end;
 
     [IntegrationEvent(false, false)]

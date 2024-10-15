@@ -965,7 +965,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         InStr.ReadText(s);
         Assert.AreEqual('<?xml version="1.0" encoding="UTF-8" standalone="no"?>', s, 'Wrong XML header.');
         InStr.ReadText(s);
-        Assert.AreEqual('<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08">', s, 'Wrong XML Instruction.');
+        Assert.AreEqual('<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02">', s, 'Wrong XML Instruction.');
         InStr.ReadText(s);
         Assert.AreEqual('  <CstmrDrctDbtInitn>', s, 'Wrong XML root.');
 
@@ -1620,7 +1620,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADDExportToTempBlob(TempBlob, DirectDebitCollectionEntry);
 
         // [THEN] Exported XML node "../RmtInf/Ustrd" = "Message"
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
           '/Document/CstmrDrctDbtInitn/PmtInf/DrctDbtTxInf/RmtInf/Ustrd', DirectDebitCollectionEntry."Message to Recipient");
     end;
