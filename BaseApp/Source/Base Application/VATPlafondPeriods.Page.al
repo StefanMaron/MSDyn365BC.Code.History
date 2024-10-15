@@ -36,4 +36,3 @@ page 12187 "VAT Plafond Periods"
     {
     }
 }
-

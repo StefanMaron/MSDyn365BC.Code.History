@@ -20,7 +20,7 @@ table 12187 "VAT Plafond Period"
         }
         field(4; "Calculated Amount"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry".Base WHERE(Type = CONST(Purchase),
+            CalcFormula = Sum("VAT Entry".Base WHERE(Type = CONST(Purchase),
                                                       "Document Date" = FIELD(FILTER("Date Filter")),
                                                       "Plafond Entry" = CONST(true)));
             Caption = 'Calculated Amount';
@@ -53,7 +53,7 @@ table 12187 "VAT Plafond Period"
 
     local procedure GetDateFilter(Date1: Date; Date2: Date): Text[30]
     begin
-        exit(Format(StrSubstNo(Text000, Date1, Date2)));
+        exit(Format(StrSubstNo(Text000, Format(Date1, 0, 9), Format(Date2, 0, 9))));
     end;
 
     local procedure GetInitialDateFilter(Year: Integer): Text[30]
@@ -89,4 +89,3 @@ table 12187 "VAT Plafond Period"
         exit(true);
     end;
 }
-

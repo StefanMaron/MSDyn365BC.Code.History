@@ -381,10 +381,8 @@ table 99000829 "Planning Component"
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
 
-                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
-
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
-                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
                 Validate("Expected Quantity", Quantity * PlanningNeeds);
             end;
         }

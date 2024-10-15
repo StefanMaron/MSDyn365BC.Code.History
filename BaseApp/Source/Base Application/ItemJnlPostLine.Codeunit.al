@@ -3129,8 +3129,12 @@
                           CalcCostPerUnit(ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)",
                             ValueEntry."Valued Quantity", false)
                     else
-                        ValueEntry."Cost per Unit" :=
-                          CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
+                        if not ValueEntry.Inventoriable and (ValueEntry."Item Charge No." = '') then
+                            ValueEntry."Cost per Unit" :=
+                                CalcCostPerUnit(ValueEntry."Cost Amount (Non-Invtbl.)", ValueEntry."Valued Quantity", false)
+                        else
+                            ValueEntry."Cost per Unit" :=
+                              CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
         end;
     end;
 

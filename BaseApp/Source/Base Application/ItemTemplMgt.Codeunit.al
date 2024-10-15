@@ -80,7 +80,9 @@ codeunit 1336 "Item Templ. Mgt."
                 ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
-                if UpdateExistingValues or (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) then begin
+                if (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) or
+                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value))
+                then begin
                     ItemFldRef.Value := ItemTemplFldRef.Value;
                     FieldValidationList.Add(ItemTemplFldRef.Number);
                 end;
@@ -541,5 +543,24 @@ codeunit 1336 "Item Templ. Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
+    local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        Item: Record Item;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        FldRef: FieldRef;
+    begin
+        if RecRef.Number = Database::Item then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Item."No.", Item."No. Series");
+            FldRef := RecRef.Field(Item.FieldNo("No."));
+            FldRef.Value := Item."No.";
+            FldRef := RecRef.Field(Item.FieldNo("No. Series"));
+            FldRef.Value := Item."No. Series";
+        end;
     end;
 }

@@ -4055,6 +4055,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reminder For Additinal Fee - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 367682377 - NamedType 1612705530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value code should be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Dimension Value Code]D;]A;(LookupHint=Codeunit ERM Reminder For Additinal Fee - NamedType DimensionValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 367682377 - NamedType 1854085928" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rounding in the end is not expected.]]></Val>

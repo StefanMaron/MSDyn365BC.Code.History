@@ -734,6 +734,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM General Journal - NamedType MSGStdGeneralJrnlExists)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4063066054 - NamedType 1022253988" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Job Currency Factor should be: %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 -Expected Job Currency Factor]D;]A;(LookupHint=Codeunit UT T Gen Jnl Line Usage Link - NamedType JobCurrencyFactorErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4063066054 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rolling back changes.]]></Val>
@@ -741,6 +750,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Gen Jnl Line Usage Link - NamedType Text001)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4063066054 - NamedType 2792580350" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total Cost (LCY) should be: %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 -Expected Total Cost (LCY)]D;]A;(LookupHint=Codeunit UT T Gen Jnl Line Usage Link - NamedType TotalCostLCYErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2420123645 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
