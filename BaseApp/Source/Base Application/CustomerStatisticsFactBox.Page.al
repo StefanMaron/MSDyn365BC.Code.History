@@ -84,6 +84,11 @@ page 9082 "Customer Statistics FactBox"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of payments received from the customer.';
                 }
+                field("Refunds (LCY)"; "Refunds (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the sum of refunds received from the customer.';
+                }
                 field(LastPaymentReceiptDate; CalcLastPaymentDate)
                 {
                     AccessByPermission = TableData "Cust. Ledger Entry" = R;

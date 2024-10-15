@@ -651,6 +651,7 @@ codeunit 142090 "UT TAB Sales Tax II"
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup;
 
         if IsInitialized then
             exit;
@@ -658,7 +659,6 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryERMCountryData.CreateVATData;
         CreateVATPostingSetup;
-        LibraryApplicationArea.EnableFoundationSetup;
 
         IsInitialized := true;
         Commit;

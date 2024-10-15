@@ -360,6 +360,138 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceWithExciseTax()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxGroup: Record "Tax Group";
+        Item: Record Item;
+        VendorCreated: Code[20];
+        ItemCreated: Code[20];
+    begin
+        // The following verifies excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
+        Initialize;
+
+        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.AddO365Setup;
+
+        // Create excise tax to be used by purchase invoice
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", false);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+
+        VendorCreated := CreateVendor(TaxAreaCode);
+        ItemCreated := CreateItem(TaxDetail."Tax Group Code");
+        Item.Get(ItemCreated);
+        Item.Modify(true);
+
+        // Create purchase invoice and assign tax area
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorCreated);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader."Tax Area Code" := TaxArea.Code;
+        PurchaseHeader."Tax Liable" := true;
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine,
+          PurchaseHeader, PurchaseLine.Type::Item, ItemCreated, LibraryRandom.RandInt(10));
+        PurchaseLine."Line No." += 10000;
+        PurchaseLine.Insert;
+
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
+
+        // Verify amounts:  "Total Amoun Excl. Tax" = 0, "Total VAT Amount" and "Total Amount Incl. VAT" = (2 * quantity * excise tax amount)
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(0);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(Round(2 * PurchaseLine.Quantity * TaxPercent));
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * PurchaseLine.Quantity * TaxPercent);
+        PurchaseInvoice.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceWithExciseTaxPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxGroup: Record "Tax Group";
+        Item: Record Item;
+        VendorCreated: Code[20];
+        ItemCreated: Code[20];
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchDocNo: Code[20];
+        Assert: Codeunit Assert;
+    begin
+        // The following verifies the posting of excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
+        Initialize;
+
+        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.AddO365Setup;
+
+        // Create excise tax to be used by purchase invoice
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", false);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+
+        VendorCreated := CreateVendor(TaxAreaCode);
+        ItemCreated := CreateItem(TaxDetail."Tax Group Code");
+        Item.Get(ItemCreated);
+        Item.Modify(true);
+
+        // Create purchase invoice and assign tax area
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorCreated);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader."Tax Area Code" := TaxArea.Code;
+        PurchaseHeader."Tax Liable" := true;
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine,
+          PurchaseHeader, PurchaseLine.Type::Item, ItemCreated, LibraryRandom.RandInt(10));
+        PurchaseLine."Line No." += 10000;
+        PurchaseLine.Insert;
+
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
+
+        // Verify amounts:  "Total Amoun Excl. Tax" = 0, "Total VAT Amount" and "Total Amount Incl. VAT" = (2 * quantity * excise tax amount) 
+        PurchaseHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
+        PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AssertEquals(0);
+        PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(Round(2 * PurchaseLine.Quantity * TaxPercent));
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * PurchaseLine.Quantity * TaxPercent);
+        Assert.AreEqual(0, PurchaseHeader.Amount, 'PurchaseHeader.Amount is incorrect');
+        Assert.AreEqual(2 * PurchaseLine.Quantity * TaxPercent, PurchaseHeader."Amount Including VAT", 'PurchaseHeader."Amount Including VAT" is incorrect');
+        PurchaseInvoice.Close;
+
+        // Post invoice and verify amounts
+        LibraryLowerPermissions.SetPurchDocsPost;
+        PostedPurchDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PostedPurchDocNo);
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
+        Assert.AreEqual(0, PurchInvHeader.Amount, 'PurchaseHeader.Amount is incorrect');
+        Assert.AreEqual(2 * PurchaseLine.Quantity * TaxPercent, PurchInvHeader."Amount Including VAT", 'PurchaseHeader."Amount Including VAT" is incorrect');
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

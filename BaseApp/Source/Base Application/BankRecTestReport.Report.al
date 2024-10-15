@@ -43,7 +43,7 @@ report 10407 "Bank Rec. Test Report"
             column(G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments"))
             {
             }
-            column(DataItem1020013; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
+            column(G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
             {
             }
             column(Difference; ("G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments")) - (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks"))
@@ -118,7 +118,7 @@ report 10407 "Bank Rec. Test Report"
             column(G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption; G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__CaptionLbl)
             {
             }
-            column(DataItem1020019; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustments_Lbl)
+            column(G_L_Balance__Positive_Adjustments__Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments_Caption; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustments_Lbl)
             {
             }
             column(DifferenceCaption; DifferenceCaptionLbl)

@@ -40,6 +40,9 @@ table 10002 "Document Header"
         {
             Caption = 'Bill-to/Pay-To Contact';
         }
+        field(17; "Ship-to/Buy-from City"; Text[30])
+        {
+        }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';

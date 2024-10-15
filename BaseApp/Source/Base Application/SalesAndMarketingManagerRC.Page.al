@@ -635,7 +635,8 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Availability Projection")
                     {
-                        Caption = 'Availability Projection';
+                        ApplicationArea = Basic, Suite;
+		                Caption = 'Availability Projection';
                         RunObject = report "Availability Projection";
                     }
                     action("Availability Status")

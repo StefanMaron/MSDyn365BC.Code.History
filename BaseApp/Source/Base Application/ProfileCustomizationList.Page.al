@@ -29,8 +29,8 @@ page 9190 "Profile Customization List"
                 field("App Name"; ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID"))
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Profile App Name';
-                    ToolTip = 'Specifies the name of the app that provided the profile that this page customization applies to.';
+                    Caption = 'Profile Source';
+                    ToolTip = 'Specifies the origin of the profile that this page customization applies to, which can be either an extension, shown by its name, or a custom profile created by a user.';
                 }
                 field(PageIdField; "Page ID")
                 {
@@ -42,7 +42,7 @@ page 9190 "Profile Customization List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Owner';
-                    ToolTip = 'Specifies whether the profile customization was user-made or provided as part of an extension.';
+                    ToolTip = 'Specifies whether the customization was made by a user (Tenant) or provided as part of an extension (System).';
                 }
             }
         }

@@ -142,7 +142,7 @@ report 10403 Deposit
                     column(Posted_Deposit_Line_Amount_Control1020042; Amount)
                     {
                     }
-                    column(DataItem1020044; StrSubstNo(Text003, "Deposit No.", "Posted Deposit Header".FieldCaption("Bank Account No."), "Posted Deposit Header"."Bank Account No."))
+                    column(Text003__Deposit_No__Posted_Deposit_Header__FIELDCAPTION__Bank_Account_No__Posted_Deposit_Header_Bank_Account_No__; StrSubstNo(Text003, "Deposit No.", "Posted Deposit Header".FieldCaption("Bank Account No."), "Posted Deposit Header"."Bank Account No."))
                     {
                     }
                     column(Posted_Deposit_Line_Deposit_No_; "Deposit No.")

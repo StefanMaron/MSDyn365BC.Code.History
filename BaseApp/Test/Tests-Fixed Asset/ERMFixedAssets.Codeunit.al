@@ -2044,6 +2044,144 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.IsFalse(FADepreciationBook.RecIsReadyForAcquisition, '');
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoSalesShipmentLineFixedAsset()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        FAJournalLine: Record "FA Journal Line";
+    begin
+        // [FEATURE] [Undo shipment]
+        // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of Fixed Asset type
+        Initialize;
+
+        // [GIVEN] Create and post shipment of sales order with Fixed Asset type line
+        PrepareFAForSalesDocument(FixedAsset, DepreciationBook);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, FixedAsset."No.", DepreciationBook.Code);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        FindSalesShipmentLine(SalesShipmentLine, SalesHeader."No.");
+
+        // [WHEN] Undo sales shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment
+        VerifyUndoShipmentLineOnPostedShipment(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoSalesReturnReceiptLineFixedAsset()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        FAJournalLine: Record "FA Journal Line";
+    begin
+        // [FEATURE] [Undo shipment]
+        // [SCENARIO 289385] Stan is able to undo return receipt line
+        Initialize;
+
+        // [GIVEN] Create and post receipt of sales return order with Fixed Asset type line
+        PrepareFAForSalesDocument(FixedAsset, DepreciationBook);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, FixedAsset."No.", DepreciationBook.Code);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        FindReturnReceiptLine(ReturnReceiptLine, SalesHeader."No.");
+
+        // [WHEN] Undo return receipt
+        LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReceiptLineFixedAsset()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+    begin
+        // [FEATURE] [Undo shipment]
+        // [SCENARIO 289385] Stan is able to undo receipt for Purchase receipt line of Fixed Asset type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of Purchase order with Fixed Asset type line
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        DepreciationBook."G/L Integration - Acq. Cost" := true;
+        DepreciationBook.Modify;
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        CreatePurchLine(PurchaseLine, PurchaseHeader, FixedAsset."No.", DepreciationBook.Code);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        FindPurchReceiptLine(PurchRcptLine, PurchaseHeader."No.");
+
+        // [WHEN] Undo Purchase receipt.
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLine(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPurchaseReturnShipmentLineFixedAsset()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+    begin
+        // [FEATURE] [Undo shipment]
+        // [SCENARIO 289385] Stan is able to undo return shipment line of Fixed Asset type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of purchase return order with Fixed Asset type line
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        DepreciationBook."G/L Integration - Acq. Cost" := true;
+        DepreciationBook.Modify;
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo);
+        CreatePurchLine(PurchaseLine, PurchaseHeader, FixedAsset."No.", DepreciationBook.Code);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        FindPurchReturnShipmentLine(ReturnShipmentLine, PurchaseHeader."No.");
+
+        // [WHEN] Undo return shipment
+        LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
+
+        // [THEN] Verify Quantity after Undo shipment
+        VerifyUndoShipmentLine(PurchaseLine);
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -2396,6 +2534,30 @@ codeunit 134451 "ERM Fixed Assets"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20])
+    begin
+        SalesShipmentLine.SetRange("Order No.", OrderNo);
+        SalesShipmentLine.FindFirst;
+    end;
+
+    local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; OrderNo: Code[20])
+    begin
+        ReturnReceiptLine.SetRange("Return Order No.", OrderNo);
+        ReturnReceiptLine.FindFirst;
+    end;
+
+    local procedure FindPurchReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
+    begin
+        PurchRcptLine.SetRange("Order No.", OrderNo);
+        PurchRcptLine.FindFirst;
+    end;
+
+    local procedure FindPurchReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ReturnOrderNo: Code[20])
+    begin
+        ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnShipmentLine.FindFirst;
+    end;
+
     local procedure GenerateFixedAssetNo(): Code[20]
     var
         FixedAsset: Record "Fixed Asset";
@@ -2518,6 +2680,23 @@ codeunit 134451 "ERM Fixed Assets"
         FAJournalBatch.Modify(true);
 
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+    end;
+
+    local procedure PrepareFAForSalesDocument(var FixedAsset: Record "Fixed Asset"; var DepreciationBook: Record "Depreciation Book")
+    var
+        FAJournalLine: Record "FA Journal Line";
+    begin
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        UpdateIntegrationInBook(DepreciationBook, false, false, false);
+
+        CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        PostDepreciationWithDocumentNo(DepreciationBook.Code);
+        ModifyIntegrationInBook(DepreciationBook);
     end;
 
     local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
@@ -2745,6 +2924,50 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(
           ShortcutDimValueCode[2], GenJnlLine."Shortcut Dimension 2 Code",
           GenJnlLine.FieldCaption("Shortcut Dimension 2 Code"));
+    end;
+
+    local procedure VerifyUndoShipmentLineOnPostedShipment(SalesLine: Record "Sales Line")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
+        SalesShipmentLine.SetRange(Type, SalesLine.Type);
+        SalesShipmentLine.SetRange("No.", SalesLine."No.");
+        SalesShipmentLine.FindLast;
+        SalesShipmentLine.TestField(Quantity, -1 * SalesLine."Qty. to Ship");
+    end;
+
+    local procedure VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine: Record "Sales Line")
+    var
+        ReturnReceiptLine: Record "Return Receipt Line";
+    begin
+        ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
+        ReturnReceiptLine.SetRange(Type, SalesLine.Type);
+        ReturnReceiptLine.SetRange("No.", SalesLine."No.");
+        ReturnReceiptLine.FindLast;
+        ReturnReceiptLine.TestField(Quantity, -1 * SalesLine."Return Qty. to Receive");
+    end;
+
+    local procedure VerifyUndoReceiptLine(PurchaseLine: Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange(Type, PurchaseLine.Type);
+        PurchRcptLine.SetRange("No.", PurchaseLine."No.");
+        PurchRcptLine.FindLast;
+        PurchRcptLine.TestField(Quantity, -1 * PurchaseLine."Qty. to Receive");
+    end;
+
+    local procedure VerifyUndoShipmentLine(PurchaseLine: Record "Purchase Line")
+    var
+        ReturnShipmentLine: Record "Return Shipment Line";
+    begin
+        ReturnShipmentLine.SetRange("Return Order No.", PurchaseLine."Document No.");
+        ReturnShipmentLine.SetRange(Type, PurchaseLine.Type);
+        ReturnShipmentLine.SetRange("No.", PurchaseLine."No.");
+        ReturnShipmentLine.FindLast;
+        ReturnShipmentLine.TestField(Quantity, -1 * PurchaseLine."Return Qty. to Ship");
     end;
 
     local procedure FASetupClassesAndSubclasses(var FAClass1: Record "FA Class"; var FASubclass1: Record "FA Subclass"; var FAClass2: Record "FA Class"; var FASubclass2: Record "FA Subclass"; var FASubclass: Record "FA Subclass")

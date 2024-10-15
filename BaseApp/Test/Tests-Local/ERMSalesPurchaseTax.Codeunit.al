@@ -138,7 +138,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     // Test Function Name                                                                      TFS ID
     // ----------------------------------------------------------------------------------------------
     // GeneralLedgerSetupWithMultiplePACServices                                               299315
-    // SendSalesInvoiceWithoutPACCertificate                                                   307278
     // 
     // Covers Test Cases for WI - 330785
     // ----------------------------------------------------------------------------------------------
@@ -147,12 +146,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     // GSTHSTInVATEntryForPostedPurchaseDocument                                               202401
     // OptionsInTheFieldGSTHSTOfGenJournalLine                                                 202399
     // OptionsInTheFieldGSTHSTOfVATEntry                                                       202400
-    // 
-    // Covers Test Cases for WI - 329596
-    // ----------------------------------------------------------------------------------------------
-    // Test Function Name                                                                      TFS ID
-    // ----------------------------------------------------------------------------------------------
-    // SendSalesInvoiceWithPACEnvDisabled                                                      238139
     // 
     // Covers Test Cases: Bug ID: 331437
     // -----------------------------------------------------------------------------------------------------------------------------------
@@ -214,8 +207,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         ERMSalesPurchaseTax: Codeunit "ERM Sales/Purchase Tax";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.';
-        PACEnvironmentDisabledErr: Label 'You cannot perform this action because the PAC Environment field in the General Ledger Setup window is set to Disabled.';
-        ValidCertificateErr: Label 'Could not get the certificate.';
         DescriptionErr: Label 'Description must have a value in %1: Document Type=%2';
         TaxAmountMsg: Label '%1 must not be editable.';
         TaxAmountErr: Label 'Tax Amount is not correct in Test Report';
@@ -1263,32 +1254,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     end;
 
     [Test]
-    [HandlerFunctions('RequestStampStrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure SendSalesInvoiceWithoutPACCertificate()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Verify error while Requesting Stamp Document on Posted Sales Invoice if PAC certificate is not installed.
-
-        // Setup: Update Company Information, Create and post Sales Invoice.
-        Initialize;
-        UpdateCompanyInformation;
-        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice);
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        UpdateGLSetup('', false);
-
-        // Exercise.
-        asserterror SalesInvoiceHeader.RequestStampEDocument;
-
-        // Verify.
-        Assert.ExpectedError(ValidCertificateErr);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure GSTHSTInVATEntryForPostedPurchaseDocument()
     var
@@ -1368,36 +1333,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         VerifyGSTHSTFieldOnVATEntry(Customer."No.", GenJournalLine."GST/HST"::Rebate);
         VerifyGSTHSTFieldOnVATEntry(Customer."No.", GenJournalLine."GST/HST"::"New Housing Rebates");
         VerifyGSTHSTFieldOnVATEntry(Customer."No.", GenJournalLine."GST/HST"::"Pension Rebate");
-    end;
-
-    [Test]
-    [HandlerFunctions('RequestStampStrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure SendSalesInvoiceWithPACEnvDisabled()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        PACWebService: Record "PAC Web Service";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Verify error while Requesting Stamp Document on Posted Sales Invoice if PAC Environment is set to Disable in G/L Setup.
-
-        // Setup: Create PAC web Services, update Company Information, Create and post Sales Invoice.
-        Initialize;
-        CreatePACWebServices(PACWebService);
-        UpdateGLSetup(PACWebService.Code, true);
-        GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Disabled;
-        UpdateCompanyInformation;
-        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice);
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-
-        // Exercise.
-        asserterror SalesInvoiceHeader.RequestStampEDocument;
-
-        // Verify.
-        Assert.ExpectedError(PACEnvironmentDisabledErr);
     end;
 
     [Test]
@@ -2047,7 +1982,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Unrealized Sales Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Sales)" = "X"
         Initialize;
         LibraryERM.SetUnrealizedVAT(true);
-        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction);
+        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted Sales Invoice with Unrealized Sales Tax setup
@@ -2094,7 +2029,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Tax Acc. (Purchase)" = "X"
         Initialize;
         LibraryERM.SetUnrealizedVAT(true);
-        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction);
+        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted Purchase Invoice with Unrealized Sales Tax setup
@@ -2785,13 +2720,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
         Initialize;
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        LibraryERM.CreateTaxDetail(TaxDetail,TaxJurisdiction.Code,'',0,0D);
-        TaxDetail.Validate("Tax Below Maximum",12.3456);
-        TaxDetail.Validate("Tax Above Maximum",12.3456);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, '', 0, 0D);
+        TaxDetail.Validate("Tax Below Maximum", 12.3456);
+        TaxDetail.Validate("Tax Above Maximum", 12.3456);
         TaxDetail.Modify(true);
 
         TaxDetails.OpenEdit;
-        TaxDetails.FILTER.SetFilter("Tax Jurisdiction Code",TaxDetail."Tax Jurisdiction Code");
+        TaxDetails.FILTER.SetFilter("Tax Jurisdiction Code", TaxDetail."Tax Jurisdiction Code");
         TaxDetails."Tax Below Maximum".AssertEquals('12.3456');
         TaxDetails."Tax Above Maximum".AssertEquals('12.3456');
     end;
@@ -2817,6 +2752,134 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         TaxJurisdictions.FILTER.SetFilter(Code, TaxJurisdiction.Code);
         TaxJurisdictions."Default Sales and Use Tax".SetValue('9.1234');
         TaxJurisdictions."Default Sales and Use Tax".AssertEquals('9.1234');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseApplyPaymentUnrealizedUseTax()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        TaxAreaCode: Code[20];
+        DocNo: Code[20];
+        TaxAmount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Payment] [Apply] [Unrealized VAT] [Use Tax]
+        // [SCENARIO 318764]  G/L Entry with Unrealized VAT Amount should be posted from "Unreal. Rev. Charge (Purch.)"  to "Reverse Charge (Purchases)" from Tax Jurisdiction when apply payment
+
+        // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
+        Initialize;
+        LibraryERM.SetUnrealizedVAT(true);
+        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
+        CreateSalesTaxVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Posted Purchase Invoice with Unrealized Sales Tax setup and "Use Tax" enabled
+        CreatePurchaseInvoiceWithCertainAmount(
+          PurchHeader, VATPostingSetup, TaxAreaCode,
+          LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), TaxDetail."Tax Group Code");
+        FindPurchLine(PurchLine, PurchHeader);
+        PurchLine.Validate("Use Tax", true);
+        PurchLine.Modify(true);
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        TaxAmount := GetVATEntryRemainingUnrealAmount(DocNo);
+        Assert.AreNotEqual(TaxAmount, 0, 'Unrealized tax amount should not be zero.');
+
+        // [WHEN] Payment applied to Purchase Invoice
+        CreateAndPostGenJournalLineUsingApplication(
+          GenJnlLine, DocNo, GenJnlLine."Account Type"::Vendor, PurchHeader."Pay-to Vendor No.",
+          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Applies-to Doc. Type"::Invoice, PurchLine."Line Amount");
+
+        // [THEN] G/L Entry with tax will be posted to "Y" from "X"
+        VerifyGLEntryAmount(GenJnlLine."Document No.", TaxJurisdiction.GetRevChargeAccount(true), TaxAmount);
+        VerifyGLEntryAmount(GenJnlLine."Document No.", TaxJurisdiction.GetRevChargeAccount(false), -TaxAmount);
+
+        // [THEN] G/L Entry with "Tax Account (Purchases)" and "Unreal. Tax Acc. (Purchases)" are not posted
+        VerifyGLEntryDoesNotExist(GenJnlLine."Document No.", TaxJurisdiction.GetPurchAccount(true));
+        VerifyGLEntryDoesNotExist(GenJnlLine."Document No.", TaxJurisdiction.GetPurchAccount(false));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseUnapplyPaymentUnrealizedUseTax()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        TaxAreaCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Payment] [Unapply] [Unrealized VAT] [Use Tax]
+        // [SCENARIO 318764] G/L Entry with Unrealized VAT Amount should be posted to "Unreal. Rev. Charge (Purch.)" from Tax Jurisdiction when unapply payment
+
+        // [GIVEN] Unrealized Purchase Tax setup. Tax Jurisdiction with "Unreal. Rev. Charge (Purch.)" = "X" and "Reverse Charge (Purchases)" = "Y"
+        Initialize;
+        LibraryERM.SetUnrealizedVAT(true);
+        SetupUnrealTaxJurisdiction(TaxAreaCode, TaxDetail, TaxJurisdiction, TaxDetail."Tax Type"::"Sales and Use Tax");
+        CreateSalesTaxVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Posted Purchase Invoice with Unrealized Sales Tax setup
+        CreatePurchaseInvoiceWithCertainAmount(
+          PurchHeader, VATPostingSetup, TaxAreaCode,
+          LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), TaxDetail."Tax Group Code");
+        FindPurchLine(PurchLine, PurchHeader);
+        PurchLine.Validate("Use Tax", true);
+        PurchLine.Modify(true);
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [GIVEN] Payment applied to Purchase Invoice
+        CreateAndPostGenJournalLineUsingApplication(
+          GenJnlLine, DocNo, GenJnlLine."Account Type"::Vendor, PurchHeader."Pay-to Vendor No.",
+          LibraryERM.CreateGLAccountNo, '', GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Applies-to Doc. Type"::Invoice, PurchLine."Line Amount");
+
+        // [WHEN] Unapply Payment
+        UnapplyVendLedgerEntry(GenJnlLine."Document Type", GenJnlLine."Document No.");
+
+        // [THEN] G/L Entry with tax will be posted to "G/L Account No." = "Y"
+        VerifyVATGLEntryOnUnapplication(
+          GenJnlLine."Document No.", FindVendUnapplicationTransactionNo(GenJnlLine."Document Type", GenJnlLine."Document No."),
+          TaxJurisdiction."Unreal. Rev. Charge (Purch.)");
+    end;
+    
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsChangePrepaymentPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPrepaymentGetsUpdatedFromStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PrepmntAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Prepayment]
+        // [SCENARIO 319776] Prepayment on Sales Lines updates after "Prepmt. Amount Excl. Tax" is changed on Sales Order Stats. page
+        Initialize;
+        // [GIVEN] Sales Order with TaxAreaCode for Customer and Prepayment %
+        UpdateSetups(TRUE, LibraryRandom.RandIntInRange(10, 100));
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        SalesHeader.VALIDATE("Prepayment %", LibraryRandom.RandInt(100));
+        SalesHeader.MODIFY(TRUE);
+
+        // [WHEN] Open Sales Order Stats. (10038) and modify Prepayment Amount
+        PrepmntAmount := LibraryRandom.RandDec(ROUND(SalesLine.Amount, 1), 2);
+        LibraryVariableStorage.Enqueue(PrepmntAmount);
+        OpenSalesOrderPage(SalesOrder, SalesHeader);
+        SalesOrder.Statistics.Invoke;
+
+        // [THEN] Sales Line is updated
+        SalesLine.SETRANGE("Document No.", SalesHeader."No.");
+        SalesLine.SETRANGE("Document Type", SalesHeader."Document Type");
+        SalesLine.FINDFIRST;
+        SalesLine.TESTFIELD("Prepmt. Line Amount", PrepmntAmount);
     end;
 
     local procedure Initialize()
@@ -3209,11 +3272,16 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     end;
 
     local procedure CreateTaxAreaLine(var TaxDetail: Record "Tax Detail"): Code[20]
+    begin
+        exit(CreateTaxAreaLineWithTaxType(TaxDetail, TaxDetail."Tax Type"::"Sales Tax Only"));
+    end;
+
+    local procedure CreateTaxAreaLineWithTaxType(var TaxDetail: Record "Tax Detail"; TaxType: Option): Code[20]
     var
         TaxArea: Record "Tax Area";
         TaxAreaLine: Record "Tax Area Line";
     begin
-        CreateSalesTaxDetail(TaxDetail);
+        CreateSalesTaxDetailWithTaxType(TaxDetail, TaxType);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
         exit(TaxArea.Code);
@@ -3241,9 +3309,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
     local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail")
     begin
+        CreateSalesTaxDetailWithTaxType(TaxDetail, TaxDetail."Tax Type"::"Sales Tax Only");
+    end;
+
+    local procedure CreateSalesTaxDetailWithTaxType(var TaxDetail: Record "Tax Detail"; TaxType: Option)
+    begin
         LibraryERMTax.CreateTaxDetailWithTaxType(
           TaxDetail, LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_US,
-          LibraryERMTax.CreateTaxGroupCode, TaxDetail."Tax Type"::"Sales Tax Only", LibraryRandom.RandInt(10), 0);
+          LibraryERMTax.CreateTaxGroupCode, TaxType, LibraryRandom.RandInt(10), 0);
     end;
 
     local procedure CreateSalesTaxDetailWithCountry(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)
@@ -3287,12 +3360,13 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure SetupUnrealTaxJurisdiction(var TaxAreaCode: Code[20]; var TaxDetail: Record "Tax Detail"; var TaxJurisdiction: Record "Tax Jurisdiction")
+    local procedure SetupUnrealTaxJurisdiction(var TaxAreaCode: Code[20]; var TaxDetail: Record "Tax Detail"; var TaxJurisdiction: Record "Tax Jurisdiction"; TaxType: Option)
     begin
-        TaxAreaCode := CreateTaxAreaLine(TaxDetail);
+        TaxAreaCode := CreateTaxAreaLineWithTaxType(TaxDetail, TaxType);
         TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
         TaxJurisdiction.Validate("Unreal. Tax Acc. (Sales)", LibraryERM.CreateGLAccountNo);
         TaxJurisdiction.Validate("Unreal. Tax Acc. (Purchases)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Validate("Unreal. Rev. Charge (Purch.)", LibraryERM.CreateGLAccountNo);
         TaxJurisdiction.Validate("Unrealized VAT Type", TaxJurisdiction."Unrealized VAT Type"::Percentage);
         TaxJurisdiction.Modify(true);
     end;
@@ -3414,6 +3488,18 @@ codeunit 142050 "ERM Sales/Purchase Tax"
             SetRange("Document No.", DocumentNo);
             CalcSums(Amount);
             exit(Amount);
+        end;
+    end;
+
+    local procedure GetVATEntryRemainingUnrealAmount(DocumentNo: Code[20]): Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            SetRange("Document Type", "Document Type"::Invoice);
+            SetRange("Document No.", DocumentNo);
+            FindFirst;
+            exit("Remaining Unrealized Amount");
         end;
     end;
 
@@ -3611,20 +3697,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure UpdateCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get;
-        CompanyInformation.Validate("RFC No.",
-          GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("RFC No."))));
-        CompanyInformation.Validate("CURP No.",
-          GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("CURP No."))));
-        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID);
-        CompanyInformation.Modify(true);
-    end;
-
     local procedure UpdateSetups(AllowVATDifference: Boolean; MaxVATDifferenceAllowed: Decimal) OldMaxVATDifferenceAllowed: Decimal
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -3765,6 +3837,15 @@ codeunit 142050 "ERM Sales/Purchase Tax"
           StrSubstNo(AmountErr, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount", GLEntry.TableCaption));
     end;
 
+    local procedure VerifyGLEntryDoesNotExist(DocumentNo: Code[20]; GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsEmpty(GLEntry);
+    end;
+
     local procedure VerifyGLSetupPACode(PACCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -3889,6 +3970,14 @@ codeunit 142050 "ERM Sales/Purchase Tax"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure SalesOrderStatisticsChangePrepaymentPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
+    begin
+        SalesOrderStats.PrepmtTotalAmount.SETVALUE(LibraryVariableStorage.DequeueDecimal);
+        SalesOrderStats.OK.INVOKE;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure SalesTaxLinesSubformDynPageHandler(var SalesTaxLinesSubformDyn: TestPage "Sales Tax Lines Subform Dyn")
     var
         AmountIncludingTax: Variant;
@@ -3935,13 +4024,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
-    end;
-
-    [StrMenuHandler]
-    [Scope('OnPrem')]
-    procedure RequestStampStrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := 3;  // Choice 3 for Request Stamp and Send.
     end;
 
     [ModalPageHandler]

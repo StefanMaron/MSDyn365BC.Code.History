@@ -680,9 +680,7 @@ report 1316 "Standard Statement"
                 CompanyInfo.CalcFields(Picture);
 
                 PopulateTempCurrencies;
-
-                PrintedCustomersList := PrintedCustomersList.List;
-
+                
                 if PrintAllHavingBal and not PrintAllHavingEntry then begin
                     SetAutoCalcFields("Balance (LCY)");
                     SetFilter("Balance (LCY)", '<>0');
@@ -929,7 +927,7 @@ report 1316 "Standard Statement"
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
-        PrintedCustomersList: DotNet GenericList1;
+        PrintedCustomersList: List of [Code[20]];
         PrintAllHavingEntry: Boolean;
         PrintAllHavingBal: Boolean;
         PrintEntriesDue: Boolean;

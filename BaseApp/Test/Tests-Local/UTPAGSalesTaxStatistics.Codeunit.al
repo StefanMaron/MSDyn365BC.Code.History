@@ -870,6 +870,48 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         OpenStatisticsPageForSalesOrder(SalesLine."Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandler2')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsSalesInvoiceWithPositiveAndNegativeAmounts()
+    var
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [SCENARIO 318205] Statistics for Sales Invoice with positive and negative Line Amounts shows correct Tax Amount.
+        Initialize;
+
+        // [GIVEN] Tax setup with Tax Detail having "Tax Below Maximum" := 1, "Maximum Amount/Qty." = 5000.
+        TaxGroupCode := CreateTaxGroup;
+        CreateTaxDetail(TaxDetail, TaxGroupCode, 1);
+        TaxDetail."Maximum Amount/Qty." := 5000;
+        TaxDetail.Modify;
+        TaxAreaCode := CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code");
+
+        // [GIVEN] G/L Account with Tax setup.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Tax Group Code" := TaxGroupCode;
+        GLAccount.Modify;
+
+        // [GIVEN] Sales Invoice with:
+        // [GIVEN] Sales Line with Type = "Item", Qty = 1, Amount = 6000;
+        // [GIVEN] Sales Line with Type = "G/L Account"", Qty = -1, Amount = 1000.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, TaxAreaCode);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, 1, TaxGroupCode, TaxAreaCode, true, 0, 6000, 6000);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", -1, TaxGroupCode, TaxAreaCode, true, 0, 1000, 1000);
+        SalesLine."No." := GLAccount."No.";
+        SalesLine.Modify;
+
+        // [WHEN] Statistics opened for Sales Invoice.
+        // [THEN] On Statistics page: Tax Amount = 50 ((6000 - 1000) / 100 = 50)
+        LibraryVariableStorage.Enqueue(50);
+        OpenStatisticsPageForSalesInvoice(SalesHeader."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -914,6 +956,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
             "VAT %" := VATPct;
             "Unit Price" := UnitPrice;
             "Line Amount" := LineAmount;
+            Amount := LineAmount;
             Insert;
         end;
     end;

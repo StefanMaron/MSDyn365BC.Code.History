@@ -891,10 +891,12 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibrarySales.SetReturnOrderNoSeriesInSetup;
         LibraryPurchase.SetReturnOrderNoSeriesInSetup;
         LibraryService.SetupServiceMgtNoSeries;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if IsInitialized then
             exit;

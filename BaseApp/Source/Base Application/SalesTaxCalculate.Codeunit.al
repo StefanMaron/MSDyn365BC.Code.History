@@ -529,6 +529,33 @@ codeunit 398 "Sales Tax Calculate"
         TotalForAllocation := DesiredTaxAmount;
     end;
 
+    procedure HasExciseTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Quantity: Decimal; Date: Date): Boolean
+    var
+    begin
+        if (TaxAreaCode = '') or (TaxGroupCode = '') or not TaxLiable then
+            exit(false);
+
+        TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
+        TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
+        if TaxAreaLine.Find('+') then begin
+            repeat
+                SetTaxDetailFilter(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, Date);
+                TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
+                if TaxDetail.FindLast and
+                   ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) and
+                   not TaxDetail."Expense/Capitalize"
+                then begin
+                    if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
+                       (TaxDetail."Maximum Amount/Qty." = 0)
+                    then
+                        exit(true);
+                end;
+            until TaxAreaLine.Next(-1) = 0;
+        end;
+
+        exit(false);
+    end;
+
     procedure GetSalesTaxLine(var TaxDetail2: Record "Tax Detail"; var ReturnTaxAmount: Decimal; var ReturnTaxBaseAmount: Decimal): Boolean
     var
         TaxAmount: Decimal;
@@ -590,7 +617,10 @@ codeunit 398 "Sales Tax Calculate"
 
     procedure AddSalesLine(SalesLine: Record "Sales Line")
     var
+        TaxDetail: Record "Tax Detail";
         SalesTaxAmountLineCalc: Codeunit "Sales Tax Amount Line Calc";
+        TotalPositive: Boolean;
+        SalesLinePositive: Boolean;
     begin
         if not SalesHeaderRead then begin
             TempPrepaidSalesLine.DeleteAll;
@@ -610,6 +640,7 @@ codeunit 398 "Sales Tax Calculate"
               TaxAmountDifference."Document Product Area"::Sales,
               SalesLine."Document Type",
               SalesLine."Document No.");
+            SalesHeader.CalcFields(Amount);
         end;
         if not GetSalesTaxCountry(SalesLine."Tax Area Code") then
             exit;
@@ -637,12 +668,27 @@ codeunit 398 "Sales Tax Calculate"
             SetRange("Tax Group Code", SalesLine."Tax Group Code");
             TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
             TaxAreaLine.SetRange("Tax Area", SalesLine."Tax Area Code");
+
+            TotalPositive := SalesHeader.Amount > 0;
+            SalesLinePositive := SalesLine."Line Amount" > 0;
+            TaxDetail.SetRange("Tax Group Code", SalesLine."Tax Group Code");
+            TaxDetail.SetFilter("Effective Date", '<=%1', SalesHeader."Posting Date");
+
             if TaxAreaLine.FindSet then
                 repeat
                     SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
-                    SetRange(Positive, SalesLine."Line Amount" - SalesLine."Inv. Discount Amount" > 0);
-
                     "Tax Jurisdiction Code" := TaxAreaLine."Tax Jurisdiction Code";
+
+                    SetRange(Positive, SalesLinePositive);
+                    Positive := SalesLinePositive;
+                    TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
+                    if (TotalPositive <> SalesLinePositive) and (SalesHeader.Amount <> 0) then
+                        if TaxDetail.FindLast then
+                            if TaxDetail."Maximum Amount/Qty." <> 0 then begin
+                                SetRange(Positive, TotalPositive);
+                                Positive := TotalPositive;
+                            end;
+
                     if not FindFirst then begin
                         Init;
                         "Tax Group Code" := SalesLine."Tax Group Code";
@@ -660,8 +706,6 @@ codeunit 398 "Sales Tax Calculate"
                         Quantity := SalesLine."Quantity (Base)";
                         "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
                         "Calculation Order" := TaxAreaLine."Calculation Order";
-
-                        Positive := SalesLine."Line Amount" - SalesLine."Inv. Discount Amount" > 0;
 
                         Insert;
                     end else begin
@@ -1324,6 +1368,7 @@ codeunit 398 "Sales Tax Calculate"
         Amount: Decimal;
         ReturnTaxAmount: Decimal;
         IsHandled: Boolean;
+        SkipCheckTaxAmtLinePos: Boolean;
     begin
         IsHandled := false;
         OnBeforeDistTaxOverSalesLines(SalesLine, IsHandled);
@@ -1351,6 +1396,13 @@ codeunit 398 "Sales Tax Calculate"
             Reset;
             if FindSet then
                 repeat
+                    SkipCheckTaxAmtLinePos := false;
+                    SetTaxDetailFilter(TaxDetail, "Tax Jurisdiction Code", "Tax Group Code", SalesHeader."Posting Date");
+                    TaxDetail.SetRange("Tax Type", "Tax Type");
+                    if TaxDetail.FindLast then
+                        if TaxDetail."Maximum Amount/Qty." <> 0 then
+                            SkipCheckTaxAmtLinePos := true;
+
                     if ("Tax Jurisdiction Code" <> TempSalesTaxLine2."Tax Jurisdiction Code") and RoundByJurisdiction then begin
                         TempSalesTaxLine2."Tax Jurisdiction Code" := "Tax Jurisdiction Code";
                         TotalTaxAmountRounding := 0;
@@ -1363,8 +1415,8 @@ codeunit 398 "Sales Tax Calculate"
                     repeat
                         if ((TaxCountry = TaxCountry::US) or
                             ((TaxCountry = TaxCountry::CA) and TaxAreaLine.Get(SalesLine."Tax Area Code", "Tax Jurisdiction Code"))) and
-                           CheckTaxAmtLinePos(SalesLine."Line Amount" - SalesLine."Inv. Discount Amount",
-                             Positive)
+                           (CheckTaxAmtLinePos(SalesLine."Line Amount" - SalesLine."Inv. Discount Amount",
+                              Positive) or SkipCheckTaxAmtLinePos)
                         then begin
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then begin
                                 Amount := (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount");

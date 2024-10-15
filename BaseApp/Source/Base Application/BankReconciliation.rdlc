@@ -390,16 +390,16 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__">
+          <Textbox Name="G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__.Value)</Value>
+                    <Value>=First(Fields!G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
-                      <Format>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Format.Value)</Format>
+                      <Format>=First(Fields!G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Format.Value)</Format>
                     </Style>
                   </TextRun>
                 </TextRuns>
@@ -417,13 +417,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Caption">
+          <Textbox Name="G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Caption">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Caption.Value)</Value>
+                    <Value>=First(Fields!G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Caption.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                       <FontWeight>Bold</FontWeight>
@@ -443,16 +443,16 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments_________Statement_Balance_____Outstanding_Deposits______Outstanding_Checks__">
+          <Textbox Name="G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments_________Statement_Balance_____Outstanding_Deposits______Outstanding_Checks__.Value)</Value>
+                    <Value>=First(Fields!G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
-                      <Format>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments_________Statement_Balance_____Outstanding_Deposits______Outstanding_Checks__Format.Value)</Format>
+                      <Format>=First(Fields!G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__Format.Value)</Format>
                     </Style>
                   </TextRun>
                 </TextRuns>
@@ -470,13 +470,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments_________Statement_Balance_____Outstanding_Deposits______Outstanding_Checks__Caption">
+          <Textbox Name="G_L_Bal__Pos_Adj__Neg_Bal__Adj_Neg_Adj__Positive_Bal__Adj__Stat_Balance__Outstanding_Depos__Outstanding_Checks__Caption">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments_________Statement_Balance_____Outstanding_Deposits______Outstanding_Checks__Caption.Value)</Value>
+                    <Value>=First(Fields!G_L_Bal__Pos_Adj__Neg_Bal__Adj_Neg_Adj__Positive_Bal__Adj__Stat_Balance__Outstanding_Depos__Outstanding_Checks__Caption.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                       <FontWeight>Bold</FontWeight>
@@ -4416,17 +4416,17 @@ End Function
         <Field Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Format">
           <DataField>G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Format</DataField>
         </Field>
-        <Field Name="DataItem1020013">
-          <DataField>DataItem1020013</DataField>
+        <Field Name="G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__">
+          <DataField>G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__</DataField>
         </Field>
-        <Field Name="DataItem1020013Format">
-          <DataField>DataItem1020013Format</DataField>
+        <Field Name="G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Format">
+          <DataField>G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Format</DataField>
         </Field>
-        <Field Name="DataItem1020022">
-          <DataField>DataItem1020022</DataField>
+        <Field Name="G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__">
+          <DataField>G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__</DataField>
         </Field>
-        <Field Name="DataItem1020022Format">
-          <DataField>DataItem1020022Format</DataField>
+        <Field Name="G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__Format">
+          <DataField>G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__Format</DataField>
         </Field>
         <Field Name="Posted_Bank_Rec__Header__G_L_Balance__LCY__">
           <DataField>Posted_Bank_Rec__Header__G_L_Balance__LCY__</DataField>
@@ -4503,11 +4503,11 @@ End Function
         <Field Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption">
           <DataField>G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption</DataField>
         </Field>
-        <Field Name="DataItem1020019">
-          <DataField>DataItem1020019</DataField>
+        <Field Name="G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Caption">
+          <DataField>G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Caption</DataField>
         </Field>
-        <Field Name="DataItem1020025">
-          <DataField>DataItem1020025</DataField>
+        <Field Name="G_L_Bal__Pos_Adj__Neg_Bal__Adj_Neg_Adj__Positive_Bal__Adj__Stat_Balance__Outstanding_Depos__Outstanding_Checks__Caption">
+          <DataField>G_L_Bal__Pos_Adj__Neg_Bal__Adj_Neg_Adj__Positive_Bal__Adj__Stat_Balance__Outstanding_Depos__Outstanding_Checks__Caption</DataField>
         </Field>
         <Field Name="Posted_Bank_Rec__Header__G_L_Balance__LCY__Caption">
           <DataField>Posted_Bank_Rec__Header__G_L_Balance__LCY__Caption</DataField>

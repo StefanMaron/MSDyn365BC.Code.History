@@ -12,6 +12,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryERMTax: Codeunit "Library - ERM Tax";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -1472,6 +1473,525 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesInvoiceHeader.Get(DocumentNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        SalesOrder: TestPage "Sales Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Order page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        SalesOrder.OpenEdit;
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        SalesOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, SalesOrder.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        SalesQuote: TestPage "Sales Quote";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Quote page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Quote page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        SalesQuote.OpenEdit;
+        SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        SalesQuote."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, SalesQuote.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        SalesInvoice: TestPage "Sales Invoice";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Invoice page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Invoice page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        SalesInvoice."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, SalesInvoice.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Credit Memo page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Credit Memo page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        SalesCreditMemo."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, SalesCreditMemo.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesBlanketOrderTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Blanket Order page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Blanket Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        BlanketSalesOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, BlanketSalesOrder.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderTaxAreaChangesSalesLinesTaxArea()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxArea: array[2] of Record "Tax Area";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Return Order page changes Tax area on Sales Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Customer with Tax Area set to "TA1".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Tax Area Code", TaxArea[1].Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Header with Sales Line with Tax Group.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Customer."No.", '', 0, '', 0D);
+
+        // [GIVEN] Sales Return Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        SalesReturnOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, SalesReturnOrder.SalesLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        PurchaseQuote: TestPage "Purchase Quote";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Quoute page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote, Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Quoute page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        PurchaseQuote.OpenEdit;
+        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuote.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        PurchaseQuote."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, PurchaseQuote.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        PurchaseOrder: TestPage "Purchase Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Order page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        PurchaseOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, PurchaseOrder.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Invoice page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Invoice page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        PurchaseInvoice."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, PurchaseInvoice.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Credit Memo page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Credit Memo page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        PurchaseCreditMemo."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, PurchaseCreditMemo.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseBlanketOrderTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Blanket Order page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Blanket Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        BlanketPurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        BlanketPurchaseOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, BlanketPurchaseOrder.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseReturnOrderTaxAreaChangesPurchaseLinesTaxArea()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxArea: array[2] of Record "Tax Area";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        TaxGroupCode: Code[20];
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Return Order page changes Tax area on Purchase Lines subpage.
+        Initialize;
+
+        // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        CreateTaxArea(TaxArea[1], TaxGroupCode);
+        CreateTaxArea(TaxArea[2], TaxGroupCode);
+
+        // [GIVEN] Vendor with Tax Area set to "TA1".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Area Code", TaxArea[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Purchase Header with Purchase Line with Tax Group.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Vendor."No.", '', 0, '', 0D);
+
+        // [GIVEN] Purchase Return Order page is opened, Tax Area set to "TA1", Quantity is set to 10.
+        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Tax Area code on a page changed to "TA2"
+        PurchaseReturnOrder."Tax Area Code".SetValue(TaxArea[2].Code);
+        Evaluate(TaxAreaCode, PurchaseReturnOrder.PurchLines."Tax Area Code".Value);
+
+        // [THEN] Tax Area on subpage is equal to "TA2".
+        Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1480,6 +2000,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
 
         LibraryERMCountryData.CreateVATData;
         LibraryApplicationArea.EnableFoundationSetup;
+	LibrarySales.SetStockoutWarning(false);
 
         UpdateUseVendorsTaxAreaCodeOnPurchasePayableSetup;
         CreateSalesTaxVATPostingSetup;
@@ -1880,6 +2401,18 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
         ServiceItem.Validate("Item No.", ItemNo);
         ServiceItem.Modify(true);
+    end;
+
+    local procedure CreateTaxArea(var TaxArea: Record "Tax Area"; TaxGroupCode: Code[20])
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, LibraryRandom.RandInt(10));
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
     end;
 
     local procedure CreateTaxAreaLine(var TaxDetail: Record "Tax Detail"; TaxType: Option): Code[20]

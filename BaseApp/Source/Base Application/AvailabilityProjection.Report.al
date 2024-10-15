@@ -2,6 +2,7 @@ report 10130 "Availability Projection"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AvailabilityProjection.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Availability Projection';
     UsageCategory = ReportsAndAnalysis;
 

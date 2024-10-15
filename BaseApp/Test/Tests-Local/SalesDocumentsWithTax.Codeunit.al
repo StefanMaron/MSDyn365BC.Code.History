@@ -22,6 +22,7 @@ codeunit 144013 "Sales Documents With Tax"
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryUTUtility: Codeunit "Library UT Utility";
 
     [Test]
     [Scope('OnPrem')]
@@ -220,6 +221,54 @@ codeunit 144013 "Sales Documents With Tax"
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Combine Special Orders Default", OldCombineSpecialOrdersDefault);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesInvoiceStatsTaxAmountPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsPostedSalesInvoiceWithPositiveAndNegativeAmounts()
+    var
+        Item: Record Item;
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        PostedSalesInvoiceNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [SCENARIO 325706] Statistics for Posted Sales Invoice with positive and negative Line Amounts shows correct Tax Amount.
+        Initialize;
+
+        // [GIVEN] Tax setup with Tax Detail having "Tax Below Maximum" := 1, "Maximum Amount/Qty." = 5000.
+        CreateTaxDetailSimple(TaxDetail);
+        TaxDetail."Tax Below Maximum" := 1;
+        TaxDetail."Maximum Amount/Qty." := 5000;
+        TaxDetail.Modify;
+        TaxGroupCode := TaxDetail."Tax Group Code";
+        TaxAreaCode := CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code");
+
+        // [GIVEN] G/L Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Tax Group Code", TaxGroupCode);
+        GLAccount.Modify(true);
+
+        // [GIVEN] Posted Sales Invoice posted with:
+        // [GIVEN] Sales Line with Type = "Item", Qty = 1, Amount = 6000;
+        // [GIVEN] Sales Line with Type = "G/L Account"", Qty = -1, Amount = 1000.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, TaxAreaCode);
+        LibraryInventory.CreateItemWithoutVAT(Item);
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Modify(true);
+        CreateSalesLineWithTaxSetup(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1, TaxGroupCode, TaxAreaCode, true, 0, 6000, 6000);
+        CreateSalesLineWithTaxSetup(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", -1, TaxGroupCode, TaxAreaCode, true, 0, 1000, -1000);
+        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Statistics opened for Posted Sales Invoice.
+        // [THEN] On Statistics page: Tax Amount = 50 ((6000 - 1000) / 100 = 50)
+        LibraryVariableStorage.Enqueue(50);
+        OpenStatisticsPageForPostedSalesInvoice(PostedSalesInvoiceNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -349,6 +398,15 @@ codeunit 144013 "Sales Documents With Tax"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        SalesHeader."VAT Bus. Posting Group" := '';
+        SalesHeader."Tax Area Code" := TaxAreaCode;
+        SalesHeader."Tax Liable" := true;
+        SalesHeader.Modify;
+    end;
+
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
@@ -357,11 +415,34 @@ codeunit 144013 "Sales Documents With Tax"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesLineWithTaxSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, No, Qty);
+        with SalesLine do begin
+            "Tax Group Code" := TaxGroupCode;
+            "Tax Area Code" := TaxAreaCode;
+            "Tax Liable" := TaxLiable;
+            "VAT %" := VATPct;
+            "Unit Price" := UnitPrice;
+            "Line Amount" := LineAmount;
+            Amount := LineAmount;
+            Modify;
+        end;
+    end;
+
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)
     begin
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMaximum);
         TaxDetail.Modify(true);
+    end;
+
+    local procedure CreateTaxDetailSimple(var TaxDetail: Record "Tax Detail")
+    begin
+        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction;
+        TaxDetail."Tax Group Code" := CreateTaxGroup;
+        TaxDetail."Tax Below Maximum" := LibraryRandom.RandDec(10, 2);
+        TaxDetail.Insert;
     end;
 
     local procedure CreateTaxAreaLine(var TaxAreaLine: Record "Tax Area Line")
@@ -374,6 +455,38 @@ codeunit 144013 "Sales Documents With Tax"
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
+    end;
+
+    local procedure CreateTaxAreaWithLine(TaxJurisdictionCode: Code[10]): Code[10]
+    var
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        LibraryERM.CreateTaxArea(TaxArea);
+        TaxAreaLine.Init;
+        TaxAreaLine."Tax Area" := TaxArea.Code;
+        TaxAreaLine."Tax Jurisdiction Code" := TaxJurisdictionCode;
+        TaxAreaLine.Insert;
+        exit(TaxArea.Code);
+    end;
+
+    local procedure CreateTaxGroup(): Code[10]
+    var
+        TaxGroup: Record "Tax Group";
+    begin
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10;
+        TaxGroup.Insert;
+        exit(TaxGroup.Code);
+    end;
+
+    local procedure CreateTaxJurisdiction(): Code[10]
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo;
+        TaxJurisdiction.Insert;
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -461,6 +574,16 @@ codeunit 144013 "Sales Documents With Tax"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.FindFirst;
         exit(SalesInvoiceLine."Line Amount");
+    end;
+
+    local procedure OpenStatisticsPageForPostedSalesInvoice(No: Code[20])
+    var
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.FILTER.SetFilter("No.", No);
+        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Close;
     end;
 
     local procedure UpdateGeneralLedgerSetup(var OldUnrealizedVAT: Boolean; NewUnrealizedVAT: Boolean)
@@ -582,6 +705,17 @@ codeunit 144013 "Sales Documents With Tax"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries."Amount to Apply".SetValue(AmountToApply);
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceStatsTaxAmountPageHandler(var SalesInvoiceStats: TestPage "Sales Invoice Stats.")
+    var
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        SalesInvoiceStats.TaxAmount.AssertEquals(TaxAmount);
+        SalesInvoiceStats.OK.Invoke;
     end;
 
     [RequestPageHandler]

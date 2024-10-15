@@ -475,15 +475,17 @@ table 5876 "Phys. Invt. Order Line"
                     WhseEntry.SetRange("Item No.", "Item No.");
                     WhseEntry.SetRange("Variant Code", "Variant Code");
                     WhseEntry.SetRange("Registering Date", 0D, PhysInvtOrderHeader."Posting Date");
+                    OnCalcQtyAndTrackLinesExpectedOnAfterSetWhseEntryFilters(WhseEntry, Rec);
                     if WhseEntry.FindSet then
                         repeat
                             if not
                                ExpPhysInvtTracking.Get(
                                  "Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.")
-                            then
+                            then begin
                                 ExpPhysInvtTracking.InsertLine(
-                                  "Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)")
-                            else begin
+                                  "Document No.", "Line No.", WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
+                                OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
+                            end else begin
                                 ExpPhysInvtTracking."Quantity (Base)" += WhseEntry."Qty. (Base)";
                                 OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
                                 ExpPhysInvtTracking.Modify;
@@ -559,6 +561,8 @@ table 5876 "Phys. Invt. Order Line"
         CalcFields("Qty. Exp. Item Tracking (Base)");
 
         "Qty. Exp. Calculated" := false;
+
+        OnAfterResetQtyExpected(Rec);
     end;
 
     procedure TestQtyExpected()
@@ -699,6 +703,8 @@ table 5876 "Phys. Invt. Order Line"
         SourceCodeSetup.Get;
         TableID[1] := Type1;
         No[1] := No1;
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         GetPhysInvtOrderHeader;
@@ -847,6 +853,16 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimTableIDs(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CurrentFieldID: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetQtyExpected(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var xPhysInvtOrderLine: Record "Phys. Invt. Order Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -857,42 +873,52 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnBeforeShowItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowPhysInvtLedgerEntries(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnBeforeShowPhysInvtLedgerEntries(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndLastItemLedgExpectedSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnCalcQtyAndLastItemLedgExpectedSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndLastItemLedgExpectedSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnCalcQtyAndLastItemLedgExpectedSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnCalcQtyAndTrackLinesExpectedSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterExpPhysInvtTrackingInsertLineFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnCalcQtyAndTrackLinesExpectedOnAfterSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 }

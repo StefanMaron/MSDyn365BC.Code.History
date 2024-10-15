@@ -18,11 +18,8 @@ report 6001 "Batch Post Service Orders"
                 Counter := Counter + 1;
                 Window.Update(1, "No.");
                 Window.Update(2, Round(Counter / CounterTotal * 10000, 1));
-                Clear(ServPost);
-                ServPost.SetPostingDate(ReplacePostingDate, ReplaceDocumentDate, PostingDateReq);
-                ServPost.SetPostingOptions(ShipReq, false, InvReq);
-                ServPost.SetHideValidationDialog(true);
-                if ServPost.Run("Service Header") then begin
+
+                if PostServiceHeader("Service Header") then begin
                     CounterOK := CounterOK + 1;
                     if MarkedOnly then
                         Mark(false);
@@ -185,8 +182,29 @@ report 6001 "Batch Post Service Orders"
         ReplaceDocumentDate := false;
     end;
 
+    local procedure PostServiceHeader(var ServiceHeader: Record "Service Header"): Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostServiceHeader(ServiceHeader, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        Clear(ServPost);
+        ServPost.SetPostingDate(ReplacePostingDate, ReplaceDocumentDate, PostingDateReq);
+        ServPost.SetPostingOptions(ShipReq, false, InvReq);
+        ServPost.SetHideValidationDialog(true);
+        exit(ServPost.Run(ServiceHeader));
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostReport(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostServiceHeader(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -273,7 +273,10 @@ table 10011 "Sales Tax Amount Line"
                         TaxAmount := Round(TaxAmount);
                     PrevJurisdiction := "Tax Jurisdiction Code";
                 end;
-                TaxAmount := TaxAmount + ("Tax Base Amount FCY" * "Tax %" / 100);
+                if "Tax Type" = "Tax Type"::"Excise Tax" then
+                    TaxAmount := TaxAmount + "Tax Amount"
+                else
+                    TaxAmount := TaxAmount + ("Tax Base Amount FCY" * "Tax %" / 100);
             until Next = 0;
         exit(TaxAmount);
     end;

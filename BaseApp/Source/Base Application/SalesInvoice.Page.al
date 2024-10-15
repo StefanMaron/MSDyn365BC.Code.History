@@ -333,7 +333,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
@@ -390,7 +390,7 @@
                         SalesHeader: Record "Sales Header";
                     begin
                         if SalesHeader.Get("Document Type", "No.") then
-                            CurrPage.SalesLines.PAGE.RedistributeTotalsOnAfterValidate;
+                            SaveInvoiceDiscountAmount;
                     end;
                 }
                 group(Control174)
@@ -682,10 +682,11 @@
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
 
+                                CurrPage.SaveRecord;
                                 if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                                     SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                                CurrPage.Update;
+                                CurrPage.Update(false);
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -1416,7 +1417,7 @@
                     Image = PostOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+F9';
+                    ShortCutKey = 'Alt+F9';
                     ToolTip = 'Post the sales document and create a new, empty one.';
 
                     trigger OnAction()
@@ -1436,7 +1437,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post and Send", NavigateAfterPost::Nowhere);
+                        PostDocument(CODEUNIT::"Sales-Post and Send", NavigateAfterPost::"Do Nothing");
                     end;
                 }
                 action(Preview)
@@ -1617,7 +1618,7 @@
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        NavigateAfterPost: Option "Posted Document","New Document",Nowhere;
+        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         WorkDescription: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;

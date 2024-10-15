@@ -79,6 +79,12 @@ table 85 "Acc. Schedule Line"
             trigger OnValidate()
             begin
                 Validate(Totaling);
+                case "Totaling Type" of
+                    "Totaling Type"::"Double Underline":
+                        Validate("Double Underline", true);
+                    "Totaling Type"::Underline:
+                        Validate(Underline, true);
+                end;
             end;
         }
         field(7; "New Page"; Boolean)
@@ -194,6 +200,11 @@ table 85 "Acc. Schedule Line"
                     "Double Underline" := false;
                     Message(ForceUnderLineMsg, FieldCaption("Double Underline"));
                 end;
+
+                if not Underline and ("Totaling Type" = "Totaling Type"::Underline) then begin
+                    Validate(Underline, true);
+                    Message(UnderlineTrueMsg, FieldCaption(Underline), FieldCaption("Totaling Type"), "Totaling Type");
+                end;
             end;
         }
         field(26; "Show Opposite Sign"; Boolean)
@@ -221,6 +232,11 @@ table 85 "Acc. Schedule Line"
                 if "Double Underline" and Underline then begin
                     Underline := false;
                     Message(ForceUnderLineMsg, FieldCaption(Underline));
+                end;
+
+                if not "Double Underline" and ("Totaling Type" = "Totaling Type"::"Double Underline") then begin
+                    Validate("Double Underline", true);
+                    Message(UnderlineTrueMsg, FieldCaption("Double Underline"), FieldCaption("Totaling Type"), "Totaling Type");
                 end;
             end;
         }
@@ -315,6 +331,7 @@ table 85 "Acc. Schedule Line"
         CostType: Record "Cost Type";
         HasGLSetup: Boolean;
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+        UnderlineTrueMsg: Label 'The %1 should be true when %2 is %3.', Comment = '%1 - Double Underline; %2 - Totaling Type; %3 - value of Totaling Type';
 
     procedure LookUpDimFilter(DimNo: Integer; var Text: Text): Boolean
     var

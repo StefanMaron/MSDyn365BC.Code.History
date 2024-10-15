@@ -96,6 +96,140 @@ codeunit 142054 SalesDocTotalsWithSalesTax
 
     [Test]
     [Scope('OnPrem')]
+    procedure SalesInvoiceWithExciseTax()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        SalesInvoice: TestPage "Sales Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxGroup: Record "Tax Group";
+        Item: Record Item;
+        CustomerCreated: Code[20];
+        ItemCreated: Code[20];
+    begin
+        // The following verifies excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
+        Initialize;
+
+        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.AddO365Setup;
+
+        // Create excise tax to be used by purchase invoice
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", false);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+
+        CustomerCreated := CreateCustomer(TaxAreaCode);
+        ItemCreated := CreateItem(TaxDetail."Tax Group Code");
+        Item.Get(ItemCreated);
+        Item."Unit Price" := 0;
+        Item.Modify(true);
+
+        // Create sales invoice and assign tax area
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerCreated);
+        SalesHeader."Tax Area Code" := TaxArea.Code;
+        SalesHeader."Tax Liable" := true;
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine,
+          SalesHeader, SalesLine.Type::Item, ItemCreated, LibraryRandom.RandInt(10));
+        SalesLine.Modify();
+        SalesLine."Line No." += 10000;
+        SalesLine.Insert;
+
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
+
+        // Verify amounts:  "Total Amoun Excl. Tax" = 0, "Total VAT Amount" and "Total Amount Incl. VAT" = (2 * quantity * excise tax amount) 
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(0);
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(Round(2 * SalesLine.Quantity * TaxPercent));
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * SalesLine.Quantity * TaxPercent);
+        SalesInvoice.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithExciseTaxPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        SalesInvoice: TestPage "Sales Invoice";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxGroup: Record "Tax Group";
+        Item: Record Item;
+        CustomerCreated: Code[20];
+        ItemCreated: Code[20];
+        SalesInvHeader: Record "Sales Invoice Header";
+        PostedSalesDocNo: Code[20];
+        Assert: Codeunit Assert;
+    begin
+        // The following verifies the posting of excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
+        Initialize;
+
+        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.AddO365Setup;
+
+        // Create excise tax to be used by purchase invoice
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxPercent);
+        TaxDetail.Validate("Expense/Capitalize", false);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
+
+        CustomerCreated := CreateCustomer(TaxAreaCode);
+        ItemCreated := CreateItem(TaxDetail."Tax Group Code");
+        Item.Get(ItemCreated);
+        Item."Unit Price" := 0;
+        Item.Modify(true);
+
+        // Create sales invoice and assign tax area
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerCreated);
+        SalesHeader."Tax Area Code" := TaxArea.Code;
+        SalesHeader."Tax Liable" := true;
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine,
+          SalesHeader, SalesLine.Type::Item, ItemCreated, LibraryRandom.RandInt(10));
+        SalesLine.Modify();
+        SalesLine."Line No." += 10000;
+        SalesLine.Insert;
+
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
+
+        // Verify amounts:  "Total Amoun Excl. Tax" = 0, "Total VAT Amount" and "Total Amount Incl. VAT" = (2 * quantity * excise tax amount) 
+        SalesHeader.CalcFields("Invoice Discount Amount", Amount, "Amount Including VAT");
+        SalesInvoice.SalesLines."Total Amount Excl. VAT".AssertEquals(0);
+        SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(Round(2 * SalesLine.Quantity * TaxPercent));
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(0 + 2 * SalesLine.Quantity * TaxPercent);
+        Assert.AreEqual(0, SalesHeader.Amount, 'SalesHeader.Amount is incorrect');
+        Assert.AreEqual(2 * SalesLine.Quantity * TaxPercent, SalesHeader."Amount Including VAT", 'SalesHeader."Amount Including VAT" is incorrect');
+        SalesInvoice.Close;
+
+        // Post invoice and verify amounts
+        LibraryLowerPermissions.SetSalesDocsPost();
+        PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvHeader.Get(PostedSalesDocNo);
+        SalesInvHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
+        Assert.AreEqual(0, SalesInvHeader.Amount, 'SalesHeader.Amount is incorrect');
+        Assert.AreEqual(2 * SalesLine.Quantity * TaxPercent, SalesInvHeader."Amount Including VAT", 'SalesHeader."Amount Including VAT" is incorrect');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesInvoicePosting()
     var
         SalesHeader: Record "Sales Header";

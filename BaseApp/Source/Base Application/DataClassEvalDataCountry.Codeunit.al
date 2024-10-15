@@ -16,6 +16,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative;
         ClassifyEmployeeQualification;
         ClassifyVATReportHeader;
+        ClassifyDIOT;
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"PAC Web Service");
@@ -266,6 +267,17 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetTableFieldsToNormal(TableNo);
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyVATReportHeader.FieldNo("Submitted By"));
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
+    end;
+
+    local procedure ClassifyDIOT()
+    var
+        DataClassificationMgt: Codeunit "Data Classification Mgt.";
+    begin
+        DataClassificationMgt.SetTableFieldsToNormal(27030);
+        DataClassificationMgt.SetTableFieldsToNormal(27031);
+        DataClassificationMgt.SetTableFieldsToNormal(27032);
+        DataClassificationMgt.SetTableFieldsToNormal(27033);
+        DataClassificationMgt.SetTableFieldsToNormal(27039);
     end;
 }
 

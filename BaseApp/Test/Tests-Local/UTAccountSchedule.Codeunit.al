@@ -12,6 +12,9 @@ codeunit 142068 "UT Account Schedule"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        DoubleUnderlineMsg: Label 'The Double Underline should be true when Totaling Type is Double Underline.';
+        UnderlineMsg: Label 'The Underline should be true when Totaling Type is Underline.';
+        Assert: Codeunit Assert;
 
     [Test]
     [HandlerFunctions('AccountScheduleLayoutRequestPageHandler')]
@@ -61,6 +64,132 @@ codeunit 142068 "UT Account Schedule"
         AccountScheduleNames.Close;
     end;
 
+    [Test]
+    procedure DoubleUnderlineIsTrueWhenTotalingTypeIsDoubleUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] "Acc. Schedule Line"."Double Underline" = TRUE when "Acc. Schedule Line"."Totaling Type" = "Double Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Double Underline" = FALSE
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Double Underline", false);
+
+        // [WHEN] Set "Acc. Schedule Line"."Totaling Type" = "Double Underline"
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Double Underline");
+
+        // [THEN] "Acc. Schedule Line"."Double Underline" = TRUE
+        AccScheduleLine.TestField("Double Underline", true);
+    end;
+
+    [Test]
+    [HandlerFunctions('DoubleUnderlineMessageHandler')]
+    procedure DoubleUnderlineCannotBeSetFalseIfTotalingTypeIsDoubleUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] Message arises when validate "Acc. Schedule Line"."Double Underline" = FALSE and "Acc. Schedule Line"."Totaling Type" = "Double Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Double Underline" = TRUE and "Totaling Type" = "Double Underline"
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Double Underline", true);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Double Underline");
+
+        // [WHEN] Set "Acc. Schedule Line"."Double Underline" = FALSE
+        AccScheduleLine.Validate("Double Underline", false);
+
+        // [THEN] Message arises (DoubleUnderlineMessageHandler) and "Acc. Schedule Line"."Double Underline" = TRUE
+        AccScheduleLine.TestField("Double Underline", true);
+    end;
+
+    [Test]
+    procedure DoubleUnderlineCanBeSetFalseIfTotalingTypeIsNotDoubleUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] User can set "Acc. Schedule Line"."Double Underline" = FALSE when "Acc. Schedule Line"."Totaling Type" <> "Double Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Double Underline" = TRUE and "Totaling Type" = "Formula"
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Double Underline", true);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
+
+        // [WHEN] Set "Acc. Schedule Line"."Double Underline" = FALSE
+        AccScheduleLine.Validate("Double Underline", false);
+
+        // [THEN] "Acc. Schedule Line"."Double Underline" = FALSE
+        AccScheduleLine.TestField("Double Underline", false);
+    end;
+
+    [Test]
+    procedure UnderlineIsTrueWhenTotalingTypeIsUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] "Acc. Schedule Line"."Underline" = TRUE when "Acc. Schedule Line"."Totaling Type" = "Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Underline" = FALSE
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate(Underline, false);
+
+        // [WHEN] Set "Acc. Schedule Line"."Totaling Type" = "Underline"
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Underline);
+
+        // [THEN] "Acc. Schedule Line"."Underline" = TRUE
+        AccScheduleLine.TestField(Underline, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('UnderlineMessageHandler')]
+    procedure UnderlineCannotBeSetFalseIfTotalingTypeIsUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] Message arises when validate "Acc. Schedule Line"."Underline" = FALSE and "Acc. Schedule Line"."Totaling Type" = "Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Underline" = TRUE and "Totaling Type" = "Underline"
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate(Underline, true);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Underline);
+
+        // [WHEN] Set "Acc. Schedule Line"."Underline" = FALSE
+        AccScheduleLine.Validate(Underline, false);
+
+        // [THEN] Message arises (UnderlineMessageHandler) and "Acc. Schedule Line"."Underline" = TRUE
+        AccScheduleLine.TestField(Underline, true);
+    end;
+
+    [Test]
+    procedure UnderlineCanBeSetFalseIfTotalingTypeIsNotUnderline()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 312370] User can set "Acc. Schedule Line"."Underline" = FALSE when "Acc. Schedule Line"."Totaling Type" <> "Underline"
+        Initialize();
+
+        // [GIVEN] "Acc. Schedule Line" with "Underline" = TRUE and "Totaling Type" = "Formula"
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate(Underline, true);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
+
+        // [WHEN] Set "Acc. Schedule Line"."Underline" = FALSE
+        AccScheduleLine.Validate(Underline, false);
+
+        // [THEN] "Acc. Schedule Line"."Underline" = FALSE
+        AccScheduleLine.TestField(Underline, false);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -88,6 +217,18 @@ codeunit 142068 "UT Account Schedule"
         LibraryVariableStorage.Dequeue(ScheduleName);
         AccountScheduleLayout."Acc. Schedule Line".SetFilter("Schedule Name", ScheduleName);
         AccountScheduleLayout.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [MessageHandler]
+    procedure DoubleUnderlineMessageHandler(Message: Text);
+    begin
+      Assert.AreEqual(DoubleUnderlineMsg, Message, 'Wrong message.');
+    end;
+
+    [MessageHandler]
+    procedure UnderlineMessageHandler(Message: Text);
+    begin
+      Assert.AreEqual(UnderlineMsg, Message, 'Wrong message.');
     end;
 }
 

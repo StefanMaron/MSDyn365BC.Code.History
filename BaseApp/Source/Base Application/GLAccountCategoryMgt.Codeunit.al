@@ -364,8 +364,12 @@ codeunit 570 "G/L Account Category Mgt."
         if not GLAccountCategory.IsEmpty then
             exit;
 
+        OnBeforeInitializeCompany;
+
         InitializeAccountCategories;
         CODEUNIT.Run(CODEUNIT::"Categ. Generate Acc. Schedules");
+
+        OnAfterInitializeCompany;
     end;
 
     procedure GetCurrentAssets(): Text
@@ -668,6 +672,16 @@ codeunit 570 "G/L Account Category Mgt."
             GLAccountList.GetRecord(GLAccount);
             AccountNo := GLAccount."No.";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeCompany()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeCompany()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

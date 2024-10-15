@@ -38,7 +38,6 @@ codeunit 10145 "E-Invoice Mgt."
         Text016: Label 'The SMTP mail system returned the following error: %1.';
         FileDialogTxt: Label 'Import electronic invoice';
         ImportFailedErr: Label 'The import failed. The XML document is not a valid electronic invoice.';
-        WebClientErr: Label 'The import is not supported on the webclient.';
         StampErr: Label 'You have chosen the document type %1. You can only request and send documents if the document type is Payment.', Comment = '%1=Document Type';
         UnableToStampErr: Label 'An existing payment is applied to the invoice that has not been stamped. That payment must be stamped before you can request a stamp for any additional payments.';
         UnableToStampAppliedErr: Label 'The prepayment invoice %1 has not been stamped. That invoice must be stamped before you can request a stamp for this applied invoice.', Comment = '%1=The invoice number.';
@@ -47,6 +46,13 @@ codeunit 10145 "E-Invoice Mgt."
         SATNotValidErr: Label 'The SAT certificate is not valid.';
         NoRelationDocumentsExistErr: Label 'No relation documents specified for the replacement of previous CFDIs.';
         GLSetupRead: Boolean;
+        FileFilterTxt: Label 'XML Files(*.xml)|*.xml|All Files(*.*)|*.*', Locked = true;
+        ExtensionFilterTxt: Label 'xml', Locked = true;
+        EmptySATCatalogErr: Label 'Catalog %1 is empty.', Comment = '%1 - table name.';
+        PACDetailDoesNotExistErr: Label 'Record %1 does not exist for %2, %3, %4.', Comment = '%1 - table name, %2 - PAC Code, %3 - PAC environment, %4 - type. ';
+        WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.', Comment = '%1 - field value, %2 - field caption, %3 - table caption.';
+        WrongSATCatalogErr: Label 'Catalog %1 contains incorrect data.', Comment = '%1 - table name.';
+        CombinationCannotBeUsedErr: Label '%1 %2 cannot be used with %3 %4.', Comment = '%1 - field 1, %2 - value of field 1, %3 - field 2, %4 - value of field 2.';
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -56,7 +62,7 @@ codeunit 10145 "E-Invoice Mgt."
         // Called from Send Action
         Export := false;
         GetCompanyInfo;
-        GetGLSetup;
+        GetGLSetupOnce;
         SourceCodeSetup.Get;
         Selection := StrMenu(Text008, 3);
 
@@ -96,7 +102,7 @@ codeunit 10145 "E-Invoice Mgt."
         if not Confirm(Text015, false) then
             exit;
         Export := false;
-        GetCompanyInfo;
+        GetCheckCompanyInfo;
         GetGLSetup;
         SourceCodeSetup.Get;
 
@@ -203,7 +209,6 @@ codeunit 10145 "E-Invoice Mgt."
             DATABASE::"Sales Invoice Header":
                 begin
                     DocumentHeaderRecordRef.SetTable(SalesInvoiceHeader);
-                    ValidateSalesInvoice(SalesInvoiceHeader);
                     if not Reverse then // If reverse, AdvanceSettle must be false else you fall into an infinite loop
                         AdvanceSettle := IsInvoicePrepaymentSettle(SalesInvoiceHeader."No.", AdvanceAmount);
                     if AdvanceSettle then
@@ -212,6 +217,8 @@ codeunit 10145 "E-Invoice Mgt."
                     CreateAbstractDocument(SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, AdvanceSettle);
                     if not Reverse and not AdvanceSettle then
                         GetRelationDocumentsInvoice(TempCFDIRelationDocument, TempDocumentHeader, DATABASE::"Sales Invoice Header");
+                    CheckSalesDocument(
+                      SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesInvoiceHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesInv(SalesInvoiceHeader);
                     CalcSalesInvLineTotal(SubTotal, RetainAmt, TempDocumentHeader."No.", AdvanceSettle);
                     SalesInvoiceHeader.CalcFields("Amount Including VAT");
@@ -220,21 +227,23 @@ codeunit 10145 "E-Invoice Mgt."
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     DocumentHeaderRecordRef.SetTable(SalesCrMemoHeader);
-                    ValidateSalesCrMemo(SalesCrMemoHeader);
                     CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+                    GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader);
+                    CheckSalesDocument(
+                      SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, SalesCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqSalesCr(SalesCrMemoHeader);
                     CalcSalesCrMemoLineTotal(SubTotal, RetainAmt, TempDocumentHeader."No.");
                     SalesCrMemoHeader.CalcFields("Amount Including VAT");
                     TempDocumentHeader."Amount Including VAT" := SalesCrMemoHeader."Amount Including VAT";
-                    GetRelationDocumentsSalesCreditMemo(TempCFDIRelationDocument, SalesCrMemoHeader);
                 end;
             DATABASE::"Service Invoice Header":
                 begin
                     DocumentHeaderRecordRef.SetTable(ServiceInvoiceHeader);
-                    ValidateServiceInvoice(ServiceInvoiceHeader);
                     CreateAbstractDocument(ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
                     if not Reverse and not AdvanceSettle then
                         GetRelationDocumentsInvoice(TempCFDIRelationDocument, TempDocumentHeader, DATABASE::"Service Invoice Header");
+                    CheckSalesDocument(
+                      ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceInvoiceHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServInv(ServiceInvoiceHeader);
                     CalcServiceInvLineTotal(SubTotal, RetainAmt, AmountInclVAT, TempDocumentHeader."No.");
                     TempDocumentHeader."Amount Including VAT" := AmountInclVAT;
@@ -242,12 +251,13 @@ codeunit 10145 "E-Invoice Mgt."
             DATABASE::"Service Cr.Memo Header":
                 begin
                     DocumentHeaderRecordRef.SetTable(ServiceCrMemoHeader);
-                    ValidateServiceCrMemo(ServiceCrMemoHeader);
                     CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+                    GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader);
+                    CheckSalesDocument(
+                      ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempCFDIRelationDocument, ServiceCrMemoHeader."Source Code");
                     DateTimeFirstReqSent := GetDateTimeOfFirstReqServCr(ServiceCrMemoHeader);
                     CalcServiceCrMemoLineTotal(SubTotal, RetainAmt, AmountInclVAT, TempDocumentHeader."No.");
                     TempDocumentHeader."Amount Including VAT" := AmountInclVAT;
-                    GetRelationDocumentsServiceCreditMemo(TempCFDIRelationDocument, ServiceCrMemoHeader);
                 end;
         end;
 
@@ -524,7 +534,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not SalesInvHeaderLoc."Electronic Document Sent" then
                 SalesInvHeaderLoc."Electronic Document Sent" := true;
             SalesInvHeaderLoc."Electronic Document Status" := SalesInvHeaderLoc."Electronic Document Status"::Sent;
-            SalesInvHeaderLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+            SalesInvHeaderLoc."Date/Time Sent" :=
+              FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
             SalesInvHeaderLoc.Modify;
         end else begin
             CFDIDocumentsLoc.Get(SalesInvHeader."No.", DATABASE::"Sales Invoice Header", true, true);
@@ -532,7 +543,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not CFDIDocumentsLoc."Electronic Document Sent" then
                 CFDIDocumentsLoc."Electronic Document Sent" := true;
             CFDIDocumentsLoc."Electronic Document Status" := CFDIDocumentsLoc."Electronic Document Status"::Sent;
-            CFDIDocumentsLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+            CFDIDocumentsLoc."Date/Time Sent" :=
+              FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
             CFDIDocumentsLoc.Modify;
         end;
         Message(Text001, SalesInvHeader."No.");
@@ -578,7 +590,8 @@ codeunit 10145 "E-Invoice Mgt."
         if not SalesCrMemoHeaderLoc."Electronic Document Sent" then
             SalesCrMemoHeaderLoc."Electronic Document Sent" := true;
         SalesCrMemoHeaderLoc."Electronic Document Status" := SalesCrMemoHeaderLoc."Electronic Document Status"::Sent;
-        SalesCrMemoHeaderLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+        SalesCrMemoHeaderLoc."Date/Time Sent" :=
+          FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
         SalesCrMemoHeaderLoc.Modify;
 
         Message(Text001, SalesCrMemoHeader."No.");
@@ -623,7 +636,8 @@ codeunit 10145 "E-Invoice Mgt."
         if not ServiceInvoiceHeaderLoc."Electronic Document Sent" then
             ServiceInvoiceHeaderLoc."Electronic Document Sent" := true;
         ServiceInvoiceHeaderLoc."Electronic Document Status" := ServiceInvoiceHeaderLoc."Electronic Document Status"::Sent;
-        ServiceInvoiceHeaderLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+        ServiceInvoiceHeaderLoc."Date/Time Sent" :=
+          FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvoiceHeader)));
         ServiceInvoiceHeaderLoc.Modify;
 
         Message(Text001, ServiceInvoiceHeader."No.");
@@ -668,7 +682,8 @@ codeunit 10145 "E-Invoice Mgt."
         if not ServiceCrMemoHeaderLoc."Electronic Document Sent" then
             ServiceCrMemoHeaderLoc."Electronic Document Sent" := true;
         ServiceCrMemoHeaderLoc."Electronic Document Status" := ServiceCrMemoHeaderLoc."Electronic Document Status"::Sent;
-        ServiceCrMemoHeaderLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+        ServiceCrMemoHeaderLoc."Date/Time Sent" :=
+          FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
         ServiceCrMemoHeaderLoc.Modify;
 
         Message(Text001, ServiceCrMemoHeader."No.");
@@ -697,7 +712,7 @@ codeunit 10145 "E-Invoice Mgt."
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         with SalesInvHeader do begin
-            CancelDateTime := FormatDateTime(CurrentDateTime);
+            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
             "Date/Time Canceled" := CancelDateTime;
             AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
@@ -747,7 +762,7 @@ codeunit 10145 "E-Invoice Mgt."
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         with SalesCrMemoHeader do begin
-            CancelDateTime := FormatDateTime(CurrentDateTime);
+            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
             "Date/Time Canceled" := CancelDateTime;
             AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
@@ -797,7 +812,7 @@ codeunit 10145 "E-Invoice Mgt."
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         with ServiceInvHeader do begin
-            CancelDateTime := FormatDateTime(CurrentDateTime);
+            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvHeader)));
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
             "Date/Time Canceled" := CancelDateTime;
             AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
@@ -847,7 +862,7 @@ codeunit 10145 "E-Invoice Mgt."
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         with ServiceCrMemoHeader do begin
-            CancelDateTime := FormatDateTime(CurrentDateTime);
+            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
             "Date/Time Canceled" := CancelDateTime;
             AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
@@ -894,7 +909,7 @@ codeunit 10145 "E-Invoice Mgt."
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
         XMLCurrNode := XMLNewChild;
         with CustLedgerEntry do begin
-            CancelDateTime := FormatDateTime(CurrentDateTime);
+            CancelDateTime := FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer("Customer No.")));
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', CancelDateTime);
             "Date/Time Canceled" := CancelDateTime;
             AddAttribute(XMLDoc, XMLCurrNode, 'RfcEmisor', CompanyInfo."RFC No.");
@@ -1443,58 +1458,6 @@ codeunit 10145 "E-Invoice Mgt."
         RecordRef.GetTable(ServCrMemoHeader);
         TempBlob.ToRecordRef(RecordRef, ServCrMemoHeader.FieldNo("QR Code"));
         RecordRef.SetTable(ServCrMemoHeader);
-    end;
-
-    local procedure ValidateSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
-    begin
-        with SalesInvoiceHeader do begin
-            if "Source Code" = SourceCodeSetup."Deleted Document" then
-                Error(Text007);
-            TestField("Bill-to Address");
-            TestField("Bill-to Post Code");
-            TestField("No.");
-            TestField("Document Date");
-            TestField("Payment Terms Code");
-        end;
-    end;
-
-    local procedure ValidateSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    begin
-        with SalesCrMemoHeader do begin
-            if "Source Code" = SourceCodeSetup."Deleted Document" then
-                Error(Text007);
-            TestField("Bill-to Address");
-            TestField("Bill-to Post Code");
-            TestField("No.");
-            TestField("Document Date");
-            TestField("Payment Terms Code");
-        end;
-    end;
-
-    local procedure ValidateServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
-    begin
-        with ServiceInvoiceHeader do begin
-            if "Source Code" = SourceCodeSetup."Deleted Document" then
-                Error(Text007);
-            TestField("Bill-to Address");
-            TestField("Bill-to Post Code");
-            TestField("No.");
-            TestField("Document Date");
-            TestField("Payment Terms Code");
-        end;
-    end;
-
-    local procedure ValidateServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
-    begin
-        with ServiceCrMemoHeader do begin
-            if "Source Code" = SourceCodeSetup."Deleted Document" then
-                Error(Text007);
-            TestField("Bill-to Address");
-            TestField("Bill-to Post Code");
-            TestField("No.");
-            TestField("Document Date");
-            TestField("Payment Terms Code");
-        end;
     end;
 
     local procedure CreateXMLDocument33(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; SubTotal: Decimal; RetainAmt: Decimal; IsCredit: Boolean; var XMLDoc: DotNet XmlDocument)
@@ -2336,7 +2299,7 @@ codeunit 10145 "E-Invoice Mgt."
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
             WriteOutStr(OutStream, '||3.3|'); // Version
-            WriteOutStr(OutStream, "No." + '|'); // Folio
+            WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|'); // FormaPago
             WriteOutStr(OutStream, GetCertificateSerialNo + '|'); // NoCertificado
@@ -2436,7 +2399,7 @@ codeunit 10145 "E-Invoice Mgt."
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
             WriteOutStr(OutStream, '||3.3|'); // Version
-            WriteOutStr(OutStream, "No." + '|'); // Folio
+            WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeReqSent + '|'); // Fecha
             WriteOutStr(OutStream, '30|'); // FormaPago
             WriteOutStr(OutStream, GetCertificateSerialNo + '|'); // NoCertificado
@@ -2581,6 +2544,7 @@ codeunit 10145 "E-Invoice Mgt."
 
     procedure ImportElectronicInvoice(var PurchaseHeader: Record "Purchase Header")
     var
+        TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
@@ -2591,14 +2555,19 @@ codeunit 10145 "E-Invoice Mgt."
         ServerFileName: Text;
         ClientFileName: Text;
     begin
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
-            Error(WebClientErr);
+        if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]) then begin
+            ClientFileName := FileManagement.OpenFileDialog(FileDialogTxt, '', FileManagement.GetToFilterText('', '.xml'));
+            if ClientFileName = '' then
+                exit;
 
-        ClientFileName := FileManagement.OpenFileDialog(FileDialogTxt, '', FileManagement.GetToFilterText('', '.xml'));
-        if ClientFileName = '' then
-            exit;
-
-        ServerFileName := FileManagement.UploadFileToServer(ClientFileName);
+            ServerFileName := FileManagement.UploadFileToServer(ClientFileName);
+        end else begin
+            ServerFileName := FileManagement.ServerTempFileName('xml');
+            FileManagement.BLOBImportWithFilter(TempBlob, FileDialogTxt, '', FileFilterTxt, ExtensionFilterTxt);
+            if not TempBlob.HasValue() then
+                exit;
+            FileManagement.BLOBExportToServerFile(TempBlob, ServerFileName);
+        end;
 
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFileName, XMLDoc);
 
@@ -2616,7 +2585,10 @@ codeunit 10145 "E-Invoice Mgt."
             Error(ImportFailedErr);
     end;
 
-    local procedure WriteCompanyInfo33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure WriteCompanyInfo33(var XMLDoc: DotNet XmlDocument;
+
+    var
+        XMLCurrNode: DotNet XmlNode)
     var
         XMLNewChild: DotNet XmlNode;
     begin
@@ -2630,7 +2602,10 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure InitXML33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitXML33(var XMLDoc: DotNet XmlDocument;
+
+    var
+        XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -2648,7 +2623,10 @@ codeunit 10145 "E-Invoice Mgt."
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure InitXML33AdvancePayment(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitXML33AdvancePayment(var XMLDoc: DotNet XmlDocument;
+
+    var
+        XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -2667,7 +2645,12 @@ codeunit 10145 "E-Invoice Mgt."
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure AddElementCFDI(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
+    local procedure AddElementCFDI(var XMLNode: DotNet XmlNode; NodeName: Text;
+                                                    NodeText: Text;
+                                                    NameSpace: Text;
+
+    var
+        CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -2683,7 +2666,12 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddElement(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
+    local procedure AddElement(var XMLNode: DotNet XmlNode; NodeName: Text;
+                                                NodeText: Text;
+                                                NameSpace: Text;
+
+    var
+        CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -2698,7 +2686,12 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddAttribute(var XMLDomDocParam: DotNet XmlDocument; var XMLDomNode: DotNet XmlNode; AttribName: Text; AttribValue: Text): Boolean
+    local procedure AddAttribute(var XMLDomDocParam: DotNet XmlDocument;
+
+    var
+        XMLDomNode: DotNet XmlNode;
+        AttribName: Text;
+        AttribValue: Text): Boolean
     var
         XMLDomAttribute: DotNet XmlAttribute;
     begin
@@ -2716,10 +2709,10 @@ codeunit 10145 "E-Invoice Mgt."
 
     local procedure EncodeString(InputText: Text): Text
     var
-      TypeHelper: Codeunit "Type Helper";
+        TypeHelper: Codeunit "Type Helper";
     begin
-      InputText := DelChr(InputText, '<>');
-      exit(TypeHelper.HtmlEncode(InputText));
+        InputText := DelChr(InputText, '<>');
+        exit(TypeHelper.HtmlEncode(InputText));
     end;
 
     local procedure FormatAmount(InAmount: Decimal): Text
@@ -2754,14 +2747,30 @@ codeunit 10145 "E-Invoice Mgt."
         exit(0);
     end;
 
+    local procedure ConvertDateTimeToTimeZone(InputDateTime: DateTime; TimeZone: Text): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(TypeHelper.ConvertDateTimeFromUTCToTimeZone(InputDateTime, TimeZone));
+    end;
+
+    local procedure ConvertCurrentDateTimeToTimeZone(TimeZone: Text): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(TypeHelper.ConvertDateTimeFromUTCToTimeZone(CurrentDateTime, TimeZone));
+    end;
+
     local procedure FormatDateTime(DateTime: DateTime): Text[50]
     begin
         exit(Format(DateTime, 0, '<Year4>-<Month,2>-<Day,2>T<Hours24,2>:<Minutes,2>:<Seconds,2>'));
     end;
 
-    local procedure FormatAsDateTime(DocDate: Date; DocTime: Time): Text[50]
+    local procedure FormatAsDateTime(DocDate: Date; DocTime: Time; TimeZone: Text): Text[50]
     begin
-        exit(FormatDateTime(CreateDateTime(DocDate, DocTime)));
+        exit(
+          FormatDateTime(
+            ConvertDateTimeToTimeZone(CreateDateTime(DocDate, DocTime), TimeZone)));
     end;
 
     local procedure GetGLSetup()
@@ -2782,6 +2791,11 @@ codeunit 10145 "E-Invoice Mgt."
     local procedure GetCompanyInfo()
     begin
         CompanyInfo.Get;
+    end;
+
+    local procedure GetCheckCompanyInfo()
+    begin
+        GetCompanyInfo;
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField("RFC No.");
         CompanyInfo.TestField(Address);
@@ -2967,7 +2981,8 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesInvoiceHeader."Date/Time First Req. Sent" <> '' then
             exit(SalesInvoiceHeader."Date/Time First Req. Sent");
 
-        SalesInvoiceHeader."Date/Time First Req. Sent" := FormatAsDateTime(SalesInvoiceHeader."Document Date", Time);
+        SalesInvoiceHeader."Date/Time First Req. Sent" :=
+          FormatAsDateTime(SalesInvoiceHeader."Document Date", Time, GetTimeZoneFromDocument(SalesInvoiceHeader));
         exit(SalesInvoiceHeader."Date/Time First Req. Sent");
     end;
 
@@ -2976,7 +2991,8 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesCrMemoHeader."Date/Time First Req. Sent" <> '' then
             exit(SalesCrMemoHeader."Date/Time First Req. Sent");
 
-        SalesCrMemoHeader."Date/Time First Req. Sent" := FormatAsDateTime(SalesCrMemoHeader."Document Date", Time);
+        SalesCrMemoHeader."Date/Time First Req. Sent" :=
+          FormatAsDateTime(SalesCrMemoHeader."Document Date", Time, GetTimeZoneFromDocument(SalesCrMemoHeader));
         exit(SalesCrMemoHeader."Date/Time First Req. Sent");
     end;
 
@@ -2985,7 +3001,8 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceInvoiceHeader."Date/Time First Req. Sent" <> '' then
             exit(ServiceInvoiceHeader."Date/Time First Req. Sent");
 
-        ServiceInvoiceHeader."Date/Time First Req. Sent" := FormatAsDateTime(ServiceInvoiceHeader."Document Date", Time);
+        ServiceInvoiceHeader."Date/Time First Req. Sent" :=
+          FormatAsDateTime(ServiceInvoiceHeader."Document Date", Time, GetTimeZoneFromDocument(ServiceInvoiceHeader));
         exit(ServiceInvoiceHeader."Date/Time First Req. Sent");
     end;
 
@@ -2994,8 +3011,50 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceCrMemoHeader."Date/Time First Req. Sent" <> '' then
             exit(ServiceCrMemoHeader."Date/Time First Req. Sent");
 
-        ServiceCrMemoHeader."Date/Time First Req. Sent" := FormatAsDateTime(ServiceCrMemoHeader."Document Date", Time);
+        ServiceCrMemoHeader."Date/Time First Req. Sent" :=
+          FormatAsDateTime(ServiceCrMemoHeader."Document Date", Time, GetTimeZoneFromDocument(ServiceCrMemoHeader));
         exit(ServiceCrMemoHeader."Date/Time First Req. Sent");
+    end;
+
+    local procedure GetDateTimeOfFirstReqPayment(var CustLedgerEntry: Record "Cust. Ledger Entry"): Text[50]
+    begin
+        if CustLedgerEntry."Date/Time First Req. Sent" <> '' then
+            exit(CustLedgerEntry."Date/Time First Req. Sent");
+
+        CustLedgerEntry."Date/Time First Req. Sent" :=
+          FormatAsDateTime(CustLedgerEntry."Document Date", Time, GetTimeZoneFromCustomer(CustLedgerEntry."Customer No."));
+        exit(CustLedgerEntry."Date/Time First Req. Sent");
+    end;
+
+    local procedure GetTimeZoneFromDocument(DocumentHeaderVariant: Variant): Text
+    var
+        DocumentHeader: Record "Document Header";
+        PostCode: Record "Post Code";
+        TimeZone: Text;
+    begin
+        DocumentHeader.TransferFields(DocumentHeaderVariant);
+        if PostCode.Get(DocumentHeader."Ship-to/Buy-from Post Code", DocumentHeader."Ship-to/Buy-from City") then
+            exit(PostCode."Time Zone");
+
+        if PostCode.Get(DocumentHeader."Sell-to/Buy-from Post Code", DocumentHeader."Sell-to/Buy-From City") then
+            exit(PostCode."Time Zone");
+        TimeZone := GetTimeZoneFromCustomer(DocumentHeader."Sell-to/Buy-from No.");
+        if TimeZone <> '' then
+            exit(TimeZone);
+
+        if PostCode.Get(DocumentHeader."Bill-to/Pay-To Post Code", DocumentHeader."Bill-to/Pay-To City") then
+            exit(PostCode."Time Zone");
+        exit(GetTimeZoneFromCustomer(DocumentHeader."Bill-to/Pay-To No."));
+    end;
+
+    local procedure GetTimeZoneFromCustomer(CustomerNo: Code[20]): Text
+    var
+        PostCode: Record "Post Code";
+    begin
+        Customer.Get(CustomerNo);
+        if PostCode.Get(Customer."Post Code", Customer.City) then
+            exit(PostCode."Time Zone");
+        exit('');
     end;
 
     local procedure DeleteServerFile(ServerFileName: Text)
@@ -3480,7 +3539,8 @@ codeunit 10145 "E-Invoice Mgt."
         if not CustLedgerEntryLoc."Electronic Document Sent" then
             CustLedgerEntryLoc."Electronic Document Sent" := true;
         CustLedgerEntryLoc."Electronic Document Status" := CustLedgerEntryLoc."Electronic Document Status"::Sent;
-        CustLedgerEntryLoc."Date/Time Sent" := FormatDateTime(CurrentDateTime);
+        CustLedgerEntryLoc."Date/Time Sent" :=
+          FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer(CustLedgerEntry."Customer No.")));
         CustLedgerEntryLoc.Modify;
 
         Message(Text001, CustLedgerEntry."Document No.");
@@ -3506,7 +3566,7 @@ codeunit 10145 "E-Invoice Mgt."
         ErrorDescription: Text[250];
     begin
         GetGLSetup;
-        GetCompanyInfo;
+        GetCheckCompanyInfo;
         // Switch from sales hdr Bill-toCustomerNo. to just Customer no.
         GetCustomer(CustLedgerEntry."Customer No.");
 
@@ -3668,8 +3728,8 @@ codeunit 10145 "E-Invoice Mgt."
             AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', 'ACT');
             AddAttribute(XMLDoc, XMLCurrNode, 'Unidad', '');
             AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', 'Pago');
-            AddAttribute(XMLDoc, XMLCurrNode, 'ValorUnitario', '0.00');
-            AddAttribute(XMLDoc, XMLCurrNode, 'Importe', '0.00');
+            AddAttribute(XMLDoc, XMLCurrNode, 'ValorUnitario', '0');
+            AddAttribute(XMLDoc, XMLCurrNode, 'Importe', '0');
             XMLCurrNode := XMLCurrNode.ParentNode;
             XMLCurrNode := XMLCurrNode.ParentNode;
 
@@ -3687,7 +3747,7 @@ codeunit 10145 "E-Invoice Mgt."
             // Pagos->Pago
             AddElementPago(XMLCurrNode, 'Pago', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T));
+            AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T, ''));
             AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code"));
             if TempCustomer."Currency Code" <> '' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', TempCustomer."Currency Code");// *********NEW/CHANGED
@@ -3842,7 +3902,7 @@ codeunit 10145 "E-Invoice Mgt."
             WriteOutStr(OutStream, TempCustomer."RFC No." + '|');// ReceptorCustomerRfcNo.
             if SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(TempCustomer."Country/Region Code") + '|');// ResidenciaFiscal
-                WriteOutStr(OutStream, TempCustomer."VAT Registration No." + '|');// NumRegIdTrib
+                WriteOutStr(OutStream, RemoveInvalidChars(TempCustomer."VAT Registration No.") + '|');// NumRegIdTrib
             end;
             WriteOutStr(OutStream, 'P01|');// UsoCFDIHCtoP01fixedValueForPayment
 
@@ -3851,13 +3911,13 @@ codeunit 10145 "E-Invoice Mgt."
             WriteOutStr(OutStream, '1' + '|');// Cantidad
             WriteOutStr(OutStream, 'ACT' + '|');// ClaveUnidad
             WriteOutStr(OutStream, 'Pago' + '|');// Descripcion
-            WriteOutStr(OutStream, '0.00' + '|');// ValorUnitario
-            WriteOutStr(OutStream, '0.00' + '|');// Importe
+            WriteOutStr(OutStream, '0' + '|');// ValorUnitario
+            WriteOutStr(OutStream, '0' + '|');// Importe
 
             // Pagos
             WriteOutStr(OutStream, '1.0' + '|');// VersionForPagoHCto1.0
                                                 // Pagos->Pago
-            WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T) + '|');// FechaPagoSetToPD
+            WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod(TempCustomer."Payment Method Code") + '|');// FormaDePagoP
             if TempCustomer."Currency Code" <> '' then
                 WriteOutStr(OutStream, TempCustomer."Currency Code" + '|');// MonedaP
@@ -3959,7 +4019,10 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure InitPaymentXML33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitPaymentXML33(var XMLDoc: DotNet XmlDocument;
+
+    var
+        XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -4061,10 +4124,7 @@ codeunit 10145 "E-Invoice Mgt."
             repeat
                 CFDIRelationDocument := CFDIRelationDocumentFrom;
                 CFDIRelationDocument.Insert;
-            until CFDIRelationDocumentFrom.Next = 0
-        else
-            if DocumentHeader."CFDI Relation" = '04' then
-                Error(NoRelationDocumentsExistErr)
+            until CFDIRelationDocumentFrom.Next = 0;
     end;
 
     local procedure GetRelationDocumentsSalesCreditMemo(var CFDIRelationDocument: Record "CFDI Relation Document"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -4097,16 +4157,12 @@ codeunit 10145 "E-Invoice Mgt."
         CFDIRelationDocument.Insert;
     end;
 
-    local procedure GetDateTimeOfFirstReqPayment(var CustLedgerEntry: Record "Cust. Ledger Entry"): Text[50]
-    begin
-        if CustLedgerEntry."Date/Time First Req. Sent" <> '' then
-            exit(CustLedgerEntry."Date/Time First Req. Sent");
+    local procedure AddElementPago(var XMLNode: DotNet XmlNode; NodeName: Text;
+                                                    NodeText: Text;
+                                                    NameSpace: Text;
 
-        CustLedgerEntry."Date/Time First Req. Sent" := FormatAsDateTime(CustLedgerEntry."Document Date", Time);
-        exit(CustLedgerEntry."Date/Time First Req. Sent");
-    end;
-
-    local procedure AddElementPago(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
+    var
+        CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -4122,7 +4178,17 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddNodeRelacionado(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode; var XMLNewChild: DotNet XmlNode; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; CFDIRelacion: Code[10])
+    local procedure AddNodeRelacionado(var XMLDoc: DotNet XmlDocument;
+
+    var
+        XMLCurrNode: DotNet XmlNode;
+
+    var
+        XMLNewChild: DotNet XmlNode;
+
+    var
+        TempCFDIRelationDocument: Record "CFDI Relation Document" temporary;
+        CFDIRelacion: Code[10])
     begin
         if TempCFDIRelationDocument.IsEmpty then
             exit;
@@ -4347,6 +4413,257 @@ codeunit 10145 "E-Invoice Mgt."
             CFDIRelationDocument.Insert;
         until CFDIRelationDocumentFrom.Next = 0;
         CFDIRelationDocumentFrom.DeleteAll;
+    end;
+
+    local procedure CheckSalesDocument(DocumentVariant: Variant; TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; SourceCode: Code[10])
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        CheckGLSetup(TempErrorMessage);
+        CheckCompanyInfo(TempErrorMessage);
+        CheckSATCatalogs(TempErrorMessage);
+        CheckCertificates(TempErrorMessage);
+        CheckCustomer(TempErrorMessage, TempDocumentHeader."Bill-to/Pay-To No.");
+        CheckDocumentHeader(TempErrorMessage, DocumentVariant, TempDocumentHeader, SourceCode);
+        CheckDocumentLine(TempErrorMessage, DocumentVariant, TempDocumentLine);
+        CheckCFDIRelations(TempErrorMessage, TempCFDIRelationDocument, TempDocumentHeader, DocumentVariant);
+
+        if TempErrorMessage.HasErrors(false) then
+            if TempErrorMessage.ShowErrors then
+                Error('');
+    end;
+
+    local procedure CheckGLSetup(var TempErrorMessage: Record "Error Message" temporary)
+    begin
+        GetGLSetupOnce;
+        with TempErrorMessage do begin
+            LogIfEmpty(GLSetup, GLSetup.FieldNo("SAT Certificate"), "Message Type"::Error);
+            LogIfEmpty(GLSetup, GLSetup.FieldNo("PAC Code"), "Message Type"::Error);
+            LogIfEmpty(GLSetup, GLSetup.FieldNo("PAC Environment"), "Message Type"::Error);
+        end;
+    end;
+
+    local procedure CheckCompanyInfo(var TempErrorMessage: Record "Error Message" temporary)
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get;
+        with TempErrorMessage do begin
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Name), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Address), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(City), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Country/Region Code"), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Post Code"), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("E-Mail"), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Tax Scheme"), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC No."), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("SAT Tax Regime Classification"), "Message Type"::Error);
+            LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("SAT Postal Code"), "Message Type"::Error);
+        end;
+    end;
+
+    local procedure CheckCustomer(var TempErrorMessage: Record "Error Message" temporary; CustomerNo: Code[20])
+    begin
+        Customer.Get(CustomerNo);
+        with TempErrorMessage do begin
+            LogIfEmpty(Customer, Customer.FieldNo("RFC No."), "Message Type"::Error);
+            LogIfEmpty(Customer, Customer.FieldNo("Country/Region Code"), "Message Type"::Error);
+        end;
+    end;
+
+    local procedure CheckDocumentHeader(var TempErrorMessage: Record "Error Message" temporary; DocumentVariant: Variant; DocumentHeader: Record "Document Header"; SourceCode: Code[10])
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        SATPaymentTerm: Record "SAT Payment Term";
+        SATPaymentMethod: Record "SAT Payment Method";
+    begin
+        with TempErrorMessage do begin
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("No."), "Message Type"::Error);
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Document Date"), "Message Type"::Error);
+
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Payment Terms Code"), "Message Type"::Error);
+            if PaymentTerms.Get(DocumentHeader."Payment Terms Code") then
+                LogIfEmpty(PaymentTerms, PaymentTerms.FieldNo("SAT Payment Term"), "Message Type"::Error);
+            if (PaymentTerms."SAT Payment Term" <> '') and not SATPaymentTerm.Get(PaymentTerms."SAT Payment Term") then
+                LogMessage(
+                  PaymentTerms, PaymentTerms.FieldNo("SAT Payment Term"), "Message Type"::Error,
+                  StrSubstNo(
+                    WrongFieldValueErr,
+                    PaymentTerms."SAT Payment Term", PaymentTerms.FieldCaption("SAT Payment Term"), PaymentTerms.TableCaption));
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Payment Method Code"), "Message Type"::Error);
+
+            if PaymentMethod.Get(DocumentHeader."Payment Method Code") then
+                LogIfEmpty(PaymentMethod, PaymentMethod.FieldNo("SAT Method of Payment"), "Message Type"::Error);
+            if (PaymentMethod."SAT Method of Payment" <> '') and not SATPaymentMethod.Get(PaymentMethod."SAT Method of Payment") then
+                LogMessage(
+                  PaymentMethod, PaymentMethod.FieldNo("SAT Method of Payment"), "Message Type"::Error,
+                  StrSubstNo(
+                    WrongFieldValueErr,
+                    PaymentMethod."SAT Method of Payment", PaymentMethod.FieldCaption("SAT Method of Payment"), PaymentMethod.TableCaption));
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Bill-to/Pay-To Address"), "Message Type"::Error);
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Bill-to/Pay-To Post Code"), "Message Type"::Error);
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("CFDI Purpose"), "Message Type"::Error);
+            LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("CFDI Relation"), "Message Type"::Error);
+            if SourceCode = SourceCodeSetup."Deleted Document" then
+                LogSimpleMessage("Message Type"::Error, Text007);
+            if (DocumentHeader."CFDI Purpose" = 'PPD') and (DocumentHeader."CFDI Relation" = '03') then
+                LogMessage(
+                  DocumentHeader, DocumentHeader.FieldNo("CFDI Purpose"), "Message Type"::Error,
+                  StrSubstNo(
+                    CombinationCannotBeUsedErr, DocumentHeader.FieldCaption("CFDI Purpose"), DocumentHeader."CFDI Purpose",
+                    DocumentHeader.FieldCaption("CFDI Relation"), DocumentHeader."CFDI Relation"));
+        end;
+    end;
+
+    local procedure CheckDocumentLine(var TempErrorMessage: Record "Error Message" temporary; DocumentVariant: Variant; var DocumentLine: Record "Document Line")
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        DataTypeManagement: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+        LineVariant: Variant;
+        LineTableCaption: Text;
+    begin
+        DataTypeManagement.GetRecordRef(DocumentVariant, RecRef);
+        DocumentLine.FindSet;
+        with TempErrorMessage do
+            repeat
+                GetLineVarFromDocumentLine(LineVariant, LineTableCaption, RecRef.Number, DocumentLine);
+                LogIfEmpty(LineVariant, DocumentLine.FieldNo(Description), "Message Type"::Error);
+                LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit Price/Direct Unit Cost"), "Message Type"::Error);
+                LogIfEmpty(LineVariant, DocumentLine.FieldNo("Amount Including VAT"), "Message Type"::Error);
+                LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
+                if not (DocumentLine.Type in [DocumentLine.Type::Item, DocumentLine.Type::Resource]) then
+                    LogMessage(
+                      LineVariant, DocumentLine.FieldNo(Type), "Message Type"::Error,
+                      StrSubstNo(
+                        WrongFieldValueErr,
+                        DocumentLine.Type, DocumentLine.FieldCaption(Type), LineTableCaption));
+
+                if (DocumentLine.Type = DocumentLine.Type::Item) and Item.Get(DocumentLine."No.") then
+                    LogIfEmpty(Item, Item.FieldNo("SAT Item Classification"), "Message Type"::Error);
+                if UnitOfMeasure.Get(DocumentLine."Unit of Measure Code") then
+                    LogIfEmpty(UnitOfMeasure, UnitOfMeasure.FieldNo("SAT UofM Classification"), "Message Type"::Error);
+            until DocumentLine.Next = 0;
+    end;
+
+    local procedure CheckCFDIRelations(var TempErrorMessage: Record "Error Message" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; DocumentHeader: Record "Document Header"; RecVariant: Variant)
+    begin
+        with TempErrorMessage do begin
+            if TempCFDIRelationDocument.FindSet then
+                repeat
+                    LogIfEmpty(TempCFDIRelationDocument, TempCFDIRelationDocument.FieldNo("Fiscal Invoice Number PAC"), "Message Type"::Error);
+                until TempCFDIRelationDocument.Next = 0
+            else
+                if DocumentHeader."CFDI Relation" = '04' then
+                    LogMessage(RecVariant, DocumentHeader.FieldNo("CFDI Relation"), "Message Type"::Error, NoRelationDocumentsExistErr);
+        end;
+    end;
+
+    local procedure CheckSATCatalogs(var TempErrorMessage: Record "Error Message" temporary)
+    var
+        SATClassification: Record "SAT Classification";
+        SATRelationshipType: Record "SAT Relationship Type";
+        SATUseCode: Record "SAT Use Code";
+        SATUnitOfMeasure: Record "SAT Unit of Measure";
+        SATCountryCode: Record "SAT Country Code";
+        SATTaxScheme: Record "SAT Tax Scheme";
+        SATPaymentTerm: Record "SAT Payment Term";
+        SATPaymentMethod: Record "SAT Payment Method";
+    begin
+        with TempErrorMessage do begin
+            if SATClassification.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATClassification.TableCaption));
+            if SATRelationshipType.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATRelationshipType.TableCaption));
+            if SATUseCode.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATUseCode.TableCaption));
+            if SATUnitOfMeasure.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATUnitOfMeasure.TableCaption));
+            if SATCountryCode.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATCountryCode.TableCaption));
+            if SATTaxScheme.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATTaxScheme.TableCaption));
+            if SATPaymentTerm.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATPaymentTerm.TableCaption));
+            if SATPaymentMethod.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(EmptySATCatalogErr, SATPaymentMethod.TableCaption));
+
+            SATPaymentTerm.SetRange(Code, 'PIP');
+            if SATPaymentTerm.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(WrongSATCatalogErr, SATPaymentTerm.TableCaption));
+            SATPaymentMethod.SetRange(Code, '01');
+            if SATPaymentMethod.IsEmpty then
+                LogSimpleMessage("Message Type"::Error, StrSubstNo(WrongSATCatalogErr, SATPaymentMethod.TableCaption));
+        end;
+    end;
+
+    local procedure CheckCertificates(var TempErrorMessage: Record "Error Message" temporary)
+    var
+        IsolatedCertificate: Record "Isolated Certificate";
+        PACWebService: Record "PAC Web Service";
+        PACWebServiceDetail: Record "PAC Web Service Detail";
+    begin
+        GetGLSetupOnce;
+        with TempErrorMessage do begin
+            if IsolatedCertificate.Get(GLSetup."SAT Certificate") then
+                LogIfEmpty(IsolatedCertificate, IsolatedCertificate.FieldNo(ThumbPrint), "Message Type"::Error);
+            if PACWebService.Get(GLSetup."PAC Code") then begin
+                LogIfEmpty(PACWebService, PACWebService.FieldNo(Certificate), "Message Type"::Error);
+                if PACWebServiceDetail.Get(PACWebService.Code, GLSetup."PAC Environment", PACWebServiceDetail.Type::"Request Stamp") then
+                    LogIfEmpty(PACWebServiceDetail, PACWebServiceDetail.FieldNo(Address), "Message Type"::Error)
+                else
+                    LogMessage(
+                      PACWebServiceDetail, PACWebService.FieldNo(Code), "Message Type"::Error,
+                      StrSubstNo(
+                        PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption,
+                        PACWebService.Code, GLSetup."PAC Environment", PACWebServiceDetail.Type::"Request Stamp"));
+                if PACWebServiceDetail.Get(PACWebService.Code, GLSetup."PAC Environment", PACWebServiceDetail.Type::Cancel) then
+                    LogIfEmpty(PACWebServiceDetail, PACWebServiceDetail.FieldNo(Address), "Message Type"::Error)
+                else
+                    LogMessage(
+                      PACWebServiceDetail, PACWebService.FieldNo(Code), "Message Type"::Error,
+                      StrSubstNo(
+                        PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption,
+                        PACWebService.Code, GLSetup."PAC Environment", PACWebServiceDetail.Type::Cancel));
+            end;
+        end;
+    end;
+
+    local procedure GetLineVarFromDocumentLine(var LineVariant: Variant; var TableCaption: Text; TableID: Integer; DocumentLine: Record "Document Line")
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+    begin
+        case TableID of
+            DATABASE::"Sales Invoice Header":
+                begin
+                    SalesInvoiceLine.Get(DocumentLine."Document No.", DocumentLine."Line No.");
+                    LineVariant := SalesInvoiceLine;
+                    TableCaption := SalesInvoiceLine.TableCaption;
+                end;
+            DATABASE::"Sales Cr.Memo Header":
+                begin
+                    SalesCrMemoLine.Get(DocumentLine."Document No.", DocumentLine."Line No.");
+                    LineVariant := SalesCrMemoLine;
+                    TableCaption := SalesCrMemoLine.TableCaption;
+                end;
+            DATABASE::"Service Invoice Header":
+                begin
+                    ServiceInvoiceLine.Get(DocumentLine."Document No.", DocumentLine."Line No.");
+                    LineVariant := ServiceInvoiceLine;
+                    TableCaption := ServiceInvoiceLine.TableCaption;
+                end;
+            DATABASE::"Service Cr.Memo Header":
+                begin
+                    ServiceCrMemoLine.Get(DocumentLine."Document No.", DocumentLine."Line No.");
+                    LineVariant := ServiceCrMemoLine;
+                    TableCaption := ServiceCrMemoLine.TableCaption;
+                end;
+        end;
     end;
 }
 

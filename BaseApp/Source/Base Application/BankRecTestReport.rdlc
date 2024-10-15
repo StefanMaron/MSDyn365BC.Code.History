@@ -3999,13 +3999,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Caption">
+          <Textbox Name="G_L_Balance__Positive_Adjustments__Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments_Caption">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Caption.Value)</Value>
+                    <Value>=First(Fields!G_L_Balance__Positive_Adjustments__Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments_Caption.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                       <FontWeight>Bold</FontWeight>
@@ -4025,16 +4025,16 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__">
+          <Textbox Name="G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__.Value)</Value>
+                    <Value>=First(Fields!G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
-                      <Format>=First(Fields!G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments_______Negative_Adjustments_____Positive_Bal__Adjustments__Format.Value)</Format>
+                      <Format>=First(Fields!G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__Format.Value)</Format>
                     </Style>
                   </TextRun>
                 </TextRuns>
@@ -4696,11 +4696,11 @@ End Function
         <Field Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Format">
           <DataField>G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Format</DataField>
         </Field>
-        <Field Name="DataItem1020013">
-          <DataField>DataItem1020013</DataField>
+        <Field Name="G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__">
+          <DataField>G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__</DataField>
         </Field>
-        <Field Name="DataItem1020013Format">
-          <DataField>DataItem1020013Format</DataField>
+        <Field Name="G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__Format">
+          <DataField>G_L_Balance___Positive_Adjustments___Negative_Bal__Adjustments___Negative_Adjustments___Positive_Bal__Adjustments__Format</DataField>
         </Field>
         <Field Name="Difference">
           <DataField>Difference</DataField>
@@ -4789,8 +4789,8 @@ End Function
         <Field Name="G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption">
           <DataField>G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption</DataField>
         </Field>
-        <Field Name="DataItem1020019">
-          <DataField>DataItem1020019</DataField>
+        <Field Name="G_L_Balance__Positive_Adjustments__Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments_Caption">
+          <DataField>G_L_Balance__Positive_Adjustments__Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments_Caption</DataField>
         </Field>
         <Field Name="DifferenceCaption">
           <DataField>DifferenceCaption</DataField>

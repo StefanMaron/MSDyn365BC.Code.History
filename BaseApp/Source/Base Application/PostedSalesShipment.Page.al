@@ -566,6 +566,7 @@
 
                 trigger OnAction()
                 begin
+                    SalesShptHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesShptHeader);
                     SalesShptHeader.PrintRecords(true);
                 end;

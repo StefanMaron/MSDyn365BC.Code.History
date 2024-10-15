@@ -28,6 +28,9 @@
       "path": "./TestFramework/TestRunner/Test Runner"
     },
     {
+      "path": "./MX_DIOT/Test/MX_DIOTTest"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/EssentialBusinessHeadlinesTest"
     },
     {

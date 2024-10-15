@@ -299,7 +299,7 @@
                     }
                     field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                     {
-                        ApplicationArea = VAT;
+                        ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     }
@@ -394,18 +394,18 @@
                 }
                 field("FATCA filing requirement"; "FATCA filing requirement")
                 {
-                    ApplicationArea = BasicMX;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is set up to require FATCA filing.';
                 }
                 field("Federal ID No."; "Federal ID No.")
                 {
-                    ApplicationArea = BasicMX;
+                    ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the vendor''s Taxpayer Identification Number (TIN). The vendor is assigned this number by the tax authorities.';
                 }
                 field("Tax Identification Type"; "Tax Identification Type")
                 {
-                    ApplicationArea = SalesTax, BasicMX;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax identification type for the customer. This information is used for tax reporting. The identification type used for a customer depends on whether the customer is classified as a company or as a person.';
                 }
                 field("RFC No."; "RFC No.")

@@ -3,6 +3,7 @@ report 10135 "Item Sales Statistics"
     DefaultLayout = RDLC;
     RDLCLayout = './ItemSalesStatistics.rdlc';
     Caption = 'Item Sales Statistics';
+    ApplicationArea = Basic, Suite;
     UsageCategory = ReportsAndAnalysis;
 
     dataset

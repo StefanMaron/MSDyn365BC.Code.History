@@ -7,7 +7,7 @@ codeunit 1354 "Generate Activity Telemetry"
     end;
 
     var
-        AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Comment = 'Locked';
+        AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Locked = true;
         TraceTagTelemetryMsg: Label '%1: %2', Comment = '%1 = Record Name; %2 = Record Count';
         TableInformation: Record "Table Information";
 
@@ -52,6 +52,8 @@ codeunit 1354 "Generate Activity Telemetry"
         UserGroup: Record "User Group";
         PermissionSetBuffer: Record "Permission Set Buffer";
         BOMComponent: Record "BOM Component";
+		CheckLedgerEntry: Record "Check Ledger Entry";
+		PostedDepositHeader: Record "Posted Deposit Header";
     begin
         TableInformation.SetRange("Company Name", CompanyName);
 
@@ -96,6 +98,9 @@ codeunit 1354 "Generate Activity Telemetry"
         EmitTelemetryOnRecordCount(UserGroup.TableName, '0000870');
         EmitTelemetryOnRecordCount(PermissionSetBuffer.TableName, '0000871');
         EmitTelemetryOnRecordCount(BOMComponent.TableName, '0000872');
+		
+        EmitTelemetryOnRecordCount(CheckLedgerEntry.TableName, '0000AHO');
+        EmitTelemetryOnRecordCount(PostedDepositHeader.TableName, '0000AHP');
     end;
 
     local procedure GetNoOfRecords(TableName: Text[30]): Integer

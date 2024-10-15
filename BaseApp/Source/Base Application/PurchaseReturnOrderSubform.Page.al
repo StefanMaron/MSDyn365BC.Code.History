@@ -122,7 +122,7 @@
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
                     Visible = false;
 
@@ -979,8 +979,6 @@
     end;
 
     trigger OnInit()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         PurchasesPayablesSetup.Get;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
@@ -994,14 +992,9 @@
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         InitType;
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText;
@@ -1021,7 +1014,8 @@
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ConnotExplodeBOMErr: Label 'You cannot use the Explode BOM function because a prepayment of the purchase order has been invoiced.';
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        CannotExplodeBOMErr: Label 'You cannot use the Explode BOM function because a prepayment of the purchase order has been invoiced.';
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
         ShortcutDimCode: array[8] of Code[20];
@@ -1071,7 +1065,7 @@
     local procedure ExplodeBOM()
     begin
         if "Prepmt. Amt. Inv." <> 0 then
-            Error(ConnotExplodeBOMErr);
+            Error(CannotExplodeBOMErr);
         CODEUNIT.Run(CODEUNIT::"Purch.-Explode BOM", Rec);
         DocumentTotals.PurchaseDocTotalsNotUpToDate;
     end;
@@ -1214,6 +1208,18 @@
         Clear(DimMgt);
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if not IsHandled then // Set default type Item
+            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                if xRec."Document No." = '' then
+                    Type := Type::Item;
+    end;
+
     local procedure UpdateCurrency()
     begin
         if Currency.Code <> TotalPurchaseHeader."Currency Code" then
@@ -1225,6 +1231,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -107,6 +107,8 @@ table 82 "Item Journal Template"
                         Type::Capacity:
                             "Page ID" := PAGE::"Recurring Capacity Journal";
                     end;
+
+                OnAfterValidateType(Rec, SourceCodeSetup);
             end;
         }
         field(10; "Source Code"; Code[10])
@@ -252,5 +254,10 @@ table 82 "Item Journal Template"
         ItemJnlLine: Record "Item Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateType(ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
 }
 

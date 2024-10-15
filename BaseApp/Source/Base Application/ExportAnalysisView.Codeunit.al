@@ -179,11 +179,11 @@ codeunit 424 "Export Analysis View"
 
         while StartDate <= EndDate do begin
             SetStartColumnNo(NoOfLeadingColumns);
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 0), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 1), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 2), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 3), 0, 9));
-            FillNextCellInRow(Format(CalculatePeriodStart(StartDate, 4), 0, 9));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 0));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 1));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 2));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 3));
+            FillNextCellInRow(CalculatePeriodStart(StartDate, 4));
             StartNewRow;
 
             StartDate := CalcDate('<1W>', StartDate);
@@ -239,25 +239,25 @@ codeunit 424 "Export Analysis View"
                             FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, ShowName);
 
                         if not ShowInAddCurr then begin
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
-                            FillNextCellInRow(Format(Amount * SignValue, 0, '<Standard Format,1>'));
-                            FillNextCellInRow(Format("Debit Amount" * SignValue, 0, '<Standard Format,1>'));
-                            FillNextCellInRow(Format("Credit Amount" * SignValue, 0, '<Standard Format,1>'));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
+                            FillNextCellInRow(Amount * SignValue);
+                            FillNextCellInRow("Debit Amount" * SignValue);
+                            FillNextCellInRow("Credit Amount" * SignValue);
                         end else begin
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
-                            FillNextCellInRow(Format("Add.-Curr. Amount" * SignValue, 0, '<Standard Format,1>'));
-                            FillNextCellInRow(Format("Add.-Curr. Debit Amount" * SignValue, 0, '<Standard Format,1>'));
-                            FillNextCellInRow(Format("Add.-Curr. Credit Amount" * SignValue, 0, '<Standard Format,1>'));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
+                            FillNextCellInRow("Add.-Curr. Amount" * SignValue);
+                            FillNextCellInRow("Add.-Curr. Debit Amount" * SignValue);
+                            FillNextCellInRow("Add.-Curr. Credit Amount" * SignValue);
                         end;
                         StartNewRow;
                     end;
@@ -318,16 +318,16 @@ codeunit 424 "Export Analysis View"
                             FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, ShowName);
 
                         if not ShowInAddCurr then begin
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
                             FillNextCellInRow('');
                             FillNextCellInRow('');
                             FillNextCellInRow('');
-                            FillNextCellInRow(Format(Amount * SignValue, 0, '<Standard Format,1>'));
+                            FillNextCellInRow(Amount * SignValue);
                         end else begin
                             if GetFilter("Posting Date") = '' then
                                 CurrExchDate := WorkDate
@@ -350,16 +350,16 @@ codeunit 424 "Export Analysis View"
                                       CurrExchRate.ExchangeRate(
                                         CurrExchDate, GLSetup."Additional Reporting Currency")) * SignValue,
                                     GLSetup."Amount Rounding Precision");
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), -1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 0), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 1), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 2), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 3), 0, 9));
-                            FillNextCellInRow(Format(CalculatePeriodStart(NormalDate("Posting Date"), 4), 0, 9));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
+                            FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
                             FillNextCellInRow('');
                             FillNextCellInRow('');
                             FillNextCellInRow('');
-                            FillNextCellInRow(Format(AddRepCurrAmount, 0, '<Standard Format,1>'));
+                            FillNextCellInRow(AddRepCurrAmount);
                         end;
                         StartNewRow;
                     end;
@@ -449,11 +449,11 @@ codeunit 424 "Export Analysis View"
             if AnalysisView."Starting Date" <> 0D then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView.FieldCaption("Starting Date"));
-                FillCell(RowNoCount, 3, Format(AnalysisView."Starting Date"));
+                FillCell(RowNoCount, 3, AnalysisView."Starting Date");
             end;
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 2, AnalysisView.FieldCaption("Last Date Updated"));
-            FillCell(RowNoCount, 3, Format(AnalysisView."Last Date Updated"));
+            FillCell(RowNoCount, 3, AnalysisView."Last Date Updated");
             AnalysisViewFilter.SetRange("Analysis View Code", "Analysis View Code");
             if AnalysisViewFilter.FindSet then
                 repeat
@@ -755,18 +755,26 @@ codeunit 424 "Export Analysis View"
             AddAcc(false, '', '');
     end;
 
-    local procedure FillCell(RowNo: Integer; ColumnNo: Integer; CellValueAsText: Text)
+    local procedure FillCell(RowNo: Integer; ColumnNo: Integer; Value: Variant)
     begin
         with TempExcelBuffer do begin
             Init;
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
-            "Cell Value as Text" := CopyStr(CellValueAsText, 1, MaxStrLen("Cell Value as Text"));
+            case true of
+                Value.IsDecimal or Value.IsInteger:
+                    Validate("Cell Type", "Cell Type"::Number);
+                Value.IsDate:
+                    Validate("Cell Type", "Cell Type"::Date);
+                else
+                    Validate("Cell Type", "Cell Type"::Text);
+            end;
+            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
             Insert;
         end;
     end;
 
-    local procedure FillNextCellInRow(CellValueAsText: Text)
+    local procedure FillNextCellInRow(Value: Variant)
     var
         RowNo: Integer;
         ColumnNo: Integer;
@@ -777,7 +785,15 @@ codeunit 424 "Export Analysis View"
             Init;
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
-            "Cell Value as Text" := CopyStr(CellValueAsText, 1, MaxStrLen("Cell Value as Text"));
+            case true of
+                Value.IsDecimal or Value.IsInteger:
+                    Validate("Cell Type", "Cell Type"::Number);
+                Value.IsDate:
+                    Validate("Cell Type", "Cell Type"::Date);
+                else
+                    Validate("Cell Type", "Cell Type"::Text);
+            end;
+            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
             Insert;
         end;
     end;

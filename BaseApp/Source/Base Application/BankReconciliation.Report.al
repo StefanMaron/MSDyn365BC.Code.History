@@ -43,10 +43,10 @@ report 10408 "Bank Reconciliation"
             column(G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments"))
             {
             }
-            column(DataItem1020013; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
+            column(G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
             {
             }
-            column(DataItem1020022; Difference)
+            column(G_L_Bal__Pos_Adj__Neg_Bal__Adj__Neg_Adj__Pos_Bal__Adj__Statement_Balance__Outstanding_Deposits__Outstanding_Checks__; Difference)
             {
             }
             column(Posted_Bank_Rec__Header__G_L_Balance__LCY__; "G/L Balance (LCY)")
@@ -115,10 +115,10 @@ report 10408 "Bank Reconciliation"
             column(G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__Caption; G_L_Balance______Positive_Adjustments_____Negative_Bal__Adjustments__CaptionLbl)
             {
             }
-            column(DataItem1020019; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustments_Lbl)
+            column(G_L_Balance__Positive_Adjustments_Negative_Bal__Adjustments__Negative_Adjustments__Positive_Bal__Adjustments__Caption; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustments_Lbl)
             {
             }
-            column(DataItem1020025; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustmen000Lbl)
+            column(G_L_Bal__Pos_Adj__Neg_Bal__Adj_Neg_Adj__Positive_Bal__Adj__Stat_Balance__Outstanding_Depos__Outstanding_Checks__Caption; G_L_Balance_Positive_Adjustments_Negative_Bal_Adjustments_Negative_Adjustments_Positive_Bal_Adjustmen000Lbl)
             {
             }
             column(Posted_Bank_Rec__Header__G_L_Balance__LCY__Caption; FieldCaption("G/L Balance (LCY)"))

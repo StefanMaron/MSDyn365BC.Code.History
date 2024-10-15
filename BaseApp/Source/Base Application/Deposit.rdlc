@@ -2586,7 +2586,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Max(Fields!STRSUBSTNO_Text003__Deposit_No____Posted_Deposit_Header__FIELDCAPTION__Bank_Account_No_____Posted_Deposit_Header___Bank_Account_No___.Value)</Value>
+                                  <Value>=Max(Fields!Text003__Deposit_No__Posted_Deposit_Header__FIELDCAPTION__Bank_Account_No__Posted_Deposit_Header_Bank_Account_No__.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -3210,8 +3210,8 @@ End Function</Code>
         <Field Name="Posted_Deposit_Line_Amount_Control1020042Format">
           <DataField>Posted_Deposit_Line_Amount_Control1020042Format</DataField>
         </Field>
-        <Field Name="DataItem1020044">
-          <DataField>DataItem1020044</DataField>
+        <Field Name="Text003__Deposit_No__Posted_Deposit_Header__FIELDCAPTION__Bank_Account_No__Posted_Deposit_Header_Bank_Account_No__">
+          <DataField>Text003__Deposit_No__Posted_Deposit_Header__FIELDCAPTION__Bank_Account_No__Posted_Deposit_Header_Bank_Account_No__</DataField>
         </Field>
         <Field Name="Posted_Deposit_Line_Deposit_No_">
           <DataField>Posted_Deposit_Line_Deposit_No_</DataField>

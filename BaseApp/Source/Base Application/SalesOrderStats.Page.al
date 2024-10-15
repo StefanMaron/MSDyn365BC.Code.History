@@ -665,6 +665,12 @@ page 10038 "Sales Order Stats."
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text006, false);
+
+                    trigger OnValidate()
+                    begin
+                        SalesPostPrepmt.UpdatePrepmtAmountOnSaleslines(Rec,PrepmtTotalAmount);
+                        FillPrepmtAmount;
+                    end;
                 }
                 field(PrepmtVATAmount; PrepmtVATAmount)
                 {
@@ -773,7 +779,6 @@ page 10038 "Sales Order Stats."
     var
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
-        SalesPostPrepmt: Codeunit "Sales-Post Prepayments";
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         PrevPrintOrder: Integer;
         PrevTaxPercent: Decimal;
@@ -877,18 +882,7 @@ page 10038 "Sales Order Stats."
         end;
         TempSalesLine.DeleteAll;
         Clear(TempSalesLine);
-        SalesPostPrepmt.GetSalesLines(Rec, 0, TempSalesLine);
-        SalesPostPrepmt.SumPrepmt(
-          Rec, TempSalesLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
-        PrepmtInvPct :=
-          Pct(TotalSalesLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
-        PrepmtDeductedPct :=
-          Pct(TotalSalesLine[1]."Prepmt Amt Deducted", TotalSalesLine[1]."Prepmt. Amt. Inv.");
-        if "Prices Including VAT" then begin
-            PrepmtTotalAmount2 := PrepmtTotalAmount;
-            PrepmtTotalAmount := PrepmtTotalAmount + PrepmtVATAmount;
-        end else
-            PrepmtTotalAmount2 := PrepmtTotalAmount + PrepmtVATAmount;
+        FillPrepmtAmount;
 
         if Cust.Get("Bill-to Customer No.") then
             Cust.CalcFields("Balance (LCY)")
@@ -951,6 +945,7 @@ page 10038 "Sales Order Stats."
         SalesTaxDifference: Record "Sales Tax Amount Difference";
         TaxArea: Record "Tax Area";
         SalesPost: Codeunit "Sales-Post";
+        SalesPostPrepmt: Codeunit "Sales-Post Prepayments";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         VATLinesForm: Page "Sales Tax Lines Subform Dyn";
         TotalAmount1: array[3] of Decimal;
@@ -1177,6 +1172,25 @@ page 10038 "Sales Order Stats."
 
         UpdateTaxOnSalesLines;
     end;
+
+    local procedure FillPrepmtAmount()
+    var 
+        TempSalesLine: Record "Sales Line" temporary;
+    begin
+        SalesPostPrepmt.GetSalesLines(Rec, 0, TempSalesLine);
+        SalesPostPrepmt.SumPrepmt(
+          Rec, TempSalesLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
+        PrepmtInvPct :=
+          Pct(TotalSalesLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
+        PrepmtDeductedPct :=
+          Pct(TotalSalesLine[1]."Prepmt Amt Deducted", TotalSalesLine[1]."Prepmt. Amt. Inv.");
+        if "Prices Including VAT" then begin
+            PrepmtTotalAmount2 := PrepmtTotalAmount;
+            PrepmtTotalAmount := PrepmtTotalAmount + PrepmtVATAmount;
+        end else
+            PrepmtTotalAmount2 := PrepmtTotalAmount + PrepmtVATAmount;
+        Modify;
+    end; 
 
     local procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
     begin
