@@ -1338,6 +1338,9 @@
                                     CheckLedgEntry2 := CheckLedgEntry;
                                     CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Posted;
                                     CheckLedgEntry2."Bank Account Ledger Entry No." := BankAccLedgEntry."Entry No.";
+                                    // When Remit-to Code is blank use description given on Payment Journal Line
+                                    if "Remit-to Code" = '' then
+                                        CheckLedgEntry2.Description := BankAccLedgEntry.Description;
                                     OnPostBankAccOnBeforeCheckLedgEntry2Modify(CheckLedgEntry, BankAccLedgEntry);
                                     CheckLedgEntry2.Modify();
                                 until CheckLedgEntry.Next() = 0;

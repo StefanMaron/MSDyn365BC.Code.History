@@ -54,6 +54,7 @@
         DimMgt: Codeunit DimensionManagement;
         ServAllocMgt: Codeunit ServAllocationManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
         GenJnlLineExtDocNo: Code[35];
@@ -189,6 +190,9 @@
         SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
         Item: Record Item;
         ServItemMgt: Codeunit ServItemManagement;
+        ErrorContextElementProcessLine: Codeunit "Error Context Element";
+        ErrorContextElementPostLine: Codeunit "Error Context Element";
+        ZeroServiceLineRecID: RecordId;
         RemQtyToBeInvoiced: Decimal;
         RemQtyToBeInvoicedBase: Decimal;
         RemQtyToBeConsumed: Decimal;
@@ -201,6 +205,7 @@
         LastLineRetrieved: Boolean;
         IsHandled: Boolean;
         ShouldPostShipmentServiceEntry: Boolean;
+	    PostDocumentLinesMsg: Label 'Post document lines.';
     begin
         LineCount := 0;
         with ServHeader do begin
@@ -292,12 +297,16 @@
             ServLine.CalcVATAmountLines(2, ServHeader, ServLine, TempVATAmountLineForSLE, Ship);
         end;
 
+        GetZeroServiceLineRecID(ServHeader, ZeroServiceLineRecID);
+        ErrorMessageMgt.PushContext(ErrorContextElementProcessLine, ZeroServiceLineRecID, 0, PostDocumentLinesMsg);
+
         ServLine.Reset();
         SortLines(ServLine);
         OnPostDocumentLinesOnAfterSortLines(ServHeader, ServLine);
         ServLedgEntryNo := FindFirstServLedgEntry(ServLine);
         if ServLine.Find('-') then
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElementPostLine, ServLine.RecordId, 0, PostDocumentLinesMsg);
                 ServPostingJnlsMgt.SetItemJnlRollRndg(false);
                 if ServLine.Type = ServLine.Type::Item then
                     DummyTrackingSpecification.CheckItemTrackingQuantity(
@@ -513,7 +522,11 @@
                               LastLineRetrieved, false, BiggestLineNo);
                     end;
                 end; // With ServLine
+                ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+
+        ErrorMessageMgt.PopContext(ErrorContextElementProcessLine);
+        ErrorMessageMgt.Finish(ZeroServiceLineRecID);
 
         with ServHeader do begin
             // again reverse amount
@@ -2461,6 +2474,16 @@
     [IntegrationEvent(false, false)]
     local procedure OnFinalize(var ServiceHeader: Record "Service Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceInvoiceLine: Record "Service Invoice Line"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; IsInvoice: Boolean)
     begin
+    end;
+
+    local procedure GetZeroServiceLineRecID(ServiceHeader: Record "Service Header"; var ServiceLineRecID: RecordId)
+    var
+        ZeroServiceLine: Record "Service Line";
+    begin
+        ZeroServiceLine."Document Type" := ServiceHeader."Document Type";
+        ZeroServiceLine."Document No." := ServiceHeader."No.";
+        ZeroServiceLine."Line No." := 0;
+        ServiceLineRecID := ZeroServiceLine.RecordId;
     end;
 
     [IntegrationEvent(false, false)]
