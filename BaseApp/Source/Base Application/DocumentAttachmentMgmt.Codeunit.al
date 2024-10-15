@@ -1090,6 +1090,7 @@ codeunit 1173 "Document Attachment Mgmt"
     var
         FromDocumentAttachment: Record "Document Attachment";
         ToDocumentAttachment: Record "Document Attachment";
+        ToDocumentAttachment2: Record "Document Attachment";
         FromFieldRef: FieldRef;
         ToFieldRef: FieldRef;
         FromDocumentType: Enum "Incoming Document Type";
@@ -1194,7 +1195,11 @@ codeunit 1173 "Document Attachment Mgmt"
                             end;
                     end;
 
-                    if not ToDocumentAttachment.Insert(true) then;
+                    if not ToDocumentAttachment.Insert(true) then begin
+                        ToDocumentAttachment2 := ToDocumentAttachment;
+                        ToDocumentAttachment.Find('=');
+                        ToDocumentAttachment.TransferFields(ToDocumentAttachment2, false);
+                    end;
 
                     ToDocumentAttachment."Attached Date" := FromDocumentAttachment."Attached Date";
                     ToDocumentAttachment.Modify();
