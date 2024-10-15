@@ -33,6 +33,12 @@ report 1307 "Standard Sales - Credit Memo"
             column(CompanyAddress6; CompanyAddr[6])
             {
             }
+            column(CompanyAddress7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddr[8])
+            {
+            }
             column(CompanyHomePage; CompanyInfo."Home Page")
             {
             }
@@ -238,6 +244,15 @@ report 1307 "Standard Sales - Credit Memo"
             {
             }
             column(ShipToAddress8; ShipToAddr[8])
+            {
+            }
+            column(CustomerSirenNo; Cust.GetSIRENNoWithCaption())
+            {
+            }
+            column(GoodsAndServices_Lbl; GetGoodsAndServicesText())
+            {
+            }
+            column(VATPaidOnDebits_Lbl; GetVATPaidOnDebitsText())
             {
             }
             column(PaymentTermsDescription; PaymentTerms.Description)
@@ -1053,6 +1068,9 @@ report 1307 "Standard Sales - Credit Memo"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
+        IncludesGoodsLbl: Label 'Sales credit memo includes only goods.';
+        IncludesServicesLbl: Label 'Sales credit memo includes only services.';
+        IncludesGoodsAndServicesLbl: Label 'Sales credit memo includes goods and services.';
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -1187,6 +1205,49 @@ report 1307 "Standard Sales - Credit Memo"
     begin
         LogInteraction := NewLogInteraction;
         DisplayAssemblyInformation := DisplayAsmInfo;
+    end;
+
+    local procedure GetGoodsAndServicesText(): Text
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        GotGoods: Boolean;
+        GotServices: Boolean;
+    begin
+        SalesCrMemoLine.SetRange("Document No.", Header."No.");
+        SalesCrMemoLine.SetFilter(Type, '<> %1', SalesCrMemoLine.Type::Item);
+        if not SalesCrMemoLine.IsEmpty() then
+            GotServices := true;
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+        SalesCrMemoLine.SetLoadFields("No.");
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                if IsItemInventory(SalesCrMemoLine."No.") then
+                    GotGoods := true
+                else
+                    GotServices := true;
+            until SalesCrMemoLine.Next() = 0;
+        if GotServices then
+            if GotGoods then
+                exit(IncludesGoodsAndServicesLbl)
+            else
+                exit(IncludesServicesLbl)
+        else
+            exit(IncludesGoodsLbl);
+    end;
+
+    local procedure IsItemInventory(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        if Item.Get(ItemNo) then
+            exit(Item.Type = Item.Type::Inventory);
+    end;
+
+    local procedure GetVATPaidonDebitsText(): Text
+    begin
+        if Header."VAT Paid on Debits" then
+            exit(Header.FieldCaption("VAT Paid on Debits"));
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]

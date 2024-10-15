@@ -208,6 +208,42 @@ report 1306 "Standard Sales - Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(AlternativeAddress_Lbl; AlternativeAddressTxt)
+            {
+            }
+            column(AlternativeAddress1; AlternativeAddress[1])
+            {
+            }
+            column(AlternativeAddress2; AlternativeAddress[2])
+            {
+            }
+            column(AlternativeAddress3; AlternativeAddress[3])
+            {
+            }
+            column(AlternativeAddress4; AlternativeAddress[4])
+            {
+            }
+            column(AlternativeAddress5; AlternativeAddress[5])
+            {
+            }
+            column(AlternativeAddress6; AlternativeAddress[6])
+            {
+            }
+            column(AlternativeAddress7; AlternativeAddress[7])
+            {
+            }
+            column(AlternativeAddress8; AlternativeAddress[8])
+            {
+            }
+            column(CustomerSirenNo; Cust.GetSIRENNoWithCaption())
+            {
+            }
+            column(GoodsAndServices_Lbl; GetGoodsAndServicesText())
+            {
+            }
+            column(VATPaidOnDebits_Lbl; GetVATPaidOnDebitsText())
+            {
+            }
             column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
             {
             }
@@ -1336,6 +1372,7 @@ report 1306 "Standard Sales - Invoice"
         CustAddr: array[8] of Text[100];
         ChecksPayableText: Text;
         ShipToAddr: array[8] of Text[100];
+        AlternativeAddress: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[30];
         TotalText: Text[50];
@@ -1386,6 +1423,7 @@ report 1306 "Standard Sales - Invoice"
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
+        AlternativeAddressTxt: Text;
         BodyLbl: Label 'Thank you for your business. Your invoice is attached to this message.';
         AlreadyPaidLbl: Label 'The invoice has been paid.';
         PartiallyPaidLbl: Label 'The invoice has been partially paid. The remaining amount is %1', Comment = '%1=an amount';
@@ -1403,6 +1441,9 @@ report 1306 "Standard Sales - Invoice"
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
+        IncludesGoodsLbl: Label 'Sales invoice includes only goods.';
+        IncludesServicesLbl: Label 'Sales invoice includes only services.';
+        IncludesGoodsAndServicesLbl: Label 'Sales invoice includes goods and services.';
         VATClauseText: Text;
         CurrCode: Text[10];
         CurrSymbol: Text[10];
@@ -1465,6 +1506,49 @@ report 1306 "Standard Sales - Invoice"
         MailManagement: Codeunit "Mail Management";
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+    end;
+
+    local procedure GetGoodsAndServicesText(): Text
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        GotGoods: Boolean;
+        GotServices: Boolean;
+    begin
+        SalesInvoiceLine.SetRange("Document No.", Header."No.");
+        SalesInvoiceLine.SetFilter(Type, '<> %1', SalesInvoiceLine.Type::Item);
+        if not SalesInvoiceLine.IsEmpty() then
+            GotServices := true;
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+        SalesInvoiceLine.SetLoadFields("No.");
+        if SalesInvoiceLine.FindSet() then
+            repeat
+                if IsItemInventory(SalesInvoiceLine."No.") then
+                    GotGoods := true
+                else
+                    GotServices := true;
+            until SalesInvoiceLine.Next() = 0;
+        if GotServices then
+            if GotGoods then
+                exit(IncludesGoodsAndServicesLbl)
+            else
+                exit(IncludesServicesLbl)
+        else
+            exit(IncludesGoodsLbl);
+    end;
+
+    local procedure IsItemInventory(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        if Item.Get(ItemNo) then
+            exit(Item.Type = Item.Type::Inventory);
+    end;
+
+    local procedure GetVATPaidonDebitsText(): Text
+    begin
+        if Header."VAT Paid on Debits" then
+            exit(Header.FieldCaption("VAT Paid on Debits"));
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]
@@ -1582,10 +1666,17 @@ report 1306 "Standard Sales - Invoice"
     end;
 
     local procedure FormatAddressFields(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        i: Integer;
     begin
         FormatAddr.GetCompanyAddr(SalesInvoiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.SalesInvBillTo(CustAddr, SalesInvoiceHeader);
         ShowShippingAddr := FormatAddr.SalesInvShipTo(ShipToAddr, CustAddr, SalesInvoiceHeader);
+        if ShowShippingAddr then begin
+            for i := 1 to 8 do
+                AlternativeAddress[i] := ShipToAddr[i];
+            AlternativeAddressTxt := ShiptoAddrLbl;
+        end;
     end;
 
     local procedure FormatDocumentFields(SalesInvoiceHeader: Record "Sales Invoice Header")

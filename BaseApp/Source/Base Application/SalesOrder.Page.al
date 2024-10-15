@@ -427,6 +427,11 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("VAT Paid on Debits"; Rec."VAT Paid on Debits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the VAT was paid on debits for this document.';
+                }
                 group(Control76)
                 {
                     ShowCaption = false;

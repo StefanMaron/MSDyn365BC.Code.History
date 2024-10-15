@@ -777,7 +777,6 @@ table 79 "Company Information"
         OnAfterGetSystemIndicator(Text, Style)
     end;
 
-    [Scope('OnPrem')]
     procedure GetPartyID(): Code[18]
     begin
         exit("Country/Region Code" + GetControlSum + "Registration No.");
@@ -791,7 +790,6 @@ table 79 "Company Information"
         exit(Format(ControlSum, 0, '<Integer,2><Filler,0>'));
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIREN() Result: Integer
     begin
         Evaluate(Result, CopyStr(DelChr("Registration No."), 1, 9));

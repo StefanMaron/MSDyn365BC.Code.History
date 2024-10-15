@@ -382,6 +382,11 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
+                field("SIREN No."; "SIREN No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the SIREN No. for the customer.';
+                }
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';

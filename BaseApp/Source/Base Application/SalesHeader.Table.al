@@ -1,4 +1,4 @@
-﻿table 36 "Sales Header"
+table 36 "Sales Header"
 {
     Caption = 'Sales Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -2138,6 +2138,11 @@
                 Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
             end;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }        
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -2856,6 +2861,10 @@
                       Text061, "Assigned User ID",
                       RespCenter.TableCaption, UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
+        }
+        field(10801; "VAT Paid on Debits"; Boolean)
+        {
+            Caption = 'VAT Paid on Debits';
         }
     }
 
@@ -7550,6 +7559,24 @@
     begin
         MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
+    end;
+    
+    internal procedure SetTrackInfoForCancellation()
+    var
+        CancelledDocument: Record "Cancelled Document";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
+            exit;
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
     end;
 
 #if not CLEAN20

@@ -553,6 +553,30 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCustFromCompanyContactWithVATRegNumber()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 466353] Create customer from "Company" contact with 'Registration Number'
+        Initialize();
+
+        // [GIVEN] Contact of Company type with 'Registration Number' = '1234567890'
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact."Registration Number" := LibraryUtility.GenerateGUID();
+        Contact.Modify();
+
+        // [WHEN] Create customer from the contact 
+        Contact.CreateCustomerFromTemplate('');
+
+        // [THEN] "Registration Number" = '1234567890' from Contact is assigned to the new customer
+        Customer.Get(GetCustFromContact(Contact."No."));
+        Customer.TestField("Registration Number", Contact."Registration Number");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CreateVendorFromContactError()
     var
@@ -573,6 +597,31 @@ codeunit 136201 "Marketing Contacts"
         // 3. Verify: Check that the application generates an error on creation of a Vendor from Contact if Bus. Rel. Code for Vendors
         // field in Marketing Setup is blank.
         VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateVendorFromCompanyContactWithRegNumber()
+    var
+        Vendor: Record Vendor;
+        CompanyContact: Record Contact;
+    begin
+        // [SCENARIO 466353] When Vendor is created for the Contact, fields "Primary Contact No."", "Contact" should not be updated
+        Initialize();
+
+        // [GIVEN] Contact of Company type with 'Registration Number' = '1234567890'
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+        CompanyContact."Registration Number" := LibraryUtility.GenerateGUID();
+        CompanyContact.Modify();
+
+        // [WHEN] Vendor is created from the Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateVendorFromTemplate('');
+
+        // [THEN] "Registration Number" = '1234567890' in Vendor
+        Vendor.SetRange(Name, CompanyContact.Name);
+        Vendor.FindFirst();
+        Vendor.TestField("Registration Number", CompanyContact."Registration Number");
     end;
 
     [Test]
@@ -5713,6 +5762,30 @@ codeunit 136201 "Marketing Contacts"
         Task.Reset();
         Task.SetRange("Contact No.", Contact."No.");
         Assert.RecordCount(Task, 1);
+    end;
+
+    [Test]
+    procedure CustomerHasSirenNoFromContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+    begin
+        // [SCENARIO 467032] Customer has SIREN No. when created from Contact
+        Initialize();
+
+        // [GIVEN] Contact created with SIREN No.
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Validate("SIREN No.", LibraryUtility.GenerateRandomNumericText(9));
+        Contact.Modify(true);
+
+        // [GIVEN] Customer created from Contact
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateCustomerFromTemplate('');
+
+        // [THEN] Customer has SIREN No. from Contact
+        Customer.SetRange(Name, Contact.Name);
+        Customer.FindFirst();
+        Customer.TestField("SIREN No.", Contact."SIREN No.");
     end;
 
     local procedure Initialize()

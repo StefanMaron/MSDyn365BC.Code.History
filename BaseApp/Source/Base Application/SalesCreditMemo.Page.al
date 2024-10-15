@@ -1,4 +1,4 @@
-﻿page 44 "Sales Credit Memo"
+page 44 "Sales Credit Memo"
 {
     Caption = 'Sales Credit Memo';
     PageType = Document;
@@ -450,6 +450,11 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("VAT Paid on Debits"; Rec."VAT Paid on Debits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the VAT was paid on debits for this document.';
+                }
             }
             group(Billing)
             {
@@ -600,6 +605,11 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
+                }
+                field("Rcvd-from Country/Region Code"; Rec."Rcvd-from Country/Region Code")
+                {
+                    ApplicationArea = BasicEU, BasicCH, BasicNO;
+                    ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
                 }
             }
         }
@@ -1467,6 +1477,8 @@
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
+	    Rec.SetTrackInfoForCancellation();
+        
         if OfficeMgt.IsAvailable then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
             if SalesCrMemoHeader.FindFirst() then

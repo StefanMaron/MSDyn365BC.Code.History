@@ -609,7 +609,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         ResponseText: Text;
         TargetURL: Text;
         DiscountPct: Decimal;
-        DiscountAmt: Decimal;
+        DiscountAmt, InvDiscAmount: Decimal;
     begin
         // [SCENARIO 184721] When an invoice is created, the GET Method should update the invoice and assign a total
         // [GIVEN] 2 invoices, one posted and one unposted with discount amount that should be redistributed
@@ -620,6 +620,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         DiscountAmt := LibraryRandom.RandDecInRange(1, Round(SalesHeader.Amount / 2, 1), 1);
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(DiscountAmt, SalesHeader);
         GetFirstSalesInvoiceLine(SalesHeader, SalesLine);
+        InvDiscAmount := SalesLine."Inv. Discount Amount";
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
@@ -633,7 +634,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         // [THEN] the invoice should exist in the response and Invoice Discount Should be Applied
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         LibraryGraphDocumentTools.VerifySalesTotals(
-          SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
+          SalesHeader, ResponseText, DiscountAmt - InvDiscAmount, SalesHeader."Invoice Discount Calculation"::Amount);
         VerifyGettingAgainKeepsETag(ResponseText, TargetURL);
     end;
 
