@@ -25,9 +25,11 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
     begin
         JsonObj.Add('url', Uri);
         JsonObj.Add('methodName', MethodName);
+        JsonObj.Add('parameters', Parameters);
+        CheckToDownloadSaaSRequest(JsonObj);
+
         JsonObj.Add('certificateString', CertBase64);
         JsonObj.Add('certificatePassword', CertPassword);
-        JsonObj.Add('parameters', Parameters);
         JsonObj.WriteTo(SerializedText);
 
         Token := CommunicateWithAzureFunction('api/InvokeMethodWithCertificate', SerializedText);
@@ -130,5 +132,29 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
     begin
         X509Certificate2 := X509Certificate2.X509Certificate2(Convert.FromBase64String(CertBase64), CertPassword, X509KeyFlags.Exportable);
         CertBase64 := Convert.ToBase64String(X509Certificate2.Export(X509Content.Pfx, CertPassword));
+    end;
+
+    [NonDebuggable]
+
+    local procedure CheckToDownloadSaaSRequest(JsonObj: JsonObject)
+    var
+        MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
+        TempBlob: Codeunit "Temp Blob";
+        SerializedText: Text;
+        DocOutStream: OutStream;
+        DocInStream: InStream;
+        DocFileName: text;
+    begin
+        JsonObj.WriteTo(SerializedText);
+
+        if MXElectronicInvoicingSetup.Get() then
+            if MXElectronicInvoicingSetup."Download SaaS Request" then begin
+                TempBlob.CreateOutStream(DocOutStream);
+                DocOutStream.WriteText(SerializedText);
+                TempBlob.CreateInStream(DocInStream);
+
+                DocFileName := 'ElectronicInvoiceRequest.txt';
+                DownloadFromStream(DocInStream, '', '', '', DocFileName);
+            end;
     end;
 }
