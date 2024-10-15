@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 1953317137 - NamedType 4099981885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The accounting periods for the period you wish to date compress must be Date Locked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Date Compression FA - NamedType DateLockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1953317137 - NamedType 1378524997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FA Register must be deleted for Journal Batch Name %1 .]]></Val>
@@ -367,7 +376,7 @@
   </Item>
   <Item ItemId=";Codeunit 1515146399 - NamedType 906751469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Ending Date must be specified.]]></Val>
+      <Val><![CDATA[You must specify an ending date.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

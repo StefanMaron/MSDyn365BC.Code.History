@@ -15,7 +15,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         WrongValueErr: Label 'Wrong value.';
         LibraryERM: Codeunit "Library - ERM";
         CloseIncomeStatementErr: Label 'The fiscal year does not exist.';
-        AccountingPeriodDoesNotExistErr: Label 'The Accounting Period does not exist.';
+        NoAccountingPeriodsErr: Label 'No accounting periods have been set up. In order to run date compression you must set up accounting periods.';
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -122,8 +122,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         DateCompressGeneralLedger.UseRequestPage(false);
         asserterror DateCompressGeneralLedger.Run;
 
-        Assert.ExpectedError(AccountingPeriodDoesNotExistErr);
-        Assert.ExpectedErrorCode('DB:RecordNotFound');
+        Assert.ExpectedError(NoAccountingPeriodsErr);
     end;
 
     [Test]

@@ -158,36 +158,46 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
+        exit(GetFiscalYearEndDate(AccountingPeriod, ReferenceDate))
+    end;
+
+    procedure GetFiscalYearEndDate(var AccountingPeriod: Record "Accounting Period"; ReferenceDate: Date): Date
+    begin
+        AccountingPeriod.Reset();
         if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CY>', ReferenceDate));
 
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", true);
-            SetRange("Starting Date", 0D, ReferenceDate);
-            if FindLast then
-                SetRange("Starting Date");
-            if Find('>') then
-                exit("Starting Date" - 1);
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
+        if AccountingPeriod.FindLast() then
+            AccountingPeriod.SetRange("Starting Date");
+        if AccountingPeriod.Find('>') then
+            exit(AccountingPeriod."Starting Date" - 1);
     end;
 
     procedure GetFiscalYearStartDate(ReferenceDate: Date): Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
+        exit(GetFiscalYearStartDate(AccountingPeriod, ReferenceDate))
+    end;
+
+    procedure GetFiscalYearStartDate(var AccountingPeriod: Record "Accounting Period"; ReferenceDate: Date): Date
+    begin
+        AccountingPeriod.Reset();
         if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CY>', ReferenceDate));
 
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", true);
-            SetRange("Starting Date", 0D, ReferenceDate);
-            if FindLast then
-                exit("Starting Date")
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
+        if AccountingPeriod.FindLast() then
+            exit(AccountingPeriod."Starting Date")
     end;
 
     [Scope('OnPrem')]
     procedure CheckOpenFiscalYears()
+    var
+        IsHandled: Boolean;
     begin
         AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("New Fiscal Year", true);
@@ -201,8 +211,12 @@ table 50 "Accounting Period"
         if AccountingPeriod2.Find('<') then
             if not AccountingPeriod2."Fiscally Closed" then
                 NoOfOpenFiscalYears := NoOfOpenFiscalYears + 1;
-        if NoOfOpenFiscalYears > 2 then
-            Error(Text10801);
+
+        IsHandled := false;
+        OnCheckOpenFiscalYearsOnBeforeError(Rec, IsHandled);
+        if not IsHandled then
+            if NoOfOpenFiscalYears > 2 then
+                Error(Text10801);
     end;
 
     [Scope('OnPrem')]
@@ -346,6 +360,11 @@ table 50 "Accounting Period"
         if AccountingPeriod.FindFirst() then
             exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckOpenFiscalYearsOnBeforeError(var AccountingPeriod: Record "Accounting Period"; var IsHandled: Boolean)
+    begin
     end;
 }
 

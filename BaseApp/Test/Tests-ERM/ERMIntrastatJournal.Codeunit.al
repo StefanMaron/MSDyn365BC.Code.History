@@ -1230,6 +1230,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VerifyErrorMessageExists(IntrastatJnlLine);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('FieldListModalPageHandler')]
     [Scope('OnPrem')]
@@ -1264,6 +1265,7 @@ codeunit 134150 "ERM Intrastat Journal"
           IntrastatChecklistSetupPage."Field Name".Value,
           'field Type should exist on the page');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -1612,19 +1614,19 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesLine: Record "Sales Line";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CustomerNo: Code[20];
+        Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 373278] Partner VAT ID returns default value for non EU customer
+        // [SCENARIO 373278] Customer's Partner VAT ID for non EU customer
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Non EU Bill-to Customer with VAT Registration No. = 'CN000123'
-        CustomerNo := CreateCustomerWithVATRegNo(false);
+        Customer.Get(CreateCustomerWithVATRegNo(false));
         CreateSalesDocument(
-            SalesHeader, SalesLine, CustomerNo, WorkDate(), SalesLine."Document Type"::Invoice,
+        SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1633,8 +1635,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = 'CN000123' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
     end;
 
     [Test]
@@ -1649,7 +1651,7 @@ codeunit 134150 "ERM Intrastat Journal"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Credit Memo
+        // [SCENARIO 373278] Blanked Partner VAT ID of Purchase Credit Memo
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = false
@@ -1666,11 +1668,10 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", Vendor."No.");
         PurchCrMemoHdr.FindFirst;
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", Vendor."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", PurchCrMemoHdr."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
     end;
 
     [Test]
@@ -1685,7 +1686,7 @@ codeunit 134150 "ERM Intrastat Journal"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Pay-to Vendor No. of Purchase Return Order
+        // [SCENARIO 373278] Blanked Partner VAT ID of Purchase Return Order
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = true
@@ -1702,11 +1703,10 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         ReturnShipmentHeader.FindFirst;
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", Vendor."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", ReturnShipmentHeader."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
     end;
 
     [Test]
@@ -1752,7 +1752,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VendorNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 373278] Partner VAT ID returns default value for non EU vendor
+        // [SCENARIO 373278] Blanked Partner VAT ID for non EU vendor
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = false
@@ -1769,8 +1769,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
     end;
 
     [Test]
@@ -1805,16 +1805,16 @@ codeunit 134150 "ERM Intrastat Journal"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Invoice
+        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Ship-to Customer No. of Service Invoice
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Posted Service Invoice where Bill-to Customer with VAT Registration No = 'AT0123456'
+        // [GIVEN] Posted Service Invoice where Ship-to Customer with VAT Registration No = 'AT0123456'
         Customer.Get(CreateCustomerWithVATRegNo(true));
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateCustomerWithVATRegNo(true), Customer."No.", CreateItem);
+        ItemLedgerEntry, DocumentNo, Customer."No.", CreateCustomerWithVATRegNo(true), CreateItem);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
@@ -1823,7 +1823,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
-        ServiceInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
     end;
 
@@ -1840,7 +1839,7 @@ codeunit 134150 "ERM Intrastat Journal"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Service Shipment
+        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Ship-to Customer No. of Service Shipment
         Initialize;
 
         // [GIVEN] Shipment on Sales Invoice = true
@@ -1849,7 +1848,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Posted Service Invoice where Bill-to Customer with VAT Registration No = 'AT0123456'
         Customer.Get(CreateCustomerWithVATRegNo(true));
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateCustomerWithVATRegNo(true), Customer."No.", CreateItem);
+        ItemLedgerEntry, DocumentNo, Customer."No.", CreateCustomerWithVATRegNo(true), CreateItem);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
@@ -1858,7 +1857,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
-        ServiceInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
     end;
 
@@ -1950,7 +1948,7 @@ codeunit 134150 "ERM Intrastat Journal"
         ReturnShipmentHeader: Record "Return Shipment Header";
     begin
         // [FEATURE] [Purchase] [Return Shipment]
-        // [SCENARIO 393053] Partner VAT ID is taken as VAT Registration No from Vendor No. when Purchase Return Order is deleted
+        // [SCENARIO 393053] Blanked Partner VAT ID when Purchase Return Order is deleted
         Initialize;
 
         // [GIVEN] Return Shipment on Credit Memo = true
@@ -1972,8 +1970,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", Vendor."VAT Registration No.");
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
     end;
 
     [Test]
@@ -2018,7 +2016,7 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesLine: Record "Sales Line";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CustomerNo: Code[20];
+        Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 391693] Partner VAT ID of Sales Invoice for private person
@@ -2027,10 +2025,10 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Sales Invoice for customer of Partner Type = Person
-        CustomerNo := CreatePrivateCustomerWithVATRegNo(true);
+        // [GIVEN] Sales Invoice for customer of Partner Type = Person and VAT Reg No = 'AT0123456'
+        Customer.Get(CreatePrivateCustomerWithVATRegNo(true));
         CreateSalesDocument(
-            SalesHeader, SalesLine, CustomerNo, WorkDate(), SalesLine."Document Type"::Invoice,
+        SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2039,8 +2037,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
     end;
 
     [Test]
@@ -2106,8 +2104,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
     end;
 
     [Test]
@@ -2117,8 +2115,8 @@ codeunit 134150 "ERM Intrastat Journal"
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Customer: Record Customer;
         DocumentNo: Code[20];
-        CustomerNo: Code[20];
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 373278] Partner VAT ID of Service Invoice for private person
@@ -2127,18 +2125,18 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Posted Service Invoice where Bill-to Customer of Partner Type = Person
-        CustomerNo := CreatePrivateCustomerWithVATRegNo(true);
+        // [GIVEN] Posted Service Invoice where Bill-to Customer of Partner Type = Person and VAT Reg No = 'AT0123456'
+        Customer.Get(CreatePrivateCustomerWithVATRegNo(true));
         CreatePostServiceInvoice(
-            ItemLedgerEntry, DocumentNo, CustomerNo, CustomerNo, CreateItem);
+        ItemLedgerEntry, DocumentNo, Customer."No.", Customer."No.", CreateItem);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
     end;
 
     [Test]
@@ -2175,7 +2173,7 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesLine: Record "Sales Line";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CustomerNo: Code[20];
+        Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 391693] Partner VAT ID of Sales Invoice for third party trade
@@ -2184,10 +2182,10 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Sales Invoice for Bill-to Customer with EU 3-Party Trade = true
-        CustomerNo := CreateCustomerWithVATRegNo(true);
+        // [GIVEN] Sales Invoice for Bill-to Customer with EU 3-Party Trade = true and VAT Reg No = 'AT0123456'
+        Customer.Get(CreateCustomerWithVATRegNo(true));
         CreateSalesDocument(
-            SalesHeader, SalesLine, CustomerNo, WorkDate(), SalesLine."Document Type"::Invoice,
+        SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
         SalesHeader."EU 3-Party Trade" := true;
         SalesHeader.Modify;
@@ -2198,8 +2196,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
     end;
 
     [Test]
@@ -2245,8 +2243,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         ServiceShipmentHeader: Record "Service Shipment Header";
+        Customer: Record Customer;
         DocumentNo: Code[20];
-        CustomerNo: Code[20];
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 373278] Partner VAT ID of Service Invoice for third party trade
@@ -2255,11 +2253,11 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Posted Service Invoice where Bill-to Customer with EU 3-Party Trade = true
-        CustomerNo := CreateCustomerWithVATRegNo(true);
+        // [GIVEN] Posted Service Invoice where Bill-to Customer with EU 3-Party Trade = true and VAT Reg No = 'AT0123456'
+        Customer.Get(CreateCustomerWithVATRegNo(true));
         CreatePostServiceInvoice(
-            ItemLedgerEntry, DocumentNo, CustomerNo, CustomerNo, CreateItem);
-        ServiceShipmentHeader.SetRange("Customer No.", CustomerNo);
+        ItemLedgerEntry, DocumentNo, Customer."No.", Customer."No.", CreateItem);
+        ServiceShipmentHeader.SETRANGE("Customer No.", Customer."No.");
         ServiceShipmentHeader.FindFirst;
         ServiceShipmentHeader."EU 3-Party Trade" := true;
         ServiceShipmentHeader.Modify;
@@ -2269,8 +2267,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", GetDefaultPartnerID);
+        // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
+        VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
     end;
 
     [Test]
@@ -3217,6 +3215,7 @@ codeunit 134150 "ERM Intrastat Journal"
         VendorLookup.OK.Invoke;
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FieldListModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
@@ -3224,8 +3223,9 @@ codeunit 134150 "ERM Intrastat Journal"
         FieldsLookup.First;
         FieldsLookup.OK.Invoke;
     end;
-
+#endif
     local procedure CreateIntrastatChecklistSetup()
+#if not CLEAN19
     var
         IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -3235,6 +3235,24 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatChecklistSetup.Init();
         IntrastatChecklistSetup.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
         IntrastatChecklistSetup.Insert();
+#else
+    begin
+        CreateAdvIntrastatChecklistSetup();
+#endif
+    end;
+
+    local procedure CreateAdvIntrastatChecklistSetup()
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        AdvancedIntrastatChecklist.DeleteAll();
+
+        AdvancedIntrastatChecklist.Init();
+        AdvancedIntrastatChecklist.Validate("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.Validate("Object Id", Report::"Intrastat - Checklist");
+        AdvancedIntrastatChecklist.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
+        AdvancedIntrastatChecklist.Insert();
     end;
 
     local procedure CreateAndPostJobJournalLine(ShipmentMethodCode: Code[10]; LocationCode: Code[10]): Code[20]

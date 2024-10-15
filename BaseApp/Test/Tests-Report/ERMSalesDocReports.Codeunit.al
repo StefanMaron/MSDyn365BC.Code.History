@@ -627,8 +627,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryInvoice."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryCrMemo."Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryInvoice."Original Amount"));
     end;
 
     [Test]
@@ -688,8 +688,8 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryInvoice."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryCrMemo."Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryInvoice."Original Amount"));
     end;
 
     [Test]

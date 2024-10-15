@@ -66,9 +66,12 @@ table 263 "Intrastat Jnl. Line"
             OptionMembers = ,"Item Entry","Job Entry";
             trigger OnValidate()
             begin
-                if Type = Type::Shipment then begin
+                if (Type = Type::Shipment) and (Quantity > 0) then begin
                     "Country/Region of Origin Code" := GetCountryOfOriginCode();
                     "Partner VAT ID" := GetPartnerID();
+#if not CLEAN19
+                    "Cust. VAT Registration No." := CopyStr("Partner VAT ID", 1, MaxStrLen("Cust. VAT Registration No."));
+#endif
                 end;
             end;
         }
@@ -237,6 +240,14 @@ table 263 "Intrastat Jnl. Line"
         field(10801; "Cust. VAT Registration No."; Text[20])
         {
             Caption = 'Cust. VAT Registration No.';
+            ObsoleteReason = 'Replaced by Partner VAT ID.';
+#if CLEAN19
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#endif
         }
     }
 

@@ -99,31 +99,35 @@ codeunit 134141 "ERM Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+
     [Scope('OnPrem')]
     procedure DateCompressCheckLedgerEntries()
     var
         BankAccount: Record "Bank Account";
         CheckLedgerEntry: Record "Check Ledger Entry";
         DeleteCheckLedgerEntries: Report "Delete Check Ledger Entries";
+        SaveWorkDate: Date;
         CurrentYear: Integer;
     begin
         Initialize;
 
+        // Date compress check ledger entries
+        // Close fiscal year
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
+        CurrentYear := Date2DMY(WorkDate(), 3);
+
         // Create check ledger entries
         PostCheck(BankAccount, CreateBankAccount, LibraryRandom.RandInt(1000));
 
-        // Date compress check ledger entries
-        // Close fiscal year
-        LibraryFiscalYear.CloseFiscalYear;
-        CurrentYear := Date2DMY(WorkDate, 3);
-
         // Run delete check batch job
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
-        DeleteCheckLedgerEntries.InitializeRequest(DMY2Date(1, 1, CurrentYear), DMY2Date(31, 12, CurrentYear));
+        DeleteCheckLedgerEntries.InitializeRequest(WorkDate(), DMY2Date(31, 12, CurrentYear));
         DeleteCheckLedgerEntries.UseRequestPage := false;
         DeleteCheckLedgerEntries.SetTableView(CheckLedgerEntry);
         DeleteCheckLedgerEntries.Run;
+        WorkDate(SaveWorkDate);
 
         // Verify check ledger entries are deleted
         CheckLedgerEntry.Reset();
@@ -1160,7 +1164,8 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
-        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, VendorNo, Amount, WorkDate);
+        CreateBankAccReconciliationLine(
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor, VendorNo, Amount, WorkDate);
 
         BankAccReconciliation.Validate("Post Payments Only", true);
         BankAccReconciliationLine.Modify(true);
@@ -1168,7 +1173,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [GIVEN] Payment Reconciliation line for 01.03.18
         PostingDate := CalcDate('<-1M>', WorkDate);
         CreatePurchaseInvoice(PostingDate);
-        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, VendorNo, 0, PostingDate);
+        CreateBankAccReconciliationLine(
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor, VendorNo, 0, PostingDate);
 
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
 
@@ -1236,7 +1242,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Create bank reconciliation line and make manual match with posted credit memo
         CreateBankAccReconciliationLine(
-          BankAccReconciliation, BankAccReconciliationLine, PurchaseHeader."Buy-from Vendor No.", Amount, WorkDate);
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", Amount, WorkDate);
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(DocumentNo);
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -1743,7 +1749,8 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [GIVEN] Create and post bank reconciliation with 1 line applied to 2 payments
         CreateBankReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Vendor."No.", -(GenJournalLine[1].Amount + GenJournalLine[2].Amount), WorkDate());
+        CreateBankAccReconciliationLine(
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor, Vendor."No.", -(GenJournalLine[1].Amount + GenJournalLine[2].Amount), WorkDate());
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
         BankAccReconciliationLine.SetRecFilter();
         MatchBankRecLines.MatchManually(BankAccReconciliationLine, BankAccountLedgerEntry);
@@ -2381,6 +2388,82 @@ codeunit 134141 "ERM Bank Reconciliation"
         VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BalanceLastStatementAndStatementEndingBalanceWhenOneBankAccStatement()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        AccountTypes: array[2] of Option;
+        AccountNos: array[2] of Code[20];
+        TransactionAmounts: array[2] of Decimal;
+        CustLedgerEntryNo: Integer;
+        VendLedgerEntryNo: Integer;
+    begin
+        // [FEATURE] [Bank Account Statement]
+        // [SCENARIO 395469] "Balance Last Statement" and "Statement Ending Balance" of Bank Account Statement when post one Reconciliation Journal with two lines.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice "SI" with Amount "A1" and Posted Purchase Invoice "PI" with Amount "A2".
+        CreateAndPostSalesInvoice(AccountNos[1], CustLedgerEntryNo, TransactionAmounts[1]);
+        CreateAndPostPurchaseInvoice(AccountNos[2], VendLedgerEntryNo, TransactionAmounts[2]);
+
+        // [GIVEN] Two Reconciliation Lines that are fully applied to "SI" and "PI".
+        AccountTypes[1] := BankAccReconciliationLine."Account Type"::Customer;
+        AccountTypes[2] := BankAccReconciliationLine."Account Type"::Vendor;
+        CreateAndAutoApplyTwoBankAccReconLines(BankAccReconciliation, CreateBankAccount, AccountTypes, AccountNos, TransactionAmounts);
+
+        // [WHEN] Post Reconciliation Lines.
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Bank Account Statement is created. "Balance Last Statement" = 0 and "Statement Ending Balance" = "A1" + "A2".
+        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", 0, TransactionAmounts[1] + TransactionAmounts[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BalanceLastStatementAndStatementEndingBalanceWhenMultipleBankAccStatements()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccount: Record "Bank Account";
+        AccountTypes: array[2] of Option;
+        AccountNos: array[2] of Code[20];
+        TransactionAmounts: array[2] of Decimal;
+        PreviousStatementEndingBalance: Decimal;
+        CustLedgerEntryNo: Integer;
+        VendLedgerEntryNo: Integer;
+    begin
+        // [FEATURE] [Bank Account Statement]
+        // [SCENARIO 395469] "Balance Last Statement" and "Statement Ending Balance" of Bank Account Statement when post three Reconciliation Journals for one Bank Account.
+        Initialize();
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Two Bank Account Statements for one Bank Account. Last Statement has "Statement Ending Balance" = "B1".
+        MockBankAccountStatement(BankAccountStatement, BankAccount."No.", '1', 0, LibraryRandom.RandDecInRange(100, 200, 2));
+        PreviousStatementEndingBalance := BankAccountStatement."Statement Ending Balance";
+        MockBankAccountStatement(BankAccountStatement, BankAccount."No.", '2', PreviousStatementEndingBalance, PreviousStatementEndingBalance + LibraryRandom.RandDecInRange(100, 200, 2));
+        PreviousStatementEndingBalance := BankAccountStatement."Statement Ending Balance";
+        BankAccount.Validate("Last Payment Statement No.", '2');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Posted Sales Invoice "SI" with Amount "A1" and Posted Purchase Invoice "PI" with Amount "A2".
+        CreateAndPostSalesInvoice(AccountNos[1], CustLedgerEntryNo, TransactionAmounts[1]);
+        CreateAndPostPurchaseInvoice(AccountNos[2], VendLedgerEntryNo, TransactionAmounts[2]);
+
+        // [GIVEN] Two Reconciliation Lines that are fully applied to "SI" and "PI".
+        AccountTypes[1] := BankAccReconciliationLine."Account Type"::Customer;
+        AccountTypes[2] := BankAccReconciliationLine."Account Type"::Vendor;
+        CreateAndAutoApplyTwoBankAccReconLines(BankAccReconciliation, BankAccount."No.", AccountTypes, AccountNos, TransactionAmounts);
+
+        // [WHEN] Post Reconciliation Lines.
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Bank Account Statement is created. "Balance Last Statement" = "B1" and "Statement Ending Balance" = "B1" + "A1" + "A2".
+        VerifyLastBankAccountStatementAmounts(BankAccReconciliation."Bank Account No.", PreviousStatementEndingBalance, PreviousStatementEndingBalance + TransactionAmounts[1] + TransactionAmounts[2]);
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -2424,18 +2507,16 @@ codeunit 134141 "ERM Bank Reconciliation"
         end;
 
         // Generate a journal line.
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::"Bank Account",
-              AccountNo, JnlAmount);
-            Validate("Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
-            Validate("Currency Code", BankAccount."Currency Code");
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccount."No.");
-            Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account",
+          AccountNo, JnlAmount);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalLine.Validate("Currency Code", BankAccount."Currency Code");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
 
         // Post the check.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2771,15 +2852,15 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; VendorNo: Code[20]; Amount: Decimal; Date: Date)
+    local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; Date: Date)
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::Vendor);
-        BankAccReconciliationLine.Validate("Account No.", VendorNo);
+        BankAccReconciliationLine.Validate("Account Type", AccountType);
+        BankAccReconciliationLine.Validate("Account No.", AccountNo);
         BankAccReconciliationLine.Validate("Document No.", LibraryUtility.GenerateGUID);
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
         BankAccReconciliationLine.Validate("Transaction Date", Date);
-        BankAccReconciliationLine.Validate(Description, VendorNo);
+        BankAccReconciliationLine.Validate(Description, AccountNo);
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -2824,6 +2905,16 @@ codeunit 134141 "ERM Bank Reconciliation"
         UpdateBankAccReconciliationLineDescription(BankAccReconciliationLine, BankAccRecLineDescription);
     end;
 
+    local procedure CreateAndAutoApplyTwoBankAccReconLines(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; AccountType: array[2] of Option; AccountNo: array[2] of Code[20]; TransactionAmount: array[2] of Decimal)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        CreateBankReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
+        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AccountType[1], AccountNo[1], TransactionAmount[1], WorkDate);
+        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AccountType[2], AccountNo[2], TransactionAmount[2], WorkDate);
+        Codeunit.Run(Codeunit::"Match Bank Pmt. Appl.", BankAccReconciliation);
+    end;
+
     local procedure CreatePurchaseInvoice(Date: Date)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2842,7 +2933,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountNo := CreateBankAccount;
         CreateBankReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
         CreateBankAccReconciliationLine(
-          BankAccReconciliation, BankAccReconciliationLine, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2), WorkDate);
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2), WorkDate);
         BankAccReconciliationLine.TransferRemainingAmountToAccount;
         BankAccReconciliationLine.Find;
     end;
@@ -2881,6 +2972,17 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry.Open := true;
         BankAccountLedgerEntry.Reversed := IsReversed;
         BankAccountLedgerEntry.Insert();
+    end;
+
+    local procedure MockBankAccountStatement(var BankAccountStatement: Record "Bank Account Statement"; BankAccountNo: Code[20]; StatementNo: Code[20]; BalanceLastStatement: Decimal; StatementEndingBalance: Decimal)
+    begin
+        BankAccountStatement.Init();
+        BankAccountStatement.Validate("Bank Account No.", BankAccountNo);
+        BankAccountStatement.Validate("Statement No.", StatementNo);
+        BankAccountStatement.Validate("Statement Date", WorkDate());
+        BankAccountStatement.Validate("Balance Last Statement", BalanceLastStatement);
+        BankAccountStatement.Validate("Statement Ending Balance", StatementEndingBalance);
+        BankAccountStatement.Insert(true);
     end;
 
     local procedure CreateDimSet(DimSetID: Integer): Integer
@@ -3274,6 +3376,16 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('StmtNo_PostedPaymentReconciliation', BankAccReconciliationLine."Statement No.");
         LibraryReportDataset.AssertElementWithValueExists('Desc_PostedPaymentReconciliationLine', BankAccReconciliationLine.Description);
         LibraryReportDataset.AssertElementWithValueExists('AppliedAmt1_PostedPaymentReconciliationLine', BankAccReconciliationLine."Applied Amount");
+    end;
+
+    local procedure VerifyLastBankAccountStatementAmounts(BankAccountNo: Code[20]; BalanceLastStatement: Decimal; StatementEndingBalance: Decimal)
+    var
+        BankAccountStatement: Record "Bank Account Statement";
+    begin
+        BankAccountStatement.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountStatement.FindLast();
+        BankAccountStatement.TestField("Balance Last Statement", BalanceLastStatement);
+        BankAccountStatement.TestField("Statement Ending Balance", StatementEndingBalance);
     end;
 
     [ConfirmHandler]

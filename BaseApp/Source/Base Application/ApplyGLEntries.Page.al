@@ -154,7 +154,13 @@ page 10842 "Apply G/L Entries"
                     ToolTip = 'Define the document number of the ledger entry to use to perform the application. In addition, you specify the Posting Date for the application.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforePostApplication(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
                         GLEntriesApplication.Validate(Rec);
                     end;
                 }
@@ -249,6 +255,11 @@ page 10842 "Apply G/L Entries"
         GLEntry.Copy(Rec);
         CurrPage.SetSelectionFilter(GLEntry);
         GLEntriesApplication.SetAppliesToID(GLEntry, OnlyNotApplied);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostApplication(var GLEntry: Record "G/L Entry"; var IsHandled: Boolean);
+    begin
     end;
 }
 

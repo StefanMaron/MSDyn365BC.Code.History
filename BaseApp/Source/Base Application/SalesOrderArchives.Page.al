@@ -249,6 +249,7 @@ page 9349 "Sales Order Archives"
                 }
             }
         }
+#if not CLEAN19        
         area(processing)
         {
             action("Delete Archived Versions")
@@ -258,8 +259,12 @@ page 9349 "Sales Order Archives"
                 Image = Delete;
                 RunObject = Report "Delete Sales Order Versions";
                 ToolTip = 'Find and delete archived sales order versions when the original sales order has been deleted.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
             }
         }
+#endif
     }
 
     trigger OnOpenPage()

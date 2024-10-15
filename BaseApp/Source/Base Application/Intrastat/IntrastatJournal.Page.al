@@ -67,11 +67,16 @@
                     ToolTip = 'Specifies the name of the item.';
                     Caption = 'Item Name';
                 }
+#if not CLEAN19
                 field("Cust. VAT Registration No."; "Cust. VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the customer''s VAT registration number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Partner VAT ID';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Shpt. Method Code"; "Shpt. Method Code")
                 {
                     ApplicationArea = BasicEU;
@@ -97,7 +102,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {

@@ -1,5 +1,6 @@
 page 10800 "FR Account Schedule Names"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Balance Sheet & Income Statement';
     PageType = List;
     SourceTable = "FR Acc. Schedule Name";

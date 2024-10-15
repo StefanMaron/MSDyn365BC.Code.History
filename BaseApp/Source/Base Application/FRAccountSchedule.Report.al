@@ -1,5 +1,6 @@
 report 10811 "FR Account Schedule"
 {
+    ApplicationArea = Basic, Suite;
     DefaultLayout = RDLC;
     RDLCLayout = './FRAccountSchedule.rdlc';
     Caption = 'FR Account Schedule';
