@@ -15,11 +15,9 @@ table 249 "VAT Registration Log"
             Caption = 'VAT Registration No.';
             NotBlank = true;
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; Enum "VAT Registration Log Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Customer,Vendor,Contact,Company Information';
-            OptionMembers = Customer,Vendor,Contact,"Company Information";
         }
         field(4; "Account No."; Code[20])
         {
@@ -123,7 +121,7 @@ table 249 "VAT Registration Log"
     procedure InitVATRegLog(var VATRegistrationLog: Record "VAT Registration Log"; CountryCode: Code[10]; AcountType: Option; AccountNo: Code[20]; VATRegNo: Text[20])
     begin
         VATRegistrationLog.Init();
-        VATRegistrationLog."Account Type" := AcountType;
+        VATRegistrationLog."Account Type" := "VAT Registration Log Account Type".FromInteger(AcountType);
         VATRegistrationLog."Account No." := AccountNo;
         VATRegistrationLog."Country/Region Code" := CountryCode;
         VATRegistrationLog."VAT Registration No." := VATRegNo;

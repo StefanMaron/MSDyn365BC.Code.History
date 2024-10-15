@@ -213,7 +213,7 @@ page 9319 "Service Invoices"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice, "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), "No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");

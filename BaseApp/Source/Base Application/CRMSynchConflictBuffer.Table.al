@@ -209,6 +209,80 @@ table 5374 "CRM Synch. Conflict Buffer"
         end;
     end;
 
+    procedure DeleteCouplings()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+        LocalRecordRef: RecordRef;
+        LocalIdList: List of [Guid];
+        IntegrationIdList: List of [Guid];
+        LocalTableID: Integer;
+        PrevLocalTableID: Integer;
+        IntegrationTableID: Integer;
+        LocalId: Guid;
+        IntegrationId: Guid;
+    begin
+        TempCRMSynchConflictBuffer.Copy(Rec, true);
+        TempCRMSynchConflictBuffer.SetCurrentKey("Table ID");
+        if not TempCRMSynchConflictBuffer.FindSet() then
+            exit;
+
+        PrevLocalTableID := 0;
+        repeat
+            LocalTableID := TempCRMSynchConflictBuffer."Table ID";
+            IntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
+            if LocalTableID <> PrevLocalTableID then begin
+                UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+                UncoupleIntegrationRecords(PrevLocalTableID, IntegrationTableID, IntegrationIdList);
+                if PrevLocalTableID <> 0 then
+                    LocalRecordRef.Close();
+                LocalRecordRef.Open(TempCRMSynchConflictBuffer."Table ID");
+                PrevLocalTableID := TempCRMSynchConflictBuffer."Table ID";
+            end;
+            if TempCRMSynchConflictBuffer."Record Exists" then begin
+                if LocalRecordRef.Get(TempCRMSynchConflictBuffer."Record ID") then begin
+                    LocalId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
+                    if not IsNullGuid(LocalId) then
+                        LocalIdList.Add(LocalId);
+                end;
+            end else begin
+                IntegrationId := TempCRMSynchConflictBuffer."CRM ID";
+                if TempCRMSynchConflictBuffer."Int. Record Exists" then begin
+                    if not IsNullGuid(IntegrationId) then
+                        IntegrationIdList.Add(IntegrationId);
+                end else
+                    CRMIntegrationRecord.RemoveCouplingToCRMID(IntegrationId, PrevLocalTableID);
+            end;
+        until TempCRMSynchConflictBuffer.Next() = 0;
+        UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+        UncoupleIntegrationRecords(PrevLocalTableID, IntegrationTableID, IntegrationIdList);
+        TempCRMSynchConflictBuffer.DeleteAll();
+    end;
+
+    local procedure UncoupleLocalRecords(LocalTableId: Integer; var LocalIdList: List of [Guid])
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if LocalTableId = 0 then
+            exit;
+        if LocalIdList.Count() = 0 then
+            exit;
+        CRMIntegrationManagement.RemoveCoupling(LocalTableId, LocalIdList);
+    end;
+
+    local procedure UncoupleIntegrationRecords(LocalTableId: Integer; IntegrationTableId: Integer; var IntegrationIdList: List of [Guid])
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if LocalTableId = 0 then
+            exit;
+        if IntegrationTableId = 0 then
+            exit;
+        if IntegrationIdList.Count() = 0 then
+            exit;
+        CRMIntegrationManagement.RemoveCoupling(LocalTableId, IntegrationTableId, IntegrationIdList);
+    end;
+
     procedure DeleteCoupling()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -221,11 +295,10 @@ table 5374 "CRM Synch. Conflict Buffer"
             CRMIntegrationRecord."Table ID" := "Table ID";
             CRMIntegrationRecord.FindRecordId(RecId);
             CRMCouplingManagement.RemoveCouplingWithTracking(RecId, TempCRMIntegrationRecord);
-            TempCRMIntegrationRecord.SetRecFilter;
-            UpdateSourceTable(TempCRMIntegrationRecord);
         end else
-            if CRMIntegrationRecord.RemoveCouplingToCRMID("CRM ID", "Table ID") then
-                Delete;
+            CRMCouplingManagement.RemoveCouplingWithTracking("Table ID", "Int. Table ID", "CRM ID", TempCRMIntegrationRecord);
+        TempCRMIntegrationRecord.SetRecFilter();
+        UpdateSourceTable(TempCRMIntegrationRecord);
     end;
 
     procedure Fill(var CRMIntegrationRecord: Record "CRM Integration Record"): Integer

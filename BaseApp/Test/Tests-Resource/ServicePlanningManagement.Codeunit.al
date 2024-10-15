@@ -746,7 +746,7 @@ codeunit 136111 "Service Planning Management"
         exit(Item."No.");
     end;
 
-    local procedure CreateResourceSkill(var ResourceSkill: Record "Resource Skill"; Type: Option; No: Code[20])
+    local procedure CreateResourceSkill(var ResourceSkill: Record "Resource Skill"; Type: Enum "Resource Skill Type"; No: Code[20])
     var
         SkillCode: Record "Skill Code";
     begin
@@ -911,7 +911,7 @@ codeunit 136111 "Service Planning Management"
         end;
     end;
 
-    local procedure DeleteSkillCode(Type: Option; No: Code[20]; SkillCode: Code[10])
+    local procedure DeleteSkillCode(Type: Enum "Resource Skill Type"; No: Code[20]; SkillCode: Code[10])
     var
         ResourceSkill: Record "Resource Skill";
         ResourceSkillMgt: Codeunit "Resource Skill Mgt.";
@@ -1281,7 +1281,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation2.FindFirst;
         ResourceAllocations.GetRecord(ServiceOrderAllocation2);
         ResAvailabilityService.SetData(
-          ServiceOrderAllocation2."Document Type", ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Service Item Line No.",
+          ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Service Item Line No.",
           ServiceOrderAllocation2."Entry No.");
         if ServiceOrderAllocation2."Resource No." <> '' then
             ResAvailabilityService.SetRecord(Resource2);
@@ -1298,7 +1298,7 @@ codeunit 136111 "Service Planning Management"
         ServiceOrderAllocation2.FindFirst;
         ResourceAllocations.GetRecord(ServiceOrderAllocation2);
         ResGrAvailabilityService.SetData(
-          ServiceOrderAllocation2."Document Type", ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.");
+          ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.");
         if ServiceOrderAllocation2."Resource No." <> '' then
             ResGrAvailabilityService.SetRecord(Resource2);
         ResGrAvailabilityService.RunModal;
@@ -1312,7 +1312,7 @@ codeunit 136111 "Service Planning Management"
     begin
         // Call the ServAllocationManagement code unit to allocate Resource.
         ServAllocationManagement.AllocateDate(
-          ServiceOrderAllocation2."Document Type", ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.",
+          ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.",
           ResourceNo2, ResourceGroupNo2, AllocationDate2, AllocatedHours2);
     end;
 
@@ -1338,7 +1338,7 @@ codeunit 136111 "Service Planning Management"
     begin
         // Call the ServAllocationManagement code unit to allocate Resource.
         ServAllocationManagement.AllocateDate(
-          ServiceOrderAllocation2."Document Type", ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.",
+          ServiceOrderAllocation2."Document Type".AsInteger(), ServiceOrderAllocation2."Document No.", ServiceOrderAllocation2."Entry No.",
           ResourceNo2, ResourceGroupNo2, AllocationDate2, AllocatedHours2);
     end;
 

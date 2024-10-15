@@ -17,7 +17,6 @@ codeunit 134079 "ERM Inv Discount by Currency"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         InvoiceDiscountError: Label 'Invoice Discount must be %1.';
         InvoiceDiscountAmount: Decimal;
         FieldError: Label '%1 must be %2 in %3.';
@@ -38,7 +37,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Setup.
         Initialize;
-        CreateAndVerifyInvoiceDiscForPurchase(DocumentType::"Credit Memo");
+        CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -50,7 +49,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Setup.
         Initialize;
-        CreateAndVerifyInvoiceDiscForPurchase(DocumentType::Invoice);
+        CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::Invoice);
     end;
 
     [Test]
@@ -62,7 +61,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Setup.
         Initialize;
-        CreateAndVerifyInvoiceDiscForPurchase(DocumentType::Order);
+        CreateAndVerifyInvoiceDiscForPurchase("Purchase Document Type"::Order);
     end;
 
     [Test]
@@ -74,7 +73,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Setup.
         Initialize;
-        CreateAndVerifyInvoiceDiscForSales(DocumentType::"Credit Memo");
+        CreateAndVerifyInvoiceDiscForSales("Sales Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -86,10 +85,10 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Setup.
         Initialize;
-        CreateAndVerifyInvoiceDiscForSales(DocumentType::Invoice);
+        CreateAndVerifyInvoiceDiscForSales("Sales Document Type"::Invoice);
     end;
 
-    local procedure CreateAndVerifyInvoiceDiscForPurchase(DocType: Option)
+    local procedure CreateAndVerifyInvoiceDiscForPurchase(DocType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -104,7 +103,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         VerifyInvoiceDiscForVendor(PurchaseLine, PurchaseHeader.Amount);
     end;
 
-    local procedure CreateAndVerifyInvoiceDiscForSales(DocType: Option)
+    local procedure CreateAndVerifyInvoiceDiscForSales(DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -282,7 +281,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Calculation is done for distributed Inv. Discount Amount on Sales Lines for Invoicing.
         InvDiscountAmountInvoicing :=
           Round(
-            InvoiceDiscountAmount *
+          InvoiceDiscountAmount *
             SalesLine."Qty. to Invoice" * SalesLine."Unit Price" / (SalesLine."Line Amount" + SalesLine2."Line Amount"));
 
         // Verify: IsVerify is a global variable and Verification is done in 'GeneralSalesOrderStatisticsHandler'.
@@ -349,7 +348,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Discount by Currency");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         Counter: Integer;
     begin
@@ -370,7 +369,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         end;
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         Counter: Integer;
     begin

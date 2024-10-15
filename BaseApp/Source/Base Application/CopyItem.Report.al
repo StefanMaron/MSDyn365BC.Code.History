@@ -587,7 +587,7 @@ report 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, ResourceSkill.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -598,7 +598,7 @@ report 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Sales Price", SalesPrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopySalesLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -613,7 +613,7 @@ report 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, SalesLineDiscount.FieldNo(Code), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyPurchasePrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchasePrice: Record "Purchase Price";
@@ -624,7 +624,7 @@ report 730 "Copy Item"
         CopyItemRelatedTable(DATABASE::"Purchase Price", PurchasePrice.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure CopyPurchaseLineDiscounts(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         PurchLineDiscount: Record "Purchase Line Discount";

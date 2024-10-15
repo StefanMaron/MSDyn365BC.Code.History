@@ -18,6 +18,8 @@ codeunit 5055 "CustVendBank-Update"
                         UpdateVendor(Rec, ContBusRel);
                     ContBusRel."Link to Table"::"Bank Account":
                         UpdateBankAccount(Rec, ContBusRel);
+                    ContBusRel."Link to Table"::Employee:
+                        UpdateEmployee(Rec, ContBusRel);
                     else
                         OnRunCustVendBankUpdateCaseElse(Rec, ContBusRel);
                 end;
@@ -88,6 +90,35 @@ codeunit 5055 "CustVendBank-Update"
         end;
     end;
 
+    [Scope('Onprem')]
+    procedure UpdateEmployee(Contact: Record Contact; ContBusRel: Record "Contact Business Relation")
+    var
+        Employee: Record Employee;
+    begin
+        Employee.Get(ContBusRel."No.");
+        Employee.Address := Contact.Address;
+        Employee."Address 2" := Contact."Address 2";
+        Employee.City := Contact.City;
+        Employee."Phone No." := Contact."Phone No.";
+        Employee."Country/Region Code" := Contact."Country/Region Code";
+        Employee.Comment := Contact.Comment;
+        Employee."Fax No." := Contact."Fax No.";
+        Employee."Post Code" := Contact."Post Code";
+        Employee.County := Contact.County;
+        Employee."E-Mail" := Contact."E-Mail";
+        Employee.Image := Contact.Image;
+        Employee."First Name" := Contact."First Name";
+        Employee."Middle Name" := Contact."Middle Name";
+        Employee."Last Name" := Contact.Surname;
+        Employee."Job Title" := Contact."Job Title";
+        Employee.Initials := Contact.Initials;
+        Employee."Mobile Phone No." := Contact."Mobile Phone No.";
+        Employee.Pager := Contact.Pager;
+        Employee.Modify(true);
+
+        OnAfterUpdateEmployee(Employee, Contact);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCustomer(var Customer: Record Customer; Contact: Record Contact)
     begin
@@ -105,6 +136,11 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunCustVendBankUpdateCaseElse(var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEmployee(var Employee: Record Employee; Contact: Record Contact)
     begin
     end;
 }

@@ -110,8 +110,9 @@ table 79 "Company Information"
                 if "Country/Region Code" = '' then
                     exit;
                 if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "Primary Key",
-                      VATRegistrationLog."Account Type"::"Company Information", "Country/Region Code");
+                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                        ResultRecordRef, Rec, "Primary Key",
+                        VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
                     ResultRecordRef.SetTable(Rec);
                 end;
             end;
@@ -465,6 +466,9 @@ table 79 "Company Information"
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -764,12 +768,7 @@ table 79 "Company Information"
 
         CountryRegionCode := UpperCase(MediaResourcesMgt.ReadTextFromMediaResource('ApplicationCountry'));
 
-        SendTraceTag(
-          '00007HP',
-          AlTelemetryCategoryTxt,
-          VERBOSITY::Normal,
-          StrSubstNo(EmptyCountryRegionErr, CountryRegionCode),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00007HP', StrSubstNo(EmptyCountryRegionErr, CountryRegionCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AlTelemetryCategoryTxt);
 
         exit(CountryRegionCode);
     end;

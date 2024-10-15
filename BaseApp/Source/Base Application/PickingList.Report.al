@@ -141,7 +141,7 @@ report 5752 "Picking List"
                                 TempWhseActivLine.Insert();
                                 Mark(true);
                             end else begin
-                                TempWhseActivLine.SetSumLinesFilter("Warehouse Activity Line");
+                                TempWhseActivLine.SetSumLinesFilters("Warehouse Activity Line");
                                 if "Warehouse Activity Header"."Sorting Method" =
                                    "Warehouse Activity Header"."Sorting Method"::"Ship-To"
                                 then begin

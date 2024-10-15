@@ -45,7 +45,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         AddItemToInventory(ChildItem, 1);
         CreateAssemblyOrder(AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", WorkDate2, 1, '');
 
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
     end;
 
     [Test]
@@ -69,7 +69,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateAssemblyOrder(AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", WorkDate2, 916, '');
 
         LibraryVariableStorage.Enqueue(916);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 137916 "SCM Assembly Reservation I"
           AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", CalcDate('<3D>', PurchaseLine."Expected Receipt Date"), 917, '');
 
         LibraryVariableStorage.Enqueue(917);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -117,7 +117,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateSalesOrder(SalesLine, WorkDate2, ParentItem."No.", 1);
 
         LibrarySales.AutoReserveSalesLine(SalesLine);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -137,7 +137,7 @@ codeunit 137916 "SCM Assembly Reservation I"
 
         CreateSalesOrder(SalesLine, WorkDate2, Item."No.", 1);
         LibrarySales.AutoReserveSalesLine(SalesLine);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -170,7 +170,7 @@ codeunit 137916 "SCM Assembly Reservation I"
           AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", WorkDate2, TransferLine.Quantity, ToLocation.Code);
 
         LibraryVariableStorage.Enqueue(TransferLine.Quantity);
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateAssemblyOrder(AssemblyHeader[2], AssemblyLine[2], ChildItem."No.", ParentItem."No.", WorkDate2, Qty, '');
 
         LibraryVariableStorage.Enqueue(Qty);
-        AssemblyHeader[1].ShowReservation;
+        AssemblyHeader[1].ShowReservation();
     end;
 
     [Test]
@@ -219,9 +219,9 @@ codeunit 137916 "SCM Assembly Reservation I"
 
         CreateAssemblyOrder(AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", WorkDate2 + 1, LibraryRandom.RandDec(1000, 2), '');
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ChildItem."No.", AssemblyLine.Quantity);
-        AssemblyLine.AutoReserve;
+        AssemblyLine.AutoReserve();
 
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -243,9 +243,9 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreateItem(ChildItem);
         CreateAssemblyOrder(AssemblyHeader, AssemblyLine, ParentItem."No.", ChildItem."No.", WorkDate2 + 1, LibraryRandom.RandDec(1000, 2), '');
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ChildItem."No.", AssemblyLine.Quantity);
-        AssemblyLine.AutoReserve;
+        AssemblyLine.AutoReserve();
 
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -277,7 +277,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ChildItem."No.", AssemblyLine.Quantity);
 
         // [WHEN] Reserve the assembly line from the purchase. Run "Available to Reserve" and then "Reserve" on reservation page.
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
 
         // [THEN] The assembly line is reserved.
         ReservedQty := LibraryVariableStorage.DequeueDecimal;
@@ -489,7 +489,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         SalesLine.Modify(true);
 
         LibraryAssembly.FindLinkedAssemblyOrder(AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
     end;
 
     local procedure AddItemToInventory(Item: Record Item; Qty: Decimal)
@@ -509,14 +509,13 @@ codeunit 137916 "SCM Assembly Reservation I"
     local procedure CopySalesDocumentFromPostedInvoice(var SalesHeader: Record "Sales Header"; OrderNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
         SalesInvoiceHeader.FindFirst;
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesInvoiceHeader."Sell-to Customer No.");
         SalesHeader.Validate("Shipment Date", WorkDate2);
         SalesHeader.Modify(true);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", SalesInvoiceHeader."No.", false, true);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", false, true);
     end;
 
     local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; ParentItemNo: Code[20]; ChildItemNo: Code[20]; DueDate: Date; Qty: Decimal; LocationCode: Code[10])

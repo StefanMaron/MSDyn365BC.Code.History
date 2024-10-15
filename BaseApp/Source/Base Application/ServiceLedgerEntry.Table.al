@@ -15,11 +15,9 @@ table 5907 "Service Ledger Entry"
             Caption = 'Service Contract No.';
             TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
         }
-        field(3; "Document Type"; Option)
+        field(3; "Document Type"; Enum "Service Ledger Entry Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,Shipment';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,Shipment;
         }
         field(4; "Document No."; Code[20])
         {
@@ -300,7 +298,7 @@ table 5907 "Service Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

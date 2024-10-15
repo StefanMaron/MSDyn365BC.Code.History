@@ -1107,7 +1107,7 @@ codeunit 134188 "WF Demo General Journal Line"
         ApprovalEntry: Record "Approval Entry";
     begin
         ApprovalEntry.Init();
-        ApprovalEntry."Document Type" := GenJournalLine."Document Type".AsInteger();
+        ApprovalEntry."Document Type" := GenJournalLine."Document Type";
         ApprovalEntry."Document No." := GenJournalLine."Document No.";
         ApprovalEntry."Table ID" := DATABASE::"Gen. Journal Line";
         ApprovalEntry."Record ID to Approve" := GenJournalLine.RecordId;

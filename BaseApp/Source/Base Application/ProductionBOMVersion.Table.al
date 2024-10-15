@@ -49,11 +49,9 @@ table 99000779 "Production BOM Version"
             Caption = 'Last Date Modified';
             Editable = false;
         }
-        field(45; Status; Option)
+        field(45; Status; Enum "BOM Status")
         {
             Caption = 'Status';
-            OptionCaption = 'New,Certified,Under Development,Closed';
-            OptionMembers = New,Certified,"Under Development",Closed;
 
             trigger OnValidate()
             var

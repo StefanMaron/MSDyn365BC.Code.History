@@ -765,7 +765,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreatePurchDocCheckAmtOpen(PurchaseHeader."Document Type"::Order);
     end;
 
-    local procedure CreateSalesDocCheckAmtRelease(DocumentType: Option)
+    local procedure CreateSalesDocCheckAmtRelease(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -786,7 +786,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine.TestField("Amount Including VAT", AmtIncVAT);
     end;
 
-    local procedure CreateSalesDocCheckAmtOpen(DocumentType: Option)
+    local procedure CreateSalesDocCheckAmtOpen(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -803,7 +803,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine.TestField("Amount Including VAT");
     end;
 
-    local procedure CreatePurchDocCheckAmtRelease(DocumentType: Option)
+    local procedure CreatePurchDocCheckAmtRelease(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -824,7 +824,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseLine.TestField("Amount Including VAT", AmtIncVAT);
     end;
 
-    local procedure CreatePurchDocCheckAmtOpen(DocumentType: Option)
+    local procedure CreatePurchDocCheckAmtOpen(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -848,7 +848,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesHeader: Record "Sales Header";
         SalesDocumentTest: Report "Sales Document - Test";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Sales Document - Test Report when Sales Order is created with Foreign Currency and Blank Posting Date.
@@ -878,7 +878,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesHeader: Record "Sales Header";
         OrderConfirmation: Report "Order Confirmation";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Order Confirmation Report when Sales Order is created with Foreign Currency and Blank Posting Date.
@@ -908,7 +908,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesHeader: Record "Sales Header";
         ReturnOrderConfirmation: Report "Return Order Confirmation";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Return Order Confirmation Report when Sales Order is created with Foreign Currency and Blank Posting Date.
@@ -936,7 +936,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseDocumentTest: Report "Purchase Document - Test";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Purchase Document - Test Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
@@ -964,7 +964,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PurchaseHeader: Record "Purchase Header";
         "Order": Report "Order";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Order Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
@@ -992,7 +992,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PurchaseHeader: Record "Purchase Header";
         ReturnOrder: Report "Return Order";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
         FilePath: Text[1024];
     begin
         // Check Return Order Report when Purchase Order is created with Foreign Currency and Blank Posting Date.
@@ -1079,7 +1079,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
           GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure PostCashReceiptWithEarlierDateToCustomer(DocumentTypeForSalesJournal: Option; DocumentTypeForCashReceiptJournal: Option)
+    local procedure PostCashReceiptWithEarlierDateToCustomer(DocumentTypeForSalesJournal: Enum "Gen. Journal Document Type"; DocumentTypeForCashReceiptJournal: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         Customer: Record Customer;
@@ -1126,8 +1126,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check that Error raised on Validate of Vendor No. on Payment Journal Line when payment date on Vendor refund is earlier than on Credit Memo Date.
-        PostPaymentWithEarlierDateToVendor(GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Document Type"::Refund);
+        PostPaymentWithEarlierDateToVendor(
+            GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
     [Test]
@@ -1166,7 +1166,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Verify: Verify Values on Item Matrix by ShowMatrixPageHandler.
     end;
 
-    local procedure PostItemJournal(ItemNo: Code[20]; ItemJournalLineEntryType: Option; PostingDate: Date): Decimal
+    local procedure PostItemJournal(ItemNo: Code[20]; ItemJournalLineEntryType: Enum "Item Ledger Document Type"; PostingDate: Date): Decimal
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1189,7 +1189,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         exit(ItemJournalLine.Amount);
     end;
 
-    local procedure PostPaymentWithEarlierDateToVendor(DocumentTypeForPurchaseJournal: Option; DocumentTypeForPaymentJournal: Option)
+    local procedure PostPaymentWithEarlierDateToVendor(DocumentTypeForPurchaseJournal: Enum "Gen. Journal Document Type"; DocumentTypeForPaymentJournal: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1667,7 +1667,15 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Initialize();
         ResetPostingNoSeriesOnPurchaseSetup();
 
-        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        asserterror LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        Assert.ExpectedError(PurchasesPayablesSetup.FieldCaption("Posted Credit Memo Nos."));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
         Commit();
 
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1675,14 +1683,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
-        PurchasesPayablesSetup.Modify();
-        Commit();
-
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        Assert.ExpectedError(PurchaseHeader.FieldCaption("Posting No. Series"));
-
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCode());
         PurchasesPayablesSetup.Modify();
         Commit();
 
@@ -1855,6 +1855,96 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Assert.RecordCount(SalesCrMemoHeader, 1);
     end;
 
+    [Test]
+    procedure PostPurchaseCreditMemoManualNoSeries()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Credit Memo]
+        // [SCENARIO 368758] Stan can post Purchase Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        DocumentNo := LibraryUtility.GenerateGUID() + '-ABC';
+        PurchCrMemoHdr.SetRange("No.", DocumentNo);
+        Assert.RecordCount(PurchCrMemoHdr, 0);
+
+        NoSeriesCode := CreateNoSeriesCode();
+        UpdateNoSeries(NoSeriesCode, false, true);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", NoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Validate("No.", DocumentNo);
+        PurchaseHeader.Insert(true);
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.RecordCount(PurchCrMemoHdr, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesCreditMemoManualNoSeries()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Sales] [Credit Memo]
+        // [SCENARIO 368758] Stan can post Sales Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        DocumentNo := LibraryUtility.GenerateGUID() + '-ABC';
+        SalesCrMemoHeader.SetRange("No.", DocumentNo);
+        Assert.RecordCount(SalesCrMemoHeader, 0);
+
+        NoSeriesCode := CreateNoSeriesCode();
+        UpdateNoSeries(NoSeriesCode, false, true);
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", NoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Validate("No.", DocumentNo);
+        SalesHeader.Insert(true);
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+
+        SalesHeader.Validate(Ship, true);
+        SalesHeader.Validate(Receive, true);
+        SalesHeader.Validate(Invoice, true);
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
+
+        Assert.RecordCount(SalesCrMemoHeader, 1);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1886,19 +1976,19 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
     end;
 
-    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         CreateSalesOrder(SalesHeader, SalesLine, DocumentType);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, DocumentType);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         // Using Random Value for Quantity and Unit Price in Sales Line.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
@@ -1926,7 +2016,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         end;
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         // Using Random Value for Quantity and Direct Unit Cost in Purchase Line.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
@@ -1953,7 +2043,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         end;
     end;
 
-    local procedure CreateSalesDocumentWithFCY(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithFCY(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Currency: Record Currency;
         SalesLine: Record "Sales Line";
@@ -1966,7 +2056,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreatePurchaseDocumentFCY(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentFCY(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Sales Document Type")
     var
         Currency: Record Currency;
         PurchaseLine: Record "Purchase Line";
@@ -2051,14 +2141,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, Type);
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenBusinessPostingGroup: Code[20]; DocumentType: Option; GenPostingType: Option; GenJournalTemplateType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenBusinessPostingGroup: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2074,7 +2164,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Option; DocumentType: Option; AppliesToDocumentType: Option; BalAccountType: Option; DocumentNo: Code[20])
+    local procedure CreateJournalLineWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; DocumentNo: Code[20])
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2093,7 +2183,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAmount(DocumentType: Option): Decimal
+    local procedure CreateAmount(DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2102,17 +2192,17 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         exit(-1 * LibraryRandom.RandDecInRange(1000, 2000, 2));
     end;
 
-    local procedure CreateGLAccount(GenBusPostingGroup: Code[20]; GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(GenBusPostingGroup: Code[20]; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
     begin
         with GLAccount do begin
-          // TFS ID: 307158
-          if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then
-            Get(LibraryERM.CreateGLAccountWithPurchSetup)
-          else
-            Get(LibraryERM.CreateGLAccountWithSalesSetup);
+            // TFS ID: 307158
+            if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then
+                Get(LibraryERM.CreateGLAccountWithPurchSetup)
+            else
+                Get(LibraryERM.CreateGLAccountWithSalesSetup);
             Validate("Gen. Posting Type", GenPostingType);
             Validate("Income/Balance", "Income/Balance"::"Income Statement");
             Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
@@ -2183,6 +2273,16 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         exit(NoSeriesCode);
     end;
 
+    local procedure UpdateNoSeries(NoSeriesCode: Code[20]; DefaultNos: Boolean; ManualNos: Boolean)
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.Get(NoSeriesCode);
+        NoSeries.Validate("Default Nos.", DefaultNos);
+        NoSeries.TestField("Manual Nos.", ManualNos);
+        NoSeries.Modify(true);
+    end;
+
     local procedure GetLastNoUsedFromNoSeries(NoSeriesCode: Code[20]): Code[20]
     var
         NoSeriesLine: Record "No. Series Line";
@@ -2236,7 +2336,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Commit();
     end;
 
-    local procedure RunSalesDocumentTestReport(DocumentType: Option; DocumentNo: Code[20])
+    local procedure RunSalesDocumentTestReport(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesDocumentTest: Report "Sales Document - Test";
@@ -2249,7 +2349,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesDocumentTest.Run;
     end;
 
-    local procedure SetupAndCreateSalesDocument(var SalesHeader: Record "Sales Header"; var DefaultPostingDate: Option; DocumentType: Option)
+    local procedure SetupAndCreateSalesDocument(var SalesHeader: Record "Sales Header"; var DefaultPostingDate: Enum "Default Posting Date"; DocumentType: Enum "Sales Document Type")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
@@ -2260,7 +2360,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateSalesDocumentWithFCY(SalesHeader, DocumentType);
     end;
 
-    local procedure SetupAndCreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var DefaultPostingDate: Option; DocumentType: Option)
+    local procedure SetupAndCreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var DefaultPostingDate: Enum "Default Posting Date"; DocumentType: Enum "Purchase Document Type")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
@@ -2338,7 +2438,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateSalesReceivableSetup(var OldDefaultPostingDate: Option; DefaultPostingDate: Option)
+    local procedure UpdateSalesReceivableSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
@@ -2348,7 +2448,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UpdatePurchasePayableSetup(var OldDefaultPostingDate: Option; DefaultPostingDate: Option)
+    local procedure UpdatePurchasePayableSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin

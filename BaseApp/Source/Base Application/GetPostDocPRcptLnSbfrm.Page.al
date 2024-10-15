@@ -54,6 +54,15 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the cross-reference number related to the item.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -205,7 +214,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -280,6 +289,11 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
         exit(RealSteps);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
         TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary;
@@ -291,6 +305,8 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
         ShowRec: Boolean;
         [InDataSet]
         DocumentNoHideValue: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     var
@@ -398,6 +414,13 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

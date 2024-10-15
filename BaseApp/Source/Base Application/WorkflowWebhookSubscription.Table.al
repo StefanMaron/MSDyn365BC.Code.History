@@ -391,7 +391,7 @@ table 469 "Workflow Webhook Subscription"
         // log exact error message
         Company.Get(CompanyName);
         ActivityLog.LogActivityForUser(
-          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Flow', Description, ErrorText, UserId);
+          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Power Automate', Description, ErrorText, UserId);
         // send descriptive error to user
         Error(Description);
     end;

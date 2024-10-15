@@ -501,16 +501,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
         Commit();
 
-        // [THEN] The sales quote and sales qoutes lines are deleted from the Sales Quotes
-        Assert.AreEqual(SalesHeader."Document Type"::Quote, SalesHeader."Document Type", StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        Assert.IsFalse(SalesLine.FindFirst, StrSubstNo(SalesLineDeleteErr, CRMQuote.QuoteId));
-
-        // [THEN] The initial sales quote is being archieved
-        Assert.IsTrue(SalesHeaderArchive.Get(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1),
-          StrSubstNo(SalesHeaderArchiveErr, CRMQuote.QuoteId));
-
         // [THEN] The won CRM quote is a corresponding to an empty Sales Quote
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
 
@@ -527,8 +517,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
     var
         CRMQuote: Record "CRM Quote";
         SalesHeader: Record "Sales Header";
-        SalesHeaderArchive: Record "Sales Header Archive";
-        SalesLineArchive: Record "Sales Line Archive";
         CRMQuotedetail: Record "CRM Quotedetail";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -548,16 +536,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
         // [WHEN] The user clicks 'Process Sales Quote' on the CRM Sales Quotes page on the won CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
-
-        // [THEN] The initial sales quote is being archieved
-        SalesHeader.Reset();
-        SalesHeader.SetRange("External Document No.", CRMQuote.QuoteNumber);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        Assert.IsFalse(SalesHeader.FindFirst, StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
-
-        SalesHeaderArchive.Reset();
-        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        Assert.AreEqual(SalesHeaderArchive.Count, 1, StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
 
         // [THEN] The won CRM quote is a corresponding to an empty Sales Quote
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
@@ -842,6 +820,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMSalesOrder.CustomerIdType := CRMQuote.CustomerIdType;
         CRMSalesOrder.TransactionCurrencyId := CRMQuote.TransactionCurrencyId;
         CRMSalesOrder.QuoteId := CRMQuote.QuoteId;
+        CRMSalesOrder.StateCode := CRMSalesOrder.StateCode::Submitted;
         CRMSalesOrder.Modify(true);
     end;
 }

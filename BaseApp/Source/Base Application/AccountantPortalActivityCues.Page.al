@@ -16,11 +16,25 @@ page 1314 "AccountantPortal Activity Cues"
                     Caption = 'OverduePurchInvoiceAmount', Locked = true;
                     ToolTip = 'Specifies the sum of your overdue payments to vendors.';
                 }
+
+                field(OverduePurchInvoiceAmountDecimal; OverduePurchInvoiceAmountDecimal)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'OverduePurchInvoiceAmountDecimal', Locked = true;
+                    ToolTip = 'Specifies the sum of your overdue payments to vendors.';
+                }
                 field(OverduePurchInvoiceStyle; OverduePurchInvoiceStyle)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'OverduePurchInvoiceStyle', Locked = true;
                     ToolTip = 'Specifies the sum of your overdue payments to vendors.';
+                }
+
+                field(CurrencySymbol; CurrencySymbol)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'CurrencySymbol', Locked = true;
+                    ToolTip = 'Specifies the currency symbol.';
                 }
             }
             group("Overdue Sales Invoice Amount")
@@ -29,6 +43,13 @@ page 1314 "AccountantPortal Activity Cues"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'OverdueSalesInvoiceAmount', Locked = true;
+                    ToolTip = 'Specifies the sum of overdue payments from customers.';
+                }
+
+                field(OverdueSalesInvoiceAmountDecimal; OverdueSalesInvoiceAmountDecimal)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'OverdueSalesInvoiceAmountDecimal', Locked = true;
                     ToolTip = 'Specifies the sum of overdue payments from customers.';
                 }
                 field(OverdueSalesInvoiceStyle; OverdueSalesInvoiceStyle)
@@ -362,9 +383,15 @@ page 1314 "AccountantPortal Activity Cues"
         ContactNameAmount: Text;
         ContactNameStyle: Enum "Cues And KPIs Style";
 
+        OverduePurchInvoiceAmountDecimal: Decimal;
+        OverdueSalesInvoiceAmountDecimal: Decimal;
+
+        CurrencySymbol: Text[10];
+
     local procedure SetAccountantPortalAmountFields()
     var
         ActivitiesCue: Record "Activities Cue";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         AcctWebServicesMgt: Codeunit "Acct. WebServices Mgt.";
         CuesAndKpis: Codeunit "Cues And KPIs";
         StringConversionManagement: Codeunit StringConversionManagement;
@@ -372,13 +399,19 @@ page 1314 "AccountantPortal Activity Cues"
         TempString: Text[250];
         UnlimitedTempString: Text;
     begin
+        CurrencySymbol := '';
+        if GeneralLedgerSetup.Get() then
+            CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
+
         "Overdue Purch. Invoice Amount" := ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(true);
+        OverduePurchInvoiceAmountDecimal := "Overdue Purch. Invoice Amount";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Overdue Purch. Invoice Amount");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         OverduePurchInvoiceAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Overdue Purch. Invoice Amount"), "Overdue Purch. Invoice Amount", OverduePurchInvoiceStyle);
 
         "Overdue Sales Invoice Amount" := ActivitiesMgt.CalcOverdueSalesInvoiceAmount(true);
+        OverdueSalesInvoiceAmountDecimal := "Overdue Sales Invoice Amount";
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString("Overdue Sales Invoice Amount");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         OverdueSalesInvoiceAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
@@ -471,7 +504,7 @@ page 1314 "AccountantPortal Activity Cues"
     var
         CompanyInformation: Record "Company Information";
     begin
-        ContactNameStyle := 0;
+        ContactNameStyle := ContactNameStyle::None;
         if CompanyInformation.Get then
             ContactNameAmount := CompanyInformation."Contact Person";
     end;

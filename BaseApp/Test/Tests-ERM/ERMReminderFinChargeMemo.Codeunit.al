@@ -2000,7 +2000,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Assert.RecordCount(DummyFinanceChargeMemoLine, ExpectedCount);
     end;
 
-    local procedure VerifyReminderLineDescription(ReminderLine: Record "Reminder Line"; ExpectedType: Option; ExpectedNo: Code[20]; ExpectedDescription: Text)
+    local procedure VerifyReminderLineDescription(ReminderLine: Record "Reminder Line"; ExpectedType: Enum "Reminder Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
         with ReminderLine do begin
             Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));

@@ -406,7 +406,7 @@ page 2141 "O365 Sales Quote"
                     SetRecFilter;
                     LockTable();
                     Find;
-                    ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
                     Find;
                 end;

@@ -726,5 +726,64 @@ codeunit 131000 "Library - Utility"
     begin
         exit(ApplicationPath + '\..\..\');
     end;
-}
 
+    // Does the opposite of IncStr, i.e. decrements the last number in a string.
+    // NOTE: Expects the string actually contains a number.
+    // NOTE: The implementation is not guaranteed to be correcet. Works for most common cases. 
+    //  Verify the result like shown here:
+    //      decStr := DecStr(str); 
+    //      Assert.AreEqual(str, IncStr(decStr)), 'DecStr not working.');
+    procedure DecStr(str: Text): Text
+    var
+        Index: Integer;
+        StartIndex: Integer;
+        EndIndex: Integer;
+        Number: Integer;
+        Digits: Text;
+        ZeroPadding: Text;
+        NewStr: Text;
+    begin
+
+        StartIndex := 1;
+
+        // Find integer suffix.
+        for Index := StrLen(str) downto 1 do begin
+            if Evaluate(Number, str.Substring(Index, 1)) then begin
+                Digits := str.Substring(Index, 1) + Digits;
+                if EndIndex = 0 then
+                    EndIndex := Index;
+            end else begin
+                if StrLen(Digits) > 0 then begin
+                    StartIndex := Index + 1;
+                    break;
+                end;
+            end;
+        end;
+
+        // Get zero padding in the digits.
+        for Index := 1 to StrLen(Digits) do begin
+            if Digits.Substring(Index, 1) = '0' then
+                ZeroPadding := ZeroPadding + '0'
+            else
+                break;
+        end;
+
+        Evaluate(Number, Digits);
+        Number := Number - 1;
+
+        // Replace old integer suffix with new.
+        NewStr := Str.Substring(1, StartIndex - 1) + ZeroPadding + Format(Number);
+        if EndIndex < StrLen(str) then
+            NewStr := NewStr + Str.Substring(EndIndex + 1, StrLen(str) - EndIndex);
+
+        exit(NewStr);
+    end;
+
+    procedure GetNoSeriesLine(noSeries: Code[20]; var noSeriesLine: Record "No. Series Line"): Boolean
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+    begin
+        NoSeriesMgt.SetNoSeriesLineFilter(noSeriesLine, noSeries, WorkDate());
+        exit(noSeriesLine.FindFirst());
+    end;
+}

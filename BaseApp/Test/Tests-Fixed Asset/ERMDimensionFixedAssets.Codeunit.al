@@ -1252,7 +1252,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Enum "FA Journal Line FA Posting Type"; Amount: Decimal)
     begin
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
@@ -1356,7 +1356,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -1697,7 +1697,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAPostingGroup.Modify(true);
     end;
 
-    local procedure ModifyFAPostingType(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure ModifyFAPostingType(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         GenJournalLine.Validate("FA Posting Type", FAPostingType);
         GenJournalLine.Modify(true);

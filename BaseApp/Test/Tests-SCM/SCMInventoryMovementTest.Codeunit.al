@@ -575,7 +575,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         ItemRec.Modify(true);
     end;
 
-    local procedure CreateCompItem(var ItemRec: Record Item; FlushingType: Option)
+    local procedure CreateCompItem(var ItemRec: Record Item; FlushingType: Enum "Flushing Method")
     begin
         LibraryInventory.CreateItem(ItemRec);
         ItemRec.Validate("Flushing Method", FlushingType);
@@ -957,7 +957,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         CreateRouting(RoutingHeaderRec, WorkCenterRec1, WorkCenterRec2);
     end;
 
-    local procedure CreateAllItemsWithBOM(var ItemFinal: Record Item; var ItemComp1: Record Item; var ItemComp2: Record Item; FlushMethod: Option; RLC1: Code[10]; RLC2: Code[10]; RoutingCode: Code[20])
+    local procedure CreateAllItemsWithBOM(var ItemFinal: Record Item; var ItemComp1: Record Item; var ItemComp2: Record Item; FlushMethod: Enum "Flushing Method"; RLC1: Code[10]; RLC2: Code[10]; RoutingCode: Code[20])
     var
         ProdBOMHeader: Record "Production BOM Header";
     begin

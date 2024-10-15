@@ -177,9 +177,7 @@ codeunit 737 "VAT Report Mgt."
         JobQueueEntry.Modify();
 
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        SendTraceTag(
-          '00008WN', JobTraceCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(JobTraceStartTxt, Format(VATReportSetup."Update Period Job Frequency")), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008WN', StrSubstNo(JobTraceStartTxt, Format(VATReportSetup."Update Period Job Frequency")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobTraceCategoryTxt);
     end;
 
     local procedure GetJobNoOfMinutes(VATReportSetup: Record "VAT Report Setup"): Integer

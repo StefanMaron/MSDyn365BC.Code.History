@@ -94,7 +94,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         exit(PurchaseHeaderInvoice."No.");
     end;
 
-    local procedure PurchaseLineVerify(DocumentType: Option; DocumentNo: Code[20]; AlternateUOMCode: Code[10])
+    local procedure PurchaseLineVerify(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; AlternateUOMCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -243,7 +243,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         exit(SalesHeaderInvoice."No.");
     end;
 
-    local procedure SalesLineVerify(DocumentType: Option; DocumentNo: Code[20]; AlternateUOMCode: Code[10])
+    local procedure SalesLineVerify(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; AlternateUOMCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin

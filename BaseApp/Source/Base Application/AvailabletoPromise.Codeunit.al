@@ -628,7 +628,7 @@ codeunit 5790 "Available to Promise"
         AsmHeader: Record "Assembly Header";
     begin
         with AsmHeader do
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
+            if FindItemToPlanLines(Item, "Document Type"::Order) then
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
@@ -640,7 +640,7 @@ codeunit 5790 "Available to Promise"
         AsmLine: Record "Assembly Line";
     begin
         with AsmLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
+            if FindItemToPlanLines(Item, "Document Type"::Order) then
                 repeat
                     if not AreEqualAssemblyLines(ChangedAssemblyLine, AsmLine) then begin
                         CalcFields("Reserved Qty. (Base)");

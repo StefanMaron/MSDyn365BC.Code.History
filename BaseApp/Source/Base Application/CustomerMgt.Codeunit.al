@@ -109,7 +109,7 @@ codeunit 1302 "Customer Mgt."
         exit(CalculateAmountsOnUnpostedDocs(CustNo, RecCount, SalesHeader."Document Type"::Quote));
     end;
 
-    local procedure CalcAmountsOnPostedDocs(CustNo: Code[20]; var RecCount: Integer; DocType: Integer): Decimal
+    local procedure CalcAmountsOnPostedDocs(CustNo: Code[20]; var RecCount: Integer; DocType: Enum "Gen. Journal Document Type"): Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -157,41 +157,36 @@ codeunit 1302 "Customer Mgt."
         exit(CalculateAmountsOnUnpostedDocs(CustNo, RecCount, SalesLine."Document Type"::"Credit Memo"));
     end;
 
-    local procedure CalculateAmountsOnUnpostedDocs(CustNo: Code[20]; var RecCount: Integer; DocumentType: Integer): Decimal
+    local procedure CalculateAmountsOnUnpostedDocs(CustNo: Code[20]; var RecCount: Integer; DocumentType: Enum "Sales Document Type") Result: Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesLine: Record "Sales Line";
-        Result: Decimal;
-        VAT: Decimal;
-        OutstandingAmount: Decimal;
-        OldDocumentNo: Code[20];
+        SalesHeader: Record "Sales Header";
+        SalesOutstdAmountOnVAT: Query "Sales Outstd. Amount On VAT";
+        Factor: Integer;
     begin
-        if CustNo = '' then
-            exit;
         RecCount := 0;
         Result := 0;
+        if CustNo = '' then
+            exit;
 
-        SetFilterForUnpostedLines(SalesLine, CustNo, DocumentType, false);
-        with SalesLine do begin
-            if FindSet then
-                repeat
-                    case "Document Type" of
-                        "Document Type"::Invoice,
-                      "Document Type"::Order,
-                      "Document Type"::Quote:
-                            OutstandingAmount := "Outstanding Amount (LCY)";
-                        "Document Type"::"Credit Memo":
-                            OutstandingAmount := -"Outstanding Amount (LCY)";
-                    end;
-                    VAT := 100 + "VAT %";
-                    Result += OutstandingAmount * 100 / VAT;
+        SalesHeader.SetRange("Document Type", DocumentType);
+        SalesHeader.SetRange("Bill-to Customer No.", CustNo);
+        RecCount := SalesHeader.Count();
 
-                    if OldDocumentNo <> "Document No." then begin
-                        OldDocumentNo := "Document No.";
-                        RecCount += 1;
-                    end;
-                until Next = 0;
+        case DocumentType of
+            "Sales Document Type"::Invoice,
+        "Sales Document Type"::Order,
+        "Sales Document Type"::Quote:
+                Factor := 1;
+            "Sales Document Type"::"Credit Memo":
+                Factor := -1;
         end;
+        SalesOutstdAmountOnVAT.SetRange(Document_Type, DocumentType);
+        SalesOutstdAmountOnVAT.SetRange(Bill_to_Customer_No_, CustNo);
+        SalesOutstdAmountOnVAT.Open();
+        while SalesOutstdAmountOnVAT.Read() do
+            Result += Factor * SalesOutstdAmountOnVAT.Sum_Outstanding_Amount__LCY_ * 100 / (100 + SalesOutstdAmountOnVAT.VAT__);
+        SalesOutstdAmountOnVAT.Close();
 
         exit(Round(Result));
     end;
@@ -262,7 +257,7 @@ codeunit 1302 "Customer Mgt."
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
-        SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::Invoice);
+        SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::Invoice.AsInteger());
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeader)
     end;
 
@@ -271,7 +266,7 @@ codeunit 1302 "Customer Mgt."
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
-        SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::"Credit Memo");
+        SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::"Credit Memo".AsInteger());
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeader)
     end;
 
@@ -288,21 +283,18 @@ codeunit 1302 "Customer Mgt."
         end;
     end;
 
-    local procedure SetFilterForUnpostedLines(var SalesLine: Record "Sales Line"; CustNo: Code[20]; DocumentType: Integer; Posted: Boolean)
+    local procedure SetFilterForUnpostedLines(var SalesLine: Record "Sales Line"; CustNo: Code[20]; DocumentType: Enum "Sales Document Type"; Posted: Boolean)
     begin
         with SalesLine do begin
             SetRange("Bill-to Customer No.", CustNo);
             if Posted then
                 SetFilter("Posting Date", GetCurrentYearFilter);
 
-            if DocumentType = -1 then
-                SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo")
-            else
-                SetRange("Document Type", DocumentType);
+            SetRange("Document Type", DocumentType);
         end;
     end;
 
-    local procedure SetFilterForPostedDocs(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20]; DocumentType: Integer)
+    local procedure SetFilterForPostedDocs(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with CustLedgEntry do begin
             SetRange("Customer No.", CustNo);

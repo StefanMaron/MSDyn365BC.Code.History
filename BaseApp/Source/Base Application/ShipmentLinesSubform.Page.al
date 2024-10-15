@@ -6,6 +6,9 @@ page 7173 "Shipment Lines Subform"
     PageType = ListPart;
     SaveValues = true;
     SourceTable = "Sales Shipment Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Page is emty and not used.';
+    ObsoleteTag = '17.0';
 
     layout
     {

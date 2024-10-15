@@ -44,7 +44,7 @@ page 7120 "Sales Analysis Lines"
 
                     trigger OnValidate()
                     begin
-                        RowRefNoOnAfterValidate;
+                        RowRefNoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)

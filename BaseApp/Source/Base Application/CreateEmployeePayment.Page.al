@@ -122,7 +122,7 @@ page 1191 "Create Employee Payment"
 
     procedure GetBankPaymentType(): Integer
     begin
-        exit(BankPaymentType);
+        exit(BankPaymentType.AsInteger());
     end;
 
     procedure GetBatchNumber(): Code[10]
@@ -187,7 +187,7 @@ page 1191 "Create Employee Payment"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
         Employee: Record Employee;
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
+        BalAccType: Enum "Gen. Journal Account Type";
         LastLineNo: Integer;
     begin
         GenJnlLine.LockTable();
@@ -282,8 +282,8 @@ page 1191 "Create Employee Payment"
             "Dimension Set ID" := NewDimensionID;
 
             CreateDim(
-              DimMgt.TypeToTableID1("Account Type"), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
               DATABASE::Job, "Job No.",
               DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
               DATABASE::Campaign, "Campaign No.");

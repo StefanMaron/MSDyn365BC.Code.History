@@ -85,7 +85,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -96,7 +96,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)
@@ -140,7 +140,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        VariantCodeOnAfterValidate;
+                        VariantCodeOnAfterValidate();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -152,7 +152,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
+                        LocationCodeOnAfterValidate();
                     end;
                 }
                 field("Work Type Code"; "Work Type Code")
@@ -171,7 +171,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field(ReserveName; Reserve)
@@ -182,7 +182,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        ReserveOnAfterValidate;
+                        ReserveOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -192,7 +192,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -586,6 +586,7 @@ page 1007 "Job Planning Lines"
                             JobPlanningLine.Copy(Rec);
                             CurrPage.SetSelectionFilter(JobPlanningLine);
 
+                            JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
                             if JobPlanningLine.FindSet then
                                 repeat
                                     JobTransferLine.FromPlanningLineToJnlLine(
@@ -672,7 +673,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -684,7 +685,7 @@ page 1007 "Job Planning Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
                 separator(Action130)
@@ -774,6 +775,8 @@ page 1007 "Job Planning Lines"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         MailManagement: Codeunit "Mail Management";
+        EmailFeature: Codeunit "Email Feature";
+        EmailAccount: Codeunit "Email Account";
     begin
         UnitCostEditable := true;
         LineAmountEditable := true;
@@ -793,7 +796,10 @@ page 1007 "Job Planning Lines"
 
         JobTaskNoVisible := true;
 
-        CanSendToCalendar := MailManagement.IsSMTPEnabled and not SMTPMailSetup.IsEmpty;
+        if EmailFeature.IsEnabled() then
+            CanSendToCalendar := EmailAccount.IsAnyAccountRegistered()
+        else
+            CanSendToCalendar := MailManagement.IsSMTPEnabled and not SMTPMailSetup.IsEmpty;
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -824,6 +830,9 @@ page 1007 "Job Planning Lines"
     var
         JobCreateInvoice: Codeunit "Job Create-Invoice";
         Text001: Label 'This job planning line was automatically generated. Do you want to continue?';
+        Text002: Label 'The %1 was successfully transferred to a %2.';
+
+    protected var
         [InDataSet]
         JobTaskNoVisible: Boolean;
         [InDataSet]
@@ -856,7 +865,6 @@ page 1007 "Job Planning Lines"
         LineAmountEditable: Boolean;
         [InDataSet]
         UnitCostEditable: Boolean;
-        Text002: Label 'The %1 was successfully transferred to a %2.';
         CanSendToCalendar: Boolean;
 
     local procedure CreateSalesInvoice(CrMemo: Boolean)
@@ -900,53 +908,53 @@ page 1007 "Job Planning Lines"
            ("Remaining Qty. (Base)" <> 0)
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure UsageLinkOnAfterValidate()
+    protected procedure UsageLinkOnAfterValidate()
     begin
-        PerformAutoReserve;
+        PerformAutoReserve();
     end;
 
-    local procedure PlanningDateOnAfterValidate()
+    protected procedure PlanningDateOnAfterValidate()
     begin
         if "Planning Date" <> xRec."Planning Date" then
-            PerformAutoReserve;
+            PerformAutoReserve();
     end;
 
-    local procedure NoOnAfterValidate()
+    protected procedure NoOnAfterValidate()
     begin
         if "No." <> xRec."No." then
-            PerformAutoReserve;
+            PerformAutoReserve();
     end;
 
-    local procedure VariantCodeOnAfterValidate()
+    protected procedure VariantCodeOnAfterValidate()
     begin
         if "Variant Code" <> xRec."Variant Code" then
-            PerformAutoReserve;
+            PerformAutoReserve();
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
         if "Location Code" <> xRec."Location Code" then
-            PerformAutoReserve;
+            PerformAutoReserve();
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
-        PerformAutoReserve;
+        PerformAutoReserve();
     end;
 
-    local procedure ReserveOnAfterValidate()
+    protected procedure ReserveOnAfterValidate()
     begin
-        PerformAutoReserve;
+        PerformAutoReserve();
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
-        PerformAutoReserve;
+        PerformAutoReserve();
         if (Type = Type::Item) and (Quantity <> xRec.Quantity) then
             CurrPage.Update(true);
     end;

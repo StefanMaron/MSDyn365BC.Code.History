@@ -169,12 +169,14 @@ page 593 "Change Log Setup (Table) List"
         FilterGroup(2);
         SetRange("Object Type", "Object Type"::Table);
         SetRange("Object ID", 0, 2000000000);
+        MonitorSensitiveField.ExcludeMonitorTablesFromChangeLog(Rec);
         FilterGroup(0);
     end;
 
     var
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
         xChangeLogSetupTable: Record "Change Log Setup (Table)";
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
         Text002: Label 'You have changed the %1 field to no longer be %2. Do you want to remove the field selections?';
         PageIsEditable: Boolean;
         ChangeLogSettingsUpdated: Boolean;

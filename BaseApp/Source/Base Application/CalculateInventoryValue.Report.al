@@ -478,7 +478,7 @@ report 5899 "Calculate Inventory Value"
             end;
     end;
 
-    local procedure InsertItemJnlLine(EntryType2: Option; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal)
+    local procedure InsertItemJnlLine(EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal)
     var
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
@@ -557,7 +557,7 @@ report 5899 "Calculate Inventory Value"
         end;
     end;
 
-    local procedure InitItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType2: Option; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10])
+    local procedure InitItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10])
     begin
         with ItemJnlLine do begin
             if NextLineNo = 0 then begin
@@ -661,9 +661,10 @@ report 5899 "Calculate Inventory Value"
             if Item."Costing Method" = Item."Costing Method"::Average then
                 CalcAverageUnitCost(
                   ValJnlBuffer.Quantity, ValJnlBuffer."Inventory Value (Calculated)", AppliedAmount);
-            InsertItemJnlLine(ItemJnlLine."Entry Type"::"Positive Adjmt.",
-              Item."No.", VariantCode, LocationCode, ValJnlBuffer.Quantity, ValJnlBuffer."Inventory Value (Calculated)",
-              0, AppliedAmount);
+            InsertItemJnlLine(
+                ItemJnlLine."Entry Type"::"Positive Adjmt.",
+                Item."No.", VariantCode, LocationCode, ValJnlBuffer.Quantity, ValJnlBuffer."Inventory Value (Calculated)",
+                0, AppliedAmount);
         end;
     end;
 

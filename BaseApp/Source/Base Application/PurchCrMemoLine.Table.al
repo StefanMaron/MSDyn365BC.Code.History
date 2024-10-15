@@ -75,7 +75,7 @@ table 125 "Purch. Cr. Memo Line"
         }
         field(22; "Direct Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Direct Unit Cost"));
             Caption = 'Direct Unit Cost';
@@ -100,19 +100,19 @@ table 125 "Purch. Cr. Memo Line"
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
         }
@@ -190,7 +190,7 @@ table 125 "Purch. Cr. Memo Line"
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
@@ -287,14 +287,14 @@ table 125 "Purch. Cr. Memo Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
@@ -306,14 +306,14 @@ table 125 "Purch. Cr. Memo Line"
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference';
         }
@@ -344,9 +344,14 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Posting Date';
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(145; "Pmt. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Pmt. Discount Amount';
         }
@@ -358,7 +363,7 @@ table 125 "Purch. Cr. Memo Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1001; "Job Task No."; Code[20])
@@ -535,21 +540,33 @@ table 125 "Purch. Cr. Memo Line"
         {
             AccessByPermission = TableData "Item Cross Reference" = R;
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5707; "Cross-Reference Type"; Option)
         {
             Caption = 'Cross-Reference Type';
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -571,6 +588,24 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Item Reference No.';
+        }
+        field(5726; "Item Reference Unit of Measure"; Code[10])
+        {
+            Caption = 'Unit of Measure (Item Ref.)';
+            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+        }
+        field(5727; "Item Reference Type"; Enum "Item Reference Type")
+        {
+            Caption = 'Item Reference Type';
+        }
+        field(5728; "Item Reference Type No."; Code[30])
+        {
+            Caption = 'Item Reference Type No.';
         }
         field(6600; "Return Shipment No."; Code[20])
         {
@@ -631,8 +666,9 @@ table 125 "Purch. Cr. Memo Line"
         if not PurchDocLineComments.IsEmpty then
             PurchDocLineComments.DeleteAll();
 
-        PostedDeferralHeader.DeleteHeader(DeferralUtilities.GetPurchDeferralDocType, '', '',
-          PurchDocLineComments."Document Type"::"Posted Credit Memo", "Document No.", "Line No.");
+        PostedDeferralHeader.DeleteHeader(
+            "Deferral Document Type"::Purchase.AsInteger(), '', '',
+            PurchDocLineComments."Document Type"::"Posted Credit Memo".AsInteger(), "Document No.", "Line No.");
     end;
 
     var
@@ -785,7 +821,7 @@ table 125 "Purch. Cr. Memo Line"
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
-        PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::"Posted Credit Memo", "Document No.", "Line No.");
+        PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "Document No.", "Line No.");
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
@@ -810,15 +846,15 @@ table 125 "Purch. Cr. Memo Line"
     procedure ShowDeferrals()
     begin
         DeferralUtilities.OpenLineScheduleView(
-          "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
-          GetDocumentType, "Document No.", "Line No.");
+            "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
+            GetDocumentType, "Document No.", "Line No.");
     end;
 
     procedure GetDocumentType(): Integer
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
-        exit(PurchCommentLine."Document Type"::"Posted Credit Memo");
+        exit(PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger());
     end;
 
     procedure HasTypeToFillMandatoryFields(): Boolean

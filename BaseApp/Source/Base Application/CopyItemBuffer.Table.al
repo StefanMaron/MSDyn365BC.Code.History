@@ -120,6 +120,11 @@ table 729 "Copy Item Buffer"
             Caption = 'Item Cross References';
             DataClassification = SystemMetadata;
         }
+        field(28; "Item References"; Boolean)
+        {
+            Caption = 'Item References';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

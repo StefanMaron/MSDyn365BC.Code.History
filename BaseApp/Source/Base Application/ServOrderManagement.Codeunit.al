@@ -1,4 +1,4 @@
-﻿codeunit 5900 ServOrderManagement
+codeunit 5900 ServOrderManagement
 {
 
     trigger OnRun()
@@ -591,16 +591,16 @@
     var
         ServCommentLine: Record "Service Comment Line";
         ServiceHeader: Record "Service Header";
-        TableSubType: Integer;
+        TableSubType: Enum "Service Document Type";
     begin
         case ToDocumentType of
-            ServCommentLine."Table Name"::"Service Shipment Header":
+            ServCommentLine."Table Name"::"Service Shipment Header".AsInteger():
                 TableSubType := ServiceHeader."Document Type"::Order;
-            ServCommentLine."Table Name"::"Service Cr.Memo Header":
+            ServCommentLine."Table Name"::"Service Cr.Memo Header".AsInteger():
                 TableSubType := ServiceHeader."Document Type"::"Credit Memo"
         end;
 
-        CopyCommentLinesWithSubType(FromDocumentType, ToDocumentType, FromNo, ToNo, TableSubType);
+        CopyCommentLinesWithSubType(FromDocumentType, ToDocumentType, FromNo, ToNo, TableSubType.AsInteger());
     end;
 
     procedure CopyCommentLinesWithSubType(FromDocumentType: Integer; ToDocumentType: Integer; FromNo: Code[20]; ToNo: Code[20]; FromTableSubType: Integer)
@@ -615,7 +615,7 @@
         if ServCommentLine.Find('-') then
             repeat
                 ServCommentLine2 := ServCommentLine;
-                ServCommentLine2."Table Name" := ToDocumentType;
+                ServCommentLine2."Table Name" := "Service Comment Table Name".FromInteger(ToDocumentType);
                 ServCommentLine2."Table Subtype" := 0;
                 ServCommentLine2."No." := ToNo;
                 ServCommentLine2.Insert();

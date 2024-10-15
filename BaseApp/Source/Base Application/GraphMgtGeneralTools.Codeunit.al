@@ -10,11 +10,11 @@ codeunit 5465 "Graph Mgt - General Tools"
     end;
 
     var
-        CannotChangeIDErr: Label 'Value of Id is immutable.', Locked = true;
-        CannotChangeLastDateTimeModifiedErr: Label 'Value of LastDateTimeModified is immutable.', Locked = true;
-        MissingFieldValueErr: Label '%1 must be specified.', Locked = true;
+        CannotChangeIDErr: Label 'Value of Id is immutable.';
+        CannotChangeLastDateTimeModifiedErr: Label 'Value of LastDateTimeModified is immutable.';
+        MissingFieldValueErr: Label '%1 must be specified.', Comment = '%1 = Property name';
         AggregateErrorTxt: Label 'AL APIAggregate', Locked = true;
-        AggregateIsMissingMainRecordTxt: Label 'Aggregate does not have main record.', Locked = true;
+        AggregateIsMissingMainRecordTxt: Label 'Aggregate does not have main record.';
 
     [Scope('OnPrem')]
     procedure GetMandatoryStringPropertyFromJObject(var JsonObject: DotNet JObject; PropertyName: Text; var PropertyValue: Text)
@@ -36,6 +36,9 @@ codeunit 5465 "Graph Mgt - General Tools"
         IDFieldRef: FieldRef;
         NullGuid: Guid;
     begin
+        if not IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then
+            exit;
+
         if OnlyRecordsWithoutID then begin
             FilterFieldRef := SourceRecordRef.Field(FieldNumber);
             FilterFieldRef.SetRange(NullGuid);
@@ -117,7 +120,6 @@ codeunit 5465 "Graph Mgt - General Tools"
     var
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        IntegrationManagement: Codeunit "Integration Management";
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         UpdatedRecRef: RecordRef;
     begin
@@ -126,8 +128,6 @@ codeunit 5465 "Graph Mgt - General Tools"
 
         if ConfigTemplateManagement.ApplyTemplate(InsertedRecordRef, TempFieldSet, UpdatedRecRef, ConfigTemplateHeader) then
             InsertedRecordRef := UpdatedRecRef.Duplicate;
-
-        IntegrationManagement.InsertUpdateIntegrationRecord(InsertedRecordRef, ModifiedDateTime);
     end;
 
     procedure ErrorIdImmutable()
@@ -296,8 +296,7 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
         MainRecordRef.GetTable(MainRecordVariant);
         MainRecordRef.Delete();
-        SendTraceTag(
-          '00001QW', AggregateErrorTxt, VERBOSITY::Error, AggregateIsMissingMainRecordTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QW', AggregateIsMissingMainRecordTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AggregateErrorTxt);
     end;
 
     procedure StripBrackets(StringWithBrackets: Text): Text

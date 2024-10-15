@@ -74,7 +74,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         ReverseBlockedVendorDocument(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(50, 2));
     end;
 
-    local procedure ReverseBlockedVendorDocument(DocumentType: Option; Amount: Decimal)
+    local procedure ReverseBlockedVendorDocument(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GLRegister: Record "G/L Register";
         ReversalEntry: Record "Reversal Entry";
@@ -113,7 +113,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Vendor");
     end;
 
-    local procedure CreateAndPostGenJournalLine(VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -127,7 +127,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure BlockVendorByOption(var Vendor: Record Vendor; Blocked: Option)
+    local procedure BlockVendorByOption(var Vendor: Record Vendor; Blocked: Enum "Vendor Blocked")
     begin
         // Modify value of Blocked field for Vendor as per Option selected.
         Vendor.Validate(Blocked, Blocked);

@@ -302,7 +302,7 @@ codeunit 138009 "O365 Customer Statistics"
         end;
     end;
 
-    local procedure CreateSalesHeaderWithAmount(var SalesHeader: Record "Sales Header"; CustNo: Code[20]; DocType: Integer; InvAmount: Decimal)
+    local procedure CreateSalesHeaderWithAmount(var SalesHeader: Record "Sales Header"; CustNo: Code[20]; DocType: Enum "Sales Document Type"; InvAmount: Decimal)
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -707,7 +707,7 @@ codeunit 138009 "O365 Customer Statistics"
         ValidateAmountOnUnpostedDocs(SalesHeader."Document Type"::"Credit Memo", CustNo, ExpectedAmount, ExpectedCount)
     end;
 
-    local procedure ValidateAmountOnPostedDocs(DocType: Integer; CustNo: Code[20]; ExpectedAmount: Decimal; ExpectedCount: Integer)
+    local procedure ValidateAmountOnPostedDocs(DocType: Enum "Gen. Journal Document Type"; CustNo: Code[20]; ExpectedAmount: Decimal; ExpectedCount: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustomerMgt: Codeunit "Customer Mgt.";
@@ -727,7 +727,7 @@ codeunit 138009 "O365 Customer Statistics"
         Assert.AreEqual(ExpectedCount, ActualCount, StrSubstNo('Wrong Counts on Posted %1.', DocTypeName));
     end;
 
-    local procedure ValidateAmountOnUnpostedDocs(DocType: Integer; CustNo: Code[20]; ExpectedAmount: Decimal; ExpectedCount: Integer)
+    local procedure ValidateAmountOnUnpostedDocs(DocType: Enum "Sales Document Type"; CustNo: Code[20]; ExpectedAmount: Decimal; ExpectedCount: Integer)
     var
         SalesHeader: Record "Sales Header";
         CustomerMgt: Codeunit "Customer Mgt.";

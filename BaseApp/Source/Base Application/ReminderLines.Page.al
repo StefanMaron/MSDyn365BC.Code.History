@@ -24,7 +24,7 @@ page 435 "Reminder Lines"
                     trigger OnValidate()
                     begin
                         TypeOnAfterValidate;
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         SetShowMandatoryConditions
                     end;
                 }
@@ -36,7 +36,7 @@ page 435 "Reminder Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Posting Date"; "Posting Date")

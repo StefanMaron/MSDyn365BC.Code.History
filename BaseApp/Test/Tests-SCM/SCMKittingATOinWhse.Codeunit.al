@@ -216,7 +216,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
               BOMComponent."Resource Usage Type"::Direct, '', QtyPer);
     end;
 
-    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Option)
+    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
@@ -695,7 +695,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         UpdateLocation(Location, true, FromBinCode, AsmShipBinCode);
         Qty := LibraryRandom.RandInt(1000);
 
-        CreateAssembledItem(Item1, Item1."Assembly Policy"::"Assemble-to-Order");
+        CreateAssembledItem(Item1, "Assembly Policy"::"Assemble-to-Order");
         AddInventoryNonDirectLocation(Item1."No.", Location.Code, Qty, AdditionalBinCode1);
 
         CreateSalesOrder(SalesHeader, Item1."No.", '', Location.Code, SalesLine1, SalesLine1, Qty);
@@ -1321,7 +1321,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader.Validate("Quantity to Assemble", 0);
         AssemblyHeader.Modify(true);
 
-        SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE: Bug 273866
+        SalesLine.ShowReservation(); // reserve the rest of qty on sales against ILE: Bug 273866
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify posting
@@ -1377,7 +1377,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader.Validate("Quantity to Assemble", NewQtyToAssembleAO);
         AssemblyHeader.Modify(true);
 
-        SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE: Bug 273866
+        SalesLine.ShowReservation(); // reserve the rest of qty on sales against ILE: Bug 273866
 
         AddComponentsToInventory(SalesLine);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);

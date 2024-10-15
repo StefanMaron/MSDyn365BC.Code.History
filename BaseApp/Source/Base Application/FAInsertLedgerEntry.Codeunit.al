@@ -116,7 +116,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
 
         if FALedgEntry3."FA Posting Category" = FALedgEntry3."FA Posting Category"::" " then
-            if FALedgEntry3."FA Posting Type" <= FALedgEntry3."FA Posting Type"::"Salvage Value" then
+            if FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger() then
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry);
 
         OnBeforeInsertRegister(FALedgEntry, FALedgEntry2);

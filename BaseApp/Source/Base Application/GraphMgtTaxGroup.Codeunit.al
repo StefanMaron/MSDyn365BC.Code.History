@@ -5,6 +5,7 @@ codeunit 5481 "Graph Mgt - Tax Group"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyTaxGroup: Record "Tax Group";

@@ -21,7 +21,7 @@ codeunit 20113 "AMC Bank Exp. CT Hndl"
             BankFileName := "Data Exch. Def Code" + GetFileExtension();
 
         if FileMgt.BLOBExport(TempBlob, BankFileName, true) = '' then
-            Error(DownloadFromStreamErr);
+            LogInternalError(DownloadFromStreamErr, DataClassification::SystemMetadata, Verbosity::Error);
 
         Get("Entry No.");
         RecordRef.GetTable(Rec);
@@ -51,14 +51,14 @@ codeunit 20113 "AMC Bank Exp. CT Hndl"
         TempBlobRequestBody: Codeunit "Temp Blob";
     begin
         if not DataExch."File Content".HasValue() then
-            Error(NoRequestBodyErr);
+            LogInternalError(NoRequestBodyErr, DataClassification::SystemMetadata, Verbosity::Error);
 
         TempBlobRequestBody.FromRecord(DataExch, DataExch.FieldNo("File Content"));
 
         SendPaymentRequestToWebService(TempBlobPaymentFile, TempBlobRequestBody, DataExch."Entry No.", AMCBankServMgt.GetAppCaller());
 
         if not TempBlobPaymentFile.HasValue() then
-            Error(NothingToExportErr);
+            LogInternalError(NothingToExportErr, DataClassification::SystemMetadata, Verbosity::Error);
     end;
 
     local procedure SendPaymentRequestToWebService(var TempBlobPaymentFile: Codeunit "Temp Blob"; var TempBlobBody: Codeunit "Temp Blob"; DataExchEntryNo: Integer; AppCaller: Text[30])

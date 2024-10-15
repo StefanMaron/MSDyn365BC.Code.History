@@ -136,7 +136,7 @@ page 1638 "Booking Items"
                         GetSelectedRecords(TempBookingItem);
                         if TempBookingItem.FindSet then
                             repeat
-                                BookingItem.Get(TempBookingItem.Id);
+                                BookingItem.Get(TempBookingItem.SystemId);
                                 BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
                                 BookingItem.Modify();
                                 RemoveFromView(TempBookingItem);
@@ -244,7 +244,7 @@ page 1638 "Booking Items"
 
     local procedure RemoveFromView(var TempBookingItem: Record "Booking Item" temporary)
     begin
-        Get(TempBookingItem.Id);
+        Get(TempBookingItem.SystemId);
         Delete;
     end;
 }

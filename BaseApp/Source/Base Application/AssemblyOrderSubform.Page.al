@@ -22,7 +22,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnDrillDown()
                     begin
-                        ShowAvailabilityWarning;
+                        ShowAvailabilityWarningPage();
                     end;
                 }
                 field(Type; Type)
@@ -414,7 +414,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Show Warning")
@@ -440,7 +440,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -484,7 +484,7 @@ page 901 "Assembly Order Subform"
                         ShowItemSub;
                         CurrPage.Update(true);
                         if (Reserve = Reserve::Always) and ("No." <> xRec."No.") then begin
-                            AutoReserve;
+                            AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -512,7 +512,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -524,7 +524,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -562,6 +562,8 @@ page 901 "Assembly Order Subform"
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ReservationStatusField: Option " ",Partial,Full;
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -572,7 +574,7 @@ page 901 "Assembly Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
 
-    local procedure ReserveItem()
+    protected procedure ReserveItem()
     begin
         if Type <> Type::Item then
             exit;
@@ -586,7 +588,7 @@ page 901 "Assembly Order Subform"
         then
             if Reserve = Reserve::Always then begin
                 CurrPage.SaveRecord;
-                AutoReserve;
+                AutoReserve();
                 CurrPage.Update(false);
             end;
 

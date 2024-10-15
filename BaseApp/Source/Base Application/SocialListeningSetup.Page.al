@@ -1,12 +1,13 @@
 page 870 "Social Listening Setup"
 {
-    ApplicationArea = Suite;
     Caption = 'Social Engagement Setup';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Social Listening Setup";
-    UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {

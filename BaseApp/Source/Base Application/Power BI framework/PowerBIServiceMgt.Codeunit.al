@@ -9,21 +9,13 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBISessionManager: Codeunit "Power BI Session Manager";
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
-        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
-        ErrorWebResponseTelemetryMsg: Label 'Getting data failed with status code: %1. Exception Message: %2. Exception Details: %3.', Locked = true;
-        RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
-        BlobDoesNotExistTelemetryMsg: Label 'Trying to upload a non-existing blob, with ID: %1.', Locked = true;
-        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
-        ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
-        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Json message: %1.', Locked = true;
         ReportPageSizeTxt: Label '16:9', Locked = true;
         PowerBIurlErr: Label 'https://powerbi.microsoft.com', Locked = true;
-        UnauthorizedErr: Label 'You do not have a Power BI account. You can get a Power BI account at the following location.';
+        UnauthorizedErr: Label 'You do not have a Power BI account. You can get a Power BI account at the following location. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
         DataNotFoundErr: Label 'The report(s) you are trying to load do not exist.';
         NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
         Dyn365AppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862352', Locked = true;
         PowerBIMyOrgUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862353', Locked = true;
-        NullGuidTxt: Label '00000000-0000-0000-0000-000000000000', Locked = true;
         ItemTxt: Label 'Items', Locked = true;
         VendorTxt: Label 'Vendors', Locked = true;
         CustomerTxt: Label 'Customers', Locked = true;
@@ -31,9 +23,17 @@ codeunit 6301 "Power BI Service Mgt."
         InvoicesTxt: Label 'Purchase Invoices', Locked = true;
         HackPowerBIGuidTxt: Label '06D251CE-A824-44B2-A5F9-318A0674C3FB', Locked = true;
         UpdateEmbedCache: Boolean;
-        PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
         ReportEnvNameTxt: Label '%1 %2', Locked = true;
         EnvNameTxt: Text;
+        // Telemetry constants
+        PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
+        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
+        ErrorWebResponseTelemetryMsg: Label 'Getting data failed with status code: %1. Exception Message: %2. Exception Details: %3.', Locked = true;
+        RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
+        BlobDoesNotExistTelemetryMsg: Label 'Trying to upload a non-existing blob, with ID: %1.', Locked = true;
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
+        ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
+        UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Json message: %1.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
@@ -93,9 +93,7 @@ codeunit 6301 "Power BI Service Mgt."
                 end else begin
                     // get url from power bi
                     // There should never be a case when this code block gets called. So logging telemetry to troubleshoot in case it happens.
-                    SendTraceTag('0000B6Z', PowerBiTelemetryCategoryLbl, Verbosity::Warning,
-                        StrSubstNo('GetReportsForUserContext : GetData from powerbi Context: %1 ReportId: %2', EnglishContext, Format(PowerBIReportConfiguration."Report ID")),
-                        DataClassification::CustomerContent);
+                    Session.LogMessage('0000B6Z', StrSubstNo('GetReportsForUserContext : GetData from powerbi Context: %1 ReportId: %2', EnglishContext, Format(PowerBIReportConfiguration."Report ID")), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
                     if not IsNullGuid(PowerBIReportConfiguration."Report ID") then begin
                         // If both the embed URL and the ID are empty, we have no data about the report to load, so no action is possible.
                         ResponseText := GetData(ExceptionMessage, ExceptionDetails, Url + '/' + Format(PowerBIReportConfiguration."Report ID"));
@@ -124,7 +122,7 @@ codeunit 6301 "Power BI Service Mgt."
             exit(true);
         end;
 
-        TASKSCHEDULER.CreateTask(CODEUNIT::"PBI Check License Task", 0, true);
+        TaskScheduler.CreateTask(Codeunit::"PBI Check License Task", 0, true);
 
         exit(false);
     end;
@@ -179,9 +177,11 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     procedure GetContentPacksServicesUrl(): Text
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         // Gets the URL for AppSource's list of content packs, like Power BI's Services button, filtered to Dynamics reports.
-        if AzureADMgt.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit(Dyn365AppSourceUrlTxt);
 
         exit(NavAppSourceUrlTxt);
@@ -197,13 +197,13 @@ codeunit 6301 "Power BI Service Mgt."
     procedure UploadDefaultReportInBackground()
     begin
         if not CanHandleServiceCalls then begin
-            UploadDefaultReport;
+            Codeunit.Run(Codeunit::"PBI Start Uploads Task");
             exit;
         end;
         // Schedules a background task to do default report deployment (codeunit 6311 which calls back into
         // the UploadAllDefaultReports method in this codeunit).
         SetIsDeployingReports(true);
-        TASKSCHEDULER.CreateTask(CODEUNIT::"PBI Start Uploads Task", CODEUNIT::"PBI Deployment Failure", true);
+        TaskScheduler.CreateTask(Codeunit::"PBI Start Uploads Task", Codeunit::"PBI Deployment Failure", true);
     end;
 
     [Scope('OnPrem')]
@@ -222,21 +222,24 @@ codeunit 6301 "Power BI Service Mgt."
         SetIsDeployingReports(false);
     end;
 
+    local procedure GetPowerBIBlob(var PowerBIBlob: Record "Power BI Blob"; BlobId: Guid): Boolean
+    begin
+        if not IsNullGuid(BlobId) then
+            if PowerBIBlob.Get(BlobId) then
+                exit(true);
+
+        Session.LogMessage('0000B61', StrSubstNo(BlobDoesNotExistTelemetryMsg, BlobId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+        exit(false);
+    end;
+
     local procedure UploadDefaultReportForContext(Context: Text[50])
     var
         PowerBIBlob: Record "Power BI Blob";
         PowerBIReportUploads: Record "Power BI Report Uploads";
         PowerBICustomerReports: Record "Power BI Customer Reports";
-        UrlHelper: Codeunit "Url Helper";
-        PbiServiceWrapper: DotNet ServiceWrapper;
         ApiRequest: DotNet ImportReportRequest;
         ApiRequestList: DotNet ImportReportRequestList;
-        ApiResponseList: DotNet ImportReportResponseList;
-        ApiResponse: DotNet ImportReportResponse;
-        DotNetDateTime: DotNet DateTime;
         BlobStream: InStream;
-        AzureAccessToken: Text;
-        BusinessCentralAccessToken: Text;
         BlobId: Guid;
     begin
         // Uploads a default report
@@ -244,12 +247,12 @@ codeunit 6301 "Power BI Service Mgt."
             exit;
 
         BlobId := GetBlobIdForDeployment(Context);
-        if not PowerBIBlob.Get(BlobId) then begin
-            SendTraceTag('0000B61', PowerBiTelemetryCategoryLbl, Verbosity::Warning,
-                StrSubstNo(BlobDoesNotExistTelemetryMsg, BlobId), DataClassification::SystemMetadata);
+        if not GetPowerBIBlob(PowerBIBlob, BlobId) then
             exit;
-        end;
 
+        // Prepare API Request List. 
+        // Note: this is not currently refactored to a separate function because otherwise the stream variable would fall out
+        // of scope and be disposed before being used.
         ApiRequestList := ApiRequestList.ImportReportRequestList;
         SetEnvironmentForDeployment();
 
@@ -267,31 +270,42 @@ codeunit 6301 "Power BI Service Mgt."
             ApiRequestList.Add(ApiRequest);
         end;
 
-        if not PowerBICustomerReports.IsEmpty then begin
-            PowerBICustomerReports.Reset();
-            if PowerBICustomerReports.Find('-') then
-                repeat
-                    PowerBIReportUploads.Reset();
-                    PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
-                    PowerBIReportUploads.SetFilter("PBIX BLOB ID", PowerBICustomerReports.Id);
-                    if PowerBIReportUploads.IsEmpty or (PowerBIReportUploads.FindFirst and
-                                                        (PowerBIReportUploads."Deployed Version" <> PowerBICustomerReports.Version) and
-                                                        not PowerBIReportUploads."Needs Deletion")
-                    then begin
-                        PowerBICustomerReports.CalcFields("Blob File"); // Calcfields necessary for accessing stored Blob bytes.
-                        PowerBICustomerReports."Blob File".CreateInStream(BlobStream);
-                        ApiRequest := ApiRequest.ImportReportRequest
-                          (PowerBICustomerReports.Id, BlobStream, PowerBICustomerReports.Name, EnvNameTxt, not PowerBIReportUploads.IsEmpty);
-                        ApiRequestList.Add(ApiRequest);
-                    end;
-                until PowerBICustomerReports.Next = 0;
-        end;
+        PowerBICustomerReports.SetAutoCalcFields("Blob File");
+        if PowerBICustomerReports.FindSet() then
+            repeat
+                PowerBIReportUploads.Reset();
+                PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
+                PowerBIReportUploads.SetFilter("PBIX BLOB ID", PowerBICustomerReports.Id);
+                if PowerBIReportUploads.IsEmpty or (PowerBIReportUploads.FindFirst and
+                                                    (PowerBIReportUploads."Deployed Version" <> PowerBICustomerReports.Version) and
+                                                    not PowerBIReportUploads."Needs Deletion")
+                then begin
+                    PowerBICustomerReports."Blob File".CreateInStream(BlobStream);
+                    ApiRequest := ApiRequest.ImportReportRequest
+                      (PowerBICustomerReports.Id, BlobStream, PowerBICustomerReports.Name, EnvNameTxt, not PowerBIReportUploads.IsEmpty);
+                    ApiRequestList.Add(ApiRequest);
+                end;
+            until PowerBICustomerReports.Next = 0;
+
+        UploadFromApiRequestList(ApiRequestList);
+    end;
+
+    local procedure UploadFromApiRequestList(ApiRequestList: DotNet ImportReportRequestList)
+    var
+        UrlHelper: Codeunit "Url Helper";
+        PbiServiceWrapper: DotNet ServiceWrapper;
+        ApiResponseList: DotNet ImportReportResponseList;
+        ApiResponse: DotNet ImportReportResponse;
+        DotNetDateTime: DotNet DateTime;
+        AzureAccessToken: Text;
+        BusinessCentralAccessToken: Text;
+    begin
         if ApiRequestList.Count > 0 then begin
             if CanHandleServiceCalls then begin
                 AzureAccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl, GetPowerBiResourceName, false);
 
                 if AzureAccessToken = '' then begin
-                    SendTraceTag('0000B62', PowerBiTelemetryCategoryLbl, Verbosity::Warning, EmptyAccessTokenTelemetryMsg, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000B62', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
                     exit;
                 end;
 
@@ -303,7 +317,7 @@ codeunit 6301 "Power BI Service Mgt."
                     ApiResponseList := PbiServiceWrapper.ImportReports(ApiRequestList,
                         CompanyName, EnvNameTxt, BusinessCentralAccessToken, GetServiceRetries)
                 else begin
-                    SendTraceTag('0000B63', PowerBiTelemetryCategoryLbl, Verbosity::Warning, EmptyAccessTokenTelemetryMsg, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000B63', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
                     SetIsDeployingReports(false);
                     exit;
                 end;
@@ -326,13 +340,13 @@ codeunit 6301 "Power BI Service Mgt."
     procedure RetryUnfinishedReportsInBackground()
     begin
         if not CanHandleServiceCalls then begin
-            RetryAllPartialReportUploads;
+            Codeunit.Run(Codeunit::"PBI Retry Uploads Task");
             exit;
         end;
         // Schedules a background task to do completion of partial uploads (codeunit 6312 which calls
         // back into the RetryAllPartialReportUploads method in this codeunit).
         SetIsRetryingUploads(true);
-        TASKSCHEDULER.CreateTask(CODEUNIT::"PBI Retry Uploads Task", CODEUNIT::"PBI Retry Failure", true);
+        TaskScheduler.CreateTask(Codeunit::"PBI Retry Uploads Task", Codeunit::"PBI Retry Failure", true);
     end;
 
     [Scope('OnPrem')]
@@ -359,6 +373,7 @@ codeunit 6301 "Power BI Service Mgt."
         DotNetDateTime: DotNet DateTime;
         AzureAccessToken: Text;
         BusinessCentralAccessToken: Text;
+        NullGuid: Guid;
     begin
         // Retries a batch of default reports that have had their uploads started but not finished, based on
         // the passed in priority (see DoesDefaultReportMatchPriority). This will attempt to have the PBI service
@@ -371,11 +386,11 @@ codeunit 6301 "Power BI Service Mgt."
 
         PowerBIReportUploads.Reset();
         PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
-        PowerBIReportUploads.SetFilter("Uploaded Report ID", NullGuidTxt);
-        PowerBIReportUploads.SetFilter("Should Retry", '%1', true);
+        PowerBIReportUploads.SetRange("Uploaded Report ID", NullGuid);
+        PowerBIReportUploads.SetRange("Should Retry", true);
+        PowerBIReportUploads.SetRange("Needs Deletion", false);
         PowerBIReportUploads.SetFilter("Retry After", '<%1', CurrentDateTime);
-        PowerBIReportUploads.SetFilter("Needs Deletion", '%1', false);
-        if PowerBIReportUploads.Find('-') then
+        if PowerBIReportUploads.FindSet() then
             repeat
                 ImportIdList.Add(PowerBIReportUploads."Import ID");
             until PowerBIReportUploads.Next = 0;
@@ -397,7 +412,7 @@ codeunit 6301 "Power BI Service Mgt."
                 OnRetryUploads(ImportIdList, ApiResponseList);
             end;
             foreach ApiResponse in ApiResponseList do
-                HandleUploadResponse(ApiResponse.ImportId, NullGuidTxt, ApiResponse.ImportedReport,
+                HandleUploadResponse(ApiResponse.ImportId, NullGuid, ApiResponse.ImportedReport,
                   ApiResponse.ShouldRetry, ApiResponse.RetryAfter);
 
             if not IsNull(ApiResponseList.RetryAfter) then begin
@@ -407,13 +422,15 @@ codeunit 6301 "Power BI Service Mgt."
         end;
     end;
 
-    local procedure HandleUploadResponse(ImportId: Text; BlobId: Guid; ReturnedReport: DotNet ImportedReport; ShouldRetry: DotNet Nullable1; RetryAfter: DotNet Nullable1) WasSuccessful: Boolean
+    local procedure HandleUploadResponse(ImportId: Text; BlobId: Guid; ReturnedReport: DotNet ImportedReport; ShouldRetry: DotNet Nullable1;
+                                                                                           RetryAfter: DotNet Nullable1) WasSuccessful: Boolean
     var
         PowerBIBlob: Record "Power BI Blob";
         PowerBIReportUploads: Record "Power BI Report Uploads";
         PowerBICustomerReports: Record "Power BI Customer Reports";
         DotNetBoolean: DotNet Boolean;
         DotNetDateTime: DotNet DateTime;
+        NullGuid: Guid;
     begin
         // Deals with individual responses from the Power BI service for importing or finishing imports of
         // default reports. This is what updates the tables so we know which reports are actually ready
@@ -444,13 +461,13 @@ codeunit 6301 "Power BI Service Mgt."
                 PowerBIReportUploads."Uploaded Report ID" := ReturnedReport.ReportId;
                 PowerBIReportUploads.Validate("Report Embed Url",
                     CopyStr(ReturnedReport.EmbedUrl, 1, MaxStrLen(PowerBIReportUploads."Report Embed Url")));
-                PowerBIReportUploads."Import ID" := NullGuidTxt;
+                PowerBIReportUploads."Import ID" := NullGuid;
                 PowerBIReportUploads."Should Retry" := false;
                 PowerBIReportUploads."Retry After" := 0DT;
             end else begin
                 WasSuccessful := false;
                 PowerBIReportUploads."Import ID" := ImportId;
-                PowerBIReportUploads."Uploaded Report ID" := NullGuidTxt;
+                PowerBIReportUploads."Uploaded Report ID" := NullGuid;
                 if not IsNull(ShouldRetry) then begin
                     DotNetBoolean := ShouldRetry;
                     PowerBIReportUploads."Should Retry" := DotNetBoolean.Equals(true);
@@ -461,7 +478,7 @@ codeunit 6301 "Power BI Service Mgt."
                 end;
             end;
 
-            if PowerBIBlob.Get(PowerBIReportUploads."PBIX BLOB ID") then begin
+            if GetPowerBIBlob(PowerBIBlob, PowerBIReportUploads."PBIX BLOB ID") then begin
                 PowerBIReportUploads."Deployed Version" := PowerBIBlob.Version;
                 PowerBIReportUploads.IsGP := PowerBIBlob."GP Enabled";
             end else
@@ -486,6 +503,7 @@ codeunit 6301 "Power BI Service Mgt."
         IntelligentCloud: Record "Intelligent Cloud";
         PowerBIBlob: Record "Power BI Blob";
         PageId: Text[50];
+        NullGuid: Guid;
     begin
         // Finds all recently uploaded default reports and enables/selects them on the appropriate pages
         // per table 2000000145.
@@ -500,9 +518,9 @@ codeunit 6301 "Power BI Service Mgt."
             exit;
 
         PowerBIReportUploads.Reset();
-        PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
-        PowerBIReportUploads.SetFilter("Uploaded Report ID", '<>%1', NullGuidTxt);
-        PowerBIReportUploads.SetFilter("Is Selection Done", '%1', false);
+        PowerBIReportUploads.SetRange("User ID", UserSecurityId);
+        PowerBIReportUploads.SetFilter("Uploaded Report ID", '<>%1', NullGuid);
+        PowerBIReportUploads.SetRange("Is Selection Done", false);
 
         if not IntelligentCloud.Get then
             PowerBIReportUploads.SetFilter(IsGP, '%1', false);
@@ -569,7 +587,7 @@ codeunit 6301 "Power BI Service Mgt."
         // Schedules a background task to do default report deletion (codeunit 6315 which calls back into
         // the DeleteMarkedDefaultReports method in this codeunit).
         SetIsDeletingReports(true);
-        TASKSCHEDULER.CreateTask(CODEUNIT::"PBI Start Deletions Task", CODEUNIT::"PBI Deletion Failure", true);
+        TaskScheduler.CreateTask(Codeunit::"PBI Start Deletions Task", Codeunit::"PBI Deletion Failure", true);
     end;
 
     [Scope('OnPrem')]
@@ -632,7 +650,7 @@ codeunit 6301 "Power BI Service Mgt."
         // Checks whether the user has any un-uploaded OOB reports, by checking for rows in table 2000000144
         // without corresponding rows in table 6307 yet (or rows that are an old version).
         BlobId := GetBlobIdForDeployment(Context);
-        if not PowerBIBlob.Get(BlobId) then
+        if not GetPowerBIBlob(PowerBIBlob, BlobId) then
             exit(false);
 
         PowerBIReportUploads.Reset();
@@ -668,6 +686,7 @@ codeunit 6301 "Power BI Service Mgt."
     procedure UserNeedsToRetryUploads(): Boolean
     var
         PowerBIReportUploads: Record "Power BI Report Uploads";
+        NullGuid: Guid;
     begin
         // Checks whether the user has any partially deployed OOB reports that we need to finish the upload
         // process on (probably because it errored out partway through) i.e. rows in table 6307 that don't
@@ -676,9 +695,9 @@ codeunit 6301 "Power BI Service Mgt."
             exit(false);
 
         PowerBIReportUploads.Reset();
-        PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
-        PowerBIReportUploads.SetFilter("Uploaded Report ID", NullGuidTxt);
-        PowerBIReportUploads.SetFilter("Should Retry", '%1', true);
+        PowerBIReportUploads.SetRange("User ID", UserSecurityId);
+        PowerBIReportUploads.SetRange("Uploaded Report ID", NullGuid);
+        PowerBIReportUploads.SetRange("Should Retry", true);
         PowerBIReportUploads.SetFilter("Retry After", '<%1', CurrentDateTime);
         exit(not PowerBIReportUploads.IsEmpty());
     end;
@@ -803,12 +822,7 @@ codeunit 6301 "Power BI Service Mgt."
 
     local procedure SendPowerBiOngoingDeploymentsTelemetry(FieldChanged: Text; NewValue: Boolean)
     begin
-        SendTraceTag('0000AYR',
-            PowerBiTelemetryCategoryLbl,
-            Verbosity::Normal,
-            StrSubstNo(OngoingDeploymentTelemetryMsg, FieldChanged, NewValue),
-            DataClassification::SystemMetadata
-            );
+        Session.LogMessage('0000AYR', StrSubstNo(OngoingDeploymentTelemetryMsg, FieldChanged, NewValue), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
     end;
 
     local procedure GetServiceRetries(): Integer
@@ -827,8 +841,7 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBIServiceStatusSetup.Reset();
         if PowerBIServiceStatusSetup.FindFirst then
             if PowerBIServiceStatusSetup."Retry After" > CurrentDateTime then begin
-                SendTraceTag('0000B64', PowerBiTelemetryCategoryLbl, Verbosity::Normal,
-                    StrSubstNo(RetryAfterNotSatisfiedTelemetryMsg, PowerBIServiceStatusSetup."Retry After"), DataClassification::SystemMetadata);
+                Session.LogMessage('0000B64', StrSubstNo(RetryAfterNotSatisfiedTelemetryMsg, PowerBIServiceStatusSetup."Retry After"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
                 exit(false);
             end;
 
@@ -854,13 +867,13 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Use more specific tags to make data classification and filtering easier.','16.0')]
+    [Obsolete('Use more specific tags to make data classification and filtering easier.', '16.0')]
     procedure LogException(var ExceptionMessage: Text; var ExceptionDetails: Text)
     begin
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Use more specific tags to make data classification and filtering easier.','16.0')]
+    [Obsolete('Use more specific tags to make data classification and filtering easier.', '16.0')]
     procedure LogMessage(Message: Text)
     begin
     end;
@@ -882,12 +895,18 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList; var ApiResponseList: DotNet ImportReportResponseList)
+    local procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList;
+
+    var
+        ApiResponseList: DotNet ImportReportResponseList)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRetryUploads(var ImportIdList: DotNet ImportedReportRequestList; var ApiResponseList: DotNet ImportedReportResponseList)
+    local procedure OnRetryUploads(var ImportIdList: DotNet ImportedReportRequestList;
+
+    var
+        ApiResponseList: DotNet ImportedReportResponseList)
     begin
     end;
 
@@ -925,8 +944,7 @@ codeunit 6301 "Power BI Service Mgt."
         ResponseText := GetDataCatchErrors(ExceptionMessage, ExceptionDetails, HttpStatusCode, Url);
 
         if ExceptionMessage <> '' then begin
-            SendTraceTag('0000BJL', PowerBiTelemetryCategoryLbl, Verbosity::Warning,
-                StrSubstNo(ErrorWebResponseTelemetryMsg, HttpStatusCode, ExceptionMessage, ExceptionDetails), DataClassification::CustomerContent);
+            Session.LogMessage('0000BJL', StrSubstNo(ErrorWebResponseTelemetryMsg, HttpStatusCode, ExceptionMessage, ExceptionDetails), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
 
             case true of
                 HttpStatusCode = 401:
@@ -940,7 +958,7 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [Scope('OnPrem')]
-    local procedure GetDataCatchErrors(var ExceptionMessage: Text; var ExceptionDetails: Text; var HttpStatusCode: Integer; Url: Text): Text
+    procedure GetDataCatchErrors(var ExceptionMessage: Text; var ExceptionDetails: Text; var ErrorStatusCode: Integer; Url: Text): Text
     var
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
         WebRequestHelper: Codeunit "Web Request Helper";
@@ -949,7 +967,7 @@ codeunit 6301 "Power BI Service Mgt."
         Exception: DotNet Exception;
         ResponseText: Text;
     begin
-        Clear(HttpStatusCode);
+        Clear(ErrorStatusCode);
         Clear(ExceptionMessage);
         Clear(ExceptionDetails);
 
@@ -964,11 +982,11 @@ codeunit 6301 "Power BI Service Mgt."
             if DotNetExceptionHandler.CastToType(WebException, GetDotNetType(WebException)) then begin // If this is true, WebException is not null
                 HttpWebResponse := WebException.Response;
                 if not IsNull(HttpWebResponse) then
-                    HttpStatusCode := HttpWebResponse.StatusCode;
+                    ErrorStatusCode := HttpWebResponse.StatusCode;
             end;
         end;
 
-        if WebRequestHelper.IsFailureStatusCode(Format(HttpStatusCode)) and (ExceptionMessage = '') then
+        if WebRequestHelper.IsFailureStatusCode(Format(ErrorStatusCode)) and (ExceptionMessage = '') then
             ExceptionMessage := GenericErr;
 
         exit(ResponseText);
@@ -993,8 +1011,7 @@ codeunit 6301 "Power BI Service Mgt."
         JObj.SelectToken('embedUrl', JToken);
         if JToken.IsValue() then
             if StrLen(JToken.AsValue().AsText()) > MaxStrLen(TempPowerBIReportBuffer.ReportEmbedUrl) then
-                SendTraceTag('0000BAV', PowerBiTelemetryCategoryLbl, Verbosity::Error,
-                    StrSubstNo(UrlTooLongTelemetryMsg, JObj), DataClassification::CustomerContent);
+                Session.LogMessage('0000BAV', StrSubstNo(UrlTooLongTelemetryMsg, JObj), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
         TempPowerBIReportBuffer.Validate(ReportEmbedUrl,
             CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempPowerBIReportBuffer.ReportEmbedUrl)));
 
@@ -1023,9 +1040,9 @@ codeunit 6301 "Power BI Service Mgt."
                         if JArrayElement.IsObject then
                             ParseReport(TempPowerBIReportBuffer, JArrayElement.AsObject(), EnglishContext)
                         else
-                            SendTraceTag('0000B70', PowerBiTelemetryCategoryLbl, Verbosity::Warning, ParseReportsWarningTelemetryMsg, DataClassification::SystemMetadata)
+                            Session.LogMessage('0000B70', ParseReportsWarningTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl)
                 else
-                    SendTraceTag('0000B71', PowerBiTelemetryCategoryLbl, Verbosity::Warning, ParseReportsWarningTelemetryMsg, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000B71', ParseReportsWarningTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             end;
     end;
 
@@ -1092,22 +1109,30 @@ codeunit 6301 "Power BI Service Mgt."
         exit(AllProfile."Profile ID");
     end;
 
+    procedure IsUserAdminForPowerBI(UserSecurityId: Guid): Boolean
+    var
+        UserPermissions: Codeunit "User Permissions";
+    begin
+        exit(UserPermissions.IsSuper(UserSecurityId));
+    end;
+
     local procedure GetBlobIdForDeployment(Context: Text[50]): Guid
     var
         PowerBIBlob: Record "Power BI Blob";
         PowerBIDefaultSelection: Record "Power BI Default Selection";
         IntelligentCloud: Record "Intelligent Cloud";
+        NullGuid: Guid;
     begin
         PowerBIDefaultSelection.Reset();
         PowerBIDefaultSelection.SetFilter(Context, Context);
 
         if PowerBIDefaultSelection.IsEmpty then
-            exit(NullGuidTxt);
+            exit(NullGuid);
 
         if PowerBIDefaultSelection.Find('-') then
             repeat
                 PowerBIBlob.Reset();
-                PowerBIBlob.SetFilter(Id, '%1', PowerBIDefaultSelection.Id);
+                PowerBIBlob.SetRange(Id, PowerBIDefaultSelection.Id);
                 PowerBIBlob.SetFilter("GP Enabled", '%1', IntelligentCloud.Get);
                 if not PowerBIBlob.IsEmpty then
                     exit(PowerBIDefaultSelection.Id);
@@ -1117,17 +1142,18 @@ codeunit 6301 "Power BI Service Mgt."
         if PowerBIBlob.FindFirst then
             exit(PowerBIBlob.Id);
 
-        exit(NullGuidTxt);
+        exit(NullGuid);
     end;
 
     local procedure GetPageId(): Text[50]
     var
         PowerBIUserConfiguration: Record "Power BI User Configuration";
+        NullGuid: Guid;
     begin
         PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId);
-        PowerBIUserConfiguration.SetFilter("Profile ID", GetEnglishContext);
-        PowerBIUserConfiguration.SetFilter("Selected Report ID", '%1', NullGuidTxt);
+        PowerBIUserConfiguration.SetRange("User Security ID", UserSecurityId());
+        PowerBIUserConfiguration.SetRange("Profile ID", GetEnglishContext());
+        PowerBIUserConfiguration.SetRange("Selected Report ID", NullGuid);
 
         if not PowerBIUserConfiguration.FindFirst then
             exit('');

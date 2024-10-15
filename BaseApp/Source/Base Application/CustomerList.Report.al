@@ -5,6 +5,7 @@ report 101 "Customer - List"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer List';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

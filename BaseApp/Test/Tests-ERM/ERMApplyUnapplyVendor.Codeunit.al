@@ -153,7 +153,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure RoundingAmtOnVendorEntries(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure RoundingAmtOnVendorEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -194,7 +194,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure RoundingAmtOnUnappliedEntries(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure RoundingAmtOnUnappliedEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -239,7 +239,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure ApplyUnapplyAndCheckSourceCode(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure ApplyUnapplyAndCheckSourceCode(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         SourceCode: Record "Source Code";
         GenJournalLine: Record "Gen. Journal Line";
@@ -307,7 +307,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandInt(500));
     end;
 
-    local procedure ChangeExchRateUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure ChangeExchRateUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -356,7 +356,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandInt(500));
     end;
 
-    local procedure ChangeDocumentNoAndUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure ChangeDocumentNoAndUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -459,7 +459,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         UnapplyFromVendorLedger(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure UnapplyFromVendorLedger(DocumentType: Option; Amount: Decimal)
+    local procedure UnapplyFromVendorLedger(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
@@ -529,7 +529,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         UnapplyFromDtldVendorLedger(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure UnapplyFromDtldVendorLedger(DocumentType: Option; Amount: Decimal)
+    local procedure UnapplyFromDtldVendorLedger(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
@@ -1093,13 +1093,11 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VendLedgEntry: Record "Vendor Ledger Entry";
         GLEntry: Record "G/L Entry";
         PostedDocumentNo: Code[20];
-        EmptyDocumentType: Option;
     begin
         // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount]
         // [SCENARIO 229786] There are no VAT and G/L Entries created when unapplies the entry without discount but with Reverse Charge and "Adjust For Payment Discount"
         Initialize;
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        EmptyDocumentType := GenJnlLine."Document Type"::" ";
 
         // [GIVEN] Posted invoice with Reverse Charge VAT setup with "Adjust For Payment Discount"
         PostedDocumentNo :=
@@ -1108,7 +1106,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VendLedgEntry.CalcFields("Amount (LCY)");
 
         // [GIVEN] Post and apply document with empty document type
-        CreateGenJnlLineWithPostingGroups(GenJnlLine, PurchLine."Pay-to Vendor No.", EmptyDocumentType,
+        CreateGenJnlLineWithPostingGroups(GenJnlLine, PurchLine."Pay-to Vendor No.", "Gen. Journal Document Type"::" ",
           -VendLedgEntry."Amount (LCY)", PurchLine);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
@@ -1117,11 +1115,11 @@ codeunit 134007 "ERM Apply Unapply Vendor"
 
         // [WHEN] Unapply the empty document application
         GLEntry.FindLast;
-        LibraryERM.FindVendorLedgerEntry(VendLedgEntry, EmptyDocumentType, GenJnlLine."Document No.");
+        LibraryERM.FindVendorLedgerEntry(VendLedgEntry, "Gen. Journal Document Type"::" ", GenJnlLine."Document No.");
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
 
         // [THEN] There is no VAT and G/L Entries have been created on unapplication
-        VerifyNoVATEntriesOnUnapplication(EmptyDocumentType, GenJnlLine."Document No.");
+        VerifyNoVATEntriesOnUnapplication("Gen. Journal Document Type"::" ", GenJnlLine."Document No.");
         GLEntry.SetFilter("Entry No.", '>%1', GLEntry."Entry No.");
         Assert.RecordIsEmpty(GLEntry);
 
@@ -1225,7 +1223,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure RoundingACYWhenPaymentAppliedToInvoiceWithRevChargeVAT()
     var
         PurchaseLine: Record "Purchase Line";
@@ -1323,7 +1321,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate);
     end;
 
-    local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Option; AppliedDocumentNo: Code[20])
+    local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
     begin
         with GenJournalLine do begin
             CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, "Document Type"::Payment, 0);
@@ -1338,7 +1336,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure RunRoundingAndBalanceAmountOnApplicationTest(DocumentType: Option)
+    local procedure RunRoundingAndBalanceAmountOnApplicationTest(DocumentType: Enum "Gen. Journal Document Type")
     var
         Currency: Record Currency;
         Vendor: Record Vendor;
@@ -1384,7 +1382,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
     end;
 
-    local procedure ApplyUnapplyVendorEntries(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal) DocumentNo: Code[20]
+    local procedure ApplyUnapplyVendorEntries(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal) DocumentNo: Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -1403,7 +1401,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         UnapplyVendorLedgerEntry(DocumentType2, GenJournalLine."Document No.");
     end;
 
-    local procedure ApplyUnapplySeveralVendorEntries(Sign: Integer; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyUnapplySeveralVendorEntries(Sign: Integer; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         NoOfLines: Integer;
         Amount: Integer;
@@ -1416,7 +1414,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         ApplyUnapplyVendorEntries(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount, -Amount / NoOfLines);
     end;
 
-    local procedure ApplyVendorLedgerEntry(DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -1434,7 +1432,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         SetAppliesToIDAndPostEntry(VendorLedgerEntry2, VendorLedgerEntry);
     end;
 
-    local procedure ApplyVendorLedgerEntryWithAmount(DocumentType: Option; DocumentType2: Option; Amount: Decimal; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyVendorLedgerEntryWithAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -1554,7 +1552,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure CreateGenLineAndApply(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; AppRounding: Decimal; Amount: Decimal)
+    local procedure CreateGenLineAndApply(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AppRounding: Decimal; Amount: Decimal)
     var
         Vendor: Record Vendor;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -1614,7 +1612,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Counter: Integer;
@@ -1638,7 +1636,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         ModifyGenJournalLine(GenJournalLine);
     end;
 
-    local procedure CreatePostGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NumOfDocuments: Integer; VendorNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal; SignFactor: Integer)
+    local procedure CreatePostGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NumOfDocuments: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amounts: array[10] of Decimal; SignFactor: Integer)
     var
         i: Integer;
     begin
@@ -1648,7 +1646,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure CreateGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NumOfDocuments: Integer; VendorNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal; SignFactor: Integer)
+    local procedure CreateGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NumOfDocuments: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amounts: array[10] of Decimal; SignFactor: Integer)
     var
         i: Integer;
     begin
@@ -1656,7 +1654,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             CreateGenJnlLineWithDimSetID(GenJournalLine, GenJournalBatch, DimSetIDs[i], VendorNo, DocumentType, Amounts[i] * SignFactor);
     end;
 
-    local procedure CreateGenJnlLineWithDimSetID(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetID: Integer; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGenJnlLineWithDimSetID(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetID: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         DimVal: Record "Dimension Value";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -1673,7 +1671,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure CreateGenJnlLinesWithGivenDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DimSetIDs: array[10] of Integer; NoOfLines: Integer; VendorNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal)
+    local procedure CreateGenJnlLinesWithGivenDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DimSetIDs: array[10] of Integer; NoOfLines: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amounts: array[10] of Decimal)
     var
         DimMgt: Codeunit DimensionManagement;
         Counter: Integer;
@@ -1693,7 +1691,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure CreateGenJnlLineWithPostingGroups(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal; PurchLine: Record "Purchase Line")
+    local procedure CreateGenJnlLineWithPostingGroups(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PurchLine: Record "Purchase Line")
     begin
         CreateGeneralJournalLine(GenJnlLine, 1, VendorNo, DocumentType, Amount);
         with GenJnlLine do begin
@@ -1727,7 +1725,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     begin
         // Apply and Unapply General Journal Lines for Payment and Invoice. Take a Random Amount greater than 100 (Standard Value).
         CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, DocumentType, Amount);
@@ -1737,7 +1735,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPaymentJournalLineAppliedToDoc(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostPaymentJournalLineAppliedToDoc(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1751,7 +1749,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Option; Quantity: Decimal; DirectUnitCost: Decimal) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; DirectUnitCost: Decimal) PostedDocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1767,7 +1765,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDocAndPayment(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocType: Option): Code[20]
+    local procedure CreateAndPostPurchDocAndPayment(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         DocumentNo: Code[20];
@@ -1824,7 +1822,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         Vendor: Record Vendor;
         DocumentNo: Code[20];
@@ -1836,7 +1834,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         ApplyVendorLedgerEntry(DocumentType2, DocumentType, GenJournalLine."Document No.", DocumentNo);
     end;
 
-    local procedure CreateAndPostGenJnlLineWithCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; DocumentType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGenJnlLineWithCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -2101,7 +2099,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure GetTransactionNoFromUnappliedDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetTransactionNoFromUnappliedDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -2124,7 +2122,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure OpenGeneralJournalPage(DocumentNo: Code[20]; DocumentType: Option) Amount: Decimal
+    local procedure OpenGeneralJournalPage(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") Amount: Decimal
     var
         DummyGeneralJournal: TestPage "General Journal";
     begin
@@ -2136,7 +2134,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         DummyGeneralJournal.OK.Invoke;
     end;
 
-    local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DummyGeneralJournal.OpenEdit;
         DummyGeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
@@ -2213,13 +2211,12 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         Vendor: Record Vendor;
         SuggestVendorPayments: Report "Suggest Vendor Payments";
-        BalanceAccountType: Option "G/L Account",Customer,Vendor,"Bank Account";
     begin
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         Vendor.SetRange("No.", GenJournalLine."Account No.");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate, GenJournalLine."Account No.", true, BalanceAccountType::"Bank Account", BankAccountNo,
+          WorkDate, false, 0, false, WorkDate, GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
           GenJournalLine."Bank Payment Type"::"Manual Check");
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal;
@@ -2240,7 +2237,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure UnapplyVendorLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2250,7 +2247,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
-    local procedure UnapplyVendLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2301,7 +2298,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         until GLEntry.Next = 0;
     end;
 
-    local procedure VerifyEntriesAfterPostingPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20]; VendorNo: Code[20])
+    local procedure VerifyEntriesAfterPostingPurchaseDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; VendorNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2323,7 +2320,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           StrSubstNo(PaymentMethodCodeErr, VendLedgerEntry."Entry No."));
     end;
 
-    local procedure VerifyRemainingAmount(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2374,7 +2371,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         until DetailedVendorLedgEntry.Next = 0;
     end;
 
-    local procedure VerifySourceCodeDtldCustLedger(DocumentType: Option; DocumentNo: Code[20]; SourceCode: Code[10])
+    local procedure VerifySourceCodeDtldCustLedger(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; SourceCode: Code[10])
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -2417,7 +2414,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           StrSubstNo(AmountErr, GLEntry."VAT Amount"));
     end;
 
-    local procedure VerifyAmountToApplyOnVendorLedgerEntries(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyAmountToApplyOnVendorLedgerEntries(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2449,7 +2446,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure VerifyNoVATEntriesOnUnapplication(DocType: Option; DocNo: Code[20])
+    local procedure VerifyNoVATEntriesOnUnapplication(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -2461,7 +2458,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure VerifyACYInGLEntriesOnUnapplication(ExpectedACY: Decimal; DocType: Option; DocNo: Code[20])
+    local procedure VerifyACYInGLEntriesOnUnapplication(ExpectedACY: Decimal; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -2476,7 +2473,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         end;
     end;
 
-    local procedure VerifyVendorLedgEntryRemAmount(DocumentType: Option; DocumentNo: Code[20]; RemAmount: Decimal)
+    local procedure VerifyVendorLedgEntryRemAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; RemAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2485,7 +2482,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VendorLedgerEntry.TestField("Remaining Amount", RemAmount);
     end;
 
-    local procedure VerifyVendLedgerEntryRemAmtLCYisBalanced(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyVendLedgerEntryRemAmtLCYisBalanced(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin

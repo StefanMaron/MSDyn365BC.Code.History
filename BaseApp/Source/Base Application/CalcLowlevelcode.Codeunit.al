@@ -1,5 +1,8 @@
 codeunit 99000853 "Calc. Low-level code"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use Codeunit Low-Level Code Calculator instead.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -11,6 +14,7 @@ codeunit 99000853 "Calc. Low-level code"
         Text001: Label 'No. #2################## @3@@@@@@@@@@@@@';
         Text002: Label 'Top-Level Items';
         Text003: Label 'BOMs';
+        TimeTakenForRunTxt: Label 'Time taken to run low level calculation through Calc. Low-level code is %1.', Comment = '%1 is the time taken', Locked = true;
         HideDialogs: Boolean;
 
     local procedure FindTopLevel()
@@ -21,16 +25,19 @@ codeunit 99000853 "Calc. Low-level code"
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMHeader2: Record "Production BOM Header";
         CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
+        ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         NoofItems: Integer;
         CountOfRecords: Integer;
         HasProductionBOM: Boolean;
+        Start: DateTime;
     begin
         NoofItems := 0;
         if not HideDialogs then
-            if not Confirm(Text000, false) then
+            if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
                 exit;
+        Start := CurrentDateTime();
         Window.Open(
           '#1################## \\' +
           Text001);
@@ -104,6 +111,7 @@ codeunit 99000853 "Calc. Low-level code"
             until ProdBOMHeader.Next = 0;
 
         OnAfterFindTopLevel;
+        Session.LogMessage('0000CIN', StrSubstNo(TimeTakenForRunTxt, CurrentDateTime() - Start), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Planning');
     end;
 
     local procedure CalcLevelsForBOM(var ProdBOM: Record "Production BOM Header")
@@ -112,7 +120,7 @@ codeunit 99000853 "Calc. Low-level code"
         CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
     begin
         if ProdBOM.Status = ProdBOM.Status::Certified then begin
-            ProdBOM."Low-Level Code" := CalcLowLevelCode.CalcLevels(ProdBOMLine.Type::"Production BOM", ProdBOM."No.", 0, 0);
+            ProdBOM."Low-Level Code" := CalcLowLevelCode.CalcLevels(ProdBOMLine.Type::"Production BOM".AsInteger(), ProdBOM."No.", 0, 0);
             CalcLowLevelCode.RecalcLowerLevels(ProdBOM."No.", ProdBOM."Low-Level Code", true);
             ProdBOM.Modify();
         end;

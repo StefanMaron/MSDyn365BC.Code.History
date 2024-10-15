@@ -18,7 +18,7 @@ table 9650 "Custom Report Layout"
         }
         field(3; "Report Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Name';
             Editable = false;
@@ -156,14 +156,14 @@ table 9650 "Custom Report Layout"
 
         CustomReportLayout.Init();
         CustomReportLayout."Report ID" := ReportID;
-        CustomReportLayout.Type := LayoutType;
+        CustomReportLayout.Type := "Custom Report Layout Type".FromInteger(LayoutType);
         CustomReportLayout.Description := CopyStr(StrSubstNo(CopyOfTxt, BuiltInTxt), 1, MaxStrLen(Description));
         CustomReportLayout."Built-In" := false;
         CustomReportLayout.Code := GetDefaultCode(ReportID);
         CustomReportLayout.Insert(true);
 
         case LayoutType of
-            CustomReportLayout.Type::Word:
+            CustomReportLayout.Type::Word.AsInteger():
                 begin
                     TempBlob.CreateOutStream(OutStr);
                     if not REPORT.WordLayout(ReportID, InStr) then begin
@@ -173,7 +173,7 @@ table 9650 "Custom Report Layout"
                         CopyStream(OutStr, InStr);
                     CustomReportLayout.SetLayoutBlob(TempBlob);
                 end;
-            CustomReportLayout.Type::RDLC:
+            CustomReportLayout.Type::RDLC.AsInteger():
                 if REPORT.RdlcLayout(ReportID, InStr) then begin
                     TempBlob.CreateOutStream(OutStr);
                     CopyStream(OutStr, InStr);
@@ -188,8 +188,14 @@ table 9650 "Custom Report Layout"
         exit(CustomReportLayout.Code);
     end;
 
+    [Obsolete('Replaced by CopyBuildInReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure CopyBuiltInLayout()
+    begin
+        CopyBuiltInReportLayout();
+    end;
+
+    procedure CopyBuiltInReportLayout()
     var
         ReportLayoutLookup: Page "Report Layout Lookup";
         ReportID: Integer;
@@ -204,9 +210,9 @@ table 9650 "Custom Report Layout"
         FilterGroup(0);
         if ReportLayoutLookup.RunModal = ACTION::OK then begin
             if ReportLayoutLookup.SelectedAddWordLayot then
-                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::Word);
+                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::Word.AsInteger());
             if ReportLayoutLookup.SelectedAddRdlcLayot then
-                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::RDLC);
+                InitBuiltInLayout(ReportLayoutLookup.SelectedReportID, Type::RDLC.AsInteger());
 
             LayoutSelected := ReportLayoutLookup.SelectedAddWordLayot OR ReportLayoutLookup.SelectedAddRdlcLayot;
             IF (NOT LayoutSelected) AND (NOT ReportLayoutLookup.InitCustomTypeLayouts) THEN
@@ -232,7 +238,7 @@ table 9650 "Custom Report Layout"
 
         if (CustomLayoutCode <> '') and Get(CustomLayoutCode) then begin
             TestField(Type, Type::RDLC);
-            if UpdateLayout(true, false) then
+            if UpdateReportLayout(true, false) then
                 Commit(); // Save the updated layout
             RdlcTxt := GetLayout;
         end else begin
@@ -243,8 +249,14 @@ table 9650 "Custom Report Layout"
         OnAfterReportGetCustomRdlc(ReportID, RdlcTxt);
     end;
 
+    [Obsolete('Replaced by CopyReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure CopyRecord(): Code[20]
+    begin
+        exit(CopyReportLayout());
+    end;
+
+    procedure CopyReportLayout(): Code[20]
     var
         CustomReportLayout: Record "Custom Report Layout";
         TempBlob: Codeunit "Temp Blob";
@@ -272,8 +284,14 @@ table 9650 "Custom Report Layout"
         exit(Code);
     end;
 
+    [Obsolete('Replaced by ImportReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure ImportLayout(DefaultFileName: Text)
+    begin
+        ImportReportLayout(DefaultFileName);
+    end;
+
+    procedure ImportReportLayout(DefaultFileName: Text)
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
@@ -359,8 +377,14 @@ table 9650 "Custom Report Layout"
             Message(ErrorMessage);
     end;
 
+    [Obsolete('Replaced by ExportReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure ExportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
+    begin
+        exit(ExportReportLayout(DefaultFileName, ShowFileDialog));
+    end;
+
+    procedure ExportReportLayout(DefaultFileName: Text; ShowFileDialog: Boolean): Text
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
@@ -368,7 +392,7 @@ table 9650 "Custom Report Layout"
         // Update is needed in case of report layout mismatches word layout
         // Do not update build-in layout as it is read only
         if not "Built-In" then
-            UpdateLayout(true, false); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
+            UpdateReportLayout(true, false); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
 
         GetLayoutBlob(TempBlob);
         if not TempBlob.HasValue then
@@ -414,8 +438,14 @@ table 9650 "Custom Report Layout"
         exit(true);
     end;
 
+    [Obsolete('Replaced by UpdateReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
+    begin
+        exit(UpdateReportLayout(ContinueOnError, IgnoreDelete));
+    end;
+
+    procedure UpdateReportLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
     var
         ErrorMessage: Text;
         IsHandled: Boolean;
@@ -516,11 +546,17 @@ table 9650 "Custom Report Layout"
             exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
 
+    [Obsolete('Replaced by EditReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure EditLayout()
     begin
+        EditReportLayout();
+    end;
+
+    procedure EditReportLayout()
+    begin
         if CanBeModified then begin
-            UpdateLayout(true, true); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
+            UpdateReportLayout(true, true); // Don't block on errors (return false) as we in all cases want to have an export file to edit.
 
             case Type of
                 Type::Word:
@@ -669,7 +705,7 @@ table 9650 "Custom Report Layout"
         if not Confirm(ModifyBuiltInLayoutQst) then
             exit(false);
 
-        CopyRecord;
+        CopyReportLayout();
         exit(true);
     end;
 

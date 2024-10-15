@@ -83,7 +83,7 @@ table 1014 "Job G/L Account Price"
         }
         field(10; Description; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;

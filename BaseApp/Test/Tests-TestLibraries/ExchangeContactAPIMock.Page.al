@@ -6,6 +6,7 @@ page 130650 "Exchange Contact API Mock"
     EntitySetName = 'exchangeContacts';
     PageType = API;
     SourceTable = ExchangeContactMock;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -13,7 +14,7 @@ page 130650 "Exchange Contact API Mock"
         {
             repeater(Group)
             {
-                field(Id; Id)
+                field(Id; Rec.SystemId)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Id', Locked = true;

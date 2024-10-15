@@ -991,7 +991,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Sales_ValidateNo_IncompeteNo_CreateItemFromNo_TRUE()
     var
         Item: Record Item;
@@ -1019,7 +1019,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Sales_ValidateNo_DifferentNo_CreateItemFromNo_FALSE()
     var
         Item: Record Item;
@@ -1048,7 +1048,7 @@ codeunit 134835 "Test Item Lookup"
 
     [Test]
     [HandlerFunctions('CreateItemStrMenuHandler,ConfigTemplatesModalPageHandler,ItemCardModalPageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Sales_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
     var
         Item: Record Item;
@@ -1082,7 +1082,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Purchase_ValidateNo_IncompeteNo_CreateItemFromNo_FALSE()
     var
         Item: Record Item;
@@ -1110,7 +1110,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Purchase_ValidateNo_IncompeteNo_CreateItemFromNo_TRUE()
     var
         Item: Record Item;
@@ -1138,7 +1138,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Purchase_ValidateNo_DifferentNo_CreateItemFromNo_FALSE()
     var
         Item: Record Item;
@@ -1167,7 +1167,7 @@ codeunit 134835 "Test Item Lookup"
 
     [Test]
     [HandlerFunctions('CreateItemStrMenuHandler,ConfigTemplatesModalPageHandler,ItemCardModalPageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Purchase_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
     var
         Item: Record Item;
@@ -1404,7 +1404,7 @@ codeunit 134835 "Test Item Lookup"
         SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
     end;
 
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure Initialize()
     var
         Item: Record Item;
