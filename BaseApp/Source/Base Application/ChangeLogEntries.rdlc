@@ -716,7 +716,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Change_Log_Entry__Primary_Key_.Value</Value>
+                                  <Value>=Fields!PrimaryKey.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -1481,6 +1481,9 @@ End Function
         </Field>
         <Field Name="Change_Log_Entry_TimeCaption">
           <DataField>Change_Log_Entry_TimeCaption</DataField>
+        </Field>
+        <Field Name="PrimaryKey">
+          <DataField>PrimaryKey</DataField>
         </Field>
       </Fields>
       <Query>

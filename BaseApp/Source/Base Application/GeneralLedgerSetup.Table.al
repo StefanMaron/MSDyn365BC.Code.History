@@ -667,6 +667,11 @@ table 98 "General Ledger Setup"
         {
             Caption = 'SEPA Export w/o Bank Acc. Data';
         }
+        field(11400; "Local SEPA Instr. Priority"; Boolean)
+        {
+            Caption = 'Local SEPA Instr. Priority';
+            InitValue = true;
+        }
         field(11000000; "Local Currency"; Option)
         {
             Caption = 'Local Currency';
