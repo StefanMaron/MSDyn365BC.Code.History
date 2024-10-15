@@ -131,6 +131,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 - bank currency code]D;]A;(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType DifferentCurrencyQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 1612705530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invalid Dimension Value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType DimensionValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 757409969 - NamedType 4272839647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot apply to an entry with a posting date before the posting date of the entry that you want to apply.]]></Val>

@@ -747,8 +747,10 @@ table 156 Resource
     trigger OnRename()
     var
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::Resource, xRec."No.", "No.");
+        PriceListLine.RenameNo(PriceListLine."Asset Type"::Resource, xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Resource, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Resource, xRec."No.", "No.");
         "Last Date Modified" := Today;

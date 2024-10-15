@@ -50,6 +50,7 @@ codeunit 7324 "Whse.-Activity-Post"
         PrintDoc: Boolean;
         SuppressCommit: Boolean;
         PostingDateErr: Label 'is before the posting date';
+        InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
 
     local procedure "Code"()
     var
@@ -109,6 +110,8 @@ codeunit 7324 "Whse.-Activity-Post"
                     CheckWarehouseActivityLine(WhseActivLine, WhseActivHeader, Location);
 
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
+                    if ItemTrackingRequired then
+                        CheckAvailability(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next() = 0;
                 CheckWhseItemTrackingAgainstSource();
@@ -494,6 +497,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     end;
                 DATABASE::"Transfer Line":
                     begin
+                        TransHeader.Get("Source No.");
                         TransLine.Get("Source No.", "Source Line No.");
                         if "Activity Type" = "Activity Type"::"Invt. Put-away" then begin
                             TransLine."Transfer-To Bin Code" := "Bin Code";
@@ -503,6 +507,10 @@ codeunit 7324 "Whse.-Activity-Post"
                             TransLine."Transfer-from Bin Code" := "Bin Code";
                             TransLine.Validate("Qty. to Ship", "Qty. to Handle");
                             TransLine."Qty. to Ship (Base)" := "Qty. to Handle (Base)";
+                            if TransHeader."Direct Transfer" then begin
+                                TransLine.Validate("Qty. to Receive", "Qty. to Handle");
+                                TransLine."Qty. to Receive (Base)" := "Qty. to Handle (Base)";
+                            end;
                         end;
                         TransLine.Modify();
                         OnUpdateSourceDocumentOnAfterTransLineModify(TransLine, TempWhseActivLine);
@@ -533,10 +541,12 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure PostSourceDocument(WhseActivHeader: Record "Warehouse Activity Header")
     var
+        InventorySetup: Record "Inventory Setup";
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
         TransferPostShip: Codeunit "TransferOrder-Post Shipment";
+        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
         OnBeforePostSourceDocument(WhseActivHeader, PostedSourceType, PostedSourceNo, PostedSourceSubType, HideDialog, SuppressCommit);
 
@@ -603,10 +613,19 @@ codeunit 7324 "Whse.-Activity-Post"
                             if HideDialog then
                                 TransferPostShip.SetHideValidationDialog(HideDialog);
                             TransHeader."Posting from Whse. Ref." := PostingReference;
-                            TransferPostShip.Run(TransHeader);
-                            PostedSourceType := DATABASE::"Transfer Shipment Header";
-                            PostedSourceNo := TransHeader."Last Shipment No.";
+                            if not TransHeader."Direct Transfer" then begin
+                                TransferPostShip.Run(TransHeader);
+                                PostedSourceType := DATABASE::"Transfer Shipment Header";
+                                PostedSourceNo := TransHeader."Last Shipment No.";
+                            end else begin
+                                InventorySetup.Get();
+                                InventorySetup.TestField("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
+                                TransferPostTransfer.Run(TransHeader);
+                                PostedSourceType := DATABASE::"Direct Trans. Header";
+                                PostedSourceNo := TransHeader."Last Shipment No.";
+                            end;
                         end;
+
                         OnPostSourceDocumentOnBeforeUpdateUnhandledTransLine(TransHeader, WhseActivHeader, PostingReference, HideDialog);
                         UpdateUnhandledTransLine(TransHeader."No.");
                         PostedSourceSubType := 0;
@@ -1134,6 +1153,33 @@ codeunit 7324 "Whse.-Activity-Post"
                           "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
                 until Next() = 0;
         end;
+    end;
+
+    local procedure CheckAvailability(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine."Activity Type" <> WhseActivLine."Activity Type"::"Invt. Pick" then
+            exit;
+
+        if WhseActivLine."Assemble to Order" and not WhseActivLine."ATO Component" then
+            exit;
+
+        if not WhseActivLine.CheckItemTrackingAvailability() then
+            AvailabilityError(WhseActivLine);
+    end;
+
+    local procedure AvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine."Serial No." <> '' then
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.");
+        if WhseActivLine."Lot No." <> '' then
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.");
+
+        OnAfterAvailabilityError(WhseActivLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

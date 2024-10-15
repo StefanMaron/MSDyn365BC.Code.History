@@ -117,6 +117,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         ProcessProposalLinesQst: Label 'Process proposal lines?';
         AmountToApplyIsChangedQst: Label 'The amount has been adjusted in one or more applied entries. All CBG statement lines will be created using the adjusted amounts.\\Do you want to apply the corrected amounts to all lines in this CBG statement?';
         SelectDimensionCodeErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
+        DimensionValueErr: Label 'Invalid Dimension Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -3923,6 +3924,56 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.AreEqual(Employee[2].FullName(), BankGiroJournal.Subform.AccountName.Value, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDefaultDimensionPriorityInCBGStatementLine()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Dimension: Record Dimension;
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        SourceCode: Record "Source Code";
+        StandardDimValueCode: Code[20];
+        GLAccNo: Code[20];
+        TotalDimValueCode: Code[20];
+    begin
+        // [SCENARIO 450397] Verify Dimensions Priority in CBG Statement Line in the Dutch version.
+        Initialize();
+
+        // [GIVEN] Create Source Code
+        LibraryERM.CreateSourceCode(SourceCode);
+
+        // [GIVEN] Create default dimension priority 1 for G/L Account and 2 for Salesperson/Purchaser with source code
+        SetDefaultDimensionPriority(SourceCode.Code);
+
+        // [GIVEN] Create G/L Account with Dimensions
+        GLAccNo := LibraryERM.CreateGLAccountNo();
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::"G/L Account", GLAccNo,
+          DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create SalespersonPurchaser with Dimensions and Create CBG Statement with Lines
+        CreateGroupOfDimensions(Dimension, StandardDimValueCode, TotalDimValueCode);
+        CreateSalespersonWithDefaultDim(SalespersonPurchaser, Dimension.Code, StandardDimValueCode);
+        CreateCBGStatement(CBGStatement);
+        InitializeCBGStatementLine(CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.");
+        CBGStatementLine.Validate("Account Type", CBGStatementLine."Account Type"::"G/L Account");
+
+        // [WHEN] Assign Account No. and Salespers./Purch Code
+        CBGStatementLine.Validate("Account No.", GLAccNo);
+        CBGStatementLine.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        CBGStatementLine.Insert(true);
+
+        // [THEN] Verify Dimension Value against CBGStatementLine
+        DimensionSetEntry.SetRange("Dimension Set ID", CBGStatementLine."Dimension Set ID");
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue.Code, DimensionValueErr);		
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -5783,6 +5834,76 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLine.TestField("Applies-to Doc. No.", AppliesToDocNo);
     end;
 
+    local procedure SetDefaultDimensionPriority(SourceCode: Code[10])
+    begin
+        // Create default dimension priority 1 for G/L Account and 2 for Salesperson/Purchaser created with source code.
+        ClearDefaultDimensionPriorities(SourceCode);
+        CreateDefaultDimensionPriority(SourceCode, DATABASE::"G/L Account", 1);
+        CreateDefaultDimensionPriority(SourceCode, DATABASE::"Salesperson/Purchaser", 2);
+    end;
+
+    local procedure CreateDefaultDimensionPriority(SourceCode: Code[10]; TableID: Integer; Priority: Integer)
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        LibraryDimension.CreateDefaultDimensionPriority(DefaultDimensionPriority, SourceCode, TableID);
+        DefaultDimensionPriority.Validate(Priority, Priority);
+        DefaultDimensionPriority.Modify(true);
+    end;
+
+    local procedure ClearDefaultDimensionPriorities(SourceCode: Code[10])
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimensionPriority.SetRange("Source Code", SourceCode);
+        DefaultDimensionPriority.DeleteAll(true);
+    end;
+
+    local procedure CreateGroupOfDimensions(var Dimension: Record Dimension; var StandardDimValueCode: Code[20]; var TotalDimValueCode: Code[20])
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+
+        with DimensionValue do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+            StandardDimValueCode := Code;
+            CreateTotalDimensionValue(Dimension.Code, TotalDimValueCode);
+        end;
+    end;
+
+    local procedure CreateTotalDimensionValue(DimensionCode: Code[20]; var TotalDimValueCode: Code[20])
+    var
+        DimensionValue: Record "Dimension Value";
+        FirstDimValueCode: Code[20];
+        LastDimValueCode: Code[20];
+    begin
+        with DimensionValue do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+            TotalDimValueCode := Code;
+
+            SetRange("Dimension Code", DimensionCode);
+            FindFirst();
+            FirstDimValueCode := Code;
+            FindLast();
+            LastDimValueCode := Code;
+
+            Get("Dimension Code", TotalDimValueCode);
+            Validate("Dimension Value Type", "Dimension Value Type"::Total);
+            Validate(Totaling, StrSubstNo('%1..%2', FirstDimValueCode, LastDimValueCode));
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateSalespersonWithDefaultDim(var SalespersonPurchaser: Record "Salesperson/Purchaser"; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Salesperson/Purchaser", SalespersonPurchaser.Code, DimensionCode, DimensionValueCode);
+    end;
+    
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")

@@ -1,4 +1,4 @@
-table 11307 "G/L Entry Application Buffer"
+﻿table 11307 "G/L Entry Application Buffer"
 {
     Caption = 'G/L Entry Application Buffer';
     DrillDownPageID = "General Ledger Entries";
@@ -443,8 +443,8 @@ table 11307 "G/L Entry Application Buffer"
         // Update real Table
         GLEntry.Get(BaseEntryNo);
         UpdateRealTable(
-          GLEntry, "Remaining Amount" - TotalAppliedAmount,
-          ("Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
+          GLEntry, GLEntry."Remaining Amount" - TotalAppliedAmount,
+          (GLEntry."Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
 
         // Update Temporary Table
         with GLEntryApplicationBuffer do begin

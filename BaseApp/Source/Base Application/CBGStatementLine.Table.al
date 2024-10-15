@@ -1398,14 +1398,17 @@ table 11401 "CBG Statement Line"
 #endif
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
 #if not CLEAN20
         RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
 #endif
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
+        GenJournalTemplate.Get("Journal Template Name");
         "Dimension Set ID" := DimManagement.GetDefaultDimID(
-            DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            DefaultDimSource, GenJournalTemplate."Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]

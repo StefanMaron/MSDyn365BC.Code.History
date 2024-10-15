@@ -136,9 +136,8 @@
         if IsHandled then
             exit;
 
-        if AssemblyHeader."Location Code" <> '' then
-            if AssemblyLine.IsInventoriableItem() then
-                AssemblyLine.Validate("Location Code", AssemblyHeader."Location Code");
+        if (AssemblyHeader."Location Code" <> '') and (AssemblyLine.Type = AssemblyLine.Type::Item) then
+            AssemblyLine.Validate("Location Code", AssemblyHeader."Location Code");
     end;
 
     procedure AddBOMLine(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
@@ -458,9 +457,8 @@
             if IsStatusCheckSuspended then
                 AssemblyLine.SuspendStatusCheck(true);
 
-            if UpdateLocation then
-                if AssemblyLine.IsInventoriableItem() then
-                    AssemblyLine.Validate("Location Code", "Location Code");
+            if UpdateLocation and (AssemblyLine.Type = AssemblyLine.Type::Item) then
+                AssemblyLine.Validate("Location Code", "Location Code");
 
             if UpdateDueDate then begin
                 AssemblyLine.SetTestReservationDateConflict(CurrFieldNo <> 0);

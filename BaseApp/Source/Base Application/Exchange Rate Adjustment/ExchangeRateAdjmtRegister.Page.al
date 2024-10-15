@@ -43,13 +43,15 @@ page 106 "Exchange Rate Adjmt. Register"
                 }
                 field("Adjusted Customers"; Rec."Adjusted Customers")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the number of customer ledger entries with remaining amount that was adjusted.';
+                    Visible = false;
                 }
                 field("Adjusted Vendors"; Rec."Adjusted Vendors")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the number of vendor ledger entries with remaining amount that was adjusted.';
+                    Visible = false;
                 }
                 field("Adjusted Base"; Rec."Adjusted Base")
                 {
@@ -68,8 +70,9 @@ page 106 "Exchange Rate Adjmt. Register"
                 }
                 field("Adjustment Amount"; Rec."Adjustment Amount")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the total adjustment amount of exchange rate adjustment ledger entries.';
+                    Visible = false;
                 }
                 field("Adjusted Base (Add.-Curr.)"; Rec."Adjusted Base (Add.-Curr.)")
                 {
@@ -110,7 +113,7 @@ page 106 "Exchange Rate Adjmt. Register"
                 Image = Entry;
                 action("Show Ledger Entries")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Show Ledger Entries';
                     Image = LedgerEntries;
                     Promoted = true;
@@ -121,6 +124,7 @@ page 106 "Exchange Rate Adjmt. Register"
                     RunPageLink = "Register No." = FIELD("No.");
                     Scope = Repeater;
                     ToolTip = 'View adjusted customer or vendor ledger entries for this register.';
+                    Visible = false;
                 }
             }
         }
