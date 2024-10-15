@@ -75,6 +75,9 @@
             WhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
             if WhseActivLine.IsEmpty then
                 Error(Text003);
+
+            MaintainZeroLines(WhseActivLine);
+
             CheckWhseItemTrkgLine(WhseActivLine);
 
             Get(WhseActivLine."Activity Type", WhseActivLine."No.");
@@ -1775,6 +1778,17 @@
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    local procedure MaintainZeroLines(WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityLine.SetRange("Qty. to Handle", 0);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.ResetQtyToHandleOnReservation();
+            until WarehouseActivityLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

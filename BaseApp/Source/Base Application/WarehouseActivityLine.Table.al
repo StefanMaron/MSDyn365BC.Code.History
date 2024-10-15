@@ -259,9 +259,6 @@
                    ("Action Type" <> "Action Type"::Place) and ("Lot No." <> '') and (CurrFieldNo <> 0)
                 then
                     CheckReservedItemTrkg(1, "Lot No.");
-
-                if ("Qty. to Handle" = 0) and RegisteredWhseActLineIsEmpty then
-                    UpdateReservation(Rec, false)
             end;
         }
         field(27; "Qty. to Handle (Base)"; Decimal)
@@ -2455,6 +2452,12 @@
             NewWhseActivityLine := TempWarehouseActivityLine;
             NewWhseActivityLine.Insert();
         until TempWarehouseActivityLine.Next = 0;
+    end;
+
+    procedure ResetQtyToHandleOnReservation()
+    begin
+        if ("Qty. to Handle" = 0) and TrackingExists() and RegisteredWhseActLineIsEmpty() then
+            UpdateReservation(Rec, false);
     end;
 
     [IntegrationEvent(false, false)]
