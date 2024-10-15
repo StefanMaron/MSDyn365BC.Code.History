@@ -1,0 +1,2283 @@
+codeunit 134982 "ERM Financial Reports"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Reports]
+        IsInitialized := false;
+    end;
+
+    var
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryCostAccounting: Codeunit "Library - Cost Accounting";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        FileManagement: Codeunit "File Management";
+        Assert: Codeunit Assert;
+        IsInitialized: Boolean;
+        ReportErr: Label '%1 must be %2 in Report.', Locked = true;
+        DepreciationBookErr: Label '%1 does not exist.', Locked = true;
+        RelatedNoSeriesTok: Label 'Related No. Series', Locked = true;
+        RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
+        RowMustNotExistErr: Label 'Row Must Not Exist';
+        FiscalYearStartingDateErr: Label 'Enter the starting date for the fiscal year.';
+        FileNameNotEnabledErr: Label 'The FileName value on the request form should be enabled';
+        FileNameNotEditableErr: Label 'The FileName value on the request form should be editable';
+        FileNameNotPersistedErr: Label 'The FileName value on the request form should be persisted between successive invocations of the report.';
+        FilePathTxt: Label 'TestFileName';
+        BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
+        CurrentSaveValuesId: Integer;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceDateRange()
+    begin
+        DetailTrialBalanceDateRangeShared(StrSubstNo('%1..', WorkDate));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceDateFilter()
+    begin
+        DetailTrialBalanceDateRangeShared(StrSubstNo('>%1', WorkDate - 1));
+    end;
+
+    local procedure DetailTrialBalanceDateRangeShared(DateFilter: Text[30])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // Validate Detail Trial Balance Report when setting a date range or date filter.
+
+        // Setup: Create and post General Journal Lines.
+        Initialize;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
+        GenJournalLine."Posting Date" -= 1; // the day before WORKDATE
+        GenJournalLine.Modify;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, DateFilter);
+
+        // Verify: Verify Amounts on Detail Trial Balance Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then begin
+            LibraryReportDataset.AssertCurrentRowValueEquals('StartBalance', 1);
+            LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', 1);
+            LibraryReportDataset.AssertCurrentRowValueEquals('GLBalance', 2);
+        end else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), 1));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceExclReverse()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // Validate Detail Trial Balance Report when Print Reversed Entry option is false.
+
+        // Setup: Create and post General Journal Line.
+        Initialize;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, '');
+
+        // Verify: Verify Amounts on Detail Trial Balance Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then
+            LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmount_GLEntry', GenJournalLine.Amount)
+        else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceInclReverse()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Detail Trial Balance Report when Print Reversed Entry option is True.
+
+        // Setup: Create and post General Journal Line and Reverse the Entry.
+        Initialize;
+
+        PostGenJournalLineAndReversTransaction(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, true, false, '');
+
+        // Verify: Verify Amounts on Detail Trial Balance Report after Entries has been reversed.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
+        LibraryReportDataset.AssertElementWithValueExists('DebitAmount_GLEntry', GenJournalLine.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('DebitAmount_GLEntry', -GenJournalLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceCorrections()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Detail Trial Balance Report when Print only Correction Entry option is True.
+
+        // Setup: Create and post General Journal Line and Reverse the Entry.
+        Initialize;
+
+        PostGenJournalLineAndReversTransaction(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, true, true, '');
+
+        // Verify: Verify GLBalance in Detail Trial Balance Report.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyDetailTrialBalanceReport(GenJournalLine, 'GLBalance');
+    end;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalanceWithDateFilter')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceExcludeGLAcc()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // Validate Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
+
+        // Setup: Create and post General Journal Line.
+        Initialize;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        TrialBalanceReportDateFilter(GenJournalLine."Account No.", true, false, false, false, GenJournalLine."Posting Date");
+
+        // Verify: Verify Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
+        LibraryReportDataset.LoadDataSetFile;
+        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceCloseEntry()
+    var
+        Date: Record Date;
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Trial Balance Report when Print Closing Entry Within the Period is True.
+
+        // Setup: Create and post General Journal Line.
+        Initialize;
+        CreateIncomeStatementGenJnlLine(GenJournalLine, Date);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Run Close Income Statement Batch Report.
+        RunCloseIncomeStatementReport(GenJournalLine, NormalDate(Date."Period End"), false);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindFirst;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, true, false, false, '');
+
+        // Verify: Verify Credit Amount in Detail Trial Balance Report when Print Closing Entry Within the Period is True.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyDetailTrialBalanceReport(GenJournalLine, 'CreditAmount_GLEntry');
+    end;
+
+    [Test]
+    [HandlerFunctions('RHBankLedgerEntry')]
+    [Scope('OnPrem')]
+    procedure BankLedgerEntryWithoutReversal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is false.
+
+        // Setup.
+        Initialize;
+        CreateUpdateAndPostGenJnlLine(GenJournalLine);
+
+        // Exercise: Save Bank Acc. Detail Trial Balance Report.
+        BankAccDetailTrialBalReport(GenJournalLine."Bal. Account No.", false, false);
+
+        // Verify: Verify Balance(LCY) in Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is false.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyBankLedgerEntry(GenJournalLine, 'BankAccBalanceLCY');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHBankLedgerEntry')]
+    [Scope('OnPrem')]
+    procedure BankLedgerEntryWithReversal()
+    var
+        ReversalEntry: Record "Reversal Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is True.
+
+        // Setup.
+        Initialize;
+        CreateUpdateAndPostGenJnlLine(GenJournalLine);
+        ReversalEntry.SetHideDialog(true);
+        ReversalEntry.ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
+
+        // Exercise: Save Bank Acc. Detail Trial Balance Report.
+        BankAccDetailTrialBalReport(GenJournalLine."Bal. Account No.", false, true);
+
+        // Verify: Verify Amount(LCY) in Bank Acc. Detail Trial Balance Report when Print Reverse Entry option is True.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyBankLedgerEntry(GenJournalLine, 'EntryAmtLcy_BankAccLedg');
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAccTrialBalance')]
+    [Scope('OnPrem')]
+    procedure AccTrialBalanceExcludeGLAcc()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Validate Error in Bank Acc. Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
+
+        // Setup.
+        Initialize;
+        CreateUpdateAndPostGenJnlLine(GenJournalLine);
+
+        // Exercise. Save Bank Acc. Detail Trial Balance Report.
+        BankAccTrialReportDateFilter(GenJournalLine."Bal. Account No.", true, false, GenJournalLine."Posting Date");
+
+        // Verify: Verify Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only True.
+        LibraryReportDataset.LoadDataSetFile;
+        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHCheckBankAccReconciliation')]
+    [Scope('OnPrem')]
+    procedure CheckBankAccReconciliation()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliation2: Record "Bank Acc. Reconciliation";
+        BankAccReconTest: Report "Bank Acc. Recon. - Test";
+    begin
+        // Verify the Bank Reconciliation Test Report.
+
+        // Setup.
+        Initialize;
+        PostCheck(GenJournalLine);
+        CreateSuggestedBankReconc(BankAccReconciliation, GenJournalLine."Bal. Account No.");
+        Clear(BankAccReconTest);
+        BankAccReconciliation2.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliation2.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
+        BankAccReconciliation2.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconTest.SetTableView(BankAccReconciliation2);
+        Commit;
+        BankAccReconTest.Run;
+
+        // Verify: Verify Statement Amount in Bank Reconciliation Test Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No.");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Document_No__', GenJournalLine."Document No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Statement_Amount_', -GenJournalLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHFixedAssetWithoutOption')]
+    [Scope('OnPrem')]
+    procedure FixedAssetWithoutOption()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FixedAssetDetails: Report "Fixed Asset - Details";
+    begin
+        // Verify Error on Fixed Asset Detail Report when no option is set.
+
+        // Setup.
+        Clear(FixedAssetDetails);
+
+        // Exercise: Save Fixed Asset Detail Report.
+        asserterror FixedAssetDetails.Run;
+
+        // Verify: Verify error on Fixed Asset Detail Report when no option is set.
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHFixedAssetDetails')]
+    [Scope('OnPrem')]
+    procedure FixedAssetWithoutReversal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Verify Fixed Asset Detail Report when Print Reverse Entries option is false.
+
+        // Setup.
+        Initialize;
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // Exercise: Save Fixed Asset Detail Report.
+        FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, false);
+
+        // Verify: Verify Amount on Fixed Asset Detail Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('FA_Ledger_Entry__Document_No__', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then
+            LibraryReportDataset.AssertCurrentRowValueEquals('FA_Ledger_Entry_Amount', GenJournalLine.Amount)
+        else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHFixedAssetDetails')]
+    [Scope('OnPrem')]
+    procedure FixedAssetWithReversal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Verify Fixed Asset Detail Report when Print Reverse Entries option is True.
+
+        // Setup.
+        Initialize;
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
+        ReverseFALedgerEntry(GenJournalLine."Document No.");
+
+        // Exercise: Save Fixed Asset Detail Report.
+        FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, true);
+
+        // Verify: Verify Amounts on Fixed Asset Detail Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', GenJournalLine.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', -GenJournalLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHMaintenanceDetailsWithOutOption')]
+    [Scope('OnPrem')]
+    procedure MaintenanceDetailWithoutOption()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        MaintenanceDetails: Report "Maintenance - Details";
+    begin
+        // Verify Error on Maintenance Details Report when no option is set.
+
+        // Setup.
+        Initialize;
+        Clear(MaintenanceDetails);
+        Commit;
+
+        // Exercise: Save Maintenance Detail Report.
+        asserterror MaintenanceDetails.Run;
+
+        // Verify: Verify error on Maintenance Detail Report when no option is set.
+        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHMaintenanceDetails')]
+    [Scope('OnPrem')]
+    procedure MaintenanceWithoutReversal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Verify Maintenance Details Report when Print Reversed Entries option is false.
+
+        // Setup.
+        Initialize;
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::Maintenance);
+
+        // Exercise: Save Maintenance Details Report.
+        RunMaintenanceDetailsReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false);
+
+        // Verify: Verify Amount, FA Postind Date and User ID on Maintenance Details Report when Print Reversed Entries option is false.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Maintenance_Ledger_Entry__Document_No__', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then begin
+            LibraryReportDataset.AssertCurrentRowValueEquals('Maintenance_Ledger_Entry_Amount', GenJournalLine.Amount);
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'Maintenance_Ledger_Entry__Posting_Date_', Format(GenJournalLine."Posting Date"));
+        end else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHMaintenanceDetails')]
+    [Scope('OnPrem')]
+    procedure MaintenanceWithReversal()
+    var
+        FixedAsset: Record "Fixed Asset";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        MaintenanceDetails: Report "Maintenance - Details";
+    begin
+        // Verify Maintenance Details Report when Print Reversed Entries option is True.
+
+        // Setup.
+        Initialize;
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::Maintenance);
+        ReverseMaintenanceLedgerEntry(GenJournalLine."Document No.");
+
+        // Exercise: Save Maintenance Details Report.
+        Clear(MaintenanceDetails);
+        MaintenanceDetails.InitializeRequest(GenJournalLine."Depreciation Book Code", false, true);
+        FixedAsset.SetRange("No.", GenJournalLine."Account No.");
+        MaintenanceDetails.SetTableView(FixedAsset);
+        Commit;
+        MaintenanceDetails.Run;
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type");
+        GLEntry.FindLast;
+
+        // Verify: Verify Amount on Maintenance Details Report when Print Reversed Entries option is True.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyMaintenanceLedgerEntryAmount(
+          'Maintenance_Ledger_Entry__Document_No__', GenJournalLine."Document No.", GenJournalLine.Amount);
+        VerifyMaintenanceLedgerEntryAmount(
+          'Maintenance_Ledger_Entry__G_L_Entry_No__', Format(GLEntry."Entry No."), -GenJournalLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHVATVIESDeclarationTaxAuth')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclarationAddCurrTrue()
+    var
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [VAT- VIES Declaration Tax Auth]
+        // [SCENARIO] Verify VAT VIES Declaration Tax Auth. Report when Include Additional Currency Amount option is True.
+
+        // Setup: Create Currency, update General Ledger Setup and find a Customer whose Country/Region Code and VAT Registration No is not
+        // Blank.
+        Initialize;
+        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate);
+        FindCustomerVATRegistration(Customer);
+        CreateAndPostSalesInvoice(Customer."No.");
+
+        // Exercise: Save VAT VIES Declaration Tax Auth. Report.
+        VATVIESDeclarationTaxReport(Customer."VAT Registration No.", true);
+
+        // Verify: Verify Total Value of Item Supplied on VAT VIES Declaration Tax Auth. Report.
+        VerifyTotalValueofItemSupplies(-CalculateAdditionalCurrBase(Customer."VAT Registration No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHVATVIESDeclarationTaxAuth')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclarationAddCurrFalse()
+    var
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [VAT- VIES Declaration Tax Auth]
+        // [SCENARIO] Verify VAT VIES Declaration Tax Auth. Report when Include Additional Currency Amount option is False.
+
+        // Setup: Create Currency, update General Ledger Setup and find a Customer whose Country/Region Code and VAT Registration No is not
+        // Blank.
+        Initialize;
+        LibraryERM.SetAddReportingCurrency(CreateCurrencyAndExchangeRate);
+        FindCustomerVATRegistration(Customer);
+        CreateAndPostSalesInvoice(Customer."No.");
+
+        // Exercise: Save VAT VIES Declaration Tax Auth. Report.
+        VATVIESDeclarationTaxReport(Customer."VAT Registration No.", false);
+
+        // Verify: Verify Total Value of Item Supplied on VAT VIES Declaration Tax Auth. Report.
+        VerifyTotalValueofItemSupplies(-CalculateBase(Customer."VAT Registration No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHChartOfAccount')]
+    [Scope('OnPrem')]
+    procedure ChartOfAccount()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        // Verify Chart Of Account Report.
+
+        // Setup: Create and post General Journal Line.
+        Initialize;
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+
+        // Exercise. Save Chart Of Account Report for the G/L Account Created.
+        ChartOfAccountsReport(GLAccount."No.");
+
+        // Verify: Verify Chart Of Account Report.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyChartOfAccountReport(GLAccount);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHNoSeriesCheck')]
+    [Scope('OnPrem')]
+    procedure NoSeriesCheck()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesCode: Code[20];
+    begin
+        // Verify No. Series Check Report.
+
+        // Setup: Create No. Series.
+        Initialize;
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
+
+        // Exercise. Save No. Series Check Report.
+        NoSeriesCodeReport(NoSeriesCode);
+
+        // Verify: Verify No. Series Check Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No__Series_Line__Series_Code_', NoSeriesLine."Series Code");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'No__Series_Line__Series_Code_', NoSeriesLine."Series Code"));
+        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHGLDocumentNos')]
+    [Scope('OnPrem')]
+    procedure GLDocumentNos()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Verify G/L Document Nos Report.
+
+        // Setup: Create and post General Journal Line With Random values.
+        Initialize;
+        CreateAndPostGenLine(GenJournalLine);
+
+        // Exercise. Save G/L Document Nos Report.
+        GLDocumentNosReport(GenJournalLine."Document No.");
+
+        // Verify: Verify G/L Document Nos Report.
+        VerifyGLDocumentNosReport(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHGLRegisterReport')]
+    [Scope('OnPrem')]
+    procedure GLRegister()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+    begin
+        // Verify GL Register Report.
+
+        // Setup: Create and post General Journal Line With Random values.
+        Initialize;
+        CreateAndPostGenLine(GenJournalLine);
+        GLRegister.FindLast;
+
+        // Exercise. Save GL Register Report.
+        GLRegisterReport(GLRegister."No.");
+
+        // Verify: Verify GL Register Report.
+        VerifyGLRegisterReport(GenJournalLine, GLRegister."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalance')]
+    [Scope('OnPrem')]
+    procedure TrialBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateAndPostGenLineAndRunTrialBalance(GenJournalLine, 0);
+
+        // Verify: Verify Trial Balance Report.
+        VerifyTrialBalanceReport(GenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalance')]
+    [Scope('OnPrem')]
+    procedure TrialBalance_GLAccountWithNewPage_PageBreakGroupChangedAfterGLAcc()
+    var
+        GenJournalLine1: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        Initialize;
+        CreateAndPostGenLine(GenJournalLine1);
+        CreateAndPostGenLine(GenJournalLine2);
+
+        GLAccount.Get(GenJournalLine1."Account No.");
+        GLAccount.Validate("New Page", true);
+        GLAccount.Modify(true);
+
+        TrialBalanceReport(GenJournalLine1."Account No." + '|' + GenJournalLine2."Account No.");
+
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyTrialBalanceReportWithPageBreakGroup(GenJournalLine1, GenJournalLine2);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalance')]
+    [Scope('OnPrem')]
+    procedure TrialBalance_GLAccountWithBlankLines_BlankLinesExistsInDataset()
+    begin
+        VerifyTrialBalanceReportWithBlankLines(LibraryRandom.RandInt(5) + 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalance')]
+    [Scope('OnPrem')]
+    procedure TrialBalance_GLAccountWithBlankLine_OnlyOneBlankLineExistsInDataset()
+    begin
+        VerifyTrialBalanceReportWithBlankLines(1);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalance')]
+    [Scope('OnPrem')]
+    procedure TrialBalance_GLAccountWithNoBlankLines_NoBlankLinesExistsInDataset()
+    begin
+        VerifyTrialBalanceReportWithBlankLines(0);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHTrialBalanceBudget')]
+    [Scope('OnPrem')]
+    procedure TrialBalanceBudget()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BudgetAtDate: Decimal;
+    begin
+        // Verify Trial Balance Budget Report.
+
+        // Setup: Create and post General Journal Line With Random values.
+        Initialize;
+        CreateAndPostGenLine(GenJournalLine);
+        BudgetAtDate := CreateGLBudgetEntry(GenJournalLine."Account No.", GenJournalLine."Posting Date");
+
+        // Exercise. Save Trial Balance Budget Report.
+        TrialBalanceBudgetReport(GenJournalLine."Account No.", GenJournalLine."Posting Date");
+
+        // Verify: Verify Trial Balance Budget Report.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyTrialBalanceBudgetReport(GenJournalLine, BudgetAtDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHNoSeriesReport')]
+    [Scope('OnPrem')]
+    procedure NoSeries()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesCode: Code[20];
+    begin
+        // Check No. Series Report.
+
+        // Setup.
+        Initialize;
+        NoSeriesCode := CreateNoSeries;
+
+        // Exercise.
+        SaveNoSeriesReport(NoSeriesCode);
+
+        // Verify: Verify Report Data.
+        LibraryReportDataset.LoadDataSetFile;
+        FindNoSeriesLine(NoSeriesLine, NoSeriesCode);
+        LibraryReportDataset.SetRange('No__Series_Line_Series_Code', NoSeriesLine."Series Code");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'No__Series_Line_Series_Code', NoSeriesLine."Series Code"));
+        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Starting_No__', NoSeriesLine."Starting No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('No__Series_Line__Ending_No__', NoSeriesLine."Ending No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHNoSeriesReport')]
+    [Scope('OnPrem')]
+    procedure NoSeriesWithRelationship()
+    var
+        NoSeriesCode: Code[20];
+        RelatedNoSeriesCode: Code[20];
+    begin
+        // Check No. Series Report with Related No. Series.
+
+        // Setup: Create Two new No. Series and create relation in them.
+        Initialize;
+        NoSeriesCode := CreateNoSeries;
+        RelatedNoSeriesCode := CreateNoSeries;
+        LibraryUtility.CreateNoSeriesRelationship(NoSeriesCode, RelatedNoSeriesCode);
+
+        // Exercise.
+        SaveNoSeriesReport(NoSeriesCode);
+
+        // Verify: Verify Related No. Series Code in Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Related_No__SeriesCaption', RelatedNoSeriesTok);
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'Related_No__SeriesCaption', RelatedNoSeriesTok));
+        LibraryReportDataset.AssertCurrentRowValueEquals('NoSeriesLine2_Series_Code', RelatedNoSeriesCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHClosingTrialBalance')]
+    [Scope('OnPrem')]
+    procedure ClosingTrialBalanceNoOption()
+    var
+        ClosingTrialBalance: Report "Closing Trial Balance";
+    begin
+        // Check Closing Trial Balance with No Option
+
+        // Setup.
+        Initialize;
+
+        // Exercise. Try to Save Closing Trial Balance Report without any Option.
+        Clear(ClosingTrialBalance);
+        ClosingTrialBalance.InitializeRequest(0D, false);
+        Commit;
+        asserterror ClosingTrialBalance.Run;
+
+        // Verify: Verify Error during Save of Closing Trial Balance Report when No option was selected.
+        Assert.ExpectedError(FiscalYearStartingDateErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHClosingTrialBalance')]
+    [Scope('OnPrem')]
+    procedure ClosingTrialBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // Check Closing Trial Balance with Fiscal Year.
+
+        // Setup: Create and post General Journal Line with New GL Account with Random Values.
+        Initialize;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", LibraryFiscalYear.GetFirstPostingDate(false));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Save and Verify Closing Trial Balance Report.
+        SaveVerifyClosingTrialBalance(GenJournalLine, GenJournalLine.Amount, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHClosingTrialBalance')]
+    [Scope('OnPrem')]
+    procedure ClosingTrialBalanceFCY()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        CurrencyCode: Code[10];
+        FCYAmount: Decimal;
+    begin
+        // Check Closing Trial Balance with Fiscal Year and FCY.
+
+        // Setup: Create and post General Journal Line with New GL Account and Add additional Currency.
+        Initialize;
+        CurrencyCode := CreateCurrencyAndExchangeRate;
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", LibraryFiscalYear.GetFirstPostingDate(false));
+        GenJournalLine.Modify(true);
+
+        FCYAmount := Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Save and Verify Closing Trial Balance Report with Amount LCY option.
+        SaveVerifyClosingTrialBalance(GenJournalLine, FCYAmount, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHReconcileCustandVendAccs')]
+    [Scope('OnPrem')]
+    procedure ReconcileCustandVendAccsReport()
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        ReconcileCustAndVendAccs: Report "Reconcile Cust. and Vend. Accs";
+        TotalAmount: Decimal;
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // Check Reconcile Cust. and Ven. Account Report with Posted Sales Invoice.
+
+        // Setup: Create and post Sales Invoice with New Customer.
+        Initialize;
+        CustomerNo := CreateCustomer;
+        CreateAndPostSalesInvoice(CustomerNo);
+        Customer.Get(CustomerNo);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        TotalAmount := FindDetailedCustLedgerEntryAmount(GLAccountNo, Customer."Customer Posting Group");
+
+        // Exercise.
+        Clear(ReconcileCustAndVendAccs);
+        GLAccount.SetRange("No.", GLAccountNo);
+        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.FindFirst;
+        ReconcileCustAndVendAccs.SetTableView(GLAccount);
+        Commit;
+        ReconcileCustAndVendAccs.Run;
+
+        // Verify: Verify Saved Report Data.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_GLAccount', GLAccountNo);
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'No_GLAccount', GLAccountNo));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAccount', GLAccount.Name);
+
+        LibraryReportDataset.SetRange('GetTableName', Customer.FieldCaption("Customer Posting Group"));
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'GetTableName', Customer.FieldCaption("Customer Posting Group")));
+        LibraryReportDataset.AssertCurrentRowValueEquals('ReconCustVendBufferPostingGroup', Customer."Customer Posting Group");
+        LibraryReportDataset.AssertCurrentRowValueEquals('AccountType', CustomerPostingGroup.FieldCaption("Receivables Account"));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amount', TotalAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('GLAccountTableCaption', GLAccount.TableCaption + ': ' + GLAccount.GetFilters);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHImportConsolidationFromFile')]
+    [Scope('OnPrem')]
+    procedure ImportConsolidationFromFileRequestPage()
+    var
+        ImportConsolidationFromFile: Report "Import Consolidation from File";
+    begin
+        ImportConsolidationFromFile.InitializeRequest(1, FilePathTxt, '10000');
+        ImportConsolidationFromFile.Run;
+    end;
+
+    [Test]
+    [HandlerFunctions('RHExportConsolidationToFile')]
+    [Scope('OnPrem')]
+    procedure ExportConsolidationToFileRequestPage()
+    var
+        ExportConsolidationToFile: Report "Export Consolidation";
+    begin
+        ExportConsolidationToFile.InitializeRequest(1, FilePathTxt);
+        ExportConsolidationToFile.Run;
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportConsolidationFile()
+    begin
+        // Setup: Create GL Accounts with 20 length of Consolidate Acccounts.
+        Initialize;
+        CreateGLAccountWithConsolidateAccount;
+
+        // Excercise: Run the Export Consolidate Report.
+        Commit;
+        REPORT.Run(REPORT::"Export Consolidation");
+
+        // Verify: Verifying that Export Consolidation report exporting the consolidation file without any error.
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CloseIncomeStatementWithGlobalDimensions()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SelectedDimension: Record "Selected Dimension";
+        AllObj: Record AllObj;
+        DimensionValue1: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        Date: Record Date;
+        GenJournalLine: Record "Gen. Journal Line";
+        DimSetID: Integer;
+    begin
+        // [SCENARIO 378328] When Close Income Statement with dimensions then values for Global dimensions are transferred to the General Journal
+        Initialize;
+
+        // [GIVEN] Posted Income Statement Journal line with global dimensions "D1" and "D2"
+        CreateIncomeStatementGenJnlLine(GenJournalLine, Date);
+        GeneralLedgerSetup.Get;
+        LibraryDimension.CreateSelectedDimension(SelectedDimension, AllObj."Object Type"::Report,
+          REPORT::"Close Income Statement", '', GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateSelectedDimension(SelectedDimension, AllObj."Object Type"::Report,
+          REPORT::"Close Income Statement", '', GeneralLedgerSetup."Global Dimension 2 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue1, GeneralLedgerSetup."Global Dimension 1 Code");
+        DimSetID := LibraryDimension.CreateDimSet(0, DimensionValue1."Dimension Code", DimensionValue1.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 2 Code");
+        DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue2."Dimension Code", DimensionValue2.Code);
+        GenJournalLine."Dimension Set ID" := DimSetID;
+        GenJournalLine.Modify;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run Close Income Statement Report with selected Dimensions
+        RunCloseIncomeStatementReport(GenJournalLine, NormalDate(Date."Period End"), false);
+
+        // [THEN] Created Gen. Journal Line has Dimension 1 = "D1", Dimension 2 = "D2"
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
+        GenJournalLine.FindFirst;
+        GenJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue1.Code);
+        GenJournalLine.TestField("Shortcut Dimension 2 Code", DimensionValue2.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('CloseIncomeStatementWithZeroEndDateRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure RunCloseIncomeStatementReportWithoutClosedFiscalYears()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Report] [Close Income Statement] [Fiscal Year]
+        // [SCENARIO 205272] If there are no closed Fiscal Years, then REP 94 - "Close Income Statement" throws the error message "No closed fiscal year exists."
+
+        // [GIVEN] No closed Fiscal Years
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.ModifyAll("Date Locked", false);
+
+        // [WHEN] RUN REP 94 - "Close Income Statement"
+        GenJournalLine.Init;
+        asserterror RunCloseIncomeStatementReport(GenJournalLine, 0D, true);
+
+        // [THEN] Error message "No closed fiscal year exists." appears
+        Assert.ExpectedError('No closed fiscal year exists.');
+    end;
+
+    [Test]
+    [HandlerFunctions('RHVATVIESDeclarationTaxAuth')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclarationSkipsCountryFromCompanyInformation()
+    var
+        Customer: array[2] of Record Customer;
+    begin
+        // [FEATURE] [VAT- VIES Declaration Tax Auth]
+        // [SCENARIO 219223] VAT VIES Decalrarion report doesn't show VAT entries with Country Code matching CompanyInformation."Country Code".
+        Initialize;
+
+        // [GIVEN] Two Customers "C1" and "C2" with Country Codes "CN1" and "CN2" respectively.
+        LibrarySales.CreateCustomerWithVATRegNo(Customer[1]);
+        LibrarySales.CreateCustomerWithVATRegNo(Customer[2]);
+
+        // [GIVEN] "CN1" and "CN2" are set as "EU Country/Region".
+        UpdateEUCountryRegion(Customer[1]."Country/Region Code");
+        UpdateEUCountryRegion(Customer[2]."Country/Region Code");
+
+        // [GIVEN] "CN2" is set as CompanyInformation."Country/Region Code".
+        UpdateCompanyInfoCountryRegion(Customer[2]."Country/Region Code");
+
+        // [GIVEN] Mock two VAT entries for "C1" and "C2".
+        MockVATEntryForCustomer(Customer[1]);
+        MockVATEntryForCustomer(Customer[2]);
+
+        // [WHEN] VAT VIES Declaration report "VIES" executed for all Customers entries.
+        VATVIESDeclarationTaxReport('', false);
+
+        // [THEN] "VIES" results contains entries for "CN1" and contains no entries for "CN2".
+        VerifyCountryCodeInVATVIES(Customer[1]."Country/Region Code", Customer[2]."Country/Region Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskFiltering()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        Customer: array[3] of Record Customer;
+        FileName: Text[1024];
+        Index: Integer;
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk]
+        // [SCENARIO 257109] Report "VAT- VIES Declaration Disk" respects "Bill-to/Pay-to No." and "Country/Region Code" filters
+        Initialize;
+
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+
+        // [GIVEN] Customers "C1", "C2" and "C3", having Country/Region Codes "CR1", "CR2" and "CR3" respectfully
+        // [GIVEN] VAT Entries "V1", "V2" and "V3" for "C1", "C2" and "C3" respectfully, all having "Posting Date" = 01/02/2018
+        for Index := 1 to ArrayLen(Customer) do begin
+            LibrarySales.CreateCustomerWithVATRegNo(Customer[Index]);
+            UpdateEUCountryRegion(Customer[Index]."Country/Region Code");
+            MockVATEntryForCustomer(Customer[Index]);
+        end;
+
+        VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
+        VATEntry.SetFilter("Country/Region Code", Customer[2]."Country/Region Code");
+        VATEntry.SetRange("Posting Date", WorkDate);
+        Commit;
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2", "Country/Region Code" = "CR2" and Posting Date = 01/02/2018
+        RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] VAT Entry "V1" has "Internal Ref. No." = <blank>
+        VerifyInternalRefNoVATEntry(Customer[1]."No.", '');
+
+        // [THEN] VAT Entry "V2" has "Internal Ref. No." = INCSTR(FORMAT(01/02/2018,4,2) + '000000') = INCSTR('0102' + '000000') = '0102000001'
+        VerifyInternalRefNoVATEntry(Customer[2]."No.", IncStr(Format(WorkDate, 4, 2) + '000000'));
+
+        // [THEN] VAT Entry "V3" has "Internal Ref. No." = <blank>
+        VerifyInternalRefNoVATEntry(Customer[3]."No.", '');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalance')]
+    [Scope('OnPrem')]
+    procedure DetailTrialBalanceExtDocNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Detail Trial Balance]
+        // [SCENARIO 262729] External Document No. is included in report Detail Trial Balance.
+
+        // [GIVEN] Create and post General Journal Line with External Document No.
+        Initialize;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Save Detail Trial Balance Report for the G/L Account Created.
+        RunDetailTrialBalanceReport(GenJournalLine."Account No.", false, false, false, false, '');
+
+        // [THEN] Verify External Document No. on Detail Trial Balance Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ExtDocNo_GLEntry', GenJournalLine."External Document No.")
+    end;
+
+    [Test]
+    [HandlerFunctions('RHFixedAssetDetailsExcel')]
+    [Scope('OnPrem')]
+    procedure FixedAssetDetailsPrintHeader()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 282740] Report "Fixed Asset - Details" prints header fields when "New Page per Asset" unchecked
+
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Created Depreciation Book
+        // [GIVEN] Created Fixed Asset
+        // [GIVEN] Gen. Journal Line for Fixed Asset acquisition created and posted
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [WHEN] Run Report "Fixed Asset - Details" with "New Page per Asset" unchecked
+        FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, false);
+
+        // [THEN] Report header fields are printed
+        ValidateFixedAssetDetailsReportHeader(GenJournalLine."Depreciation Book Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHFixedAssetDetailsExcel')]
+    [Scope('OnPrem')]
+    procedure FixedAssetDetailsPrintHeaderNewPagePerAsset()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 282740] Report "Fixed Asset - Details" prints header fields when "New Page per Asset" checked
+
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Created Depreciation Book
+        // [GIVEN] Created Fixed Asset
+        // [GIVEN] Gen. Journal Line for Fixed Asset acquisition created and posted
+        CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [WHEN] Run Report "Fixed Asset - Details" with "New Page per Asset" checked
+        FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", true, false);
+
+        // [THEN] Report header fields are printed
+        ValidateFixedAssetDetailsReportHeader(GenJournalLine."Depreciation Book Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskSellToCustomerWithoutVATAndCountry()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
+        FileName: Text[1024];
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk]
+        // [SCENARIO 300180] Export "VAT- VIES Declaration Disk" when Sell-To Customer does not have VAT Registration No. and Country/Region Code
+        Initialize;
+
+        // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in General Ledger Setup
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+
+        // [GIVEN] Customer "SellCust" has Country/Region Code = 'BE' and VAT Registration No. = 'BE123456789'
+        // [GIVEN] Customer "BillCust" without VAT Registration No. and Country/Region Code
+        CreateCustomerWithSimpleBillToCust(SellToCustomer, BillToCustomer);
+
+        // [GIVEN] Sales Invoice is posted with "SellCust" and "BillCust" as Sell-to Customer and Bill-to Customer respectively
+        CreateAndPostSalesInvoice(SellToCustomer."No.");
+
+        VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
+        VATEntry.SetRange("Posting Date", WorkDate);
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
+        RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] Country/Region Code is exported as 'BE' and VAT Registration No. as 'BE123456789'
+        Assert.AreNotEqual(
+          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 27, 2, CopyStr(SellToCustomer."Country/Region Code", 1, 2)), '');
+        Assert.AreNotEqual(
+          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 29, 10, CopyStr(SellToCustomer."VAT Registration No.", 1, 10)), '');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskSellToCustomerCheck()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
+        FileName: Text[1024];
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk]
+        // [SCENARIO 300180] Report "VAT- VIES Declaration Disk" checks Sell-To Customer when "Sell-to/Buy-from No." is set on General Ledger Setup
+        Initialize;
+
+        // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in General Ledger Setup
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+
+        // [GIVEN] Customer "SellCust" has Country/Region Code = 'BE' and VAT Registration No. = 'BE123456789'
+        // [GIVEN] Customer "BillCust" without VAT Registration No. and Country/Region Code used as Bill-To Customer for "SellCust"
+        CreateCustomerWithSimpleBillToCust(SellToCustomer, BillToCustomer);
+
+        // [GIVEN] Sales Invoice is posted with "SellCust" and "BillCust" as Sell-to Customer and Bill-to Customer respectively
+        CreateAndPostSalesInvoice(SellToCustomer."No.");
+
+        // [GIVEN] Customer "SellCust" is updated with blank Country/Region Code
+        SellToCustomer."Country/Region Code" := '';
+        SellToCustomer.Modify;
+
+        VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
+        VATEntry.SetRange("Posting Date", WorkDate);
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
+        Commit;
+        asserterror RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] Error raised about Country/Region Code must have a value in "SellCust"
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo('%1 must have a value in %2: %3=%4.',
+            SellToCustomer.FieldCaption("Country/Region Code"),
+            SellToCustomer.TableCaption, SellToCustomer.FieldCaption("No."), SellToCustomer."No."));
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
+    begin
+        // Lazy Setup.
+        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear;
+
+        LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
+
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.UpdateGenJournalTemplate;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalData;
+        IsInitialized := true;
+        Commit;
+
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Company Information");
+    end;
+
+    local procedure CreateAndPostGenLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure BankAccDetailTrialBalReport(BalanceAccountNo: Code[20]; ExcludeAccBalanceOnly: Boolean; PrintReversedEntries: Boolean)
+    var
+        BankAccount: Record "Bank Account";
+        BankAccDetailTrialBal: Report "Bank Acc. - Detail Trial Bal.";
+    begin
+        Clear(BankAccDetailTrialBal);
+        BankAccount.SetRange("No.", BalanceAccountNo);
+        BankAccDetailTrialBal.SetTableView(BankAccount);
+        BankAccDetailTrialBal.InitializeRequest(false, ExcludeAccBalanceOnly, PrintReversedEntries);
+        Commit;
+        BankAccDetailTrialBal.Run;
+    end;
+
+    local procedure BankAccTrialReportDateFilter(BalanceAccountNo: Code[20]; ExcludeAccBalanceOnly: Boolean; PrintReversedEntries: Boolean; PostingDate: Date)
+    var
+        BankAccount: Record "Bank Account";
+        BankAccDetailTrialBal: Report "Bank Acc. - Detail Trial Bal.";
+    begin
+        Clear(BankAccDetailTrialBal);
+        BankAccount.SetRange("No.", BalanceAccountNo);
+
+        // Using 1 and 2 to set Date Filter for two consecutive months.
+        BankAccount.SetRange("Date Filter", CalcDate('<1M>', PostingDate), CalcDate('<2M>', PostingDate));
+        BankAccDetailTrialBal.SetTableView(BankAccount);
+        BankAccDetailTrialBal.InitializeRequest(false, ExcludeAccBalanceOnly, PrintReversedEntries);
+        Commit;
+        BankAccDetailTrialBal.Run;
+    end;
+
+    local procedure BankAccRecSum(BankAccReconciliation: Record "Bank Acc. Reconciliation") "Sum": Decimal
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        with BankAccReconciliationLine do begin
+            SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+            SetRange("Statement No.", BankAccReconciliation."Statement No.");
+            FindSet;
+            repeat
+                Sum += "Statement Amount";
+            until Next = 0;
+        end;
+    end;
+
+    local procedure CreateAndPostGenLineAndRunTrialBalance(var GenJournalLine: Record "Gen. Journal Line"; NoOfBlankLines: Integer)
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        Initialize;
+        CreateAndPostGenLine(GenJournalLine);
+
+        GLAccount.Get(GenJournalLine."Account No.");
+        GLAccount."No. of Blank Lines" := NoOfBlankLines;
+        GLAccount.Modify;
+
+        TrialBalanceReport(GenJournalLine."Account No.");
+
+        // Verify: Verify Trial Balance Report.
+        LibraryReportDataset.LoadDataSetFile;
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+    begin
+        // Create Customer with Application Method Apply to Oldest and attach Payment Terms to it.
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithSimpleBillToCust(var SellToCustomer: Record Customer; var BillToCustomer: Record Customer)
+    begin
+        LibrarySales.CreateCustomerWithVATRegNo(SellToCustomer);
+        UpdateEUCountryRegion(SellToCustomer."Country/Region Code");
+        LibrarySales.CreateCustomer(BillToCustomer);
+        SellToCustomer.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        SellToCustomer.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateIncomeStatementGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var Date: Record Date)
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        Date.SetRange("Period Type", Date."Period Type"::Month);
+        Date.SetRange("Period Start", LibraryFiscalYear.GetLastPostingDate(true));
+        Date.FindFirst;
+
+        LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", Date."Period Start");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateUpdateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        Customer: Record Customer;
+    begin
+        // Create Customer and Create and post General Journal Line and use Random Number Generator for Amount.
+        LibrarySales.CreateCustomer(Customer);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", -LibraryRandom.RandDec(5, 2));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateSuggestedBankReconc(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20])
+    begin
+        CreateBankReconciliation(BankAccReconciliation, BankAccountNo);
+        SuggestBankRecLines(BankAccReconciliation);
+
+        // Balance Bank Account Reconciliation.
+        BankAccReconciliation.Validate(
+          "Statement Ending Balance", BankAccReconciliation."Balance Last Statement" + BankAccRecSum(BankAccReconciliation));
+        BankAccReconciliation.Modify(true);
+    end;
+
+    local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20])
+    begin
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo,
+          BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Modify(true);
+    end;
+
+    local procedure CreateBankAccount(): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccountPostingGroup.FindFirst;
+        BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
+    end;
+
+    local procedure CreateAndPostFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    var
+        DepreciationBookCode: Code[10];
+    begin
+        // Create General Journal Line for Fixed Asset and Post with random values.
+        DepreciationBookCode := CreateDepreciationBook;
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"Fixed Asset",
+          CreateFixedAsset(DepreciationBookCode), LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("FA Posting Type", FAPostingType);
+        GenJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    [Normal]
+    local procedure CreateFixedAsset(DepreciationBookCode: Code[10]): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAPostingGroup: Record "FA Posting Group";
+    begin
+        FAPostingGroup.FindFirst;
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBookCode);
+        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
+        FADepreciationBook.Modify(true);
+        exit(FixedAsset."No.");
+    end;
+
+    local procedure CreateDepreciationBook(): Code[10]
+    var
+        DepreciationBook: Record "Depreciation Book";
+    begin
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
+        DepreciationBook.Validate("G/L Integration - Maintenance", true);
+        DepreciationBook.Modify(true);
+        exit(DepreciationBook.Code);
+    end;
+
+    local procedure CreateCurrencyAndExchangeRate(): Code[10]
+    var
+        GLAccount: Record "G/L Account";
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Residual Gains Account", GLAccount."No.");
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", GLAccount."No.");
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Modify(true);
+
+        // Create Currency Exchange Rate.
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
+    local procedure CalculateAdditionalCurrBase(VATRegistrationNo: Text[20]) TotalAdditionalCurrencyBase: Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        FindVATEntry(VATEntry, VATRegistrationNo);
+        repeat
+            TotalAdditionalCurrencyBase += VATEntry."Additional-Currency Base";
+        until VATEntry.Next = 0;
+    end;
+
+    local procedure CalculateBase(VATRegistrationNo: Text[20]) TotalBase: Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        FindVATEntry(VATEntry, VATRegistrationNo);
+        repeat
+            TotalBase += VATEntry.Base;
+        until VATEntry.Next = 0;
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]) DocumentNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure ChartOfAccountsReport(No: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        ChartOfAccounts: Report "Chart of Accounts";
+    begin
+        Clear(ChartOfAccounts);
+        GLAccount.SetRange("No.", No);
+        ChartOfAccounts.SetTableView(GLAccount);
+        Commit;
+        ChartOfAccounts.Run;
+    end;
+
+    local procedure FindDetailedCustLedgerEntryAmount(var GLAccountNo: Code[20]; CustomerPostingGroupCode: Code[20]): Decimal
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustAccAmount: Decimal;
+    begin
+        CustomerPostingGroup.Get(CustomerPostingGroupCode);
+        GLAccountNo := CustomerPostingGroup."Receivables Account";
+        Customer.SetCurrentKey("Customer Posting Group");
+        Customer.SetRange("Customer Posting Group", CustomerPostingGroupCode);
+        if Customer.FindSet then
+            repeat
+                DetailedCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
+                DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
+                DetailedCustLedgEntry.SetRange("Posting Date", WorkDate);
+                DetailedCustLedgEntry.CalcSums("Amount (LCY)");
+                CustAccAmount := CustAccAmount + DetailedCustLedgEntry."Amount (LCY)";
+            until Customer.Next = 0;
+        exit(CustAccAmount);
+    end;
+
+    local procedure NoSeriesCodeReport(SeriesCode: Code[20])
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesCheck: Report "No. Series Check";
+    begin
+        Clear(NoSeriesCheck);
+        NoSeries.SetRange(Code, SeriesCode);
+        NoSeriesCheck.SetTableView(NoSeries);
+        Commit;
+        NoSeriesCheck.Run;
+    end;
+
+    local procedure GLDocumentNosReport(DocumentNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        GLDocumentNos: Report "G/L Document Nos.";
+    begin
+        Clear(GLDocumentNos);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLDocumentNos.SetTableView(GLEntry);
+        GLDocumentNos.Run;
+    end;
+
+    local procedure GLRegisterReport(RegisterNo: Integer)
+    var
+        GLRegister: Record "G/L Register";
+        GLRegisterReport: Report "G/L Register";
+    begin
+        Clear(GLRegisterReport);
+        GLRegister.SetRange("No.", RegisterNo);
+        GLRegisterReport.SetTableView(GLRegister);
+        GLRegisterReport.Run;
+    end;
+
+    local procedure TrialBalanceReport(GLAccountNoFilter: Code[250])
+    var
+        GLAccount: Record "G/L Account";
+        TrialBalance: Report "Trial Balance";
+    begin
+        Clear(TrialBalance);
+        GLAccount.SetFilter("No.", GLAccountNoFilter);
+        TrialBalance.SetTableView(GLAccount);
+        Commit;
+        TrialBalance.Run
+    end;
+
+    local procedure TrialBalanceBudgetReport(GLAccountNo: Code[20]; PostingDate: Date)
+    var
+        GLAccount: Record "G/L Account";
+        TrialBalanceBudget: Report "Trial Balance/Budget";
+    begin
+        Clear(TrialBalanceBudget);
+        GLAccount.SetRange("No.", GLAccountNo);
+        GLAccount.SetFilter("Date Filter", '%1..%2', PostingDate, PostingDate);
+        TrialBalanceBudget.SetTableView(GLAccount);
+        Commit;
+        TrialBalanceBudget.Run;
+    end;
+
+    local procedure CreateGLBudgetEntry(GLAccountNo: Code[20]; BudgetDate: Date): Decimal
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
+        GLBudgetName: Record "G/L Budget Name";
+    begin
+        // Take Random Amount for GL Budget Entry.
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, BudgetDate, GLAccountNo, GLBudgetName.Name);
+        GLBudgetEntry.Validate(Amount, LibraryRandom.RandInt(100));
+        GLBudgetEntry.Modify(true);
+        exit(GLBudgetEntry.Amount);
+    end;
+
+    local procedure CreateGLAccountWithConsolidateAccount()
+    var
+        GLAccount: Record "G/L Account";
+        LibraryUTUtility: Codeunit "Library UT Utility";
+    begin
+        with GLAccount do begin
+            LibraryERM.CreateGLAccount(GLAccount);
+            Validate("Consol. Debit Acc.", LibraryUTUtility.GetNewCode);
+            Validate("Consol. Credit Acc.", LibraryUTUtility.GetNewCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateNoSeries(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        exit(NoSeries.Code);
+    end;
+
+    local procedure MockVATEntryForCustomer(Customer: Record Customer)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
+            Type := Type::Sale;
+            "Posting Date" := WorkDate;
+            "Bill-to/Pay-to No." := Customer."No.";
+            "VAT Registration No." := Customer."VAT Registration No.";
+            "Country/Region Code" := Customer."Country/Region Code";
+            Base := LibraryRandom.RandDecInRange(10, 20, 2);
+            Insert;
+        end;
+    end;
+
+    local procedure FindGLEntry(DocumentNo: Code[20]): Integer
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindLast;
+        exit(GLEntry."Transaction No.");
+    end;
+
+    local procedure FindNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20])
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst;
+    end;
+
+    local procedure FixedAssetDetailReport(No: Code[20]; DepreciationBookCode: Code[10]; PrintOnlyOnePerPage: Boolean; IncludeReverseEntries: Boolean)
+    var
+        FixedAsset: Record "Fixed Asset";
+        FixedAssetDetails: Report "Fixed Asset - Details";
+    begin
+        Clear(FixedAssetDetails);
+        FixedAssetDetails.InitializeRequest(DepreciationBookCode, PrintOnlyOnePerPage, IncludeReverseEntries);
+        FixedAsset.SetRange("No.", No);
+        FixedAssetDetails.SetTableView(FixedAsset);
+        Commit;
+        FixedAssetDetails.Run;
+    end;
+
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATRegistrationNo: Text[20])
+    begin
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetFilter("VAT Registration No.", VATRegistrationNo);
+        VATEntry.FindSet;
+    end;
+
+    local procedure FindCustomerVATRegistration(var Customer: Record Customer)
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+        CountryRegion.Get(Customer."Country/Region Code");
+        CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+        CountryRegion.Modify(true);
+    end;
+
+    local procedure PostCheck(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Find General Journal Template and Batch for posting checks.
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.FindFirst;
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("No. Series", '');
+        GenJournalBatch.Modify(true);
+
+        // Generate General Journal line.
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account",
+          CreateBankAccount, LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Validate(
+          "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
+
+        // Post the check
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure PostGenJournalLineAndReversTransaction(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        ReversalEntry: Record "Reversal Entry";
+    begin
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        ReversalEntry.SetHideDialog(true);
+        ReversalEntry.ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
+    end;
+
+    local procedure RunVATVIESDeclarationDisk(var VATEntry: Record "VAT Entry"; var FileName: Text[1024])
+    var
+        VATVIESDeclarationDisk: Report "VAT- VIES Declaration Disk";
+    begin
+        Clear(VATVIESDeclarationDisk);
+        VATVIESDeclarationDisk.InitializeRequest(true);
+        VATVIESDeclarationDisk.SetTableView(VATEntry);
+        VATVIESDeclarationDisk.RunModal;
+        FileName := VATVIESDeclarationDisk.GetFileName;
+    end;
+
+    local procedure RunDetailTrialBalanceReport(No: Code[20]; ExcludeGLBalanceOnly: Boolean; PrintClosingEntry: Boolean; PrintReverseEnteries: Boolean; PrintOnlyCorrections: Boolean; DateFilter: Text[30])
+    begin
+        LibraryVariableStorage.Enqueue(No);
+        LibraryVariableStorage.Enqueue(ExcludeGLBalanceOnly);
+        LibraryVariableStorage.Enqueue(PrintClosingEntry);
+        LibraryVariableStorage.Enqueue(PrintReverseEnteries);
+        LibraryVariableStorage.Enqueue(PrintOnlyCorrections);
+        LibraryVariableStorage.Enqueue(DateFilter);
+        Commit;
+        REPORT.Run(REPORT::"Detail Trial Balance");
+    end;
+
+    local procedure RunCloseIncomeStatementReport(GenJournalLine: Record "Gen. Journal Line"; EndDate: Date; CallUserRequestPage: Boolean)
+    var
+        GLAccount: Record "G/L Account";
+        CloseIncomeStatement: Report "Close Income Statement";
+    begin
+        LibraryERM.FindGLAccount(GLAccount);
+        CloseIncomeStatement.InitializeRequestTest(EndDate, GenJournalLine, GLAccount, true);
+        CloseIncomeStatement.UseRequestPage(CallUserRequestPage);
+        CloseIncomeStatement.Run;
+    end;
+
+    local procedure ReverseFALedgerEntry(DocumentNo: Code[20])
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        ReversalEntry: Record "Reversal Entry";
+    begin
+        FALedgerEntry.SetRange("Document No.", DocumentNo);
+        FALedgerEntry.FindFirst;
+        ReversalEntry.SetHideDialog(true);
+        ReversalEntry.ReverseTransaction(FALedgerEntry."Transaction No.");
+    end;
+
+    local procedure ReverseMaintenanceLedgerEntry(DocumentNo: Code[20])
+    var
+        MaintenanceLedgerEntry: Record "Maintenance Ledger Entry";
+        ReversalEntry: Record "Reversal Entry";
+    begin
+        MaintenanceLedgerEntry.SetRange("Document No.", DocumentNo);
+        MaintenanceLedgerEntry.FindFirst;
+        ReversalEntry.SetHideDialog(true);
+        ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
+    end;
+
+    local procedure RunMaintenanceDetailsReport(No: Code[20]; DepreciationBookCode: Code[10]; PrintReverseEntries: Boolean)
+    var
+        FixedAsset: Record "Fixed Asset";
+        MaintenanceDetails: Report "Maintenance - Details";
+    begin
+        Clear(MaintenanceDetails);
+        MaintenanceDetails.InitializeRequest(DepreciationBookCode, false, PrintReverseEntries);
+        FixedAsset.SetRange("No.", No);
+        MaintenanceDetails.SetTableView(FixedAsset);
+        MaintenanceDetails.Run;
+    end;
+
+    local procedure SaveVerifyClosingTrialBalance(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; AmountLCY: Boolean)
+    var
+        GLAccount: Record "G/L Account";
+        ClosingTrialBalance: Report "Closing Trial Balance";
+    begin
+        // Exercise. Save Detail Trial Balance Report for the G/L Account Created.
+        Clear(ClosingTrialBalance);
+        GLAccount.SetRange("No.", GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
+        ClosingTrialBalance.SetTableView(GLAccount);
+        ClosingTrialBalance.InitializeRequest(GenJournalLine."Posting Date", AmountLCY);
+        Commit;
+        ClosingTrialBalance.Run;
+
+        // Verify: Verify Amounts on Detail Trial Balance Report. Customized Formual required to Increase the Date.
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyColumnValues(GenJournalLine."Account No.", Amount, 'FiscalYearBalance');
+        VerifyColumnValues(GenJournalLine."Bal. Account No.", Amount, 'NegFiscalYearBalance');
+        LibraryReportDataset.Reset;
+        LibraryReportDataset.AssertElementWithValueExists('PeriodText',
+          StrSubstNo('Period: %1..%2', GenJournalLine."Posting Date",
+            Format(CalcDate('<30D+11M>', GenJournalLine."Posting Date"))));
+    end;
+
+    local procedure SaveNoSeriesReport(NoSeriesCode: Code[20])
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesReport: Report "No. Series";
+    begin
+        Clear(NoSeriesReport);
+        NoSeries.SetRange(Code, NoSeriesCode);
+        NoSeriesReport.SetTableView(NoSeries);
+        Commit;
+        NoSeriesReport.Run;
+    end;
+
+    local procedure SuggestBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccount: Record "Bank Account";
+        SuggestBankAccReconLines: Report "Suggest Bank Acc. Recon. Lines";
+    begin
+        SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
+        SuggestBankAccReconLines.SetTableView(BankAccount);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, false);
+        SuggestBankAccReconLines.UseRequestPage(false);
+        SuggestBankAccReconLines.Run;
+    end;
+
+    local procedure TrialBalanceReportDateFilter(No: Code[20]; ExcludeGLBalanceOnly: Boolean; PrintClosingEntry: Boolean; PrintReverseEnteries: Boolean; PrintOnlyCorrections: Boolean; PostingDate: Date)
+    var
+        GLAccount: Record "G/L Account";
+        DetailTrialBalance: Report "Detail Trial Balance";
+    begin
+        Clear(DetailTrialBalance);
+        GLAccount.SetRange("No.", No);
+
+        // Using 1 and 2 to set Date Filter for two consecutive months.
+        GLAccount.SetRange("Date Filter", CalcDate('<1M>', PostingDate), CalcDate('<2M>', PostingDate));
+        DetailTrialBalance.SetTableView(GLAccount);
+        DetailTrialBalance.InitializeRequest(false, ExcludeGLBalanceOnly, PrintClosingEntry, PrintReverseEnteries, PrintOnlyCorrections);
+        Commit;
+        DetailTrialBalance.Run;
+    end;
+
+    local procedure UpdateEUCountryRegion(CountryCode: Code[10])
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.Get(CountryCode);
+        CountryRegion."EU Country/Region Code" := CountryRegion.Code;
+        CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID;
+        CountryRegion.Modify;
+    end;
+
+    local procedure UpdateCompanyInfoCountryRegion(CountryCode: Code[10])
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get;
+        CompanyInformation.Validate("Country/Region Code", CountryCode);
+        CompanyInformation.Modify(true);
+    end;
+
+    local procedure VerifyColumnValues(AccountNo: Code[20]; ExpectedAmount: Decimal; FiscalYearBalance: Text[30])
+    begin
+        LibraryReportDataset.SetRange('No_GLAccount', AccountNo);
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'No_GLAccount', AccountNo));
+        LibraryReportDataset.AssertCurrentRowValueEquals(FiscalYearBalance, ExpectedAmount);
+    end;
+
+    local procedure VATVIESDeclarationTaxReport(CustomerVATRegistrationNo: Text[20]; IncludeAdditionalCurrAmount: Boolean)
+    var
+        VATVIESDeclarationTaxAuth: Report "VAT- VIES Declaration Tax Auth";
+    begin
+        Clear(VATVIESDeclarationTaxAuth);
+        VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate, WorkDate, CustomerVATRegistrationNo);
+        Commit;
+        VATVIESDeclarationTaxAuth.Run;
+    end;
+
+    local procedure VerifyChartOfAccountReport(GLAccount: Record "G/L Account")
+    begin
+        LibraryReportDataset.SetRange('G_L_Account___No__', GLAccount."No.");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Bus__Posting_Group_', GLAccount."Gen. Bus. Posting Group");
+        LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Gen__Prod__Posting_Group_', GLAccount."Gen. Prod. Posting Group");
+    end;
+
+    local procedure VerifyGLDocumentNosReport(GenJournalLine: Record "Gen. Journal Line")
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('GLEntry__Document_No__', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then begin
+            LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__Document_No__', Format(GenJournalLine."Document No."));
+            LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__Posting_Date_', Format(GenJournalLine."Posting Date"));
+            LibraryReportDataset.AssertCurrentRowValueEquals('GLEntry__G_L_Account_No__', Format(GenJournalLine."Account No."))
+        end else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No."));
+    end;
+
+    local procedure VerifyGLRegisterReport(GenJournalLine: Record "Gen. Journal Line"; GLRegisterNo: Integer)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('G_L_Register__No__', GLRegisterNo);
+        LibraryReportDataset.SetRange('G_L_Entry__Document_No__', GenJournalLine."Document No.");
+        if LibraryReportDataset.GetNextRow then begin
+            LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__Document_No__', GenJournalLine."Document No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Entry__G_L_Account_No__', GenJournalLine."Account No.")
+        end else
+            Error(StrSubstNo(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No."));
+    end;
+
+    local procedure VerifyMaintenanceLedgerEntryAmount(RowCaption: Text; RowValue: Text; Amount: Decimal)
+    begin
+        LibraryReportDataset.SetRange(RowCaption, RowValue);
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, RowCaption, RowValue));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Maintenance_Ledger_Entry_Amount', Amount);
+    end;
+
+    local procedure VerifyTrialBalanceReport(GenJournalLine: Record "Gen. Journal Line")
+    begin
+        VerifyTrialBalanceReportField(GenJournalLine, 'G_L_Account___Net_Change_', GenJournalLine."Debit Amount");
+    end;
+
+    local procedure VerifyTrialBalanceReportWithPageBreakGroup(GenJournalLine1: Record "Gen. Journal Line"; GenJournalLine2: Record "Gen. Journal Line")
+    begin
+        VerifyTrialBalanceReportField(GenJournalLine1, 'PageGroupNo', 0);
+        VerifyTrialBalanceReportField(GenJournalLine2, 'PageGroupNo', 1);
+    end;
+
+    local procedure VerifyTrialBalanceReportField(GenJournalLine: Record "Gen. Journal Line"; DataSetField: Text; Value: Decimal)
+    begin
+        LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals(DataSetField, Value);
+    end;
+
+    local procedure VerifyTrialBalanceReportWithBlankLines(NoOfBlankLines: Integer)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        ActualRowQty: Integer;
+    begin
+        CreateAndPostGenLineAndRunTrialBalance(GenJournalLine, NoOfBlankLines);
+
+        LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
+        ActualRowQty := 0;
+        while LibraryReportDataset.GetNextRow do
+            ActualRowQty += 1;
+
+        Assert.AreEqual(NoOfBlankLines, ActualRowQty - 1, BlankLinesQtyErr);
+    end;
+
+    local procedure VerifyTrialBalanceBudgetReport(GenJournalLine: Record "Gen. Journal Line"; BudgetAtDate: Decimal)
+    begin
+        LibraryReportDataset.SetRange('G_L_Account_No_', GenJournalLine."Account No.");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account_No_', GenJournalLine."Account No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Account___Net_Change_', GenJournalLine."Debit Amount");
+        LibraryReportDataset.AssertCurrentRowValueEquals('GLAcc2__Budget_at_Date_', BudgetAtDate);
+    end;
+
+    local procedure VerifyDetailTrialBalanceReport(GenJournalLine: Record "Gen. Journal Line"; Amount: Text[30])
+    begin
+        LibraryReportDataset.SetRange('DocumentNo_GLEntry', GenJournalLine."Document No.");
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo_GLEntry', GenJournalLine."Document No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
+    end;
+
+    local procedure VerifyBankLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; Amount: Text[30])
+    begin
+        if not LibraryReportDataset.GetNextRow then
+            Error(StrSubstNo(RowNotFoundErr, 'DocNo_BankAccLedg', GenJournalLine."Document No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals(Amount, -GenJournalLine.Amount);
+    end;
+
+    local procedure VerifyTotalValueofItemSupplies(ExpectedAmount: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TotalValueofItemSupplies', ExpectedAmount);
+    end;
+
+    local procedure VerifyCountryCodeInVATVIES(CountryCodeExists: Code[10]; CountryCodeNotExists: Code[10])
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('CountryRegionCode', CountryCodeExists);
+        LibraryReportDataset.AssertElementWithValueNotExist('CountryRegionCode', CountryCodeNotExists);
+    end;
+
+    local procedure VerifyInternalRefNoVATEntry(CustNo: Code[20]; InternalRefNo: Text[30])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Bill-to/Pay-to No.", CustNo);
+        VATEntry.FindFirst;
+        VATEntry.TestField("Internal Ref. No.", InternalRefNo);
+    end;
+
+    local procedure ValidateFixedAssetDetailsReportHeader(DepreciationBookCode: Code[10])
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.VerifyCellValue(1, 1, 'Fixed Asset - Details');
+        LibraryReportValidation.VerifyCellValue(1, 13, Format(Today, 0, 4));
+        LibraryReportValidation.VerifyCellValue(2, 1, StrSubstNo('Depreciation Book: %1', DepreciationBookCode));
+        LibraryReportValidation.VerifyCellValue(2, 15, 'Page');
+        LibraryReportValidation.VerifyCellValue(2, 17, '1'); // verify page number visibility
+        LibraryReportValidation.VerifyCellValue(4, 1, COMPANYPROPERTY.DisplayName);
+        LibraryReportValidation.VerifyCellValue(4, 12, UserId);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Handler for confirmation messages, always send positive reply.
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        // Just for Handle the Message.
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHBankLedgerEntry(var BankAccDetailTrialBal: TestRequestPage "Bank Acc. - Detail Trial Bal.")
+    begin
+        CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
+        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHCheckBankAccReconciliation(var BankAccReconTest: TestRequestPage "Bank Acc. Recon. - Test")
+    begin
+        CurrentSaveValuesId := REPORT::"Bank Acc. Recon. - Test";
+        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHChartOfAccount(var ChartofAccounts: TestRequestPage "Chart of Accounts")
+    begin
+        CurrentSaveValuesId := REPORT::"Chart of Accounts";
+        ChartofAccounts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHClosingTrialBalance(var ClosingTrialBalance: TestRequestPage "Closing Trial Balance")
+    begin
+        CurrentSaveValuesId := REPORT::"Closing Trial Balance";
+        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHDetailTrialBalance(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
+    var
+        No: Variant;
+        ExcludeGLBalanceOnly: Variant;
+        PrintClosingEntry: Variant;
+        PrintReverseEnteries: Variant;
+        PrintOnlyCorrections: Variant;
+        DateFilter: Variant;
+    begin
+        CurrentSaveValuesId := REPORT::"Detail Trial Balance";
+        LibraryVariableStorage.Dequeue(No);
+        LibraryVariableStorage.Dequeue(ExcludeGLBalanceOnly);
+        LibraryVariableStorage.Dequeue(PrintClosingEntry);
+        LibraryVariableStorage.Dequeue(PrintReverseEnteries);
+        LibraryVariableStorage.Dequeue(PrintOnlyCorrections);
+        LibraryVariableStorage.Dequeue(DateFilter);
+        DetailTrialBalance."G/L Account".SetFilter("No.", No);
+        if Format(DateFilter) <> '' then
+            DetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
+        DetailTrialBalance.NewPageperGLAcc.SetValue(false);
+        DetailTrialBalance.ExcludeGLAccsHaveBalanceOnly.SetValue(ExcludeGLBalanceOnly);
+        DetailTrialBalance.InclClosingEntriesWithinPeriod.SetValue(PrintClosingEntry);
+        DetailTrialBalance.IncludeReversedEntries.SetValue(PrintReverseEnteries);
+        DetailTrialBalance.PrintCorrectionsOnly.SetValue(PrintOnlyCorrections);
+        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHGLDocumentNos(var GLDocumentNos: TestRequestPage "G/L Document Nos.")
+    begin
+        CurrentSaveValuesId := REPORT::"G/L Document Nos.";
+        GLDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHGLRegisterReport(var GLRegisterReport: TestRequestPage "G/L Register")
+    begin
+        CurrentSaveValuesId := REPORT::"G/L Register";
+        GLRegisterReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHAccTrialBalance(var BankAccDetailTrialBal: TestRequestPage "Bank Acc. - Detail Trial Bal.")
+    begin
+        CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
+        BankAccDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHFixedAssetDetails(var FixedAssetDetails: TestRequestPage "Fixed Asset - Details")
+    begin
+        CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
+        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHFixedAssetDetailsExcel(var FixedAssetDetails: TestRequestPage "Fixed Asset - Details")
+    begin
+        CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
+        FixedAssetDetails.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHNoSeriesReport(var NoSeriesReport: TestRequestPage "No. Series")
+    begin
+        CurrentSaveValuesId := REPORT::"No. Series";
+        NoSeriesReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHNoSeriesCheck(var NoSeriesCheck: TestRequestPage "No. Series Check")
+    begin
+        CurrentSaveValuesId := REPORT::"No. Series Check";
+        NoSeriesCheck.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHMaintenanceDetails(var MaintenanceDetails: TestRequestPage "Maintenance - Details")
+    begin
+        CurrentSaveValuesId := REPORT::"Maintenance - Details";
+        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHDetailTrialBalanceWithDateFilter(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
+    begin
+        CurrentSaveValuesId := REPORT::"Detail Trial Balance";
+        DetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHTrialBalance(var TrialBalance: TestRequestPage "Trial Balance")
+    begin
+        CurrentSaveValuesId := REPORT::"Trial Balance";
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHTrialBalanceBudget(var TrialBalanceBudget: TestRequestPage "Trial Balance/Budget")
+    begin
+        CurrentSaveValuesId := REPORT::"Trial Balance/Budget";
+        TrialBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHReconcileCustandVendAccs(var ReconcileCustandVendAccs: TestRequestPage "Reconcile Cust. and Vend. Accs")
+    begin
+        CurrentSaveValuesId := REPORT::"Reconcile Cust. and Vend. Accs";
+        ReconcileCustandVendAccs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHFixedAssetWithoutOption(var FixedAssetDetails: TestRequestPage "Fixed Asset - Details")
+    begin
+        CurrentSaveValuesId := REPORT::"Fixed Asset - Details";
+        FixedAssetDetails.DepreciationBook.SetValue('');
+        FixedAssetDetails.IncludeReversedEntries.SetValue(false);
+        FixedAssetDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHMaintenanceDetailsWithOutOption(var MaintenanceDetails: TestRequestPage "Maintenance - Details")
+    begin
+        CurrentSaveValuesId := REPORT::"Maintenance - Details";
+        MaintenanceDetails.DepreciationBook.SetValue('');
+        MaintenanceDetails.IncludeReversedEntries.SetValue(false);
+        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHVATVIESDeclarationTaxAuth(var VATVIESDeclarationTaxAuth: TestRequestPage "VAT- VIES Declaration Tax Auth")
+    begin
+        CurrentSaveValuesId := REPORT::"VAT- VIES Declaration Tax Auth";
+        VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHImportConsolidationFromFile(var ImportConsolidationFromFile: TestRequestPage "Import Consolidation from File")
+    begin
+        CurrentSaveValuesId := REPORT::"Import Consolidation from File";
+        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Enabled, FileNameNotEnabledErr);
+        Assert.IsTrue(ImportConsolidationFromFile.FileNameControl.Editable, FileNameNotEditableErr);
+        Assert.AreEqual(Format(FilePathTxt), ImportConsolidationFromFile.FileNameControl.Value, FileNameNotPersistedErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHExportConsolidationToFile(var ExportConsolidation: TestRequestPage "Export Consolidation")
+    begin
+        CurrentSaveValuesId := REPORT::"Export Consolidation";
+        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Enabled, FileNameNotEnabledErr);
+        Assert.IsTrue(ExportConsolidation.ClientFileNameControl.Editable, FileNameNotEditableErr);
+        Assert.AreEqual(Format(FilePathTxt), ExportConsolidation.ClientFileNameControl.Value, FileNameNotPersistedErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExportConsolidationRequesPageHandler(var ExportConsolidation: TestRequestPage "Export Consolidation")
+    begin
+        CurrentSaveValuesId := REPORT::"Export Consolidation";
+        ExportConsolidation.StartDate.SetValue(WorkDate);
+        ExportConsolidation.EndDate.SetValue(WorkDate);
+        ExportConsolidation.ClientFileNameControl.SetValue(LibraryReportDataset.GetParametersFileName);
+        ExportConsolidation.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CloseIncomeStatementWithZeroEndDateRequestPageHandler(var CloseIncomeStatement: TestRequestPage "Close Income Statement")
+    begin
+        CloseIncomeStatement.InventoryPeriodClosed.SetValue(0D);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
+    begin
+        VATVIESDeclarationDisk.OK.Invoke;
+    end;
+}
+

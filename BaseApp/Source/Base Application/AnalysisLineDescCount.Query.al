@@ -1,0 +1,26 @@
+query 770 "Analysis Line Desc. Count"
+{
+    Caption = 'Analysis Line Desc. Count';
+
+    elements
+    {
+        dataitem(Analysis_Line; "Analysis Line")
+        {
+            column(Analysis_Area; "Analysis Area")
+            {
+            }
+            column(Analysis_Line_Template_Name; "Analysis Line Template Name")
+            {
+            }
+            column(Description; Description)
+            {
+            }
+            column(Count_)
+            {
+                ColumnFilter = Count_ = FILTER(> 1);
+                Method = Count;
+            }
+        }
+    }
+}
+
