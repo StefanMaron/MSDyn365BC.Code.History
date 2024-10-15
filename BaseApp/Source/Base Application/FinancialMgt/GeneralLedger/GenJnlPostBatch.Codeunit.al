@@ -343,7 +343,9 @@
         if not IsProcessingKeySet then
             if (IsWHTPaymentPosting(GenJnlLine) or
                 GenJnlTemplate."Force Doc. Balance") then
-                GenJnlLine.SetCurrentKey("Document No.", "Posting Date");
+                GenJnlLine.SetCurrentKey("Document No.", "Posting Date")
+            else
+                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Bal. Account No.");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";
