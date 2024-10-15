@@ -19,9 +19,9 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
+        OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest);
         GetSourceDocuments.RunModal;
 
-        OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest);
         GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
         OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader);
         exit(true);

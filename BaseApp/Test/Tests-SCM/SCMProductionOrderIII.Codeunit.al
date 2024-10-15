@@ -2015,6 +2015,7 @@ codeunit 137079 "SCM Production Order III"
         // Change UOM on Production Order Line.
         FindReleasedProdOrderLine(ProdOrderLine, ItemNo);
         UpdateProdOrderLineUnitOfMeasureCode(ProdOrderLine, ItemNo, ItemUnitOfMeasure.Code);
+        UpdateInventoryAccountInterim(ProdOrderLine."Location Code", ProdOrderLine."Inventory Posting Group");
 
         // Exercise: Open Production Journal and post by handler PostProductionJournalHandler.
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
@@ -3656,6 +3657,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Production Order III");
 
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         CreateLocationSetup;
         LibraryERMCountryData.UpdateInventoryPostingSetup;
@@ -4011,6 +4013,7 @@ codeunit 137079 "SCM Production Order III"
     local procedure CreateAndPostOutputJournalWithItemTracking(ProductionOrderNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,SetValue;
     begin
         CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrderNo);
 
@@ -4019,6 +4022,7 @@ codeunit 137079 "SCM Production Order III"
 
         ItemJournalLine.Validate(Quantity, Quantity);
         ItemJournalLine.Modify(true);
+        UpdateInventoryAccountInterim(ItemJournalLine."Location Code", ItemJournalLine."Inventory Posting Group");
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
@@ -5336,11 +5340,11 @@ codeunit 137079 "SCM Production Order III"
 
     local procedure GetDifferentVATBusPostingGroup(VATBusPostingGroupCode: Code[20]): Code[20]
     var
-        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATBusPostingGroup.SetFilter(Code, '<>%1', VATBusPostingGroupCode);
-        VATBusPostingGroup.FindFirst;
-        exit(VATBusPostingGroup.Code);
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', VATBusPostingGroupCode);
+        VATPostingSetup.FindLast;
+        exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
     local procedure InitProdOrderComponent(var NewProdOrderComponent: Record "Prod. Order Component"; OldProdOrderComponent: Record "Prod. Order Component")
@@ -5936,6 +5940,17 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.Enqueue(JournalLinesPostedMsg); // Required inside MessageHandler.
         LibraryVariableStorage.Enqueue(LeaveProductionJournalQst); // Required inside MessageHandler.
         ProductionJournal.Post.Invoke;
+    end;
+
+    local procedure UpdateInventoryAccountInterim(LocationCode: Code[10]; InventoryPostingGroupCode: Code[20])
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        InventoryPostingSetup.Get(LocationCode, InventoryPostingGroupCode);
+        if InventoryPostingSetup."Inventory Account (Interim)" = '' then begin
+            InventoryPostingSetup."Inventory Account (Interim)" := InventoryPostingSetup."Inventory Account";
+            InventoryPostingSetup.Modify();
+        end;
     end;
 
     [PageHandler]

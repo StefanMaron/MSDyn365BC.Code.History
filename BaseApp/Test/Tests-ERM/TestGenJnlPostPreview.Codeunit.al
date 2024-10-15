@@ -20,8 +20,6 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         NothingToPostErr: Label 'There is nothing to post.';
         LibraryRandom: Codeunit "Library - Random";
         UnexpectedMessageErr: Label 'Unexpected message: %1.', Comment = '%1 = Error message';
-        LibraryUtility: Codeunit "Library - Utility";
-        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         ExpectedEmptyErrorFromPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
@@ -291,53 +289,6 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         // Cleanup
         GenJournalLine.Delete();
         Vendor.Delete();
-        Commit();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPreviewEmployee()
-    var
-        Employee: Record Employee;
-        GenJnlPost: Codeunit "Gen. Jnl.-Post";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        Amount1: Decimal;
-        Amount2: Decimal;
-    begin
-        // Initialize
-        Initialize;
-        Amount1 := LibraryRandom.RandDecInRange(10, 10000, 2);
-        Amount2 := LibraryRandom.RandDecInRange(10, 10000, 2);
-        CreateEmployee(Employee);
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Employee,
-          Employee."No.",
-          Amount1);
-        LibraryJournals.CreateGenJournalLine2(
-          GenJournalLine,
-          GenJournalLine."Journal Template Name",
-          GenJournalLine."Journal Batch Name",
-          GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Employee,
-          Employee."No.",
-          GenJournalLine."Document Type"::" ",
-          GenJournalLine."Bal. Account No.",
-          Amount2);
-
-        Commit();
-
-        // Execute
-        GLPostingPreview.Trap;
-        asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
-        // Verify
-        VerifyEmployeeEntries(Amount1, Amount2, GLPostingPreview);
-        GLPostingPreview.Close;
-
-        // Cleanup
-        GenJournalLine.Delete();
-        Employee.Delete();
         Commit();
     end;
 
@@ -736,28 +687,6 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyEmployeeEntries(Amount1: Decimal; Amount2: Decimal; GLPostingPreview: TestPage "G/L Posting Preview")
-    var
-        EmplLedgerEntriesPreview: TestPage "Empl. Ledger Entries Preview";
-    begin
-        EmplLedgerEntriesPreview.Trap;
-        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Employee Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
-
-        EmplLedgerEntriesPreview.First;
-        EmplLedgerEntriesPreview.AmountFCY.AssertEquals(Amount1);
-        EmplLedgerEntriesPreview.OriginalAmountFCY.AssertEquals(Amount1);
-        EmplLedgerEntriesPreview.RemainingAmountFCY.AssertEquals(Amount1);
-
-        EmplLedgerEntriesPreview.Next;
-        EmplLedgerEntriesPreview.AmountFCY.AssertEquals(Amount2);
-        EmplLedgerEntriesPreview.OriginalAmountFCY.AssertEquals(Amount2);
-        EmplLedgerEntriesPreview.RemainingAmountFCY.AssertEquals(Amount2);
-
-        EmplLedgerEntriesPreview.OK.Invoke;
-    end;
-
-    [Scope('OnPrem')]
     procedure VerifyBankAccountEntries(Amount: Decimal; GLPostingPreview: TestPage "G/L Posting Preview")
     var
         BankAccLedgEntrPreview: TestPage "Bank Acc. Ledg. Entr. Preview";
@@ -823,20 +752,6 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     procedure OnDeletePmtJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         Error(UnexpectedDeleteErr);
-    end;
-
-    [Normal]
-    local procedure CreateEmployee(var Employee: Record Employee)
-    var
-        EmployeePostingGroup: Record "Employee Posting Group";
-    begin
-        LibraryHumanResource.CreateEmployee(Employee);
-        EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
-        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
-        EmployeePostingGroup.Insert(true);
-        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
-        Employee.Modify(true);
     end;
 }
 

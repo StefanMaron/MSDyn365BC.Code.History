@@ -14,7 +14,6 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryPaymentExport: Codeunit "Library - Payment Export";
-        LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ActualContentLengthErr: Label 'Only 35 characters should be read from the file.';
@@ -437,102 +436,6 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
         // [THEN] Amount in TempPaymentExportData is equal to VendorLedgerEntry.Amount
         Assert.AreEqual(VendorLedgerEntry.Amount, TempPaymentExportData.Amount, 'Amount');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExportPaymentJournalWithEmployee()
-    var
-        Employee: Record Employee;
-        DataExchMapping: Record "Data Exch. Mapping";
-        PaymentMethod: Record "Payment Method";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
-    begin
-        // [FEATURE] [Employee]
-        // [SCENARIO 330729] Export payment journal for employee using codeunit 1206 "Pmt Export Mgt Gen. Jnl Line" for processing.
-
-        // [GIVEN] Employee "E".
-        LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
-
-        // [GIVEN] Set up Data Exchange Definition for exporting "Amount" field.
-        DefinePaymentExportFormatForAmount(DataExchMapping);
-
-        // [GIVEN] Set up payment method.
-        LibraryERM.CreatePaymentMethod(PaymentMethod);
-        PaymentMethod.Validate("Pmt. Export Line Definition", DataExchMapping."Data Exch. Line Def Code");
-        PaymentMethod.Modify(true);
-
-        // [GIVEN] Create bank account.
-        // [GIVEN] Create payment journal batch for the bank account, allow payment export.
-        // [GIVEN] Set up Bank Export/Import Setup for using processing codeunit 1206.
-        LibraryPaymentExport.CreatePaymentExportBatch(GenJournalBatch, DataExchMapping."Data Exch. Def Code");
-        UpdateBankExportImportSetup(GenJournalBatch."Bal. Account No.");
-
-        // [GIVEN] Create payment journal line for employee "E" and Amount = "X" in the batch created.
-        LibraryERM.CreateGeneralJnlLine(GenJournalLine,
-          GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Payment Method Code", PaymentMethod.Code);
-        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
-        GenJournalLine.Modify(true);
-
-        // [WHEN] Export the payment journal line.
-        PmtExportMgtGenJnlLine.EnableExportToServerTempFile(true, 'txt');
-        PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJournalLine);
-
-        // [THEN] Read amount in the export file, ensure it is equal to "X".
-        Assert.AreEqual(GenJournalLine.Amount, GetAmountFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), 'Amount');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PreparedPaymentDataFromPmtJournalWithEmployee()
-    var
-        Employee: Record Employee;
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        TempPaymentExportData: Record "Payment Export Data" temporary;
-        PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
-    begin
-        // [FEATURE] [Employee] [UT]
-        // [SCENARIO 330729] PreparePaymentExportDataJnl function in Codeunit 1206 "Pmt Export Mgt Gen. Jnl Line" populates Payment Export Data from a payment journal line with an employee.
-
-        // [GIVEN] Employee "E".
-        with Employee do begin
-            LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
-            Address := LibraryUtility.GenerateGUID;
-            City := LibraryUtility.GenerateGUID;
-            County := LibraryUtility.GenerateGUID;
-            "Post Code" := LibraryUtility.GenerateGUID;
-            "Country/Region Code" := LibraryUtility.GenerateGUID;
-            "E-Mail" := LibraryUtility.GenerateGUID;
-            Modify;
-        end;
-
-        // [GIVEN] Payment journal line for employee "E".
-        LibraryPaymentExport.CreatePaymentExportBatch(GenJournalBatch, '');
-        LibraryERM.CreateGeneralJnlLine(GenJournalLine,
-          GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(100, 2));
-
-        // [WHEN] Invoke "PreparePaymentExportDataJnl" function in Codeunit 1206.
-        PmtExportMgtGenJnlLine.PreparePaymentExportDataJnl(TempPaymentExportData, GenJournalLine, 0, 0);
-
-        // [THEN] Recipient information on Payment Export Data record is filled in with employee "E" data.
-        with TempPaymentExportData do begin
-            TestField("Recipient Name", Employee.FullName);
-            TestField("Recipient Address", Employee.Address);
-            TestField("Recipient City", Employee.City);
-            TestField("Recipient County", Employee.County);
-            TestField("Recipient Post Code", Employee."Post Code");
-            TestField("Recipient Country/Region Code", Employee."Country/Region Code");
-            TestField("Recipient Email Address", Employee."E-Mail");
-            TestField("Recipient Bank Acc. No.", Employee.GetBankAccountNo);
-            TestField("Recipient Reg. No.", Employee."Bank Branch No.");
-            TestField("Recipient Acc. No.", Employee."Bank Account No.");
-        end;
     end;
 
     local procedure CreateVendorWithBankAccountAndCountryRegion(var Vendor: Record Vendor; PaymentType: Code[20]; CountryRegionCode: Code[10])

@@ -36,6 +36,7 @@ codeunit 136208 "Marketing Interaction"
         MergedFieldErr: Label 'Value %1 from merged file are not equal to %2.', Comment = '%1 = Merged value,%2 = Original value';
         AttachmentErr: Label 'Wrong attachment.';
         IsNotFoundOnPageErr: Label 'is not found on the page.';
+        EmailSendingErr: Label 'You must select an email body or attachment in report selection for';
         FirstContentBodyTxt: Label 'First Content Body Text';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
         FilePathsAreNotEqualErr: Label 'Export file path is not equal to file path of the attachment.';
@@ -1722,13 +1723,11 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('SimpleEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromSalesOrder()
     var
         InteractionTemplate: Record "Interaction Template";
         SalesHeader: Record "Sales Header";
-        InteractionLogEntry: Record "Interaction Log Entry";
         DocumentPrint: Codeunit "Document-Print";
     begin
         // [SCENARIO 199993] Sending by mail sales order confirmation does not lead to generation of interaction log entry with Email Draft template
@@ -1742,14 +1741,10 @@ codeunit 136208 "Marketing Interaction"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Sales order confirmation is being sent by email
-        DocumentPrint.EmailSalesHeader(SalesHeader);
+        asserterror DocumentPrint.EmailSalesHeader(SalesHeader);
 
-        // [THEN] Interaction log entry created created once
-        FindInteractionLogEntryByDocument(
-          InteractionLogEntry, SalesHeader."No.", InteractionLogEntry."Document Type"::"Sales Ord. Cnfrmn.");
-        Assert.RecordCount(InteractionLogEntry, 1);
-        // [THEN] Interaction log entry "Interaction Template Code" is not equal to "XXX"
-        Assert.AreNotEqual(InteractionTemplate.Code, InteractionLogEntry."Interaction Template Code", '')
+        // [THEN] Error appears due to RU demodata does not have default reports which can be sent by email via body or attachment
+        Assert.ExpectedError(EmailSendingErr);
     end;
 
     [Test]

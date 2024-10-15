@@ -18,6 +18,7 @@ codeunit 130512 "Library - Purchase"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
 
     procedure BlanketPurchaseOrderMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
@@ -118,6 +119,41 @@ codeunit 130512 "Library - Purchase"
         Purchasing.Modify(true);
     end;
 
+    procedure CreatePurchaseInvoiceWithGLAcc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseCrMemoWithGLAcc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseInvoiceWithFixedAsset(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; FixedAssetNo: Code[20])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAssetNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    procedure CreateFCYPurchInvoiceWithGLAcc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; GLAccountNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
     procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20])
     begin
         DisableWarningOnCloseUnpostedDoc;
@@ -168,6 +204,12 @@ codeunit 130512 "Library - Purchase"
             PurchaseLine.Type::Resource:
                 if No = '' then
                     No := LibraryResource.CreateResourceNo();
+            PurchaseLine.Type::"G/L Account":
+                if No = '' then
+                    No := LibraryERM.CreateGLAccountWithPurchSetup;
+            PurchaseLine.Type::"Fixed Asset":
+                if No = '' then
+                    No := LibraryFixedAsset.CreateFixedAssetNo;
         end;
         PurchaseLine.Validate("No.", No);
         if Type <> PurchaseLine.Type::" " then
@@ -338,8 +380,6 @@ codeunit 130512 "Library - Purchase"
         LibraryERM.SetSearchGenPostingTypePurch;
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
-        LibraryUtility.UpdateSetupNoSeriesCode(
-          DATABASE::"Purchases & Payables Setup", PurchasesPayablesSetup.FieldNo("Vendor Nos."));
 
         Clear(Vendor);
         Vendor.Insert(true);
@@ -462,6 +502,54 @@ codeunit 130512 "Library - Purchase"
         StandardVendorPurchaseCode.Validate("Vendor No.", VendorNo);
         StandardVendorPurchaseCode.Validate(Code, Code);
         StandardVendorPurchaseCode.Insert(true);
+    end;
+
+    procedure CreateVendorVATAgent(): Code[20]
+    var
+        Vendor: Record Vendor;
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        CurrencyFactor: Decimal;
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        CurrencyFactor := LibraryRandom.RandInt(100);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), CurrencyFactor, CurrencyFactor);
+        CreateVendor(Vendor);
+        with Vendor do begin
+            Validate("Currency Code", CurrencyCode);
+            "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
+            Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
+            Validate("VAT Agent", true);
+            Validate("VAT Agent Type", "VAT Agent Type"::"Non-resident");
+            Validate("VAT Payment Source Type", "VAT Payment Source Type"::"Internal Funds");
+            Validate("VAT Agent Prod. Posting Group", VATProductPostingGroup.Code);
+            Validate("Tax Authority No.", CreateVendorTaxAuthority);
+            Modify(true);
+        end;
+
+        LibraryERM.CreateVATPostingSetup(
+          VATPostingSetup, Vendor."VAT Bus. Posting Group", Vendor."VAT Agent Prod. Posting Group");
+        with VATPostingSetup do begin
+            Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+            Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
+            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Modify(true);
+        end;
+
+        exit(Vendor."No.");
+    end;
+
+    procedure CreateVendorTaxAuthority(): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        CreateVendor(Vendor);
+        Vendor.Validate("Vendor Type", Vendor."Vendor Type"::"Tax Authority");
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     procedure CreatePurchaseHeaderPostingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; PurchaseHeader: Record "Purchase Header")
@@ -678,6 +766,13 @@ codeunit 130512 "Library - Purchase"
             DocumentNo :=
               NoSeriesManagement.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
+    end;
+
+    procedure PreviewPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
+    begin
+        PurchPostYesNo.Preview(PurchaseHeader);
     end;
 
     procedure QuoteMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -993,6 +1088,79 @@ codeunit 130512 "Library - Purchase"
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
     begin
         PurchPostYesNo.Preview(PurchaseHeader);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePurchaseVATLedger(StartDate: Date; EndDate: Date; VendFilter: Text[250]; UseExtDocNo: Boolean; ShowCustomerPrepayments: Boolean): Code[20]
+    var
+        VATLedger: Record "VAT Ledger";
+        CreateVATPurchaseLedger: Report "Create VAT Purchase Ledger";
+    begin
+        VATLedger.Init();
+        VATLedger.Validate(Type, VATLedger.Type::Purchase);
+        VATLedger.Validate("Start Date", StartDate);
+        VATLedger.Validate("End Date", EndDate);
+        VATLedger.Insert(true);
+
+        VATLedger.SetRecFilter;
+        CreateVATPurchaseLedger.SetTableView(VATLedger);
+        CreateVATPurchaseLedger.UseRequestPage(false);
+        CreateVATPurchaseLedger.SetParameters(VendFilter, '', '', 0, UseExtDocNo, false, 0, 0, true, true, true, ShowCustomerPrepayments);
+        CreateVATPurchaseLedger.Run;
+
+        exit(VATLedger.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePurchaseVATLedgerAddSheet(VATLedgerCode: Code[20]; TotalVATFromVATPurchLedg: Decimal): Code[20]
+    var
+        VATLedger: Record "VAT Ledger";
+        CreateVATPurchLedAdSh: Report "Create VAT Purch. Led. Ad. Sh.";
+        VATPurchaseLedgers: TestPage "VAT Purchase Ledgers";
+        VATPurchaseLedgerCard: TestPage "VAT Purchase Ledger Card";
+    begin
+        VATLedger.Reset();
+        VATLedger.SetRange(Type, VATLedger.Type::Purchase);
+        VATLedger.SetRange(Code, VATLedgerCode);
+        VATLedger.FindFirst;
+
+        VATLedger.SetRecFilter;
+
+        VATPurchaseLedgerCard.Trap;
+
+        VATPurchaseLedgers.OpenView;
+        VATPurchaseLedgers.FILTER.SetFilter(Code, VATLedger.Code);
+        VATPurchaseLedgers.Card.Invoke;
+
+        VATPurchaseLedgerCard."Total VAT Amt VAT Purch Ledger".SetValue(TotalVATFromVATPurchLedg);
+        VATPurchaseLedgerCard.OK.Invoke;
+
+        CreateVATPurchLedAdSh.SetTableView(VATLedger);
+        CreateVATPurchLedAdSh.UseRequestPage(false);
+        CreateVATPurchLedAdSh.SetParameters(
+          VATLedger."C/V Filter", '', '', 0, VATLedger."Use External Doc. No.", false, 0, 0, true, true, true, true);
+        CreateVATPurchLedAdSh.Run;
+
+        exit(VATLedger.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ExportPurchaseVATLedger(VATLedgerCode: Code[20]; AddSheet: Boolean; FileName: Text[1024])
+    var
+        VATLedger: Record "VAT Ledger";
+        VATLedgerExport: Report "VAT Ledger Export";
+    begin
+        VATLedger.Reset();
+        VATLedger.SetRange(Type, VATLedger.Type::Purchase);
+        VATLedger.SetRange(Code, VATLedgerCode);
+        VATLedger.FindFirst;
+
+        VATLedger.SetRecFilter;
+        VATLedgerExport.InitializeReport(VATLedger.Type::Purchase, VATLedgerCode, AddSheet);
+        VATLedgerExport.SetFileNameSilent(FileName);
+        VATLedgerExport.SetTableView(VATLedger);
+        VATLedgerExport.UseRequestPage(false);
+        VATLedgerExport.Run;
     end;
 
     [IntegrationEvent(false, false)]

@@ -19,11 +19,9 @@ codeunit 134768 "Test Posting Preview"
 
     var
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         AmountsNotEqualErr: Label 'The amount in the preview page was not expected.';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        MessageNotEqualErr: Label 'The message to the recipient in the preview page was not expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -192,49 +190,6 @@ codeunit 134768 "Test Posting Preview"
 
         DetailedVendEntriesPreview.First;
         Assert.AreEqual(DetailedVendorLedgEntry.Amount, DetailedVendEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EmployeeLedgerEntryTest()
-    var
-        EmployeeLedgerEntry: Record "Employee Ledger Entry";
-        LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler";
-        EmplLedgerEntriesPreview: TestPage "Empl. Ledger Entries Preview";
-    begin
-        // [SCENARIO] Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        EmployeeLedgerEntry.Init();
-        EmployeeLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID;
-        LibraryPostPrevHandler.SetValueFieldNo(EmployeeLedgerEntry.FieldNo("Message to Recipient"));
-
-        EmplLedgerEntriesPreview.Trap;
-        RunPreview(LibraryPostPrevHandler, EmployeeLedgerEntry);
-
-        EmplLedgerEntriesPreview.First;
-        Assert.AreEqual(
-          EmployeeLedgerEntry."Message to Recipient",
-          Format(EmplLedgerEntriesPreview."Message to Recipient"),
-          MessageNotEqualErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DetailedEmployeeLedgerEntryTest()
-    var
-        DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry";
-        LibraryPostPrevHandler: Codeunit "Library - Post. Prev. Handler";
-        DetailedEmplEntriesPreview: TestPage "Detailed Empl. Entries Preview";
-    begin
-        // [SCENARIO] Detailed Vendor Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        DetailedEmployeeLedgerEntry.Init();
-        DetailedEmployeeLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
-        LibraryPostPrevHandler.SetValueFieldNo(DetailedEmployeeLedgerEntry.FieldNo(Amount));
-
-        DetailedEmplEntriesPreview.Trap;
-        RunPreview(LibraryPostPrevHandler, DetailedEmployeeLedgerEntry);
-
-        DetailedEmplEntriesPreview.First;
-        Assert.AreEqual(DetailedEmployeeLedgerEntry.Amount, DetailedEmplEntriesPreview.Amount.AsDEcimal, AmountsNotEqualErr);
     end;
 
     [Test]

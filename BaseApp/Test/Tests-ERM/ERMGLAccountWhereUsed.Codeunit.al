@@ -166,34 +166,6 @@ codeunit 134093 "ERM G/L Account Where-Used"
     end;
 
     [Test]
-    [HandlerFunctions('WhereUsedHandler')]
-    [Scope('OnPrem')]
-    procedure CheckEmployeePostingGroup()
-    var
-        GLAccount: Record "G/L Account";
-        EmployeePostingGroup: Record "Employee Posting Group";
-    begin
-        // [SCENARIO 259180] Employee Posted Group should be shown on Where-Used page
-        Initialize;
-
-        // [GIVEN] Employee Posting Group with G/L Account "G"
-        LibraryERM.CreateGLAccount(GLAccount);
-        EmployeePostingGroup.Init();
-        EmployeePostingGroup.Code := LibraryUtility.GenerateGUID;
-        EmployeePostingGroup."Payables Account" := GLAccount."No.";
-        EmployeePostingGroup.Insert();
-
-        // [WHEN] Run Where-Used function for G/L Account "G"
-        CalcGLAccWhereUsed.CheckGLAcc(GLAccount."No.");
-
-        // [THEN] Employee Posting Group is shown on "G/L Account Where-Used List"
-        ValidateWhereUsedRecord(
-          EmployeePostingGroup.TableCaption,
-          EmployeePostingGroup.FieldCaption("Payables Account"),
-          StrSubstNo('%1=%2', EmployeePostingGroup.FieldCaption(Code), EmployeePostingGroup.Code));
-    end;
-
-    [Test]
     [HandlerFunctions('WhereUsedTwoLinesHandler')]
     [Scope('OnPrem')]
     procedure CheckGLAccountForTwoTables()

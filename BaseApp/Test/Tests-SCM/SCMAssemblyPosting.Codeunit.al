@@ -38,6 +38,7 @@ codeunit 137915 "SCM Assembly Posting"
     [Normal]
     local procedure Initialize()
     var
+        InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Posting");
@@ -46,7 +47,11 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Posting");
 
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        InventorySetup.Get();
+        InventorySetup."Automatic Cost Posting" := false;
+        InventorySetup.Modify();
 
         Initialized := true;
         Commit();

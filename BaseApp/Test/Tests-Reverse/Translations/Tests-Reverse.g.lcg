@@ -32,13 +32,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Customer Reversal Message - NamedType ReversalFromGLEntryErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4059958231 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4059958231 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+      <Val><![CDATA[There is nothing to adjust.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Customer Reversal Message - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Customer Reversal Message - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4059958231 - NamedType 2141580572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -158,24 +158,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Diff Amount Type - NamedType EqualAmountError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2904835687 - NamedType 4004943480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Employee Ledger - NamedType PostedAndAppliedSameTransactionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2904835687 - NamedType 1976599132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dialog]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse Employee Ledger - NamedType DialogCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3079820153 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2.]]></Val>
@@ -264,6 +246,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType UnrealizedVATReverseErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 465635117 - NamedType 2732542488" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entries were successfully reversed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType ReversedSuccessfullyMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 465635117 - NamedType 316670878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong Posting Date in G/L Entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse For Cust/Vendor - NamedType WrongPostingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 1850006683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -410,13 +410,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Vendor Reversal Message - NamedType ReversalFromGLEntryErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1385418335 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1385418335 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+      <Val><![CDATA[There is nothing to adjust.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Vendor Reversal Message - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Vendor Reversal Message - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1385418335 - NamedType 2141580572" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

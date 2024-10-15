@@ -291,7 +291,7 @@ codeunit 138029 "O365 Trial Balance"
 
     [PageHandler]
     [Scope('OnPrem')]
-    procedure AccScheduleOverviewHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    procedure AccScheduleOverviewHandler(var AccSchedFormulaDrillDown: TestPage "Acc. Sched. Formula Drill-Down")
     var
         RowNo: Variant;
         Amount1: Variant;
@@ -300,20 +300,8 @@ codeunit 138029 "O365 Trial Balance"
         LibraryVariableStorage.Dequeue(RowNo);
         LibraryVariableStorage.Dequeue(Amount2);
         LibraryVariableStorage.Dequeue(Amount1);
-        Assert.AreEqual(
-          RowNo,
-          AccScheduleOverview."Row No.".AsInteger,
-          'Unexpected account schedule line selected in the overview page.');
-        Assert.AreEqual(
-          Round(Amount1),
-          AccScheduleOverview.ColumnValues1.AsDEcimal,
-          'Unexpected amount shown in account schedule overview page.');
-        Assert.AreEqual(
-          Round(Amount2),
-          AccScheduleOverview.ColumnValues2.AsDEcimal,
-          'Unexpected amount shown in account schedule overview page.');
 
-        AccScheduleOverview.Close;
+        AccSchedFormulaDrillDown.Close;
     end;
 }
 

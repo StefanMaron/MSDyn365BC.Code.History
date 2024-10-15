@@ -244,7 +244,6 @@ codeunit 136125 "Service Posting Journals"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostConsumeForServiceOrderWithMultipleLines()
     var
@@ -777,12 +776,6 @@ codeunit 136125 "Service Posting Journals"
     procedure InvoiceESConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := (Question = ExpectedConfirm);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    begin
     end;
 
     [ConfirmHandler]

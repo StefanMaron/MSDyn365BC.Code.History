@@ -34,7 +34,7 @@ codeunit 137099 "SCM Kitting Reservation"
         StartingDateError: Label 'You have modified the Starting Date from ';
         ReservationEntryShouldBeBlank: Label 'Reservation Entry should be blank';
         ReleasedProdOrderLine: Label 'Released Prod. Order Line';
-        BindingOrderToOrderError: Label 'You cannot state Serial No. or Lot No. on a demand when it is linked to a supply by Binding = Order-to-Order.';
+        BindingOrderToOrderError: Label 'You cannot state Serial No. or Lot No. or CD No. on a demand when it is linked to a supply by Binding = Order-to-Order.';
         ReservedQuantityBaseError: Label 'Reserved Qty. (Base) must be equal to ''%1''  in Assembly Header: Document Type=Order, No.=';
         AvailabilityWarningsConfirmMessage: Label 'There are availability warnings on one or more lines.\Close the form anyway?';
         NotAffectExistingEntriesMsg: Label 'The change will not affect existing entries.';
@@ -1656,7 +1656,7 @@ codeunit 137099 "SCM Kitting Reservation"
         // Exercise: Create Sales Order, the Assembly Order will be generated.
         // Verify: No error pops up.
         CreateSalesOrder(
-          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", LibraryRandom.RandInt(10), '', false, false);
+          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", LibraryRandom.RandDec(10, 2), '', false, false);
 
         // Verify: Reservation Entries are created.
         VerifyReservationEntry(

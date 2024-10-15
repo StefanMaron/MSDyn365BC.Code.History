@@ -182,6 +182,10 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.SetRange("Job Task No.", JobTask."Job Task No.");
         Assert.IsTrue(TimeSheetLine.Count = 1, 'Incorrect number of lines has been created.');
 
+        // TFS ID 351459: An additional time sheet line would not be created from the same Job Planning Line
+        TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+        Assert.IsTrue(TimeSheetLine.Count() = 1, 'Incorrect number of lines has been created.');
+
         TearDown;
     end;
 
@@ -1753,7 +1757,7 @@ codeunit 136500 "UT Time Sheets"
 
     local procedure AddRowsWithDifferentTypes(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line")
     var
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
         Job: Record Job;
         JobTask: Record "Job Task";
         Employee: Record Employee;
@@ -1981,7 +1985,7 @@ codeunit 136500 "UT Time Sheets"
     local procedure CreateTSAbsenceLineWithDetail(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Qty: Decimal)
     var
         Employee: Record Employee;
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
     begin
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";

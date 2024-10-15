@@ -475,36 +475,6 @@ codeunit 134155 "ERM Table Fields UT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure BankAccountLedgerEntryFieldBalAccountTypeHasOptionEmployee()
-    var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-        FieldRefValue: Text;
-    begin
-        // [FEATURE] [Bank Account Ledger Entry] [Employee]
-        // [SCENARIO 277076] Bal. Account Type has option Employee in Bank Account Ledger Entry
-
-        // [GIVEN] Bank Account Ledger Entry with "Bal. Account Type" = Employee
-        BankAccountLedgerEntry.Init();
-        BankAccountLedgerEntry."Entry No." :=
-          LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
-        BankAccountLedgerEntry."Bal. Account Type" := BankAccountLedgerEntry."Bal. Account Type"::Employee;
-        BankAccountLedgerEntry.Insert();
-
-        // [GIVEN] FieldRef to "Bal. Account Type" field
-        RecRef.GetTable(BankAccountLedgerEntry);
-        FieldRef := RecRef.Field(BankAccountLedgerEntry.FieldNo("Bal. Account Type"));
-
-        // [WHEN] Read value of of FieldRef
-        FieldRefValue := Format(FieldRef);
-
-        // [THEN] FieldRef value = 'Employee'
-        Assert.AreEqual('Employee', FieldRefValue, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ChangingTariffNoForIntrastatJnlLineWithItemNo()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";

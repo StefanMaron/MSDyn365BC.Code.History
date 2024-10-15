@@ -16,7 +16,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         ExitWithoutSavingConfirmMsg: Label 'Payment Journal Approval has not been set up.';
 
     [Test]
-    [HandlerFunctions('WizardOpenHandler,ExitWithoutSavingConfirmHandlerYes')]
+    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenHandler,ExitWithoutSavingConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure CreateApprovalWorklfowOpensTheWizardTest()
     var
@@ -60,7 +60,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     end;
 
     [Test]
-    [HandlerFunctions('WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
+    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
     [Scope('OnPrem')]
     procedure FinishWizardWithAllBatchesSelectionTest()
     begin
@@ -68,7 +68,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     end;
 
     [Test]
-    [HandlerFunctions('WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
+    [HandlerFunctions('GenJnlTemplateListHandler,WizardOpenAndFinishHandler,ApprovelUserLookupHandler')]
     [Scope('OnPrem')]
     procedure FinishWizardWithCurrentBatchSelectionTest()
     begin
@@ -141,6 +141,13 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         Commit();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.OK.Invoke;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ExitWithoutSavingConfirmHandlerYes(Message: Text[1024]; var Reply: Boolean)
@@ -183,8 +190,8 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         Commit();
 
         // Execute
+        Commit();
         PaymentJournal.OpenEdit;
-
         if ForAllBatches then
             ApprovalWorkflowWizard."For All Batches" := true
         else

@@ -751,9 +751,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     begin
-                        CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
-                        Clear(CopyPurchDoc);
+                        CopyDocument();
                     end;
                 }
                 action("Archi&ve Document")
@@ -951,7 +949,6 @@ page 509 "Blanket Purchase Order"
     end;
 
     var
-        CopyPurchDoc: Report "Copy Purchase Document";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;

@@ -165,7 +165,7 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] The current user opens another user's card
         // [THEN] The user cannnot see the other user's current web service key
         // [THEN] The action to change the web service access key is disabled
-        asserterror TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true);
+        asserterror TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true, false);
         Assert.AreEqual(CannotEditForOtherUsersErr, GetLastErrorText(), 'User should not access another user''s web service key.');
     end;
 
@@ -174,34 +174,70 @@ codeunit 139460 "User Access in SaaS Tests"
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CanAccessWebServiceKeyForSelfInSaaS()
-    var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
     begin
         // [SCENARIO] In SaaS, a user can access his/her own web service key (read/edit)
         Initialize;
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin of one's own
-        BindSubscription(TestUserPermissionsSubscbr);
-        
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The current user can see his/her own current web service key
         // [THEN] The action to change the web service access key is enabled
-        TestWebServiceKeyAccessibility(UserId(), true);
+        TestWebServiceKeyAccessibility(UserId(), true, false);
     end;
 
     [Test]
     [HandlerFunctions('SetWebServiceAccessHandler,SetWebServiceAccessConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure CanAccessWebServiceKeyForAnotherUserOnPrem()
+    procedure AdminCanAlterWebServiceKeyForAnotherUserInSaaS()
+    var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
     begin
-        // [SCENARIO] On-prem and in PaaS, a user can access another user's web service key (read/edit)
+        // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
+        Initialize;
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin
+        BindSubscription(TestUserPermissionsSubscbr);
+
+        // [GIVEN] Running in SaaS
+        // [WHEN] The current user opens another user's card
+        // [THEN] The current user cannot see another user's web service key 
+        // [THEN] The action to change the web service access key is enabled
+        TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('SetWebServiceAccessConfirmHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CannotAccessWebServiceKeyForAnotherUserOnPrem()
+    begin
+        // [SCENARIO] On-prem and in PaaS, a user cannot access another user's web service key
         Initialize;
         // [GIVEN] Running on-premise or in PaaS
         // [WHEN] The current user opens another user's card
-        // [THEN] The current user can see another user's current web service key
+        // [THEN] The current user cannot see another user's current web service key
+        // [THEN] The action to change the web service access key is disabled
+        asserterror TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true, false);
+        Assert.AreEqual(CannotEditForOtherUsersErr, GetLastErrorText(), 'User should not access another user''s web service key.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SetWebServiceAccessHandler,SetWebServiceAccessConfirmHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure AdminCanAlterWebServiceKeyForAnotherUserOnPrem()
+    var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+    begin
+        // [SCENARIO] In SaaS, an admin user can change another user's web service key, but cannot read it
+        Initialize;
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin
+        BindSubscription(TestUserPermissionsSubscbr);
+
+        // [GIVEN] Running on-premise or in PaaS
+        // [WHEN] The current user opens another user's card
+        // [THEN] The current user cannot see another user's web service key 
         // [THEN] The action to change the web service access key is enabled
-        TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, false);
+        TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, false, true);
     end;
 
     [Test]
@@ -213,10 +249,10 @@ codeunit 139460 "User Access in SaaS Tests"
         // [SCENARIO] On-prem and in PaaS, a user can access his/her own web service key (read/edit)
         Initialize;
         // [GIVEN] Running on-premise or in PaaS
-        // [WHEN] The current user opens another user's card
+        // [WHEN] The current user opens his/her user's card
         // [THEN] The current user can see his/her own current web service key
         // [THEN] The action to change the web service access key is enabled
-        TestWebServiceKeyAccessibility(UserId(), false);
+        TestWebServiceKeyAccessibility(UserId(), false, false);
     end;
 
     [Test]
@@ -405,7 +441,10 @@ codeunit 139460 "User Access in SaaS Tests"
             User.Init();
             User.Validate("User Name", UserName);
             User.Validate("License Type", LicenseType);
-            User.Validate("User Security ID", CreateGuid);
+            if UserName = UserId() then
+                User.Validate("User Security ID", UserSecurityId())
+            else
+                User.Validate("User Security ID", CreateGuid);
             User.Insert(true);
         end;
         exit(User."User Security ID");
@@ -479,8 +518,9 @@ codeunit 139460 "User Access in SaaS Tests"
         Reply := true;
     end;
 
-    local procedure TestWebServiceKeyAccessibility(UserName: Code[50]; SoftwareAsAService: Boolean)
+    local procedure TestWebServiceKeyAccessibility(UserName: Code[50]; SoftwareAsAService: Boolean; IsCurrentUserAdmin: Boolean)
     var
+        User: Record User;
         WsCompareKey: Text;
         ChangeWebServiceAccessKeyEnabled: Boolean;
     begin
@@ -488,10 +528,13 @@ codeunit 139460 "User Access in SaaS Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(SoftwareAsAService);
         WebServiceAccessHelper(CreateDateTime(Today, 0T), true, false, UserName);
         GetUserWebServiceParametersFromUserCard(UserName, WsCompareKey, ChangeWebServiceAccessKeyEnabled);
-        if SoftwareAsAService and (UserName <> UserId) then begin
+        if UserName <> UserId then begin
             Assert.AreEqual(
               '*************************************', WsCompareKey, 'The Webservice Key should not be visible to another user in SaaS');
-            Assert.AreEqual(false, ChangeWebServiceAccessKeyEnabled, 'Change Webservice Key should not be enabled');
+            if IsCurrentUserAdmin then
+                Assert.AreEqual(true, ChangeWebServiceAccessKeyEnabled, 'Change Webservice Key should be enabled for admin users')
+            else
+                Assert.AreEqual(false, ChangeWebServiceAccessKeyEnabled, 'Change Webservice Key should not be enabled for non-admin users');
         end else begin
             Assert.AreNotEqual('*************************************', WsCompareKey, ErrorKeyNotSetErr);
             Assert.AreEqual(true, ChangeWebServiceAccessKeyEnabled, 'Change Webservice Key should be enabled');

@@ -1354,7 +1354,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
+    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
     begin
     end;
 

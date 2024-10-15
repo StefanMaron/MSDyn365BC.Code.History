@@ -9,7 +9,7 @@ codeunit 131922 "Library - O365"
         CashTxt: Label 'CASH', Comment = 'Cash';
         PaymentTxt: Label 'PAYMENT', Comment = 'Payment';
         DefaultCustomerTemplateDescriptionTxt: Label 'Cash-Payment / Retail Customer (Cash)';
-        DefaultItemTemplateDescriptionTxt: Label 'Service';
+        DefaultItemTemplateDescriptionTxt: Label 'Service No VAT';
         CHECKTxt: Label 'CHECK';
         X14DAYSTxt: Label '14 DAYS';
         DomesticTxt: Label 'DOMESTIC';

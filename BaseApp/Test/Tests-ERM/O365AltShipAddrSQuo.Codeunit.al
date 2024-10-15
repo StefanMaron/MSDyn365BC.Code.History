@@ -11,6 +11,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
     var
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
@@ -260,15 +261,18 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Quo.");
         LibraryApplicationArea.EnableFoundationSetup;
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Quo.");
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Quo.");
     end;
 
     local procedure CopySalesQuoteSellToAddressFromCustomer(var SalesQuote: TestPage "Sales Quote"; Customer: Record Customer)

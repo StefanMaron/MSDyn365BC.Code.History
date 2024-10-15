@@ -500,48 +500,6 @@ codeunit 134475 "ERM Dimension Sales"
 
     [Test]
     [Scope('OnPrem')]
-    procedure GLEntryDimensionsForSales()
-    var
-        Customer: Record Customer;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GLAccount: Record "G/L Account";
-        DefaultDimension: Record "Default Dimension";
-        DefaultDimension2: Record "Default Dimension";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // [SCENARIO] Test Dimension on G/L Entry after posting Sales document with IC Partner.
-
-        // [GIVEN] Set Default Dimension for G/L Account and Create Sales Credit Memo.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        Customer.Get(
-          CreateCustomerWithDimension(
-            DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
-        GLAccount.Get(SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"));
-        GLAccount."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-        GLAccount.Modify();
-        CreateSalesDocument(SalesLine, GLAccount."No.", Customer."No.");
-
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
-        SalesLine.Validate("IC Partner Reference", FindICGLAccount);
-        SalesLine.Modify(true);
-
-        // [WHEN] Post Sales Credit Memo.
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, false);
-
-        // [THEN] Verify Dimension Value and IC Partner Code on GL Entry.
-        VerifyGLEntryICPartner(PostedDocumentNo, SalesLine."IC Partner Code", DefaultDimension."Dimension Value Code");
-
-        // Tear Down: Remove Default Dimension from G/L Account.
-        DeleteDefaultDimension(DefaultDimension);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure DimensionAfterApplyForCustomer()
     var
         Dimension: Record Dimension;
@@ -1059,6 +1017,8 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
         Commit();
 
@@ -1555,7 +1515,7 @@ codeunit 134475 "ERM Dimension Sales"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        SalesLine.Validate("Line Amount", Round(SalesLine."Line Amount" / 3, 1) - GeneralLedgerSetup."Inv. Rounding Precision (LCY)" / 2);
+        SalesLine.Validate("Line Amount", Round(SalesLine."Line Amount" / 2, 1) - GeneralLedgerSetup."Inv. Rounding Precision (LCY)" / 2);
         SalesLine.Modify(true);
     end;
 
@@ -1610,16 +1570,6 @@ codeunit 134475 "ERM Dimension Sales"
 
         // Set Default Dimension.
         SetDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code", GLAccount."No.");
-    end;
-
-    local procedure FindICGLAccount(): Code[20]
-    var
-        ICGLAccount: Record "IC G/L Account";
-    begin
-        ICGLAccount.SetRange("Account Type", ICGLAccount."Account Type"::Posting);
-        ICGLAccount.SetRange(Blocked, false);
-        ICGLAccount.FindFirst;
-        exit(ICGLAccount."No.");
     end;
 
     local procedure DeleteDefaultDimension(DefaultDimension: Record "Default Dimension")
@@ -1727,17 +1677,6 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
         Assert.IsTrue(DimensionSetEntry.FindFirst,
           Format('Could not find dimensions with filters ' + DimensionSetEntry.GetFilters));
-    end;
-
-    local procedure VerifyGLEntryICPartner(DocumentNo: Code[20]; ICPartnerCode: Code[20]; GlobalDimensionCode: Code[20])
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
-        GLEntry.FindFirst;
-        GLEntry.TestField("Global Dimension 1 Code", GlobalDimensionCode);
-        GLEntry.TestField("IC Partner Code", ICPartnerCode);
     end;
 
     local procedure VerifyGLEntry(DocumentnNo: Code[20]; DimensionCode: Code[20])

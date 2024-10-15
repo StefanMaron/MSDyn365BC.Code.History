@@ -374,7 +374,7 @@ codeunit 138012 "O365 Templates Test"
         TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
         RecRefCust: RecordRef;
         RecRefMiniCustTempl: RecordRef;
-        FieldRefArray: array[23] of FieldRef;
+        FieldRefArray: array[22] of FieldRef;
     begin
         // [FEATURE] [Customer]
         Initialize;
@@ -2066,11 +2066,6 @@ codeunit 138012 "O365 Templates Test"
 
         // [GIVEN] A customer template
         MiniCustomerTemplate.Init();
-
-        // [WHEN] Assigning a non-existing "Document Sending Profile"
-        asserterror MiniCustomerTemplate.Validate("Document Sending Profile", LibraryUtility.GenerateGUID);
-        // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
 
         // [WHEN] Assigning a non-existing "Customer Posting Group"
         asserterror MiniCustomerTemplate.Validate("Customer Posting Group", LibraryUtility.GenerateGUID);

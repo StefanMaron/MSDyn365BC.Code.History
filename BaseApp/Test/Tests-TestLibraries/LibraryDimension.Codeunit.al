@@ -13,6 +13,7 @@ codeunit 131001 "Library - Dimension"
         LibraryERM: Codeunit "Library - ERM";
         LibraryDim: Codeunit "Library - Dimension";
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        TableWithDimSetIDAlreadyVerifiedErr: Label 'Table %1 already verified in VerifyShorcutDimCodesUpdatedOnDimSetIDValidation', Comment = '%1 = table name';
 
     procedure BlockDimension(var Dimension: Record Dimension)
     begin
@@ -334,16 +335,35 @@ codeunit 131001 "Library - Dimension"
     end;
 
     procedure FindDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20]): Boolean
+    var
+        DimValue: Record "Dimension Value";
+        DimFound: Boolean;
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        exit(DefaultDimension.FindSet);
+        if DefaultDimension.FindSet then
+            while not DimFound do begin
+                DimValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+                DimFound := not DimValue.IsEmpty;
+                if not DimFound then
+                    DimFound := DefaultDimension.Next = 0;
+            end;
+        exit(DimFound);
     end;
 
     procedure FindDimension(var Dimension: Record Dimension)
+    var
+        DimValue: Record "Dimension Value";
+        DimFound: Boolean;
     begin
         Dimension.SetRange(Blocked, false);
         Dimension.FindSet;
+        while not DimFound do begin
+            DimValue.SetRange("Dimension Code", Dimension.Code);
+            DimFound := not DimValue.IsEmpty;
+            if not DimFound then
+                DimFound := Dimension.Next = 0;
+        end;
     end;
 
     procedure FindDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
@@ -371,7 +391,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure GetNextDimensionValue(var DimensionValue: Record "Dimension Value")
     begin
-        DimensionValue.Next;
+        DimensionValue.FindFirst;
     end;
 
     [Scope('OnPrem')]
@@ -416,7 +436,8 @@ codeunit 131001 "Library - Dimension"
 
         TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
         TempAllObj."Object ID" := RecRef.Number;
-        TempAllObj.Insert();
+        if not TempAllObj.Insert() then
+            Error(TableWithDimSetIDAlreadyVerifiedErr, TempAllObj."Object ID");
 
         DimSetIDFieldRef := RecRef.Field(DimSetIDFieldID);
         DimSetIDFieldRef.Validate(DimSetID);

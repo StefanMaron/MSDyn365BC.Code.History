@@ -184,7 +184,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, SalesLine."Line No.",
           SalesLine."Variant Code",
-          SalesLine."Location Code", '', '',
+          SalesLine."Location Code", '', '', '',
           SalesLine."Qty. per Unit of Measure");
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         asserterror
@@ -193,7 +193,7 @@ codeunit 137925 "SCM Assembly Reservation II"
             'Test',
             AvailabilityDate,
             0, QtyToReserve,
-            '', '');
+            '', '', '');
 
         // Verification
         Assert.AreEqual(GetLastErrorText, StrSubstNo('Reserved quantity cannot be greater than %1.', AvailableToReserve), '');
@@ -248,7 +248,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, 0,
           AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '',
+          AssemblyHeader."Location Code", '', '', '',
           AssemblyHeader."Qty. per Unit of Measure");
         SalesLineReserve.CreateReservationSetFrom(TrackingSpecification);
         SalesLineReserve.CreateReservation(
@@ -256,7 +256,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader.Description,
           AssemblyHeader."Due Date",
           0, QtyToReserve,
-          '', '');
+          '', '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
@@ -707,7 +707,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, 0,
           AssemblyHeader."Variant Code",
-          AssemblyHeader."Location Code", '', '',
+          AssemblyHeader."Location Code", '', '', '',
           AssemblyHeader."Qty. per Unit of Measure");
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
@@ -716,7 +716,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           AssemblyHeader."Due Date",
           0,
           QtyToReserve,
-          '', '');
+          '', '', '');
 
         // Verification
         ReservEntryFoundByLinkToSource :=
@@ -1395,7 +1395,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, PurchLine."Line No.",
           PurchLine."Variant Code",
-          PurchLine."Location Code", '', '',
+          PurchLine."Location Code", '', '', '',
           PurchLine."Qty. per Unit of Measure");
         AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
         AssemblyLineReserve.CreateReservation(
@@ -1404,7 +1404,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           PurchLine."Expected Receipt Date",
           Round(QtyToReserve / AssemblyLine."Qty. per Unit of Measure", 0.00001),
           QtyToReserve,
-          '', '');
+          '', '', '');
     end;
 
     local procedure CreateAsmHdrResFromSalesLine(var AssemblyHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line")
@@ -1440,7 +1440,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           '',
           0, SalesLine."Line No.",
           SalesLine."Variant Code",
-          SalesLine."Location Code", '', '',
+          SalesLine."Location Code", '', '', '',
           SalesLine."Qty. per Unit of Measure");
         AsmHeaderReserve.CreateReservationSetFrom(TrackingSpecification);
         AsmHeaderReserve.CreateReservation(
@@ -1449,7 +1449,7 @@ codeunit 137925 "SCM Assembly Reservation II"
           AvailabilityDate,
           0,
           QtyToReserve,
-          '', '');
+          '', '', '');
     end;
 
     local procedure MockItem(var Item: Record Item)

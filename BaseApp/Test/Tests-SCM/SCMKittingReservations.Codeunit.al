@@ -334,7 +334,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                   TempReservationEntry."Source ID",
                   '', 0, TempReservationEntry."Source Ref. No.",
                   TempReservationEntry."Variant Code",
-                  TempReservationEntry."Location Code", '', '',
+                  TempReservationEntry."Location Code", '', '', '',
                   TempReservationEntry."Qty. per Unit of Measure");
                 AssemblyLineReserve.CreateReservationSetFrom(TrackingSpecification);
                 // If we are expecting not to be able to create a reservation.
@@ -347,7 +347,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                         Round(TempReservationEntry."Qty. to Handle (Base)" / TempReservationEntry."Qty. per Unit of Measure", 0.00001),
                         TempReservationEntry."Qty. to Handle (Base)",
                     // For reservation entries where expected qty. to reserve is 0, use supply qty to attempt reservation.
-                    '', '')
+                    '', '', '')
                 else
                     AssemblyLineReserve.CreateReservation(
                       AssemblyLine,
@@ -355,7 +355,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                       TempReservationEntry."Expected Receipt Date",
                       TempReservationEntry.Quantity,
                       TempReservationEntry."Quantity (Base)",
-                      '', '');
+                      '', '', '');
                 Commit();
             until TempReservationEntry.Next = 0;
 

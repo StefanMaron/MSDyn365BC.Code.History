@@ -677,15 +677,12 @@ page 232 "Apply Customer Entries"
 
     var
         ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
-        AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
-        GenJnlLine2: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         ServHeader: Record "Service Header";
         Cust: Record Customer;
-        CustLedgEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         TotalSalesLine: Record "Sales Line";
@@ -697,11 +694,7 @@ page 232 "Apply Customer Entries"
         SalesPost: Codeunit "Sales-Post";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         Navigate: Page Navigate;
-        AppliedAmount: Decimal;
-        ApplyingAmount: Decimal;
-        PmtDiscAmount: Decimal;
         ApplnDate: Date;
-        ApplnCurrencyCode: Code[10];
         ApplnRoundingPrecision: Decimal;
         ApplnRounding: Decimal;
         ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID";
@@ -714,7 +707,6 @@ page 232 "Apply Customer Entries"
         CalcType: Option Direct,GenJnlLine,SalesHeader,ServHeader;
         CustEntryApplID: Code[50];
         ValidExchRate: Boolean;
-        DifferentCurrenciesInAppln: Boolean;
         Text002: Label 'You must select an applying entry before you can post the application.';
         ShowAppliedEntries: Boolean;
         Text003: Label 'You must post the application from the window where you entered the applying entry.';
@@ -729,6 +721,16 @@ page 232 "Apply Customer Entries"
         Text019: Label 'Post application process has been canceled.';
         HasDocumentAttachment: Boolean;
         CustNameVisible: Boolean;
+
+    protected var
+        AppliedCustLedgEntry: Record "Cust. Ledger Entry";
+        GenJnlLine2: Record "Gen. Journal Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        AppliedAmount: Decimal;
+        ApplyingAmount: Decimal;
+        PmtDiscAmount: Decimal;
+        ApplnCurrencyCode: Code[10];
+        DifferentCurrenciesInAppln: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line"; ApplnTypeSelect: Integer)
     begin
@@ -827,7 +829,7 @@ page 232 "Apply Customer Entries"
     var
         Customer: Record Customer;
     begin
-        OnBeforeSetApplyingCustLedgEntry(AppliedCustLedgEntry, GenJnlLine);
+        OnBeforeSetApplyingCustLedgEntry(AppliedCustLedgEntry, GenJnlLine, SalesHeader);
 
         case CalcType of
             CalcType::SalesHeader:
@@ -1173,6 +1175,7 @@ page 232 "Apply Customer Entries"
             CustLedgEntry.SetRange("Applies-to ID", CustEntryApplID);
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange("Applying Entry", true);
+            OnFindFindApplyingEntryOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
             if CustLedgEntry.FindFirst then begin
                 CustLedgEntry.CalcFields(Amount, "Remaining Amount");
                 ApplyingCustLedgEntry := CustLedgEntry;
@@ -1320,8 +1323,14 @@ page 232 "Apply Customer Entries"
         ApplicationDate: Date;
         NewApplicationDate: Date;
         NewDocumentNo: Code[20];
+        IsHandled: Boolean;
         NewExternalDocumentNo: Code[20];
     begin
+        IsHandled := false;
+        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
         if CalcType = CalcType::Direct then begin
             if ApplyingCustLedgEntry."Entry No." <> 0 then begin
                 Rec := ApplyingCustLedgEntry;
@@ -1443,8 +1452,18 @@ page 232 "Apply Customer Entries"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindFindApplyingEntryOnAfterCustLedgEntrySetFilters(ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

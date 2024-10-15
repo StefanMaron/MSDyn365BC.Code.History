@@ -21,8 +21,10 @@ codeunit 131300 "Library - ERM"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryInventory: Codeunit "Library - Inventory";
         SearchPostingType: Option All,Sales,Purchase;
 
+    [Scope('OnPrem')]
     procedure ApplicationAmountRounding(ApplicationAmount: Decimal; CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;
@@ -423,6 +425,11 @@ codeunit 131300 "Library - ERM"
             Validate("Unrealized Losses Acc.", "Unrealized Gains Acc.");
             Validate("Conv. LCY Rndg. Debit Acc.", CreateGLAccountNo);
             Validate("Conv. LCY Rndg. Credit Acc.", CreateGLAccountNo);
+            Validate("Purch. PD Gains Acc. (TA)", CreateGLAccountNo);
+            Validate("Purch. PD Losses Acc. (TA)", CreateGLAccountNo);
+            Validate("Sales PD Gains Acc. (TA)", CreateGLAccountNo);
+            Validate("Sales PD Losses Acc. (TA)", CreateGLAccountNo);
+            Validate("PD Bal. Gain/Loss Acc. (TA)", CreateGLAccountNo);
             Modify(true);
             exit(Code);
         end;
@@ -817,6 +824,7 @@ codeunit 131300 "Library - ERM"
               1,
               LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Batch", GenJournalBatch.FieldNo(Name)))));
         GenJournalBatch.Validate(Description, GenJournalBatch.Name);  // Validating Name as Description because value is not important.
+        GenJournalBatch."Copy VAT Setup to Jnl. Lines" := true;
         if GenJournalBatch.Insert(true) then;
     end;
 
@@ -2037,16 +2045,6 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
-    begin
-        // Finds the matching Vendor Ledger Entry from a General Journal Line.
-        with EmployeeLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst;
-        end;
-    end;
-
     procedure FindDeferralLine(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         with DeferralLine do begin
@@ -2234,12 +2232,6 @@ codeunit 131300 "Library - ERM"
     begin
         // Post Application Entries.
         CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", VendorLedgerEntry);
-    end;
-
-    procedure PostEmplLedgerApplication(EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    begin
-        // Post Application Entries.
-        CODEUNIT.Run(CODEUNIT::"EmplEntry-Apply Posted Entries", EmployeeLedgerEntry);
     end;
 
     procedure PostBankAccReconciliation(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -2499,22 +2491,6 @@ codeunit 131300 "Library - ERM"
         until VendorLedgerEntry.Next = 0;
     end;
 
-    procedure SetAppliestoIdEmployee(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    begin
-        // Set Applies-to ID.
-        EmployeeLedgerEntry.LockTable();
-        EmployeeLedgerEntry.FindFirst;
-        repeat
-            EmployeeLedgerEntry.TestField(Open, true);
-            EmployeeLedgerEntry.Validate("Applies-to ID", UserId);
-            if EmployeeLedgerEntry."Amount to Apply" = 0 then begin
-                EmployeeLedgerEntry.CalcFields("Remaining Amount");
-                EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
-            end;
-            EmployeeLedgerEntry.Modify(true);
-        until EmployeeLedgerEntry.Next = 0;
-    end;
-
     procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -2578,38 +2554,6 @@ codeunit 131300 "Library - ERM"
             Modify(true);
         end;
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
-    end;
-
-    procedure SetApplyEmployeeEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; AmountToApply: Decimal)
-    var
-        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
-    begin
-        // Clear any existing applying entries.
-        EmployeeLedgerEntry2.SetRange("Applying Entry", true);
-        EmployeeLedgerEntry2.SetFilter("Entry No.", '<>%1', EmployeeLedgerEntry."Entry No.");
-        if EmployeeLedgerEntry2.FindSet then
-            repeat
-                EmployeeLedgerEntry2.Validate("Applying Entry", false);
-                EmployeeLedgerEntry2.Modify(true);
-            until EmployeeLedgerEntry2.Next = 0;
-
-        // Clear Applies-to IDs.
-        EmployeeLedgerEntry2.Reset();
-        EmployeeLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
-        if EmployeeLedgerEntry2.FindSet then
-            repeat
-                EmployeeLedgerEntry2.Validate("Applies-to ID", '');
-                EmployeeLedgerEntry2.Modify(true);
-            until EmployeeLedgerEntry2.Next = 0;
-
-        // Apply Payment Entry on Posted Invoice.
-        with EmployeeLedgerEntry do begin
-            Validate("Applying Entry", true);
-            Validate("Applies-to ID", UserId);
-            Validate("Amount to Apply", AmountToApply);
-            Modify(true);
-        end;
-        CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
     end;
 
     procedure SetGLAccountDirectPostingFilter(var GLAccount: Record "G/L Account")
@@ -2827,6 +2771,15 @@ codeunit 131300 "Library - ERM"
         GeneralLedgerSetup.Modify(true);
     end;
 
+    procedure SetCancelPrepmtAdjmtinTA(CancelPrepmtAdjmtinTA: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Cancel Prepmt. Adjmt. in TA", CancelPrepmtAdjmtinTA);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     procedure SetVATRoundingType(Direction: Text[1])
     begin
         GeneralLedgerSetup.Get();
@@ -2886,6 +2839,7 @@ codeunit 131300 "Library - ERM"
         ReportSelections.Validate(Usage, ReportUsage);
         ReportSelections.Validate(Sequence, '1');
         ReportSelections.Validate("Report ID", ReportId);
+        ReportSelections.Validate(Default, true);
         ReportSelections.Insert(true);
     end;
 
@@ -2911,11 +2865,6 @@ codeunit 131300 "Library - ERM"
     procedure UnapplyVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         LibraryERMUnapply.UnapplyVendorLedgerEntry(VendorLedgerEntry);
-    end;
-
-    procedure UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    begin
-        LibraryERMUnapply.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
     end;
 
     procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View")
@@ -3004,6 +2953,232 @@ codeunit 131300 "Library - ERM"
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
+    end;
+
+    procedure CreateUnrealizedVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 18));
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", CreateGLAccountNo);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", CreateGLAccountNo);
+        VATPostingSetup.Modify(true);
+    end;
+
+    procedure CreateManualVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGenJournalTemplate(GenJnlTemplate);
+        CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        CreateUnrealizedVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("Manual VAT Settlement", true);
+        VATPostingSetup."VAT Settlement Template" := GenJnlTemplate.Name;
+        VATPostingSetup."VAT Settlement Batch" := GenJnlBatch.Name;
+        VATPostingSetup.Validate("Write-Off VAT Account", CreateGLAccountNo);
+        VATPostingSetup.Validate("VAT Charge No.", LibraryInventory.CreateItemChargeNo);
+        VATPostingSetup.Modify(true);
+    end;
+
+    procedure CreateReinstmtVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGenJournalTemplate(GenJnlTemplate);
+        CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        CreateManualVATPostingSetup(VATPostingSetup);
+        VATPostingSetup."VAT Reinstatement Template" := GenJnlTemplate.Name;
+        VATPostingSetup."VAT Reinstatement Batch" := GenJnlBatch.Name;
+        VATPostingSetup.Modify(true);
+    end;
+
+    procedure ApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    var
+        ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
+        AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        FindCustomerLedgerEntry(ApplyingCustLedgEntry, ApplyingDocType, ApplyingDocNo);
+        ApplyingCustLedgEntry.CalcFields("Remaining Amount");
+        SetApplyCustomerEntry(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Remaining Amount");
+        FindCustomerLedgerEntry(AppliesToCustLedgEntry, AppliesToDocType, AppliesToDocNo);
+        SetAppliestoIdCustomer(AppliesToCustLedgEntry);
+        PostCustLedgerApplication(ApplyingCustLedgEntry);
+    end;
+
+    procedure ApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    var
+        ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
+        AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
+    begin
+        FindVendorLedgerEntry(ApplyingVendLedgEntry, ApplyingDocType, ApplyingDocNo);
+        ApplyingVendLedgEntry.CalcFields("Remaining Amount");
+        SetApplyVendorEntry(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Remaining Amount");
+        FindVendorLedgerEntry(AppliesToVendLedgEntry, AppliesToDocType, AppliesToDocNo);
+        AppliesToVendLedgEntry.SetRange(Open, true);
+        SetAppliestoIdVendor(AppliesToVendLedgEntry);
+        PostVendLedgerApplication(ApplyingVendLedgEntry);
+    end;
+
+    procedure PreviewApplyCustomerLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    var
+        ApplyingCustLedgEntry: Record "Cust. Ledger Entry";
+        AppliesToCustLedgEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        FindCustomerLedgerEntry(ApplyingCustLedgEntry, ApplyingDocType, ApplyingDocNo);
+        ApplyingCustLedgEntry.CalcFields("Remaining Amount");
+        SetApplyCustomerEntry(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Remaining Amount");
+        FindCustomerLedgerEntry(AppliesToCustLedgEntry, AppliesToDocType, AppliesToDocNo);
+        AppliesToCustLedgEntry.SetRange(Open, true);
+        SetAppliestoIdCustomer(AppliesToCustLedgEntry);
+        Commit();
+        CustEntryApplyPostedEntries.PreviewApply(ApplyingCustLedgEntry, ApplyingCustLedgEntry."Document No.", 0D);
+    end;
+
+    procedure PreviewApplyVendorLedgerEntry(ApplyingDocType: Option; ApplyingDocNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    var
+        ApplyingVendLedgEntry: Record "Vendor Ledger Entry";
+        AppliesToVendLedgEntry: Record "Vendor Ledger Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+    begin
+        FindVendorLedgerEntry(ApplyingVendLedgEntry, ApplyingDocType, ApplyingDocNo);
+        ApplyingVendLedgEntry.CalcFields("Remaining Amount");
+        SetApplyVendorEntry(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Remaining Amount");
+        FindVendorLedgerEntry(AppliesToVendLedgEntry, AppliesToDocType, AppliesToDocNo);
+        SetAppliestoIdVendor(AppliesToVendLedgEntry);
+        Commit();
+        VendEntryApplyPostedEntries.PreviewApply(ApplyingVendLedgEntry, ApplyingVendLedgEntry."Document No.", 0D);
+    end;
+
+    procedure CreateCustomerPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal)
+    begin
+        CreatePrepmtGenJnlLine(
+          GenJnlLine, GenJnlLine."Account Type"::Customer, CustomerNo, PostingDate, PrepmtDocNo, Amount, '');
+    end;
+
+    procedure CreateCustomerPrepmtGenJnlLineFCY(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    begin
+        CreatePrepmtGenJnlLine(
+          GenJnlLine, GenJnlLine."Account Type"::Customer, CustomerNo, PostingDate, PrepmtDocNo, Amount, CurrencyCode);
+    end;
+
+    procedure CreateVendorPrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal)
+    begin
+        CreatePrepmtGenJnlLine(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendorNo, PostingDate, '', Amount, '');
+    end;
+
+    procedure CreateVendorPrepmtGenJnlLineFCY(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal; CurrencyCode: Code[10])
+    begin
+        CreatePrepmtGenJnlLine(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, VendorNo, PostingDate, '', Amount, CurrencyCode);
+    end;
+
+    local procedure CreatePrepmtGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; PrepmtDocNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJnlLine, GenJnlLine."Document Type"::Payment, AccountType, AccountNo, Amount);
+
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Validate(
+          "External Document No.",
+          LibraryUtility.GenerateRandomCode(GenJnlLine.FieldNo("External Document No."), DATABASE::"Gen. Journal Line"));
+        GenJnlLine.Validate(Prepayment, true);
+        GenJnlLine.Validate("Prepayment Document No.", PrepmtDocNo);
+        GenJnlLine.Modify(true);
+    end;
+
+    procedure CreateVATSettlementJnlLine(UnrealizedVATEntryNo: Integer; PostingDate: Date; Amount: Decimal; Post: Boolean)
+    var
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        RecRef: RecordRef;
+    begin
+        VATEntry.Get(UnrealizedVATEntryNo);
+        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := VATPostingSetup."VAT Settlement Template";
+        GenJnlLine."Journal Batch Name" := VATPostingSetup."VAT Settlement Batch";
+        RecRef.GetTable(GenJnlLine);
+        GenJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No.")));
+        GenJnlLine.Validate("Unrealized VAT Entry No.", UnrealizedVATEntryNo);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate(Amount, Amount);
+        GenJnlLine.Insert();
+
+        if Post then begin
+            GenJnlLine.SetRecFilter;
+            GenJnlPost.SetJnlType(1); // 1 = VAT Settlement
+            GenJnlPost.Run(GenJnlLine);
+        end;
+    end;
+
+    procedure CreateVATReinstatementJnlLine(var GenJnlLine: Record "Gen. Journal Line"; ReinstatementVATEntryNo: Integer; PostingDate: Date; VATAmount: Decimal; Post: Boolean)
+    var
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        RecRef: RecordRef;
+    begin
+        VATEntry.Get(ReinstatementVATEntryNo);
+        VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := VATPostingSetup."VAT Reinstatement Template";
+        GenJnlLine."Journal Batch Name" := VATPostingSetup."VAT Reinstatement Batch";
+        RecRef.GetTable(GenJnlLine);
+        GenJnlLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No.")));
+        GenJnlLine.Validate("Reinstatement VAT Entry No.", ReinstatementVATEntryNo);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate(Amount, VATAmount);
+        GenJnlLine.Insert();
+
+        if Post then begin
+            GenJnlLine.SetRecFilter;
+            GenJnlPost.SetJnlType(3); // 3 = VAT Reinstatement
+            GenJnlPost.Run(GenJnlLine);
+        end;
+    end;
+
+    procedure PostVATReinstatementJournal(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+    begin
+        GenJnlLine.FindFirst;
+        GenJnlPost.SetJnlType(3); // 3 = VAT Reinstatement
+        GenJnlPost.Run(GenJnlLine);
+    end;
+
+    procedure CreateVATAllocLine(VATEntryNo: Integer; LineNo: Integer; Type: Integer; AccountNo: Code[20]; Amount: Decimal)
+    var
+        VATAllocationLine: Record "VAT Allocation Line";
+    begin
+        VATAllocationLine.Init();
+        VATAllocationLine.Validate("VAT Entry No.", VATEntryNo);
+        VATAllocationLine.Validate("Line No.", LineNo);
+        VATAllocationLine.Validate(Type, Type);
+        if AccountNo <> '' then
+            VATAllocationLine.Validate("Account No.", AccountNo);
+        VATAllocationLine.Validate(Amount, Amount);
+        VATAllocationLine.Insert(true);
+    end;
+
+    procedure UpdateVATAllocLine(VATEntryNo: Integer; LineNo: Integer; Type: Integer; AccountNo: Code[20]; Amount: Decimal)
+    var
+        VATAllocationLine: Record "VAT Allocation Line";
+    begin
+        VATAllocationLine.Get(VATEntryNo, LineNo);
+        if Type <> 0 then
+            VATAllocationLine.Validate(Type, Type);
+        if AccountNo <> '' then
+            VATAllocationLine.Validate("Account No.", AccountNo);
+        if Amount <> 0 then
+            VATAllocationLine.Validate(Amount, Amount);
+        VATAllocationLine.Modify(true);
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")

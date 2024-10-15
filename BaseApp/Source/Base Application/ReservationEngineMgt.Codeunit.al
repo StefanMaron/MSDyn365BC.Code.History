@@ -918,6 +918,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     var
         IsDemand: Boolean;
         CarriesItemTracking: Boolean;
+        IsHandled: Boolean;
     begin
         // Used for combining sorting of reservation entries with priorities
         if not ReservEntry.FindSet then
@@ -939,7 +940,11 @@ codeunit 99000831 "Reservation Engine Mgt."
             if not ItemTrackingMismatch(ReservEntry, CurrSerialNo, CurrLotNo, CurrCDNo) then begin
                 TempSortRec1 := ReservEntry;
                 TempSortRec1.Insert();
-                CarriesItemTracking := TempSortRec1.TrackingExists;
+
+                IsHandled := false;
+                OnInitRecordSetOnBeforeCheckItemTrackingExists(CarriesItemTracking, TempSortRec1, IsHandled);
+                if not IsHandled then
+                    CarriesItemTracking := TempSortRec1.TrackingExists;
                 if CarriesItemTracking then begin
                     TempSortRec2 := TempSortRec1;
                     TempSortRec2.Insert();
@@ -1369,6 +1374,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelReservationOnBeforeDoCancel(ReservationEntry3: Record "Reservation Entry"; ReservationEntry: Record "Reservation Entry"; var DoCancel: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordSetOnBeforeCheckItemTrackingExists(var CarriesItemTracking: Boolean; var TempSortRec1: Record "Reservation Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 

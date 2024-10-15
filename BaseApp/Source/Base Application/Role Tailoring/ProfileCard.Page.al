@@ -187,7 +187,7 @@ page 9170 "Profile Card"
             action(ShowProfilePageCustomization)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Customized Pages';
+                Caption = 'Manage customized pages';
                 Image = SetupList;
                 ToolTip = 'View the list of pages have been customized for this profile.';
                 RunObject = page "Profile Customization List";

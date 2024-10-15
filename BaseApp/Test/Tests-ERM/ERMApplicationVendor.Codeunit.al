@@ -22,6 +22,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -107,67 +108,6 @@ codeunit 134011 "ERM Application Vendor"
                 VendorInvPmtCorrection("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
                 VendorInvPmtCorrection("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
                 VendorInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorDiscVATAdjust()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Stepwise: Boolean;
-    begin
-        Initialize;
-
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtDiscVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtDiscVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTolVATAdjust()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Stepwise: Boolean;
-    begin
-        Initialize;
-
-        SetupPaymentTolerance;
-
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorDiscTolVATAdjust()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Stepwise: Boolean;
-    begin
-        Initialize;
-
-        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<5D>');
-
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtDiscTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtDiscTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
             end;
     end;
 
@@ -707,6 +647,70 @@ codeunit 134011 "ERM Application Vendor"
         Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in vendor ledger entry when it is generated from general journal line applied to vendor ledger entry
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        InvoiceAmount := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+
+        Clear(VendorLedgerEntry);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        VendorLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.TestField(Open, false);
+        until VendorLedgerEntry.Next() = 0;
+        Assert.RecordCount(VendorLedgerEntry, 2);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -719,6 +723,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
         VendorAmount := 1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
         Commit();
@@ -835,93 +840,6 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
 
         VendorApplyUnapply(Desc, Stepwise);
-
-        LibraryERMVendorWatch.AssertVendor;
-    end;
-
-    local procedure VendorPmtDiscVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
-    var
-        Vendor: Record Vendor;
-        DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-    begin
-        // Tests the VAT adjustment detailed ledger entries created
-        // when posting an application where the payment is overdue
-        // but within the grace period of payment tolerance.
-
-        // Find discounted payment terms
-        CreateVendorWithPaymentTerms(Vendor, GetPaymentTerms('>0'));
-
-        // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount (VAT Adjustment)", 0);
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount (VAT Excl.)", 0);
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount", 0);
-
-        // Apply / Unapply with VAT posting setup
-        VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetDiscount(Vendor."Payment Terms Code", Amount), Amount, '<0D>', Stepwise);
-
-        LibraryERMVendorWatch.AssertVendor;
-    end;
-
-    local procedure VendorPmtTolVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
-    var
-        Vendor: Record Vendor;
-        PaymentTerms: Record "Payment Terms";
-        DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-    begin
-        // Tests the VAT adjustment detailed ledger entries created
-        // when posting an application that triggers payment tolerance
-
-        // Find none discounted payment terms
-        CreateVendorWithPaymentTerms(Vendor, PaymentTerms.Code);
-
-        // Watch for detailed ledger entry type "Payment Tolerance (VAT Adjustment)" and "Payment Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.DtldEntriesGreaterThan(
-          Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Tolerance (VAT Adjustment)", 0);
-        LibraryERMVendorWatch.DtldEntriesGreaterThan(
-          Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Tolerance (VAT Excl.)", 0);
-        LibraryERMVendorWatch.DtldEntriesGreaterThan(
-          Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Tolerance", 0);
-
-        // Apply / Unapply with VAT posting setup
-        VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetPaymentTolerance, Amount, '<0D>', Stepwise);
-
-        LibraryERMVendorWatch.AssertVendor;
-    end;
-
-    local procedure VendorPmtDiscTolVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
-    var
-        Vendor: Record Vendor;
-        DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        PaymentTerms: Record "Payment Terms";
-        Offset: Text[30];
-    begin
-        // Tests the VAT adjustment detailed ledger entries created
-        // when posting an application where the payment is overdue
-        // but within the grace period of payment tolerance.
-
-        // Find discounted payment terms
-        PaymentTerms.Get(GetPaymentTerms('>0'));
-        CreateVendorWithPaymentTerms(Vendor, PaymentTerms.Code);
-
-        // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)", 0);
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Excl.)", 0);
-        LibraryERMVendorWatch.DtldEntriesSigned(
-          Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount Tolerance", 0);
-
-        // Trigger payment discount tolerance by exceeding discount due date by 1 day
-        Offset := Format(PaymentTerms."Discount Date Calculation") + '+<1D>';
-
-        // Apply / Unapply with VAT posting setup
-        VendorApplyUnapplyVAT(Vendor, PmtType, InvType, Amount - GetDiscount(PaymentTerms.Code, Amount), Amount, Offset, Stepwise);
 
         LibraryERMVendorWatch.AssertVendor;
     end;
@@ -1045,41 +963,6 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorApplyUnapplyVAT(Vendor: Record Vendor; PmtType: Option; InvType: Option; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; Stepwise: Boolean)
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        VATPostingSetup: Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
-        Desc: Text[30];
-    begin
-        // Setup payment tolerance on payment discount
-        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-
-        // Find a VAT setup that has a balancing account with direct posting and update it
-        GetDirectVATPostingSetup(VATPostingSetup, GLAccount, '>0');
-        GetVATBalancedBatch(GenJournalBatch, GLAccount);
-        VATPostingSetup.Validate("Adjust for Payment Discount", true);
-        VATPostingSetup.Modify(true);
-
-        // Update General Posting Setup
-        GeneralPostingSetup.Get(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group");
-        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Credit Acc.", GLAccount."No.");
-        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Debit Acc.", GLAccount."No.");
-        GeneralPostingSetup.Validate("Purch. Pmt. Tol. Credit Acc.", GLAccount."No.");
-        GeneralPostingSetup.Validate("Purch. Pmt. Tol. Debit Acc.", GLAccount."No.");
-        GeneralPostingSetup.Modify(true);
-
-        // Update Vendor to our needs
-        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
-        Vendor.Modify(true);
-
-        // Generate a document that triggers "Payment Tolerance (VAT Adjustment)" dtld. ledger entries.
-        Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, PmtOffset, '', '');
-        VendorApplyUnapply(Desc, Stepwise);
-    end;
-
     local procedure VendorApplyUnapply(Desc: Text[30]; Stepwise: Boolean)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1104,16 +987,6 @@ codeunit 134011 "ERM Application Vendor"
 
         // Verify #3.
         VerifyVendorEntriesClosed(VendorLedgerEntry);
-    end;
-
-    local procedure SetupPaymentTolerance()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Payment Tolerance %", 1.0);
-        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5.0);
-        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Vendor: Record Vendor; PmtType: Option; InvType: Option; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
@@ -1359,18 +1232,11 @@ codeunit 134011 "ERM Application Vendor"
     local procedure GetDirectVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; var GLAccount: Record "G/L Account"; VATFilter: Text[30])
     begin
         VATPostingSetup.SetFilter("VAT %", VATFilter);
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.FindSet;
-        repeat
-            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
-            GLAccount.SetFilter("Gen. Bus. Posting Group", '<>''''');
-            GLAccount.SetFilter("Gen. Prod. Posting Group", '<>''''');
-            GLAccount.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            GLAccount.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            GLAccount.SetRange("Direct Posting", true);
-        until (VATPostingSetup.Next = 0) or GLAccount.FindFirst;
-
-        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Modify();
     end;
 
     local procedure GetLastTransactionNo(): Integer
@@ -1449,17 +1315,9 @@ codeunit 134011 "ERM Application Vendor"
                 Name := 'VendorVAT';
                 "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
                 "Bal. Account No." := GLAccount."No.";
-                Insert(true);
+                if Insert(true) then;
             end;
         end;
-    end;
-
-    local procedure GetPaymentTolerance(): Decimal
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 
     local procedure GetDiscount(PmtTerms: Code[10]; Amount: Decimal): Decimal

@@ -175,6 +175,60 @@ codeunit 131330 "Library - Fixed Asset"
         if FAJournalBatch.Insert(true) then;
     end;
 
+    procedure CreateFADocumentHeader(var FADocumentHeader: Record "FA Document Header"; DocumentType: Option)
+    begin
+        FADocumentHeader.Init();
+        FADocumentHeader.Validate("Document Type", DocumentType);
+        FADocumentHeader.Insert(true);
+    end;
+
+    procedure CreateFADocumentLine(var FADocumentLine: Record "FA Document Line"; FADocumentHeader: Record "FA Document Header"; FANo: Code[20])
+    var
+        RecRef: RecordRef;
+    begin
+        FADocumentLine.Init();
+        FADocumentLine.Validate("Document Type", FADocumentHeader."Document Type");
+        FADocumentLine.Validate("Document No.", FADocumentHeader."No.");
+        RecRef.GetTable(FADocumentLine);
+        FADocumentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FADocumentLine.FieldNo("Line No.")));
+        FADocumentLine.Insert(true);
+
+        FADocumentLine.Validate("FA No.", FANo);
+        FADocumentLine.Modify(true);
+    end;
+
+    procedure CreateFAReleaseDoc(var FADocumentHeader: Record "FA Document Header"; FANo: Code[20]; PostingDate: Date)
+    var
+        FADocumentLine: Record "FA Document Line";
+    begin
+        CreateFADocumentHeader(FADocumentHeader, FADocumentHeader."Document Type"::Release);
+        FADocumentHeader.Validate("Posting Date", PostingDate);
+        FADocumentHeader.Modify(true);
+        CreateFADocumentLine(FADocumentLine, FADocumentHeader, FANo);
+    end;
+
+    procedure CreateFAWriteOffDoc(var FADocumentHeader: Record "FA Document Header"; FANo: Code[20]; PostingDate: Date)
+    var
+        FADocumentLine: Record "FA Document Line";
+    begin
+        CreateFADocumentHeader(FADocumentHeader, FADocumentHeader."Document Type"::Writeoff);
+        FADocumentHeader.Validate("Posting Date", PostingDate);
+        FADocumentHeader.Modify(true);
+        CreateFADocumentLine(FADocumentLine, FADocumentHeader, FANo);
+    end;
+
+    procedure CreateFAMovementDoc(var FADocumentHeader: Record "FA Document Header"; FANo: Code[20]; PostingDate: Date; DeprBookCode: Code[10])
+    var
+        FADocumentLine: Record "FA Document Line";
+    begin
+        CreateFADocumentHeader(FADocumentHeader, FADocumentHeader."Document Type"::Movement);
+        FADocumentHeader.Validate("Posting Date", PostingDate);
+        FADocumentHeader.Modify(true);
+        CreateFADocumentLine(FADocumentLine, FADocumentHeader, FANo);
+        FADocumentLine.Validate("Depreciation Book Code", DeprBookCode);
+        FADocumentLine.Modify(true);
+    end;
+
     procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         LibraryUtility.UpdateSetupNoSeriesCode(DATABASE::"FA Setup", FASetup.FieldNo("Fixed Asset Nos."));
@@ -207,6 +261,26 @@ codeunit 131330 "Library - Fixed Asset"
         UpdateFAPostingGroupGLAccounts(FAPostingGroup, VATPostingSetup);
         FADeprBook.ModifyAll("FA Posting Group", FAPostingGroup.Code);
         FADeprBook.ModifyAll("No. of Depreciation Years", LibraryRandom.RandIntInRange(2, 5));
+    end;
+
+    procedure CreateFixedAssetWithCustomSetup(var FixedAsset: Record "Fixed Asset"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        FADeprBook: Record "FA Depreciation Book";
+        FAPostingGroup: Record "FA Posting Group";
+    begin
+        CreateFixedAsset(FixedAsset);
+        CreateFAPostingGroup(FAPostingGroup);
+        UpdateFAPostingGroupGLAccounts(FAPostingGroup, VATPostingSetup);
+        FADeprBook.ModifyAll("FA Posting Group", FAPostingGroup.Code);
+        FADeprBook.ModifyAll("No. of Depreciation Years", LibraryRandom.RandIntInRange(2, 5));
+    end;
+
+    procedure CreateFixedAssetNo(): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        CreateFixedAssetWithSetup(FixedAsset);
+        exit(FixedAsset."No.");
     end;
 
     procedure CreateGLBudgetName(var GLBudgetName: Record "G/L Budget Name")
@@ -464,8 +538,80 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Disposal Expense Account", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
         FAPostingGroup.Modify(true);
+    end;
+
+    procedure PostFADocument(var FADocumentHeader: Record "FA Document Header") DocumentNo: Code[20]
+    var
+        FADocumentPost: Codeunit "FA Document-Post";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if FADocumentHeader."Posting No." = '' then begin
+            if FADocumentHeader."No. Series" = FADocumentHeader."Posting No. Series" then
+                DocumentNo := FADocumentHeader."No."
+            else
+                DocumentNo :=
+                  NoSeriesManagement.GetNextNo(
+                    FADocumentHeader."Posting No. Series",
+                    LibraryUtility.GetNextNoSeriesSalesDate(FADocumentHeader."Posting No. Series"), false);
+        end else
+            DocumentNo := FADocumentHeader."Posting No.";
+        Clear(FADocumentPost);
+        FADocumentPost.Run(FADocumentHeader);
+    end;
+
+    procedure PreviewFADocument(var FADocumentHeader: Record "FA Document Header")
+    var
+        FADocumentPost: Codeunit "FA Document-Post";
+    begin
+        Clear(FADocumentPost);
+        FADocumentPost.SetPreviewMode(true);
+        FADocumentPost.Run(FADocumentHeader);
+    end;
+
+    procedure CalcDepreciation(FANo: Code[20]; DeprBookCode: Code[10]; DeprDate: Date; Post: Boolean; DepreciationBonus: Boolean) DeprAmount: Decimal
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FAJournalLine: Record "FA Journal Line";
+        FA: Record "Fixed Asset";
+        CalcDepr: Report "Calculate Depreciation";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
+        DocumentNo: Code[20];
+        PostingDescription: Text[100];
+    begin
+        FA.SetRange("No.", FANo);
+        CalcDepr.SetTableView(FA);
+        CalcDepr.UseRequestPage(false);
+        DocumentNo := 'DP.' + CopyStr(Format(Date2DMY(DeprDate, 3)), 3, 2) + '-' + Format(Date2DMY(DeprDate, 2));
+        PostingDescription := 'DP.' + CopyStr(Format(Date2DMY(DeprDate, 3)), 3, 2) + '-' + Format(Date2DMY(DeprDate, 2));
+        CalcDepr.InitializeRequest2(DeprBookCode, DeprDate, DeprDate, DocumentNo, PostingDescription, false, 0, false, false, DepreciationBonus);
+        CalcDepr.Run;
+
+        if Post then begin
+            GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
+            GenJournalLine.SetRange("Posting Date", DeprDate);
+            GenJournalLine.SetRange("Document No.", DocumentNo);
+            if GenJournalLine.FindSet then begin
+                repeat
+                    GenJnlPostLine.RunWithCheck(GenJournalLine);
+                    DeprAmount := GenJournalLine.Amount;
+                until GenJournalLine.Next = 0;
+                GenJournalLine.DeleteAll();
+            end;
+
+            FAJournalLine.SetRange("FA Posting Date", DeprDate);
+            FAJournalLine.SetRange("Document No.", DocumentNo);
+            if FAJournalLine.FindSet then begin
+                repeat
+                    FAJnlPostLine.FAJnlPostLine(FAJournalLine, true);
+                    DeprAmount := FAJournalLine.Amount;
+                until FAJournalLine.Next = 0;
+                FAJournalLine.DeleteAll();
+            end;
+        end;
     end;
 
     procedure UpdateFASetupDefaultDeprBook(DefaultDeprBook: Code[10])

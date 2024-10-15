@@ -1447,6 +1447,7 @@ codeunit 136907 Resource
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::Resource);
 
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;

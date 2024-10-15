@@ -122,7 +122,6 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.SetAllowSelectNoSeries;
         OnBeforeSelesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
-        OnBeforeSalesHeaderInsert(SalesHeader, SalesInvoiceHeader, CancellingOnly);
         SalesHeader.Insert(true);
 
         case DocumentType of
@@ -502,7 +501,10 @@ codeunit 1303 "Correct Posted Sales Invoice"
         GenPostingSetup: Record "General Posting Setup";
         Item: Record Item;
     begin
-        SalesReceivablesSetup.GetRecordOnce;
+        if SalesInvoiceLine."VAT Calculation Type" = SalesInvoiceLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
+        SalesReceivablesSetup.GetRecordOnce();
 
         with GenPostingSetup do begin
             Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
@@ -512,10 +514,9 @@ codeunit 1303 "Correct Posted Sales Invoice"
                 TestField("Sales Credit Memo Account");
                 TestGLAccount("Sales Credit Memo Account", SalesInvoiceLine);
             end;
-            if SalesReceivablesSetup."Discount Posting" <> SalesReceivablesSetup."Discount Posting"::"No Discounts" then begin
-                TestField("Sales Line Disc. Account");
-                TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
-            end;
+            if HasLineDiscountSetup() then
+                if "Sales Line Disc. Account" <> '' then
+                    TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
             if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
                 Item.Get(SalesInvoiceLine."No.");
                 if Item.IsInventoriableType then
@@ -551,7 +552,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
     local procedure TestInventoryPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line")
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestInventoryPostingSetup(SalesInvoiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with InventoryPostingSetup do begin
             Get(SalesInvoiceLine."Location Code", SalesInvoiceLine."Posting Group");
             TestField("Inventory Account");
@@ -775,6 +782,15 @@ codeunit 1303 "Correct Posted Sales Invoice"
             end;
     end;
 
+    local procedure HasLineDiscountSetup() Result: Boolean
+    begin
+        with SalesReceivablesSetup do begin
+            GetRecordOnce();
+            Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
+        end;
+        OnHasLineDiscountSetup(SalesReceivablesSetup, Result);
+    end;
+
     local procedure UpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -840,6 +856,16 @@ codeunit 1303 "Correct Posted Sales Invoice"
     [Obsolete('This event has been replaced by OnBeforeSalesHeaderInsert, to fix a typo in the name', '15.1')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasLineDiscountSetup(SalesReceivablesSetup: Record "Sales & Receivables Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestInventoryPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
 

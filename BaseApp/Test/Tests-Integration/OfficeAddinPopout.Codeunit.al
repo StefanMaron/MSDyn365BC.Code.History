@@ -80,7 +80,7 @@ codeunit 139053 "Office Addin Popout"
     end;
 
     [Test]
-    [HandlerFunctions('CustomerActionPageHandlerForCreditMemo')]
+    [HandlerFunctions('CustomerActionPageHandlerForCreditMemo,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure MailEngineCustomerPageCreateCreditMemoPopOut()
     var
@@ -109,7 +109,7 @@ codeunit 139053 "Office Addin Popout"
     end;
 
     [Test]
-    [HandlerFunctions('VendorActionPageHandlerForInvoice')]
+    [HandlerFunctions('VendorActionPageHandlerForInvoice,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure MailEngineVendorPageCreateInvoicePopOut()
     var
@@ -488,6 +488,7 @@ codeunit 139053 "Office Addin Popout"
         VendorCard.NewPurchaseInvoice.Invoke;
 
         // Validate Vendor Name is copied over to new Purchase Invoice
+        PurchaseInvoice."Buy-from Vendor Name".Activate;
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(VendorCard.Name.Value);
 
         // Validate Vendor Address is copied over to new Purchase Invoice
@@ -519,6 +520,13 @@ codeunit 139053 "Office Addin Popout"
 
         // Validate Vendor Address is copied over to new Purchase Credit Memo
         PurchaseCreditMemo."Buy-from Address".AssertEquals(LibraryVariableStorage.DequeueText);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

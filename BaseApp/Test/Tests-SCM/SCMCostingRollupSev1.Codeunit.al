@@ -27,7 +27,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         SelectADimensionValueErr: Label 'Select a Dimension Value';
         IncorrectNoValueEntriesErr: Label 'Incorrect number of Value Entries';
         IncorrectNoGLEntriesErr: Label 'Incorrect number of G/L Entries for Value Entry %1';
-        ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
 
     [Test]
     [Scope('OnPrem')]
@@ -430,7 +430,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure VSTF342568()
     var
@@ -1158,9 +1158,9 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
+    procedure NothingPostedMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+        Assert.ExpectedMessage(NothingToPostTxt, Message);
     end;
 }
 

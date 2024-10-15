@@ -1235,12 +1235,18 @@ codeunit 134201 "Document Approval - Comments"
 
     local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Option)
     var
+        VATPostingSetup: Record "VAT Posting Setup";
         PurchLine: Record "Purchase Line";
         Item: Record Item;
         Vendor: Record Vendor;
     begin
         FindVendor(Vendor);
         FindItem(Item);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;

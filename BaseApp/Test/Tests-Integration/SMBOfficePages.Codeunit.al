@@ -25,6 +25,60 @@ codeunit 139048 "SMB Office Pages"
         BusRelCodeForCustomers: Code[10];
         IsInitialized: Boolean;
         AttachAvailableErr: Label 'Unexpected result of AttachAvailable for %1 Office Host Type.', Comment = '%1 = Office host type';
+        MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection for', Comment = '%1 = Usage, for example Sales Invoice';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenSendEmailFromAppointmentNoSmtpSetup()
+    var
+        CompanyInformation: Record "Company Information";
+        OfficeAddinContext: Record "Office Add-in Context";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SMTPMailSetup: Record "SMTP Mail Setup";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        CustomerCard: TestPage "Customer Card";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        Email: Text[80];
+        ContactNo: Code[20];
+        BusRelCode: Code[10];
+    begin
+        // [FEATURE] [Customer] [Send Invoice]
+        // [SCENARIO 200529] User is shown an error without the option of downloading the attachment when attempting
+        // to send a document from the context of an appointment in the Outlook add-in.
+
+        // [GIVEN] SMTP mail is not setup.
+        InitializeWithHostType(OfficeHostType.OutlookTaskPane);
+        SMTPMailSetup.DeleteAll();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+
+        // [GIVEN] Company information allows blank info (prevents unexpected confirm)
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
+
+        // [GIVEN] A customer and a posted sales invoice exists.
+        Email := RandomEmail;
+        CreateContactFromCustomer(Email, ContactNo, BusRelCode, false);
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] The user opens the add-in for the given customer in the context of an appointment.
+        OfficeAddinContext.SetRange(Email, Email);
+        OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
+        CustomerCard.Trap;
+        RunMailEngine(OfficeAddinContext);
+
+        // [WHEN] The user tries to send the invoice to the customer.
+        PostedSalesInvoice.Trap;
+        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+
+        // [THEN] The user gets an error with no option to download the attachment.
+        // Fix for 202270: Russian calls another code, the error is thrown. But it is depended on demodata. Let's make test workable
+        asserterror PostedSalesInvoice.Email.Invoke;
+        Assert.ExpectedError(MustSelectAndEmailBodyOrAttahmentErr);
+    end;
 
     [Test]
     [Scope('OnPrem')]

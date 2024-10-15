@@ -30,7 +30,6 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         WrongAmountErr: Label 'Wrong amount.';
         PeriodTxt: Label '12';
         OnlyOneDefaultDeprBookErr: Label 'Default FA Depreciation Book Only one fixed asset depreciation book can be marked as the default book';
-        CompletionStatsTok: Label 'The depreciation has been calculated.';
 
     [Test]
     [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
@@ -55,7 +54,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,GeneralJournalBatchesModalPageHandler')]
     [Scope('OnPrem')]
     procedure ShowAllowPaymentExportForPaymentBatches()
     var
@@ -656,7 +655,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FAJournalWithCalcDepreciation()
     var
@@ -680,7 +679,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryLowerPermissions.SetO365FAEdit;
         Amount := FAAmount / 2;
         NoOfMonth := LibraryRandom.RandInt(10);
-        RunCalculateDepeciation(FADepreciationBook, NoOfMonth);
+        RunCalculateDepeciation(FADepreciationBook, FADepreciationBook."FA No.", NoOfMonth);
         Amount := Round((Amount * FADepreciationBook."Declining-Balance %" / 100) * NoOfMonth / 12);
 
         // Verify: Verify FA Journal Line with Calculated Depreciation Amount.
@@ -690,6 +689,41 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Assert.AreNearlyEqual(
           -Amount, FAJournalLine.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, FAJournalLine.FieldCaption(Amount), -Amount, FAJournalLine.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure FAJournalWithCalcDepreciationBlankDocNoTwoFA()
+    var
+        FAJournalLine: Record "FA Journal Line";
+        FADepreciationBook1: Record "FA Depreciation Book";
+        FADepreciationBook2: Record "FA Depreciation Book";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Calculate Depreciation]
+        // [SCENARIO 352564] Run Calculate Depreciation for two fixed assets with blank Document No
+        Initialize;
+
+        // [GIVEN] Fixed assets "FA1","FA2" with aquisition cost
+        CreateFAWithAcquisitionCost(FADepreciationBook1);
+        CreateFAWithAcquisitionCost(FADepreciationBook2);
+
+        // [GIVEN] FA Journal Line has Document No "DeprDoc" after running Calculate Depreciation report for "FA1"
+        RunCalculateDepeciation(FADepreciationBook1, '', LibraryRandom.RandInt(10));
+        FAJournalLine.SetRange("FA No.", FADepreciationBook1."FA No.");
+        FAJournalLine.FindFirst;
+        DocumentNo := FAJournalLine."Document No.";
+
+        // [WHEN]  Run Calculate Depreciation report for "FA2"
+        RunCalculateDepeciation(FADepreciationBook2, '', LibraryRandom.RandInt(10));
+
+        // [THEN] FA Journal Line has Document No "DeprDoc" in the same journal for "FA2"
+        FAJournalLine.SetRange("Journal Template Name", FAJournalLine."Journal Template Name");
+        FAJournalLine.SetRange("Journal Batch Name", FAJournalLine."Journal Batch Name");
+        FAJournalLine.SetRange("FA No.", FADepreciationBook2."FA No.");
+        FAJournalLine.FindFirst;
+        FAJournalLine.TestField("Document No.", DocumentNo);
     end;
 
     local procedure CreateFAWithDecliningBalanceFADeprBook(var FADepreciationBook: Record "FA Depreciation Book")
@@ -821,7 +855,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure GLEntriesAfterReclassification()
     var
@@ -902,7 +936,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CalcDepreciationAfterReversingFADepreciation()
     var
@@ -957,7 +991,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DepriciationAfterReclassification()
     var
@@ -1298,6 +1332,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
 
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateFAPostingGroup;
         isInitialized := true;
@@ -1450,6 +1485,16 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBookCode);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+    end;
+
+    local procedure CreateFAWithAcquisitionCost(var FADepreciationBook: Record "FA Depreciation Book")
+    var
+        FAJournalLine: Record "FA Journal Line";
+    begin
+        CreateFAWithDecliningBalanceFADeprBook(FADepreciationBook);
+        CreateAndPostFAJournalLine(
+          FADepreciationBook, LibraryRandom.RandDec(100, 2), FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        CreateFAJournalSetup(FADepreciationBook."Depreciation Book Code");
     end;
 
     local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
@@ -1697,9 +1742,9 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure RunCalculateDepeciation(FADepreciationBook: Record "FA Depreciation Book"; NoOfMonth: Integer)
+    local procedure RunCalculateDepeciation(FADepreciationBook: Record "FA Depreciation Book"; DocumentNo: Code[20]; NoOfMonth: Integer)
     begin
-        SetRequestOption(FADepreciationBook, FADepreciationBook."FA No.", NoOfMonth, false);
+        SetRequestOption(FADepreciationBook, DocumentNo, NoOfMonth, false);
     end;
 
     local procedure RunCalculateDepeciationWithBalAccount(FADepreciationBook: Record "FA Depreciation Book"; NoOfMonth: Integer) DocumentNo: Code[20]
@@ -1730,6 +1775,8 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FAJournalTemplate.SetRange(Recurring, false);
         LibraryFixedAsset.FindFAJournalTemplate(FAJournalTemplate);
         LibraryFixedAsset.FindFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
+        FAJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        FAJournalBatch.Modify(true);
         FAJournalLine.SetRange("Journal Template Name", FAJournalBatch."Journal Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalBatch.Name);
         FAJournalLine.DeleteAll(true);
@@ -1903,6 +1950,13 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // Dummy message handler
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: boolean)
+    begin
+        Reply := true;
+    end;
+
     local procedure FindCustomer(var Customer: Record Customer)
     begin
         // Filter Customer so that errors are not generated due to mandatory fields.
@@ -1915,21 +1969,19 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Customer.FindFirst;
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        if 0 <> StrPos(Question, CompletionStatsTok) then
-            Reply := false
-        else
-            Reply := true;
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueBoolean, GeneralJournalBatches."Allow Payment Export".Visible, '');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.First;
+        GeneralJournalTemplateList.OK.Invoke;
     end;
 }
 

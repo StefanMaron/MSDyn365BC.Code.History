@@ -60,13 +60,12 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2.Exercise: Run the Date Compress FA Ledger.
-        asserterror
-          RunDateCompressFALedger(
-            FANo, LibraryFiscalYear.GetFirstPostingDate(false), LibraryFiscalYear.GetFirstPostingDate(false),
-            DateComprRegister."Period Length"::Day);
+        RunDateCompressFALedger(
+          FANo, LibraryFiscalYear.GetFirstPostingDate(false), LibraryFiscalYear.GetFirstPostingDate(false),
+          DateComprRegister."Period Length"::Day);
 
         // 3.Verify: Verify the Error message.
-        LibraryFiscalYear.VerifyDateCompressFALedgerError;
+        asserterror LibraryFiscalYear.VerifyDateCompressFALedgerError;
     end;
 
     [Test]

@@ -15,8 +15,17 @@ report 14931 "Posted Item Write-off TORG-16"
                 DataItemTableView = SORTING("Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
+                var
+                    TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+                    ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
                 begin
-                    Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemShptHeader."Posting Date");
+                    ItemTrackingDocManagement.RetrieveEntriesFromPostedInvoice(TempItemLedgerEntry, RowID1());
+                    if TempItemLedgerEntry.FindSet() then
+                        repeat
+                            Torg16DocHelper.FillWriteOffReasonBody(TempItemLedgerEntry."Applies-to Entry", "Reason Code", ItemShptHeader."Posting Date");
+                        until TempItemLedgerEntry.Next() = 0
+                    else
+                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemShptHeader."Posting Date");
                 end;
 
                 trigger OnPostDataItem()

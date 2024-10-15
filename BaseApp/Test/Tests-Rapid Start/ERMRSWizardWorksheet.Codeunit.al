@@ -478,7 +478,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::Maintenance, PAGE::Maintenance);
         CheckPage(DATABASE::"Human Resources Setup", PAGE::"Human Resources Setup");
         CheckPage(DATABASE::Employee, PAGE::"Employee List");
-        CheckPage(DATABASE::"Cause of Absence", PAGE::"Causes of Absence");
+        CheckPage(DATABASE::"Time Activity", PAGE::"Time Activity Codes");
         CheckPage(DATABASE::"Cause of Inactivity", PAGE::"Causes of Inactivity");
         CheckPage(DATABASE::"Grounds for Termination", PAGE::"Grounds for Termination");
         CheckPage(DATABASE::"Employment Contract", PAGE::"Employment Contracts");

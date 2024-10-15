@@ -64,6 +64,8 @@ page 54 "Purchase Order Subform"
 
                         UpdateTypeText;
                         DeltaUpdateTotals;
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -650,7 +652,9 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

@@ -246,7 +246,6 @@ report 5855 "Implement Standard Cost Change"
 
     local procedure UpdateRes(StdCostWksh: Record "Standard Cost Worksheet")
     var
-        ResCost: Record "Resource Cost";
         Res: Record Resource;
     begin
         with Res do begin
@@ -257,13 +256,7 @@ report 5855 "Implement Standard Cost Change"
             ResCostsUpdated := true;
         end;
 
-        with ResCost do begin
-            Type := Type::Resource;
-            Code := StdCostWksh."No.";
-            Validate("Direct Unit Cost", Res."Direct Unit Cost");
-            Validate("Unit Cost", StdCostWksh."New Standard Cost");
-            if not Modify(true) then;
-        end;
+        UpdateResourceCost(StdCostWksh, Res);
     end;
 
     local procedure UpdateStdCostWksh(var StdCostWksh: Record "Standard Cost Worksheet")
@@ -277,24 +270,13 @@ report 5855 "Implement Standard Cost Change"
     local procedure InsertRevalItemJnlLine()
     var
         GLSetup: Record "General Ledger Setup";
-        Item: Record Item;
         ItemJnlLine2: Record "Item Journal Line";
-        CalcInvtValue: Report "Calculate Inventory Value";
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         ItemJnlLine2.SetRange("Journal Template Name", RevalItemJnlTemplate.Name);
         ItemJnlLine2.SetRange("Journal Batch Name", RevalItemJnlBatch.Name);
         if ItemJnlLine2.Find('+') then;
 
-        ItemJnlLine."Journal Template Name" := RevalItemJnlTemplate.Name;
-        ItemJnlLine."Journal Batch Name" := RevalItemJnlBatch.Name;
-        CalcInvtValue.SetItemJnlLine(ItemJnlLine);
-        Clear(Item);
-        Item.SetRange("No.", "Standard Cost Worksheet"."No.");
-        CalcInvtValue.SetTableView(Item);
-        CalcInvtValue.InitializeRequest(PostingDate, DocNo, HideDuplWarning, CalculatePer::Item, false, false, false, 0, false);
-        CalcInvtValue.UseRequestPage(false);
-        CalcInvtValue.Run;
+        CalculateInventoryValue();
         HideDuplWarning := true;
 
         GLSetup.Get();
@@ -381,6 +363,55 @@ report 5855 "Implement Standard Cost Change"
     local procedure RevalItemJnlBatchNameOnAfterVa()
     begin
         ValidatePostingDate;
+    end;
+
+    local procedure CalculateInventoryValue()
+    var
+        Item: Record Item;
+        CalcInvtValue: Report "Calculate Inventory Value";
+        CalculatePer: Option "Item Ledger Entry",Item;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalculateInventoryValue(RevalItemJnlTemplate, "Standard Cost Worksheet", PostingDate, DocNo, HideDuplWarning, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemJnlLine."Journal Template Name" := RevalItemJnlTemplate.Name;
+        ItemJnlLine."Journal Batch Name" := RevalItemJnlBatch.Name;
+        CalcInvtValue.SetItemJnlLine(ItemJnlLine);
+        Clear(Item);
+        Item.SetRange("No.", "Standard Cost Worksheet"."No.");
+        CalcInvtValue.SetTableView(Item);
+        CalcInvtValue.InitializeRequest(PostingDate, DocNo, HideDuplWarning, CalculatePer::Item, false, false, false, 0, false);
+        CalcInvtValue.UseRequestPage(false);
+        CalcInvtValue.Run();
+    end;
+
+    local procedure UpdateResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource)
+    var
+        ResourceCost: Record "Resource Cost";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateResourceCost(StandardCostWorksheet, Resource, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResourceCost.Type := ResourceCost.Type::Resource;
+        ResourceCost.Code := StandardCostWorksheet."No.";
+        ResourceCost.Validate("Direct Unit Cost", Resource."Direct Unit Cost");
+        ResourceCost.Validate("Unit Cost", StandardCostWorksheet."New Standard Cost");
+        if not ResourceCost.Modify(true) then;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateInventoryValue(var ItemJournalTemplate: Record "Item Journal Template"; var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date; DocNo: Code[20]; HideDuplWarning: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource; var IsHandled: Boolean)
+    begin
     end;
 }
 

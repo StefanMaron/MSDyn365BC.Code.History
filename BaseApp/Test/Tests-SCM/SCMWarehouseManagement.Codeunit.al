@@ -1404,19 +1404,19 @@ codeunit 137064 "SCM Warehouse Management"
                 Assert.AreEqual(
                   UnblockedQty,
                   CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+                    BinContentBlocked."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
                   '');
             1: // Same lot
                 Assert.AreEqual(
                   UnblockedQty,
                   CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", LotBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+                    BinContentBlocked."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
                   '');
             2: // Different lots
                 Assert.AreEqual(
                   0,
                   CreatePick.CalcTotalAvailQtyToPick(BinContentBlocked."Location Code", BinContentBlocked."Item No.",
-                    BinContentBlocked."Variant Code", LotBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+                    BinContentBlocked."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
                   '');
         end;
     end;
@@ -1706,17 +1706,17 @@ codeunit 137064 "SCM Warehouse Management"
         Assert.AreEqual(
           0,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that the blocked lot is not available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotUnblocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that only the unblocked lot is available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get availability and verify that only the unblocked lot is available.');
         Assert.AreEqual(
           UnblockedQty,
@@ -1747,37 +1747,37 @@ codeunit 137064 "SCM Warehouse Management"
         Assert.AreEqual(
           0,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotBlocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that the blocked lot is not available.');
         Assert.AreEqual(
           0,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', SNBlocked, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", '', SNBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that the blocked serial is not available.');
         Assert.AreEqual(
           0,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotBlocked, SNBlocked, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotBlocked, SNBlocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that the blocked lot & serial is not available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotUnblocked, '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that only the unblocked lot is available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', SNUnblocked, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", '', SNUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that only the unblocked serial is available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", LotUnblocked, SNUnblocked, 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", LotUnblocked, SNUnblocked, '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get lot-specific availability and verify that only the unblocked lot & serial is available.');
         Assert.AreEqual(
           UnblockedQty,
           CreatePick.CalcTotalAvailQtyToPick(BinContent."Location Code", BinContent."Item No.",
-            BinContent."Variant Code", '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
+            BinContent."Variant Code", '', '', '', 0, 0, '', 0, 0, BlockedQty + UnblockedQty, false),
           'Get availability and verify that only the unblocked lot is available.');
         Assert.AreEqual(
           UnblockedQty,
@@ -2247,7 +2247,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [WHEN] Calculate quantity available to pick from pick worksheet
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 0);
         CreatePick.SetCalledFromPickWksh(true);
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', 0, 0, '', 0, 0, 0, false);
+        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', '', 0, 0, '', 0, 0, 0, false);
 
         // [THEN] Available quantity is 0
         Assert.AreEqual(0, AvailQty, QtyAvailMustBeZeroErr);
@@ -2279,7 +2279,7 @@ codeunit 137064 "SCM Warehouse Management"
         // [WHEN] Calculate quantity available to pick from move worksheet
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 0);
         CreatePick.SetCalledFromMoveWksh(true);
-        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', 0, 0, '', 0, 0, 0, false);
+        AvailQty := CreatePick.CalcTotalAvailQtyToPick(LocationWhite.Code, Item."No.", '', '', '', '', 0, 0, '', 0, 0, 0, false);
 
         // [THEN] Available quantity is 0
         Assert.AreEqual(0, AvailQty, QtyAvailMustBeZeroErr);

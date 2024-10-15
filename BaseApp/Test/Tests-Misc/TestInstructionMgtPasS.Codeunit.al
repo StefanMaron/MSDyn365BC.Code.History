@@ -12,6 +12,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -32,7 +33,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndSendConfirmationModalPageHandler,EmailDialogModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('EmailDialogModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSending()
     var
@@ -48,10 +49,12 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
         DocumentNo := SalesHeader."No.";
 
+        UpdateSalesInvoiceReportSelections;
+
         // Exercise
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice."Email as PDF".Invoke;
 
         // Verify
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
@@ -65,6 +68,8 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Instruction Mgt. PasS");
+
         BindActiveDirectoryMockEvents;
 
         UserPreference.DeleteAll();
@@ -80,11 +85,19 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         Commit();
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostAndSendConfirmationModalPageHandler(var PostAndSendConfirmation: TestPage "Post and Send Confirmation")
+    local procedure UpdateSalesInvoiceReportSelections()
+    var
+        ExistingReportSelections: Record "Report Selections";
+        NewReportSelections: Record "Report Selections";
     begin
-        PostAndSendConfirmation.Yes.Invoke;
+        ExistingReportSelections.SetRange(Usage, ExistingReportSelections.Usage::"S.Invoice");
+        ExistingReportSelections.ModifyAll(Default, false, true);
+
+        NewReportSelections.Init();
+        NewReportSelections.Validate(Usage, NewReportSelections.Usage::"S.Invoice");
+        NewReportSelections.Validate("Report ID", REPORT::"Standard Sales - Invoice");
+        NewReportSelections.Validate(Default, true);
+        NewReportSelections.Insert(true);
     end;
 
     [ModalPageHandler]

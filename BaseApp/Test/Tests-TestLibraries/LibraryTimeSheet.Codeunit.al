@@ -256,7 +256,7 @@ codeunit 131904 "Library - Time Sheet"
         HumanResourceUnitOfMeasure.Insert(true);
     end;
 
-    procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
+    procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Time Activity")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin

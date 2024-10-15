@@ -937,6 +937,42 @@ codeunit 137510 "SMB Service Item"
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
 
         // EXERCISE
+        asserterror LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+
+        InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
+        InvtSetup.Modify();
+
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
+
+        // EXERCISE
+        LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+
+        InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
+        InvtSetup.Modify();
+
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
+
+        // EXERCISE
+        LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+
+        InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
+        InvtSetup.Modify();
+
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
+
+        // EXERCISE
+        LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+
+        InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
+        InvtSetup.Modify();
+
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
+
+        // EXERCISE
         LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
 
         InvtSetup.Validate("Location Mandatory", OldInvtSetup."Location Mandatory");
@@ -2129,6 +2165,7 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
         SetNoSeries;
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;

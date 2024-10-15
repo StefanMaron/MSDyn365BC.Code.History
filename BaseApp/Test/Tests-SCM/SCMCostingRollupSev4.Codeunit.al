@@ -30,7 +30,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         ApplErr: Label 'If the item carries serial or lot numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
         CalculatePer: Option "Item Ledger Entry",Item;
         CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
-        ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
 
     local procedure Initialize()
     var
@@ -110,7 +110,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
+    [HandlerFunctions('NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure PS34589()
     var
@@ -863,9 +863,9 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
+    procedure NothingPostedMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+        Assert.ExpectedMessage(NothingToPostTxt, Message);
     end;
 }
 

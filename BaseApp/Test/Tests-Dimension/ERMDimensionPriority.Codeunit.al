@@ -59,7 +59,7 @@ codeunit 134381 "ERM Dimension Priority"
         SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode, 1, 1);
 
         // Find default dimension codes
-        FindDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo);
+        LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo);
 
         // Create a journal line
         ClearJournalBatch(GenJournalBatch);
@@ -93,7 +93,7 @@ codeunit 134381 "ERM Dimension Priority"
         SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode, 1, 1);
 
         // Find default dimension codes
-        FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", GenJournalBatch."Bal. Account No.");
+        LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", GenJournalBatch."Bal. Account No.");
 
         // Create a journal line
         ClearJournalBatch(GenJournalBatch);
@@ -915,8 +915,9 @@ codeunit 134381 "ERM Dimension Priority"
 
         i := 0;
         Dimension.FindSet;
+        Dimension.Next; // to skip Agreements
         repeat
-            if i < Dimension.Count - 1 then
+            if i < Dimension.Count - 2 then
                 LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo, Dimension.Code,
                   GetDimensionValueCode(Dimension.Code, 1));
             if i > 0 then

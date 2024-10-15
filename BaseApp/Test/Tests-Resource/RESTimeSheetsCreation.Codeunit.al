@@ -60,7 +60,7 @@ codeunit 136503 "RES Time Sheets Creation"
         IncorrectAllocationQuantityErr: Label 'Incorrect Allocation Quantity';
         IsInitialized: Boolean;
         LineCountErr: Label 'Number of %1 entries is wrong';
-        IncorrectHRUnitOfMeasureTableRelationErr: Label 'The field Unit of Measure Code of table Cause of Absence contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)', Locked = true;
+        IncorrectHRUnitOfMeasureTableRelationErr: Label 'The field Unit of Measure Code of table Time Activity contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)', Locked = true;
 
     local procedure Initialize()
     var
@@ -1399,7 +1399,7 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine: Record "Time Sheet Line";
         Date: Record Date;
         ResourcesSetup: Record "Resources Setup";
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
     begin
         // Verify that Time Sheet line with Type Absence cannot be created when no Employee is linked with Resource
         Initialize;
@@ -1438,7 +1438,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Date: Record Date;
         ResourcesSetup: Record "Resources Setup";
         Employee: Record Employee;
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
         EmployeeAbsence: Record "Employee Absence";
         TimeSheet: TestPage "Time Sheet";
         DayTimeAllocation: array[7] of Decimal;
@@ -2216,7 +2216,7 @@ codeunit 136503 "RES Time Sheets Creation"
     [Scope('OnPrem')]
     procedure UT_AssignHumanResourceUOMForCauseOfAbsence()
     var
-        CauseOfAbsence: Record "Cause of Absence";
+        TimeActivity: Record "Time Activity";
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         // [FEATURE] [UT] [Employee] [Unit of Measure]
@@ -2224,17 +2224,17 @@ codeunit 136503 "RES Time Sheets Creation"
 
         Initialize;
         LibraryTimeSheet.CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
-        CauseOfAbsence.Init();
-        CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+        TimeActivity.Init();
+        TimeActivity.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
 
-        CauseOfAbsence.TestField("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+        TimeActivity.TestField("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure UT_ErrorWhenAssignNormalUOMForCauseOfAbsence()
     var
-        CauseOfAbsence: Record "Cause of Absence";
+        TimeActivity: Record "Time Activity";
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // [FEATURE] [UT] [Employee] [Unit of Measure]
@@ -2242,8 +2242,8 @@ codeunit 136503 "RES Time Sheets Creation"
 
         Initialize;
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        CauseOfAbsence.Init();
-        asserterror CauseOfAbsence.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        TimeActivity.Init();
+        asserterror TimeActivity.Validate("Unit of Measure Code", UnitOfMeasure.Code);
 
         Assert.ExpectedError(StrSubstNo(IncorrectHRUnitOfMeasureTableRelationErr, UnitOfMeasure.Code));
     end;
@@ -2441,7 +2441,7 @@ codeunit 136503 "RES Time Sheets Creation"
         OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
     end;
 
-    local procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
+    local procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Time Activity")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin

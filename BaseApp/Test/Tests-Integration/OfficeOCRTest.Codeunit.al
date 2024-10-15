@@ -34,6 +34,7 @@ codeunit 139058 "Office OCR Test"
         PurchaseInvoiceCreateFromAttachmentVisibleMsg: Label 'Create from Attachment is not visible when in the Outlook Mobile App Add-in';
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionNotVisible_OCRNotEnabled()
     var
@@ -61,6 +62,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionVisible()
     var
@@ -87,6 +89,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionEnabled()
     var
@@ -120,6 +123,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionDisabled_NoAttachments()
     var
@@ -146,7 +150,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCR()
     var
@@ -188,6 +192,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendAttachmentToIncomingDocument()
     var
@@ -232,6 +237,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToIncomingDocumentWithPurchaseInvoiceLink()
     var
@@ -288,6 +294,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendIncomingDocApprovalRequest()
     var
@@ -332,6 +339,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionNotVisible_WorkflowExists()
     var
@@ -366,6 +374,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure CreateFromFileAndAttachmentNotVisibleOnPurchaseInvoiceInOutlookMobileApp()
     var
@@ -402,6 +411,7 @@ codeunit 139058 "Office OCR Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure SendToOCRActionNotVisibleInOutlookMobileApp()
     var
@@ -425,6 +435,66 @@ codeunit 139058 "Office OCR Test"
 
         // [THEN] SendToOCR action in the addin is not visible.
         Assert.IsFalse(VendorCard.SendToOCR.Visible, SendToOCRActionOfficeMobileVisibleMsg);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateFromAttachmentOnPurchaseInvoiceWithLinesInOutlookApp()
+    var
+        OfficeAddinContext: Record "Office Add-in Context";
+        Vendor: Record Vendor;
+        ExchangeObject: Record "Exchange Object";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorCard: TestPage "Vendor Card";
+        OfficeOCRIncomingDocuments: TestPage "Office OCR Incoming Documents";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        ContactNo: Code[20];
+        NewBusRelCode: Code[10];
+        VendorNo: Code[20];
+        TestEmail: Text[80];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Stan is able to send from am attachment in an outlook email to Incoming Document (when record has lines)
+        Initialize(OfficeHostType.OutlookItemRead);
+
+        // [GIVEN] A Vendor in a system with or without OCR set up enabled and an email with attachments exists
+        TestEmail := RandomEmail;
+        VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
+        Vendor.SetRange("No.", VendorNo);
+        Vendor.Get(VendorNo);
+        OfficeAddinContext.SetRange(Email, TestEmail);
+
+        // [WHEN] The vendor card is opened up in Office Addin.
+        VendorCard.Trap;
+        LibraryOfficeHostProvider.CreateEmailAttachments('application/pdf', 1,
+          ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments, VendorNo);
+        RunMailEngine(OfficeAddinContext, OfficeHostType.OutlookItemRead);
+
+        // [THEN] A vendor card is opened
+        // [WHEN] A New Purchase Invoice is created from the vendor card
+        PurchaseInvoice.Trap;
+        VendorCard.NewPurchaseInvoice.Invoke;
+
+        // [THEN] A Purchase invoice card is opened with "Create Incoming Document from Attachment" action enabled and "View Incoming Document" action disabled
+        Assert.IsTrue(PurchaseInvoice.IncomingDocEmailAttachment.Enabled, PurchaseInvoiceIncomingEmailAttachEnabledMsg);
+
+        // [WHEN] A Purchase invoice card is opened an lines are added
+        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then
+            LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] SendToIncomingDocuments action is invoked.
+        OfficeOCRIncomingDocuments.Trap;
+        PurchaseInvoice.IncomingDocEmailAttachment.Invoke;
+        OfficeOCRIncomingDocuments.OK.Invoke;
+
+        // [THEN] "View Incoming Document" action in the Purchase Invoice page is enabled
+        if PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.") then begin
+            PurchaseInvoice.Close;
+            PurchaseInvoice.Trap;
+            PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
+        end;
+        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled, PurchaseInvoiceViewIncomingDocEnabledMsg);
     end;
 
     local procedure Initialize(HostType: Text)
@@ -652,6 +722,13 @@ codeunit 139058 "Office OCR Test"
 
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

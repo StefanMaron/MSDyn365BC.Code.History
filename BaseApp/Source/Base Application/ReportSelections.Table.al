@@ -536,7 +536,7 @@ table 77 "Report Selections"
     end;
 
     [Scope('OnPrem')]
-    procedure GetEmailBodyCustomText(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]; EmailBodyText: Text): Boolean
+    procedure GetEmailBodyCustomText(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]; EmailBodyText: Text) Result: Boolean
     var
         TempBodyReportSelections: Record "Report Selections" temporary;
         O365HTMLTemplMgt: Codeunit "O365 HTML Templ. Mgt.";
@@ -573,7 +573,10 @@ table 77 "Report Selections"
 
         CustEmailAddress := GetEmailAddress(ReportUsage, RecordVariant, CustNo, TempBodyReportSelections);
 
-        OnAfterGetEmailBodyCustomer(CustEmailAddress, ServerEmailBodyFilePath);
+        IsHandled := false;
+        OnAfterGetEmailBodyCustomer(CustEmailAddress, ServerEmailBodyFilePath, RecordVariant, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         exit(true);
     end;
@@ -594,7 +597,12 @@ table 77 "Report Selections"
         FieldRef: FieldRef;
         DocumentNo: Code[20];
         EmailAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        OnBeforeGetEmailAddress(ReportUsage, RecordVariant, TempBodyReportSelections, EmailAddress, IsHandled);
+        if IsHandled then
+            exit(EmailAddress);
+
         RecordRef.GetTable(RecordVariant);
         if not RecordRef.IsEmpty then
             if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, 'No.') then begin
@@ -627,7 +635,7 @@ table 77 "Report Selections"
     end;
 
     [Scope('OnPrem')]
-    procedure GetEmailBodyVendor(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20]; var VendorEmailAddress: Text[250]): Boolean
+    procedure GetEmailBodyVendor(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20]; var VendorEmailAddress: Text[250]) Result: Boolean
     var
         TempBodyReportSelections: Record "Report Selections" temporary;
         FoundVendorEmailAddress: Text[250];
@@ -660,7 +668,10 @@ table 77 "Report Selections"
         if FoundVendorEmailAddress <> '' then
             VendorEmailAddress := FoundVendorEmailAddress;
 
-        OnAfterGetEmailBodyVendor(VendorEmailAddress, ServerEmailBodyFilePath);
+        IsHandled := false;
+        OnAfterGetEmailBodyVendor(VendorEmailAddress, ServerEmailBodyFilePath, RecordVariant, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         exit(true);
     end;
@@ -760,7 +771,7 @@ table 77 "Report Selections"
         if not RecRef.Find() then
             exit;
 
-        FindPrintUsageInternal(ReportUsage, AccountNo, TempAttachReportSelections, RecRef.Number());
+        FindPrintUsageInternal(ReportUsage, AccountNo, TempAttachReportSelections, GetAccountTableId(RecRef.Number()));
         with TempAttachReportSelections do
             repeat
                 if CanSaveReportAsPDF(TempAttachReportSelections."Report ID") then begin
@@ -780,6 +791,25 @@ table 77 "Report Selections"
             until Next() = 0;
 
         DocumentAttachmentMgmt.ShowNotification(RecordVariant, NumberOfReportsAttached, ShowNotificationAction)
+    end;
+
+    local procedure GetAccountTableId(DocumentTableId: Integer): Integer
+    begin
+        case DocumentTableId of
+            Database::"Sales Header",
+            Database::"Sales Invoice Header",
+            Database::"Sales Cr.Memo Header",
+            Database::"Sales Shipment Header",
+            Database::"Return Receipt Header":
+                exit(Database::Customer);
+
+            Database::"Purchase Header",
+            Database::"Purch. Inv. Header",
+            Database::"Purch. Cr. Memo Hdr.",
+            Database::"Purch. Rcpt. Header",
+            Database::"Return Shipment Header":
+                exit(Database::Vendor);
+        end;
     end;
 
     local procedure CanSaveReportAsPDF(ReportId: Integer): Boolean
@@ -1142,7 +1172,7 @@ table 77 "Report Selections"
         FilePath := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 250);
 
         ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
-        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath);
         if not IsHandled then
             REPORT.SaveAsPdf(ReportID, FilePath, RecordVariant);
         ReportLayoutSelection.SetTempLayoutSelected('');
@@ -1205,6 +1235,7 @@ table 77 "Report Selections"
                 ToReportSelections."Use for Email Attachment" := CustomReportSelection."Use for Email Attachment";
                 ToReportSelections."Use for Email Body" := CustomReportSelection."Use for Email Body";
                 ToReportSelections.Default := true;
+                OnCopyToReportSelectionOnBeforInsertToReportSelections(ToReportSelections, CustomReportSelection);
                 ToReportSelections.Insert();
             until CustomReportSelection.Next() = 0;
     end;
@@ -1403,7 +1434,12 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCustomReportSelection(ReportSelections: Record "Report Selections"; var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer; ReturnValue: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeGetEmailAddress(ReportUsage: Option; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomReportSelection(var ReportSelections: Record "Report Selections"; var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1443,7 +1479,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250])
     begin
     end;
 
@@ -1473,7 +1509,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetEmailBodyCustomer(CustomerEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
+    local procedure OnAfterGetEmailBodyCustomer(var CustomerEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250]; RecordVariant: Variant; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1483,7 +1519,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetEmailBodyVendor(VendorEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250])
+    local procedure OnAfterGetEmailBodyVendor(var VendorEmailAddress: Text[250]; ServerEmailBodyFilePath: Text[250]; RecordVariant: Variant; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1504,6 +1540,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyToReportSelectionOnBeforInsertToReportSelections(var ReportSelections: Record "Report Selections"; CustomReportSelection: Record "Custom Report Selection")
     begin
     end;
 

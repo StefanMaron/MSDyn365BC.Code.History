@@ -50,7 +50,7 @@ codeunit 137275 "SCM Inventory Journals"
         QuantityError: Label 'Quantity must be positive.';
         QuantityErr: Label 'Quantity must be same.';
         LotNumberError: Label 'You must assign a lot number for item %1.', Comment = '%1:Value1';
-        QtyToHandleBaseError: Label '%1 in Tracking Specification for %2 %3, %4: , %5: %6 is currently %7. It must be %8.', Comment = '%1:FieldCaption1,%2:FieldCaption2,%3:Value1,%4:FieldCaption3,%5:FieldCaption4,%6::Value2,%7::Value3,%8::Value4,';
+        QtyToHandleBaseError: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1:FieldCaption1,%2:Item No,%3:Actual Qty.,%4:Expected Qty.,%5:Serial No.,%6:Lot';
         NotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
         ValueNotMatchedError: Label 'Value must be same.';
         ItemJournalLineNotExistErr: Label '%1 with Variant %2, Location %3, Bin %4 is not exist.';
@@ -422,10 +422,10 @@ codeunit 137275 "SCM Inventory Journals"
         // [THEN] Verify values on Item Tracking Comment.
         FindLotNoInformation(LotNoInformation, ReclassificationItemJournalLine."Item No.");
         FindItemTrackingComment(ItemTrackingComment, ItemTrackingComment.Type::"Lot No.", LotNoInformation."Item No.");
-        ItemTrackingComment.TestField("Serial/Lot No.", LotNoInformation."Lot No.");
+        ItemTrackingComment.TestField("Serial/Lot/CD No.", LotNoInformation."Lot No.");
 
         FindItemTrackingComment(ItemTrackingComment, ItemTrackingComment.Type::"Serial No.", LotNoInformation."Item No.");
-        ItemTrackingComment.TestField("Serial/Lot No.", GlobalNewSerialNo);
+        ItemTrackingComment.TestField("Serial/Lot/CD No.", GlobalNewSerialNo);
     end;
 
     [Test]
@@ -570,9 +570,9 @@ codeunit 137275 "SCM Inventory Journals"
         Assert.ExpectedError(
           StrSubstNo(
             QtyToHandleBaseError, TrackingSpecification.FieldCaption("Qty. to Handle (Base)"),
-            ReclassificationItemJournalLine.FieldCaption("Item No."), GlobalItemNo,
-            ReclassificationItemJournalLine.FieldCaption("Serial No."), ReclassificationItemJournalLine.FieldCaption("Lot No."),
-            GlobalNewLotNo, ReclassificationItemJournalLine.Quantity - 1, ReclassificationItemJournalLine.Quantity));
+            GlobalItemNo,
+            ReclassificationItemJournalLine.Quantity - 1, ReclassificationItemJournalLine.Quantity,
+            '', GlobalNewLotNo));
     end;
 
     [Test]
@@ -654,6 +654,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
         StockkeepingUnit: Record "Stockkeeping Unit";
+        GLSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
         Quantity: Decimal;
         UnitAmount: Decimal;
@@ -662,6 +663,10 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [GIVEN] Create Item and Stockkeeping Unit, create Location, post Sales entry.
         Initialize;
+
+        GLSetup.Get();
+        GLSetup."Use Legacy G/L Entry Locking" := true;
+        GLSetup.Modify();
 
         LibraryInventory.SetAutomaticCostAdjmtAlways;
         LibraryInventory.SetAverageCostSetup(

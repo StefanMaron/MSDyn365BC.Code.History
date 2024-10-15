@@ -459,10 +459,9 @@ codeunit 134425 "Payment Services Test"
 
         CreatePaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
+        CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
         LibraryVariableStorage.Enqueue(UpdateOrCreateNewOption::"Update Existing");
-
-        CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
@@ -1726,6 +1725,7 @@ codeunit 134425 "Payment Services Test"
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice";
         ReportSelections.Sequence := '1';
         ReportSelections."Report ID" := REPORT::"Standard Sales - Invoice";
+        ReportSelections.Default := true;
         ReportSelections.Insert();
     end;
 

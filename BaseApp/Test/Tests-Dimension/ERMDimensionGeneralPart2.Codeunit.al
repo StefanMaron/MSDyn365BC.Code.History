@@ -2604,6 +2604,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         for i := 1 to 2 do begin
             LibraryVariableStorage.Enqueue(TotalQuantity[1] + TotalQuantity[2]); // Matrix's Total Quantity
             LibraryVariableStorage.Enqueue(TotalAmount[1] + TotalAmount[2]); // Matrix's Total Amount
+            LibraryVariableStorage.Enqueue(i); // Set #
             LibraryVariableStorage.Enqueue(TotalAmount[i]); // Matrix's 1st column amount
         end;
 
@@ -3190,7 +3191,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Verifying the values on Sales Analysis by Dim Matrix page.
         SalesAnalysisbyDimMatrix.TotalQuantity.AssertEquals(-TotalQuantity);
         SalesAnalysisbyDimMatrix.TotalInvtValue.AssertEquals(TotalAmount);
-        SalesAnalysisbyDimMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        if LibraryVariableStorage.DequeueInteger = 1 then
+            SalesAnalysisbyDimMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal)
+        else
+            SalesAnalysisbyDimMatrix.Field26.AssertEquals(LibraryVariableStorage.DequeueDecimal);
     end;
 
     [ModalPageHandler]

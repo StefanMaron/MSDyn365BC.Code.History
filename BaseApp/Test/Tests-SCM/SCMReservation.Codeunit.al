@@ -44,7 +44,7 @@ codeunit 137049 "SCM Reservation"
         NotTrueDemandErr: Label 'You cannot reserve this entry because it is not a true demand or supply.';
         ReservEntryMustNotExistErr: Label 'Supply Reservation Entries for Item Ledger Entries must not exist after cancelling the reservation.';
         ProdOrderCreatedMsg: Label 'Released Prod. Order';
-        ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ShipDateChangedErr: Label 'Shipment Date should not be changed';
         ItemNo: Code[20];
 
@@ -985,7 +985,7 @@ codeunit 137049 "SCM Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ReservationPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ReservationPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure PartialReserveSalesAdjustCostAndPostToGL()
     begin
@@ -1001,7 +1001,7 @@ codeunit 137049 "SCM Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ReservationPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ReservationPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure FullReserveSalesAdjustCostAndPostToGL()
     begin
@@ -1037,7 +1037,7 @@ codeunit 137049 "SCM Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ReservationPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ReservationPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure PartialReserveRelProdOrderAdjustCostAndPostToGL()
     var
@@ -1055,7 +1055,7 @@ codeunit 137049 "SCM Reservation"
     end;
 
     [Test]
-    [HandlerFunctions('ReservationPageHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ReservationPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure FullReserveRelProdOrderAdjustCostAndPostToGL()
     var
@@ -3591,9 +3591,9 @@ codeunit 137049 "SCM Reservation"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
+    procedure NothingPostedMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+        Assert.ExpectedMessage(NothingToPostTxt, Message);
     end;
 
     [RecallNotificationHandler]

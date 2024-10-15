@@ -63,6 +63,7 @@ codeunit 6503 "Item Tracking Doc. Management"
                         TempItemLedgEntry."Shipped Qty. Not Returned" := "Quantity (Base)";
                     TempItemLedgEntry."Document No." := "Source ID";
                     TempItemLedgEntry."Document Line No." := "Source Ref. No.";
+                    OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, TempReservEntry, ItemLedgEntry, FromPurchase);
                     TempItemLedgEntry.Insert();
                 until Next = 0;
         end;
@@ -175,7 +176,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         InvoiceRowID: Text[250];
     begin
         InvoiceRowID := ItemTrackingMgt.ComposeRowID(Type, Subtype, ID, BatchName, ProdOrderLine, RefNo);
-        RetrieveEntriesFromPostedInv(TempItemLedgEntry, InvoiceRowID);
+        RetrieveEntriesFromPostedInvoice(TempItemLedgEntry, InvoiceRowID);
         FillTrackingSpecBufferFromILE(
           TempItemLedgEntry, TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description);
 
@@ -284,7 +285,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         end;
     end;
 
-    local procedure RetrieveEntriesFromPostedInv(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; InvoiceRowID: Text[250])
+    procedure RetrieveEntriesFromPostedInvoice(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; InvoiceRowID: Text[250])
     var
         ValueEntryRelation: Record "Value Entry Relation";
         ValueEntry: Record "Value Entry";
@@ -597,7 +598,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     var
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
-        RetrieveEntriesFromPostedInv(TempItemLedgEntry, InvoiceRowID);
+        RetrieveEntriesFromPostedInvoice(TempItemLedgEntry, InvoiceRowID);
         if not TempItemLedgEntry.IsEmpty then begin
             PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
             exit(true);
@@ -904,6 +905,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveEntriesFromPostedInvOnBeforeAddTempRecordToSet(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectItemTrkgPerPostedDocLineOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; FromPurchase: Boolean);
     begin
     end;
 }

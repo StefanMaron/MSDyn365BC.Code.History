@@ -23,7 +23,6 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LinesMustNotBeCreated: Label 'Lines must not be created for Fixed Asset %1. ';
         DimensionValueError: Label 'A dimension used in %1 %2, %3, %4 has caused an error. Select a %5 for the %6 %7 for %8 %9.', Comment = '%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.';
         CheckDimValueInGenJournalErr: Label 'Wrong %1 in Dimension Set for Gen. Journal Line. Document No. = %2, Account No. = %3, Batch Name = %4.';
-        CompletionStatsTok: Label 'The depreciation has been calculated.';
 
     local procedure Initialize()
     var
@@ -144,7 +143,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DepreciationBalanceAccount()
     var
@@ -163,7 +162,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DepreciationNotBalanceAccount()
     var
@@ -874,7 +873,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DepreciationBalanceAccountDimension()
     var
@@ -915,7 +914,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CombinedDiffDefaultDimOnCalculateDepreciationWithInsertBalAcc()
     var
@@ -948,7 +947,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CombinedSameDefaultDimOnCalculateDepreciationWithInsertBalAcc()
     var
@@ -2079,14 +2078,6 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Assert.ExpectedMessage(CompletionStatsTok, Question);
-        Reply := false;
     end;
 }
 

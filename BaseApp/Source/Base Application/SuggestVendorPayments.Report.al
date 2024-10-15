@@ -98,6 +98,8 @@ report 393 "Suggest Vendor Payments"
                 PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.DeleteAll();
 
+                OnAfterPostDataItem(GenJnlBatch, GenJnlLine2);
+
                 Window2.Close;
                 Window.Close;
                 if not HideMessage then
@@ -744,7 +746,7 @@ report 393 "Suggest Vendor Payments"
                                     TempPaymentBuffer.Modify();
                                 end else begin
                                     TempPaymentBuffer."Document No." := NextDocNo;
-                                    NextDocNo := IncStr(NextDocNo);
+                                    GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
                                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     TempPaymentBuffer.Insert();
@@ -811,7 +813,7 @@ report 393 "Suggest Vendor Payments"
                         "Document Type" := "Document Type"::Refund;
 
                     "Document No." := NextDocNo;
-                    NextDocNo := IncStr(NextDocNo);
+                    IncrementDocumentNo(GenJnlBatch, NextDocNo);
                 end else
                     if (TempPaymentBuffer."Vendor No." = OldTempPaymentBuffer."Vendor No.") and
                        (TempPaymentBuffer."Currency Code" = OldTempPaymentBuffer."Currency Code")
@@ -819,7 +821,7 @@ report 393 "Suggest Vendor Payments"
                         "Document No." := OldTempPaymentBuffer."Document No."
                     else begin
                         "Document No." := NextDocNo;
-                        NextDocNo := IncStr(NextDocNo);
+                        IncrementDocumentNo(GenJnlBatch, NextDocNo);
                         OldTempPaymentBuffer := TempPaymentBuffer;
                         OldTempPaymentBuffer."Document No." := "Document No.";
                     end;
@@ -1294,6 +1296,11 @@ report 393 "Suggest Vendor Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostDataItem(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateTempBufferFromVendorLedgerEntry(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
@@ -1312,5 +1319,6 @@ report 393 "Suggest Vendor Payments"
     local procedure OnGetVendLedgEntriesOnBeforeLoop(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date; LastDueDateToPayReq: Date; Future: Boolean; var IsHandled: Boolean)
     begin
     end;
+
 }
 

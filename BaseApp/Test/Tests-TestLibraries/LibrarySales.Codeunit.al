@@ -336,6 +336,33 @@ codeunit 130509 "Library - Sales"
         SalesLine.Modify(true);
     end;
 
+    procedure CreateSalesInvoiceWithGLAcc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
+    procedure CreateSalesCrMemoWithGLAcc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; GLAccountNo: Code[20])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
+    procedure CreateFCYSalesInvoiceWithGLAcc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; GLAccountNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
     procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20])
     begin
         DisableWarningOnCloseUnreleasedDoc;
@@ -376,6 +403,9 @@ codeunit 130509 "Library - Sales"
             SalesLine.Type::"Charge (Item)":
                 if No = '' then
                     No := LibraryInventory.CreateItemChargeNo;
+            SalesLine.Type::"G/L Account":
+                if No = '' then
+                    No := LibraryERM.CreateGLAccountWithSalesSetup;
         end;
         SalesLine.Validate("No.", No);
         SalesLine.Validate("Shipment Date", ShipmentDate);
@@ -847,6 +877,13 @@ codeunit 130509 "Library - Sales"
         SalesPostPrepayments.Invoice(SalesHeader);
     end;
 
+    procedure PreviewSalesDocument(var SalesHeader: Record "Sales Header")
+    var
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+    begin
+        SalesPostYesNo.Preview(SalesHeader);
+    end;
+
     procedure QuoteMakeOrder(var SalesHeader: Record "Sales Header"): Code[20]
     var
         SalesOrderHeader: Record "Sales Header";
@@ -1170,6 +1207,130 @@ codeunit 130509 "Library - Sales"
         SalesSetup.Get();
         SalesSetup."Ignore Updated Addresses" := false;
         SalesSetup.Modify();
+    end;
+
+    procedure CreateCorrectiveSalesInvoice(var CorrSalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CorrDocNo: Code[20]; CorrDocType: Option; PostingDate: Date)
+    begin
+        CreateCorrectiveSalesDocument(
+          CorrSalesHeader, CustomerNo, CorrDocNo, CorrSalesHeader."Document Type"::Invoice,
+          CorrDocType, CorrSalesHeader."Corrected Doc. Type"::Invoice, PostingDate);
+    end;
+
+    procedure CreateCorrectiveSalesCrMemo(var CorrSalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CorrDocNo: Code[20]; CorrDocType: Option; PostingDate: Date)
+    begin
+        CreateCorrectiveSalesDocument(
+          CorrSalesHeader, CustomerNo, CorrDocNo, CorrSalesHeader."Document Type"::"Credit Memo",
+          CorrDocType, CorrSalesHeader."Corrected Doc. Type"::"Credit Memo", PostingDate);
+    end;
+
+    local procedure CreateCorrectiveSalesDocument(var CorrSalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CorrDocNo: Code[20]; DocType: Option; CorrectiveDocType: Option; CorrectedDocType: Option; PostingDate: Date)
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        CorrectiveDocumentMgt: Codeunit "Corrective Document Mgt.";
+        FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
+        CorrectionType: Option Quantity,"Unit Price";
+    begin
+        CreateSalesHeader(CorrSalesHeader, DocType, CustomerNo);
+        CorrSalesHeader.Validate("Posting Date", PostingDate);
+        CorrSalesHeader.Validate("Corrective Document", true);
+        CorrSalesHeader.Validate("Corrective Doc. Type", CorrectiveDocType);
+        CorrSalesHeader.Validate("Revision No.", LibraryUtility.GenerateGUID);
+        CorrSalesHeader.Validate("Corrected Doc. Type", CorrectedDocType);
+        CorrSalesHeader.Validate("Corrected Doc. No.", CorrDocNo);
+        CorrSalesHeader.Modify(true);
+
+        if CorrSalesHeader."Document Type" = CorrSalesHeader."Document Type"::Invoice then
+            FromDocType := FromDocType::"Posted Invoice"
+        else
+            FromDocType := FromDocType::"Posted Credit Memo";
+        if CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Correction then begin
+            CorrectiveDocumentMgt.SetSalesHeader(CorrSalesHeader."Document Type", CorrSalesHeader."No.");
+            CorrectiveDocumentMgt.SetCorrectionType(CorrectionType::Quantity);
+            if FromDocType = FromDocType::"Posted Invoice" then begin
+                SalesInvoiceLine.SetRange("Document No.", CorrDocNo);
+                SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                CorrectiveDocumentMgt.CreateSalesLinesFromPstdInv(SalesInvoiceLine);
+            end else begin
+                SalesCrMemoLine.SetRange("Document No.", CorrDocNo);
+                SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+                CorrectiveDocumentMgt.CreateSalesLinesFromPstdCrMemo(SalesCrMemoLine);
+            end;
+        end else
+            CopySalesDocument(CorrSalesHeader, FromDocType, CorrDocNo, false, false);
+    end;
+
+    procedure CreateCorrSalesCrMemoByInvNo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; InvNo: Code[20])
+    begin
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+        with SalesHeader do begin
+            Validate(Correction, true);
+            Validate("Corrective Document", true);
+            Validate("Corrective Doc. Type", "Corrective Doc. Type"::Correction);
+            Validate("Corrected Doc. Type", "Corrected Doc. Type"::Invoice);
+            Validate("Corrected Doc. No.", InvNo);
+            Modify(true);
+        end;
+    end;
+
+    procedure CreateSalesVATLedger(StartDate: Date; EndDate: Date; CustFilter: Text[250]): Code[20]
+    var
+        VATLedger: Record "VAT Ledger";
+        CreateVATSalesLedger: Report "Create VAT Sales Ledger";
+    begin
+        VATLedger.Init();
+        VATLedger.Validate(Type, VATLedger.Type::Sales);
+        VATLedger.Validate("Start Date", StartDate);
+        VATLedger.Validate("End Date", EndDate);
+        VATLedger.Insert(true);
+
+        VATLedger.SetRecFilter;
+        CreateVATSalesLedger.SetTableView(VATLedger);
+        CreateVATSalesLedger.UseRequestPage(false);
+        CreateVATSalesLedger.SetParameters(CustFilter, '', '', 0, false, true, true, true, true, true, true);
+        CreateVATSalesLedger.Run;
+
+        exit(VATLedger.Code);
+    end;
+
+    procedure CreateSalesVATLedgerAddSheet(VATLedgerCode: Code[20]): Code[20]
+    var
+        VATLedger: Record "VAT Ledger";
+        CreateVATSalesLedAdSh: Report "Create VAT Sales Led. Ad. Sh.";
+        VATSalesLedgers: TestPage "VAT Sales Ledgers";
+    begin
+        VATLedger.SetRange(Type, VATLedger.Type::Sales);
+        VATLedger.SetRange(Code, VATLedgerCode);
+        VATLedger.FindFirst;
+
+        VATSalesLedgers.OpenView;
+        VATSalesLedgers.FILTER.SetFilter(Code, VATLedger.Code);
+        VATSalesLedgers.Card.Invoke;
+
+        VATLedger.SetRecFilter;
+        CreateVATSalesLedAdSh.SetTableView(VATLedger);
+        CreateVATSalesLedAdSh.UseRequestPage(false);
+        CreateVATSalesLedAdSh.SetParameters(VATLedger."C/V Filter", '', '', 0, false, true, true, true, true, true);
+        CreateVATSalesLedAdSh.Run;
+
+        exit(VATLedger.Code);
+    end;
+
+    procedure ExportSalesVATLedger(VATLedgerCode: Code[20]; AddSheet: Boolean; FileName: Text[1024])
+    var
+        VATLedger: Record "VAT Ledger";
+        VATLedgerExport: Report "VAT Ledger Export";
+    begin
+        VATLedger.SetRange(Type, VATLedger.Type::Sales);
+        VATLedger.SetRange(Code, VATLedgerCode);
+        VATLedger.FindFirst;
+
+        VATLedger.SetRecFilter;
+        VATLedgerExport.InitializeReport(VATLedger.Type::Sales, VATLedger.Code, AddSheet);
+        VATLedgerExport.SetFileNameSilent(FileName);
+        VATLedgerExport.SetTableView(VATLedger);
+        VATLedgerExport.UseRequestPage(false);
+        VATLedgerExport.Run;
     end;
 
     procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])

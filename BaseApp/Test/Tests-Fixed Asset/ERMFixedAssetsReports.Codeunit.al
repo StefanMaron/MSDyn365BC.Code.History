@@ -1994,6 +1994,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Fixed Assets Reports");
         LibraryVariableStorage.Clear;
@@ -2005,6 +2006,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Trigger update of global dimension setup in general ledger
         LibraryDimension.GetGlobalDimCodeValue(1, DimValue);
         LibraryDimension.GetGlobalDimCodeValue(2, DimValue);
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         isInitialized := true;
         Commit();
@@ -2344,6 +2347,8 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
         FAJournalSetup.FindFirst;
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        if GenJournalBatch."No. Series" = '' then
+            GenJournalBatch."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
         GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");

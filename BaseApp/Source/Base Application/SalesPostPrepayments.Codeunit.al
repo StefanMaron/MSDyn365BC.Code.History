@@ -26,6 +26,7 @@
         Text005: Label 'Posting to customers       #4######\';
         Text006: Label 'Posting to bal. account    #5######';
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text011: Label '%1 %2 -> Credit Memo %3';
@@ -104,7 +105,7 @@
         PostedDocTabNo: Integer;
         LineNo: Integer;
     begin
-        OnBeforePostPrepayments(SalesHeader2, DocumentType, SuppressCommit);
+        OnBeforePostPrepayments(SalesHeader2, DocumentType, SuppressCommit, PreviewMode);
 
         SalesHeader := SalesHeader2;
         GLSetup.Get();
@@ -199,6 +200,14 @@
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
             until TempPrepmtInvLineBuffer.Next = 0;
 
+            if "Compress Prepayment" then
+                case DocumentType of
+                    DocumentType::Invoice:
+                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Sales Invoice Header", SalesInvHeader."No.");
+                    DocumentType::"Credit Memo":
+                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.");
+                end;
+
             OnAfterCreateLinesOnBeforeGLPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, TempPrepmtInvLineBuffer, DocumentType, LineNo);
 
             // G/L Posting
@@ -287,7 +296,7 @@
 
             CheckDimensions.CheckSalesPrepmtDim(SalesHeader);
             ErrorMessageMgt.Finish(RecordId);
-            OnCheckSalesPostRestrictions;
+            CheckSalesPostRestrictions();
             Cust.Get("Sell-to Customer No.");
             Cust.CheckBlockedCustOnDocs(Cust, PrepmtDocTypeToDocType(DocumentType), false, true);
             if "Bill-to Customer No." <> "Sell-to Customer No." then begin
@@ -401,6 +410,8 @@
         with SalesHeader do begin
             TempGlobalPrepmtInvLineBuf.Reset();
             TempGlobalPrepmtInvLineBuf.DeleteAll();
+            TempSalesLine.Reset();
+            TempSalesLine.DeleteAll();
             SalesSetup.Get();
             ApplyFilter(SalesHeader, DocumentType, SalesLine);
             if SalesLine.Find('-') then
@@ -417,6 +428,8 @@
                         TempPrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
                         if SalesSetup."Invoice Rounding" then
                             RoundAmounts(SalesHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferDummy);
+                        TempSalesLine := SalesLine;
+                        TempSalesLine.Insert();
                     end;
                 until SalesLine.Next = 0;
             if SalesSetup."Invoice Rounding" then
@@ -715,6 +728,24 @@
                     CopyLineComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, FromLineNo, ToLineNo);
                 DATABASE::"Sales Cr.Memo Header":
                     CopyLineComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, FromLineNo, ToLineNo);
+            end;
+    end;
+
+    local procedure CopyLineCommentLinesCompressedPrepayment(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        if not SalesSetup."Copy Comments Order to Invoice" then
+            exit;
+
+        with SalesCommentLine do
+            case ToDocType of
+                DATABASE::"Sales Invoice Header":
+                    CopyLineCommentsFromSalesLines(
+                      "Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, TempSalesLine);
+                DATABASE::"Sales Cr.Memo Header":
+                    CopyLineCommentsFromSalesLines(
+                      "Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, TempSalesLine);
             end;
     end;
 
@@ -1361,8 +1392,9 @@
             SalesInvLine."VAT Identifier" := "VAT Identifier";
             OnBeforeSalesInvLineInsert(SalesInvLine, SalesInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesInvLine.Insert();
-            CopyLineCommentLines(
-              SalesHeader."No.", DATABASE::"Sales Invoice Header", SalesInvHeader."No.", "Line No.", LineNo);
+            if not SalesHeader."Compress Prepayment" then
+                CopyLineCommentLines(
+                  SalesHeader."No.", DATABASE::"Sales Invoice Header", SalesInvHeader."No.", "Line No.", LineNo);
             OnAfterSalesInvLineInsert(SalesInvLine, SalesInvHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1435,8 +1467,9 @@
             SalesCrMemoLine."VAT Identifier" := "VAT Identifier";
             OnBeforeSalesCrMemoLineInsert(SalesCrMemoLine, SalesCrMemoHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesCrMemoLine.Insert();
-            CopyLineCommentLines(
-              SalesHeader."No.", DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", "Line No.", LineNo);
+            if not SalesHeader."Compress Prepayment" then
+                CopyLineCommentLines(
+                  SalesHeader."No.", DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", "Line No.", LineNo);
             OnAfterSalesCrMemoLineInsert(SalesCrMemoLine, SalesCrMemoHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1583,7 +1616,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostPrepayments(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforePostPrepayments(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 

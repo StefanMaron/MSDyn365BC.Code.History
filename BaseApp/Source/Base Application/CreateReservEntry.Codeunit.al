@@ -143,6 +143,8 @@
         Clear(InsertReservEntry);
         Clear(InsertReservEntry2);
         Clear(QtyToHandleAndInvoiceIsSet);
+
+        OnAfterCreateEntry(ItemNo, VariantCode, LocationCode);
     end;
 
     procedure CreateReservEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date)
@@ -251,6 +253,7 @@
         InsertReservEntry."New Serial No." := ItemJnlLine."Serial No.";
         InsertReservEntry."New Lot No." := ItemJnlLine."Lot No.";
         InsertReservEntry."New CD No." := ItemJnlLine."CD No.";
+        OnAfterSetNewTrackingFromItemJnlLine(InsertReservEntry, ItemJnlLine);
     end;
 
     procedure SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -258,6 +261,7 @@
         InsertReservEntry."New Serial No." := WhseItemTrackingLine."New Serial No.";
         InsertReservEntry."New Lot No." := WhseItemTrackingLine."New Lot No.";
         InsertReservEntry."New CD No." := WhseItemTrackingLine."New CD No.";
+        OnAfterSetNewTrackingFromNewWhseItemTrackingLine(InsertReservEntry, WhseItemTrackingLine);
     end;
 
     procedure SetNewExpirationDate(NewExpirationDate: Date)
@@ -320,7 +324,7 @@
         if TransferQty = 0 then
             exit;
 
-        UseQtyToHandle := OldReservEntry.TrackingExists and not OverruleItemTracking;
+        UseQtyToHandle := OldReservEntry.TrackingExists() and not OverruleItemTracking;
 
         CurrSignFactor := SignFactor(OldReservEntry);
         TransferQty := TransferQty * CurrSignFactor;
@@ -377,7 +381,7 @@
             else
                 NewReservEntry."Shipment Date" := DMY2Date(31, 12, 9999);
 
-        NewReservEntry.UpdateItemTracking;
+        NewReservEntry.UpdateItemTracking();
 
         if (TransferQty >= 0) <> OldReservEntry.Positive then begin // If sign has swapped due to negative posting
                                                                     // Create a new but unchanged version of the original reserventry:
@@ -397,10 +401,12 @@
                 NewReservEntry.Positive := not NewReservEntry.Positive;
                 NewReservEntry.Delete();
             end else begin // A set of records exist = reservation or tracking
+                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
                 NewReservEntry.Modify();
                 // Get the original record and modify quantity:
                 NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive); // Get partner-record
                 NewReservEntry.Validate("Quantity (Base)", -TransferQty);
+                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
                 NewReservEntry.Modify();
             end;
         end else
@@ -460,7 +466,6 @@
         end;
 
         SynchronizeTransferOutboundToInboundItemTracking(NewReservEntry."Entry No.");
-
 
         OnAfterTransferReservEntry(NewReservEntry, OldReservEntry);
         xTransferQty -= TransferQty;
@@ -605,16 +610,8 @@
                 NonReleasedQty -= TempTrkgSpec1."Quantity (Base)";
             until TempTrkgSpec1.Next = 0;
 
-        if NonReleasedQty <> 0 then begin
-            TempTrkgSpec1.Init();
-            TempTrkgSpec1.TransferFields(ReservEntry);
-            TempTrkgSpec1.Validate("Quantity (Base)", NonReleasedQty);
-            if (TempTrkgSpec1."Source Type" <> DATABASE::"Item Ledger Entry") and
-               (ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation)
-            then
-                TempTrkgSpec1.ClearTracking;
-            TempTrkgSpec1.Insert();
-        end;
+        if NonReleasedQty <> 0 then
+            InsertTempTrackingSpecification(TempTrkgSpec1, ReservEntry, NonReleasedQty);
 
         if not (ReservEntry."Reservation Status" < ReservEntry."Reservation Status"::Surplus) then
             exit;
@@ -625,18 +622,27 @@
                 NonReleasedQty -= TempTrkgSpec2."Quantity (Base)";
             until TempTrkgSpec2.Next = 0;
 
-        if NonReleasedQty <> 0 then begin
-            TempTrkgSpec2.Init();
-            TempTrkgSpec2.TransferFields(ReservEntry2);
-            TempTrkgSpec2.Validate("Quantity (Base)", NonReleasedQty);
-            if (TempTrkgSpec2."Source Type" <> DATABASE::"Item Ledger Entry") and
-               (ReservEntry2."Reservation Status" <> ReservEntry2."Reservation Status"::Reservation)
-            then
-                TempTrkgSpec2.ClearTracking;
-            TempTrkgSpec2.Insert();
-        end;
+        if NonReleasedQty <> 0 then
+            InsertTempTrackingSpecification(TempTrkgSpec2, ReservEntry2, NonReleasedQty);
 
         BalanceLists;
+    end;
+
+    local procedure InsertTempTrackingSpecification(var TempTrkgSpec: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry"; NonReleasedQty: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        TempTrkgSpec.Init();
+        TempTrkgSpec.TransferFields(ReservEntry);
+        TempTrkgSpec.Validate("Quantity (Base)", NonReleasedQty);
+        IsHandled := false;
+        OnBeforeClearTracking(ReservEntry, IsHandled);
+        If not IsHandled then
+            if (TempTrkgSpec."Source Type" <> DATABASE::"Item Ledger Entry") and
+                (ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation)
+            then
+                TempTrkgSpec.ClearTracking();
+        TempTrkgSpec.Insert();
     end;
 
     local procedure BalanceLists()
@@ -770,7 +776,6 @@
 
     local procedure SplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean): Boolean
     var
-        SalesSetup: Record "Sales & Receivables Setup";
         OldReservEntryQty: Decimal;
     begin
         if not TrackingSpecificationExists then
@@ -781,7 +786,6 @@
                 exit(true);
             end;
 
-        SalesSetup.Get();
         TempTrkgSpec1.Reset();
         if not TempTrkgSpec1.FindFirst then
             exit(false);
@@ -804,7 +808,7 @@
             ReservEntry2.Validate("Quantity (Base)", TempTrkgSpec2."Quantity (Base)");
             if Abs(ReservEntry2.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision then
                 ReservEntry2.Quantity := OldReservEntryQty;
-            if ReservEntry2.Positive and SalesSetup."Exact Cost Reversing Mandatory" then
+            if ReservEntry2.Positive then
                 ReservEntry2."Appl.-from Item Entry" := TempTrkgSpec2."Appl.-from Item Entry";
             TempTrkgSpec2.Delete();
         end;
@@ -941,6 +945,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterReservEntryInsert(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -956,7 +965,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFromItemJnlLine(var InsertReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFromNewWhseItemTrackingLine(var InsertReservEntry: Record "Reservation Entry"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferReservEntry(NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearTracking(var ReservEntry: Record "Reservation Entry"; IsHandled: Boolean)
     begin
     end;
 
@@ -1022,6 +1046,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnAfterNewReservEntryInsert(var NewReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnBeforeNewReservEntryModify(var NewReservEntry: Record "Reservation Entry"; IsPartnerRecord: Boolean)
     begin
     end;
 

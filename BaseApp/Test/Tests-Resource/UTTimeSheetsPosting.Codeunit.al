@@ -953,7 +953,7 @@ codeunit 136502 "UT Time Sheets Posting"
 
     local procedure GetCauseOfAbsenceCode(): Code[10]
     var
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);

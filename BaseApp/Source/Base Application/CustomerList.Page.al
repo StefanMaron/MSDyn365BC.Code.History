@@ -498,14 +498,13 @@ page 22 "Customer List"
             group(ActionGroupCRM)
             {
                 Caption = 'Common Data Service';
-                Visible = CRMIntegrationEnabled;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoAccount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
                     ToolTip = 'Open the coupled Common Data Service account.';
-                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -518,12 +517,11 @@ page 22 "Customer List"
                 {
                     AccessByPermission = TableData "CRM Integration Record" = IM;
                     ApplicationArea = Suite;
-                    Caption = 'Synchronize Now';
+                    Caption = 'Synchronize';
                     Image = Refresh;
                     Promoted = true;
                     PromotedCategory = Category7;
                     ToolTip = 'Send or get updated data to or from Common Data Service.';
-                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -572,7 +570,6 @@ page 22 "Customer List"
                         Promoted = true;
                         PromotedCategory = Category7;
                         ToolTip = 'Create or modify the coupling to a Common Data Service account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -589,7 +586,6 @@ page 22 "Customer List"
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
                         ToolTip = 'Delete the coupling to a Common Data Service account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -609,7 +605,6 @@ page 22 "Customer List"
                         Caption = 'Create Account in Common Data Service';
                         Image = NewCustomer;
                         ToolTip = 'Generate the account in the coupled Common Data Service account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -626,7 +621,6 @@ page 22 "Customer List"
                         Caption = 'Create Customer in Business Central';
                         Image = NewCustomer;
                         ToolTip = 'Generate the customer in the coupled Common Data Service account.';
-                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -642,7 +636,6 @@ page 22 "Customer List"
                     Caption = 'Synchronization Log';
                     Image = Log;
                     ToolTip = 'View integration synchronization jobs for the customer table.';
-                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -784,22 +777,24 @@ page 22 "Customer List"
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowPrices();
+                    end;
                 }
                 action(Sales_LineDiscounts)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowLineDiscounts();
+                    end;
                 }
                 action("Prepa&yment Percentages")
                 {
@@ -1124,24 +1119,26 @@ page 22 "Customer List"
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
-                    RunObject = Page "Sales Prices";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     Scope = Repeater;
                     ToolTip = 'View or set up different prices for items that you sell to the selected customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowPrices();
+                    end;
                 }
                 action(Prices_LineDiscounts)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = "Sales Type" = CONST(Customer),
-                                  "Sales Code" = FIELD("No.");
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     Scope = Repeater;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    begin
+                        ShowLineDiscounts();
+                    end;
                 }
             }
             group("Request Approval")
@@ -1600,6 +1597,26 @@ page 22 "Customer List"
           WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
 
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
+    end;
+
+    local procedure ShowLineDiscounts()
+    var
+        SalesLineDiscount: Record "Sales Line Discount";
+    begin
+        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code");
+        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Customer);
+        SalesLineDiscount.SetRange("Sales Code", "No.");
+        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+    end;
+
+    local procedure ShowPrices()
+    var
+        SalesPrice: Record "Sales Price";
+    begin
+        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
+        SalesPrice.SetRange("Sales Code", "No.");
+        Page.Run(Page::"Sales Prices", SalesPrice);
     end;
 
     [IntegrationEvent(false, false)]

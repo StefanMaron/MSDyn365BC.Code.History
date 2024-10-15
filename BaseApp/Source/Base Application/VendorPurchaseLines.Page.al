@@ -91,12 +91,14 @@ page 352 "Vendor Purchase Lines"
     end;
 
     var
-        Vend: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        Vend: Record Vendor;
 
     procedure Set(var NewVend: Record Vendor; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

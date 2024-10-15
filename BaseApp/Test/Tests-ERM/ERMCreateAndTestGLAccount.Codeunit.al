@@ -58,20 +58,20 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         GLAccountNo1: Decimal;
         GLAccountNo2: Decimal;
     begin
-        GLAccount.SetFilter(Totaling, '<>''''');
+        GLAccount.SetFilter(Totaling, '<>%1', '');
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::"End-Total");  // required for BE
         GLAccount.FindFirst;
 
         GLAccount2.SetFilter("No.", GLAccount.Totaling);
         GLAccount2.FindFirst;
-        Evaluate(GLAccountNo1, GLAccount2."No.");
+        Evaluate(GLAccountNo1, CopyStr(GLAccount2."No.", 4, 4));
 
         GLAccount2.Next;
-        Evaluate(GLAccountNo2, GLAccount2."No.");
+        Evaluate(GLAccountNo2, CopyStr(GLAccount2."No.", 4, 4));
 
         // Create a new GL Account. Find the Account No. by dividing sum of Begin-Total Account and next Account by two.
         GLAccount2.Init();
-        GLAccount2.Validate("No.", Format((GLAccountNo1 + GLAccountNo2) / 2, 20, 1));
+        GLAccount2.Validate("No.", CopyStr(GLAccount2."No.", 1, 3) + (DelChr(Format((GLAccountNo1 + GLAccountNo2) / 2, 20, 1))));
         // Using 20 for Length of No. field, 1 for seperator.
         GLAccount2.Insert(true);
         GLAccount2.Validate(Name, GLAccount2."No.");

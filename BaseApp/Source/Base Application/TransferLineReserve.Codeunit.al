@@ -357,7 +357,7 @@
                 WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
                 WarehouseEntry.SetRange("Whse. Document No.", WhseShptLine."No.");
                 WarehouseEntry.SetRange("Whse. Document Line No.", WhseShptLine."Line No.");
-                WarehouseEntry.SetRange("Bin Code", WhseShptHeader."Bin Code");
+                WarehouseEntry.SetRange("Bin Code", WhseShptLine."Bin Code");
                 if WhseItemTrackingSetup."Serial No. Required" then
                     WarehouseEntry.SetRange("Serial No.", OldReservEntry."Serial No.");
                 if WhseItemTrackingSetup."Lot No. Required" then

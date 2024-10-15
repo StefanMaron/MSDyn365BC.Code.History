@@ -19,7 +19,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
         ReversalFromGLEntryErr: Label 'The transaction cannot be reversed, because the Cust. Ledger Entry has been compressed.';
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+        NothingToAdjustTxt: Label 'There is nothing to adjust.';
         ReversalFromLedgerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.';
 
     [Test]
@@ -318,7 +318,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -638,9 +638,9 @@ codeunit 134127 "ERM Customer Reversal Message"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
+    procedure NothingAdjustedMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
     end;
 }
 

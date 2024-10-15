@@ -2125,7 +2125,13 @@ report 402 "Purchase Document - Test"
     var
         Job: Record Job;
         JT: Record "Job Task";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestJobFields(PurchLine, ErrorCounter, ErrorText, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             if "Job No." = '' then
                 exit;
@@ -2289,6 +2295,11 @@ report 402 "Purchase Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestJobFields(var PurchaseLine: Record "Purchase Line"; var ErrorCounter: Integer; var ErrorText: Array[50] of Text[250]; var IsHandled: Boolean);
     begin
     end;
 

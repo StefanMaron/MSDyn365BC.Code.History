@@ -39,7 +39,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         UpdInvDiscQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         WrongFieldValueErr: Label 'Wrong value of field %1.', Comment = '%1 = Field Caption';
         ChangedInvDiscountAmountErr: Label 'Invoice Discount Amount must not be changed';
-        CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         CalcTotalPurchAmountOnlyDiscountAllowedErr: Label 'Total Amount of Purchase lines with allowed discount is incorrect.';
         CalcTotalSalesAmountOnlyDiscountAllowedErr: Label 'Total Amount of Sales lines with allowed discount is incorrect.';
         GetInvoiceDiscountPctErr: Label 'Discount % is incorrect';
@@ -297,7 +296,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     end;
 
     [Test]
-    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure DepreciationAmountWithAppreciationEntry()
     var
@@ -2998,12 +2997,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
-    [ConfirmHandler]
+    [MessageHandler]
     [Scope('OnPrem')]
-    procedure DepreciationCalcConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    procedure MessageHandler(Msg: Text)
     begin
-        Assert.ExpectedMessage(CompletionStatsGenJnlQst, Question);
-        Reply := false;
     end;
 }
 

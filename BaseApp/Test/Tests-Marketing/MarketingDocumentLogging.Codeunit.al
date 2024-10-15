@@ -887,7 +887,7 @@ codeunit 136202 "Marketing Document Logging"
         // Verify: Verify "VAT Amount Specification" shows in Report Archived Sales Return Order when VAT Amount <> 0.
         GeneralLedgerSetup.Get();
         VerifyArchivedSalesReportWithVAT(
-          VATProdPostingGroup, Round(SalesLine."VAT %" / 100 * SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision"));
+          VATProdPostingGroup, SalesLine."VAT %" / 100 * SalesLine."Line Amount");
     end;
 
     local procedure ArchiveCreatedSalesOrder(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")

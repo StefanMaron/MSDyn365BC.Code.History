@@ -283,31 +283,6 @@ codeunit 134984 "ERM Sales Report III"
     [Test]
     [HandlerFunctions('RHSalesDocumentTest')]
     [Scope('OnPrem')]
-    procedure SalesDocTestForCreditMemoInvDiscAmt()
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Sales Document - Test]
-        // [SCENARIO 363729] When printing the Sales Document - Test Report the invoice discount is displayed
-        Initialize;
-
-        // [GIVEN] Sales & Receivables Setup option "Calc. Inv. Discount" is set to YES
-        UpdateSalesReceivablesSetupCalcInvDisc(true);
-
-        // [GIVEN] Sales Credit Memo with Invoice Discount Amount = "X"
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", CreateCustomer, '');
-
-        // [WHEN] Run Sales Document - Test Report
-        RunSalesCreditMemoTestReport(SalesLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile;
-
-        // [THEN] Invoice Discount Amount "X" is shown on the report
-        VerifyInvoiceDiscountInReport(SalesLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('RHSalesDocumentTest')]
-    [Scope('OnPrem')]
     procedure SalesDocumentTestWithVAT()
     var
         SalesHeader: Record "Sales Header";
@@ -940,48 +915,6 @@ codeunit 134984 "ERM Sales Report III"
         // Verify: Verify Warning message on Sales Document Test Report.
         LibraryReportDataset.LoadDataSetFile;
         VerifySalesDocumentTestReport;
-    end;
-
-    [Test]
-    [HandlerFunctions('RHSalesDocumentTest')]
-    [Scope('OnPrem')]
-    procedure SalesDocumentTestWithPrepaymentInvoicePost()
-    var
-        GLAccount: Record "G/L Account";
-        GeneralPostingSetup: Record "General Posting Setup";
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        VATPostingSetup: Record "VAT Posting Setup";
-        SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
-        VATAmount: Decimal;
-        VATPercent: Decimal;
-        PrepaymentTotalAmount: Decimal;
-    begin
-        // Verify data on Sales Document Test Report of Sales Order after posting Prepayment Invoice.
-
-        // Setup: Create Sales Order with Prepayment % and enter different values for 'Type' in Sales Line.
-        Initialize;
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        CreateGLAccount(GLAccount, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATPercent := CreateSalesOrderWithDifferentLineType(SalesHeader);
-
-        // Perform summation of Prepayment Line Amount for further validation and post Prepayment Invoice.
-        FindSalesLine(SalesLine, SalesHeader);
-        repeat
-            UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            PrepaymentTotalAmount += SalesLine."Prepmt. Line Amount";
-        until SalesLine.Next = 0;
-
-        VATAmount := PrepaymentTotalAmount * VATPercent / 100;
-        SalesPostPrepayments.Invoice(SalesHeader);
-
-        // Exercise: Run and Save Sales Document Test Report.
-        SaveSalesDocumentTest(SalesHeader."No.", true, true, false, false);
-
-        // Verify: Verify data on Sales Document Test Report.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyDataOnSalesDocumentTestReport(VATAmount, VATPercent, PrepaymentTotalAmount);
     end;
 
     [Test]
@@ -2785,15 +2718,6 @@ codeunit 134984 "ERM Sales Report III"
         exit(FixedAsset."No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
-    begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet;
-        end;
-    end;
-
     local procedure ApplyCustLedgerEntry(DocumentType: Option; CustomerNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
@@ -2935,15 +2859,6 @@ codeunit 134984 "ERM Sales Report III"
         AgedAccountsReceivable.Run;
     end;
 
-    local procedure RunSalesCreditMemoTestReport(DocNo: Code[20])
-    var
-        SalesCreditMemo: TestPage "Sales Credit Memo";
-    begin
-        SalesCreditMemo.OpenEdit;
-        SalesCreditMemo.FILTER.SetFilter("No.", DocNo);
-        SalesCreditMemo.TestReport.Invoke;
-    end;
-
     local procedure RunStandardSalesCreditMemo(CreditMemoDocNo: Code[20]) FileName: Text[1024]
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -3031,15 +2946,6 @@ codeunit 134984 "ERM Sales Report III"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UpdateSalesReceivablesSetupCalcInvDisc(CalcInvDiscount: Boolean)
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
-        SalesReceivablesSetup.Modify(true);
-    end;
-
     local procedure UpdateCurrencyExchangeRate(CurrencyCode: Code[10]; ExchangeRateAmt: Decimal; AdjmtExchRateAmt: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -3088,16 +2994,6 @@ codeunit 134984 "ERM Sales Report III"
             Open := Amount <> 0;
             Modify;
         end;
-    end;
-
-    local procedure UpdateSalesPrepmtAccount(SalesPrepaymentsAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]) OldSalesPrepaymentsAccount: Code[20]
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        OldSalesPrepaymentsAccount := GeneralPostingSetup."Sales Prepayments Account";
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
-        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure UpdateCompanyInfo()
@@ -3472,15 +3368,6 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number__Control97',
           StrSubstNo(PrepaymentPostErr, SalesLine.FieldCaption("Prepmt. Line Amount")));
-    end;
-
-    local procedure VerifyDataOnSalesDocumentTestReport(VATAmount: Decimal; VATPercent: Decimal; Amount: Decimal)
-    begin
-        // Validate Line Amount and VAT Amount in the report.
-        LibraryReportDataset.SetRange('VATAmountLine__VAT___', Format(VATPercent));
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__Line_Amount_', -Amount);
-        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT_Amount_', Round(-VATAmount));
     end;
 
     local procedure VerifyStatementEntriesTotal(TotalAmount: Decimal)

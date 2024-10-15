@@ -3400,8 +3400,15 @@ codeunit 134103 "ERM Prepayment IV"
     end;
 
     local procedure CreateCurrency(): Code[10]
+    var
+        Currency: Record Currency;
     begin
-        exit(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        with Currency do begin
+            Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+            "Invoice Rounding Precision" := 1; // to match W1
+            Modify;
+            exit(Code);
+        end;
     end;
 
     local procedure CreateExchangeRate(CurrencyCode: Code[10]; StartingDate: Date)

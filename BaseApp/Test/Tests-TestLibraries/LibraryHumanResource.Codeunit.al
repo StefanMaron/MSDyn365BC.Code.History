@@ -11,12 +11,11 @@ codeunit 131901 "Library - Human Resource"
         LibraryUtility: Codeunit "Library - Utility";
         FirstNameTxt: Label 'First Name';
         NameTxt: Label 'Name';
-        LibraryERM: Codeunit "Library - ERM";
 
     procedure CreateAlternativeAddress(var AlternativeAddress: Record "Alternative Address"; EmployeeNo: Code[20])
     begin
         AlternativeAddress.Init();
-        AlternativeAddress.Validate("Employee No.", EmployeeNo);
+        AlternativeAddress.Validate("Person No.", EmployeeNo);
         AlternativeAddress.Validate(
           Code,
           CopyStr(
@@ -31,39 +30,6 @@ codeunit 131901 "Library - Human Resource"
         Employee.Init();
         Employee.Insert(true);
         UpdateEmployeeName(Employee);
-        Employee.Modify(true);
-    end;
-
-    procedure CreateEmployeeNo(): Code[20]
-    var
-        Employee: Record Employee;
-    begin
-        CreateEmployee(Employee);
-        exit(Employee."No.");
-    end;
-
-    procedure CreateEmployeeNoWithBankAccount(): Code[20]
-    var
-        Employee: Record Employee;
-    begin
-        CreateEmployeeWithBankAccount(Employee);
-        exit(Employee."No.");
-    end;
-
-    procedure CreateEmployeeWithBankAccount(var Employee: Record Employee)
-    var
-        EmployeePostingGroup: Record "Employee Posting Group";
-    begin
-        CreateEmployee(Employee);
-        Employee."Bank Account No." := LibraryUtility.GenerateGUID;
-        Employee.IBAN := LibraryUtility.GenerateGUID;
-        Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
-        Employee."Bank Branch No." := LibraryUtility.GenerateGUID;
-        EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
-        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
-        EmployeePostingGroup.Insert(true);
-        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
         Employee.Modify(true);
     end;
 
@@ -97,7 +63,7 @@ codeunit 131901 "Library - Human Resource"
         RecRef: RecordRef;
     begin
         EmployeeQualification.Init();
-        EmployeeQualification.Validate("Employee No.", EmployeeNo);
+        EmployeeQualification.Validate("Person No.", EmployeeNo);
         RecRef.GetTable(EmployeeQualification);
         EmployeeQualification.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeQualification.FieldNo("Line No.")));
         EmployeeQualification.Insert(true);
@@ -114,7 +80,7 @@ codeunit 131901 "Library - Human Resource"
         RecRef: RecordRef;
     begin
         EmployeeRelative.Init();
-        EmployeeRelative.Validate("Employee No.", EmployeeNo);
+        EmployeeRelative.Validate("Person No.", EmployeeNo);
         RecRef.GetTable(EmployeeRelative);
         EmployeeRelative.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, EmployeeRelative.FieldNo("Line No.")));
         EmployeeRelative.Insert(true);

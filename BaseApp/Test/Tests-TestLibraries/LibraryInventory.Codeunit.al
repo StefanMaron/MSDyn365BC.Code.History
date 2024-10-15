@@ -354,6 +354,16 @@ codeunit 132201 "Library - Inventory"
         ItemAttributeValueMapping.Insert(true);
     end;
 
+    procedure CreateItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
     procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Option; BudgetName: Code[10]; Date: Date; ItemNo: Code[20])
     begin
         Clear(ItemBudgetEntry);
@@ -1089,8 +1099,11 @@ codeunit 132201 "Library - Inventory"
     end;
 
     procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
+    var
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
-        PostTransferHeader(TransferHeader, true, true);
+        TransferOrderPostTransfer.SetHideValidationDialog(true);
+        TransferOrderPostTransfer.Run(TransferHeader);
     end;
 
     procedure PostItemJournalBatch(ItemJournalBatch: Record "Item Journal Batch")

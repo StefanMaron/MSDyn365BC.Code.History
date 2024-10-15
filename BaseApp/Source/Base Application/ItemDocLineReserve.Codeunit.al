@@ -355,6 +355,7 @@ codeunit 12452 "Item Doc. Line-Reserve"
     begin
         TrackingSpecification.InitFromItemDocLine(ItemDocLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemDocLine."Document Date");
+        ItemTrackingLines.SetInbound(ItemDocLine."Document Type" = ItemDocLine."Document Type"::Receipt);
         ItemTrackingLines.RunModal;
     end;
 

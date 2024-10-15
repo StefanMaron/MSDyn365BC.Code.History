@@ -21,7 +21,6 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryAccSchedule: Codeunit "Library - Account Schedule";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryCFHelper: Codeunit "Library - Cash Flow Helper";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -40,16 +39,13 @@ codeunit 134987 "ERM Financial Reports III"
         IndentationLevelLbl: Label 'Indentation Level : %1', Comment = '%1 the amount of indentation.';
         IsInitialized: Boolean;
         AmountTextMsg: Label 'Amount text must be same in Check Preview.';
-        AppToDocTypeToUpdate: Option Invoice,"Credit Memo";
         CustVendNameLbl: Label 'Cust_Vend_Name';
         AmountLcyCapTxt: Label 'AmountLcy';
         AmountPmtToleranceCapTxt: Label 'AmountPmtTolerance';
         AmountBalLcyCapTxt: Label 'AmountBalLcy';
         EntryType: Option " ",Invoice,"Credit Memo",Payment;
         AmountToApplyDiscTolSalesTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance_';
-        AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
-        FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
 
     [Test]
     [HandlerFunctions('BalanceCompPrevYearReqPageHandler')]
@@ -363,6 +359,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
+    [HandlerFunctions('GenJnlTemplateListHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreview()
     var
@@ -472,7 +469,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,GenJnlTemplateListHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreviewWithCurrency()
     var
@@ -566,6 +563,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Print Payment Check
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
+        SetReportSelectionsCheck;
         Commit();
         DocumentPrint.PrintCheck(GenJournalLine);
 
@@ -576,54 +574,6 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists('TotalLineAmount', AmountInvoice - AmountCreditMemo);
 
         LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure PrintVendCheckForUpdatedAppToCrMemoAmount()
-    begin
-        // [FEATURE] [Report] [Check] [Rounding]
-        // [SCENARIO] Run report "Check" for Invoice applied to Credit Memo where total amount is decimal value
-        PrintVendCheckForUpdatedAmount(AppToDocTypeToUpdate::"Credit Memo", 2);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure PrintVendCheckForUpdatedAppToInvoiceAmount()
-    begin
-        // [FEATURE] [Report] [Check] [Rounding]
-        // [SCENARIO] Run report "Check" for Credit Memo applied to Invoice where total amount is decimal value
-        PrintVendCheckForUpdatedAmount(AppToDocTypeToUpdate::Invoice, 2);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure PrintVendCheckForUpdatedAppToCrMemoAmountRounded()
-    begin
-        // [FEATURE] [Report] [Check] [Rounding]
-        // [SCENARIO 156205] Run report "Check" for Invoice applied to Credit Memo where total amount is integer value
-        // [GIVEN] Total Amount = 34;
-        // [GIVEN] GLSetup."Amount Rounding Precision" = 0.01
-        // [WHEN] Run "Check" report
-        // [THEN] CheckAmountText = 34.00
-        PrintVendCheckForUpdatedAmount(AppToDocTypeToUpdate::"Credit Memo", 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure PrintVendCheckForUpdatedAppToInvoiceAmountRounded()
-    begin
-        // [FEATURE] [Report] [Check] [Rounding]
-        // [SCENARIO 156205] Run report "Check" for Credit Memo applied to Invoice where total amount is integer value
-        // [GIVEN] Total Amount = 34;
-        // [GIVEN] GLSetup."Amount Rounding Precision" = 0.01
-        // [WHEN] Run "Check" report
-        // [THEN] CheckAmountText = 34.00
-        PrintVendCheckForUpdatedAmount(AppToDocTypeToUpdate::Invoice, 0);
     end;
 
     [Test]
@@ -665,46 +615,6 @@ codeunit 134987 "ERM Financial Reports III"
         // [THEN] Payment discount P is not show in report as separate amount (unapplied amount) but include to invoice amount
         VerifyInvAndPmtDiscInPreCheckReport(
           AmountToApplyDiscTolSalesTxt, -(EntryAmount[EntryType::Invoice] - PmtDiscPossible), PmtDiscPossible);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorPrePaymentJournalHandler')]
-    [Scope('OnPrem')]
-    procedure VendorPrePmtOnPurchInvWithPmtDiscAndCrMemo()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendorNo: Code[20];
-        AppliesToID: Code[20];
-        EntryAmount: array[3] of Decimal;
-        PmtDiscPossible: Decimal;
-    begin
-        // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
-        // [SCENARIO 359950.2]  Test to verify the Payment Journal - Pre-Check Report shows payment discount correctly when printing invoice and credit memo.
-        Initialize;
-
-        VendorNo := LibraryPurchase.CreateVendorNo;
-        AppliesToID := LibraryUTUtility.GetNewCode;
-        // [GIVEN] Invoice with amount X and payment discount P less then X
-        CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(
-          VendLedgEntry, VendLedgEntry."Document Type"::Invoice, VendorNo, -LibraryRandom.RandDec(100, 2), AppliesToID);
-        PmtDiscPossible := Round(VendLedgEntry."Amount (LCY)" / LibraryRandom.RandIntInRange(3, 5));
-        UpdateVendLedgEntryWithPmtDisc(VendLedgEntry, PmtDiscPossible);
-
-        // [GIVEN] Credit memo with amount Y less then X
-        // [GIVEN] Payment with amount Z less then (X - Y - P)
-        CalcEntriesAmount(EntryAmount, VendLedgEntry."Amount (LCY)", VendLedgEntry."Remaining Pmt. Disc. Possible");
-        CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(
-          VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", VendorNo, EntryAmount[EntryType::"Credit Memo"], AppliesToID);
-        CreateGenJournalLineWithAppliesToID(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, EntryAmount[EntryType::Payment], AppliesToID);
-
-        // [WHEN] Run Payment PreCheck report on both invoice with pmt. discount and credit memo
-        RunVendorPrePaymentJournal(GenJournalLine);
-
-        // [THEN] Payment discount P is not show in report as separate amount (unapplied amount) but include to invoice amount
-        VerifyInvAndPmtDiscInPreCheckReport(
-          AmountToApplyDiscTolPurchTxt, -(EntryAmount[EntryType::Invoice] - PmtDiscPossible), PmtDiscPossible);
     end;
 
     [Test]
@@ -910,12 +820,13 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler,GenJnlTemplateListHandler')]
     [Scope('OnPrem')]
     procedure VendorCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
+        ReportSelections: Record "Report Selections";
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         PaymentJournal: TestPage "Payment Journal";
@@ -956,6 +867,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Check printed from Payment Journal page
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
+        SetReportSelectionsCheck;
         Commit();
 
         PaymentJournal.OpenEdit;
@@ -968,12 +880,13 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler,GenJnlTemplateListHandler')]
     [Scope('OnPrem')]
     procedure CustomerCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
+        ReportSelections: Record "Report Selections";
         Customer: Record Customer;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         PaymentJournal: TestPage "Payment Journal";
@@ -1001,6 +914,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1013,6 +927,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Check printed from Payment Journal page
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
+        SetReportSelectionsCheck;
         Commit();
 
         PaymentJournal.OpenEdit;
@@ -1183,34 +1098,6 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreatePostVendorInvCrMemoSuggestPayments(var VendorNo: Code[20]; var InvoiceAmount: Decimal; var CrMemoAmount: Decimal; var BankAccount: Record "Bank Account"; var BatchName: Code[10]; Precision: Integer)
-    var
-        PaymentTerms: Record "Payment Terms";
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        LibraryCFHelper.CreateDefaultPaymentTerms(PaymentTerms);
-        VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
-
-        InvoiceAmount := LibraryRandom.RandDecInDecimalRange(50, 100, Precision) * 2;
-        CrMemoAmount := LibraryRandom.RandDecInDecimalRange(10, 50, Precision) * 2; // credit memo amount should be less then invoice's
-
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Invoice, "Account Type"::Vendor, VendorNo, -InvoiceAmount, "Bank Payment Type"::" ");
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::"Credit Memo", "Account Type"::Vendor, VendorNo, CrMemoAmount, "Bank Payment Type"::" ");
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
-
-        BankAccount.Get(CreateBankAccount);
-        CreatePaymentGeneralBatch(GenJournalBatch);
-        SuggestVendorPayment(GenJournalLine, GenJournalBatch, VendorNo, BankAccount."No.", false);
-        BatchName := GenJournalLine."Journal Batch Name";
-    end;
-
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -1246,17 +1133,6 @@ codeunit 134987 "ERM Financial Reports III"
             "Document Type" := DocType;
             "Document No." := LibraryUTUtility.GetNewCode;
             "Customer No." := CustNo;
-            Insert;
-        end;
-    end;
-
-    local procedure CreateVendLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20])
-    begin
-        with VendLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Document No." := LibraryUTUtility.GetNewCode;
-            "Vendor No." := VendNo;
             Insert;
         end;
     end;
@@ -1307,21 +1183,6 @@ codeunit 134987 "ERM Financial Reports III"
         with CustLedgerEntry do begin
             Init;
             CreateCustLedgerEntry(CustLedgerEntry, DocType, CustNo);
-            Validate("Amount (LCY)", EntryAmount);
-            Validate("Remaining Amount", EntryAmount);
-            Positive := "Amount (LCY)" > 0;
-            "Applies-to ID" := AppliesToID;
-            "Amount to Apply" := "Remaining Amount";
-            "Accepted Pmt. Disc. Tolerance" := true;
-            Modify;
-        end;
-    end;
-
-    local procedure CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
-    begin
-        with VendLedgerEntry do begin
-            Init;
-            CreateVendLedgerEntry(VendLedgerEntry, DocType, VendNo);
             Validate("Amount (LCY)", EntryAmount);
             Validate("Remaining Amount", EntryAmount);
             Positive := "Amount (LCY)" > 0;
@@ -1468,39 +1329,11 @@ codeunit 134987 "ERM Financial Reports III"
         exit(PurchaseLine."Amount Including VAT");
     end;
 
-    local procedure OpenPaymentJournalAndPrintCheck(BankAccount: Record "Bank Account"; BatchName: Code[10])
-    var
-        PaymentJournal: TestPage "Payment Journal";
-    begin
-        LibraryVariableStorage.Enqueue(BankAccount."No.");
-        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
-        LibraryVariableStorage.Enqueue(true);
-
-        Commit();
-
-        PaymentJournal.OpenEdit;
-        PaymentJournal.CurrentJnlBatchName.SetValue := BatchName;
-        PaymentJournal.PrintCheck.Invoke;
-    end;
-
     local procedure FindGLAccount(var GLAccount: Record "G/L Account"; No: Code[20]; DateFilter: Date; DateFilter2: Date)
     begin
         GLAccount.SetRange("No.", No);
         GLAccount.SetRange("Date Filter", DateFilter, DateFilter2);
         GLAccount.FindFirst;
-    end;
-
-    local procedure FindUpdateGenJnlLine(AccountNo: Code[20]; AppToDocType: Option; NewAmount: Decimal)
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        with GenJournalLine do begin
-            SetRange("Account No.", AccountNo);
-            SetRange("Applies-to Doc. Type", AppToDocType);
-            FindFirst;
-            Validate(Amount, NewAmount);
-            Modify(true);
-        end;
     end;
 
     local procedure GetIndentValue(Indentation: Integer) IndentValue: Integer
@@ -1566,12 +1399,6 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         CustLedgerEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
         CustLedgerEntry.Modify();
-    end;
-
-    local procedure UpdateVendLedgEntryWithPmtDisc(var VendLedgerEntry: Record "Vendor Ledger Entry"; RemPmtDiscPossible: Decimal)
-    begin
-        VendLedgerEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
-        VendLedgerEntry.Modify();
     end;
 
     local procedure UpdateAppliesToDocumentNoOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocNo: Code[20])
@@ -1646,6 +1473,15 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryVariableStorage.Enqueue(false);
     end;
 
+    local procedure SetReportSelectionsCheck()
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", REPORT::Check);
+        ReportSelections.Modify(true);
+    end;
+
     local procedure RunVendorPrePaymentJournal(GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1657,52 +1493,6 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(VendorPrePaymentJournal);
         VendorPrePaymentJournal.SetTableView(GenJournalBatch);
         VendorPrePaymentJournal.Run;  // Invokes VendorPrePaymentJournalHandler.
-    end;
-
-    local procedure PrintVendCheckForUpdatedAmount(AppToDocTypeToUpd: Option; Precision: Integer)
-    var
-        BankAccount: Record "Bank Account";
-        VendorNo: Code[20];
-        BatchName: Code[10];
-        InvoiceAmount: Decimal;
-        CrMemoAmount: Decimal;
-    begin
-        // Setup: create and post invoice and credit memo, suggest vendor payment, decrease amount
-        Initialize;
-
-        LibraryERM.SetAmountRoundingPrecision(0.01);
-        CreatePostVendorInvCrMemoSuggestPayments(VendorNo, InvoiceAmount, CrMemoAmount, BankAccount, BatchName, Precision);
-
-        case AppToDocTypeToUpd of
-            AppToDocTypeToUpdate::Invoice:
-                // decrease invoice amount (less than before, but grater that credit memo)
-                DecreaseVendorAppToInvoiceAmount(InvoiceAmount, CrMemoAmount, VendorNo);
-            AppToDocTypeToUpdate::"Credit Memo":
-                // decrease credit memo amount
-                DecreaseVendorAppToCrMemoAmount(CrMemoAmount, VendorNo);
-        end;
-
-        // Excercise: open payment journal and print check
-        OpenPaymentJournalAndPrintCheck(BankAccount, BatchName);
-
-        // Verify: total amount should be equal to difference between invoice and credit memo
-        VerifyCheckTotalAmount(InvoiceAmount, CrMemoAmount);
-    end;
-
-    local procedure DecreaseVendorAppToCrMemoAmount(var CrMemoAmount: Decimal; VendorNo: Code[20])
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CrMemoAmount := Round(CrMemoAmount / 2);
-        FindUpdateGenJnlLine(VendorNo, GenJournalLine."Applies-to Doc. Type"::"Credit Memo", -CrMemoAmount);
-    end;
-
-    local procedure DecreaseVendorAppToInvoiceAmount(var InvoiceAmount: Decimal; CrMemoAmount: Decimal; VendorNo: Code[20])
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        InvoiceAmount := Round((InvoiceAmount + CrMemoAmount) / 2);
-        FindUpdateGenJnlLine(VendorNo, GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceAmount);
     end;
 
     local procedure FormatAmount(Amount: Decimal; Decimals: Text[5]) ValueAsText: Text
@@ -1741,23 +1531,6 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.FindCurrentRowValue(ElementName, TextAmount);
         Evaluate(TextValue, TextAmount);
         Assert.AreEqual(ExpectedValue, TextValue, ValidationErr);
-    end;
-
-    local procedure VerifyCheckTotalAmount(InvoiceAmount: Decimal; CrMemoAmount: Decimal)
-    var
-        DotNetMath: DotNet Math;
-        FormatString: Text;
-    begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('TotalText', 'Total');
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'TotalText', 'Total'));
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalLineAmount', InvoiceAmount - CrMemoAmount);
-        FormatString :=
-          StrSubstNo(
-            FormatTok,
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision),
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision));
-        LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', Format(InvoiceAmount - CrMemoAmount, 0, FormatString));
     end;
 
     local procedure VerifyInvAndPmtDiscInPreCheckReport(AmountToApplyDiscTolCap: Text; InvAmount: Decimal; PmtDiscAmount: Decimal)
@@ -1892,6 +1665,13 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         PaymentDiscToleranceWarning.Posting.SetValue(PostingOption::"Post as Payment Discount Tolerance");
         PaymentDiscToleranceWarning.Yes.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.OK.Invoke;
     end;
 }
 

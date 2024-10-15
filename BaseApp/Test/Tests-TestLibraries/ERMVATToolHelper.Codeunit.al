@@ -230,14 +230,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
         GenPostingSetup.Insert(true);
 
-        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
-        GLAccount.SetRange(Blocked, false);
-        GLAccount.SetRange(Totaling, '');
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.SetFilter("Gen. Prod. Posting Group", '<>''''');
-        GLAccount.SetFilter("VAT Prod. Posting Group", '<>''''');
-        GLAccount.FindFirst;
-
+        CreateGLAccountWithSetup(GLAccount);
         GenPostingSetup.Validate("Sales Account", GLAccount."No.");
         GenPostingSetup.Validate("Sales Credit Memo Account", GLAccount."No.");
         GenPostingSetup.Validate("Sales Line Disc. Account", GLAccount."No.");
@@ -578,6 +571,23 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     if ShipReceive then
                         PostWarehouseShipment(SalesHeader, true);
                 end;
+        end;
+    end;
+
+    local procedure CreateGLAccountWithSetup(var GLAccount: Record "G/L Account")
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with GLAccount do begin
+            LibraryERM.CreateGLAccount(GLAccount);
+            Validate("Income/Balance", "Income/Balance"::"Balance Sheet");
+            Validate("Account Type", "Account Type"::Posting);
+            LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
+            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+            Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            Modify(true);
         end;
     end;
 

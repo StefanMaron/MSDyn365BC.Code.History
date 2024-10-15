@@ -140,6 +140,7 @@ codeunit 131306 "Library - Journals"
         end;
 
         GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
         GenJournalBatch.Modify(true);
     end;
 

@@ -472,8 +472,8 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // [WHEN] "New Reminder" action is running
         CustomerList.NewReminder.Invoke;
 
-        // [THEN] Reminder No. field is automatically inserted
-        Assert.AreNotEqual(Reminder."No.".Value, '', 'Reminder."No."');
+        // [THEN] Reminder No. field is not automatically inserted
+        Assert.AreEqual(Reminder."No.".Value, '', 'Reminder."No."');
 
         Reminder.Close;
         CustomerList.Close;
@@ -493,7 +493,9 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
+
         IsInitialized := true;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
     end;
 
@@ -739,7 +741,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         SalesAndReceivablesSetup.Get();
         NoSeriesLine.SetRange("Series Code", SalesAndReceivablesSetup."Reminder Nos.");
         NoSeriesLine.FindFirst;
-        ReminderHeader.Get(NoSeriesLine."Last No. Used");
+        ReminderHeader.FindLast;
         IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate, false);
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
         LibraryERM.RunReminderIssue(ReminderIssue);

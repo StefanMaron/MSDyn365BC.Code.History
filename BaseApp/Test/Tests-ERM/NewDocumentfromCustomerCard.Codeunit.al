@@ -48,6 +48,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewBlanketSalesOrder.Invoke;
 
         // Verification
+        BlanketSalesOrder."Sell-to Customer Name".Activate;
         Assert.AreEqual(
           Customer.Name, BlanketSalesOrder."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(
@@ -78,6 +79,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewSalesQuote.Invoke;
 
         // Verification
+        SalesQuote."Sell-to Customer Name".Activate;
         Assert.AreEqual(Customer.Name, SalesQuote."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, SalesQuote."Bill-to Address".Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", SalesQuote."Bill-to Post Code".Value,
@@ -160,6 +162,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewSalesCreditMemo.Invoke;
 
         // Verification
+        SalesCreditMemo."Sell-to Customer Name".Activate;
         Assert.AreEqual(Customer.Name, SalesCreditMemo."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, SalesCreditMemo."Sell-to Address".Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", SalesCreditMemo."Sell-to Post Code".Value,
@@ -187,6 +190,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewSalesReturnOrder.Invoke;
 
         // Verification
+        SalesReturnOrder."Sell-to Customer Name".Activate;
         Assert.AreEqual(Customer.Name, SalesReturnOrder."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(
           Customer.Address, SalesReturnOrder."Sell-to Address".Value, 'Customer address is not carried over to the document');
@@ -329,6 +333,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewReminder.Invoke;
 
         // Verification
+        Reminder."Customer No.".Activate;
         Assert.AreEqual(Customer."No.", Reminder."Customer No.".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, Reminder.Address.Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", Reminder."Post Code".Value,
@@ -355,6 +360,7 @@ codeunit 134771 "New Document from CustomerCard"
         CustomerCard.NewFinanceChargeMemo.Invoke;
 
         // Verification
+        FinanceChargeMemo."Customer No.".Activate;
         Assert.AreEqual(Customer."No.", FinanceChargeMemo."Customer No.".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, FinanceChargeMemo.Address.Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", FinanceChargeMemo."Post Code".Value,

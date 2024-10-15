@@ -19,8 +19,8 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         MustBeBankAccErr: Label 'The balancing account must be a bank account.';
-        MustBeVendorEmployeeOrCustomerErr: Label 'The account must be a vendor, customer or employee account.';
-        MustBeVendEmplPmtOrCustRefundErr: Label 'Only vendor and employee payments and customer refunds are allowed.';
+        MustBeVendorOrCustomerErr: Label 'The account must be a vendor or customer account.';
+        MustBeVendPmtOrCustRefundErr: Label 'Only vendor payments and customer refunds are allowed.';
         MustBePositiveErr: Label 'The amount must be positive.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.';
@@ -106,7 +106,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorEmployeeOrCustomerErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorOrCustomerErr);
     end;
 
     [Test]
@@ -126,7 +126,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr)
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr)
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr);
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorEmployeeOrCustomerErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendorOrCustomerErr);
     end;
 
     [Test]
@@ -372,7 +372,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Check Line", GenJnlLine);
 
         // Verify.
-        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendEmplPmtOrCustRefundErr);
+        LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBeVendPmtOrCustRefundErr);
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine, MustBePositiveErr);
         LibraryPaymentExport.VerifyGenJnlLineErr(GenJnlLine,
           StrSubstNo(FieldBlankErr, GenJnlLine.FieldCaption("Recipient Bank Account")));

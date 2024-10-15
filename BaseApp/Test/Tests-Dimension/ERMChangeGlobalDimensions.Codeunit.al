@@ -33,6 +33,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TAB134483OnBeforeModifyErr: Label 'TAB134483.OnBeforeModify';
         InsertRecToEmptyTable134482: Boolean;
         UnexpectedTableErr: Label 'Unexpected table in the list: %1', Comment = '%1 - a number.';
+        SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
 
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -145,6 +146,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure T106_ActionSequentialStartUpdatesDimsIfAllTablesEmpty()
@@ -172,6 +174,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [WHEN] Run Action "Start" (Sequential)
         ChangeGlobalDimensionsPage.StartSequential.Invoke;
 
+        // [THEN] Correct message should appear after processing
+        Assert.ExpectedMessage(SessionUpdateRequiredMsg, LibraryVariableStorage.DequeueText); // from Message handler
         // [THEN] The list is empty
         Assert.TableIsEmpty(DATABASE::"Change Global Dim. Log Entry");
         // [THEN] Global Dimensions are updated in General Ledger Setup
@@ -1250,7 +1254,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"XBRL G/L Map Line"), '397');
-            Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
+            Assert.IsFalse(Get("Object Type"::Table, 5223), '5223');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimensions Field Map"), '8383');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
@@ -1283,7 +1287,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionManagement.GlobalDimObjectNoList(TempAllObjWithCaptionByCOD408);
 
         // [THEN] The list 'A' contains 134483 and 134485, but not 134482 nor 134484
-        // [THEN] The list 'A' does contain: 379, 380, 5223.
+        // [THEN] The list 'A' does contain: 379, 380.
         // [THEN] The list 'A' does not contain exceptions: 98, 1001.
         with TempAllObjWithCaptionByCOD408 do begin
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Table With Default Dim"), '134482');
@@ -1293,7 +1297,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             // Dependent tables
             Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
             Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
-            Assert.IsTrue(Get("Object Type"::Table, DATABASE::"Detailed Employee Ledger Entry"), '5223');
+            Assert.IsFalse(Get("Object Type"::Table, 5223), '5223');
 
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
@@ -2035,8 +2039,6 @@ codeunit 134483 "ERM Change Global Dimensions"
           DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Detailed Entry With Global Dim"), 'Parent for 134485');
         Assert.AreEqual(DATABASE::"Cust. Ledger Entry", GetParentTableNo(DATABASE::"Detailed Cust. Ledg. Entry"), 'Parent for 379');
         Assert.AreEqual(DATABASE::"Vendor Ledger Entry", GetParentTableNo(DATABASE::"Detailed Vendor Ledg. Entry"), 'Parent for 380');
-        Assert.AreEqual(
-          DATABASE::"Employee Ledger Entry", GetParentTableNo(DATABASE::"Detailed Employee Ledger Entry"), 'Parent for 5223');
         Assert.AreEqual(0, GetParentTableNo(DATABASE::"CV Ledger Entry Buffer"), 'Parent for 382');
         Assert.AreEqual(0, GetParentTableNo(DATABASE::"Detailed CV Ledg. Entry Buffer"), 'Parent for 383');
     end;
@@ -3570,7 +3572,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableID: Integer;
     begin
         Field.SetFilter(
-          TableNo, '<>%1&<>%2&<>%3&<>%4',
+          TableNo, '<>%1&<>%2&<>%3&<>%4&<>%5',
+          DATABASE::"Bank Account Details",
           DATABASE::"General Ledger Setup",
           DATABASE::"Detailed CV Ledg. Entry Buffer",
           DATABASE::"Change Global Dim. Header",
@@ -3589,7 +3592,8 @@ codeunit 134483 "ERM Change Global Dimensions"
                         Result += 1;
                     end;
             until Field.Next = 0;
-        ChangeGlobalDimLogEntry.SetFilter("Table ID", '<>0&<>%1', DATABASE::"Job Task");
+        ChangeGlobalDimLogEntry.SetFilter(
+          "Table ID", '<>0&<>%1&<>%2&<>%3', DATABASE::"Job Task", DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
         if ChangeGlobalDimLogEntry.FindFirst then
             Error(UnexpectedTableErr, ChangeGlobalDimLogEntry."Table ID");
     end;
@@ -3958,6 +3962,13 @@ codeunit 134483 "ERM Change Global Dimensions"
           Format(Notification.Id), 'Notification ID');
         LibraryVariableStorage.Enqueue(Notification.Message);
         ChangeGlobalDimensions.ShowActiveSessions(Notification); // simulate click on notification action
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 
     [EventSubscriber(ObjectType::Table, 483, 'OnFindingScheduledTask', '', false, false)]

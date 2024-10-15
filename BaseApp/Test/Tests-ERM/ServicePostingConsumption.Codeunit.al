@@ -1950,6 +1950,8 @@ codeunit 136109 "Service Posting - Consumption"
             if not FindFirst then begin
                 LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
+                Validate("VAT Identifier",
+                  LibraryUtility.GenerateRandomCode(FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
                 Validate("VAT Calculation Type", VATCalType);
                 Validate("VAT %", VATPct);
                 Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);

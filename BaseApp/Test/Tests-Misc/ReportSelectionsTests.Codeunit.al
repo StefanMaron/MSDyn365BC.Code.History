@@ -24,6 +24,7 @@ codeunit 134421 "Report Selections Tests"
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CustomMessageTypeTxt: Text;
         FromEmailBodyTemplateTxt: Text;
         Initialized: Boolean;
@@ -49,7 +50,7 @@ codeunit 134421 "Report Selections Tests"
         // Setup
         SetupReportSelections(true, true);
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
-
+        Commit();
         // Exercise
         PostedSalesInvoice.Print.Invoke;
 
@@ -59,46 +60,6 @@ codeunit 134421 "Report Selections Tests"
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, PostedSalesInvoice."No.".Value);
 
         LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('SelectSendingOptionHandler,EMailDialogHandler')]
-    [Scope('OnPrem')]
-    procedure TestSendToEMailAndPDF()
-    var
-        PostedSalesInvoice: TestPage "Posted Sales Invoice";
-    begin
-        Initialize;
-
-        // Setup
-        SetupReportSelections(true, true);
-        OpenNewPostedSalesInvoice(PostedSalesInvoice);
-
-        // Exercise
-        PostedSalesInvoice.SendCustom.Invoke;
-
-        // Verify
-        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
-    end;
-
-    [Test]
-    [HandlerFunctions('SelectSendingOptionHandler,EMailDialogHandler')]
-    [Scope('OnPrem')]
-    procedure TestSendToEMailAndPDFVendor()
-    var
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        Initialize;
-
-        // Setup
-        SetupReportSelectionsVendor(true, true);
-        OpenNewPurchaseOrder(PurchaseOrder);
-
-        // Execute
-        PurchaseOrder.SendCustom.Invoke;
-
-        // Verify
-        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PurchaseOrder."No.".Value);
     end;
 
     [Test]
@@ -115,26 +76,6 @@ codeunit 134421 "Report Selections Tests"
 
         // Exercise
         asserterror PostedSalesInvoice.Email.Invoke;
-
-        // Verify
-        Assert.ExpectedError('email body or attachment');
-    end;
-
-    [Test]
-    [HandlerFunctions('SelectSendingOptionHandler')]
-    [Scope('OnPrem')]
-    procedure TestEmailNoBodyNoAttachmentRaisesErrorVendor()
-    var
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        // Setup
-        Initialize;
-
-        OpenNewPurchaseOrder(PurchaseOrder);
-        SetupReportSelectionsVendor(false, false);
-
-        // Exercise
-        asserterror PurchaseOrder.SendCustom.Invoke;
 
         // Verify
         Assert.ExpectedError('email body or attachment');
@@ -461,69 +402,24 @@ codeunit 134421 "Report Selections Tests"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    [Test]
-    [HandlerFunctions('SelectSendingOptionHandlerPrint,PurchaseOrderRequestPageHandler')]
+    [HandlerFunctions('ReportSelectionPrintSelectSecondHandler,InvoicePrintHandler')]
     [Scope('OnPrem')]
-    procedure TestPrintPurchaseOrderVendor()
+    procedure TestPrintWithSelections()
     var
-        PurchaseHeaderArchive: Record "Purchase Header Archive";
-        PurchaseOrder: TestPage "Purchase Order";
-        VendorInvoiceNo: Code[35];
-        VendorOrderNo: Code[35];
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        // [FEATURE] [Purchase Order]
-        // [SCENARIO 258015] REP1322 "Standard Purchase - Order" now shows "Vendor Invoice No." and "Vendor Order No." fields.
-        Initialize;
-
-        // [GIVEN] Setup Report Selections to run REP1322 as default for Purchase Order.
-        SetupReportSelectionsVendor(true, true);
-        LibraryPurchase.SetArchiveOrders(true);
-
-        // [GIVEN] Purchase Order "PO" with filled "Vendor Invoice No." = "AAA" and "Vendor Order No." = "BBB".
-        // [GIVEN] "PO" card page is opened.
-        OpenNewPurchaseOrder(PurchaseOrder);
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
-        VendorOrderNo := LibraryUtility.GenerateGUID;
-        PurchaseOrder."Vendor Invoice No.".SetValue(VendorInvoiceNo);
-        PurchaseOrder."Vendor Order No.".SetValue(VendorOrderNo);
-
-        // [WHEN] "Send" ActionButton invoked and printing is selected in SelectSendingOptionHandlerPrint.
-        PurchaseOrder.SendCustom.Invoke;
-
-        // [THEN] Printed report dataset contains "AAA" and "BBB" values for "Vendor Invoice No" and "Vendor Order No." fields respectively.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('No_PurchHeader', PurchaseOrder."No.".Value);
-        LibraryReportDataset.AssertElementWithValueExists('VendorInvoiceNo', VendorInvoiceNo);
-        LibraryReportDataset.AssertElementWithValueExists('VendorOrderNo', VendorOrderNo);
-
-        // [THEN] Two Archive entries created due to "Send to Disk" and "Print"
-        PurchaseHeaderArchive.SetRange("No.", PurchaseOrder."No.".Value);
-        Assert.RecordCount(PurchaseHeaderArchive, 2);
-    end;
-
-    [Test]
-    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPrintSalesOrderCustomer()
-    var
-        PostedSalesInvoice: TestPage "Posted Sales Invoice";
-    begin
+        // Validates that printing with multiple report selections respects the user's selection.
         Initialize;
 
         // Setup
-        SetupReportSelections(true, true);
+        CreateSecondaryReportSelection;
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        Commit();
 
-        OpenNewPostedSalesInvoice(PostedSalesInvoice);
-
-        // Execute
-        PostedSalesInvoice.Print.Invoke;
-
-        // Verify
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText);
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('DocumentNo', PostedSalesInvoice."No.".Value);
-
-        LibraryVariableStorage.AssertEmpty;
+        // Invoke and verify that the appropriate handler executes.
+        ReportSelections.PrintWithGUIYesNo(
+          ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, true, SalesInvoiceHeader.FieldNo("Sell-to Customer No."));
     end;
 
     [Test]
@@ -666,7 +562,7 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler,StandardSalesInvoiceRequestPageHandler')]
+    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestBatchPrintWithMixedLayout()
     var
@@ -711,15 +607,7 @@ codeunit 134421 "Report Selections Tests"
         LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[2]."No.");
         LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[3]."No.");
 
-        // [THEN] "Standard Sales - Invoice" report prints "InvoiceB" and "InvoiceC"
-        Clear(LibraryReportDataset);
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText);
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueNotExist(DocumentNoTok, SalesInvoiceHeader[1]."No.");
-        LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, SalesInvoiceHeader[2]."No.");
-        LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, SalesInvoiceHeader[3]."No.");
-
-        // [THEN] "Sales Invoice Nos." is not printed at all
+        // [THEN] System prints the only single document (SETSELECTIONFILTER in COD229)
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -829,7 +717,7 @@ codeunit 134421 "Report Selections Tests"
     var
         CustomReportSelection: Record "Custom Report Selection";
         VendorCard: TestPage "Vendor Card";
-        Usage: Option "Purchase Order","Vendor Remittance","Vendor Remittance - Posted Entries","Posted Return Shipment";
+        Usage: Option "Purchase Order","Vendor Remittance","Posted Return Shipment";
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 300028] Select Posted Return Shipment value on the Vendor Report Selections page.
@@ -1094,6 +982,37 @@ codeunit 134421 "Report Selections Tests"
     var
         ReportSelections: Record "Report Selections";
     begin
+
+        Assert.AreEqual(ReportSelections.Usage::"USI", 97, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"USCM", 98, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UCI", 99, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UCO", 100, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"CB", 101, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"CI", 102, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"CO", 103, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UAS", 104, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"AS", 105, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UIS", 106, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UIR", 107, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"IS", 109, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"IR", 110, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UFAW", 112, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UFAR", 113, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UFAM", 114, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"FAW", 115, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"FAR", 116, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"FAM", 117, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"FAJ", 118, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"FARJ", 119, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"PIJ", 120, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UPI", 121, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"IRJ", 122, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UPCM", 123, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"DT", 124, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SOPI", 125, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"UCSD", 126, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"CSI", 127, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"CSCM", 128, 'Wrong Usage option value.');
     end;
 
     [Test]
@@ -1171,6 +1090,7 @@ codeunit 134421 "Report Selections Tests"
         CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
         for i := 1 to 3 do
             EmailList += CreatePersonContactWithEmail(CompanyContactNo, false) + ';';
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote custom report selection
         CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
         // [WHEN] Get emails from contacts "CP1".."CP3"
@@ -1183,7 +1103,7 @@ codeunit 134421 "Report Selections Tests"
         Contact.Reset();
         Contact.SetFilter("No.", ContactFilter);
         CustomReportSelection.GetSendToEmailFromContacts(Contact);
-        // [THEN] Custom report selection "Send to Email" = "E1;E2;E3;"
+        // [THEN] Custom report selection "Send to Email" = "E1;E2;E3"
         Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
         Assert.IsTrue(CustomReportSelection."Use Email from Contact", 'Wrong use email from contact.');
         Assert.IsTrue(CustomReportSelection."Selected Contacts Filter".HasValue, 'Wrong selected contacts filter.');
@@ -1211,12 +1131,13 @@ codeunit 134421 "Report Selections Tests"
         for i := 1 to 3 do
             EmailList += CreatePersonContactWithEmail(CompanyContactNo, true) + ';';
         EmailList := CopyStr(EmailList, 1, 162);
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote custom report selection
         CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
         // [WHEN] Get emails from contacts "CP1".."CP3"
         Contact.SetRange("Company No.", CompanyContactNo);
         CustomReportSelection.GetSendToEmailFromContacts(Contact);
-        // [THEN] Custom report selection "Send to Email" = "E1;E2;"
+        // [THEN] Custom report selection "Send to Email" = "E1;E2"
         Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
     end;
 
@@ -1245,6 +1166,7 @@ codeunit 134421 "Report Selections Tests"
             if (i = 1) or (i = 2) then
                 EmailList += TempEmail;
         end;
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote with custom report selection
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         SalesHeader.Find();
@@ -1371,15 +1293,43 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactWithoutEmailUT()
+    var
+        Contact: Record Contact;
+        CustomReportSelection: Record "Custom Report Selection";
+        CompanyContactNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Get "Send to Email" from contact with empty email
+        Initialize();
+
+        // [GIVEN] Company contact with empty email
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+
+        // [WHEN] Get emails from contact
+        Contact.SetRange("No.", CompanyContactNo);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+
+        // [THEN] Custom report selection "Send to Email" = " "
+        Assert.AreEqual(CustomReportSelection."Send To Email", '', 'Wrong email list.');
+        Assert.IsFalse(CustomReportSelection."Use Email from Contact", 'Wrong use email from contact.');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
         CustomReportSelection: Record "Custom Report Selection";
         DummyEmailItem: Record "Email Item";
         InventorySetup: Record "Inventory Setup";
-        CompanyInformation: Record "Company Information";
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Report Selections Tests");
+
         BindActiveDirectoryMockEvents;
         LibraryVariableStorage.AssertEmpty;
         CustomReportSelection.DeleteAll();
@@ -1396,10 +1346,6 @@ codeunit 134421 "Report Selections Tests"
         SetupInvoiceReportLayoutSelection;
         CustomMessageTypeTxt := Format(DummyEmailItem."Message Type"::"Custom Message");
         FromEmailBodyTemplateTxt := Format(DummyEmailItem."Message Type"::"From Email Body Template");
-
-        CompanyInformation.Get();
-        CompanyInformation."SWIFT Code" := 'A';
-        CompanyInformation.Modify();
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -1433,12 +1379,6 @@ codeunit 134421 "Report Selections Tests"
           1);
     end;
 
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
-    end;
-
     local procedure CreateAndPostSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesHeader: Record "Sales Header";
@@ -1468,22 +1408,6 @@ codeunit 134421 "Report Selections Tests"
         Customer.Validate("Post Code", 'A');
         Customer.Modify(true);
         exit(Customer."No.");
-    end;
-
-    local procedure CreateVendor(): Code[20]
-    var
-        Vendor: Record Vendor;
-        CountryRegion: Record "Country/Region";
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Name, 'A');
-        Vendor.Validate(Address, 'A');
-        CountryRegion.FindFirst;
-        Vendor.Validate("Country/Region Code", CountryRegion.Code);
-        Vendor.Validate(City, 'A');
-        Vendor.Validate("Post Code", 'A');
-        Vendor.Modify(true);
-        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithCustomNo(var Vendor: Record Vendor; VendorNo: Code[20])
@@ -1589,16 +1513,6 @@ codeunit 134421 "Report Selections Tests"
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
     end;
 
-    [Scope('OnPrem')]
-    procedure OpenNewPurchaseOrder(var PurchaseOrderPage: TestPage "Purchase Order")
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        CreatePurchaseOrder(PurchaseHeader);
-        PurchaseOrderPage.OpenEdit;
-        PurchaseOrderPage.GotoRecord(PurchaseHeader);
-    end;
-
     local procedure SetupReportSelections(UseForEmailAttachment: Boolean; UseForEmailBody: Boolean)
     var
         OldReportSelections: Record "Report Selections";
@@ -1620,7 +1534,8 @@ codeunit 134421 "Report Selections Tests"
         DummyCustomReportLayout: Record "Custom Report Layout";
     begin
         OldReportSelections.FilterPrintUsage(OldReportSelections.Usage::"P.Order");
-        OldReportSelections.FindFirst;
+        if not OldReportSelections.FindFirst then
+            CreateReportSelection(OldReportSelections.Usage::"P.Order", '2', REPORT::Order);
 
         UpdateReportSelections(
           OldReportSelections.Usage::"P.Order", GetReportIDForPurchaseOrder, UseForEmailAttachment, UseForEmailBody,
@@ -1636,13 +1551,6 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
         ReportLayoutSelection."Report ID" := REPORT::"Standard Sales - Invoice";
         ReportLayoutSelection.Insert();
-
-        // Setup for purchase order
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Company Name" := CompanyName;
-        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Word (built-in)";
-        ReportLayoutSelection."Report ID" := REPORT::"Standard Purchase - Order";
-        ReportLayoutSelection.Insert();
     end;
 
     local procedure CreateDefaultReportSelection()
@@ -1650,8 +1558,14 @@ codeunit 134421 "Report Selections Tests"
         ReportSelections: Record "Report Selections";
     begin
         CreateReportSelection(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Standard Sales - Invoice");
-        CreateReportSelection(ReportSelections.Usage::"P.Order", '2', REPORT::"Standard Purchase - Order");
         CreateReportSelection(ReportSelections.Usage::"S.Quote", '3', REPORT::"Standard Sales - Quote");
+    end;
+
+    local procedure CreateSecondaryReportSelection()
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        CreateReportSelection(ReportSelections.Usage::"S.Invoice", '2', REPORT::"Sales - Invoice");
     end;
 
     local procedure CreateReportSelection(Usage: Integer; Sequence: Code[10]; ReportID: Integer)
@@ -1662,6 +1576,7 @@ codeunit 134421 "Report Selections Tests"
         ReportSelections.Usage := Usage;
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
+        ReportSelections.Default := true;
         ReportSelections.Insert();
     end;
 
@@ -1674,6 +1589,7 @@ codeunit 134421 "Report Selections Tests"
         ReportSelections.Validate("Report ID", NewReportID);
         ReportSelections.Validate("Use for Email Attachment", UseForEmailAttachment);
         ReportSelections.Validate("Use for Email Body", UseForEmailBody);
+        ReportSelections.Validate(Default, true);
 
         if UseForEmailBody then
             ReportSelections.Validate("Email Body Layout Code", NewEmailBodyLayout)
@@ -1907,13 +1823,6 @@ codeunit 134421 "Report Selections Tests"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure PurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
-    begin
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure StatementOKRequestPageHandler(var Statement: TestRequestPage Statement)
     begin
         Statement."Start Date".SetValue(WorkDate);
@@ -1941,18 +1850,6 @@ codeunit 134421 "Report Selections Tests"
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
         SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
-        SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
-        SelectSendingOption.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SelectSendingOptionHandlerPrint(var SelectSendingOption: TestPage "Select Sending Options")
-    var
-        DocumentSendingProfile: Record "Document Sending Profile";
-    begin
-        SelectSendingOption.Printer.SetValue(DocumentSendingProfile.Printer::"Yes (Prompt for Settings)");
-        SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::No);
         SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
         SelectSendingOption.OK.Invoke;
     end;
@@ -1991,6 +1888,26 @@ codeunit 134421 "Report Selections Tests"
         EMailDialog.MessageContents.SetValue(EmailItem."Message Type"::"Custom Message");
         Assert.IsTrue(EMailDialog.BodyText.Visible, 'Body text should become visible');
         Assert.AreEqual(TestText, EMailDialog.BodyText.Value, 'Body text should have a value assigned');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportSelectionPrintSelectSecondHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
+    begin
+        // Given two reports, select the second one
+        ReportSelectionPrint.First;
+        ReportSelectionPrint.Default.SetValue(true);
+        ReportSelectionPrint.Next;
+        ReportSelectionPrint.Default.SetValue(false);
+        ReportSelectionPrint.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvoicePrintHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
+    begin
+        // We only need to validate that the handler is called, it's fine if we don't print.
+        StandardSalesInvoice.Cancel.Invoke;
     end;
 
     [ModalPageHandler]

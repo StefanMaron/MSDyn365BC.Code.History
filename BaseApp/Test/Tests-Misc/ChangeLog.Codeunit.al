@@ -16,6 +16,7 @@ codeunit 139031 "Change Log"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryCDTracking: Codeunit "Library - CD Tracking";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
         Assert: Codeunit Assert;
@@ -1673,6 +1674,76 @@ codeunit 139031 "Change Log"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CommentsActionOnCDNoInformationCardDoesNotCreateOnInsertLogEntries()
+    var
+        DummyCDNoHeader: Record "CD No. Header";
+        CDNoInformation: Record "CD No. Information";
+        CDNoInformationCard: TestPage "CD No. Information Card";
+        ItemTrackingComments: TestPage "Item Tracking Comments";
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information Card
+        Initialize;
+
+        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
+        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
+
+        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
+        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
+        RecRef.GetTable(CDNoInformation);
+        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
+
+        // [WHEN] Open Item Tracking Comments from CD No. Information Card for Item "X"
+        CDNoInformationCard.OpenView;
+        CDNoInformationCard.GotoRecord(CDNoInformation);
+        ItemTrackingComments.Trap;
+        CDNoInformationCard.Comment.Invoke;
+        ItemTrackingComments.Close;
+
+        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
+        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
+
+        TearDown;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CommentsActionOnCDNoInformationListDoesNotCreateOnInsertLogEntries()
+    var
+        DummyCDNoHeader: Record "CD No. Header";
+        CDNoInformation: Record "CD No. Information";
+        CDNoInformationList: TestPage "CD No. Information List";
+        ItemTrackingComments: TestPage "Item Tracking Comments";
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from CD No. Information List
+        Initialize;
+
+        // [GIVEN] Insert option is activated in Change Log Setup for CD No. Information table
+        SetTableForChangeLog(DATABASE::"CD No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
+
+        // [GIVEN] CD No. Information with Item = "X" and 3 entries in Change Log
+        LibraryCDTracking.CreateCDInfo(DummyCDNoHeader, CDNoInformation, 0, LibraryInventory.CreateItemNo, LibraryUtility.GenerateGUID);
+        RecRef.GetTable(CDNoInformation);
+        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
+
+        // [WHEN] Open Item Tracking Comments from CD No. Information List for Item "X"
+        CDNoInformationList.OpenView;
+        CDNoInformationList.GotoRecord(CDNoInformation);
+        ItemTrackingComments.Trap;
+        CDNoInformationList.Comment.Invoke;
+        ItemTrackingComments.Close;
+
+        // [THEN] No additional entries records created in Change Log Entries for CD No. Information with Item = "X"
+        AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
+
+        TearDown;
+    end;
+
+    [Test]
     [HandlerFunctions('REP510RequestPageHandlerFilterSet')]
     [Scope('OnPrem')]
     procedure DeleteLogEntriesRequestPageFilterSet()
@@ -1798,6 +1869,52 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Table No.", DATABASE::"Tenant Permission");
         ChangeLogEntry.SetRange("New Value", TenantPermission."Role ID");
         Assert.RecordIsNotEmpty(ChangeLogEntry);
+    end;
+
+    [Test]
+    procedure PageVariableBasedFieldsAreNotEditableInViewMode()
+    var
+        ChangeLogSetupTableListPage: TestPage "Change Log Setup (Table) List";
+        ChangeLogSetupFieldListPage: TestPage "Change Log Setup (Field) List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346691] Variable-based fields must not be editable when page is in View Mode
+        ChangeLogSetupTableListPage.OpenView();
+        Assert.IsFalse(ChangeLogSetupTableListPage.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogInsertion.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogModification.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogDeletion.Editable(), '');
+        ChangeLogSetupTableListPage.Close();
+
+        ChangeLogSetupFieldListPage.OpenView();
+        Assert.IsFalse(ChangeLogSetupFieldListPage.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Insertion".Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Modification".Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Deletion".Editable(), '');
+        ChangeLogSetupFieldListPage.Close();
+    end;
+
+    [Test]
+    procedure PageVariableBasedFieldsAreEditableInEditMode()
+    var
+        ChangeLogSetupTableListPage: TestPage "Change Log Setup (Table) List";
+        ChangeLogSetupFieldListPage: TestPage "Change Log Setup (Field) List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346691] Variable-based fields must be editable when page is in Edit Mode
+        ChangeLogSetupTableListPage.OpenEdit();
+        Assert.IsTrue(ChangeLogSetupTableListPage.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogInsertion.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogModification.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogDeletion.Editable(), '');
+        ChangeLogSetupTableListPage.Close();
+
+        ChangeLogSetupFieldListPage.OpenEdit();
+        Assert.IsTrue(ChangeLogSetupFieldListPage.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Insertion".Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Modification".Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Deletion".Editable(), '');
+        ChangeLogSetupFieldListPage.Close();
     end;
 
     [ConfirmHandler]

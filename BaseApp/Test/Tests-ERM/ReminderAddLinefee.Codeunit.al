@@ -231,35 +231,6 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
-    [Scope('OnPrem')]
-    procedure CreateReminderAlreadyExists()
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        CustNo: Code[20];
-        ReminderTermCode: Code[10];
-    begin
-        // [SCENARIO 107048] A reminder is not created when a reminder already exists for that Customer, Reminder Terms Code and Currency
-        Initialize(true);
-
-        // [GIVEN] A customer A with Reminder Terms Code R_a set up
-        CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-
-        // [GIVEN] A posted sales invoice (I_a) for Customer A
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-
-        // [GIVEN] I_a is overdue
-        // [GIVEN] "Create Reminders" action is invoked for customer A
-        RunCreateReminderReport(CustNo, WorkDate, CustLedgEntry);
-
-        // [WHEN] "Create Reminders" action is invoked again for all customers
-        RunCreateReminderReport('', WorkDate, CustLedgEntry);
-
-        // [THEN] A Confirm dialog is shown indicating a problem
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
     [Scope('OnPrem')]
     procedure CreateReminderNoLevels()
     var
@@ -281,10 +252,9 @@ codeunit 134997 "Reminder - Add. Line fee"
         PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
 
         // [GIVEN] I_a is overdue
-        // [WHEN] "Create Reminders" action is invoked for all customers
-        RunCreateReminderReport('', WorkDate, CustLedgEntry);
+        // [WHEN] "Create Reminders" action is invoked for the customer
+        RunCreateReminderReport(CustNo, WorkDate, CustLedgEntry);
 
-        // [THEN] A confirm dialog is shown indicating a problem
         // [THEN] No error is thrown
         // [THEN] No reminder is created for customer A
         ReminderHeader.SetRange("Customer No.", CustNo);
@@ -2018,14 +1988,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         GLEntry.SetRange("Document No.", IssuedReminderNo);
         GLEntry.SetRange("G/L Account No.", GLAccountA);
         GLEntry.FindFirst;
-        Assert.AreNearlyEqual(-AmountY, GLEntry.Amount, 1,
+        Assert.AreNearlyEqual(-AmountY, GLEntry.Amount - GLEntry."VAT Amount", 1,
           StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
 
         // [THEN] Two G/L entry is posted to G/L account B with amount X_1+X_2
         GLEntry.SetRange("G/L Account No.", GLAccountB);
         GLEntry.FindSet;
         repeat
-            Assert.AreNearlyEqual(-LineFeeX, GLEntry.Amount, 1,
+            Assert.AreNearlyEqual(-LineFeeX, GLEntry.Amount - GLEntry."VAT Amount", 1,
               StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
         until GLEntry.Next = 0;
     end;
@@ -2658,6 +2628,8 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
         ReminderHeader: Record "Reminder Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reminder - Add. Line fee");
         BindActiveDirectoryMockEvents;
@@ -2675,6 +2647,12 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         CustomerPostingGroup.FindFirst;
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
+
+        VATPostingSetup.FindFirst;
+        GLAccount.Get(CustomerPostingGroup."Additional Fee Account");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
     end;
 
@@ -3061,8 +3039,6 @@ codeunit 134997 "Reminder - Add. Line fee"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         GetValidVATPostingSetup(VATPostingSetup, VATBusGroup);
-        VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
         GLAccountA := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2); // Sale
         VATPostingSetup.Next;
         GLAccountB := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2); // Sale
@@ -3154,6 +3130,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -3167,7 +3144,11 @@ codeunit 134997 "Reminder - Add. Line fee"
           LibraryRandom.RandDecInRange(MinDocumentValue, MaxDocumentValue, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true); // Ship, Invoice
+
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindLast;
+        exit(CustLedgerEntry."Document No.");
     end;
 
     local procedure PostCreditMemo(CustomerNo: Code[20]; PostingDate: Date): Code[20]
@@ -3222,13 +3203,6 @@ codeunit 134997 "Reminder - Add. Line fee"
         LibraryVariableStorage.Dequeue(Level);
         UpdateText.ReminderLevelNo.SetValue(Level);
         UpdateText.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmNoHandler(Question: Text; var Reply: Boolean)
-    begin
-        Reply := false;
     end;
 
     [ModalPageHandler]

@@ -27,64 +27,6 @@ codeunit 136404 "Resource Matrix Management"
         ValueType: Option "Net Change","Balance at Date";
 
     [Test]
-    [HandlerFunctions('AbsencesByCategoriesMatrix')]
-    [Scope('OnPrem')]
-    procedure AbsencesByCategories()
-    var
-        Employee: Record Employee;
-        EmployeeAbsence: Record "Employee Absence";
-        EmployeeCard: TestPage "Employee Card";
-        EmplAbsencesByCategories: TestPage "Empl. Absences by Categories";
-    begin
-        // Test Employee Absences by Category Matrix after creation of Employee Absence for Employee.
-
-        // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
-        LibraryHumanResource.CreateEmployee(Employee);
-        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
-        LibraryVariableStorage.Enqueue(EmployeeAbsence."Quantity (Base)");  // Assign variable for page handler.
-
-        // 2. Exercise: Run Employee Absences By Categories page from Employee card page and run Show Matrix from it.
-        EmployeeCard.OpenEdit;
-        EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        EmplAbsencesByCategories.Trap;
-        EmployeeCard."Absences by Ca&tegories".Invoke;
-        Commit();
-        EmplAbsencesByCategories.ShowMatrix.Invoke;
-
-        // 3. Verify: Verify value on Employee Absences by Category Matrix performed on Employee Absences by Category Matrix page handler.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EmployeeAbsences()
-    var
-        Employee: Record Employee;
-        EmployeeAbsence: Record "Employee Absence";
-        EmployeeCard: TestPage "Employee Card";
-        EmployeeAbsences: TestPage "Employee Absences";
-    begin
-        // Test values on Employee Absences page after creation of Employee Absence for Employee.
-
-        // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
-        LibraryHumanResource.CreateEmployee(Employee);
-        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
-
-        // 2. Exercise: Run Employee Absences page from Employee card page.
-        EmployeeCard.OpenEdit;
-        EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        EmployeeAbsences.Trap;
-        EmployeeCard."A&bsences".Invoke;
-
-        // 3. Verify: Verify values on Employee Absences page.
-        EmployeeAbsences."Employee No.".AssertEquals(EmployeeAbsence."Employee No.");
-        EmployeeAbsences."From Date".AssertEquals(EmployeeAbsence."From Date");
-        EmployeeAbsences."Cause of Absence Code".AssertEquals(EmployeeAbsence."Cause of Absence Code");
-        EmployeeAbsences.Quantity.AssertEquals(EmployeeAbsence.Quantity);
-    end;
-
-    [Test]
     [HandlerFunctions('ArticlesOverviewMatrixHandler')]
     [Scope('OnPrem')]
     procedure MiscellaneousOverview()
@@ -146,69 +88,6 @@ codeunit 136404 "Resource Matrix Management"
 
         // 3. Verify: Verify value on Confidential Information Overview Matrix performed on Confidential Information Overview Matrix
         // page handler.
-    end;
-
-    [Test]
-    [HandlerFunctions('AbsenceOverviewByPeriodMatrix')]
-    [Scope('OnPrem')]
-    procedure AbsenceByPeriod()
-    var
-        Employee: Record Employee;
-        EmployeeAbsence: Record "Employee Absence";
-        AbsenceRegistration: TestPage "Absence Registration";
-        AbsenceOverviewByPeriods: TestPage "Absence Overview by Periods";
-    begin
-        // Test Absence Overview by Period Matrix after creation of Employee Absence for Employee.
-
-        // 1. Setup: Create Employee and Employee Absence for the Employee.
-        Initialize;
-        LibraryHumanResource.CreateEmployee(Employee);
-        CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
-
-        // Assign global variables for page handler.
-        LibraryVariableStorage.Enqueue(Employee."No.");
-        LibraryVariableStorage.Enqueue(EmployeeAbsence."Quantity (Base)");
-
-        // 2. Exercise: Run Absence Overview by Periods page from Absence Registration page and run Show Matrix from it with
-        // Cause Of Absence filter.
-        AbsenceRegistration.OpenEdit;
-        AbsenceRegistration.FILTER.SetFilter("Employee No.", Employee."No.");
-        AbsenceOverviewByPeriods.Trap;
-        AbsenceRegistration."Overview by &Periods".Invoke;
-        Commit();
-        AbsenceOverviewByPeriods."Cause Of Absence Filter".SetValue(EmployeeAbsence."Cause of Absence Code");
-        AbsenceOverviewByPeriods.ShowMatrix.Invoke;
-
-        // 3. Verify: Verify value on Absence Overview by Period Matrix performed on Absence Overview by Period Matrix page handler.
-    end;
-
-    [Test]
-    [HandlerFunctions('QualificationOverviewMatrix')]
-    [Scope('OnPrem')]
-    procedure QualificationOverview()
-    var
-        Employee: Record Employee;
-        EmployeeQualifications: TestPage "Employee Qualifications";
-        QualificationOverview: TestPage "Qualification Overview";
-        QualificationCode: Code[10];
-    begin
-        // Test Qualification Overview Matrix after creation of Employee Qualifications for Employee.
-
-        // 1. Setup: Create Employee and Employee Qualification for the Employee.
-        Initialize;
-        LibraryHumanResource.CreateEmployee(Employee);
-        QualificationCode := CreateEmployeeQualification(Employee."No.");
-        LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
-
-        // 2. Exercise: Run Qualification Overview page from Employee Qualifications page and run Show Matrix from it.
-        EmployeeQualifications.OpenEdit;
-        EmployeeQualifications.FILTER.SetFilter("Qualification Code", QualificationCode);
-        QualificationOverview.Trap;
-        EmployeeQualifications."Q&ualification Overview".Invoke;
-        Commit();
-        QualificationOverview.ShowMatrix.Invoke;
-
-        // 3. Verify: Verify value on Qualification Overview Matrix performed on Qualification Overview Matrix page handler.
     end;
 
     [Test]
@@ -321,7 +200,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(ServiceOrderNo);
 
         // Use the random value for AllocatedHours.
-        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction;
+        AllocatedHours := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(AllocatedHours);
         AllocateResource(Resource."No.", ServiceOrderNo, AllocatedHours);
 
@@ -360,7 +239,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(ServiceOrderNo);
 
         // Use the random value for AllocatedHours.
-        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction;
+        AllocatedHours := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(AllocatedHours);
         AllocateResource(Resource."No.", ServiceOrderNo, AllocatedHours);
 
@@ -889,20 +768,8 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode);
 
         // Use random for Quantity.
-        EmployeeAbsence.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        EmployeeAbsence.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         EmployeeAbsence.Modify(true);
-    end;
-
-    local procedure CreateEmployeeQualification(EmployeeNo: Code[20]): Code[10]
-    var
-        EmployeeQualification: Record "Employee Qualification";
-        Qualification: Record Qualification;
-    begin
-        Qualification.FindFirst;
-        LibraryHumanResource.CreateEmployeeQualification(EmployeeQualification, EmployeeNo);
-        EmployeeQualification.Validate("Qualification Code", Qualification.Code);
-        EmployeeQualification.Modify(true);
-        exit(Qualification.Code);
     end;
 
     local procedure AllocateResource(ResourceNo: Code[20]; DocumentNo: Code[20]; AllocatedHours2: Decimal)
@@ -940,7 +807,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No2);
-        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         JobPlanningLine.Modify(true);
         LibraryVariableStorage.Enqueue(JobPlanningLine.Quantity);
     end;
@@ -949,7 +816,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // Use random value for the Capacity.
-        ResourceGroup.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        ResourceGroup.Validate(Capacity, LibraryRandom.RandDec(100, 2));
         ResourceGroup.Modify(true);
     end;
 
@@ -958,7 +825,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryResource.CreateResourceNew(Resource);
 
         // Use random value for the Capacity.
-        Resource.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        Resource.Validate(Capacity, LibraryRandom.RandDec(100, 2));
         Resource.Modify(true);
     end;
 
@@ -983,7 +850,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         ServiceLine.Validate("Order Date", WorkDate);
         ServiceLine.Modify(true);
     end;
@@ -1077,7 +944,7 @@ codeunit 136404 "Resource Matrix Management"
 
     local procedure GetCauseOfAbsenceCode(): Code[10]
     var
-        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsence: Record "Time Activity";
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);

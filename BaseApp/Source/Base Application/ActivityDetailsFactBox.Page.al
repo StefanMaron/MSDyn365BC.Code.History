@@ -122,7 +122,12 @@ page 971 "Activity Details FactBox"
     var
         JobTask: Record "Job Task";
         JobTaskList: Page "Job Task List";
+        IsHandled: Boolean;
     begin
+        OnBeforeLookupSubActivity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Job then begin
             Clear(JobTaskList);
             if "Job Task No." <> '' then begin
@@ -131,6 +136,11 @@ page 971 "Activity Details FactBox"
             end;
             JobTaskList.RunModal;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupSubActivity(TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-report 7305 "Whse.-Source - Create Document"
+﻿report 7305 "Whse.-Source - Create Document"
 {
     Caption = 'Whse.-Source - Create Document';
     Permissions = TableData "Whse. Item Tracking Line" = rm;
@@ -1008,6 +1008,7 @@ report 7305 "Whse.-Source - Create Document"
             SetRange("Unit of Measure Code", WhseWorksheetLine."Unit of Measure Code");
             SetRange("From Unit of Measure Code", WhseWorksheetLine."From Unit of Measure Code");
         end;
+        OnAfterFilterWkshLine(WhseWorksheetLineToFilter, WhseWorksheetLine);
     end;
 
     procedure CreatePutAwayFromDiffSource(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer)
@@ -1085,6 +1086,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePutAwayDeleteBlankBinContent(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterWkshLine(var WhseWorksheetLineToFilter: Record "Whse. Worksheet Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 

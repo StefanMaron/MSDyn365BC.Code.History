@@ -2832,27 +2832,30 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleOverviewDrillDownHandler,RowMessageHandler')]
+    [HandlerFunctions('AccScheduleOverviewDrillDownHandler,AccSchedFormulaDrillDownHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleVerifyFormulaMessage()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
+        RowNo: Text[10];
     begin
-        // [SCENARIO 379134] Drill Down on Account Schedule cell with Formula in Acc. Schedule line shows message with row formula
+        // [SCENARIO 379134] Drill Down on Account Schedule cell with Formula in Acc. Schedule line shows Acc. Sched. Formula Drill-Down page
         Initialize;
 
-        // [GIVEN] Acc. Schedule Line with Totaling Type = Formula
+        // [GIVEN] Acc. Schedule Line with Totaling Type = Formula has "R1" as formula
         CreateColumnLayout(ColumnLayout);
-        CreateMultiAccountScheduleLine(AccScheduleLine, ColumnLayout."Column Layout Name", '',
-          '', '', AccScheduleLine."Totaling Type"::Formula, false);
+        RowNo := Format(LibraryRandom.RandInt(100));
+        CreateMultiAccountScheduleLine(AccScheduleLine, ColumnLayout."Column Layout Name", RowNo,
+          RowNo, '', AccScheduleLine."Totaling Type"::Formula, false);
 
         // [WHEN] Drill Down on Cell with formula
         OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
         // AccScheduleOverviewDrillDownHandler will exercise drilldown.
+        // invoke AccSchedFormulaDrillDownHandler
 
-        // [THEN] Message with row formula is displayed
-        // Verification is done by RowMessageHandler
+        // [THEN] Acc. Sched. Formula Drill-Down page is opened with formula "R1"
+        Assert.AreEqual(RowNo, LibraryVariableStorage.DequeueText, 'Incorrect formula');
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -4533,7 +4536,7 @@ codeunit 134902 "ERM Account Schedule"
     [Scope('OnPrem')]
     procedure UTConvertOptionAccScheduleLineTotalingTypeToEnum()
     var
-        TotalingTypeOption: Option "Posting Accounts","Total Accounts",Formula,,,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
+        TotalingTypeOption: Option "Posting Accounts","Total Accounts",Formula,Constant,Custom,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
         TotalingTypeEnum: Enum "Acc. Schedule Line Totaling Type";
     begin
         // [FEATURE] [UT]
@@ -4544,6 +4547,8 @@ codeunit 134902 "ERM Account Schedule"
         VerifyEnumValue(TotalingTypeOption::"Set Base For Percent", TotalingTypeEnum::"Set Base For Percent");
         VerifyEnumValue(TotalingTypeOption::"Cost Type", TotalingTypeEnum::"Cost Type");
         VerifyEnumValue(TotalingTypeOption::"Cash Flow Entry Accounts", TotalingTypeEnum::"Cash Flow Entry Accounts");
+        VerifyEnumValue(TotalingTypeOption::Custom, TotalingTypeEnum::Custom);
+        VerifyEnumValue(TotalingTypeOption::Constant, TotalingTypeEnum::Constant);
     end;
 
     [Test]
@@ -6037,13 +6042,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure RowMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage('Row formula', Message);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
     procedure VerifyMessageHandler(Message: Text[1024])
     var
         ExpectedMessage: Variant;
@@ -6079,6 +6077,14 @@ codeunit 134902 "ERM Account Schedule"
         AccountSchedule.AccSchedNam.SetValue(Value[2]);
         AccountSchedule.ColumnLayoutNames.Activate;
         LibraryVariableStorage.Enqueue(AccountSchedule.StartDate.Enabled);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccSchedFormulaDrillDownHandler(var AccSchedFormulaDrillDown: TestPage "Acc. Sched. Formula Drill-Down")
+    begin
+        LibraryVariableStorage.Enqueue(AccSchedFormulaDrillDown.Formula.Value);
+        AccSchedFormulaDrillDown.Close;
     end;
 }
 

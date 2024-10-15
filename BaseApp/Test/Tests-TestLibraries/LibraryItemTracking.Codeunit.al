@@ -80,6 +80,22 @@ codeunit 130502 "Library - Item Tracking"
         ItemTrackingCode.Insert(true);
     end;
 
+    procedure CreateItemReceiptItemTracking(var ReservEntry: Record "Reservation Entry"; ItemDocumentLine: Record "Item Document Line"; SerialNo: Code[20]; LotNo: Code[20]; QtyBase: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ItemDocumentLine);
+        ItemTracking(ReservEntry, RecRef, SerialNo, LotNo, QtyBase);
+    end;
+
+    procedure CreateItemReclassJnLineItemTracking(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line"; SerialNo: Code[20]; LotNo: Code[20]; QtyBase: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ItemJournalLine);
+        ItemTracking(ReservEntry, RecRef, SerialNo, LotNo, QtyBase);
+    end;
+
     procedure CreateLotItem(var Item: Record Item): Code[20]
     begin
         LibraryInventory.CreateItem(Item);
@@ -265,6 +281,7 @@ codeunit 130502 "Library - Item Tracking"
         ReqLine: Record "Requisition Line";
         WhseShptLine: Record "Warehouse Shipment Line";
         WhseRcptLine: Record "Warehouse Receipt Line";
+        ItemDocumentLine: Record "Item Document Line";
         Job: Record Job;
         Item: Record Item;
         OutgoingEntryNo: Integer;
@@ -570,6 +587,26 @@ codeunit 130502 "Library - Item Tracking"
                             // Inbound only - not possible to ADD item tracking lines- so throw error
                             Error(Text001, RecRef.Number);
                     end;
+                end;
+            DATABASE::"Item Document Line":
+                begin
+                    RecRef.SetTable(ItemDocumentLine);
+                    InsertItemTracking(ReservEntry,
+                      ItemDocumentLine.Signed(ItemDocumentLine.Quantity) > 0,
+                      ItemDocumentLine."Item No.",
+                      ItemDocumentLine."Location Code",
+                      ItemDocumentLine."Variant Code",
+                      ItemDocumentLine.Signed(QtyBase),
+                      ItemDocumentLine."Qty. per Unit of Measure",
+                      SerialNo,
+                      LotNo,
+                      DATABASE::"Item Document Line",
+                      ItemDocumentLine."Document Type",
+                      ItemDocumentLine."Document No.",
+                      '',
+                      0,
+                      ItemDocumentLine."Line No.",
+                      ItemDocumentLine."Posting Date");
                 end;
             else
                 Error(Text001, RecRef.Number);

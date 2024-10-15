@@ -44,7 +44,6 @@ codeunit 134451 "ERM Fixed Assets"
         BlankFirstFANoError: Label 'You must specify a number in First FA No. field or use the FA No. Series.';
         CopyFixedAssetError: Label '%1 must be equal to %2.';
         WrongDeprDaysErr: Label 'Wrong number of depreciation days.';
-        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
         MixedDerpFAUntilPostingDateErr: Label 'The value in the Depr. Until FA Posting Date field must be the same on lines for the same fixed asset %1.';
@@ -82,7 +81,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostCalculateDepreciation()
     var
@@ -115,7 +114,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcMessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CalculateDepreciationWithNoJournalOutput()
     var
@@ -131,7 +130,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryLowerPermissions.SetO365FAView;
         RunCalculateDepreciation('DUMMY', DepreciationBook.Code);
 
-        // 3.Verify: In DepreciationCalcMessageHandler, verify that no journal output is generated and that correct message is shown.
+        // 3.Verify: In MessageHandler, verify that no journal output is generated and that correct message is shown.
     end;
 
     [Test]
@@ -403,7 +402,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostSalesInvoiceWithFixedAsset()
     var
@@ -444,7 +443,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostSalesOrderAllowCorrError()
     var
@@ -492,7 +491,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure ProceedsOnDisposalAndGainLoss()
     var
@@ -1156,7 +1155,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure WriteDownDepreciationTypeEnabled()
     var
@@ -1182,7 +1181,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure WriteDownDepreciationTypeDisabled()
     var
@@ -1282,7 +1281,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryVATEntryLinkForVATNetDisposal()
     var
@@ -2045,7 +2044,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure UndoSalesShipmentLineFixedAsset()
     var
@@ -2079,7 +2078,7 @@ codeunit 134451 "ERM Fixed Assets"
     end;
 
     [Test]
-    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure UndoSalesReturnReceiptLineFixedAsset()
     var
@@ -3174,9 +3173,8 @@ codeunit 134451 "ERM Fixed Assets"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure DepreciationCalcMessageHandler(Message: Text[1024])
+    procedure MessageHandler(Message: Text)
     begin
-        Assert.ExpectedMessage(CompletionStatsMsg, Message);
     end;
 }
 

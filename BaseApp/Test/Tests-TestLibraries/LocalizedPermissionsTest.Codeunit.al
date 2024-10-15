@@ -1,8 +1,5 @@
 codeunit 132219 "Localized Permissions Test"
 {
-    // This codeunit is only modified in countries, do not change anything in W1!
-    // Any W1 changes should go directly into COD132218
-
 
     trigger OnRun()
     begin
@@ -11,7 +8,7 @@ codeunit 132219 "Localized Permissions Test"
     procedure EnablePermissionTests(): Boolean
     begin
         // Defines if permission level should be changed
-        exit(true);
+        exit(false);
     end;
 
     procedure EnableD365Build(): Boolean

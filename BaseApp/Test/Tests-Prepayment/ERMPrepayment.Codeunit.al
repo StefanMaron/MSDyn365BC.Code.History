@@ -1,7 +1,7 @@
 codeunit 134100 "ERM Prepayment"
 {
     Subtype = Test;
-    TestPermissions = Disabled;
+    TestPermissions = Restrictive;
 
     trigger OnRun()
     begin
@@ -22,6 +22,7 @@ codeunit 134100 "ERM Prepayment"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CopyDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         IsInitialized: Boolean;
@@ -52,6 +53,7 @@ codeunit 134100 "ERM Prepayment"
         CustomerNo: Code[20];
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PrepaymentPercentDecimal()
     begin
@@ -61,6 +63,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PrepaymentPercentZero()
     begin
@@ -70,6 +73,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PrepaymentPercentHundred()
     begin
@@ -79,6 +83,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PrepaymentPercentInteger()
     begin
@@ -127,10 +132,13 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create a new Payment Term without any Due Date Calculation.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
         LibraryERM.CreatePaymentTerms(PaymentTerms);
+
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
         // [WHEN] Create Customer, Sales Header, Sales Line with Item, G/L Account, Resource, Fixed Asset, Charge (Item).
+        LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
         // [THEN] Check that the Prepayment Due Date and Due Date on Sales Header are Document Date of Sales Header.
@@ -142,6 +150,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure ZeroPrepaymentDueDate()
     begin
@@ -151,6 +160,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure RandomPrepaymentDueDate()
     begin
@@ -167,7 +177,9 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [GIVEN] Create a new Payment Term with Due Date Calculation as per parameter passed.
         Initialize;
+
         CreatePaymentTermWithDueDate(PaymentTerms, DueDate);
+
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
 
         // [WHEN] Create Sales Order -Customer, Sales Header, Sales Line with Item, G/L Account, Resource, Fixed Asset, Charge (Item).
@@ -183,6 +195,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PostZeroPrepaymentDueDate()
     begin
@@ -192,6 +205,7 @@ codeunit 134100 "ERM Prepayment"
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
     procedure PostRandomPrepaymentDueDate()
     begin
@@ -231,6 +245,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % between 0 to 100 with 5 decimal places for Sales Type Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         CustomerSalesPrepaymentPercent(LibraryRandom.RandDec(99, 5));  // Using RANDOM value for Prepayment %.
     end;
 
@@ -240,6 +256,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 0 for Sales Type Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         CustomerSalesPrepaymentPercent(0);
     end;
 
@@ -249,6 +267,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 100 for Sales Type Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         CustomerSalesPrepaymentPercent(100);
     end;
 
@@ -258,6 +278,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % for Sales Type Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         CustomerSalesPrepaymentPercent(LibraryRandom.RandInt(100));  // Using RANDOM value for Prepayment %.
     end;
 
@@ -302,6 +324,8 @@ codeunit 134100 "ERM Prepayment"
         // between 0 to 100 with 5 decimal places for Sales Type Customer Price Group.
         Initialize;
         CreateItem(Item);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         CustomerNo := CreateCustomerWithPriceGroup(CustomerPriceGroup.Code);
         CreatePrepayment(
@@ -336,6 +360,9 @@ codeunit 134100 "ERM Prepayment"
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
 
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
+
         // Random Number Generator for Prepayment Percent.
         CreatePrepayment(
           SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::"All Customers", '', Item."No.", LibraryRandom.RandDec(99, 5));
@@ -368,6 +395,9 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
         CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
+
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
 
         // Random Number Generator for Prepayment Percent.
         CreatePrepayment(
@@ -402,6 +432,8 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
         CreateItem(Item);
 
+        LibraryLowerPermissions.SetO365Setup;
+
         // [WHEN] Create Sales Prepayment without Sales Code for Sales Type Customer.
         asserterror LibrarySales.CreateSalesPrepaymentPct(
             SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, '', Item."No.", WorkDate);
@@ -426,6 +458,7 @@ codeunit 134100 "ERM Prepayment"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [WHEN] Setup Sales Prepayments Account in General Posting Setup.
+        LibraryLowerPermissions.SetO365Setup;
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         SalesPrepaymentsAccountOld := AttachSalesPrepaymentAccountInSetup(GeneralPostingSetup, GLAccount."No.");
 
@@ -450,7 +483,7 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN]
         Initialize;
-
+        LibraryLowerPermissions.SetO365Setup;
         // [WHEN] Create a Code Randomly, Setup Sales Prepayments Account in General Posting Setup with wrong GL Account.
         RandomCodeGLAccount := CopyStr(
             LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"),
@@ -477,11 +510,13 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
         // create Sales Order with created payment terms.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
         PrepmtInvNosInSetup(SalesReceivablesSetup);
         PrepmtCreditMemoInSetup(SalesReceivablesSetup);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
+        LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
         // [WHEN] Create Setup for Sales Prepayment Account and Post the Prepayment Sales Invoice and Prepayment Credit Memo.
@@ -511,10 +546,12 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create No Series with No Sereis Line, change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in
         // Sales and Receivable Setup create Payment Terms, create Sales Order with created Payment Terms.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
         PostedPrepmtInvNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
         PostedPrepmtCrMemoNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
+        LibraryLowerPermissions.SetOutsideO365Scope;
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
@@ -546,10 +583,12 @@ codeunit 134100 "ERM Prepayment"
         // with created Payment Terms.
         Initialize;
         SalesReceivablesSetup.Get();
+        LibraryLowerPermissions.SetO365Setup;
         PrepmtInvNosBlankInSetup('');
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
+        LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
         // [WHEN] Create Setup for Sales Prepayment Account and Post the Prepayment Sales Invoice.
@@ -576,6 +615,9 @@ codeunit 134100 "ERM Prepayment"
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
 
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         // [WHEN] Create Sales Header, Sales Line for Item.
         CreateSalesDocumentPrepayment(SalesHeader, SalesLine, Customer."No.", Item."No.");
 
@@ -589,6 +631,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 0 for Sales Type Customer Price Group.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnPriceGroup(0);
     end;
 
@@ -598,6 +642,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 100 for Sales Type Customer Price Group.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnPriceGroup(100);
     end;
 
@@ -609,6 +655,8 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO] Setting up a Prepayment % as an integer value for Sales Type Customer Price Group.
 
         // Using Random Number Generator to get the random value of Prepayment Percent.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnPriceGroup(LibraryRandom.RandDec(99, 5));
     end;
 
@@ -646,6 +694,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 0 for Sales Type All Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentItemAllCustomer(0);
     end;
 
@@ -655,6 +705,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as boundary value 100 for Sales Type All Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentItemAllCustomer(100);
     end;
 
@@ -664,6 +716,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Sales Prepayment %]
         // [SCENARIO] Setting up a Prepayment % as an integer value for Sales Type All Customer.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         // Using Random Number Generator to get the random value of Prepayment Percent.
         PercentItemAllCustomer(LibraryRandom.RandInt(100));
     end;
@@ -710,6 +764,9 @@ codeunit 134100 "ERM Prepayment"
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
 
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         // Using Random Number Generator for the random value of Prepayment Percent in Customer.
         PrepaymentPercentInCustomer(Customer, LibraryRandom.RandDec(99, 5));
 
@@ -735,6 +792,8 @@ codeunit 134100 "ERM Prepayment"
 
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         SetupPrepaymentOnItemCustomer(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -750,6 +809,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         SetupPrepaymentOnItemCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -765,6 +826,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         SetupPrepaymentOnItemCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -800,6 +863,8 @@ codeunit 134100 "ERM Prepayment"
 
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndPriceGroup(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -815,6 +880,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndPriceGroup(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -830,6 +897,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndPriceGroup(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -870,6 +939,8 @@ codeunit 134100 "ERM Prepayment"
 
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndAllCustomer(LibraryRandom.RandDec(99, 5), 0);
     end;
 
@@ -885,6 +956,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndAllCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -900,6 +973,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepayment Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentOnItemAndAllCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -938,6 +1013,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepaymnet Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentPriceGroupAndCustomer(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -953,6 +1030,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepaymnet Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentPriceGroupAndCustomer(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -996,7 +1075,9 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO 128386] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" of All Customer more than "Prepayment %" of Sales Type Customer.
 
         // Using Random Number Generator for Prepaymnet Percent.
-        PrepaymentPercentOfAllCustomer(LibraryRandom.RandDec(99, 5) + LibraryUtility.GenerateRandomFraction);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
+        PrepaymentPercentOfAllCustomer(LibraryRandom.RandDec(99, 5));
     end;
 
     [Test]
@@ -1007,6 +1088,8 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO 128386] "Prepayment %" in Sales Header and Line with "Sales Prepayment %" of All Customer less than "Prepayment %" of Sales Type Customer.
 
         // Using Random Number Generator for Prepaymnet Percent.
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PrepaymentPercentOfAllCustomer(LibraryRandom.RandDec(99, 5) - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -1051,6 +1134,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepaymnet Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentageAllAndPriceGroup(PrepaymentPercent, PrepaymentPercent + LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -1066,6 +1151,8 @@ codeunit 134100 "ERM Prepayment"
         // Using Random Number Generator for Prepaymnet Percent.
         Initialize;
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsCreate;
         PercentageAllAndPriceGroup(PrepaymentPercent, PrepaymentPercent - LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -1121,6 +1208,8 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         CreateItem(Item);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreatePrepayment(
           SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, Customer."No.", Item."No.", LibraryRandom.RandDec(99, 5));
 
@@ -1158,6 +1247,9 @@ codeunit 134100 "ERM Prepayment"
         CustomerPrepaymentPriceGroup(Customer, CustomerPriceGroup.Code);
         PrepaymentPercentInCustomer(Customer, LibraryRandom.RandDec(99, 5));
         CreateItem(Item);
+
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // Using Random Number Generator for Prepayment Percent.
         CreatePrepayment(
@@ -1204,6 +1296,9 @@ codeunit 134100 "ERM Prepayment"
         CustomerPrepaymentPriceGroup(Customer, CustomerPriceGroup.Code);
         CreateItem(Item);
 
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         // Using Random Number Generator for Prepaymnet Percent.
         CreatePrepayment(
           SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::"Customer Price Group",
@@ -1235,6 +1330,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create Sales Order with 3 sales lines and create General Posting Setup.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         CreateSalesDocument(SalesHeader, SalesLine);
         FindSalesLine(SalesLine, SalesHeader);
 
@@ -1262,6 +1360,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create Sales Order with 3 sales lines, attach a currency with Sales order and create General Posting Setup.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateSalesDocument(SalesHeader, SalesLine);
         CurrencyInSalesHeader(SalesHeader);
@@ -1297,6 +1397,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create new Customer and Item, modify Customer Prepayment Percent, Create Sales Prepayment and Validate
         // Sales Prepayment Percent and "Prepayment %" for Sales Type Customer.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         LibrarySales.CreateCustomer(Customer);
         PrepaymentPercent := LibraryRandom.RandDec(99, 5);
@@ -1328,6 +1430,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
         // create Sales Order with created payment terms.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         PrepmtAccNo := CreateSalesDocument(SalesHeader, SalesLine);
         CompressPrepaymentInSalesOrder(SalesHeader);
@@ -1348,6 +1452,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Prepayment %]
         // [SCENARIO 128404] "Prepayment %" in Sales Line with addition of a decimal value in "Prepayment %".
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         ChangePrepaymentPercent(LibraryUtility.GenerateRandomFraction);
     end;
 
@@ -1357,6 +1463,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Prepayment %]
         // [SCENARIO 128404] "Prepayment %" in Sales Line with addition of a zero in "Prepayment %".
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         ChangePrepaymentPercent(0);
     end;
 
@@ -1402,6 +1510,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create a Sales Order, create an Item, create a Customer with new posting setup, change the Prepayement Percent in Sales
         // Line, change the VAT Prod. Posting Group in Sales Line.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
         CreateSalesDocumentPrepayment(
@@ -1440,6 +1550,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create a Sales Order with new General Posting Setup, modify the prepayment percent in Sales Header,
         // find the Sales Line.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
         PrepaymentPercent := PrepaymentPercentInSalesHeader(SalesHeader);
@@ -1473,6 +1585,8 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
         CreateCustomerNotPrepayment(Customer, SalesHeader."Gen. Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
@@ -1514,6 +1628,8 @@ codeunit 134100 "ERM Prepayment"
         CreateSalesDocumentItemSetup(SalesHeader, SalesLine);
         CustomerNo := SalesHeader."Sell-to Customer No.";
         CopySalesLine(TempSalesLine, SalesLine, SalesHeader);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreateCustomerNotPrepayment(Customer, SalesHeader."Gen. Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
         ChangeCustomerOnHeader(SalesHeader, Customer."No.");
         ChangeCustomerOnHeader(SalesHeader, CustomerNo);
@@ -1543,6 +1659,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN]
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // [WHEN] Post a Prepayment Invoice and Update Prepayment Line Amount.
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
@@ -1574,6 +1692,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN]
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // [WHEN] Post two Prepayment Invoices.
         PostTwoPrepaymentInvoices(SalesLine);
@@ -1597,6 +1717,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [WHEN] Check Application throws an error while updating Prepayment Amount to Deduct.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         PostFinalPrepaymentOrder(SalesLine);
         asserterror UpdatePrepaymentAmountToDeduct(SalesLine, SalesLine."Prepmt Amt to Deduct" + LibraryRandom.RandDec(1, 2));
@@ -1625,6 +1747,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [WHEN] Check Application throws an error while updating Prepayment Amount to Deduct with Zero.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         PostFinalPrepaymentOrder(SalesLine);
 
@@ -1658,6 +1782,8 @@ codeunit 134100 "ERM Prepayment"
         ApplyCustomerLedgerEntries(
           CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::Payment, PostedInvoiceNo, GenJnlLineDocNo);
         // [THEN] Transaction No of Detailed customer ledger must be filled.
+        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         TransNoIsNotZeroInDtldCustLedgEntries(PostedInvoiceNo);
 
         // [WHEN] Unapplying prepayment invoice.
@@ -1691,6 +1817,8 @@ codeunit 134100 "ERM Prepayment"
         ApplyVendorLedgerEntries(VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment,
           PostedInvoiceNo, GenJnlLineDocNo);
         // [THEN] Transaction No of Detailed vendor ledger must be filled.
+        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         TransNoIsNotZeroInDtldVendLedgEntries(PostedInvoiceNo);
 
         // [WHEN] Unapplying prepayment invoice.
@@ -1717,6 +1845,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create and Post Prepayment Invoice.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
 
         // [WHEN] Create General Journal Line, Apply Invoice and Post General Journal Line.
@@ -1747,6 +1877,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Post Prepayment Invoice, Create General Journal Line, Apply Invoice and Post General Journal Line.
         Initialize;
+        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
         PostedSaleInvoiceNo := FindSalesPrepmtInvoiceNo(SalesHeader."No.");
         CreateGeneralLine(SalesHeader, GenJournalLine);
@@ -1783,6 +1915,8 @@ codeunit 134100 "ERM Prepayment"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
+        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
 
         // [WHEN] Copy Document.
@@ -1815,6 +1949,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create and Post Prepayment Invoice.
         Initialize;
+        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         PostCustomerPrepaymentInvoice(SalesHeader, SalesLine);
 
         // [WHEN] Copy Document.
@@ -1841,6 +1977,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Get Shipment Lines]
         // [SCENARIO] Prepayment fields` values are correctly processed after Get Shipment Lines, Prices Including VAT = FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreateSalesInvoiceFromShipmentPrepayment(SalesHeader, SalesHeader2, false, false);
         VerifySalesSeparateInvoicePrepAmounts(SalesHeader."No.", SalesHeader2."No.");
 
@@ -1857,6 +1995,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Get Shipment Lines] [Prices Incl. VAT]
         // [SCENARIO] The error message appears when doing Get Shipment Lines for Invoice with Prices Including VAT <> Sales Order Prices Including VAT
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         asserterror CreateSalesInvoiceFromShipmentPrepayment(SalesHeader, SalesHeader2, true, false);
         Assert.AreEqual(StrSubstNo(PricesInclVATMustBeEqualMsg, true, SalesHeader.TableCaption, SalesHeader2."Document Type"::Invoice,
             SalesHeader2."No.", false), GetLastErrorText, UnknownErr);
@@ -1874,6 +2014,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Sales] [Get Shipment Lines]
         // [SCENARIO] Prepayment fields` values are correctly processed after Get Shipment Lines, Prices Including VAT = TRUE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreateSalesInvoiceFromShipmentPrepayment(SalesHeader, SalesHeader2, true, true);
         VerifySalesSeparateInvoicePrepAmounts(SalesHeader."No.", SalesHeader2."No.");
 
@@ -1890,6 +2032,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Purchase] [Get Receipt Lines]
         // [SCENARIO] Prepayment fields` values are correctly processed after Get Receipt Lines, Prices Including VAT = FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         CreatePurchInvoiceFromReceiptPrepayment(PurchaseHeader, PurchaseHeader2, false, false);
         VerifyPurchSeparateInvoicePrepAmounts(PurchaseHeader."No.", PurchaseHeader2."No.");
 
@@ -1906,6 +2050,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Purchase] [Get Receipt Lines] [Prices Incl. VAT]
         // [SCENARIO] The error message appears when doing Get Receipt Lines for Invoice with Prices Including VAT <> Purchase Order Prices Including VAT
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         asserterror CreatePurchInvoiceFromReceiptPrepayment(PurchaseHeader, PurchaseHeader2, true, false);
         Assert.AreEqual(
           StrSubstNo(
@@ -1925,6 +2071,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [FEATURE] [Purchase] [Get Receipt Lines]
         // [SCENARIO] Prepayment fields` values are correctly processed after Get Receipt Lines, Prices Including VAT = TRUE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         CreatePurchInvoiceFromReceiptPrepayment(PurchaseHeader, PurchaseHeader2, true, true);
         VerifyPurchSeparateInvoicePrepAmounts(PurchaseHeader."No.", PurchaseHeader2."No.");
 
@@ -1947,6 +2095,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create Item,Customer with Prepayment and Sales Document with Prepayment.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -1977,6 +2127,8 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO 327577] Item and Item Charge are partially shipped and invoiced with prepayment
         // [GIVEN] Create Customer Sales Order with Type Item and Charge Item with Prepayment Percent
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
@@ -2013,6 +2165,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create and Post Sales Order Prepayment less than Credit Limit of the Customer.
         Initialize;
         SetCreditWarningsCreditLimit;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, '');
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -2022,6 +2176,7 @@ codeunit 134100 "ERM Prepayment"
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // [WHEN] Create New Sales order with same Customer using Page.
+        LibraryLowerPermissions.SetOutsideO365Scope;
         CreateSalesOrderUsingPage(SalesOrder, Customer);
 
         // [THEN] Verify No credit Limit Warning appear after Prepayment Invoice with Less than Credit Limit
@@ -2043,9 +2198,12 @@ codeunit 134100 "ERM Prepayment"
     begin
         // Check Credit warning will appear after Prepayment Invoice posted with more than Credit Limit of Customer in LCY.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, '');
         CustomerNo := Customer."No.";
+        LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderWithGreaterThanCreditLimit(Customer, LineGLAccount);
         NotificationLifecycleMgt.RecallAllNotifications;
 
@@ -2067,9 +2225,12 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreateCustomerWithCreditLimit(Customer, LineGLAccount, Currency.Code);
         CustomerNo := Customer."No.";
+        LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderWithGreaterThanCreditLimit(Customer, LineGLAccount);
         NotificationLifecycleMgt.RecallAllNotifications;
 
@@ -2096,6 +2257,9 @@ codeunit 134100 "ERM Prepayment"
         // [WHEN] Create Sales Order with one G/L Account line and post Prepayment Invoice,
         // Create Prepayment and apply it to Prepayment Invoice,
         // Post partitial Invoice
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         CreateSalesOrderWithOneLine(Customer."No.", SalesHeader, SalesLine, LineGLAccount);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         FindSalesPrepmtInvoice(PrepmtSalesInvHeader, SalesHeader."No.");
@@ -2131,6 +2295,9 @@ codeunit 134100 "ERM Prepayment"
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
         CreateVendorWithPrepmtPct(Vendor, LineGLAccount);
 
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
+
         // [WHEN] Create Purch Order with one G/L Account line and post Prepayment Invoice,
         // Create Prepayment and apply it to Prepayment Invoice,
         // Post partitial Invoice
@@ -2162,6 +2329,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create Purchase order with Prepayment %.
         Initialize;
+
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -2196,6 +2366,8 @@ codeunit 134100 "ERM Prepayment"
 
         // Setup : Create sales order
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
         CreateSalesHeaderWithPrepaymentPercentage(SalesHeader, CreateCustomerWithPostingSetup(LineGLAccount));
@@ -2227,6 +2399,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Create Purchase order with Prepayment %.
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
+
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
 
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
@@ -2265,6 +2440,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create sales invoice with Prices Including VAT
         // [GIVEN] Get shipment line with the sames "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         LibrarySales.CreateCustomer(Customer);
         PostedDocNo[1] :=
@@ -2301,6 +2478,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Create purchase invoice with Prices Including VAT
         // [GIVEN] Get receipt line with the sames "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         LibraryPurchase.CreateVendor(Vendor);
         PostedDocNo[1] :=
           CreateAndReceivePurchOrderWithSpecificPricesInclVAT(PurchOrderHeader[1], Vendor."No.", true);
@@ -2330,6 +2509,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 360198] Sales Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Excl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in LCY and Price Including VAT is FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, 100, '');
         // [GIVEN] Posted Prepayment Invoice
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2351,6 +2532,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 360198] Purchase Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Excl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in LCY and Price Including VAT is FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, 100, '');
         // [GIVEN] Posted Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -2372,6 +2555,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 360198] Sales Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Incl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in LCY and Price Including VAT is TRUE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, true, 100, '');
         // [GIVEN] Posted Prepayment Invoice
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2393,6 +2578,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 360198] Purchase Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Incl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in LCY and Price Including VAT is TRUE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, true, 100, '');
         // [GIVEN] Posted Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -2414,6 +2601,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Sales] [Credit Memo] [FCY]
         // [SCENARIO 360198] Sales Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Excl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in FCY and Price Including VAT is FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, 100, LibraryERM.CreateCurrencyWithRounding);
         // [GIVEN] Posted Prepayment Invoice
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2435,6 +2624,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Credit Memo] [FCY]
         // [SCENARIO 360198] Purchase Prepayment Cr. Memo after full Prepayment Invoice and Partial Invoice with Amounts Excl. VAT
         // [GIVEN] Posted 100% Prepayment Invoice in FCY and Price Including VAT is FALSE
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, 100, LibraryERM.CreateCurrencyWithRounding);
         // [GIVEN] Posted Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -2455,6 +2646,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [SCENARIO 123661] Delete Sales Order after prepayment without Order invoice
         // [GIVEN] Posted Prepayment Invoice for Sales Order
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(
           SalesHeader, SalesLine, true, LibraryRandom.RandInt(100), '');
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2474,6 +2667,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [SCENARIO 123661] Delete Sales Order after prepayment and partially invoiced
         // [GIVEN] Posted Prepayment Invoice for Sales Order
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(
           SalesHeader, SalesLine, true, LibraryRandom.RandInt(100), '');
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2495,6 +2690,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [SCENARIO 123661] Delete Sales Order after prepayment, partially invoiced and posted Prepayment Cr. Memo
         // [GIVEN] Posted Prepayment Invoice for Sales Order
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(
           SalesHeader, SalesLine, true, LibraryRandom.RandInt(100), '');
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2522,6 +2719,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Posted Prepayment Invoice for Sales Order
         InitSalesPrepaymentScenario(
           SalesHeader, SalesLine, true, LibraryRandom.RandInt(100), '');
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         // [GIVEN] Order is partially invoiced
         PostPartialSalesInvoice(SalesHeader, SalesLine);
@@ -2546,6 +2745,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [SCENARIO 123661] Delete Purchase Order after prepayment without Order invoice
         // [GIVEN] Posted Prepayment Invoice for Purchase Order
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         InitPurchasePrepaymentScenario(
           PurchaseHeader, PurchaseLine, true, LibraryRandom.RandInt(100), '');
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -2565,6 +2766,8 @@ codeunit 134100 "ERM Prepayment"
     begin
         // [SCENARIO 123661] Delete Purchase Order after prepayment and partially invoiced
         // [GIVEN] Posted Prepayment Invoice for Purchase Order
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         InitPurchasePrepaymentScenario(
           PurchaseHeader, PurchaseLine, true, LibraryRandom.RandInt(100), '');
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -2588,6 +2791,8 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Posted Prepayment Invoice for Purchase Order
         InitPurchasePrepaymentScenario(
           PurchaseHeader, PurchaseLine, true, LibraryRandom.RandInt(100), '');
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         // [GIVEN] Order is partially invoiced
         PostPartialPurchaseInvoice(PurchaseHeader, PurchaseLine);
@@ -2615,6 +2820,8 @@ codeunit 134100 "ERM Prepayment"
           PurchaseHeader, PurchaseLine, true, LibraryRandom.RandInt(100), '');
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         // [GIVEN] Order is partially invoiced
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         PostPartialPurchaseInvoice(PurchaseHeader, PurchaseLine);
         // [GIVEN] Posted Prepayment Credit Memo
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader);
@@ -2640,6 +2847,8 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
 
         // [GIVEN] New "Series Nos." for Posted Invoice and Credit Memo
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         PostedPrepmtInvNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
         PostedPrepmtCrMemoNosInSetup(SalesReceivablesSetup, CreateNoSeriesWithLine);
 
@@ -2665,6 +2874,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Credit Memo] [Series No]
         // [SCENARIO 360624.2] Purchase Prepmt. invoice's and credit memo's entries are posted with "Posted Prepmt. No. Series"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         // [GIVEN] New "Series Nos." for Posted Invoice and Credit Memo
         PostedPrepmtInvNosInPurchSetup(PurchPayablesSetup, CreateNoSeriesWithLine);
@@ -2703,6 +2914,8 @@ codeunit 134100 "ERM Prepayment"
         PrepmtGLAccountNo := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalcType::"Normal VAT");
         ExtendedText := CreateGLAccountExtendedText(PrepmtGLAccountNo);
         // [GIVEN] Purchase Order with Prepayment
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
         CreateVendorWithPrepmtPct(Vendor, LineGLAccount);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         CreatePurchaseLineGL(PurchaseLine, PurchaseHeader, LineGLAccount."No.", LibraryRandom.RandDec(100, 2));
@@ -2737,6 +2950,8 @@ codeunit 134100 "ERM Prepayment"
         PrepmtGLAccountNo := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalcType::"Normal VAT");
         ExtendedText := CreateGLAccountExtendedText(PrepmtGLAccountNo);
         // [GIVEN] Sales Order with Prepayment
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         CreateCustomerWithPrepmtPct(Customer, LineGLAccount);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         CreateSalesLineGL(SalesLine, SalesHeader, LineGLAccount."No.", LibraryRandom.RandDec(100, 2));
@@ -2763,6 +2978,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Sales 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six document lines and "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // [GIVEN] Sales Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Two posting accounts "Acc1" and "Acc2" with different prepayment accounts "PAcc1" and "PAcc2" accordingly
@@ -2795,6 +3012,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Purchase 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six document lines and "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         // [GIVEN] Purchase Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Two posting accounts "Acc1" and "Acc2" with different prepayment accounts "PAcc1" and "PAcc2" accordingly
@@ -2827,6 +3046,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Sales] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Sales 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six different document lines and "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // [GIVEN] Sales Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Six posting accounts "Acc1".."Acc6" with different prepayment accounts "PAcc1" (for Acc 1,3,5) and "PAcc2" (for Acc 2,4,6)
@@ -2859,6 +3080,8 @@ codeunit 134100 "ERM Prepayment"
         // [FEATURE] [Purchase] [Prices Incl. VAT] [Rounding]
         // [SCENARIO 376012] Post Purchase 100 % Prepayment Invoice and final Invoice with two prepayment accounts, six different document lines and "Prices Including VAT"
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         // [GIVEN] Purchase Order, Prices Including VAT = TRUE, Prepayment % = 100, VAT % = 20
         // [GIVEN] Six posting accounts "Acc1".."Acc6" with different prepayment accounts "PAcc1" (for Acc 1,3,5) and "PAcc2"(for Acc 2,4,6)
@@ -2894,6 +3117,8 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO 376557] Prepayment VAT Posting Setup should be validated in Sales Line during posting prepayment after update "Sales Prepayment Account" in General Posting Setup
 
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         // [GIVEN] General Posting Setup with blank "Sales Prepayment Account"
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
@@ -2937,6 +3162,8 @@ codeunit 134100 "ERM Prepayment"
         // [SCENARIO 376557] Prepayment VAT Posting Setup should be validated in Purchase Line during posting prepayment after update "Purchase Prepayment Account" in General Posting Setup
 
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         // [GIVEN] General Posting Setup with blank "Purchase Prepayment Account"
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
@@ -2978,6 +3205,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
 
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
@@ -3009,6 +3238,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
+
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
@@ -3039,6 +3271,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
+
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3072,6 +3307,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
+
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice
@@ -3107,6 +3345,9 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
+
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
@@ -3147,6 +3388,9 @@ codeunit 134100 "ERM Prepayment"
         Initialize;
 
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
+
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
 
         // [GIVEN] Posted Purchase Prepayment Invoice
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
@@ -3191,6 +3435,9 @@ codeunit 134100 "ERM Prepayment"
 
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
+        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
+
         // [GIVEN] Posted Sales Prepayment Invoice "Y"
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         PrepmtNo := FindSalesPrepmtInvoiceNo(SalesHeader."No.");
@@ -3230,6 +3477,8 @@ codeunit 134100 "ERM Prepayment"
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // [GIVEN] Posted Sales Prepayment Credit Memo "Y"
@@ -3267,11 +3516,15 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Purchase Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddPurchDocsPost;
+
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Purchase Prepayment Invoice "Y"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
 
+        LibraryLowerPermissions.SetOutsideO365Scope;
         PostedPurchInvoices.Trap;
         PurchOrder.OpenEdit;
         PurchOrder.GotoRecord(PurchHeader);
@@ -3297,6 +3550,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
         InitPurchasePrepaymentScenario(PurchHeader, PurchLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3306,6 +3561,7 @@ codeunit 134100 "ERM Prepayment"
         PurchHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchHeader);
 
+        LibraryLowerPermissions.SetOutsideO365Scope;
         PostedPurchCrMemos.Trap;
         PurchOrder.OpenEdit;
         PurchOrder.GotoRecord(PurchHeader);
@@ -3331,11 +3587,14 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice "Y"
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
+        LibraryLowerPermissions.SetOutsideO365Scope;
         PostedSalesInvoices.Trap;
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
@@ -3361,6 +3620,8 @@ codeunit 134100 "ERM Prepayment"
 
         // [GIVEN] Sales Order with Customer "X" and Prepayment
         Initialize;
+        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.AddSalesDocsPost;
         InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
 
         // [GIVEN] Posted Sales Prepayment Invoice
@@ -3369,6 +3630,7 @@ codeunit 134100 "ERM Prepayment"
         // [GIVEN] Posted Sales Prepayment Credit Memo "Y"
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
+        LibraryLowerPermissions.SetOutsideO365Scope;
         PostedSalesCrMemos.Trap;
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
@@ -3692,6 +3954,7 @@ codeunit 134100 "ERM Prepayment"
 
     local procedure CreateFAWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[20]
     var
+        FASetup: Record "FA Setup";
         FixedAsset: Record "Fixed Asset";
         FADepreciationBook: Record "FA Depreciation Book";
         FAPostingGroupCode: Code[20];
@@ -3702,6 +3965,12 @@ codeunit 134100 "ERM Prepayment"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroupCode);
         FADepreciationBook.Modify(true);
+        FASetup.Get();
+        if FASetup."Disposal Depr. Book" <> '' then begin
+            LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Disposal Depr. Book");
+            FADepreciationBook.Validate("FA Posting Group", FAPostingGroupCode);
+            FADepreciationBook.Modify(true);
+        end;
 
         exit(FixedAsset."No.");
     end;

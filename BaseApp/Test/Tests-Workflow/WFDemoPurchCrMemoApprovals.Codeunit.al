@@ -11,6 +11,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -725,6 +726,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Purch CrMemo Approvals");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -732,8 +734,10 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch CrMemo Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Purch CrMemo Approvals");
     end;
 
     local procedure CreatePurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header")

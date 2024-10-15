@@ -1,7 +1,6 @@
 codeunit 137928 "SCM Assembly UT"
 {
     Subtype = Test;
-    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -293,7 +292,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314.
-        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '');
+        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '', '');
 
         // [THEN] The function returns 0.
         Assert.AreEqual(0, QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -321,7 +320,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No. as a parameter.
-        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '');
+        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', '', '', '');
 
         // [THEN] The function returns 4 * Q (sum of 4 entries).
         Assert.AreEqual(QtyBase * ArrayLen(LotNo) * ArrayLen(SerialNo), QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -349,7 +348,8 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseEntries(Location, ItemNo, LotNo, SerialNo, QtyBase);
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No. and Lot No. as parameters.
-        QtyInAsmBin := WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], '');
+        QtyInAsmBin :=
+          WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], '', '');
 
         // [THEN] The function returns 2 * Q (sum of 2 entries).
         Assert.AreEqual(QtyBase * ArrayLen(SerialNo), QtyInAsmBin, WrongQtyInAsmBinErr);
@@ -378,7 +378,7 @@ codeunit 137928 "SCM Assembly UT"
 
         // [WHEN] Invoke CalcQtyOnAssemblyBin function in codeunit 7314 with first Item No., Lot No. and Serial No. as parameters.
         QtyInAsmBin :=
-          WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], SerialNo[1]);
+          WarehouseAvailabilityMgt.CalcQtyOnBin(Location.Code, Location."To-Assembly Bin Code", ItemNo[1], '', LotNo[1], SerialNo[1], '');
 
         // [THEN] The function returns Q (one entry).
         Assert.AreEqual(QtyBase, QtyInAsmBin, WrongQtyInAsmBinErr);

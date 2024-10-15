@@ -940,7 +940,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := SalesLine."VAT %";
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Bus. Posting Group", SalesLine."VAT %"),
+          LibraryRandom.RandInt(10));
         VATAmount2 := SalesLine."Line Amount" * SalesLine."VAT %" / 100;
 
         // Exercise: Calculate VAT Amount.
@@ -1010,7 +1011,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := SalesLine."VAT %";
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, FindItem(SalesLine."VAT Bus. Posting Group", SalesLine."VAT %"),
+          LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := SalesLine."Line Amount" * SalesLine."VAT %" / 100 + SalesLine."Line Amount";
         VATPct2 := SalesLine."VAT %";
 
@@ -1057,7 +1059,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := PurchaseLine."VAT %";
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT %"),
           LibraryRandom.RandInt(10));
         VATAmount2 := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100;
 
@@ -1123,7 +1125,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         VATPct := PurchaseLine."VAT %";
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Prod. Posting Group"),
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, FindItem(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT %"),
           LibraryRandom.RandInt(10));
         AmountIncludingVAT2 := PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100 + PurchaseLine."Line Amount";
         VATPct2 := PurchaseLine."VAT %";
@@ -1738,7 +1740,9 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purchase");
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1795,7 +1799,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         FindVATPostingSetup(VATPostingSetup);
         CreateSalesOrderAndCalcInvDisc(SalesHeader, InvoiceDiscountAmount, DocumentType);
         InvoiceDiscountAmount2 :=
-          CreateSalesLineAndCalcInvDisc(SalesHeader, SalesLine, FindItem(VATPostingSetup."VAT Prod. Posting Group"));
+          CreateSalesLineAndCalcInvDisc(
+            SalesHeader, SalesLine, FindItem(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT %"));
         exit(FindVATIdentifier(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group"));
     end;
 
@@ -1806,7 +1811,8 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchOrderAndCalcInvDisc(PurchaseHeader, InvoiceDiscountAmount, DocumentType);
         InvoiceDiscountAmount2 :=
-          CreatePurchLineAndCalcInvDisc(PurchaseHeader, PurchaseLine, FindItem(VATPostingSetup."VAT Prod. Posting Group"));
+          CreatePurchLineAndCalcInvDisc(
+            PurchaseHeader, PurchaseLine, FindItem(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT %"));
         exit(FindVATIdentifier(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group"));
     end;
 
@@ -2027,14 +2033,17 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         exit(CustInvoiceDisc."Discount %");
     end;
 
-    local procedure FindItem(VATProdPostingGroup: Code[20]): Code[20]
+    local procedure FindItem(VATBusPostingGroup: Code[20]; VATPct: Decimal): Code[20]
     var
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Not using Library Item Finder method to make this funtion World ready.
-        FindVATPostingSetup(VATPostingSetup);
-        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.SetFilter("VAT %", '<>%1&<>%2', VATPct, 0);
         VATPostingSetup.FindFirst;
         LibraryInventory.CreateItem(Item);
         Item.Validate(Blocked, false);
