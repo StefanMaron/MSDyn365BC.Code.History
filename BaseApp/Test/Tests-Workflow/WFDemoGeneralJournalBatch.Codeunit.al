@@ -382,7 +382,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         // Exercise
         Commit();
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
-        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, false);
+        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, true);
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
@@ -390,7 +390,7 @@ codeunit 134187 "WF Demo General Journal Batch"
 
         // Setup
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
-        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, true);
+        CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 1, true);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
 
@@ -431,7 +431,7 @@ codeunit 134187 "WF Demo General Journal Batch"
         // Exercise
         Commit();
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
-        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, false);
+        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, true);
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
@@ -439,7 +439,7 @@ codeunit 134187 "WF Demo General Journal Batch"
 
         // Setup
         AssignApprovalEntry(ApprovalEntry, RequestorUserSetup);
-        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, true);
+        CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 1, true);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 1);
 

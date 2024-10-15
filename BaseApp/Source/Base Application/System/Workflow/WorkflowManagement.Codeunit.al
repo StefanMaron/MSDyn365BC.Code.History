@@ -88,6 +88,7 @@ codeunit 1501 "Workflow Management"
                 WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
                 WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
                 WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
+                OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1tersWhenNotStartWorkFlow(RecRef, WorkflowStepInstanceLoop, FunctionName, StartWorkflow);
                 if WorkflowStepInstanceLoop.IsEmpty() then
                     exit(false);
             end;
@@ -98,6 +99,7 @@ codeunit 1501 "Workflow Management"
         WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
         WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
         WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
+        OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1ters(RecRef, WorkflowStepInstanceLoop, FunctionName, StartWorkflow);
         WorkflowStepInstanceLoop.SetCurrentKey("Sequence No.");
 
         if WorkflowStepInstanceLoop.FindSet() then
@@ -837,6 +839,16 @@ codeunit 1501 "Workflow Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterEvaluateCondition(RecRef: RecordRef; xRecRef: RecordRef; ArgumentID: Guid; var WorkflowRule: Record "Workflow Rule"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1tersWhenNotStartWorkFlow(RecordRef: RecordRef; var WorkflowStepInstanceLoop: Record "Workflow Step Instance"; FunctionName: Code[128]; StartWorkflow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1ters(RecordRef: RecordRef; var WorkflowStepInstanceLoop: Record "Workflow Step Instance"; FunctionName: Code[128]; StartWorkflow: Boolean)
     begin
     end;
 }

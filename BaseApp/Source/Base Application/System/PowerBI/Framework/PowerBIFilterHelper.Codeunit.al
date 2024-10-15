@@ -9,22 +9,38 @@ codeunit 6320 "Power BI Filter Helper"
         BasicFilterSchemaTok: Label 'http://powerbi.com/product/schema#basic', Locked = true;
         // Telemetry labels
         UnsupportedFilterTypeTelemetryMsg: Label 'Cannot filter Power BI report: the filter type is not supported.', Locked = true;
+        SelectionTooLargeTelemetryMsg: Label 'Power BI filter skipped. %1 records selected, but up to %2 are supported.', Locked = true;
         NoFilterDefinedTelemetryMsg: Label 'There is no filter defined in the Power BI report.', Locked = true;
 
+#if not CLEAN24
+    [Obsolete('Use the other overload of MergeValuesIntoFirstFilter instead, which uses JsonArray data types.', '24.0')]
     procedure MergeValuesIntoFirstFilter(ReportFiltersInfo: Text; FilterValuesJsonArray: JsonArray) ReportFiltersToSet: Text
     var
-        FilterPath: Text;
         ReportFilterInfoJsonArray: JsonArray;
+        OutputReportFilters: JsonArray;
     begin
         ReportFilterInfoJsonArray.ReadFrom(ReportFiltersInfo);
-        FilterPath := FindFirstFilter(ReportFilterInfoJsonArray);
 
-        if (FilterPath = '') or (ReportFiltersInfo = '') then
-            exit(ReportFiltersInfo);
-
-        ReportFilterInfoJsonArray := MergeValuesIntoFilterByPath(ReportFilterInfoJsonArray, FilterPath, FilterValuesJsonArray);
+        OutputReportFilters := MergeValuesIntoFirstFilter(ReportFilterInfoJsonArray, FilterValuesJsonArray);
 
         ReportFilterInfoJsonArray.WriteTo(ReportFiltersToSet);
+    end;
+#endif
+
+    procedure MergeValuesIntoFirstFilter(ReportFiltersInfo: JsonArray; FilterValuesJsonArray: JsonArray) ReportFiltersWithValues: JsonArray
+    var
+        FilterPath: Text;
+    begin
+        FilterPath := FindFirstFilter(ReportFiltersInfo);
+
+        if (FilterPath = '') or (ReportFiltersInfo.Count() = 0) then
+            exit(ReportFiltersInfo);
+
+        ReportFiltersWithValues := ReportFiltersInfo.Clone().AsArray();
+
+        MergeValuesIntoFilterByPath(ReportFiltersWithValues, FilterPath, FilterValuesJsonArray);
+
+        exit(ReportFiltersWithValues);
     end;
 
     procedure VariantToFilter(InputSelectionVariant: Variant): JsonArray
@@ -36,7 +52,7 @@ codeunit 6320 "Power BI Filter Helper"
         exit(ValuesJArray);
     end;
 
-    local procedure MergeValuesIntoFilterByPath(FiltersJsonArray: JsonArray; FilterPath: Text; FilterValuesJsonArray: JsonArray): JsonArray
+    local procedure MergeValuesIntoFilterByPath(var FiltersJsonArray: JsonArray; FilterPath: Text; FilterValuesJsonArray: JsonArray)
     var
         FilterStructure: JsonObject;
         FilterStuctureToken: JsonToken;
@@ -55,8 +71,6 @@ codeunit 6320 "Power BI Filter Helper"
             FilterStructure.Add('operator', 'In');
             FilterStructure.Add('values', FilterValuesJsonArray);
         end;
-
-        exit(FiltersJsonArray);
     end;
 
     local procedure FindFirstFilter(JArrayFilters: JsonArray): Text
@@ -79,6 +93,16 @@ codeunit 6320 "Power BI Filter Helper"
     var
         FilteringFieldRef: FieldRef;
     begin
+        if FilteringRecordRef.GetFilters() = '' then
+            exit;
+
+        if FilteringRecordRef.Count() > 100 then begin
+            Session.LogMessage('0000LMO', StrSubstNo(SelectionTooLargeTelemetryMsg, FilteringRecordRef.Count(), 100), Verbosity::Normal,
+                DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            exit;
+        end;
+
+        FilteringRecordRef.SetLoadFields(FieldNumber);
         if FilteringRecordRef.FindSet() then
             repeat
                 FilteringFieldRef := FilteringRecordRef.Field(FieldNumber);

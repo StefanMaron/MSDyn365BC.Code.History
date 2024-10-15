@@ -3591,11 +3591,11 @@ codeunit 137065 "SCM Reservation II"
 
             if Pick then
                 if Shipment then
-                    Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)")
+                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
                 else
-                    Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
             if PutAway then
-                Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
+                "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"Inventory Put-away";
 
             "Bin Mandatory" := BinRequired; // Skip Validate to improve performance.
             Modify(true);

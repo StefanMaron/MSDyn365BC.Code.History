@@ -37,15 +37,20 @@ codeunit 396 NoSeriesManagement
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
 
     procedure TestManual(DefaultNoSeriesCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        if DefaultNoSeriesCode <> '' then begin
-            NoSeries.Get(DefaultNoSeriesCode);
-            if not NoSeries."Manual Nos." then
-                Error(
-                  Text000 +
-                  Text001,
-                  NoSeries.FieldCaption("Manual Nos."), NoSeries.TableCaption(), NoSeries.Code);
-        end;
+        IsHandled := false;
+        OnBeforeTestManual(DefaultNoSeriesCode, IsHandled);
+        if not IsHandled then
+            if DefaultNoSeriesCode <> '' then begin
+                NoSeries.Get(DefaultNoSeriesCode);
+                if not NoSeries."Manual Nos." then
+                    Error(
+                      Text000 +
+                      Text001,
+                      NoSeries.FieldCaption("Manual Nos."), NoSeries.TableCaption(), NoSeries.Code);
+            end;
         OnAfterTestManual(DefaultNoSeriesCode);
     end;
 
@@ -95,7 +100,14 @@ codeunit 396 NoSeriesManagement
     end;
 
     procedure SetDefaultSeries(var NewNoSeriesCode: Code[20]; NoSeriesCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultSeries(NewNoSeriesCode, NoSeriesCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if NoSeriesCode <> '' then begin
             NoSeries.Get(NoSeriesCode);
             if NoSeries."Default Nos." then
@@ -639,12 +651,12 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20]; var NewNoSeriesCode: Code[20]; var NoSeries: Record "No. Series"; var IsHandled: Boolean; var NoSeriesCode: Code[20])
+    local procedure OnBeforeInitSeries(var DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20]; var NewNoSeriesCode: Code[20]; var NoSeries: Record "No. Series"; var IsHandled: Boolean; var NoSeriesCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; var NewNoSeriesCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectSeries(var DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; var NewNoSeriesCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -655,6 +667,16 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSaveNoSeries(var NoSeriesLine: Record "No. Series Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestManual(var DefaultNoSeriesCode: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSeries(var NewNoSeriesCode: Code[20]; var NoSeriesCode: Code[20]; var IsHandled: Boolean);
     begin
     end;
 }

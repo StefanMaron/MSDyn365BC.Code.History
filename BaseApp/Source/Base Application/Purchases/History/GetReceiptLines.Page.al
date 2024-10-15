@@ -290,7 +290,6 @@ page 5709 "Get Receipt Lines"
     end;
 
     var
-        PurchHeader: Record "Purchase Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary;
         GetReceipts: Codeunit "Purch.-Get Receipt";
@@ -300,6 +299,7 @@ page 5709 "Get Receipt Lines"
         ItemReferenceNo: Code[50];
 
     protected var
+        PurchHeader: Record "Purchase Header";
         DocumentNoHideValue: Boolean;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")

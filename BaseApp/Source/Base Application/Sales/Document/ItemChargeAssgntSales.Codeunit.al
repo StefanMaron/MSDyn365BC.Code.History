@@ -550,7 +550,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
-    local procedure AssignSalesItemCharge(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; ItemChargeAssignmentSales2: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; var QtyRemaining: Decimal; var AmountRemaining: Decimal)
+    procedure AssignSalesItemCharge(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; ItemChargeAssignmentSales2: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; var QtyRemaining: Decimal; var AmountRemaining: Decimal)
     begin
         ItemChargeAssignmentSales.Get(
           ItemChargeAssignmentSales2."Document Type",

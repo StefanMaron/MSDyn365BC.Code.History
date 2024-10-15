@@ -43,10 +43,13 @@ codeunit 1201 "Process Data Exch."
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", RecRefTemplate.Number);
         DataExchFieldMapping.SetFilter(Priority, '<>%1', 0);
-        if not DataExchFieldMapping.IsEmpty() then begin
-            DataExchFieldMapping.SetCurrentKey("Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", Priority);
-            DataExchFieldMapping.Ascending(false);
-        end;
+        IsHandled := false;
+        OnProcessColumnMappingOnAfterDataExchFieldMappingSetFilters(DataExchFieldMapping, IsHandled);
+        if not IsHandled then
+            if not DataExchFieldMapping.IsEmpty() then begin
+                DataExchFieldMapping.SetCurrentKey("Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", Priority);
+                DataExchFieldMapping.Ascending(false);
+            end;
         DataExchFieldMapping.SetRange(Priority);
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
@@ -389,6 +392,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFieldOnBeforeDataExchColumnDefGet(var DataExchField: Record 1221; var DataExchColumnDef: Record 1223; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnAfterDataExchFieldMappingSetFilters(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; var IsHandled: Boolean)
     begin
     end;
 }

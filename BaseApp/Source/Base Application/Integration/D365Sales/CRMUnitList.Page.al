@@ -103,15 +103,8 @@ page 5364 "CRM Unit List"
     trigger OnAfterGetRecord()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         RecordID: RecordID;
-        MappedTableId: Integer;
     begin
-        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
-            MappedTableId := Database::"Unit Group"
-        else
-            MappedTableId := Database::"Unit of Measure";
-
         if CRMIntegrationRecord.FindRecordIDFromID(Rec.UoMId, Database::"Item Unit of Measure", RecordID) then
             if CurrentlyCoupledCRMUom.UoMId = Rec.UoMScheduleId then begin
                 Coupled := 'Current';

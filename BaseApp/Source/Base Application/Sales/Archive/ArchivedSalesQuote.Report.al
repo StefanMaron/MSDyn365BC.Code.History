@@ -23,6 +23,7 @@ report 215 "Archived Sales Quote"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Archive/ArchivedSalesQuote.rdlc';
     Caption = 'Archived Sales Quote';
+    WordMergeDataItem = "Sales Header Archive";
 
     dataset
     {

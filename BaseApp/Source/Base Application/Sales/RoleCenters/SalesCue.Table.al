@@ -1,5 +1,6 @@
 namespace Microsoft.Sales.RoleCenters;
 
+using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using System.Security.User;
@@ -138,6 +139,10 @@ table 9053 "Sales Cue"
         {
             Caption = 'User ID Filter';
             FieldClass = FlowFilter;
+        }
+        field(34; "S. Ord. - Reserved From Stock"; Integer)
+        {
+            Caption = 'Sales Orders - Completely Reserved from Stock';
         }
     }
 
@@ -288,6 +293,37 @@ table 9053 "Sales Cue"
 
         SumDelayDays += MaximumDelayAmongLines(SalesHeader);
         CountDelayedInvoices += 1;
+    end;
+
+    procedure CalcNoOfReservedFromStockSalesOrders() Number: Integer
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesHeader: Record "Sales Header";
+    begin
+        Number := 0;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetLoadFields("Document Type", "No.");
+        if SalesHeader.FindSet() then
+            repeat
+                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
+                    Number += 1;
+            until SalesHeader.Next() = 0;
+    end;
+
+    procedure DrillDownNoOfReservedFromStockSalesOrders()
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetLoadFields("Document Type", "No.");
+        if SalesHeader.FindSet() then
+            repeat
+                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
+                    SalesHeader.Mark(true);
+            until SalesHeader.Next() = 0;
+        SalesHeader.MarkedOnly(true);
+        Page.Run(Page::"Sales Order List", SalesHeader);
     end;
 
     [IntegrationEvent(false, false)]

@@ -489,6 +489,7 @@ page 1180 "Data Privacy Wizard"
                     ConfigPackageTable: Record "Config. Package Table";
                     ConfigPackage: Record "Config. Package";
                     SessionId: Integer;
+                    IsHandled: Boolean;
                 begin
                     NextActionEnabled := true;
                     PreviewActionEnabled := true;
@@ -535,14 +536,17 @@ page 1180 "Data Privacy Wizard"
                             if ConfigPackage.Get(PackageCode) then begin
                                 DataPrivacyMgmt.SetPrivacyBlocked(EntityTypeTableNo, EntityNo);
                                 ConfigPackageTable.SetRange("Package Code", PackageCode);
-                                if StartSession(SessionId, CODEUNIT::"Prvacy Data Mgmt Excel", CompanyName, ConfigPackageTable) then
-                                    ActivityLog.LogActivity(
-                                      Company.RecordId, ActivityLog.Status::Success, ActivityContextTxt, ActivityDescriptionExportTxt,
-                                      StrSubstNo(ActivityMessageExportTxt, LowerCase(Format(DataSensitivity)), EntityType, EntityNo))
-                                else
-                                    ActivityLog.LogActivity(
-                                      Company.RecordId, ActivityLog.Status::Failed, ActivityContextTxt, ActivityDescriptionExportTxt,
-                                      StrSubstNo(ActivityMessageExportTxt, LowerCase(Format(DataSensitivity)), EntityType, EntityNo));
+                                IsHandled := false;
+                                OnNextActionOnBeforeStartSession(IsHandled, ConfigPackageTable, SessionId, DataSensitivity, EntityType, EntityNo);
+                                if not IsHandled then
+                                    if StartSession(SessionId, CODEUNIT::"Prvacy Data Mgmt Excel", CompanyName, ConfigPackageTable) then
+                                        ActivityLog.LogActivity(
+                                          Company.RecordId, ActivityLog.Status::Success, ActivityContextTxt, ActivityDescriptionExportTxt,
+                                          StrSubstNo(ActivityMessageExportTxt, LowerCase(Format(DataSensitivity)), EntityType, EntityNo))
+                                    else
+                                        ActivityLog.LogActivity(
+                                          Company.RecordId, ActivityLog.Status::Failed, ActivityContextTxt, ActivityDescriptionExportTxt,
+                                          StrSubstNo(ActivityMessageExportTxt, LowerCase(Format(DataSensitivity)), EntityType, EntityNo));
                             end else begin // No data generated, so no config package created.
                                 CurrentPage := 6; // Move to the end
                                 ActivityLog.LogActivity(
@@ -730,6 +734,11 @@ page 1180 "Data Privacy Wizard"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     internal procedure OnEntityNoValidate(EntityTypeTableNo: Integer; var EntityNo: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextActionOnBeforeStartSession(var IsHandled: Boolean; var ConfigPackageTable: Record "Config. Package Table"; var SessionId: Integer; var DataSensitivity: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified; var EntityType: Text[80]; var EntityNo: Code[50])
     begin
     end;
 }

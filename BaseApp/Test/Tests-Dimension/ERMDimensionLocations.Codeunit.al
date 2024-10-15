@@ -936,6 +936,168 @@ codeunit 134474 "ERM Dimension Locations"
         VerifyDimensionValue(TransferHeader."Dimension Set ID", DimensionValue);
     end;
 
+    [Test]
+    procedure ItemReclassificationJournalShouldPostWithoutDimensionError()
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+        Item: Record Item;
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO 482814] Dimension Error in Item Reclassification Journal
+        Initialize();
+
+        // [GIVEN] Global dimension 1 values "V1" and "V2".
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Assign value "V1" to location "BLUE".
+        // [GIVEN] Assign value "V2" to location "RED".
+        LibraryInventory.CreateItem(Item);
+        CreateLocationWithDefaultDimension(LocationFrom, DimensionValue[1]);
+        CreateLocationWithDefaultDimension(LocationTo, DimensionValue[2]);
+
+        // [GIVEN] Create item reclassification journal line.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ItemJournalLine, ItemJournalBatch, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::Transfer);
+        ItemJournalline.Validate("Item No.", Item."No.");
+
+        // [GIVEN] Set "Location Code" = "BLUE" on the item journal line.
+        // [GIVEN] Verify that "Shortcut Dimension 1 Code" = "V1".
+        // [GIVEN] Verify that "Dimension Set ID" includes value "V1".
+        ItemJournalLine.Validate("Location Code", LocationFrom.Code);
+        ItemJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        VerifyDimensionValue(ItemJournalLine."Dimension Set ID", DimensionValue[1]);
+
+        // [WHEN] Set "New Location Code" = "RED".
+        ItemJournalLine.Validate("New Location Code", LocationTo.Code);
+
+        // [THEN] "New Shortcut Dimension 1 Code" = "V2".
+        // [THEN] "New Dimension Set ID" includes value "V2".
+        ItemJournalLine.TestField("New Shortcut Dimension 1 Code", DimensionValue[2].Code);
+        VerifyDimensionValue(ItemJournalLine."New Dimension Set ID", DimensionValue[2]);
+
+        // [THEN] "Shortcut Dimension 1 Code" remains "V1".
+        // [THEN] "Dimension Set ID" is not changed.
+        ItemJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        VerifyDimensionValue(ItemJournalLine."Dimension Set ID", DimensionValue[1]);
+
+        // [VERIFY] Verify: Item Reclassification Journal should post successfully
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    [Test]
+    procedure ItemReclassificationJournalShouldNotPostDueToDimensionError()
+    var
+        DimensionValue: Record "Dimension Value";
+        Item: Record Item;
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO 485261] 'New Project Code' is not validated on 'Reclassification Journal' even when the 'Value Posting' is marked as 'Code Mandatory'
+        Initialize();
+
+        // [GIVEN] Create 2 Locations e.g. "L1" and "L2"
+        LibraryWarehouse.CreateLocation(LocationFrom);
+        LibraryWarehouse.CreateLocation(LocationTo);
+
+        // [GIVEN] Global Dimension 2 values "V1"
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(2));
+
+        // [GIVEN] Create Item with Default Dimension Values Posting as Code Mandatory
+        CreateItemWithDefaultDimensionAndCodeMandatory(Item, DimensionValue);
+
+        // [GIVEN] Create item reclassification journal line.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+            ItemJournalLine,
+            ItemJournalBatch,
+            ItemJournalTemplate.Name,
+            ItemJournalBatch.Name,
+            "Item Ledger Entry Type"::Transfer);
+        ItemJournalline.Validate("Item No.", Item."No.");
+
+        // [GIVEN] Set "Location Code" = "BLUE" and "New Location Code" = "RED" on the item journal line.
+        ItemJournalLine.Validate("Location Code", LocationFrom.Code);
+        ItemJournalLine.Validate("New Location Code", LocationTo.Code);
+        ItemJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set "Shortcut Dimension 2 Code" = Project Code on the item journal line.
+        ItemJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
+        ItemJournalLine.Modify(true);
+
+        // [VERIFY] Verify: Item Reclassification Journal should not post 
+        asserterror LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        Assert.ExpectedError(LibraryERM.GetGlobalDimensionCode(2));
+    end;
+
+    [Test]
+    procedure ItemReclassificationJournalShouldPostWhenDimensionExistInNewShortcutDimension()
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+        Item: Record Item;
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO 485261] 'New Project Code' is not validated on 'Reclassification Journal' even when the 'Value Posting' is marked as 'Code Mandatory'
+        Initialize();
+
+        // [GIVEN] Create 2 Locations e.g. "L1" and "L2"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+
+        // [GIVEN] Global dimension 1 values "V1" and "V2".
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(2));
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(2));
+
+        // [GIVEN] Create Item with Default Dimension Values Posting as Code Mandatory
+        CreateItemWithDefaultDimensionAndCodeMandatory(Item, DimensionValue[1]);
+
+        // [GIVEN] Post inventory for the item by creating item journal line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+            ItemJournalLine, Item."No.", LocationFrom.Code, '', LibraryRandom.RandIntInRange(50, 100));
+        ItemJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue[1].Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        ItemJournalLine.Reset();
+
+        // [GIVEN] Create item reclassification journal line.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+            ItemJournalLine,
+            ItemJournalBatch,
+            ItemJournalTemplate.Name,
+            ItemJournalBatch.Name,
+            "Item Ledger Entry Type"::Transfer);
+        ItemJournalline.Validate("Item No.", Item."No.");
+
+        // [GIVEN] Set "Location Code" = "BLUE" and "New Location Code" = "RED" on the item journal line.
+        ItemJournalLine.Validate("Location Code", LocationFrom.Code);
+        ItemJournalLine.Validate("New Location Code", LocationTo.Code);
+        ItemJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set "Shortcut Dimension 2 Code" and "New Shortcut Dimension 2 Code" as  Project Code on the item journal line.
+        ItemJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue[1].Code);
+        ItemJournalLine.Validate("New Shortcut Dimension 2 Code", DimensionValue[2].Code);
+        ItemJournalLine.Modify(true);
+
+        // [VERIFY] Verify: Item Reclassification Journal should post successfully
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Dimension Locations");
@@ -1008,6 +1170,16 @@ codeunit 134474 "ERM Dimension Locations"
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
+    end;
+
+    local procedure CreateItemWithDefaultDimensionAndCodeMandatory(var Item: Record Item; DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionValue."Dimension Code", '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
     end;
 
     [ModalPageHandler]

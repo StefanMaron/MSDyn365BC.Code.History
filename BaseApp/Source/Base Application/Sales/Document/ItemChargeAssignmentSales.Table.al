@@ -57,7 +57,8 @@ table 5809 "Item Charge Assignment (Sales)"
             trigger OnValidate()
             begin
                 SalesLine.Get("Document Type", "Document No.", "Document Line No.");
-                SalesLine.TestField("Qty. to Invoice");
+                if Rec."Qty. to Assign" <> xRec."Qty. to Assign" then
+                    SalesLine.TestField("Qty. to Invoice");
                 TestField("Applies-to Doc. Line No.");
                 if ("Qty. to Assign" <> 0) and ("Applies-to Doc. Type" = "Document Type") then
                     if SalesLineInvoiced() then

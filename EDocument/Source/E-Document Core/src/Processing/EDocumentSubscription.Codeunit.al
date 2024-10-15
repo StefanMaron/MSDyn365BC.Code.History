@@ -199,16 +199,15 @@ codeunit 6103 "E-Document Subscription"
         OpenSourceDocumentHeader, PostedSourceDocumentHeader : RecordRef;
     begin
         PostedSourceDocumentHeader.GetTable(PostedRecord);
-        if EDocumentHelper.IsElectronicDocument(PostedSourceDocumentHeader) then begin
-            OpenSourceDocumentHeader.GetTable(OpenRecord);
-            EDocument.SetRange("Document Record ID", OpenSourceDocumentHeader.RecordId);
-            if EDocument.FindFirst() then begin
-                EDocument."Document Record ID" := PostedSourceDocumentHeader.RecordId;
-                EDocument."Document No." := PostedDocumentNo;
-                EDocument.Modify();
-            end else
+        OpenSourceDocumentHeader.GetTable(OpenRecord);
+        EDocument.SetRange("Document Record ID", OpenSourceDocumentHeader.RecordId);
+        if EDocument.FindFirst() then begin
+            EDocument."Document Record ID" := PostedSourceDocumentHeader.RecordId;
+            EDocument."Document No." := PostedDocumentNo;
+            EDocument.Modify();
+        end else
+            if EDocumentHelper.IsElectronicDocument(PostedSourceDocumentHeader) then
                 EDocExport.CreateEDocument(PostedSourceDocumentHeader);
-        end;
     end;
 
     var

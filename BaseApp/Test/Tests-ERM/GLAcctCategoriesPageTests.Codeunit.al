@@ -16,7 +16,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         WrongAccSchedErr: Label 'Wrong Acc. Sched.';
         CannotDeleteSystemCategoryErr: Label '%1 is a system generated category and cannot be deleted.';
-        AccSchedUpdateNeededNotificationMsg: Label 'You have changed one or more G/L account categories that account schedules use to calculate reports. We recommend that you update the account schedules with your changes by choosing the Generate Account Schedules action.';
+        AccSchedUpdateNeededNotificationMsg: Label 'You have changed one or more G/L account categories that financial reports use. We recommend that you update the financial reports with your changes by choosing the Generate Financial Reports action.';
         AccSchedUpdateNeededNotificationAction: Option "Check Message","Generate Account Schedules","Disable Notification";
 
     [Test]
