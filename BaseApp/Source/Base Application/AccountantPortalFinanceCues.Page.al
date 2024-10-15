@@ -275,10 +275,10 @@ page 1315 "Accountant Portal Finance Cues"
             group(RequestsToApprove)
             {
                 Caption = 'RequestsToApprove', Locked = true;
-                field(RequestsToApproveAmount; RequestsToApproveAmount)
+                field(RequeststoApproveAmount; RequeststoApproveAmount)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'RequestsToApproveAmount', Locked = true;
+                    Caption = 'RequeststoApproveAmount', Locked = true;
                     ToolTip = 'Specifies the number of requests that need approval.';
                 }
                 field(RequestsToApproveStyle; RequestsToApproveStyle)
@@ -419,7 +419,7 @@ page 1315 "Accountant Portal Finance Cues"
         OCRPendingStyle: Enum "Cues And KPIs Style";
         OCRCompletedAmount: Text;
         OCRCompletedStyle: Enum "Cues And KPIs Style";
-        RequestsToApproveAmount: Text;
+        RequeststoApproveAmount: Text;
         RequestsToApproveStyle: Enum "Cues And KPIs Style";
         RequestsSentForApprovalAmount: Text;
         RequestsSentForApprovalStyle: Enum "Cues And KPIs Style";
@@ -543,7 +543,7 @@ page 1315 "Accountant Portal Finance Cues"
         ApprovalActivitiesCue.SetRange("User ID Filter", UserId);
         ApprovalActivitiesCue.CalcFields("Requests to Approve");
         TempString := Format(ApprovalActivitiesCue."Requests to Approve");
-        RequestsToApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
+        RequeststoApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Approvals Activities Cue", ApprovalActivitiesCue.FieldNo("Requests to Approve"), ApprovalActivitiesCue."Requests to Approve", RequestsToApproveStyle);
 
         ApprovalActivitiesCue.CalcFields("Requests Sent for Approval");
