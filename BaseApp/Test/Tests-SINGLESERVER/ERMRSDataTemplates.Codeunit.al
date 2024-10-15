@@ -671,6 +671,10 @@ codeunit 136601 "ERM RS Data Templates"
 
         // DateFormula
         EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Payment Discount Grace Period"), Format('+1Y'));
+
+        // RecordID
+        EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Record ID"), format(GLSetup.RECORDID));
+
     end;
 
     [Test]

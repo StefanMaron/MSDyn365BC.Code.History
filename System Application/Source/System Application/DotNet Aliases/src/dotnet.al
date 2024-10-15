@@ -422,14 +422,6 @@ dotnet
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
-        type("Microsoft.Dynamics.Nav.Client.Capabilities.CameraOptions"; "CameraOptions")
-        {
-        }
-
-        type("Microsoft.Dynamics.Nav.Client.Capabilities.CameraProvider"; "CameraProvider")
-        {
-        }
-
         type("Microsoft.Dynamics.Nav.Client.Capabilities.DeviceContact"; "DeviceContact")
         {
         }
@@ -668,17 +660,6 @@ dotnet
         }
     }
 
-    assembly("Microsoft.Dynamics.Nav.Management.DSObjectPickerWrapper")
-    {
-        Version = '15.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = '31bf3856ad364e35';
-
-        type("Microsoft.Dynamics.Nav.Management.DSObjectPicker.DSObjectPickerWrapper"; "DSObjectPickerWrapper")
-        {
-        }
-    }
-
     assembly("Microsoft.Dynamics.Nav.NavUserAccount")
     {
         Culture = 'neutral';
@@ -688,7 +669,7 @@ dotnet
         {
         }
 
-        type("Microsoft.Dynamics.Nav.NavUserAccount.NavTenantSettingsHelper";"NavTenantSettingsHelper")
+        type("Microsoft.Dynamics.Nav.NavUserAccount.NavTenantSettingsHelper"; "NavTenantSettingsHelper")
         {
         }
 
@@ -1100,8 +1081,8 @@ dotnet
         type("System.Array"; "Array")
         {
         }
-		
-		type("System.Base64FormattingOptions"; "Base64FormattingOptions")
+
+        type("System.Base64FormattingOptions"; "Base64FormattingOptions")
         {
         }
 
@@ -1420,8 +1401,8 @@ dotnet
         type("System.Threading.Thread"; "Thread")
         {
         }
-	
-	    type("System.Threading.CancellationToken"; "CancellationToken")
+
+        type("System.Threading.CancellationToken"; "CancellationToken")
         {
         }
 
@@ -1438,6 +1419,22 @@ dotnet
         }
 
         type("System.Version"; "Version")
+        {
+        }
+
+        type("System.Reflection.FieldInfo"; "FieldInfo")
+        {
+        }
+
+        type("System.Reflection.PropertyInfo"; "PropertyInfo")
+        {
+        }
+
+        type("System.Security.Cryptography.CryptoConfig"; "CryptoConfig")
+        {
+        }
+
+        type("System.Security.Cryptography.RSA"; "RSA")
         {
         }
     }
@@ -1577,22 +1574,6 @@ dotnet
         }
 
         type("System.Net.WebRequest"; "WebRequest")
-        {
-        }
-
-        type("System.Reflection.FieldInfo"; "FieldInfo")
-        {
-        }
-
-        type("System.Reflection.PropertyInfo"; "PropertyInfo")
-        {
-        }
-
-        type("System.Security.Cryptography.CryptoConfig"; "CryptoConfig")
-        {
-        }
-
-        type("System.Security.Cryptography.RSA"; "RSA")
         {
         }
 

@@ -80,7 +80,7 @@ codeunit 134327 "ERM Purchase Order"
         // which are posted and also invoiced.
 
         // Setup: Create and Purchase Order.
-        Initialize;
+        Initialize();
         PurchaseDocNo := CreateAndPostPurchaseDocument(PurchaseHeader);
 
         InvoicePostedPurchaseOrder(InvoicePurchaseHeader, PurchaseHeader);
@@ -103,7 +103,7 @@ codeunit 134327 "ERM Purchase Order"
         // which are posted but not invoiced.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseHeader);
 
         // Run Delete Purchase Report Report and Verify.
@@ -122,7 +122,7 @@ codeunit 134327 "ERM Purchase Order"
         // because the posting is a pre-requisite to match an order and an invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
         // Run Delete Purchase Report Report and Verify.
@@ -150,7 +150,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test New Purchase Order creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -171,7 +171,7 @@ codeunit 134327 "ERM Purchase Order"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
@@ -207,7 +207,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create a Purchase Order, Calculates applicable VAT for a VAT Posting Group and verify it with VAT Amount Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Calculate VAT Amount on Purchase Order.
@@ -235,7 +235,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create New Purchase Order and save as external file and verify saved files have data.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Generate Report as external file for Purchase Order.
@@ -263,7 +263,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create New Purchase Order post as Receive and verify Posted Receipt No. of Lines are equals as Purchase Order No. of Lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
@@ -290,7 +290,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create a Purchase Order, Post as Receive and Invoice and verify Vendor Ledger, GL Entry, and VAT Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Post Purchase Order as Receive and Invoice.
@@ -319,7 +319,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test if Post a Purchase Order and generate Posted Purchase Invoice Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -348,7 +348,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test if Post a Purchase Order with Warehouse Location and verify Posted Purchase Receipt Entry.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order for Warehouse Location. Using RANDOM Quantity for Purchase Line, value is not important.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -385,7 +385,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Quantity re-validating with the same value does not cause Qty. to Receive modification.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order for Warehouse Location with Require Receive.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -407,7 +407,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Order Page not editable if no vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Order page is opened
         PurchaseOrder.OpenNew;
@@ -426,7 +426,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Order Page  editable if vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -449,7 +449,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Order Page not editable if vendor selected equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -478,7 +478,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Order Page editable if vendor selected not equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -512,7 +512,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Line Discount on Purchase Order, Post as Receive and Invoice and verify Posted GL Entry.
 
         // Setup: Create Line Discount Setup.
-        Initialize;
+        Initialize();
         SetupLineDiscount(PurchaseLineDiscount);
 
         // Exercise: Create and Post Purchase Order with Random Quantity. Take Quantity greater than Purchas Line Discount Minimum Quantity.
@@ -541,7 +541,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create New Invoice Discount Setup for Vendor and make new Purchase Order, Post as Receive and Invoice and verify Posted GL Entry.
 
         // Setup: Create Invoice Discount Setup.
-        Initialize;
+        Initialize();
         SetupInvoiceDiscount(VendorInvoiceDisc);
 
         // Exercise: Create Purchase Order, calculate Invoice Discount and Post as Receive and Invoice.
@@ -576,7 +576,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create and Post a Purchase Order with Currency and verify currency on Posted Purchase Invoice Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order, attach new Currency on Purchase Order and Post as Receive and Invoice.
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, CreateCurrency);
@@ -607,7 +607,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Navigate functionality for Posted Purchase Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
@@ -639,7 +639,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Navigate functionality for Posted Purchase Shipment.
 
         // Setup.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
@@ -671,7 +671,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Navigate functionality for Posted Purchase Credit Memo.
 
         // Setup.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Credit Memo");
 
@@ -704,7 +704,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Navigate functionality for Posted Purchase Return Shipment.
 
         // Setup.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Return Order");
 
@@ -736,7 +736,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Navigate functionality for Financial Management with General Lines.
 
         // Setup.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -770,7 +770,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check Extended Text in Purchase Order with Extended Text Line.
 
         // 1. Setup: Create Item, Vendor and Purchase Order.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Text := CreateItemAndExtendedText(Item);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.");
@@ -802,7 +802,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check GL Entry after Posting Partial Purchase Order.
 
         // Setup: Create and Post Purchase Order with Partial Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         ModifyPurchaseLineQtyToReceive(PurchaseLine, PurchaseLine."Qty. to Receive" / 2);
         TotalAmount := PurchaseLine."Qty. to Receive" * PurchaseLine."Direct Unit Cost";
@@ -830,7 +830,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check Purchase Order Posting Error Message when amount is Negative.
 
         // Setup: Create and Post Purchase Order with Partial Receive and modify Purchase Line with Negative Amount.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         ModifyPurchaseLineQtyToReceive(PurchaseLine, PurchaseLine."Qty. to Receive" / 2);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -860,7 +860,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check Purchase Line Archive for Archive Version after Posting Partial Purchase Order.
 
         // Setup: Create and Post Purchase Order with Archive Quotes and Orders TRUE on Purchase and payable Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetArchiveOrders(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         ModifyPurchaseLineQtyToReceive(PurchaseLine, PurchaseLine."Qty. to Receive" / 2);
@@ -920,7 +920,7 @@ codeunit 134327 "ERM Purchase Order"
         // To create a new Vendor with Page and verify it.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Vendor with Page.
         CreateTempVendor(TempVendor);
@@ -941,7 +941,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Invoice, Post and Verify Purchase Invoice Header and Line.
 
         // Setup: Create Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise: Post Purchase Invoice.
@@ -962,7 +962,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Credit Memo, Post and Verify Purchase Credit Memo Header and Line.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Exercise: Post Purchase Credit Memo.
@@ -983,7 +983,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check Purchase Code Line are copied correctly in Purchase Line.
 
         // Setup: Update Stock Out Warning.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order with Purchase Code.
         CreatePurchOrderWithPurchCode(StandardPurchaseLine, PurchaseHeader, '', '');
@@ -1006,7 +1006,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify Posted Purchase Line of one document is copied correctly in Purchase Line of second document.
 
         // Setup: Create and post Purchase Order with Purchase Code.
-        Initialize;
+        Initialize();
         CreatePurchOrderWithPurchCode(StandardPurchaseLine, PurchaseHeader, '', '');
         ModifyDirectUnitCost(PurchaseHeader);
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1039,7 +1039,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test Dimensions are "merged" between the ones coming from Standard Sales Code and Sales Header (customer)
 
         // 1. Setup : Create Item and customer with dimensions
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateItemWithDimension(Item, Dimension.Code, DefaultDimension."Value Posting"::" ");
         DifferentDimensionCode := FindDifferentDimension(Dimension.Code);
@@ -1074,7 +1074,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Order and Validate Item Charge Assignment Purch.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderChargeItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Create Purchase Line with Document Type as Item and Charge(Item).
@@ -1095,7 +1095,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Order and Suggest Item Charge Assignment then Validate Item Charge Assignment Purch.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderChargeItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Assign the Item Charge.
@@ -1117,7 +1117,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Invoice, and Get Receipt Lines, Verify that lines get generated on Purchase Invoice and Post the Invoice.
 
         // Setup: Create Purchase Order and Post.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndPost(PurchaseHeader, PurchaseLine);
 
         // Exercise: Get Receipt Lines for Invoice.
@@ -1139,7 +1139,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Purchase Invoice with Item Charge Assignment & Validate the Vendor Invoice No in Posted Purchase Invoice.
 
         // Setup: Create Purchase Order and Post.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndPost(PurchaseHeader, PurchaseLine);
 
         // Exercise: Create Purchase Invoice and Get Receipt Lines for Invoice.
@@ -1166,7 +1166,7 @@ codeunit 134327 "ERM Purchase Order"
         // Try to Post a Purchase Order with blank Posting Date.
 
         // Setup: Create Purchase Order with Modified Purchase and Payables Setup.
-        Initialize;
+        Initialize();
         UpdateDefaultPostingDate(PurchasesPayablesSetup."Default Posting Date"::"No Date");
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -1199,7 +1199,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create a new Purchase Order and Verify the posted values.
 
         // Setup: Update Automatic Cost Posting in Inventory setup, Vendor Invoice Discount and Create Purchase Order.
-        Initialize;
+        Initialize();
         CreateInvoiceDiscount(VendorInvoiceDisc);
         LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateAutomaticCostPosting(OldAutomaticCostPosting, true);
@@ -1234,7 +1234,7 @@ codeunit 134327 "ERM Purchase Order"
         // Test to validate Program populates information on Individual tab on Purchase Order according to Pay-to Vendor No.
 
         // Setup: Create purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
 
         // Exercise: Change pay to Vendor No of Purchase Order.
@@ -1254,7 +1254,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine: Record "Purchase Line";
     begin
         // [SCENARIO 360323] Purchase line with Standard Text type is not deleted when 'Buy-From Vendor No.' changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order header with Vendor = 'A'
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
@@ -1284,7 +1284,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Item with multiple Unit of Measure and Create Purchase Order with Job and verify Job Unit Price is updated when changing UOM on Purchase Line.
 
         // Setup: Create Item with multiple item unit of measure and Create purchase order.
-        Initialize;
+        Initialize();
         CreateItemWithUnitPrice(Item);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
 
@@ -1311,7 +1311,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Item with multiple Unit of Measure and Create Purchase Order with Job and verify Job Unit Price is updated when changing UOM on Purchase Line.
 
         // Setup: Create Item with item unit of measure and Create purchase order.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Order and Change the UOM on Purchase Line.
         CreateItemWithUOMandStandartCost(Item);
@@ -1338,7 +1338,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Item with multiple Unit of Measure and Create Purchase Order with Job and change UOM on Purchase Line and verify GL Entry.
 
         // Setup: Create Item with multiple item unit of measure and Create purchase order.
-        Initialize;
+        Initialize();
         CreateItemWithUnitPrice(Item);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
         CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine, Item."No.", ItemUnitOfMeasure.Code);
@@ -1370,7 +1370,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create Item with multiple Unit of Measure and Create Purchase Order with Job and change UOM on Purchase Line and verify GL Entry.
 
         // Setup: Create Item with multiple item unit of measure and Create purchase order.
-        Initialize;
+        Initialize();
         CreateItemWithUnitPrice(Item);
         ModifyItemIndirectCost(Item);
 
@@ -1397,7 +1397,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Return Qty. to Ship (Base)" in Purchase Credit Memo is validated while "Default Qty. to Receive" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Remainder" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
@@ -1424,7 +1424,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Return Qty. to Ship (Base)" in Purchase Credit Memo is validated while "Default Qty. to Receive" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Blank" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
@@ -1451,7 +1451,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Qty. To Receive (Base)" in Purchase Invoice is validated while "Default Qty. to Receive" is "Reminder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Remainder" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
@@ -1478,7 +1478,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361731] "Qty. To Receive (Base)" in Purchase Invoice is validated while "Default Qty. to Receive" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Blank" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
@@ -1507,7 +1507,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify that Qty to receive in Purchase Line is blank after doing Undo receipt when Default Qty To Receive field is balnk in Purchases & Payables setup.
 
         // Setup: Update Purchases & Payables setup, Create and post purchase order.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -1534,7 +1534,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Qty. to receive (Base)" in Purchase Line is validated while "Default Qty. to Receive" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Remainder" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
@@ -1561,7 +1561,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Qty. to receive (Base)" in Purchase Line is validated while "Default Qty. to Receive" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Blank" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
@@ -1588,7 +1588,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Return Qty. to Ship (Base)" in Purchase Line is validated while "Default Qty. to Receive" is "Remainder"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Blank" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
@@ -1615,7 +1615,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Default Qty]
         // [SCENARIO 361537] "Return Qty. to Ship (Base)" in Purchase Line is validated while "Default Qty. to Receive" is "Blank"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Default Quantity to Receive" is "Remainder" in Purchase and Payable Setup.
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
@@ -1644,7 +1644,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify that Qty to receive in Purchase Line is blank after enering G/L Account with UoM
 
         // Setup: Update Purchases & Payables setup, Create purchase order.
-        Initialize;
+        Initialize();
         UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -1670,7 +1670,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check the Quantity on Posted Purchase Invoice Line when Purchase Order Posted using Purchase Order Page.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Invoice" / LibraryRandom.RandIntInRange(2, 5));
         PurchaseLine.Modify(true);
@@ -1699,7 +1699,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check Cost Amount(Expected) on Purchase Analysis Matrix when Item Ledger Entry Type Filter Purchase.
 
         // Setup: Post Purchase Document with Ship Option and Create Analysis Report Name.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo);
         FindValueEntry(ValueEntry, ItemNo, PurchaseHeader."Buy-from Vendor No.",
@@ -1765,7 +1765,7 @@ codeunit 134327 "ERM Purchase Order"
         ItemNo: Code[20];
     begin
         // Setup: Post Purchase Document with Ship Option and Create Analysis Report Name.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1793,7 +1793,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201736] "Column Header" is placed as column caption in Purchase Analysis Matrix
-        Initialize;
+        Initialize();
 
         // [GIVEN] Analysis Report Name "N" for Purchase Analysis Area
         LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Purchase);
@@ -1827,7 +1827,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify Program generates the Posted Purchase Receipt on same posting date of Warehouse Receipt Header posting date.
 
         // Setup: Create purchase order & create warehouse receipt for purchase order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
         ModifyLocationOnPurchaseLine(PurchaseLine);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1852,7 +1852,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify that bin code exist in purchase Line when re-enter item removes the default bin.
 
         // Setup: Create purchase document with bin and bin content.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateBinAndBinContent(Bin, Item);
         CreatePurchaseDocumentWithLocation(PurchaseLine, PurchaseLine."Document Type"::Order, Item."No.", Bin."Location Code");
@@ -1875,7 +1875,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // Create New Purchase Order post as Receive and verify Purchase Return Order Line Dimension Set ID with Purchase Receipt Dimension Set ID.
         // Setup: Create Purchase Order with Dimension and post as Receive then Create Purchase Return Order.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseReceiptWithDimension(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderToReverse, PurchaseHeaderToReverse."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
@@ -1900,7 +1900,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create New Purchase Order post as Receive and verify the Receipt No. and Receipt Line No.
 
         // Setup: Create Purchase Order post as Receive then Create Purchase Invoice.
-        Initialize;
+        Initialize();
         PostedReceiptNo := CreateAndPostPurchaseReceipt(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
@@ -1923,7 +1923,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify that no Overflow error on purchase line with more ranges.
 
         // Setup: Create purchase order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
 
         // Exercise: Taken large random values.
@@ -1951,8 +1951,8 @@ codeunit 134327 "ERM Purchase Order"
         // Check Purchase Code Line with Dimensions are copied correctly in Purchase Line.
 
         // Setup: Create Dimesion Values.
-        Initialize;
-        GeneralLedgerSetup.Get;
+        Initialize();
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue1, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Shortcut Dimension 2 Code");
 
@@ -1974,7 +1974,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify the Status open error when one more purchase line added on release purchase order.
 
         // Setup: Create and release purchase order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithLocation(PurchaseLine, PurchaseLine."Document Type"::Order, LibraryInventory.CreateItem(Item), '');
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -2004,7 +2004,7 @@ codeunit 134327 "ERM Purchase Order"
         // Check columns' visibility in matrix form
 
         // Setup: Post Purchase Document and Create Analysis Report
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo);
         FindValueEntry(
@@ -2040,7 +2040,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify that correct dimensions are populated in purchase line when using default dimensions for G/L and Item using standard purchase code.
 
         // Setup: Create standard purchase document and default dimensions
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         CreateStandardPurchaseDocument(StandardPurchaseCode, GLAccountNo, LibraryInventory.CreateItem(Item));
         CreateDefaultDimensions(DimensionValue1, DimensionValue2, GLAccountNo, Item."No.");
@@ -2067,7 +2067,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify the Unit Cost LCY on purchase return line when get posted document lines to reverse is doing with currency exchange rate.
 
         // Setup: Create vendor with currency and Create post Purchase order and create return purchase order.
-        Initialize;
+        Initialize();
         CreateVendorWithCurrency(Vendor);
         ExchangeRateAmount := LibraryRandom.RandDec(10, 2);
         CreateExchangeRates(Vendor."Currency Code",
@@ -2094,7 +2094,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine: Record "Purchase Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateItemInventoryValueZero(Item);
         CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine, Item."No.", Item."Base Unit of Measure");
 
@@ -2116,7 +2116,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify no error will appear while posting a Purchase Order with discount on Currency rounding.
 
         // Setup: Create Purchase Order, attach new Currency on Purchase Order and Post as Receive and Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, CreateAndUpdateCurrency);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
@@ -2147,7 +2147,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // Check that posted invoice with item charge is inherit dimensions from assigned receipt
 
-        Initialize;
+        Initialize();
         CreateDimValues(ConflictDimension, ConflictDimValue);
         CreateDimValue(ItemDimValue);
         CreateDimValue(ItemChargeDimValue);
@@ -2175,7 +2175,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // Check that item charge is assign to correct shipment from the multiple set when posting purchase invoice with GetReceiptLines function.
 
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine);
         CreatePurchaseOrderWithChargeItem(PurchHeader, PurchLine, SalesLine.Quantity);
         Qty[1] := Round(SalesLine.Quantity / 3, 1);
@@ -2205,7 +2205,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // Check that job unit prices successfully inherited from purchase order to purchase invoice with fucntion "Get Receipt Lines"
 
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateItemWithUnitPrice(Item);
@@ -2227,7 +2227,7 @@ codeunit 134327 "ERM Purchase Order"
         DefaultDimension: Record "Default Dimension";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -2254,7 +2254,7 @@ codeunit 134327 "ERM Purchase Order"
         InvoiceDiscountValue: Decimal;
     begin
         // [SCENARIO 375185] Invoice Discount Amount is recalculated on Purchase Line created from Posted Receipt Line but not on Purchase Header
-        Initialize;
+        Initialize();
         // [GIVEN] Create purchase order and calculate "Inv. Discount Amount" = "X" excl. VAT
         ExpectedInvDiscAmount := CreatePurchOrderAndGetDiscountWithoutVAT(PurchHeader);
         // [GIVEN] Set "Prices Including VAT" = TRUE and Receive order
@@ -2340,7 +2340,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Item Charge]
         // [SCENARIO 364307] "Quantity to Assign" is taken to account in calculating "Amount to Assign" while Re-validating "Direct Unit Cost"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order Line with Type = "Charge (Item)", Direct Cost = "D", Quantity = "X"
         // [GIVEN] Item Charge Assignment with "Quantity to Assign" = "X"
@@ -2368,7 +2368,7 @@ codeunit 134327 "ERM Purchase Order"
         FromPurchaseOrderNo: Code[20];
     begin
         // [SCENARIO] Verifies Receive and Invoice fiels in document copied for posted Purchase Order.
-        Initialize;
+        Initialize();
         // [GIVEN] Create Purchase Order with two lines
         // [GIVEN] In second line set Qty. to Receive = 0
         // [GIVEN] Release, Post (Receive) and Post (Invoice) purchase order
@@ -2390,7 +2390,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Discount] [Receipt Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Receipt Lines" from posted Purchase Order. "Purchases & Payables Setup"."Calc. Inv. Discount" = TRUE.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Create and Ship Purchase Order with Invoice Discount Amount = "A"
@@ -2420,7 +2420,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Discount] [Receipt Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Receipt Lines" from posted Purchase Order. "Purchases & Payables Setup"."Calc. Inv. Discount" = FALSE.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(false);
 
         // [GIVEN] Create and Ship Purchase Order with Invoice Discount Amount = "A"
@@ -2450,7 +2450,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Discount] [Return Shipment Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Return Shipment Lines" from posted Purchase Return Order. "Purchases & Payables Setup"."Calc. Inv. Discount" = TRUE.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Create and Ship Purchase Return Order with Invoice Discount Amount = "A"
@@ -2480,7 +2480,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Discount] [Return Shipment Lines]
         // [SCENARIO 364443] Invoice Discount Amount remains after "Get Return Shipment Lines" from posted Purchase Return Order. "Purchases & Payables Setup"."Calc. Inv. Discount" = FALSE.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(false);
 
         // [GIVEN] Create and Ship Purchase Return Order with Invoice Discount Amount = "A"
@@ -2510,7 +2510,7 @@ codeunit 134327 "ERM Purchase Order"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 364561] Two G/L Entries with zero amount are created after posting of Purchase Invoice with zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Posting Setup, where "Payables Account No." = "X", "Purch. Account No." = "Y"
         // [WHEN] Post Purchase Invoice with zero amount
@@ -2537,7 +2537,7 @@ codeunit 134327 "ERM Purchase Order"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 364561] G/L Register should be in sync with Vendor Ledger Entry after posting of Purchase Invoice with zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Invoice with zero amount
         // [WHEN] Post Purchase Invoice
@@ -2679,7 +2679,7 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 158032] Invoice Discount Amount is not recalculated on Purchase Line created from Posted Receipt Line if "Purchases & Payables Setup"."Calc. Inv. Discount" set to FALSE
 
         // [GIVEN] Create purchase order with Customer with Discount percent, set "Invoice Discount Value" to "Y"
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, CreateVendorInvDiscount);
         LibraryPurchase.CreatePurchaseLine(
           PurchLine, PurchHeader, PurchLine.Type::Item, CreateItem, LibraryRandom.RandIntInRange(5, 10));
@@ -2723,7 +2723,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Statistics] [Item Charge]
         // [SCENARIO 378379] Create Purch. Invoice with Item Charge Assignment (Prices Incl. VAT = TRUE), change VAT difference and post
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup"."Allow VAT Difference" = TRUE
         // [GIVEN] "General Ledger Setup"."Max. VAT Difference Allowed" = "D"
@@ -2759,7 +2759,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Statistics] [Item Charge]
         // [SCENARIO 378379] Create Purch. Invoice with Item Charge Assignment (Prices Incl. VAT = FALSE), change VAT difference and post
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup"."Allow VAT Difference" = TRUE
         // [GIVEN] "General Ledger Setup"."Max. VAT Difference Allowed" = "D"
@@ -2795,7 +2795,7 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 164950] Field "Gen. Bus. Posting Group" is updated in lines when user changes it in the document header and Gen. Bus. Posting Group has "Auto Insert Default" = False
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify;
@@ -2825,7 +2825,7 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 164950] Field "Gen. Bus. Posting Group" is not updated in lines when user changes it in the document header and chooses "No" in Confirm dialog
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify;
@@ -3076,7 +3076,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UI]
         // [SCENARIO 379123] Message raised when delete Purchase Invoice with "Posted Invoice Nos." = "Invoice Nos." in Purchase Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Posted Invoice Nos." = "Invoice Nos." in Purchase Setup
         SetPostedInvoiceNosEqualInvoiceNosInPurchSetup(PurchasesPayablesSetup);
 
@@ -3106,7 +3106,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 379418] Equally Item Charge Assignment line Amount to Assign calculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 3 item lines and equally assigned item charge line (Suggest Choice = 1)
         // [GIVEN] AmountToAssign = "A", QtyToAssign = "Q"
@@ -3132,7 +3132,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 379418] Item Charge Assignment by amount line Amount to Assign calculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with 3 item lines and assigned item charge line by amount (Suggest Choice = 2)
         // [GIVEN] AmountToAssign = "A", QtyToAssign = "Q"
@@ -3157,7 +3157,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Standard Text] [Extended Text]
         // [SCENARIO 380579] Replacing of Purchase Line's Standard Text Code updates attached Extended Text lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard Text (Code = "ST1", Description = "SD1") with Extended Text "ET1".
         // [GIVEN] Standard Text (Code = "ST2", Description = "SD2") with Extended Text "ET2".
@@ -3194,7 +3194,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Job] [Unit of Measure]
         // [SCENARIO 221458] Post Purchase Order with job and alternative unit of measure
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with item unit of measure
         CreateItemWithUnitPrice(Item);
@@ -3226,7 +3226,7 @@ codeunit 134327 "ERM Purchase Order"
         LocationCode: Code[10];
     begin
         // [SCENARIO 382050] Posting warehouse receipt for prepaid Purchase Order with item charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order for Warehouse Location where second line is Item Charge with Amount of 10
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
@@ -3275,7 +3275,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By Description] [G/L Account]
         // [SCENARIO 203978] Purchase Line's G/L Account validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
 
@@ -3315,7 +3315,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By Description] [Item]
         // [SCENARIO 203978] Purchase Line's Item validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
 
@@ -3354,7 +3354,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By Description] [Item Charge]
         // [SCENARIO 203978] Purchase Line's Item Charge validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
 
@@ -3393,7 +3393,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By Description] [Fixed Asset]
         // [SCENARIO 203978] Purchase Line's Fixed Asset validation can be done using "Description" field
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
 
@@ -3433,7 +3433,7 @@ codeunit 134327 "ERM Purchase Order"
         // [SCENARIO 222522] Purchase Line's Standard Text validation can not be done using "Description" field.
         // [SCENARIO 222522] Typed value remains in the "Description" field with empty "Type", "No." values.
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
 
@@ -3471,7 +3471,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By No] [G/L Account]
         // [SCENARIO 215821] Purchase Line's G/L Account validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'GLACC_TEST_GLACC';
         Description := 'Description(Test)Description';
@@ -3511,7 +3511,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By No] [Item]
         // [SCENARIO 215821] Purchase Line's Item validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'ITEM_TEST_ITEM';
         Description := 'Description(Test)Description';
@@ -3552,7 +3552,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By No] [Item Charge]
         // [SCENARIO 215821] Purchase Line's Item Charge validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'ITEMCH_TEST_ITEMCH';
         Description := 'Description(Test)Description';
@@ -3592,7 +3592,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By No] [Fixed Asset]
         // [SCENARIO 215821] Purchase Line's Fixed Asset validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'FA_TEST_FA';
         Description := 'Description(Test)Description';
@@ -3632,7 +3632,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Find Record By No] [Standard Text]
         // [SCENARIO 222522] Purchase Line's Standard Text validation can be done using partial-typed "No." value
         // [SCENARIO 252065]
-        Initialize;
+        Initialize();
         EnableFindRecordByNo;
         No := 'STDTEXT_TEST_STDTEXT';
         Description := 'Description(Test)Description';
@@ -3671,7 +3671,7 @@ codeunit 134327 "ERM Purchase Order"
         // Create a purchase order and verify that the Sell-To code is only editable when Sell-To customer is filled in.
 
         // 1. Setup: Create two Purchase Orders
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeaderSellTo, PurchaseLineSellTo, CreateItem);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
 
@@ -3719,7 +3719,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 277528] Stan gets error when tries to print purchase order having a line with "Drop Shipment" attribute and a line for fixed asset.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
@@ -3783,7 +3783,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Drop Shipment] [Standard Text]
         // [SCENARIO 275521] Stan can print purchase order having "Drop Shipment" lines and standard text lines
 
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
@@ -3803,7 +3803,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 277528] Stan can print purchase order having "Drop Shipment" lines and "G/L Account"- and "Item (Charge)"-typed lines.
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
@@ -3827,7 +3827,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Extended Text]
         // [SCENARIO 215215] Extended Text Line is copied from Posted Purchase Receipt using 'Get Posted Document Lines to Reverse'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order for Item with extended text is received.
         DocumentNo := CreatePostPurchDocWithAutoExtText(PurchaseHeader, PurchaseHeader."Document Type"::Order, false);
@@ -3854,7 +3854,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Extended Text]
         // [SCENARIO 215215] Extended Text Line is copied from Posted Purchase Invoice using 'Get Posted Document Lines to Reverse'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order for Item with extended text is received and invoiced.
         DocumentNo := CreatePostPurchDocWithAutoExtText(PurchaseHeader, PurchaseHeader."Document Type"::Order, true);
@@ -3881,7 +3881,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Extended Text]
         // [SCENARIO 215215] Extended Text Line is copied from Posted Return Order using 'Get Posted Document Lines to Reverse'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Return Purchase order for Item with extended text.
         DocumentNo := CreatePostPurchDocWithAutoExtText(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", true);
@@ -3908,7 +3908,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Extended Text]
         // [SCENARIO 215215] Extended Text Line is copied from Posted Purchase Cr.Memo using 'Get Posted Document Lines to Reverse'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase credit memo for Item with extended text is received and invoiced.
         DocumentNo := CreatePostPurchDocWithAutoExtText(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", true);
@@ -3934,7 +3934,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UT]
         // [SCENARIO 211691] "Line Amount" recalculates by GetLineAmountToHandle function of table "Purchase Line" based on current Quantity and "Unit Price"
 
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(
@@ -3959,7 +3959,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UT]
         // [SCENARIO 261533] "Line Amount" recalculates by GetLineAmountToHandle function of table "Purchase Line" based on current Quantity and "Unit Price"
         // [SCENARIO 261533] in case of integer Amount Rounding Precision, rounding of partial Quantity
-        Initialize;
+        Initialize();
         LibraryERM.SetAmountRoundingPrecision(1);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -3981,7 +3981,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UT] [Prepayment]
         // [SCENARIO 261533] "Line Amount" recalculates by GetLineAmountToHandle function of table "Purchase Line" based on current Quantity and "Unit Price"
         // [SCENARIO 261533] in case of integer Amount Rounding Precision, rounding of partial Quantity, prepayment
-        Initialize;
+        Initialize();
         LibraryERM.SetAmountRoundingPrecision(1);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -4004,7 +4004,7 @@ codeunit 134327 "ERM Purchase Order"
         StandardTextDescription: Text[100];
     begin
         // [SCENARIO 219141] No Lookup is possible on Description when PurchaseLine Type = Standard Text.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order and PurchaseLine with StandardText "ST".
         CreatePurchaseInvoiceWithStandardText(PurchaseHeader, StandardTextDescription);
@@ -4031,7 +4031,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Statistics] [VAT Difference]
         // [SCENARIO 224140] "Amount Incl. VAT" contains VAT Difference in open Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Difference is allowed
         MaxVATDifference := EnableVATDiffAmount;
@@ -4061,7 +4061,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI] [Shipment Method]
         // [SCENARIO 235272] Shipment Method Code on Purchase Order Page is enabled for #Suite
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Suite
         LibraryApplicationArea.EnableRelationshipMgtSetup;
@@ -4085,7 +4085,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI] [Shipment Method]
         // [SCENARIO 235272] Shipment Method Code on Purchase Order Page is enabled for #Basic
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Basic
         LibraryApplicationArea.EnableBasicSetupForCurrentCompany;
@@ -4112,7 +4112,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Order Address Code]
         // [SCENARIO 234908] The removal of the Order Address Code on a Purchase Order refreshes the Buy-From Address back to the Vendor Address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with address.
         LibraryPurchase.CreateVendorWithAddress(Vendor);
@@ -4185,7 +4185,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Get Receipt Lines]
         // [SCENARIO 252893] Deletion of extedned text lines must not cause suggestion of extra lines from Receipt
-        Initialize;
+        Initialize();
 
         // Create Item with Extended Text
         LibraryInventory.CreateItem(Item);
@@ -4243,7 +4243,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [Order] [UI] [Document Totals]
         // [SCENARIO 254317] Do not modify Order when invoice discount is calculated on lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4275,7 +4275,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [Invoice] [UI] [Document Totals]
         // [SCENARIO 254317] Do not modify Invoice when invoice discount is calculated on lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4307,7 +4307,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [Quote] [UI] [Document Totals]
         // [SCENARIO 254317] Do not modify Quote when invoice discount is calculated on lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4339,7 +4339,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [Credit Memo] [UI] [Document Totals]
         // [SCENARIO 254317] Do not modify Credit Memo when invoice discount is calculated on lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4369,7 +4369,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI] [Company Information]
         // [SCENARIO 255862] Ship-To Address fields on Company Information Page are enabled for #Suite.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User experience set to Suite.
         LibraryApplicationArea.EnableFoundationSetupForCurrentCompany;
@@ -4406,7 +4406,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [Service Charge] [Warehouse Receipt]
         // [SCENARIO 257351] Posting warehouse receipt for purchase order with enabled invoice discount and service charge should re-calculate the service charge amount if it is changed in Vendor Invoice Discount after the document is released.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable invoice discount calculation on "Purchases & Payables Setup".
         // [GIVEN] Set "Service Charge" = 10 in "Vendor Invoice Discount" setting for vendor "V".
@@ -4463,7 +4463,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Purchase Order] [Item Charge]
         // [SCENARIO 271095] Suggesting item charge assignment must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order with single line of "Charge (Item)" type
         CreatePurchaseOrderWithChargeItem(PurchaseHeader, PurchaseLine, 1);
@@ -4490,7 +4490,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Purchase Order] [Item Charge]
         // [SCENARIO 271095] Creating item charge assignment by Get Receipt Lines action must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order with single line of "Charge (Item)" type
         CreatePurchaseOrderWithChargeItem(PurchaseHeader, PurchaseLine, 1);
@@ -4519,7 +4519,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Purchase Order] [Item Charge]
         // [SCENARIO 271095] Filling in Qty. to Assign field in existing item charge assignment must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // Create purchase header and post it as receipt
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -4560,7 +4560,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [UT]
         // [SCENARIO 273796] COD70.CalculateInvoiceDiscountOnLine returns actual Purchase Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4592,7 +4592,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Invoice Discount] [UT]
         // [SCENARIO 276919] COD70.CalculateInvoiceDiscountOnLine returns updated initial Purchase Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup" with "Calc. Inv. Discount" = TRUE
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -4626,7 +4626,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 277844] Shipment Method Code of Purchase Order does not update after validating "Pay-to Vendor"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1" with Shipment Method Code "SMC1"
         CreateVendorWithShipmentMethodCode(Vendor[1]);
@@ -4657,7 +4657,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [UT]
         // [SCENARIO 277892] Amount received not invoiced (LCY) calculates sum of corresponding values of purchase lines filtered by Document Type and Document No.
 
-        Initialize;
+        Initialize();
         DocumentNo := LibraryUtility.GenerateGUID;
         for Index := 1 to 2 do begin
             MockPurchaseHeader(PurchaseHeader, Index, DocumentNo);
@@ -4682,7 +4682,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Page with Prices including VAT disabled was open
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -4765,7 +4765,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 283749] When purchase order is being invoiced by a separate document (Purch. Invoice), Qty. to Assign field in charge assignment (made for initial purch. order) must decrease accordingly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purch. Order with item and item charge lines. Quantity = 10 for both lines, Unit Cost = 2 LCY.
         Qty := 10;
@@ -4820,7 +4820,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 283749] When you invoice purchase order by a separate document, and the quantity of item charge assigned in the invoice is greater than the assigned quantity in the order, this zeroes out Qty. to Assign in the order.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandIntInRange(10, 20);
         UnitCost := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -4875,7 +4875,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase] [UT] [UI]
         // [SCENARIO 286007] Navigate page opened from Posted Purchase Receipt page has Document No. filter equal to
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with Purchase Line having Location with "Require Recieve" set to TRUE
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -4910,7 +4910,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI] [UT] [Pay-to Vendor]
         // [SCENARIO 288106] Stan validates Buy-from Vendor No in Purchase Document and cancels change of Pay-to Vendor No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with a Line
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -4951,7 +4951,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Item Charge]
         // [SCENARIO 291232] When partialy received Purchase Order with Charge Assignment is Invoiced partialy, Qty. to Assign is adjusted automatically.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item Charge
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -5014,7 +5014,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Purchase Order] [Item Charge] [Get Receipt Lines]
         // [SCENARIO 290332] Posting invoice filled with Get Receipt lines doesn't raise an error when item and its charge were received separately.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item Charge
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -5076,7 +5076,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [G/L Entry] [Description]
         // [SCENARIO 300843] G/L account type document line Description is copied to G/L entry when PurchasSetup."Copy Line Descr. to G/L Entry" = "Yes"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "Yes"
         SetPurchSetupCopyLineDescrToGLEntry(TRUE);
@@ -5102,7 +5102,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [G/L Entry] [Description] [Event]
         // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase can be used to copy document line Description for line type Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase
         BINDSUBSCRIPTION(ERMPurchaseOrder);
@@ -5132,7 +5132,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Purchase Order]
         // [SCENARIO 320976] For Non-inventoriable item type changing Location Code to new one in Purchase Order should not send notification
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] My Notification for Posting Setup is created and enabled
         SetupMyNotificationsForPostingSetup;
@@ -5163,7 +5163,7 @@ codeunit 134327 "ERM Purchase Order"
         // [FEATURE] [Purchase Order]
         // [SCENARIO 320976] For Non-inventoriable item type changing Location Code to new one in Purchase Order should send notification
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] My Notification for Posting Setup is created and enabled
         SetupMyNotificationsForPostingSetup;
@@ -5192,7 +5192,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Undo receipt] [Item charge]
         // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of Charge (Item) type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post receipt of purchase order with Charge (Item) type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -5224,7 +5224,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Undo receipt] [G/L Account]
         // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of G/L Account type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post receipt of purchase order with G/L Account type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -5255,7 +5255,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Undo shipment] [Item charge]
         // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of Charge (Item) type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post return shipment of purchase return order with Charge (Item) type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -5286,7 +5286,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [Undo shipment] [G/L Account]
         // [SCENARIO 289385] Stan is able to undo receipt for purchase receipt line of G/L Account type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post return shipment of purchase return order with G/L Account type line
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -5320,7 +5320,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 293548] Action "Post and new" opens new order after posting the current one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order card is opened with order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -5388,6 +5388,7 @@ codeunit 134327 "ERM Purchase Order"
 
     local procedure LightInit()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Order");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
     end;

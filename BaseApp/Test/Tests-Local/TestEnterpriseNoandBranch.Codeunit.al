@@ -604,7 +604,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInformation.TestField("VAT Registration No.");
 
         PEPPOLManagement.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
-        Assert.AreEqual(CompanyInformation."VAT Registration No.", CompanyID, '');
+        Assert.AreEqual(CompanyInformation."Country/Region Code" + CompanyInformation."VAT Registration No.", CompanyID, '');
         Assert.AreEqual(GetVATScheme, CompanyIDSchemeID, '');
         Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
@@ -677,7 +677,7 @@ codeunit 144025 "Test Enterprise No and Branch"
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
 
         Assert.AreEqual(SalesHeader."Enterprise No.", CustPartyTaxSchemeCompanyID, '');
-        Assert.AreEqual('BE:VAT', CustPartyTaxSchemeCompIDSchID, '');
+        Assert.AreEqual(GetVATScheme, CustPartyTaxSchemeCompIDSchID, '');
         Assert.AreEqual('VAT', CustTaxSchemeID, '');
     end;
 
@@ -701,7 +701,7 @@ codeunit 144025 "Test Enterprise No and Branch"
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
 
         Assert.AreEqual(SalesHeader."VAT Registration No.", CustPartyTaxSchemeCompanyID, '');
-        Assert.AreEqual('BE:VAT', CustPartyTaxSchemeCompIDSchID, '');
+        Assert.AreEqual(GetVATScheme, CustPartyTaxSchemeCompIDSchID, '');
         Assert.AreEqual('VAT', CustTaxSchemeID, '');
     end;
 
@@ -725,7 +725,7 @@ codeunit 144025 "Test Enterprise No and Branch"
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
 
         Assert.AreEqual(SalesHeader."Enterprise No.", CustPartyTaxSchemeCompanyID, '');
-        Assert.AreEqual('BE:VAT', CustPartyTaxSchemeCompIDSchID, '');
+        Assert.AreEqual(GetVATScheme, CustPartyTaxSchemeCompIDSchID, '');
         Assert.AreEqual('VAT', CustTaxSchemeID, '');
     end;
 
@@ -953,7 +953,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         // [THEN] XML has been exported with tag "AccountingSupplierParty\Party\PartyTaxScheme\CompanyID" = "X"
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', CompanyInformation."Enterprise No.");
-        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', 'BE:VAT');
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', GetVATScheme);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'VAT');
 
         // [THEN] XML has been exported with tag "AccountingCustomerParty\Party\PartyTaxScheme\CompanyID" = "Y" (TFS 205111)
@@ -988,7 +988,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         // [THEN] XML has been exported with tag "AccountingSupplierParty\Party\PartyTaxScheme\CompanyID" = "X"
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', CompanyInformation."Enterprise No.");
-        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', 'BE:VAT');
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', GetVATScheme);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'VAT');
 
         // [THEN] XML has been exported with tag "AccountingCustomerParty\Party\PartyTaxScheme\CompanyID" = "Y" (TFS 205111)
@@ -1224,6 +1224,83 @@ codeunit 144025 "Test Enterprise No and Branch"
         VATEntry.TestField("Enterprise No.", Customer."Enterprise No.");
     end;
     
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    [Scope('OnPrem')]
+    procedure PrintProFormaInvoiceDomesticCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        CompanyInformation: Record "Company Information";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Pro Forma Invoive] [UI] [Order]
+        // [SCENARIO 337630] Print REP 1302 "Standard Sales - Pro Forma Inv" from Sales Order page
+        Initialize;
+
+        // [GIVEN] Domestic customer was created
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+
+        // [GIVEN] Sales Invoice was created
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+
+        Commit;
+
+        // [WHEN] Run "Proforma Invoice"
+        REPORT.Run(REPORT::"Standard Sales - Pro Forma Inv", true, false, SalesHeader);
+        // UI Handled by ProFormaInvoiceXML_RPH
+
+        // [THEN] REP 1302 "Standard Sales - Pro Forma Inv" has been printed
+        CompanyInformation.Get;
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Document has "Enterprise No." caption and company's Enterprise No. printed
+        LibraryReportDataset.AssertElementTagWithValueExists('VATRegNoLbl', CompanyInformation.FieldCaption("Enterprise No."));
+        LibraryReportDataset.AssertElementTagWithValueExists('CompanyVATRegNo', CompanyInformation."Enterprise No.");
+
+        // [THEN] Customer has "Enterprise No." caption and customer's Enterprise No. printed
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerVATRegistrationNoLbl', Customer.FieldCaption("Enterprise No."));
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerVATRegNo', Customer."Enterprise No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    [Scope('OnPrem')]
+    procedure PrintProFormaInvoiceForeignCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        CompanyInformation: Record "Company Information";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Pro Forma Invoive] [UI] [Order]
+        // [SCENARIO 337630] Print REP 1302 "Standard Sales - Pro Forma Inv" from Sales Order page
+        Initialize;
+
+        // [GIVEN] Foreign customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Sales Invoice was created
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+
+        Commit;
+
+        // [WHEN] Run "Proforma Invoice"
+        REPORT.Run(REPORT::"Standard Sales - Pro Forma Inv", true, false, SalesHeader);
+        // UI Handled by ProFormaInvoiceXML_RPH
+
+        // [THEN] REP 1302 "Standard Sales - Pro Forma Inv" has been printed
+        CompanyInformation.Get;
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Document has "Enterprise No." caption and company's Enterprise No. printed
+        LibraryReportDataset.AssertElementTagWithValueExists('VATRegNoLbl', CompanyInformation.FieldCaption("Enterprise No."));
+        LibraryReportDataset.AssertElementTagWithValueExists('CompanyVATRegNo', CompanyInformation."Enterprise No.");
+
+        // [THEN] Customer has "VAT Registraion No." caption and customer's VAT Registration No. printed
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'CustomerVATRegistrationNoLbl', Customer.FieldCaption("VAT Registration No."));
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerVATRegNo', Customer."VAT Registration No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryBEHelper.InitializeCompanyInformation;
@@ -1431,6 +1508,13 @@ codeunit 144025 "Test Enterprise No and Branch"
     procedure FinanceChargeMemoRequestPageHandler(var FinanceChargeMemo: TestRequestPage "Finance Charge Memo")
     begin
         FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+    
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ProFormaInvoiceXML_RPH(var ProFormaInvoice: TestRequestPage "Standard Sales - Pro Forma Inv")
+    begin
+        ProFormaInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -486,7 +486,15 @@ table 7354 Bin
     end;
 
     procedure CheckWhseClass(ItemNo: Code[20]; IgnoreError: Boolean): Boolean
+    var
+        IsHandled: Boolean;
+        ResultValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWhseClass(Rec, ItemNo, ResultValue, IsHandled);
+        if IsHandled then
+            exit(ResultValue);
+
         GetItem(ItemNo);
         if IgnoreError then
             exit("Warehouse Class Code" = Item."Warehouse Class Code");
@@ -614,6 +622,11 @@ table 7354 Bin
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseClass(Bin: Record Bin; ItemNo: Code[20]; var ResultValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

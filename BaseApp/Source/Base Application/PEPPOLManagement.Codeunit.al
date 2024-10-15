@@ -15,9 +15,9 @@ codeunit 1605 "PEPPOL Management"
         IBANPaymentSchemeIDTxt: Label 'IBAN', Locked = true;
         LocalPaymentSchemeIDTxt: Label 'LOCAL', Locked = true;
         BICTxt: Label 'BIC', Locked = true;
-        AllowanceChargeReasonCodeTxt: Label '78', Locked = true;
+        AllowanceChargeReasonCodeTxt: Label '104', Locked = true;
         PaymentMeansFundsTransferCodeTxt: Label '31', Locked = true;
-        GTINTxt: Label 'GTIN', Locked = true;
+        GTINTxt: Label '0160', Locked = true;
         UoMforPieceINUNECERec20ListIDTxt: Label 'EA', Locked = true;
         NoUnitOfMeasureErr: Label 'The %1 %2 contains lines on which the %3 field is empty.', Comment = '1: document type, 2: document no 3 Unit of Measure Code';
         ExportPathGreaterThan250Err: Label 'The export path is longer than 250 characters.';
@@ -97,7 +97,8 @@ codeunit 1605 "PEPPOL Management"
             SupplierSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
         end else
             if CompanyInfo."VAT Registration No." <> '' then begin
-                SupplierEndpointID := FormatVATRegitrationNo(CompanyInfo."VAT Registration No.", IsBISBilling);
+                SupplierEndpointID :=
+                  FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", IsBISBilling, false);
                 SupplierSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
             end;
 
@@ -145,7 +146,7 @@ codeunit 1605 "PEPPOL Management"
                 end;
             CompanyInfo."VAT Registration No." <> '':
                 begin
-                    CompanyID := CompanyInfo."VAT Registration No.";
+                    CompanyID := FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", true, true);
                     CompanyIDSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
                     TaxSchemeID := VATTxt;
                 end;
@@ -188,7 +189,8 @@ codeunit 1605 "PEPPOL Management"
             PartyLegalEntitySchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
         end else
             if CompanyInfo."VAT Registration No." <> '' then begin
-                PartyLegalEntityCompanyID := FormatVATRegitrationNo(CompanyInfo."VAT Registration No.", IsBISBilling);
+                PartyLegalEntityCompanyID :=
+                  FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", IsBISBilling, false);
                 PartyLegalEntitySchemeID := GetVATSchemeByFormat(CompanyInfo."Country/Region Code", IsBISBilling);
             end;
 
@@ -235,7 +237,8 @@ codeunit 1605 "PEPPOL Management"
             CustomerSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
         end else
             if SalesHeader."VAT Registration No." <> '' then begin
-                CustomerEndpointID := FormatVATRegitrationNo(SalesHeader."VAT Registration No.", IsBISBilling);
+                CustomerEndpointID :=
+                  FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
                 CustomerSchemeID := GetVATScheme(SalesHeader."Bill-to Country/Region Code");
             end;
 
@@ -279,7 +282,8 @@ codeunit 1605 "PEPPOL Management"
                 end;
             SalesHeader."VAT Registration No." <> '':
                 begin
-                    CustPartyTaxSchemeCompanyID := FormatVATRegitrationNo(SalesHeader."VAT Registration No.", IsBISBilling);
+                    CustPartyTaxSchemeCompanyID :=
+                      FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, true);
                     CustPartyTaxSchemeCompIDSchID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
                     CustTaxSchemeID := VATTxt;
                 end;
@@ -309,7 +313,8 @@ codeunit 1605 "PEPPOL Management"
                 CustPartyLegalEntityIDSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
             end else
                 if SalesHeader."VAT Registration No." <> '' then begin
-                    CustPartyLegalEntityCompanyID := FormatVATRegitrationNo(SalesHeader."VAT Registration No.", IsBISBilling);
+                    CustPartyLegalEntityCompanyID :=
+                      FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
                     CustPartyLegalEntityIDSchemeID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
                 end;
         end;
@@ -560,7 +565,7 @@ codeunit 1605 "PEPPOL Management"
     procedure GetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var LineExtensionAmountCurrencyID: Text; var InvoiceLineAccountingCost: Text)
     begin
         InvoiceLineID := Format(SalesLine."Line No.", 0, 9);
-        InvoiceLineNote := Format(SalesLine.Type);
+        InvoiceLineNote := DelChr(Format(SalesLine.Type), '<>');
         InvoicedQuantity := Format(SalesLine.Quantity, 0, 9);
         InvoiceLineExtensionAmount :=
           Format(SalesLine."VAT Base Amount" + SalesLine."Inv. Discount Amount" + SalesLine."Pmt. Discount Amount", 0, 9);
@@ -684,10 +689,17 @@ codeunit 1605 "PEPPOL Management"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+        if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then begin
             ClassifiedTaxCategoryID := VATPostingSetup."Tax Category";
+            InvoiceLineTaxPercent := Format(SalesLine."VAT %", 0, 9);
+        end;
+
+        if ClassifiedTaxCategoryID = '' then begin
+            ClassifiedTaxCategoryID := GetTaxCategoryE;
+            InvoiceLineTaxPercent := '0';
+        end;
+
         ItemSchemeID := GetUNCL5305ListID;
-        InvoiceLineTaxPercent := Format(SalesLine."VAT %", 0, 9);
         ClassifiedTaxCategorySchemeID := VATTxt;
     end;
 
@@ -788,13 +800,14 @@ codeunit 1605 "PEPPOL Management"
             "VAT %" := SalesLine."VAT %";
             "VAT Base" := SalesLine.Amount;
             "Amount Including VAT" := SalesLine."Amount Including VAT";
-            "Line Amount" := SalesLine."Line Amount";
             if SalesLine."Allow Invoice Disc." then
                 "Inv. Disc. Base Amount" := SalesLine."Line Amount";
             "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
             if InsertLine then begin
                 "VAT Amount" := Round("VAT Base" * "VAT %" / 100);
                 "Amount Including VAT" := "VAT Base" + "VAT Amount";
+                "Line Amount" += SalesLine."Line Amount";
+                Modify;
             end;
         end;
     end;
@@ -929,12 +942,20 @@ codeunit 1605 "PEPPOL Management"
         exit('O');
     end;
 
-    local procedure FormatVATRegitrationNo(VATRegistrartionNo: Text; IsBISBilling: Boolean): Text
+    local procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]; IsBISBilling: Boolean; IsPartyTaxScheme: Boolean): Text
+    var
+        CountryRegion: Record "Country/Region";
     begin
-        if IsBISBilling then
-            exit(DelChr(VATRegistrartionNo));
+        if IsBISBilling then begin
+            VATRegistrationNo := DelChr(VATRegistrationNo);
 
-        exit(VATRegistrartionNo);
+            if IsPartyTaxScheme then
+                if CountryRegion.Get(CountryCode) and (CountryRegion."ISO Code" <> '') then
+                    if StrPos(VATRegistrationNo, CountryRegion."ISO Code") <> 1 then
+                        VATRegistrationNo := CountryRegion."ISO Code" + VATRegistrationNo;
+        end;
+
+        exit(VATRegistrationNo);
     end;
 
     [Scope('OnPrem')]

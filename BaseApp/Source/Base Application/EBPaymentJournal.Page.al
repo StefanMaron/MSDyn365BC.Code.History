@@ -2,7 +2,7 @@ page 2000001 "EB Payment Journal"
 {
     ApplicationArea = Basic, Suite;
     AutoSplitKey = true;
-    Caption = 'Payment Journals';
+    Caption = 'EB Payment Journals';
     DelayedInsert = true;
     PageType = Worksheet;
     PromotedActionCategories = 'New,Process,Report,Request Approval';
@@ -583,8 +583,8 @@ page 2000001 "EB Payment Journal"
         SuggestPayments: Report "Suggest Vendor Payments EB";
         PmtJrnlMgt: Codeunit PmtJrnlManagement;
         CurrentJnlBatchName: Code[10];
-        AccName: Text[50];
-        BankAccName: Text[50];
+        AccName: Text[100];
+        BankAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowAmount: Boolean;

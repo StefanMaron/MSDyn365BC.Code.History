@@ -13,6 +13,8 @@ codeunit 144017 "Test PmtJrnlManagement"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPaymentJournalBE: Codeunit "Library - Payment Journal BE";
+        LibraryUtility: Codeunit "Library - Utility";
+        BlankFieldInPmtJnlErr: Label 'The %1 field cannot be blank in payment journal line number %2.';
 
     [Test]
     [Scope('OnPrem')]
@@ -272,8 +274,8 @@ codeunit 144017 "Test PmtJrnlManagement"
         BankAccount: Record "Bank Account";
         PaymentJnlLine: Record "Payment Journal Line";
         PmtJrnlManagement: Codeunit PmtJrnlManagement;
-        AccName: Text[50];
-        BankAccName: Text[50];
+        AccName: Text[100];
+        BankAccName: Text[100];
     begin
         // Setup
         Cust.Init;
@@ -303,8 +305,8 @@ codeunit 144017 "Test PmtJrnlManagement"
         Vend: Record Vendor;
         PaymentJnlLine: Record "Payment Journal Line";
         PmtJrnlManagement: Codeunit PmtJrnlManagement;
-        AccName: Text[50];
-        BankAccName: Text[50];
+        AccName: Text[100];
+        BankAccName: Text[100];
     begin
         // Setup
         Vend.Init;
@@ -746,6 +748,111 @@ codeunit 144017 "Test PmtJrnlManagement"
         VendLedgEntry.Find;
         Assert.AreEqual(-PaymentJnlLine."Original Remaining Amount", VendLedgEntry."Amount to Apply", '');
         Assert.AreEqual(PaymentJnlLine."Applies-to ID", VendLedgEntry."Applies-to ID", '');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckBeneficiaryForDomesticBankWithSWIFTCode()
+    var
+        PaymentJnlLine: Record "Payment Journal Line";
+        CountryRegion: Record "Country/Region";
+        CompanyInformation: Record "Company Information";
+        CheckPaymJnlLine: Codeunit CheckPaymJnlLine;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338364] A CheckBeneficiaryBankForSEPA function of the codeunit CheckPaymJnlLine passes for the domestic bank with SWIFT code specified
+
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Country/Region Code", CountryRegion.Code);
+        CompanyInformation.Modify(true);
+        MockPmtJnlLineToCheckBeneficiary(
+            PaymentJnlLine, CompanyInformation."Country/Region Code", LibraryUtility.GenerateGUID());
+        CheckPaymJnlLine.CheckBeneficiaryBankForSEPA(PaymentJnlLine, false);
+        CheckPaymJnlLine.ShowErrorLog(); // no page will be opened if no pages were recorded
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckBeneficiaryForDomesticBankWithoutSWIFTCode()
+    var
+        PaymentJnlLine: Record "Payment Journal Line";
+        CountryRegion: Record "Country/Region";
+        CompanyInformation: Record "Company Information";
+        CheckPaymJnlLine: Codeunit CheckPaymJnlLine;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338364] A CheckBeneficiaryBankForSEPA function of the codeunit CheckPaymJnlLine passes for the domestic bank without SWIFT code specified
+
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Country/Region Code", CountryRegion.Code);
+        CompanyInformation.Modify(true);
+        MockPmtJnlLineToCheckBeneficiary(
+            PaymentJnlLine, CompanyInformation."Country/Region Code", '');
+        CheckPaymJnlLine.CheckBeneficiaryBankForSEPA(PaymentJnlLine, false);
+        CheckPaymJnlLine.ShowErrorLog(); // no page will be opened if no pages were recorded
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckBeneficiaryForForeignBankWithSWIFTCode()
+    var
+        CountryRegion: Record "Country/Region";
+        PaymentJnlLine: Record "Payment Journal Line";
+        CheckPaymJnlLine: Codeunit CheckPaymJnlLine;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338364] A CheckBeneficiaryBankForSEPA function of the codeunit CheckPaymJnlLine passes for the foreign bank without SWIFT code specified
+
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        MockPmtJnlLineToCheckBeneficiary(PaymentJnlLine, CountryRegion.Code, LibraryUtility.GenerateGUID());
+        CheckPaymJnlLine.CheckBeneficiaryBankForSEPA(PaymentJnlLine, false);
+        CheckPaymJnlLine.ShowErrorLog(); // no page will be opened if no pages were recorded
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckBeneficiaryForForeignBankWithoutSWIFTCode()
+    var
+        CountryRegion: Record "Country/Region";
+        PaymentJnlLine: Record "Payment Journal Line";
+        ExportCheckErrorLogs: TestPage "Export Check Error Logs";
+        CheckPaymJnlLine: Codeunit CheckPaymJnlLine;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 338364] A CheckBeneficiaryBankForSEPA function of the codeunit CheckPaymJnlLine passes for the foreign bank without SWIFT code specified
+
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        MockPmtJnlLineToCheckBeneficiary(PaymentJnlLine, CountryRegion.Code, '');
+        CheckPaymJnlLine.CheckBeneficiaryBankForSEPA(PaymentJnlLine, false);
+        ExportCheckErrorLogs.Trap();
+        asserterror CheckPaymJnlLine.ShowErrorLog();
+        ExportCheckErrorLogs."Error Message".AssertEquals(
+            StrSubstNo(BlankFieldInPmtJnlErr, PaymentJnlLine.FieldCaption("SWIFT Code"), 0));
+        Assert.ExpectedError('');
+    end;
+
+    local procedure MockPmtJnlLineToCheckBeneficiary(var PaymentJnlLine: Record "Payment Journal Line"; CountryRegionCode: Code[10]; SWIFTCode: Code[20])
+    begin
+        PaymentJnlLine."Bank Account" := CreateBankAccountNoWithCountryRegionCode(CountryRegionCode);
+        PaymentJnlLine."Bank Country/Region Code" := CountryRegionCode;
+        PaymentJnlLine."Beneficiary Bank Account No." := LibraryUtility.GenerateGUID();
+        PaymentJnlLine."SWIFT Code" := SWIFTCode;
+    end;
+
+    local procedure CreateBankAccountNoWithCountryRegionCode(CountryRegionCode: Code[10]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Country/Region Code" := CountryRegionCode;
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     [ModalPageHandler]

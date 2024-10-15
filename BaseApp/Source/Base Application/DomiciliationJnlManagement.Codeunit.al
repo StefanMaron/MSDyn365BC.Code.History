@@ -280,6 +280,7 @@ codeunit 2000020 DomiciliationJnlManagement
             DomJnlLine.SetRange("Bank Account No.", DomJnlLine."Bank Account No.");
         if DomJnlLine."Posting Date" <> 0D then
             DomJnlLine.SetRange("Posting Date", DomJnlLine."Posting Date");
+        OnCreateDomiciliationsOnAfterSetFilters(DomJnlLine);
         DomJnlTemplate.Get(DomJnlLine."Journal Template Name");
         REPORT.RunModal(REPORT::"File Domiciliations", true, false, DomJnlLine);
     end;
@@ -351,6 +352,10 @@ codeunit 2000020 DomiciliationJnlManagement
                 CustLedgEntry.Modify(true)
             end;
         end
+    end;
+
+    local procedure OnCreateDomiciliationsOnAfterSetFilters(var DomiciliationJournalLine: Record "Domiciliation Journal Line")
+    begin
     end;
 }
 

@@ -278,8 +278,8 @@ codeunit 144028 "Test VAT Statement"
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to ..WORKDATE
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
+        VATStatementPreviewPage.DateFilter.SetValue(WorkDate);
         VATStatementPreviewPage.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
-        VATStatementPreviewPage.DateFilter.SetValue(Format(WorkDate));
 
         // [WHEN] DrillDown on 'Correction Amount'
         ManualVATCorrectionListPage.Trap;
@@ -322,8 +322,8 @@ codeunit 144028 "Test VAT Statement"
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to exclude entry A
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
-        VATStatementPreviewPage.PeriodSelection.SetValue(PeriodSelection::"Within Period");
         VATStatementPreviewPage.DateFilter.SetValue(StrSubstNo('%1..%2', WorkDate + 1, CalcDate('<1M>', WorkDate)));
+        VATStatementPreviewPage.PeriodSelection.SetValue(PeriodSelection::"Within Period");
 
         // [WHEN] DrillDown on 'Correction Amount'
         ManualVATCorrectionListPage.Trap;

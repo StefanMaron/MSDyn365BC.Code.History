@@ -198,7 +198,13 @@ codeunit 2000000 PmtJrnlManagement
     procedure CalculateTotals(var PaymentJnlLine: Record "Payment Journal Line"; LastPaymentJnlLine: Record "Payment Journal Line"; var Balance: Decimal; var TotalAmount: Decimal; var ShowAmount: Boolean; var ShowTotalAmount: Boolean)
     var
         TempPaymJnlLine: Record "Payment Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(PaymentJnlLine, LastPaymentJnlLine, Balance, TotalAmount, ShowAmount, ShowTotalAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         TempPaymJnlLine.CopyFilters(PaymentJnlLine);
         TempPaymJnlLine.SetCurrentKey(
           "Journal Template Name", "Journal Batch Name", "Account Type", "Account No.", "Export Protocol Code", "Bank Account");
@@ -429,6 +435,11 @@ codeunit 2000000 PmtJrnlManagement
                         end;
                     end;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(var PaymentJnlLine: Record 2000001; LastPaymentJnlLine: Record 2000001; var Balance: Decimal; var TotalAmount: Decimal; var ShowAmount: Boolean; var ShowTotalAmount: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

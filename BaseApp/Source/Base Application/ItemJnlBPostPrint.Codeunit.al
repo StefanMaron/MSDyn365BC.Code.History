@@ -43,6 +43,7 @@ codeunit 244 "Item Jnl.-B.Post+Print"
                 ItemJnlLine."Line No." := 1;
                 Clear(ItemJnlPostBatch);
                 if ItemJnlPostBatch.Run(ItemJnlLine) then begin
+                    OnAfterPostJournalBatch(ItemJnlBatch);
                     Mark(false);
                     if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then begin
                         ItemReg.SetRecFilter;
@@ -71,6 +72,11 @@ codeunit 244 "Item Jnl.-B.Post+Print"
                 Name := '';
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var ItemJournalBatch: Record "Item Journal Batch");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

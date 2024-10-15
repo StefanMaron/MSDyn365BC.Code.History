@@ -29,7 +29,9 @@ codeunit 98 "Purchase Post via Job Queue"
             RecRefToPrint.GetTable(PurchHeader);
             BatchPostingPrintMgt.PrintPurchaseDocument(RecRefToPrint);
         end;
-        BatchProcessingMgt.ResetBatchID;
+        if not AreOtherJobQueueEntriesScheduled(Rec) then
+            BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.DeleteBatchProcessingSessionMapForRecordId(PurchHeader.RecordId);
         SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::" ");
     end;
 
@@ -38,6 +40,8 @@ codeunit 98 "Purchase Post via Job Queue"
         PostAndPrintDescription: Label 'Post and Print Purchase %1 %2.', Comment = '%1 = document type, %2 = document number. Example: Post Purchase Order 1234.';
         Confirmation: Label '%1 %2 has been scheduled for posting.', Comment = '%1=document type, %2=number, e.g. Order 123  or Invoice 234.';
         WrongJobQueueStatus: Label '%1 %2 cannot be posted because it has already been scheduled for posting. Choose the Remove from Job Queue action to reset the job queue status and then post again.', Comment = '%1 = document type, %2 = document number. Example: Purchase Order 1234 or Invoice 1234.';
+        DefaultCategoryCodeLbl: Label 'PURCHBCKGR', Locked = true;
+        DefaultCategoryDescLbl: Label 'Def. Background Purch. Posting', Locked = true;
 
     local procedure SetJobQueueStatus(var PurchHeader: Record "Purchase Header"; NewStatus: Option)
     begin
@@ -111,7 +115,7 @@ codeunit 98 "Purchase Post via Job Queue"
         PurchSetup.Get;
         with JobQueueEntry do begin
             "Notify On Success" := PurchSetup."Notify On Success";
-            "Job Queue Category Code" := PurchSetup."Job Queue Category Code";
+            "Job Queue Category Code" := GetJobQueueCategoryCode();
         end;
     end;
 
@@ -148,6 +152,39 @@ codeunit 98 "Purchase Post via Job Queue"
             if not JobQueueEntry.IsEmpty then
                 JobQueueEntry.DeleteAll(true);
         end;
+    end;
+
+    local procedure AreOtherJobQueueEntriesScheduled(JobQueueEntry: Record "Job Queue Entry"): Boolean
+    var
+        JobQueueEntryFilter: Record "Job Queue Entry";
+        result: Boolean;
+    begin
+        JobQueueEntryFilter.SetFilter("Job Queue Category Code", GetJobQueueCategoryCode());
+        JobQueueEntryFilter.SetFilter(ID, '<>%1', JobQueueEntry.ID);
+        JobQueueEntryFilter.SetRange("Object ID to Run", JobQueueEntry."Object ID to Run");
+        JobQueueEntryFilter.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run");
+        JobQueueEntryFilter.SetFilter(
+            Status, '%1|%2|%3|%4',
+            JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold",
+            JobQueueEntry.Status::"On Hold with Inactivity Timeout", JobQueueEntry.Status::Ready);
+        result := not JobQueueEntryFilter.IsEmpty;
+
+        exit(result);
+    end;
+
+    local procedure GetJobQueueCategoryCode(): Code[10]
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        JobQueueCategory: Record "Job Queue Category";
+    begin
+        PurchasesPayablesSetup.Get();
+        if PurchasesPayablesSetup."Job Queue Category Code" <> '' then
+            exit(PurchasesPayablesSetup."Job Queue Category Code");
+
+        JobQueueCategory.InsertRec(
+            CopyStr(DefaultCategoryCodeLbl, 1, MaxStrLen(JobQueueCategory.Code)),
+            CopyStr(DefaultCategoryDescLbl, 1, MaxStrLen(JobQueueCategory.Description)));
+        exit(JobQueueCategory.Code);
     end;
 
     [IntegrationEvent(false, false)]

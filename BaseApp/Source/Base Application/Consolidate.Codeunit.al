@@ -453,6 +453,7 @@ codeunit 432 Consolidate
                     TempSubsidDimBuf.SetRange("Entry No.", "Entry No.");
                     if not TempSubsidDimBuf.IsEmpty then begin
                         "Dimension Set ID" := DimMgt.CreateDimSetIDFromDimBuf(TempSubsidDimBuf);
+                        OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(TempSubsidDimBuf);
                         Modify;
                     end;
                 until Next = 0;
@@ -1369,6 +1370,11 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGLEntry(var SubsidGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(var TempSubsidDimBuf: Record "Dimension Buffer" temporary)
     begin
     end;
 }

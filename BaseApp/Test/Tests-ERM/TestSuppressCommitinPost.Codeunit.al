@@ -16,7 +16,9 @@ codeunit 134071 "Test Suppress Commit in Post"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -27,6 +29,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastGLEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         LastGLEntryNo := FindLastGLEntryNo;
@@ -48,6 +51,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastGLEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         LastGLEntryNo := FindLastGLEntryNo;
@@ -69,6 +73,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastGLEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
@@ -91,6 +96,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastGLEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
@@ -113,6 +119,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastItemLedgerEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
@@ -134,6 +141,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastItemLedgerEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
@@ -155,6 +163,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastItemLedgerEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
@@ -177,6 +186,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         LastItemLedgerEntryNo: Integer;
     begin
         // Setup
+        Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
@@ -197,6 +207,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         Commit;
 
@@ -217,6 +228,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesPost: Codeunit "Sales-Post";
     begin
         // Setup
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         Commit;
 
@@ -237,6 +249,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesPost: Codeunit "Sales-Post";
     begin
         // Setup
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         Commit;
 
@@ -258,6 +271,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesPost: Codeunit "Sales-Post";
     begin
         // [GIVEN] Two different sales orders
+        Initialize();
         LibrarySales.CreateSalesOrder(SalesHeader);
         SalesHeader.Ship := true;
         SalesHeader.Invoice := true;
@@ -285,6 +299,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         PurchPost: Codeunit "Purch.-Post";
     begin
         // [GIVEN] Two different purchase orders
+        Initialize();
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         PurchaseHeader.Receive := true;
         PurchaseHeader.Modify;
@@ -309,6 +324,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
     begin
         // Setup
+        Initialize();
         CreateSalesOrderForPrePayment(SalesHeader);
         Commit;
 
@@ -338,6 +354,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
     begin
         // Setup
+        Initialize();
         CreateSalesOrderForPrePayment(SalesHeader);
         Commit;
 
@@ -367,6 +384,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup
+        Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
         CreateRequisitionLines(RequisitionLine, SalesHeader);
         Commit;
@@ -392,6 +410,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup
+        Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
         CreateRequisitionLines(RequisitionLine, SalesHeader);
         Commit;
@@ -423,6 +442,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         ToLocationCode: Code[10];
     begin
         // Setup
+        Initialize();
         CreateTransferOrder(TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
         Commit;
 
@@ -455,6 +475,7 @@ codeunit 134071 "Test Suppress Commit in Post"
         ToLocationCode: Code[10];
     begin
         // Setup
+        Initialize();
         CreateTransferOrder(TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
         Commit;
 
@@ -494,11 +515,12 @@ codeunit 134071 "Test Suppress Commit in Post"
         ToLocationCode: Code[10];
     begin
         // Setup
+        Initialize();
         CreateOneOfEachSetup(GenJournalLine, ItemJournalLine, SalesHeader, SalesHeader2, SalesHeader3,
           RequisitionLine, TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
         LastGLEntryNo := FindLastGLEntryNo;
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
-        Commit;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
+        Commit();
 
         // Exercise
         PostOneOfEachWithCommit(GenJournalLine, ItemJournalLine, SalesHeader, RequisitionLine, SalesHeader3, TransferHeader);
@@ -553,11 +575,12 @@ codeunit 134071 "Test Suppress Commit in Post"
         ToLocationCode: Code[10];
     begin
         // Setup
+        Initialize();
         CreateOneOfEachSetup(GenJournalLine, ItemJournalLine, SalesHeader, SalesHeader2, SalesHeader3,
           RequisitionLine, TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
         LastGLEntryNo := FindLastGLEntryNo;
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
-        Commit;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
+        Commit();
 
         // Exercise
         PostOneOfEachWithoutCommit(GenJournalLine, ItemJournalLine, SalesHeader, RequisitionLine, SalesHeader3, TransferHeader);
@@ -591,6 +614,21 @@ codeunit 134071 "Test Suppress Commit in Post"
         // Tear down
         TearDownVATPostingSetup(SalesHeader3."VAT Bus. Posting Group");
     end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Suppress Commit in Post");
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Suppress Commit in Post");
+
+        IsInitialized := true;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Suppress Commit in Post");
+    end;
+
 
     local procedure CreateGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var

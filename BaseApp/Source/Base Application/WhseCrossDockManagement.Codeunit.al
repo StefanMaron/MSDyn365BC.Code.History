@@ -227,6 +227,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
             FilterGroup(2);
             SetRange("Source Template Name", SourceTemplateName);
             SetRange("Source Name/No.", SourceNameNo);
+            SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             FilterGroup(0);
         end;

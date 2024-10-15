@@ -197,7 +197,8 @@ codeunit 2000001 CheckPaymJnlLine
     begin
         with PmtJnlLine do begin
             CheckIBANForSEPA(PmtJnlLine, EuroSEPA);
-            ErrorEmptyFieldInLine("Line No.", "SWIFT Code", FieldCaption("SWIFT Code"));
+            if IsForeignBank(PmtJnlLine."Bank Account") then
+                ErrorEmptyFieldInLine("Line No.", "SWIFT Code", FieldCaption("SWIFT Code"));
 
             if not ErrorEmptyFieldInLine("Line No.", "Bank Country/Region Code", FieldCaption("Bank Country/Region Code")) then
                 CheckSEPAAllowed(EuroSEPA, "Line No.", "Bank Country/Region Code");
@@ -280,6 +281,18 @@ codeunit 2000001 CheckPaymJnlLine
                     if DelChr(Customer.Name) = '' then
                         InsertErrorLog(StrSubstNo(Text014, Customer."No.", PmtJnlLine."Line No."));
         end;
+    end;
+
+    local procedure IsForeignBank(BankAccNo: Code[20]): Boolean
+    var
+        BankAccount: Record "Bank Account";
+        CompanyInformation: Record "Company Information";
+    begin
+        if BankAccNo = '' then
+            exit(false);
+        BankAccount.Get(BankAccNo);
+        CompanyInformation.Get();
+        exit(CompanyInformation."Country/Region Code" <> BankAccount."Country/Region Code");
     end;
 
     [IntegrationEvent(false, false)]

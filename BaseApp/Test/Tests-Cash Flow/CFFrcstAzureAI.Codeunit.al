@@ -19,6 +19,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         IsInitialized: Boolean;
@@ -1070,18 +1071,22 @@ codeunit 135203 "CF Frcst. Azure AI"
         ErrorMessage: Record "Error Message";
         CashFlowAzureAIBuffer: Record "Cash Flow Azure AI Buffer";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CF Frcst. Azure AI");
+
         CreateCashFlowSetup;
         ErrorMessage.DeleteAll;
         CashFlowAzureAIBuffer.DeleteAll;
-
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CF Frcst. Azure AI");
         if CryptographyManagement.IsEncryptionEnabled then
             CryptographyManagement.DisableEncryption(true);
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"CF Frcst. Azure AI");
     end;
 
     local procedure CreateAndPostCashFlowForecast(var CashFlowForecast: Record "Cash Flow Forecast")

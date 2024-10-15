@@ -64,11 +64,15 @@ table 23 Vendor
 
             trigger OnLookup()
             begin
+                OnBeforeLookupCity(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCity(Rec, PostCode);
+
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
@@ -699,11 +703,15 @@ table 23 Vendor
 
             trigger OnLookup()
             begin
+                OnBeforeLookupPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidatePostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
@@ -1551,7 +1559,14 @@ table 23 Vendor
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "No." = '' then begin
             PurchSetup.Get;
             PurchSetup.TestField("Vendor Nos.");
@@ -1828,7 +1843,13 @@ table 23 Vendor
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         VendLedgEntryRemainAmtQuery: Query "Vend. Ledg. Entry Remain. Amt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcOverdueBalance(Rec, OverDueBalance, IsHandled);
+        if IsHandled then
+            exit(OverDueBalance);
+
         VendLedgEntryRemainAmtQuery.SetRange(Vendor_No, "No.");
         VendLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
         VendLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
@@ -1838,10 +1859,16 @@ table 23 Vendor
             OverDueBalance := -VendLedgEntryRemainAmtQuery.Sum_Remaining_Amt_LCY;
     end;
 
-    procedure GetInvoicedPrepmtAmountLCY(): Decimal
+    procedure GetInvoicedPrepmtAmountLCY() InvoicedPrepmtAmountLCY: Decimal
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetInvoicedPrepmtAmountLCY(Rec, InvoicedPrepmtAmountLCY, IsHandled);
+        if IsHandled then
+            exit(InvoicedPrepmtAmountLCY);
+
         PurchLine.SetCurrentKey("Document Type", "Pay-to Vendor No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Pay-to Vendor No.", "No.");
@@ -1849,8 +1876,15 @@ table 23 Vendor
         exit(PurchLine."Prepmt. Amount Inv. (LCY)" + PurchLine."Prepmt. VAT Amount Inv. (LCY)");
     end;
 
-    procedure GetTotalAmountLCY(): Decimal
+    procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTotalAmountLCY(Rec, TotalAmountLCY, IsHandled);
+        if IsHandled then
+            exit(TotalAmountLCY);
+
         CalcFields(
           "Balance (LCY)", "Outstanding Orders (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Outstanding Invoices (LCY)");
 
@@ -1894,7 +1928,13 @@ table 23 Vendor
         VendorWithoutQuote: Text;
         VendorFilterFromStart: Text;
         VendorFilterContains: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetVendorNoOpenCard(VendorText, ShowVendorCard, VendorNo, IsHandled);
+        if IsHandled then
+            exit(VendorNo);
+
         if VendorText = '' then
             exit('');
 
@@ -1904,6 +1944,7 @@ table 23 Vendor
 
         Vendor.SetRange(Blocked, Vendor.Blocked::" ");
         Vendor.SetRange(Name, VendorText);
+        OnGetVendorNoOpenCardOnBeforeVendorFindSet(Vendor);
         if Vendor.FindFirst then
             exit(Vendor."No.");
 
@@ -1983,6 +2024,7 @@ table 23 Vendor
             exit;
         Vendor.Reset;
         Vendor.Ascending(false); // most likely to search for newest Vendors
+        OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(Vendor);
         if Vendor.FindSet then
             repeat
                 VendorCount += 1;
@@ -2332,6 +2374,51 @@ table 23 Vendor
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVendorNoOpenCard(VendorText: Text; ShowVendorCard: Boolean; var VendorNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcOverdueBalance(var Vendor: Record Vendor; var OverdueBalance: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInvoicedPrepmtAmountLCY(var Vendor: Record Vendor; var InvoicedPrepmtAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTotalAmountLCY(var Vendor: Record Vendor; var TotalAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var Vendor: Record Vendor; var xVendor: Record Vendor; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -2342,7 +2429,17 @@ table 23 Vendor
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendorNoOpenCardonAfterSetvendorFilters(var Vendor: Record Vendor; var VendorFilterContains: Text);
+    local procedure OnGetVendorNoOpenCardOnBeforeVendorFindSet(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardonAfterSetvendorFilters(var Vendor: Record Vendor; var VendorFilterContains: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(var Vendor: Record Vendor)
     begin
     end;
 }

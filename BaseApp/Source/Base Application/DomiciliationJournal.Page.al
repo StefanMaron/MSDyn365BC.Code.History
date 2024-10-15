@@ -468,8 +468,8 @@ page 2000022 "Domiciliation Journal"
         SuggestDomiciliations: Report "Suggest domicilations";
         DomJnlManagement: Codeunit DomiciliationJnlManagement;
         CurrentJnlBatchName: Code[10];
-        CustName: Text[50];
-        BankAccName: Text[50];
+        CustName: Text[100];
+        BankAccName: Text[100];
         Amt: Decimal;
         TotalAmount: Decimal;
         ShowAmount: Boolean;

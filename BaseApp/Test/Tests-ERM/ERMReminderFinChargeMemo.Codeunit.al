@@ -20,6 +20,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryERM: Codeunit "Library - ERM";
         LibraryFinanceChargeMemo: Codeunit "Library - Finance Charge Memo";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
@@ -413,7 +414,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         SetSalesSetupCancelledIssuedRemindersNos(NumberSeriesCode);
 
         // [GIVEN] Issued single level reminder
-        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true));
+        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true, false));
         IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate));
 
         // [WHEN] Run cancel issued reminder with "Use Same Document No." = No
@@ -438,7 +439,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize;
 
         // [GIVEN] Issued single level reminder with "Posting Date" = 01.01.2020
-        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true));
+        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true, false));
         IssuedReminderHeader.SetRange("No.", IssueReminder(ReminderNo, WorkDate));
 
         // [WHEN] Run cancel issued reminder with "Use Same Posting Date" = No and New Posting Date = 10.01.2020
@@ -493,7 +494,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize;
 
         // [GIVEN] Single level reminder with "Post Line Fee" = "Yes", "Remaining Amount" = "100"
-        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true));
+        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, true, false));
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
@@ -523,7 +524,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize;
 
         // [GIVEN] Single level reminder with "Post Add. Fee per Line" = "Yes","Post Interest" = "Yes", "Post Additional Fee" = "Yes", "Remaining Amount" = "100"
-        ReminderNo := CreateReminderForSeveralInvoicesWithReminderTerms(CreateReminderTerms(true, true, true));
+        ReminderNo := CreateReminderForSeveralInvoicesWithReminderTerms(CreateReminderTerms(true, true, true, false));
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
@@ -554,7 +555,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize;
 
         // [GIVEN] Single level reminder with "Post Line Fee" = "No"
-        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, false));
+        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(false, false, false, false));
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
@@ -691,7 +692,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize;
 
         // [GIVEN] Single level reminder with "Post Line Fee" = "Yes", "Remaining Amount" = "100"
-        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true));
+        ReminderNo := CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true, false));
 
         // [GIVEN] Issue reminder with Fee Amount = "10"
         IssuedReminderHeader.Get(
@@ -1230,6 +1231,62 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryReportDataset.AssertElementWithValueExists('CompanyVATRegistrationNoCaption', CompanyInformation.GetVATRegistrationNumberLbl());
     end;
 
+    [Test]
+    [HandlerFunctions('BatchCancelIssuedRemindersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CancelIssuedReminderWithInterestAmount()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        ReminderNo: Code[20];
+    begin
+        // [FEATURE] [Cancel Reminder]
+        // [SCENARIO 332963] Cancel issued reminder with "Calculate Interest" = "Yes" , "Post Interest" = "Yes" reversed Customer, VAT and G/L entries
+        Initialize;
+
+        // [GIVEN] Single level reminder with "Post Interest" = "Yes", "Remaining Amount" = "100", "Calculate Interest" = "Yes"
+        ReminderNo := CreateReminderWithReminderTermsAndFinChargeTerms(CreateReminderTerms(false, true, true, true));
+
+        // [GIVEN] Issue reminder
+        IssuedReminderHeader.Get(
+          IssueReminder(ReminderNo, WorkDate));
+
+        // [WHEN] Cancel issued reminder
+        RunCancelIssuedReminder(IssuedReminderHeader);
+
+        // [THEN] G/L entries reversed
+        VerifyReminderReversedGLEntries(IssuedReminderHeader."No.");
+        // [THEN] VAT entry reversed
+        VerifyReversedVATEntries(IssuedReminderHeader."No.");
+        // [THEN] Customer ledger enery is closed
+        VerifyCanceledReminderCustLedgerEntries(IssuedReminderHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReminderToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReminderSaveToExcel()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedReminderNo: Code[20];
+    begin
+        // [FEATURE] [Reminder] [Excel]
+        // [SCENARIO 340259] Run report "Reminder" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Issued Reminder.
+        IssuedReminderNo := IssueReminder(CreateReminderWithReminderTerms(CreateOneLevelReminderTerms), WorkDate());
+        Commit();
+
+        // [WHEN] Run report "Reminder", save report output to Excel file.
+        IssuedReminderHeader.SetRange("No.", IssuedReminderNo);
+        REPORT.Run(REPORT::"Reminder", true, false, IssuedReminderHeader);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Reminder'), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1351,7 +1408,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         exit(ReminderHeader."No.");
     end;
 
-    local procedure CreateReminderLevel(ReminderTermsCode: Code[10])
+    local procedure CreateReminderLevel(ReminderTermsCode: Code[10]; CalcInterest: Boolean)
     var
         ReminderLevel: Record "Reminder Level";
     begin
@@ -1360,10 +1417,11 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Evaluate(ReminderLevel."Grace Period", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         ReminderLevel.Validate("Additional Fee (LCY)", LibraryRandom.RandInt(10));
         ReminderLevel.Validate("Add. Fee per Line Amount (LCY)", LibraryRandom.RandInt(10));
+        ReminderLevel.Validate("Calculate Interest", CalcInterest);
         ReminderLevel.Modify(true);
     end;
 
-    local procedure CreateReminderTerms(PostLineFee: Boolean; PostInterest: Boolean; PostAddFee: Boolean): Code[10]
+    local procedure CreateReminderTerms(PostLineFee: Boolean; PostInterest: Boolean; PostAddFee: Boolean; CalcInterest: Boolean): Code[10]
     var
         ReminderTerms: Record "Reminder Terms";
     begin
@@ -1373,7 +1431,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderTerms.Validate("Post Additional Fee", PostAddFee);
         ReminderTerms.Validate("Note About Line Fee on Report", '%1 %2 %3 %4');
         ReminderTerms.Modify(true);
-        CreateReminderLevel(ReminderTerms.Code);
+        CreateReminderLevel(ReminderTerms.Code, CalcInterest);
         exit(ReminderTerms.Code)
     end;
 
@@ -1382,7 +1440,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderTerms: Record "Reminder Terms";
     begin
         LibraryERM.CreateReminderTerms(ReminderTerms);
-        CreateReminderLevel(ReminderTerms.Code);
+        CreateReminderLevel(ReminderTerms.Code, false);
         exit(ReminderTerms.Code);
     end;
 
@@ -1434,6 +1492,22 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         DocumentDate: Date;
     begin
         CreateCustomer(Customer, '', '', ReminderTermsCode);
+        DueDate := CreateAndPostSalesInvoice(Customer."No.");
+        GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code", 0);
+        DocumentDate := LibraryRandom.RandDateFrom(CalcDate(ReminderLevel."Grace Period", DueDate), LibraryRandom.RandIntInRange(1, 10));
+        exit(CreateReminder(Customer."No.", DocumentDate));
+    end;
+
+    local procedure CreateReminderWithReminderTermsAndFinChargeTerms(ReminderTermsCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+        ReminderLevel: Record "Reminder Level";
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        DueDate: Date;
+        DocumentDate: Date;
+    begin
+        LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, '', ReminderTermsCode);
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
         GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code", 0);
         DocumentDate := LibraryRandom.RandDateFrom(CalcDate(ReminderLevel."Grace Period", DueDate), LibraryRandom.RandIntInRange(1, 10));
@@ -1508,7 +1582,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         for i := 1 to NumberOfReminders do begin
             IssuedReminderHeader.Get(
-              IssueReminder(CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true)), WorkDate));
+              IssueReminder(CreateReminderWithReminderTerms(CreateReminderTerms(true, true, true, false)), WorkDate));
             if i = 1 then
                 FirstIssuedReminderNo := IssuedReminderHeader."No.";
             if i = NumberOfReminders then
@@ -2224,6 +2298,13 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         CancelIssuedFinChargeMemos.JnlTemplateName.SetValue(TemplateName);
         CancelIssuedFinChargeMemos.JnlBatchName.SetValue(BatchName);
         CancelIssuedFinChargeMemos.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReminderToExcelRequestPageHandler(var Reminder: TestRequestPage "Reminder")
+    begin
+        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [PageHandler]

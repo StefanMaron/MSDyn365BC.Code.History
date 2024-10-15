@@ -257,51 +257,62 @@ report 6032 "Post Prepaid Contract Entries"
         Text11301: Label 'Please enter a Journal Batch Name.';
 
     local procedure PostGenJnlLine()
+    var
+        IsPrepaidAccountPostingHandled: Boolean;
+        IsNonPrepaidAccountPostingHandled: Boolean;
     begin
         TempServLedgEntry.Reset;
         if not TempServLedgEntry.FindSet then
             exit;
 
         repeat
-            GenJnlLine.Reset;
-            GenJnlLine.Init;
-            GenJnlLine."Document No." := DocNo;
-            GenJnlLine."Journal Template Name" := GenJnlLine2."Journal Template Name";
-            GenJnlLine."Journal Batch Name" := GenJnlLine2."Journal Batch Name";
-            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-            GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-            ServContractAccGr.Get(TempServLedgEntry."Serv. Contract Acc. Gr. Code");
-            ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
-            GenJnlLine.Validate("Account No.", ServContractAccGr."Non-Prepaid Contract Acc.");
-            GenJnlLine."Posting Date" := PostingDate;
-            GenJnlLine.Description := Text004;
-            GenJnlLine."External Document No." := TempServLedgEntry."Service Contract No.";
-            GenJnlLine.Validate(Amount, TempServLedgEntry."Amount (LCY)");
-            GenJnlLine."Shortcut Dimension 1 Code" := TempServLedgEntry."Global Dimension 1 Code";
-            GenJnlLine."Shortcut Dimension 2 Code" := TempServLedgEntry."Global Dimension 2 Code";
-            GenJnlLine."Dimension Set ID" := TempServLedgEntry."Dimension Set ID";
-            GenJnlLine."Source Code" := SourceCodeSetup."Service Management";
-            GenJnlLine."System-Created Entry" := true;
-            GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
-            GenJnlLine."Gen. Bus. Posting Group" := '';
-            GenJnlLine."Gen. Prod. Posting Group" := '';
-            GenJnlLine."VAT Bus. Posting Group" := '';
-            GenJnlLine."VAT Prod. Posting Group" := '';
-            GenJnlPostLine.Run(GenJnlLine);
+            IsNonPrepaidAccountPostingHandled := false;
+            OnBeforePostNonPrepaidAccount(GenJnlLine, TempServLedgEntry, IsNonPrepaidAccountPostingHandled);
+            if not IsNonPrepaidAccountPostingHandled then begin
+                GenJnlLine.Reset();
+                GenJnlLine.Init();
+                GenJnlLine."Document No." := DocNo;
+                GenJnlLine."Journal Template Name" := GenJnlLine2."Journal Template Name";
+                GenJnlLine."Journal Batch Name" := GenJnlLine2."Journal Batch Name";
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+                GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+                ServContractAccGr.Get(TempServLedgEntry."Serv. Contract Acc. Gr. Code");
+                ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
+                GenJnlLine.Validate("Account No.", ServContractAccGr."Non-Prepaid Contract Acc.");
+                GenJnlLine."Posting Date" := PostingDate;
+                GenJnlLine.Description := Text004;
+                GenJnlLine."External Document No." := TempServLedgEntry."Service Contract No.";
+                GenJnlLine.Validate(Amount, TempServLedgEntry."Amount (LCY)");
+                GenJnlLine."Shortcut Dimension 1 Code" := TempServLedgEntry."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempServLedgEntry."Global Dimension 2 Code";
+                GenJnlLine."Dimension Set ID" := TempServLedgEntry."Dimension Set ID";
+                GenJnlLine."Source Code" := SourceCodeSetup."Service Management";
+                GenJnlLine."System-Created Entry" := true;
+                GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
+                GenJnlLine."Gen. Bus. Posting Group" := '';
+                GenJnlLine."Gen. Prod. Posting Group" := '';
+                GenJnlLine."VAT Bus. Posting Group" := '';
+                GenJnlLine."VAT Prod. Posting Group" := '';
+                GenJnlPostLine.Run(GenJnlLine);
+            end;
 
-            ServContractAccGr.Get(TempServLedgEntry."Serv. Contract Acc. Gr. Code");
-            ServContractAccGr.TestField("Prepaid Contract Acc.");
-            GenJnlLine.Validate("Account No.", ServContractAccGr."Prepaid Contract Acc.");
-            GenJnlLine.Validate(Amount, -TempServLedgEntry."Amount (LCY)");
-            GenJnlLine."Shortcut Dimension 1 Code" := TempServLedgEntry."Global Dimension 1 Code";
-            GenJnlLine."Shortcut Dimension 2 Code" := TempServLedgEntry."Global Dimension 2 Code";
-            GenJnlLine."Dimension Set ID" := TempServLedgEntry."Dimension Set ID";
-            GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
-            GenJnlLine."Gen. Bus. Posting Group" := '';
-            GenJnlLine."Gen. Prod. Posting Group" := '';
-            GenJnlLine."VAT Bus. Posting Group" := '';
-            GenJnlLine."VAT Prod. Posting Group" := '';
-            GenJnlPostLine.Run(GenJnlLine);
+            IsPrepaidAccountPostingHandled := false;
+            OnBeforePostPrepaidAccount(GenJnlLine, TempServLedgEntry, IsPrepaidAccountPostingHandled);
+            if not IsPrepaidAccountPostingHandled then begin
+                ServContractAccGr.Get(TempServLedgEntry."Serv. Contract Acc. Gr. Code");
+                ServContractAccGr.TestField("Prepaid Contract Acc.");
+                GenJnlLine.Validate("Account No.", ServContractAccGr."Prepaid Contract Acc.");
+                GenJnlLine.Validate(Amount, -TempServLedgEntry."Amount (LCY)");
+                GenJnlLine."Shortcut Dimension 1 Code" := TempServLedgEntry."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempServLedgEntry."Global Dimension 2 Code";
+                GenJnlLine."Dimension Set ID" := TempServLedgEntry."Dimension Set ID";
+                GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
+                GenJnlLine."Gen. Bus. Posting Group" := '';
+                GenJnlLine."Gen. Prod. Posting Group" := '';
+                GenJnlLine."VAT Bus. Posting Group" := '';
+                GenJnlLine."VAT Prod. Posting Group" := '';
+                GenJnlPostLine.Run(GenJnlLine);
+            end;
         until TempServLedgEntry.Next = 0;
 
         TempServLedgEntry.Reset;
@@ -315,6 +326,16 @@ report 6032 "Post Prepaid Contract Entries"
         PostPrepaidContracts := PostPrepaidContractsFrom;
         GenJnlLine2."Journal Template Name" := JournalTemplateName;
         GenJnlLine2."Journal Batch Name" := JournalBatchName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostNonPrepaidAccount(var GenJnlLine: Record "Gen. Journal Line"; var TempServLedgEntry: Record "Service Ledger Entry"; var IsNonPrepaidAccountPostingHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPrepaidAccount(var GenJnlLine: Record "Gen. Journal Line"; var TempServLedgEntry: Record "Service Ledger Entry"; var IsPrepaidAccountPostingHandled: Boolean)
+    begin
     end;
 }
 

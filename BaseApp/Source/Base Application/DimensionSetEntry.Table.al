@@ -130,6 +130,7 @@ table 480 "Dimension Set Entry"
                     Found := false;
                     DimSetTreeNode.LockTable;
                 end;
+            OnGetDimensionSetIDOnBeforeInsertTreeNode(DimSetEntry, Found);
             if not Found then begin
                 DimSetTreeNode."Parent Dimension Set ID" := DimSetTreeNode."Dimension Set ID";
                 DimSetTreeNode."Dimension Value ID" := DimSetEntry."Dimension Value ID";
@@ -169,6 +170,11 @@ table 480 "Dimension Set Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDimensionSetID(var DimensionSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimensionSetIDOnBeforeInsertTreeNode(var DimensionSetEntry: Record "Dimension Set Entry"; var Found: Boolean)
     begin
     end;
 }

@@ -659,6 +659,7 @@ codeunit 5763 "Whse.-Post Shipment"
             Init;
             TransferFields(WhseShptLine);
             "No." := PostedWhseShptHeader."No.";
+            OnAfterInitPostedShptLine(WhseShptLine, PostedWhseShptLine);
             Quantity := WhseShptLine."Qty. to Ship";
             "Qty. (Base)" := WhseShptLine."Qty. to Ship (Base)";
             if WhseShptHeader."Shipment Date" <> 0D then
@@ -721,7 +722,7 @@ codeunit 5763 "Whse.-Post Shipment"
         if Location."Bin Mandatory" then begin
             CreateWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine);
             WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
-
+            OnBeforeRegisterWhseJnlLines(TempWhseJnlLine, PostedWhseShptLine);
             ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, false);
             if TempWhseJnlLine2.Find('-') then
                 repeat
@@ -1173,6 +1174,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostedShptLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
@@ -1304,6 +1310,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterWhseJnlLines(var TempWhseJnlLine: Record "Warehouse Journal Line"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line")
     begin
     end;
 
