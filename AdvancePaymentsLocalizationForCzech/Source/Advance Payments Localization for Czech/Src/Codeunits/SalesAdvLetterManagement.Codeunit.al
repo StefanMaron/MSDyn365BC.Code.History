@@ -913,6 +913,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         if not Preview then begin
             ApplId := CopyStr(CustLedgerEntry."Document No." + Format(CustLedgerEntry."Entry No.", 0, '<Integer>'), 1, MaxStrLen(ApplId));
             CustLedgerEntry.CalcFields("Remaining Amount");
+            CustLedgerEntry."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
             CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount";
             CustLedgerEntry."Applies-to ID" := ApplId;
             Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgerEntry);
@@ -1964,15 +1965,16 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                     repeat
                         if (DetailedCustLedgEntry2."Entry Type" <> DetailedCustLedgEntry2."Entry Type"::"Initial Entry") and
                            not DetailedCustLedgEntry2.Unapplied
-                        then
+                        then begin
                             DetailedCustLedgEntry3.Reset();
-                        DetailedCustLedgEntry3.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
-                        DetailedCustLedgEntry3.SetRange("Cust. Ledger Entry No.", DetailedCustLedgEntry2."Cust. Ledger Entry No.");
-                        DetailedCustLedgEntry3.SetRange(Unapplied, false);
-                        if DetailedCustLedgEntry3.FindLast() and
-                           (DetailedCustLedgEntry3."Transaction No." > DetailedCustLedgEntry2."Transaction No.")
-                        then
-                            Error(UnapplyLastInvoicesErr);
+                            DetailedCustLedgEntry3.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
+                            DetailedCustLedgEntry3.SetRange("Cust. Ledger Entry No.", DetailedCustLedgEntry2."Cust. Ledger Entry No.");
+                            DetailedCustLedgEntry3.SetRange(Unapplied, false);
+                            if DetailedCustLedgEntry3.FindLast() and
+                               (DetailedCustLedgEntry3."Transaction No." > DetailedCustLedgEntry2."Transaction No.")
+                            then
+                                Error(UnapplyLastInvoicesErr);
+                        end;
                     until DetailedCustLedgEntry2.Next() = 0;
 
                 GenJournalLine.Init();

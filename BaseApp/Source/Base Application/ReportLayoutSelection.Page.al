@@ -450,8 +450,7 @@ page 9652 "Report Layout Selection"
             Type := Type::"Custom Layout";
             UpdateRec();
         end else
-            if Type = Type::"Custom Layout" then begin
-                "Custom Report Layout Code" := '';
+            if (Type = Type::"Custom Layout") and ("Custom Report Layout Code" = '') then begin
                 RestoreDefaultSelection();
                 UpdateRec();
             end;

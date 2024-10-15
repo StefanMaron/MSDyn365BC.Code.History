@@ -48,6 +48,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
             WhsePosting := IsWarehousePosting("Transfer-to Code");
 
+            CheckTransferLines(false);
+
             if GuiAllowed then begin
                 Window.Open(
                   '#1#################################\\' +

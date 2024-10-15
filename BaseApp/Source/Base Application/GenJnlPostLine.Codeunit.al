@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+#if not CLEAN21
 codeunit 12 "Gen. Jnl.-Post Line"
 {
     Permissions = TableData "G/L Account" = r,

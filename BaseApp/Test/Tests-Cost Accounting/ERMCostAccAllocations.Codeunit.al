@@ -651,7 +651,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     end;
 
     [Test]
-    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes')]
+    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes,MessageHandler')]
     [Scope('OnPrem')]
     procedure RunAllocateCostsForVariant()
     var
@@ -676,10 +676,13 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         GetCostJournalLineEntries(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
         VariantField := Variant;
-        asserterror RunCostAllocationReport; // NAVCZ
+        RunCostAllocationReport; // NAVCZ
 
         // Verify.
-        Assert.ExpectedError('No entries have been created for the selected allocations.'); // NAVCZ
+        Clear(CostAllocationSource);
+        GetAllocSources(CostAllocationSource, MaxLevel);
+        LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
+        CheckVariantAllocCostEntries(MaxLevel, Variant);
     end;
 
     [Test]

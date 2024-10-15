@@ -336,7 +336,7 @@ codeunit 408 DimensionManagement
         if ErrorMessageMgt.IsActive() then
             ErrorMessageMgt.GetLastError(Message)
         else
-            Message := LastErrorMessage.Description;
+            Message := CopyStr(LastErrorMessage."Message", 1, MaxStrLen(Message));
     end;
 
     local procedure GetDimBufForDimSetID(DimSetID: Integer; var TempDimBuf: Record "Dimension Buffer" temporary)
@@ -1581,7 +1581,7 @@ codeunit 408 DimensionManagement
         end else begin
             LastErrorMessage.Init();
             LastErrorMessage.ID += 1;
-            LastErrorMessage.Description := CopyStr(Message, 1, MaxStrLen(LastErrorMessage.Description));
+            LastErrorMessage."Message" := CopyStr(Message, 1, MaxStrLen(LastErrorMessage."Message"));
             IsLogged := false;
         end;
     end;
@@ -2793,7 +2793,7 @@ codeunit 408 DimensionManagement
     begin
         if TableValuePair.Count = 0 then exit(true);
         DefaultDim.SetRange("Table ID", TableValuePair.Keys.Get(1));
-        DefaultDim.SetRange("No.", TableValuePair.Values.Get(1));
+        DefaultDim.SetFilter("No.", '%1|%2', TableValuePair.Values.Get(1), '');
         DefaultDim.SetFilter("Dimension Value Code", '<>%1', '');
         if not DefaultDim.IsEmpty() then exit(true);
     end;

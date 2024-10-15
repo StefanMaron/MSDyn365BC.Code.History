@@ -425,10 +425,12 @@ page 31161 "Cash Document Subform CZP"
     var
         TotalCashDocumentHeaderCZP: Record "Cash Document Header CZP";
         CashDocumentTotalsCZP: Codeunit "Cash Document Totals CZP";
-        ShortcutDimCode: array[8] of Code[20];
         AccountTypeIsFilled: Boolean;
         VATAmount: Decimal;
         RelatedAmountToApply: Decimal;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

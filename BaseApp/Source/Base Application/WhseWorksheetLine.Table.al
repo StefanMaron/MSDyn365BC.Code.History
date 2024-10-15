@@ -1319,11 +1319,11 @@ table 7326 "Whse. Worksheet Line"
             exit(
                 UOMMgt.CalcQtyFromBase(
                     "Item No.", "Variant Code", "Unit of Measure Code",
-                    TypeHelper.Maximum(0, CalcAvailableQtyBase() - QtyOnQCBins()), "Qty. per Unit of Measure"));
+                    TypeHelper.Maximum(0, CalcAvailableQtyBase() - QtyOnQCBins(true)), "Qty. per Unit of Measure"));
         exit(0);
     end;
 
-    local procedure QtyOnQCBins(): Decimal
+    local procedure QtyOnQCBins(ExcludeDedicated: Boolean): Decimal
     var
         AvailQtyBaseInQCBins: Query "Avail Qty. (Base) In QC Bins";
         ReturnedQty: Decimal;
@@ -1337,6 +1337,8 @@ table 7326 "Whse. Worksheet Line"
         AvailQtyBaseInQCBins.SetRange(Location_Code, "Location Code");
         AvailQtyBaseInQCBins.SetRange(Item_No, "Item No.");
         AvailQtyBaseInQCBins.SetRange(Variant_Code, "Variant Code");
+        if ExcludeDedicated then
+            AvailQtyBaseInQCBins.SetRange(Dedicated, false);
         if not AvailQtyBaseInQCBins.Open() then
             exit(0);
         if not AvailQtyBaseInQCBins.Read() then

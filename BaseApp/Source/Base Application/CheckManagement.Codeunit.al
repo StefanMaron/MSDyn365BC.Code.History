@@ -326,17 +326,17 @@ codeunit 367 CheckManagement
                     end;
                 end;
             else begin
-                    GenJnlLine2."Bal. Account Type" := CheckLedgEntry."Bal. Account Type";
-                    GenJnlLine2.Validate("Bal. Account No.", CheckLedgEntry."Bal. Account No.");
-                    GenJnlLine2."Shortcut Dimension 1 Code" := '';
-                    GenJnlLine2."Shortcut Dimension 2 Code" := '';
-                    GenJnlLine2."Dimension Set ID" := 0;
-                    GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
-                    GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
-                    OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
-                    GenJnlPostLine.RunWithCheck(GenJnlLine2);
-                    OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                end;
+                GenJnlLine2."Bal. Account Type" := CheckLedgEntry."Bal. Account Type";
+                GenJnlLine2.Validate("Bal. Account No.", CheckLedgEntry."Bal. Account No.");
+                GenJnlLine2."Shortcut Dimension 1 Code" := '';
+                GenJnlLine2."Shortcut Dimension 2 Code" := '';
+                GenJnlLine2."Dimension Set ID" := 0;
+                GenJnlLine2."Journal Template Name" := BankAccLedgEntry2."Journal Templ. Name";
+                GenJnlLine2."Journal Batch Name" := BankAccLedgEntry2."Journal Batch Name";
+                OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
+                GenJnlPostLine.RunWithCheck(GenJnlLine2);
+                OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
+            end;
         end;
 
         if ConfirmFinancialVoid.GetVoidDate() = CheckLedgEntry."Check Date" then begin

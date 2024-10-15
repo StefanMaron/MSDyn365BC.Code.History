@@ -6,6 +6,16 @@ codeunit 799 "VAT Reporting Date Mgt"
     begin    
     end;
 
+    internal procedure IsVATDateUsageSetToPostingDate() IsPostingDate: Boolean
+    begin
+        IsPostingDate := true;
+    end;
+
+    internal procedure IsVATDateUsageSetToDocumentDate() IsDocumentDate: Boolean
+    begin
+        IsDocumentDate := false;    
+    end;
+
    procedure IsVATDateEnabled(): Boolean
     var
         GLSetup: Record "General Ledger Setup";

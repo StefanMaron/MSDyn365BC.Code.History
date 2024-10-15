@@ -1705,7 +1705,6 @@ codeunit 8800 "Custom Layout Reporting"
     begin
     end;
 
-#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSendToEmailID(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
@@ -1715,6 +1714,5 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure OnAfterGetSendToEmailIDFromSource(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
     end;
-#pragma warning restore AS0077
 }
 

@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+#if not CLEAN21
 codeunit 13 "Gen. Jnl.-Post Batch"
 {
     Permissions = TableData "Gen. Journal Batch" = imd;

@@ -886,6 +886,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         if not Preview then begin
             ApplId := CopyStr(VendorLedgerEntry."Document No." + Format(VendorLedgerEntry."Entry No.", 0, '<Integer>'), 1, MaxStrLen(ApplId));
             VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry."Adv. Letter Template Code CZZ" := PurchAdvLetterHeaderCZZ."Advance Letter Code";
             VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
             VendorLedgerEntry."Applies-to ID" := ApplId;
             Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
@@ -2188,15 +2189,16 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     repeat
                         if (DetailedVendorLedgEntry2."Entry Type" <> DetailedVendorLedgEntry2."Entry Type"::"Initial Entry") and
                            not DetailedVendorLedgEntry2.Unapplied
-                        then
+                        then begin
                             DetailedVendorLedgEntry3.Reset();
-                        DetailedVendorLedgEntry3.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
-                        DetailedVendorLedgEntry3.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
-                        DetailedVendorLedgEntry3.SetRange(Unapplied, false);
-                        if DetailedVendorLedgEntry3.FindLast() and
-                           (DetailedVendorLedgEntry3."Transaction No." > DetailedVendorLedgEntry2."Transaction No.")
-                        then
-                            Error(UnapplyLastInvoicesErr);
+                            DetailedVendorLedgEntry3.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
+                            DetailedVendorLedgEntry3.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
+                            DetailedVendorLedgEntry3.SetRange(Unapplied, false);
+                            if DetailedVendorLedgEntry3.FindLast() and
+                               (DetailedVendorLedgEntry3."Transaction No." > DetailedVendorLedgEntry2."Transaction No.")
+                            then
+                                Error(UnapplyLastInvoicesErr);
+                        end;
                     until DetailedVendorLedgEntry2.Next() = 0;
 
                 GenJournalLine.Init();
