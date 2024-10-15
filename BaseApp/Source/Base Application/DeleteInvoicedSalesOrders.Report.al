@@ -56,7 +56,8 @@ report 299 "Delete Invoiced Sales Orders"
                                     repeat
                                         SalesOrderLine.CalcFields("Qty. Assigned");
                                         if (SalesOrderLine."Qty. Assigned" = SalesOrderLine."Quantity Invoiced") or
-                                           (SalesOrderLine.Type <> SalesOrderLine.Type::"Charge (Item)")
+                                           (SalesOrderLine.Type <> SalesOrderLine.Type::"Charge (Item)") or
+                                           IsPostedUnassignedItemChargeWithZeroAmount(SalesOrderLine)
                                         then begin
                                             if SalesOrderLine.Type = SalesOrderLine.Type::"Charge (Item)" then begin
                                                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
@@ -168,6 +169,19 @@ report 299 "Delete Invoiced Sales Orders"
                     Modify;
                 end;
         end;
+    end;
+
+    local procedure IsPostedUnassignedItemChargeWithZeroAmount(SalesLine: Record "Sales Line"): Boolean
+    begin
+        SalesLine.CalcFields("Qty. Assigned");
+        if (SalesLine.Type = SalesLine.Type::"Charge (Item)") and
+           (SalesLine.Quantity = SalesLine."Quantity Invoiced") and
+           (SalesLine."Qty. Assigned" = 0) and
+           (SalesLine.Amount = 0)
+        then
+            exit(true);
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

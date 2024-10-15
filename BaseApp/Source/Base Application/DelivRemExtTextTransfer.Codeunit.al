@@ -41,6 +41,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
             ExtTextHeader.SetRange("Table Name", DeliveryReminderLine.Type);
             ExtTextHeader.SetRange("No.", DeliveryReminderLine."No.");
             ExtTextHeader.SetRange("Delivery Reminder", true);
+            OnReminderCheckIfAnyExtTextOnBeforeReadLinesForAutoText(ExtTextHeader, DeliveryReminder, DeliveryReminderLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, DeliveryReminder."Document Date", DeliveryReminder."Language Code"));
         end;
     end;
@@ -136,6 +137,17 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
             until ExtTextLine.Next() = 0;
             exit(true);
         end;
+        OnAfterReadLines(TmpExtTextLine, ExtTextHeader, LanguageCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReminderCheckIfAnyExtTextOnBeforeReadLinesForAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var DeliveryReminderHeader: Record "Delivery Reminder Header"; var DeliveryReminderLine: Record "Delivery Reminder Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReadLines(var TempExtendedTextLine: Record "Extended Text Line" temporary; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10])
+    begin
     end;
 }
 

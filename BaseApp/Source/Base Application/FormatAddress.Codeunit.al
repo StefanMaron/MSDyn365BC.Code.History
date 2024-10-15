@@ -264,6 +264,7 @@
             RespCenter(CompanyAddr, ResponsibilityCenter);
             CompanyInfo."Phone No." := ResponsibilityCenter."Phone No.";
             CompanyInfo."Fax No." := ResponsibilityCenter."Fax No.";
+            OnGetCompanyAddrOnAfterFillCompanyInfoFromRespCenter(ResponsibilityCenter, CompanyInfo);
         end else
             Company(CompanyAddr, CompanyInfo);
     end;
@@ -1847,6 +1848,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFormatAddrOnAfterGetCountry(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10]; var IsHandled: Boolean; var Country: Record "Country/Region")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCompanyAddrOnAfterFillCompanyInfoFromRespCenter(ResponsibilityCenter: Record "Responsibility Center"; var CompanyInformation: Record "Company Information")
     begin
     end;
 }

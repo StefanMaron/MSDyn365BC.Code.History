@@ -1204,6 +1204,43 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine.TestField(Description, InteractionTemplate[2].Description);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CampaignInsertTargetGroupContactCompContact()
+    var
+        SegmentLine: Array[2] of Record "Segment Line";
+        Contact: Record Contact;
+        CompanyContact: Record Contact;
+        Campaign: Record Campaign;
+        CampaignTargetGroup: Record "Campaign Target Group";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
+    begin
+        // [SCENARIO 404832] Creation of Campaign Target Group from Segment Lines with Company Contact and its' related Contact should not show error
+        Initialize();
+
+        // [GIVEN] Company Contact 'CompC' and related Contact 'C'
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+        CompanyContact.Get(Contact."Company No.");
+
+        // [GIVEN] Campaign "C"
+        LibraryMarketing.CreateCampaign(Campaign);
+
+        // [GIVEN] Segment Line with Company Contact 'CompC' and Campaign 'C'
+        CreateSegmentLineWithContCampaign(SegmentLine[1], CompanyContact."No.", Campaign."No.");
+
+        // [GIVEN] Segment Line with Contact 'C' and Campaign 'C'
+        CreateSegmentLineWithContCampaign(SegmentLine[2], Contact."No.", Campaign."No.");
+
+        // [GIVEN] Segment Line with Company Contact added to Campaign Target Group
+        CampaignTargetGroupMgt.AddSegLinetoTargetGr(SegmentLine[1]);
+
+        // [WHEN] Segment Line with Contact 'C' added to Campaign Target Group
+        CampaignTargetGroupMgt.AddSegLinetoTargetGr(SegmentLine[2]);
+
+        // [THEN] No error appears and Campaing Target Group for "CompC" exists
+        VerifyCampaignTargetGroupExists(CampaignTargetGroup.Type::Contact, CompanyContact."No.", Campaign."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1843,6 +1880,16 @@ codeunit 136200 "Marketing Campaign Segments"
         CampaignTargetGr.SetRange("No.", ContactCompanyNo);
         CampaignTargetGr.SetRange("Campaign No.", CampaignNo);
         Assert.RecordIsNotEmpty(CampaignTargetGr);
+    end;
+
+    local procedure CreateSegmentLineWithContCampaign(var SegmentLine: Record "Segment Line"; ContactNo: Code[20]; CampaignNo: Code[20])
+    var
+    begin
+        LibraryMarketing.CreateSegmentLine(SegmentLine, '');
+        SegmentLine.Validate("Contact No.", ContactNo);
+        SegmentLine."Campaign No." := CampaignNo;
+        SegmentLine."Campaign Target" := true;
+        SegmentLine.Modify(true);
     end;
 
     [ModalPageHandler]

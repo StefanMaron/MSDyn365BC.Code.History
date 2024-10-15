@@ -331,7 +331,7 @@
   </Item>
   <Item ItemId=";Codeunit 772378378 - NamedType 1569847582" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot copy posted gen. journal line with register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.]]></Val>
+      <Val><![CDATA[You cannot copy the posted general journal lines with G/L register number %1 because they contain customer, vendor, or employee ledger entries that were posted and applied in the same G/L register.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

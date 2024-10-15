@@ -179,7 +179,7 @@ table 418 "IC Inbox Transaction"
         ICInboxTransaction2: Record "IC Inbox Transaction";
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
         Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Accept.\Do you also want to accept Transaction No. %2?';
-        Text002: Label 'A copy of Transaction No. %1 has already been accepted and is now in the Handled IC Inbox Transactions window.\Do you also want to accept Transaction No. %1?';
+        TransactionAlreadyExistsInInboxHandledQst: Label '%1 %2 has already been received from intercompany partner %3. Accepting it again will create a duplicate %1. Do you want to accept the %1?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         ICInboxPurchHeader: Record "IC Inbox Purchase Header";
         PurchHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -198,7 +198,12 @@ table 418 "IC Inbox Transaction"
         HandledICInboxTrans.SetRange("Source Type", "Source Type");
         HandledICInboxTrans.SetRange("Document No.", "Document No.");
         if HandledICInboxTrans.FindFirst then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, "Transaction No."), true) then
+            if not ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(
+                    TransactionAlreadyExistsInInboxHandledQst, HandledICInboxTrans."Document Type",
+                    HandledICInboxTrans."Document No.", HandledICInboxTrans."IC Partner Code"),
+                true)
+            then
                 Error('');
 
         ICInboxTransaction2.SetRange("IC Partner Code", "IC Partner Code");
