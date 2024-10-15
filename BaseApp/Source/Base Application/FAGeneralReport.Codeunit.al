@@ -190,6 +190,7 @@ codeunit 5626 "FA General Report"
                 FADeprBook.FieldNo("Book Value on Disposal"):
                     SetRange("FA Posting Type", "FA Posting Type"::"Book Value on Disposal");
             end;
+            OnCalcGLPostedAmountOnBeforeCalcAmount(FALedgEntry, PostingType);
             CalcSums(Amount);
             exit(Amount);
         end;
@@ -325,6 +326,11 @@ codeunit 5626 "FA General Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcFAPostedAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGLPostedAmountOnBeforeCalcAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer)
     begin
     end;
 }

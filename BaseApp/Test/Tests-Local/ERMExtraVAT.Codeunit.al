@@ -1,4 +1,4 @@
-codeunit 144078 "ERM Extra VAT"
+﻿codeunit 144078 "ERM Extra VAT"
 {
     // // [FEATURE] [VAT]
     //  1. Verify VAT Entry and VAT Book Entry, Post Sales Invoice and fully apply.
@@ -1172,6 +1172,208 @@ codeunit 144078 "ERM Extra VAT"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    procedure SevPmtTermLinesWithUnrealVATAndSevPmtJnlLinesPurchase()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentPart: array[3] of Decimal;
+        VendorNo: Code[20];
+        InvoiceNo: Code[20];
+        PaymentNo: array[3] of Code[20];
+        Amount: array[3] of Decimal;
+        TotalAmount: Decimal;
+        UnrealVATEntryNo: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Unrealized VAT] [Payment Terms] [Purchase]
+        // [SCENARIO 366842] Several payments to several document occurrences (1-to-1) for purchase invoice with Unrealized VAT and single purchase line
+        Initialize();
+        PaymentPart[1] := 0.5;
+        PaymentPart[2] := 0.3;
+        PaymentPart[3] := 0.2;
+
+        // [GIVEN] Unrealized VAT Posting setup with VAT % = 20
+        // [GIVEN] Payment Terms with 3 lines: "Payment %" = 50, 30, 20 (with zero discount for all lines)
+        CreateUnrealVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Posted purchase invoice with one line and total amount including VAT = 1000 + 200 = 1200
+        InvoiceNo := CreatePostPurchaseInvoice(VendorNo, VATPostingSetup, CreatePaymentTermsWithThreeLines(PaymentPart));
+        // [GIVEN] 3 invoice vendor ledger entries are created, with amount 600, 360, 240 (50%, 30%, 20%)
+        CollectVendorInvoiceLedgerEntries(VendorLedgerEntry, TotalAmount, Amount, InvoiceNo);
+        // [GIVEN] Payment journal with 3 payment lines, each applied to correspondent invoice vendor ledger entry
+        CreateSevPaymentsWithAppliesToId(GenJournalLine, PaymentNo, GenJournalLine."Account Type"::Vendor, VendorNo, Amount, 1);
+        SetGivenAppliestoIdVendor(VendorLedgerEntry, PaymentNo);
+
+        // [WHEN] Post the journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] 3 invoice vendor ledger entries are closed (zero remaining amount)
+        VerifyThreeVendorInvoiceLedgerEntryAmounts(VendorNo, InvoiceNo, Amount);
+        // [THEN] 3 payment vendor ledger entry are closed (zero remaining amount)
+        VerifyThreeVednorPaymentLedgerEntryAmounts(VendorNo, PaymentNo, TotalAmount, PaymentPart[1], PaymentPart[2]);
+        // [THEN] Unrealized invoice VAT Entry is fully realized (remaining amounts are zero)
+        UnrealVATEntryNo := FindAndAssertUnrealVATEntryIsFullyRealized(VATEntry.Type::Purchase, VendorNo, InvoiceNo);
+        // [THEN] 3 Realized VAT Entries are created with base+amount = 600, 360, 240
+        for i := 1 to ArrayLen(Amount) do begin
+            FindVATEntry(
+              VATEntry, VATEntry.Type::Purchase, VendorNo, VATEntry."Document Type"::Payment, PaymentNo[i]);
+            VATEntry.TestField("Unrealized VAT Entry No.", UnrealVATEntryNo);
+            Assert.AreNearlyEqual(Amount[i], VATEntry.Amount + VATEntry.Base, 0.01, '');
+        end;
+    end;
+
+    [Test]
+    procedure SevPmtTermLinesWithUnrealVATAndSinglePmtJnlLinePurchase()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        PaymentPart: array[3] of Decimal;
+        VendorNo: Code[20];
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        Amount: array[3] of Decimal;
+        TotalAmount: Decimal;
+        UnrealVATEntryNo: Integer;
+    begin
+        // [FEATURE] [Unrealized VAT] [Payment Terms] [Purchase]
+        // [SCENARIO 366842] Single payment to several document occurrences (1-to-many) for purchase invoice with Unrealized VAT and single purchase line
+        Initialize();
+        PaymentPart[1] := 0.5;
+        PaymentPart[2] := 0.3;
+        PaymentPart[3] := 0.2;
+
+        // [GIVEN] Unrealized VAT Posting setup with VAT % = 20
+        // [GIVEN] Payment Terms with 3 lines: "Payment %" = 50, 30, 20 (with zero discount for all lines)
+        CreateUnrealVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Posted purchase invoice with one line and total amount including VAT = 1000 + 200 = 1200
+        InvoiceNo := CreatePostPurchaseInvoice(VendorNo, VATPostingSetup, CreatePaymentTermsWithThreeLines(PaymentPart));
+        // [GIVEN] 3 invoice vendor ledger entries are created, with amount 600, 360, 240 (50%, 30%, 20%)
+        CollectVendorInvoiceLedgerEntries(VendorLedgerEntry, TotalAmount, Amount, InvoiceNo);
+        // [GIVEN] Payment journal with one payment line applied to 3 invoice vendor ledger entries with full amount
+        CreatePaymentWithAppliesToId(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, TotalAmount);
+        SetAppliestoIdVendor(InvoiceNo);
+
+        // [WHEN] Post the journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        PaymentNo := GenJournalLine."Document No.";
+
+        // [THEN] 3 invoice vendor ledger entries are closed (zero remaining amount)
+        VerifyThreeVendorInvoiceLedgerEntryAmounts(VendorNo, InvoiceNo, Amount);
+        // [THEN] Payment vendor ledger entry is closed (zero remaining amount)
+        VerifyVendorLedgerEntryAmounts(VendorNo, PaymentNo, 1, TotalAmount, 0);
+        // [THEN] Unrealized invoice VAT Entry is fully realized (remaining amounts are zero)
+        UnrealVATEntryNo := FindAndAssertUnrealVATEntryIsFullyRealized(VATEntry.Type::Purchase, VendorNo, InvoiceNo);
+        // [THEN] 3 Realized VAT Entries are created with base+amount = 600, 360, 240
+        FindVATEntry(
+          VATEntry, VATEntry.Type::Purchase, VendorNo, VATEntry."Document Type"::Payment, PaymentNo);
+        VerifySeveralRealizedVATEntries(VATEntry, UnrealVATEntryNo, Amount, 1);
+    end;
+
+    [Test]
+    procedure SevPmtTermLinesWithUnrealVATAndSevPmtJnlLinesSales()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CustLedgerEntry: array[3] of Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentPart: array[3] of Decimal;
+        CustomerNo: Code[20];
+        InvoiceNo: Code[20];
+        PaymentNo: array[3] of Code[20];
+        Amount: array[3] of Decimal;
+        TotalAmount: Decimal;
+        UnrealVATEntryNo: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Unrealized VAT] [Payment Terms] [Sales]
+        // [SCENARIO 366842] Several payments to several document occurrences (1-to-1) for sales invoice with Unrealized VAT and single sales line
+        Initialize();
+        PaymentPart[1] := 0.5;
+        PaymentPart[2] := 0.3;
+        PaymentPart[3] := 0.2;
+
+        // [GIVEN] Unrealized VAT Posting setup with VAT % = 20
+        // [GIVEN] Payment Terms with 3 lines: "Payment %" = 50, 30, 20 (with zero discount for all lines)
+        CreateUnrealVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Posted sales invoice with one line and total amount including VAT = 1000 + 200 = 1200
+        InvoiceNo := CreatePostSalesInvoice(CustomerNo, VATPostingSetup, CreatePaymentTermsWithThreeLines(PaymentPart));
+        // [GIVEN] 3 invoice customer ledger entries are created, with amount 600, 360, 240 (50%, 30%, 20%)
+        CollectCustomerInvoiceLedgerEntries(CustLedgerEntry, TotalAmount, Amount, InvoiceNo);
+        // [GIVEN] Payment journal with 3 payment lines, each applied to correspondent invoice customer ledger entry
+        CreateSevPaymentsWithAppliesToId(GenJournalLine, PaymentNo, GenJournalLine."Account Type"::Customer, CustomerNo, Amount, -1);
+        SetGivenAppliestoIdCustomer(CustLedgerEntry, PaymentNo);
+
+        // [WHEN] Post the journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] 3 invoice customer ledger entries are closed (zero remaining amount)
+        VerifyThreeCustomerInvoiceLedgerEntryAmounts(CustomerNo, InvoiceNo, Amount);
+        // [THEN] 3 payment customer ledger entry are closed (zero remaining amount)
+        VerifyThreeCustomerPaymentLedgerEntryAmounts(CustomerNo, PaymentNo, -TotalAmount, PaymentPart[1], PaymentPart[2]);
+        // [THEN] Unrealized invoice VAT Entry is fully realized (remaining amounts are zero)
+        UnrealVATEntryNo := FindAndAssertUnrealVATEntryIsFullyRealized(VATEntry.Type::Sale, CustomerNo, InvoiceNo);
+        // [THEN] 3 Realized VAT Entries are created with base+amount = 600, 360, 240
+        for i := 1 to ArrayLen(Amount) do begin
+            FindVATEntry(
+              VATEntry, VATEntry.Type::Sale, CustomerNo, VATEntry."Document Type"::Payment, PaymentNo[i]);
+            VATEntry.TestField("Unrealized VAT Entry No.", UnrealVATEntryNo);
+            Assert.AreNearlyEqual(-Amount[i], VATEntry.Amount + VATEntry.Base, 0.01, '');
+        end;
+    end;
+
+    [Test]
+    procedure SevPmtTermLinesWithUnrealVATAndSinglePmtJnlLineSales()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: array[3] of Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        PaymentPart: array[3] of Decimal;
+        CustomerNo: Code[20];
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        Amount: array[3] of Decimal;
+        TotalAmount: Decimal;
+        UnrealVATEntryNo: Integer;
+    begin
+        // [FEATURE] [Unrealized VAT] [Payment Terms] [Sales]
+        // [SCENARIO 366842] Single payment to several document occurrences (1-to-many) for sales invoice with Unrealized VAT and single sales line
+        Initialize();
+        PaymentPart[1] := 0.5;
+        PaymentPart[2] := 0.3;
+        PaymentPart[3] := 0.2;
+
+        // [GIVEN] Unrealized VAT Posting setup with VAT % = 20
+        // [GIVEN] Payment Terms with 3 lines: "Payment %" = 50, 30, 20 (with zero discount for all lines)
+        CreateUnrealVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Posted sales invoice with one line and total amount including VAT = 1000 + 200 = 1200
+        InvoiceNo := CreatePostSalesInvoice(CustomerNo, VATPostingSetup, CreatePaymentTermsWithThreeLines(PaymentPart));
+        // [GIVEN] 3 invoice customer ledger entries are created, with amount 600, 360, 240 (50%, 30%, 20%)
+        CollectCustomerInvoiceLedgerEntries(CustLedgerEntry, TotalAmount, Amount, InvoiceNo);
+        // [GIVEN] Payment journal with one payment line applied to 3 invoice customer ledger entries with full amount
+        CreatePaymentWithAppliesToId(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, TotalAmount);
+        SetAppliestoIdCustomer(InvoiceNo);
+
+        // [WHEN] Post the journal lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        PaymentNo := GenJournalLine."Document No.";
+
+        // [THEN] 3 invoice customer ledger entries are closed (zero remaining amount)
+        VerifyThreeCustomerInvoiceLedgerEntryAmounts(CustomerNo, InvoiceNo, Amount);
+        // [THEN] Payment customer ledger entry is closed (zero remaining amount)
+        VerifyCustomerLedgerEntryAmounts(CustomerNo, PaymentNo, 1, TotalAmount, 0);
+        // [THEN] Unrealized invoice VAT Entry is fully realized (remaining amounts are zero)
+        UnrealVATEntryNo := FindAndAssertUnrealVATEntryIsFullyRealized(VATEntry.Type::Sale, CustomerNo, InvoiceNo);
+        // [THEN] 3 Realized VAT Entries are created with base+amount = 600, 360, 240
+        FindVATEntry(
+          VATEntry, VATEntry.Type::Sale, CustomerNo, VATEntry."Document Type"::Payment, PaymentNo);
+        VerifySeveralRealizedVATEntries(VATEntry, UnrealVATEntryNo, Amount, -1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1277,6 +1479,33 @@ codeunit 144078 "ERM Extra VAT"
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           DocumentType, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LineAmount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateSevPaymentsWithAppliesToId(var GenJournalLine: Record "Gen. Journal Line"; var PaymentNo: array[3] of Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: array[3] of Decimal; Sign: Integer)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        i: Integer;
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJournalBatch.Modify(true);
+        for i := 1 to ArrayLen(Amount) do begin
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+              GenJournalLine."Document Type"::Payment, AccountType, AccountNo, Amount[i] * Sign);
+            GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+            GenJournalLine.Modify(true);
+            PaymentNo[i] := GenJournalLine."Document No.";
+        end;
+    end;
+
+    local procedure CreatePaymentWithAppliesToId(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Applies-to ID", UserId());
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateAndPostServiceInvoice(var ServiceLine: Record "Service Line"; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10])
@@ -1420,6 +1649,20 @@ codeunit 144078 "ERM Extra VAT"
         PurchaseLine.Modify();
     end;
 
+    local procedure CreatePostPurchaseInvoice(var VendorNo: Code[20]; VATPostingSetup: Record 325; PaymentTermsCode: Code[10]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+          CreateVendor(VATPostingSetup."VAT Bus. Posting Group", PaymentTermsCode, ''));
+        CreatePurchLineWithGLAccount(
+          PurchaseLine, PurchaseHeader, VATPostingSetup, 1, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        VendorNo := PurchaseHeader."Buy-from Vendor No.";
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
     var
         SalesHeader: Record "Sales Header";
@@ -1491,6 +1734,20 @@ codeunit 144078 "ERM Extra VAT"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale), Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify();
+    end;
+
+    local procedure CreatePostSalesInvoice(var CustomerNo: Code[20]; VATPostingSetup: Record 325; PaymentTermsCode: Code[10]): Code[20];
+    var
+        SalesHeader: Record 36;
+        SalesLine: Record 37;
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice,
+          CreateCustomer(VATPostingSetup."VAT Bus. Posting Group", PaymentTermsCode, '', false));
+        CreateSalesLineWithGLAccount(
+          SalesLine, SalesHeader, VATPostingSetup, 1, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CustomerNo := SalesHeader."Sell-to Customer No.";
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreateUnrealVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -1609,6 +1866,25 @@ codeunit 144078 "ERM Extra VAT"
     begin
         VATPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+    end;
+
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Option; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    begin
+        VATEntry.SetRange(Type, VATEntryType);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+    end;
+
+    local procedure FindAndAssertUnrealVATEntryIsFullyRealized(VATEntryType: Option; CVNo: Code[20]; InvoiceNo: Code[20]): Integer
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        FindVATEntry(VATEntry, VATEntryType, CVNo, VATEntry."Document Type"::Invoice, InvoiceNo);
+        VATEntry.TestField("Remaining Unrealized Amount", 0);
+        VATEntry.TestField("Remaining Unrealized Base", 0);
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure FilterVATEntriesOnSalesDocument(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
@@ -1814,6 +2090,76 @@ codeunit 144078 "ERM Extra VAT"
             Validate("Prepayment %", PrepmtPct);
             Modify(true);
             exit("Prepmt. Line Amount" - "Prepmt. Amount Inv. Incl. VAT");
+        end;
+    end;
+
+    local procedure SetAppliestoIdVendor(InvoiceNo: Code[20])
+    var
+        VendorLedgerEntry: Record 25;
+    begin
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+    end;
+
+    local procedure SetAppliestoIdCustomer(InvoiceNo: Code[20])
+    var
+        CustLedgerEntry: Record 21;
+    begin
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", InvoiceNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+    end;
+
+    local procedure SetGivenAppliestoIdVendor(var VendorLedgerEntry: array[3] of Record 25; AppliesToId: array[3] of Code[50])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VendorLedgerEntry) do begin
+            VendorLedgerEntry[i].Find();
+            VendorLedgerEntry[i].CalcFields("Remaining Amount");
+            VendorLedgerEntry[i].Validate("Applies-to ID", AppliesToId[i]);
+            VendorLedgerEntry[i].Validate("Amount to Apply", VendorLedgerEntry[i]."Remaining Amount");
+            VendorLedgerEntry[i].Modify(true);
+        end;
+    end;
+
+    local procedure SetGivenAppliestoIdCustomer(var CustLedgerEntry: array[3] of Record 21; AppliesToId: array[3] of Code[50])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(CustLedgerEntry) do begin
+            CustLedgerEntry[i].Find();
+            CustLedgerEntry[i].CalcFields("Remaining Amount");
+            CustLedgerEntry[i].Validate("Applies-to ID", AppliesToId[i]);
+            CustLedgerEntry[i].Validate("Amount to Apply", CustLedgerEntry[i]."Remaining Amount");
+            CustLedgerEntry[i].Modify(true);
+        end;
+    end;
+
+    local procedure CollectVendorInvoiceLedgerEntries(var VendorLedgerEntry: array[3] of Record 25; var TotalAmount: Decimal; var Amount: array[3] of Decimal; InvoiceNo: Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VendorLedgerEntry) do begin
+            VendorLedgerEntry[i].SetRange("Document Occurrence", i);
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry[i], VendorLedgerEntry[i]."Document Type"::Invoice, InvoiceNo);
+            VendorLedgerEntry[i].CalcFields(Amount);
+            Amount[i] := -VendorLedgerEntry[i].Amount;
+            TotalAmount += Amount[i];
+        end;
+    end;
+
+    local procedure CollectCustomerInvoiceLedgerEntries(var CustLedgerEntry: array[3] of Record 21; var TotalAmount: Decimal; var Amount: array[3] of Decimal; InvoiceNo: Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(CustLedgerEntry) do begin
+            CustLedgerEntry[i].SetRange("Document Occurrence", i);
+            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry[i], CustLedgerEntry[i]."Document Type"::Invoice, InvoiceNo);
+            CustLedgerEntry[i].CalcFields(Amount);
+            Amount[i] := CustLedgerEntry[i].Amount;
+            TotalAmount -= Amount[i];
         end;
     end;
 
@@ -2143,6 +2489,17 @@ codeunit 144078 "ERM Extra VAT"
                   (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
                 Next;
             end;
+        end;
+    end;
+
+    local procedure VerifySeveralRealizedVATEntries(var VATEntry: Record 254; UnrealVATEntryNo: Integer; Amount: array[3] of Decimal; Sign: Integer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(Amount) do begin
+            VATEntry.TestField("Unrealized VAT Entry No.", UnrealVATEntryNo);
+            Assert.AreEqual(Amount[i] * Sign, VATEntry.Amount + VATEntry.Base, 'VAT Entry Base+Amount');
+            VATEntry.Next();
         end;
     end;
 

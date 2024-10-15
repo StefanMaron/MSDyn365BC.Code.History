@@ -603,7 +603,8 @@ codeunit 144206 "Self-Billing Documents"
         AssertElementValue(TempXMLBuffer, 'IdPaese', CompanyInformation."Country/Region Code");
         AssertElementValue(TempXMLBuffer, 'IdCodice', CompanyInformation."VAT Registration No.");
         TempXMLBuffer.Reset();
-        TempXMLBuffer.Next;
+        TempXMLBuffer.Next(); // skip CodiceFiscale
+        TempXMLBuffer.Next(); // skip DatiAnagrafici
         AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
 
         TempXMLBuffer.FindNodesByXPath(

@@ -350,6 +350,7 @@ table 846 "Cash Flow Worksheet Line"
         InsertLine: Boolean;
         CountForPaymentLines: Integer;
         AccumulatedAmount: Decimal;
+        IsHandled: Boolean;
     begin
         PaymentTermsToApply := "Payment Terms Code";
         if not CheckForCrMemoCalculation(PaymentTermsToApply) then
@@ -396,14 +397,18 @@ table 846 "Cash Flow Worksheet Line"
                 if CashFlowForecast."Consider Pmt. Disc. Tol. Date" then
                     CFDiscountDate := CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", CFDiscountDate);
 
-                if CFDiscountDate >= WorkDate then begin
-                    "Cash Flow Date" := CFDiscountDate;
-                    "Payment Discount" := Round("Amount (LCY)" * PaymentLines."Discount %" / 100);
-                    "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
-                end else begin
-                    "Cash Flow Date" := CalcDate(PaymentLines."Due Date Calculation", "Document Date");
-                    "Payment Discount" := 0;
-                end;
+                IsHandled := false;
+                OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate, PaymentLines, IsHandled);
+                if not IsHandled then
+                    if CFDiscountDate >= WorkDate then begin
+                        "Cash Flow Date" := CFDiscountDate;
+
+                        "Payment Discount" := Round("Amount (LCY)" * PaymentLines."Discount %" / 100);
+                        "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
+                    end else begin
+                        "Cash Flow Date" := CalcDate(PaymentLines."Due Date Calculation", "Document Date");
+                        "Payment Discount" := 0;
+                    end;
             end else
                 "Cash Flow Date" := CalcDate(PaymentLines."Due Date Calculation", "Document Date");
 
@@ -463,6 +468,11 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var xCashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateCFAmountAndCFDateOnBeforeCalcPaymentDiscount(CFDiscountDate: Date; PaymentLines: record "Payment Lines"; var IsHandled: boolean)
     begin
     end;
 }

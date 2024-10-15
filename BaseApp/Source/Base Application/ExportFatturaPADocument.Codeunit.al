@@ -340,12 +340,12 @@ codeunit 12179 "Export FatturaPA Document"
         with TempXMLBuffer do begin
             AddGroupElement('CessionarioCommittente');
             AddGroupElement('DatiAnagrafici');
-            AddGroupElement('IdFiscaleIVA');
-            AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
-            if Customer."Individual Person" then
-                AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code")
-            else
+            if not Customer."Individual Person" then begin
+                AddGroupElement('IdFiscaleIVA');
+                AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
                 AddNonEmptyLastElement('IdCodice', Customer."VAT Registration No.");
+            end;
+            AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
 
             // 1.4.1.3 Anagrafica
             AddGroupElement('Anagrafica');
@@ -438,7 +438,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddNonEmptyElement('Descrizione', TempFatturaLine.Description);
             AddNonEmptyElement('Quantita', FormatQuantity(TempFatturaLine.Quantity));
             AddNonEmptyElement('UnitaMisura', TempFatturaLine."Unit of Measure");
-            AddNonEmptyElement('PrezzoUnitario', FormatAmount(TempFatturaLine."Unit Price"));
+            AddNonEmptyElement('PrezzoUnitario', FormatQuantity(TempFatturaLine."Unit Price"));
             if (TempFatturaLine."Discount Percent" <> 0) or (TempFatturaLine."Discount Amount" <> 0) then begin
                 AddGroupElement('ScontoMaggiorazione');
                 AddNonEmptyElement('Tipo', 'SC');

@@ -1219,6 +1219,7 @@
                         TestField("No. of Industry Groups", 0);
                         TestField("Currency Code", '');
                         TestField("VAT Registration No.", '');
+                        OnTypeChangeOnAfterTypePersonTestFields(Rec);
                     end;
                     if "Company No." = "No." then begin
                         "Company No." := '';
@@ -1415,7 +1416,7 @@
 
         UpdateCustVendBank.UpdateVendor(ContComp, ContBusRel);
 
-        OnCreateVendorOnAfterUpdateVendor(Vend, Rec);
+        OnCreateVendorOnAfterUpdateVendor(Vend, Rec, ContBusRel);
 
         if OfficeMgt.IsAvailable then
             PAGE.Run(PAGE::"Vendor Card", Vend)
@@ -2948,7 +2949,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateVendorOnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact)
+    local procedure OnCreateVendorOnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
     begin
     end;
 
@@ -2980,6 +2981,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTypeChangeOnAfterCheckInteractionLog(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTypeChangeOnAfterTypePersonTestFields(Contact: Record Contact)
     begin
     end;
 }
