@@ -3013,7 +3013,8 @@ codeunit 80 "Sales-Post"
                 InsertTrackingSpecification(SalesHeader);
                 PostUpdateOrderLine(SalesHeader);
                 UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
-                UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
+                if not PreviewMode then
+                    UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
                 WhseSalesRelease.Release(SalesHeader);
                 UpdateItemChargeAssgnt(SalesHeader);
                 OnFinalizePostingOnAfterUpdateItemChargeAssgnt(SalesHeader, TempDropShptPostBuffer, GenJnlPostLine);
@@ -3063,7 +3064,8 @@ codeunit 80 "Sales-Post"
                 end;
                 UpdateAfterPosting(SalesHeader);
                 UpdateEmailParameters(SalesHeader);
-                UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
+                if not PreviewMode then
+                    UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
                 if not OrderArchived then begin
                     ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
                     OrderArchived := true;

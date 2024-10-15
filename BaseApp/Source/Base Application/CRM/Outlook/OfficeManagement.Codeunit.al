@@ -9,7 +9,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System;
 using System.Automation;
-using System.Email;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
@@ -85,27 +84,14 @@ codeunit 1630 "Office Management"
                              OfficeHostType.OutlookTaskPane()]);
     end;
 
-    local procedure AttachAsBlob() AsBlob: Boolean
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-    begin
-        GetContext(OfficeAddinContext);
-
-        // Attach as blob unless the item is a message in compose mode
-        AsBlob := OfficeAddinContext.IsAppointment();
-        AsBlob := AsBlob or (OfficeAddinContext.Mode = OfficeAddinContext.Mode::Read);
-        AsBlob := AsBlob and (GetHostType() <> OfficeHostType.OutlookItemEdit());
-    end;
-
     [Obsolete('Please use the overload with the stream parameter', '17.2')]
     procedure AttachDocument(ServerFilePath: Text; FileName: Text; BodyText: Text; Subject: Text)
     var
-        MailMgt: Codeunit "Mail Management";
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
         File: Text;
     begin
         if ServerFilePath <> '' then begin
-            File := GetAuthenticatedUrlOrContent(ServerFilePath);
+            File := GetContent(ServerFilePath);
             with OfficeAttachmentManager do begin
                 Add(File, FileName, BodyText);
                 if Ready() then begin
@@ -115,7 +101,7 @@ codeunit 1630 "Office Management"
                 end;
             end;
         end else
-            InvokeExtension('sendAttachment', '', '', MailMgt.ImageBase64ToUrl(BodyText), Subject);
+            InvokeExtension('sendAttachment', '', '', BodyText, Subject);
     end;
 
     procedure AttachDocument(AttachmentStream: Instream; AttachmentName: Text; BodyText: Text; Subject: Text)
@@ -123,7 +109,7 @@ codeunit 1630 "Office Management"
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
         FileManagement: Codeunit "File Management";
         OutStream: OutStream;
-        FileName: Text;
+        FileContent: Text;
         File: File;
         ServerFilePath: Text;
     begin
@@ -133,8 +119,8 @@ codeunit 1630 "Office Management"
         CopyStream(OutStream, AttachmentStream);
         File.Close();
 
-        FileName := GetAuthenticatedUrlOrContent(ServerFilePath);
-        OfficeAttachmentManager.Add(FileName, AttachmentName, BodyText);
+        FileContent := GetContent(ServerFilePath);
+        OfficeAttachmentManager.Add(FileContent, AttachmentName, BodyText);
         if OfficeAttachmentManager.Ready() then begin
             Commit();
             InvokeExtension('sendAttachment', OfficeAttachmentManager.GetFiles(), OfficeAttachmentManager.GetNames(), OfficeAttachmentManager.GetBody(), Subject);
@@ -143,10 +129,8 @@ codeunit 1630 "Office Management"
     end;
 
     procedure AttachDocument(BodyText: Text; Subject: Text)
-    var
-        MailMgt: Codeunit "Mail Management";
     begin
-        InvokeExtension('sendAttachment', '', '', MailMgt.ImageBase64ToUrl(BodyText), Subject);
+        InvokeExtension('sendAttachment', '', '', BodyText, Subject);
     end;
 
     procedure ChangeCompany(NewCompany: Text)
@@ -525,22 +509,17 @@ codeunit 1630 "Office Management"
         OutputFile.Close();
     end;
 
-    local procedure GetAuthenticatedUrlOrContent(ServerFilePath: Text): Text
+    local procedure GetContent(ServerFilePath: Text): Text
     var
         TempBlob: Codeunit "Temp Blob";
         Base64Convert: Codeunit "Base64 Convert";
         FileMgt: Codeunit "File Management";
         DocStream: InStream;
-        MediaId: Guid;
     begin
         FileMgt.BLOBImportFromServerFile(TempBlob, ServerFilePath);
-
         TempBlob.CreateInStream(DocStream, TEXTENCODING::UTF8);
-        if AttachAsBlob() then
-            exit(Base64Convert.ToBase64(DocStream));
 
-        MediaId := ImportStreamWithUrlAccess(DocStream, FileMgt.GetFileName(ServerFilePath));
-        exit(GetDocumentUrl(MediaId));
+        exit(Base64Convert.ToBase64(DocStream));
     end;
 
     local procedure GetHandlerCodeunit(OfficeAddinContext: Record "Office Add-in Context"): Integer
