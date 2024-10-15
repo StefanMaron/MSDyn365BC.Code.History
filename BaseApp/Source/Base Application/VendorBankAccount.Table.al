@@ -196,6 +196,9 @@ table 288 "Vendor Bank Account"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }

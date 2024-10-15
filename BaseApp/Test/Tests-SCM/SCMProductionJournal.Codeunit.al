@@ -1261,6 +1261,63 @@ codeunit 137034 "SCM Production Journal"
         ConsumpItemJournalLine.TestField("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PostingTwoLinesOfSameItemButDifferentUOMDoesNotThrowError()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemUnitOfMeasure1: Record "Item Unit of Measure";
+        ItemUnitOfMeasure2: Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine1: Record "Prod. Order Line";
+        ProductionOrderLine2: Record "Prod. Order Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        Initialize();
+
+        // Add yourselves as Warehouse Employee to location L1
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Put-away", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // Create an item I1 and add two Unit of Measures UOM1 and UOM2.
+        CreateItem(Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Order");
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure1, Item."No.", 1);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure2, Item."No.", 1);
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure1.Code);
+        Item.Modify(true);
+
+        // Create released prod order, add 2 lines:
+        // Item I1, Location L1, 1 UOM1
+        // Item I1, Location L1, 1 UOM2
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+
+        LibraryManufacturing.CreateProdOrderLine(ProductionOrderLine1, ProductionOrderLine1.Status::Released, ProductionOrder."No.", Item."No.", '', Location.Code, 1);
+        LibraryManufacturing.CreateProdOrderLine(ProductionOrderLine2, ProductionOrderLine1.Status::Released, ProductionOrder."No.", Item."No.", '', Location.Code, 1);
+        ProductionOrderLine2.Validate("Unit of Measure Code", ItemUnitOfMeasure2.Code);
+        ProductionOrderLine2.Modify(true);
+
+        // Create  Inbound Whse. Request
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        // Create Inventory Put-away
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityLine."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
+
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+                  WarehouseActivityHeader, DATABASE::"Prod. Order Line", ProductionOrder.Status.AsInteger(), ProductionOrder."No.",
+                  ProductionOrderLine1."Line No.");
+
+        // Set Qty to Handle as 1 for both lines and choose Post.
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

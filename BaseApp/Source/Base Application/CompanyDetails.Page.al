@@ -18,6 +18,13 @@ page 5054 "Company Details"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the contact. If the contact is a person, you can click the field to see the Name Details window.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field(Address; Address)
                 {
                     ApplicationArea = Basic, Suite;

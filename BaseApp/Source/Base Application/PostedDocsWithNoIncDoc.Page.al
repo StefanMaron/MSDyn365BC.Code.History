@@ -105,7 +105,6 @@ page 188 "Posted Docs. With No Inc. Doc."
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
-                    Visible = false;
                 }
             }
         }

@@ -29,7 +29,6 @@ page 221 "Resource Allocated per Job"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Amount Type';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies if the amount is for prices, costs, or profit values.';
                 }
             }
@@ -40,13 +39,12 @@ page 221 "Resource Allocated per Job"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
                         DateControl;
-                        SetColumns(SetWanted::Initial);
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -58,7 +56,7 @@ page 221 "Resource Allocated per Job"
                     trigger OnValidate()
                     begin
                         DateControl;
-                        SetColumns(SetWanted::Initial);
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
                 }
@@ -102,8 +100,8 @@ page 221 "Resource Allocated per Job"
                     HorizontalRecord.SetRange(Type, HorizontalRecord.Type::Resource);
                     JobRec.SetRange("Resource Filter", ResourceFilter);
                     OnActionShowMatrixOnAfterSetJobFilters(JobRec);
-                    ResAllPerJobFormWithMatrix.Load(JobRec, HorizontalRecord, MatrixColumnCaptions, MatrixRecords, AmountType);
-                    ResAllPerJobFormWithMatrix.RunModal;
+                    ResAllPerJobFormWithMatrix.LoadMatrix(JobRec, HorizontalRecord, MatrixColumnCaptions, MatrixRecords, AmountType);
+                    ResAllPerJobFormWithMatrix.RunModal();
                 end;
             }
             action("Previous Set")
@@ -119,7 +117,7 @@ page 221 "Resource Allocated per Job"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -134,7 +132,7 @@ page 221 "Resource Allocated per Job"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -142,7 +140,7 @@ page 221 "Resource Allocated per Job"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
         if HasFilter then
             ResourceFilter := GetFilter("Resource Filter");
     end;
@@ -154,13 +152,12 @@ page 221 "Resource Allocated per Job"
         FilterTokens: Codeunit "Filter Tokens";
         DateFilter: Text;
         ResourceFilter: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         PKFirstRecInCurrSet: Text[1024];
         MatrixColumnCaptions: array[32] of Text[100];
         ColumnsSet: Text[1024];
         CurrSetLength: Integer;
-        SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
 
     local procedure DateControl()
     begin
@@ -170,17 +167,25 @@ page 221 "Resource Allocated per Job"
         DateFilter := ResRec2.GetFilter("Date Filter");
     end;
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
         MatrixMgt.GeneratePeriodMatrixData(
-            SetWanted, 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
+            StepType.AsInteger(), 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
             ColumnsSet, CurrSetLength, MatrixRecords);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; AmountType: Option "Net Change","Balance at Date"; var IsHandled: Boolean)
+    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; AmountType: Enum "Analysis Amount Type"; var IsHandled: Boolean)
     begin
     end;
 

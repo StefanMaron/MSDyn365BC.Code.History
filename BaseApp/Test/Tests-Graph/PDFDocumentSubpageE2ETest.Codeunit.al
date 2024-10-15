@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135540 "PDF Document Subpage E2E Test"
 {
     Subtype = Test;
@@ -267,4 +268,4 @@ codeunit 135540 "PDF Document Subpage E2E Test"
         Commit();
     end;
 }
-
+#endif

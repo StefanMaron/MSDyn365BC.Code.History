@@ -171,7 +171,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Customer Amount" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "CV Ledger Entry Buffer" = RIMD,
@@ -363,7 +365,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Item Charge" = RIMD,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Identifier" = RIMD,
@@ -374,7 +378,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Item Statistics Buffer" = RIMD,
                   tabledata "Item Substitution" = RIMD,
                   tabledata "Item Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Item Template" = RIMD,
+#endif
                   tabledata "Item Tracing Buffer" = Rimd,
                   tabledata "Item Tracing History Buffer" = Rimd,
                   tabledata "Item Tracking Code" = RIMD,
@@ -406,8 +412,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Merge Duplicates Buffer" = RIMD,
                   tabledata "Merge Duplicates Conflict" = RIMD,
                   tabledata "Merge Duplicates Line Buffer" = RIMD,
+#if not CLEAN18
                   tabledata "Mini Customer Template" = RIMD,
                   tabledata "Mini Vendor Template" = RIMD,
+#endif
                   tabledata "Miniform Function" = RIMD,
                   tabledata "Miniform Function Group" = RIMD,
                   tabledata "Miniform Header" = RIMD,
@@ -415,12 +423,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Misc. Article" = RIMD,
                   tabledata "Misc. Article Information" = IM,
                   tabledata "MS-QBD Setup" = R,
-                  tabledata "MTD-Liability" = RIMD,
-                  tabledata "MTD-Payment" = RIMD,
-                  tabledata "MTD-Return Details" = RIMD,
-                  tabledata "MTD-Missing Fraud Prev. Hdr" = RIMD,
-                  tabledata "MTD-Session Fraud Prev. Hdr" = RIMD,
-                  tabledata "MTD-Default Fraud Prev. Hdr" = RIMD,
                   tabledata "My Account" = RIMD,
                   tabledata "My Customer" = RIMD,
                   tabledata "My Notifications" = RIMD,
@@ -482,6 +484,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Option Lookup Buffer" = rimd,
                   tabledata "Order Promising Line" = I,
                   tabledata "Order Tracking Entry" = RIMD,
+#if not CLEAN19
                   tabledata "Outlook Synch. Dependency" = RIMD,
                   tabledata "Outlook Synch. Entity" = RIMD,
                   tabledata "Outlook Synch. Entity Element" = RIMD,
@@ -492,6 +495,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Outlook Synch. Option Correl." = RIMD,
                   tabledata "Outlook Synch. Setup Detail" = RIMD,
                   tabledata "Outlook Synch. User Setup" = RIMD,
+#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
@@ -570,7 +574,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Purch. Cr. Memo Hdr." = IM,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
+#if not CLEAN19
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
+#endif
                   tabledata "Purch. Rcpt. Header" = IM,
                   tabledata "Purchase Cue" = RIMD,
                   tabledata "Purchase Order Entity Buffer" = RIMD,
@@ -600,7 +606,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Report List Translation" = RIMD,
                   tabledata "Report Selection Warehouse" = RIMD,
                   tabledata "Report Selections" = RIMD,
-                  tabledata "Report Settings Override" = Rimd,
                   tabledata "Report Totals Buffer" = RIMD,
                   tabledata "Res. Availability Buffer" = RIMD,
                   tabledata "Res. Gr. Availability Buffer" = RIMD,
@@ -612,11 +617,15 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Reservation Entry Buffer" = RIMD,
                   tabledata "Resolution Code" = RIMD,
                   tabledata Resource = RIMD,
+#if not CLEAN19
                   tabledata "Resource Cost" = IM,
+#endif
                   tabledata "Resource Group" = RIMD,
                   tabledata "Resource Location" = RIMD,
+#if not CLEAN19
                   tabledata "Resource Price" = IM,
                   tabledata "Resource Price Change" = RIMD,
+#endif
                   tabledata "Resource Register" = RIMD,
                   tabledata "Resource Service Zone" = RIMD,
                   tabledata "Resource Unit of Measure" = IM,
@@ -638,7 +647,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Sales Invoice Entity Aggregate" = RIMD,
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Order Entity Buffer" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
+#endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
                   tabledata "Sales Shipment Buffer" = RIMD,
                   tabledata "SB Owner Cue" = RIMD,
@@ -654,9 +665,11 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Service Shipment Buffer" = RimD,
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Skill Code" = RIMD,
+#if not CLEAN19
                   tabledata "SmartList Designer Setup" = RIMD,
                   tabledata "SmartList Export Results" = RIMD,
                   tabledata "SmartList Import Results" = RIMD,
+#endif
                   tabledata "SMTP Mail Setup" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Standard Address" = Rimd,
@@ -676,7 +689,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Tax Rate Buffer" = RIMD,
                   tabledata "Tax Setup" = RIMD,
                   tabledata "Team Member Cue" = RIMD,
-                  tabledata TempBlob = RIMD,
                   tabledata TempStack = RIMD,
                   tabledata "Terms And Conditions" = RIM,
                   tabledata "Terms And Conditions State" = RIM,
@@ -729,9 +741,8 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Warehouse Worker WMS Cue" = RIMD,
                   tabledata "Warranty Ledger Entry" = ID,
                   tabledata "WF Event/Response Combination" = RIMD,
-                  tabledata "What's New Notified" = rimd,
                   tabledata "Where Used Base Calendar" = RIMD,
-                  tabledata "Whse. Item Tracking Line" = Rimd,
+                  tabledata "Whse. Item Tracking Line" = RIMD,
                   tabledata "Work Center" = RIM,
                   tabledata "Work Type" = IM,
                   tabledata "Work-Hour Template" = RIMD,
@@ -748,5 +759,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "XML Buffer" = RIMD,
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,
-                  tabledata "XML Schema Restriction" = RIMD;
+                  tabledata "XML Schema Restriction" = RIMD,
+                  tabledata "Report Settings Override" = Rimd;
 }

@@ -14,6 +14,9 @@ page 9300 "Sales Quotes"
     SourceTableView = WHERE("Document Type" = CONST(Quote));
     UsageCategory = Lists;
 
+    AboutTitle = 'About sales quotes';
+    AboutText = 'Offer customers pricing and terms for what you sell. Quotes stay in this list until they''re converted to an order or invoice, or deleted.';
+
     layout
     {
         area(content)
@@ -279,9 +282,9 @@ page 9300 "Sales Quotes"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(Dimensions)

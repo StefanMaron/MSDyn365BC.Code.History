@@ -16,7 +16,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative;
         ClassifyEmployeeQualification;
         ClassifyVATReportHeader;
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Type of Supply");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::GovTalkMessage);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Message Parts");

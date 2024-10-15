@@ -125,7 +125,6 @@ page 7119 "Inventory Analysis Report"
                 {
                     ApplicationArea = InventoryAnalysis;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -373,7 +372,7 @@ page 7119 "Inventory Analysis Report"
         CurrentAreaType: Enum "Analysis Area Type";
         CurrentSourceTypeNoFilter: Text;
         CurrentSourceTypeFilter: Enum "Analysis Source Type";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         Direction: Option Backward,Forward;
         NoOfColumns: Integer;
         FirstLineNo: Integer;
@@ -384,11 +383,11 @@ page 7119 "Inventory Analysis Report"
 
     local procedure FindPeriod(SearchText: Code[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         DateFilter: Text;
         InternalDateFilter: Text;
     begin
-        PeriodFormMgt.FindPeriodOnMatrixPage(DateFilter, InternalDateFilter, SearchText, PeriodType, false);
+        PeriodPageMgt.FindPeriodOnMatrixPage(DateFilter, InternalDateFilter, SearchText, PeriodType, false);
         SetFilter("Date Filter", InternalDateFilter);
     end;
 

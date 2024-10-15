@@ -697,11 +697,11 @@ table 5991 "Service Shipment Line"
             if (ServiceLine."Contract No." <> '') and (ServiceLine.Type <> ServiceLine.Type::" ") then
                 case ServiceLine."Document Type" of
                     ServiceLine."Document Type"::Invoice:
-                        ServDocReg.InsertServSalesDocument(
+                        ServDocReg.InsertServiceSalesDocument(
                           ServDocReg."Source Document Type"::Contract, ServiceLine."Contract No.",
                           ServDocReg."Destination Document Type"::Invoice, ServiceLine."Document No.");
                     ServiceLine."Document Type"::"Credit Memo":
-                        ServDocReg.InsertServSalesDocument(
+                        ServDocReg.InsertServiceSalesDocument(
                           ServDocReg."Source Document Type"::Contract, ServiceLine."Contract No.",
                           ServDocReg."Destination Document Type"::"Credit Memo", ServiceLine."Document No.")
                 end;

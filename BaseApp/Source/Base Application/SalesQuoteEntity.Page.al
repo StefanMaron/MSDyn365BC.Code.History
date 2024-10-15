@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5505 "Sales Quote Entity"
 {
     Caption = 'salesQuotes', Locked = true;
@@ -701,4 +702,4 @@ page 5505 "Sales Quote Entity"
         SetActionResponse(ActionContext, SalesHeader);
     end;
 }
-
+#endif

@@ -19,6 +19,5 @@ permissionset 1001 "LOCAL"
                   tabledata "MTD-Default Fraud Prev. Hdr" = RIMD,
                   tabledata "Payment Application Buffer" = RIMD,
                   tabledata "Payment Period Setup" = RIMD,
-                  tabledata "Postcode Notification Memory" = RIMD,
-                  tabledata "Type of Supply" = RIMD;
+                  tabledata "Postcode Notification Memory" = RIMD;
 }

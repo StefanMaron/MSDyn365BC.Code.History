@@ -242,7 +242,7 @@ report 208 "Sales - Shipment"
                         column(AsmHeaderExists; AsmHeaderExists)
                         {
                         }
-#if not CLEAN18
+#if not CLEAN17
                         column(CrossReferenceNo_Line; "Cross-Reference No.")
                         {
                             ObsoleteState = Pending;

@@ -76,6 +76,7 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountStatementLine."Bank Account No.");
         BankAccountLedgerEntry.SetRange("Statement No.", BankAccountStatementLine."Statement No.");
@@ -104,5 +105,42 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
                 BankAccountLedgerEntry.Open := true;
                 BankAccountLedgerEntry.Modify();
             until BankAccountLedgerEntry.Next() = 0;
+
+        BankAccountStatementLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
+        if BankAccRecMatchBuffer.FindFirst() then begin
+            BankAccountLedgerEntry.Reset();
+            BankAccountLedgerEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
+            if BankAccountLedgerEntry.FindFirst() then begin
+
+                CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
+                CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+                if CheckLedgerEntry.FindSet(true) then begin
+                    repeat
+                        CheckLedgerEntry."Statement No." := NewStatementNo;
+                        CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::"Check Entry Applied";
+                        CheckLedgerEntry.Open := true;
+                        CheckLedgerEntry.Modify();
+                    until CheckLedgerEntry.Next() = 0;
+
+                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Check Entry Applied";
+                    BankAccountLedgerEntry."Statement No." := '';
+                    BankAccountLedgerEntry."Statement Line No." := 0;
+                end else begin
+                    BankAccountLedgerEntry."Statement No." := NewStatementNo;
+                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
+                end;
+
+                BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
+                BankAccountLedgerEntry.Open := true;
+                BankAccountLedgerEntry.Modify();
+
+            end;
+            BankAccRecMatchBuffer.Rename(NewStatementNo,
+                                         BankAccRecMatchBuffer."Statement Line No.",
+                                         BankAccRecMatchBuffer."Bank Account No.",
+                                         BankAccRecMatchBuffer."Match ID");
+            BankAccRecMatchBuffer."Is Processed" := false;
+            BankAccRecMatchBuffer.Modify();
+        end;
     end;
 }

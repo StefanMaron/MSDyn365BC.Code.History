@@ -71,6 +71,8 @@ codeunit 350 IntraJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, IntrastatJnlLine);
+
         CheckTemplateName(IntrastatJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         IntrastatJnlLine.FilterGroup(2);
         IntrastatJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -326,6 +328,11 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
         AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
         if AdvancedIntrastatChecklist.Insert() then;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
     end;
 }
 

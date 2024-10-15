@@ -12,6 +12,6 @@ codeunit 132442 "Test VAT Content"
     begin
         TempBlob.CreateOutStream(ContentOutStream);
         ContentOutStream.WriteText(LibraryUtility.GenerateGUID());
-        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code", "No.", TempBlob, DummyGuid);
+        VATReportArchive.ArchiveSubmissionMessage("VAT Report Config. Code".AsInteger(), "No.", TempBlob, DummyGuid);
     end;
 }

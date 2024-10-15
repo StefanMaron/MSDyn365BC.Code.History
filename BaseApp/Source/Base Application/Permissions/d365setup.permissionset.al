@@ -50,6 +50,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Azure AD Mgt. Setup" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = D,
                   tabledata "Bank Acc. Reconciliation Line" = D,
+                  tabledata "Bank Acc. Rec. Match Buffer" = D,
                   tabledata "Bank Account" = RIMD,
                   tabledata "Bank Account Ledger Entry" = d,
                   tabledata "Bank Account Posting Group" = RIMD,
@@ -82,7 +83,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Close Opportunity Code" = D,
                   tabledata "Communication Method" = RIMD,
                   tabledata "Company Information" = RIMD,
-                  tabledata "Config. Field Mapping" = RIMD,
+                  tabledata "Config. Field Map" = RIMD,
                   tabledata "Config. Line" = RIMD,
                   tabledata "Config. Package" = RIMD,
                   tabledata "Config. Package Data" = RIMD,
@@ -133,7 +134,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Cust. Ledger Entry" = d,
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
+                  tabledata "Customer Templ." = RIMD,
+#if not CLEAN18
                   tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "Data Exch." = RIMD,
@@ -220,7 +224,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "Item Charge" = RIMD,
                   tabledata "Item Charge Assignment (Purch)" = rD,
                   tabledata "Item Charge Assignment (Sales)" = rD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Ledger Entry" = Rmd,
@@ -331,8 +337,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Requisition Wksh. Name" = RIMD,
                   tabledata "Res. Journal Line" = D,
                   tabledata "Reservation Entry" = RimD,
+#if not CLEAN19
                   tabledata "Resource Cost" = D,
                   tabledata "Resource Price" = D,
+#endif
                   tabledata "Resource Unit of Measure" = D,
                   tabledata "Resources Setup" = RimD,
                   tabledata "Responsibility Center" = RIMD,
@@ -353,10 +361,14 @@ permissionset 191 "D365 SETUP"
                   tabledata "Sales Invoice Line" = Rd,
                   tabledata "Sales Line" = RmD,
                   tabledata "Sales Line Archive" = RmD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = IM,
+#endif
                   tabledata "Sales Planning Line" = d,
                   tabledata "Sales Prepayment %" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price Worksheet" = RIMD,
+#endif
                   tabledata "Sales Shipment Header" = RD,
                   tabledata "Sales Shipment Line" = d,
                   tabledata "Salesperson/Purchaser" = RIMD,

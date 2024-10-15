@@ -43,6 +43,13 @@ page 528 "Posted Purchase Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies either the name of or a description of the item or general ledger account.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

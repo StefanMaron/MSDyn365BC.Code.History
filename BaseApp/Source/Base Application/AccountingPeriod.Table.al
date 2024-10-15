@@ -47,13 +47,11 @@ table 50 "Accounting Period"
             Caption = 'Date Locked';
             Editable = false;
         }
-        field(5804; "Average Cost Calc. Type"; Option)
+        field(5804; "Average Cost Calc. Type"; Enum "Average Cost Calculation Type")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Average Cost Calc. Type';
             Editable = false;
-            OptionCaption = ' ,Item,Item & Location & Variant';
-            OptionMembers = " ",Item,"Item & Location & Variant";
         }
         field(5805; "Average Cost Period"; Option)
         {
@@ -108,6 +106,7 @@ table 50 "Accounting Period"
 
     var
         Text000: Label '<Month Text,10>', Locked = true;
+        MonthTxt: Label '<Month Text>', Locked = true;
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
 
@@ -164,6 +163,35 @@ table 50 "Accounting Period"
         if AccountingPeriod.FindFirst() then
             exit(true);
         exit(false);
+    end;
+
+    procedure MakeRecurringTexts(PostingDate: Date; var DocumentNo: Code[20]; var Description: Text[100])
+    var
+        AccountingPeriod: Record "Accounting Period";
+        Day: Integer;
+        Week: Integer;
+        Month: Integer;
+        MonthText: Text[30];
+    begin
+        Day := Date2DMY(PostingDate, 1);
+        Week := Date2DWY(PostingDate, 2);
+        Month := Date2DMY(PostingDate, 2);
+        MonthText := Format(PostingDate, 0, MonthTxt);
+        AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
+        if not AccountingPeriod.FindLast() then
+            AccountingPeriod.Name := '';
+        DocumentNo :=
+            CopyStr(
+                DelChr(
+                    PadStr(
+                        StrSubstNo(DocumentNo, Day, Week, Month, MonthText, AccountingPeriod.Name), MaxStrLen(DocumentNo)), '>'),
+                    1, MaxStrLen(DocumentNo));
+        Description :=
+            CopyStr(
+                DelChr(
+                    PadStr(
+                        StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name), MaxStrLen(Description)), '>'),
+                    1, MaxStrLen(Description));
     end;
 }
 

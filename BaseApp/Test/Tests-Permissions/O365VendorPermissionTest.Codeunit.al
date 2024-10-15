@@ -219,7 +219,6 @@ codeunit 139452 "O365 Vendor Permission Test"
     begin
         // list of tables important for Vendor view scenario, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
-        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [Scope('OnPrem')]
@@ -227,7 +226,6 @@ codeunit 139452 "O365 Vendor Permission Test"
     begin
         // list of tables important for Vendor creation, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
-        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [ModalPageHandler]

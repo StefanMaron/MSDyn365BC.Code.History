@@ -301,7 +301,7 @@ page 740 "VAT Report"
                         VATReportArchive: Record "VAT Report Archive";
                         DummyGuid: Guid;
                     begin
-                        VATReportArchive.DownloadSubmissionMessage("VAT Report Config. Code", "No.", DummyGuid);
+                        VATReportArchive.DownloadSubmissionMessage("VAT Report Config. Code".AsInteger(), "No.", DummyGuid);
                     end;
                 }
                 action("Download Response Message")
@@ -317,7 +317,7 @@ page 740 "VAT Report"
                         VATReportArchive: Record "VAT Report Archive";
                         DummyGuid: Guid;
                     begin
-                        VATReportArchive.DownloadResponseMessage("VAT Report Config. Code", "No.", DummyGuid);
+                        VATReportArchive.DownloadResponseMessage("VAT Report Config. Code".AsInteger(), "No.", DummyGuid);
                     end;
                 }
                 action("Calc. and Post VAT Settlement")
@@ -444,7 +444,7 @@ page 740 "VAT Report"
         CalcAndPostVATStatus := Status = Status::Accepted;
         ReopenControllerStatus := Status = Status::Released;
         InitReturnPeriodGroup;
-        OnAfterInitPageControllers(Rec, SubmitControllerStatus, MarkAsSubmitControllerStatus);
+        OnAfterInitPageControllers(Rec, SubmitControllerStatus, MarkAsSubmitControllerStatus, CalcAndPostVATStatus);
     end;
 
     local procedure InitReturnPeriodGroup()
@@ -471,7 +471,7 @@ page 740 "VAT Report"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitPageControllers(VATReportHeader: Record "VAT Report Header"; var SubmitControllerStatus: Boolean; var MarkAsSubmitControllerStatus: Boolean)
+    local procedure OnAfterInitPageControllers(VATReportHeader: Record "VAT Report Header"; var SubmitControllerStatus: Boolean; var MarkAsSubmitControllerStatus: Boolean; var CalcAndPostVATStatus: Boolean)
     begin
     end;
 }

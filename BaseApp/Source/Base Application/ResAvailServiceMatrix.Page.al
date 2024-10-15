@@ -507,7 +507,7 @@ page 9229 "Res. Avail. (Service) Matrix"
                     trigger OnAction()
                     begin
                         if PeriodType <> PeriodType::Day then
-                            Error(Text000, SelectStr(PeriodType + 1, Text001));
+                            Error(Text000, SelectStr(PeriodType.AsInteger() + 1, Text001));
 
                         Clear(ServOrderAllocMgt);
                         ServOrderAllocMgt.AllocateDate(
@@ -616,7 +616,7 @@ page 9229 "Res. Avail. (Service) Matrix"
         CurrentServItemLineNo: Integer;
         CurrentEntryNo: Integer;
         SelectedDate: Date;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         QualifiedForServItems: Option "Selected Service Item","All Service Items in Order";
         QtytoAllocate: Decimal;
         Qualified: Boolean;
@@ -697,7 +697,7 @@ page 9229 "Res. Avail. (Service) Matrix"
         [InDataSet]
         QtytoallocateEnable: Boolean;
 
-    procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Enum "Analysis Period Type")
     begin
         CurrentDocumentType := DocumentType;
         CurrentDocumentNo := DocumentNo;

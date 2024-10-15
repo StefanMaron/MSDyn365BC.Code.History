@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135535 "Journals E2E Test"
 {
     Subtype = Test;
@@ -211,4 +212,4 @@ codeunit 135535 "Journals E2E Test"
         end;
     end;
 }
-
+#endif

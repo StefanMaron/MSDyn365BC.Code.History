@@ -105,12 +105,12 @@ codeunit 148088 "MTDTestMisc"
     [ModalPageHandler]
     procedure CustConsentConfirmationYesMPH(var CustConsentConfirmation: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfirmation.Yes().Invoke();
+        CustConsentConfirmation.Accept.Invoke();
     end;
 
     [ModalPageHandler]
     procedure CustConsentConfirmationNoMPH(var CustConsentConfirmation: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfirmation.No().Invoke();
+        CustConsentConfirmation.Cancel.Invoke();
     end;
 }

@@ -58,7 +58,6 @@ report 18 "Consolidated Trial Balance (4)"
             }
             column(AmountType; AmountType)
             {
-                OptionCaption = 'Net Change,Balance';
             }
             column(EmptyString; '')
             {
@@ -303,7 +302,6 @@ report 18 "Consolidated Trial Balance (4)"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Show';
-                        OptionCaption = 'Net Change,Balance';
                         ToolTip = 'Specifies if the selected value is shown in the window.';
                     }
                     field(InThousands; InThousands)
@@ -347,7 +345,7 @@ report 18 "Consolidated Trial Balance (4)"
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;
         InThousands: Boolean;
-        AmountType: Option "Net Change",Balance;
+        AmountType: Enum "Analysis Amount Type";
         GLFilter: Text;
         EliminationAmount: Decimal;
         PeriodText: Text;

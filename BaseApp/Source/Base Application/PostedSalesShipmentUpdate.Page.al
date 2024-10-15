@@ -113,11 +113,10 @@ page 1350 "Posted Sales Shipment - Update"
         OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;
 
-    [Scope('OnPrem')]
     procedure SetRec(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
         Rec := SalesShipmentHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

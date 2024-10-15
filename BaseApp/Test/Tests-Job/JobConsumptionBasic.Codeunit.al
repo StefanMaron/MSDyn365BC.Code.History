@@ -46,8 +46,10 @@ codeunit 136300 "Job Consumption Basic"
 
     local procedure Initialize()
     var
+#if not CLEAN19
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
+#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Consumption Basic");
@@ -58,9 +60,11 @@ codeunit 136300 "Job Consumption Basic"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
+#if not CLEAN19
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
+#endif
 
         LibraryJob.ConfigureGeneralPosting();
         LibraryJob.ConfigureVATPosting();

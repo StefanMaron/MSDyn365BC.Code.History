@@ -180,6 +180,24 @@ table 7319 "Posted Whse. Receipt Line"
             Caption = 'Cross-Dock Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
         }
+        field(55; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(56; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(60; "Posted Source Document"; Enum "Warehouse Shipment Posted Source Document")
         {
             Caption = 'Posted Source Document';

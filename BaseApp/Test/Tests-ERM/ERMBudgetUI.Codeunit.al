@@ -561,13 +561,12 @@ codeunit 134927 "ERM Budget UI"
     local procedure GetClosingMonthFilterFromDateFilter(DateFilter: Text): Text
     var
         Date: Record Date;
-        PeriodFormManagement: Codeunit PeriodFormManagement;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         Date.SetFilter("Period Start", DateFilter);
-        PeriodFormManagement.FindDate('+', Date, PeriodType::Day);
+        PeriodPageManagement.FindDate('+', Date, "Analysis Period Type"::Day);
         Date.SetRange("Period Start");
-        PeriodFormManagement.FindDate('', Date, PeriodType::Month);
+        PeriodPageManagement.FindDate('', Date, "Analysis Period Type"::Month);
         exit(StrSubstNo('%1..C%2', Date."Period Start", Date."Period End"));
     end;
 

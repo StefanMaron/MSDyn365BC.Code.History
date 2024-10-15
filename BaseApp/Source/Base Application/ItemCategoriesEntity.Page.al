@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5492 "Item Categories Entity"
 {
     Caption = 'itemCategories', Locked = true;
@@ -104,4 +105,4 @@ page 5492 "Item Categories Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

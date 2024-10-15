@@ -361,11 +361,11 @@ codeunit 138400 "RS Pack Content - Evaluation"
     procedure ItemRelatedTablesAreNotEmpty()
     begin
         // [SCENARIO 171192] Susan can set up Item Substitution
-        // [SCENARIO 167751] Susan can set up Item Cross References
+        // [SCENARIO 167751] Susan can set up Item References
         Initialize();
 
         Assert.TableIsNotEmpty(DATABASE::"Item Substitution");
-        Assert.TableIsNotEmpty(DATABASE::"Item Cross Reference");
+        Assert.TableIsNotEmpty(DATABASE::"Item Reference");
     end;
 
     [Test]
@@ -819,6 +819,19 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         Assert.RecordIsNotEmpty(InteractionLogEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CausesOfAbsence()
+    var
+        CauseofAbsence: Record "Cause of Absence";
+    begin
+        // [FEATURE] [Cause of Absence]
+        // [SCENARIO 404724] "Cause of Absence" table has data 
+        Initialize();
+
+        Assert.RecordIsNotEmpty(CauseofAbsence);
     end;
 
     local procedure Initialize()

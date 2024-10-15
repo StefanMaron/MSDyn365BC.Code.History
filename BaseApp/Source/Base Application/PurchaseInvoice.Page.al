@@ -248,6 +248,7 @@ page 51 "Purchase Invoice"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the order address of the related vendor.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -1198,12 +1199,20 @@ page 51 "Purchase Invoice"
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
                 }
+#if not CLEAN19
                 separator(Action136)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This separator will be removed to allign with W1.';
+                    ObsoleteTag = '19.0';
                 }
                 separator(Action137)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This separator will be removed to allign with W1.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 action("Create Tracking Information")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1250,9 +1259,9 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(SendApprovalRequest)
@@ -1326,7 +1335,7 @@ page 51 "Purchase Invoice"
                     Promoted = true;
                     PromotedCategory = Category8;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Power Automate flows that you created.';
+                                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group("P&osting")
@@ -1357,6 +1366,7 @@ page 51 "Purchase Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1457,8 +1467,8 @@ page 51 "Purchase Invoice"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1497,11 +1507,8 @@ page 51 "Purchase Invoice"
         CreateIncomingDocumentVisible := not OfficeMgt.IsOutlookMobileApp;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
@@ -1524,43 +1531,44 @@ page 51 "Purchase Invoice"
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        ReportPrint: Codeunit "Test Report-Print";
-        UserMgt: Codeunit "User Setup Management";
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        OfficeMgt: Codeunit "Office Management";
-        FormatAddress: Codeunit "Format Address";
-        ChangeExchangeRate: Page "Change Exchange Rate";
-        [InDataSet]
-        StatusStyleTxt: Text;
-        HasIncomingDocument: Boolean;
-        DocNoVisible: Boolean;
-        VendorInvoiceNoMandatory: Boolean;
-        OpenApprovalEntriesExist: Boolean;
-        OpenApprovalEntriesExistForCurrUser: Boolean;
-        ShowWorkflowStatus: Boolean;
-        JobQueuesUsed: Boolean;
-        OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
-        IsOfficeAddin: Boolean;
-        CanCancelApprovalForRecord: Boolean;
-        DocumentIsPosted: Boolean;
-        CreateIncomingDocumentVisible: Boolean;
-        CreateIncomingDocFromEmailAttachment: Boolean;
-        TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
-        IncomingDocEmailAttachmentEnabled: Boolean;
-        CanRequestApprovalForFlow: Boolean;
-        CanCancelApprovalForFlow: Boolean;
-        ShowShippingOptionsWithLocation: Boolean;
-        IsSaaS: Boolean;
-        IsBuyFromCountyVisible: Boolean;
-        IsPayToCountyVisible: Boolean;
-        IsShipToCountyVisible: Boolean;
+                               ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+                               ReportPrint: Codeunit "Test Report-Print";
+                               UserMgt: Codeunit "User Setup Management";
+                               PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+                               OfficeMgt: Codeunit "Office Management";
+                               FormatAddress: Codeunit "Format Address";
+                               ChangeExchangeRate: Page "Change Exchange Rate";
+    [InDataSet]
 
-    protected var
+    StatusStyleTxt: Text;
+    HasIncomingDocument: Boolean;
+    DocNoVisible: Boolean;
+    VendorInvoiceNoMandatory: Boolean;
+    OpenApprovalEntriesExist: Boolean;
+    OpenApprovalEntriesExistForCurrUser: Boolean;
+    ShowWorkflowStatus: Boolean;
+    JobQueuesUsed: Boolean;
+    OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
+    IsOfficeAddin: Boolean;
+    CanCancelApprovalForRecord: Boolean;
+    DocumentIsPosted: Boolean;
+    CreateIncomingDocumentVisible: Boolean;
+    CreateIncomingDocFromEmailAttachment: Boolean;
+    TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
+    IncomingDocEmailAttachmentEnabled: Boolean;
+    CanRequestApprovalForFlow: Boolean;
+    CanCancelApprovalForFlow: Boolean;
+    ShowShippingOptionsWithLocation: Boolean;
+    IsSaaS: Boolean;
+    IsBuyFromCountyVisible: Boolean;
+    IsPayToCountyVisible: Boolean;
+    IsShipToCountyVisible: Boolean;
+
+protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+    PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
-    local procedure ActivateFields()
+local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");

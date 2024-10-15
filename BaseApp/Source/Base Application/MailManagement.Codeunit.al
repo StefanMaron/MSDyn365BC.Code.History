@@ -1,4 +1,4 @@
-﻿codeunit 9520 "Mail Management"
+codeunit 9520 "Mail Management"
 {
     EventSubscriberInstance = Manual;
 
@@ -43,6 +43,11 @@
     procedure AddSource(TableId: Integer; SystemId: Guid)
     begin
         TempEmailItem.AddSourceDocument(TableId, SystemId);
+    end;
+
+    procedure AddSendTo(EmailAddresses: Text)
+    begin
+        TempEmailItem."Send to" := CopyStr(EmailAddresses, 1, 250);
     end;
 
     local procedure RunMailDialog(): Boolean

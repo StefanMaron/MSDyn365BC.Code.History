@@ -4,7 +4,7 @@ page 5335 "Integration Table Mapping List"
     Caption = 'Integration Table Mappings';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Synchronization,Mapping,Uncoupling';
+    PromotedActionCategories = 'New,Process,Report,Synchronization,Mapping,Uncoupling,Coupling';
     SourceTable = "Integration Table Mapping";
     SourceTableView = WHERE("Delete After Synchronization" = CONST(false));
     UsageCategory = Lists;
@@ -133,7 +133,12 @@ page 5335 "Integration Table Mapping List"
                 field("Synch. Modified On Filter"; "Synch. Modified On Filter")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a date/time filter to delimit which modified records are synchronized by their modification date. The filter is based on the Modified On field on the involved integration table records.';
+                    ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize from Dataverse. The filter is based on the Modified On field on the integration table records.';
+                }
+                field("Synch. Int. Tbl. Mod. On Fltr."; "Synch. Int. Tbl. Mod. On Fltr.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize to Dataverse. The filter is based on the SystemModifiedAt field on the Business Central table records.';
                 }
                 field("Deletion-Conflict Resolution"; "Deletion-Conflict Resolution")
                 {
@@ -313,6 +318,26 @@ page 5335 "Integration Table Mapping List"
                     ShowUncouplingLog(IntegrationTableMapping);
                 end;
             }
+            action("View Integration Coupling Job Log")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Integration Coupling Job Log';
+                Enabled = HasRecords;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Image = Log;
+                Promoted = true;
+                PromotedCategory = Category7;
+                PromotedIsBig = true;
+                ToolTip = 'View the status of jobs for match-based coupling of records in a Dynamics 365 Sales integration.';
+
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                begin
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+                    ShowCouplingLog(IntegrationTableMapping);
+                end;
+            }
             action(RemoveCoupling)
             {
                 ApplicationArea = Suite;
@@ -365,6 +390,38 @@ page 5335 "Integration Table Mapping List"
                         Message(ResultMsg, IntegrationSynchJobList.Caption, JobCount, '');
                 end;
             }
+            action(MatchBasedCoupling)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Match-Based Coupling';
+                Enabled = HasRecords AND ("Parent Name" = '');
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Image = LinkAccount;
+                Promoted = true;
+                PromotedCategory = Category7;
+                ToolTip = 'Make couplings between the selected Business Central record type and Dynamics 365 Sales entities based on matching criteria.';
+
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    IntegrationSynchJobList: Page "Integration Synch. Job List";
+                    ConfirmMsg: Text;
+                    ResultMsg: Text;
+                begin
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+                    if not IntegrationTableMapping.FindFirst() then
+                        exit;
+
+                    ConfirmMsg := StartMatchBasedCouplingQst;
+                    ResultMsg := MatchBasedCouplingScheduledMsg;
+                    if not Confirm(ConfirmMsg) then
+                        exit;
+
+                    if CRMIntegrationManagement.MatchBasedCoupling(IntegrationTableMapping."Table ID") then
+                        Message(ResultMsg, IntegrationSynchJobList.Caption);
+                end;
+            }
         }
     }
 
@@ -400,11 +457,13 @@ page 5335 "Integration Table Mapping List"
         StartFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUnconditionalFullSynchronizationQst: Label 'You are about to synchronize all data in the selected mapping, regardless of whether the data has been modified after the last synchronization.\Use this action only if you have recently added a new field mapping and you want to synchronize its value.\We recommend that you use the Integration Table Filter and Table Filter fields on the Integration Table Mappings page to limit the synchronization to a maximum of 5000 records for each run.\\Do you want to continue?';
         StartUncouplingQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartMatchBasedCouplingQst: Label 'You are about to couple Business Central records to Dataverse entities from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUncouplingForegroundQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\\Do you want to continue?';
         UncouplingCompletedMsg: Label 'Uncoupling completed.';
         SynchronizeModifiedScheduledMsg: Label 'Synchronization is scheduled for Modified Records.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
         FullSynchronizationScheduledMsg: Label 'Full Synchronization is scheduled.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
         RemoveCouplingsScheduledMsg: Label 'Uncoupling is scheduled for %2 mappings. %3\Details are available on the %1 page.', Comment = '%1 - caption from page 5344, %2 - scheduled job count, %3 - additional foreground job message';
+        MatchBasedCouplingScheduledMsg: Label 'Match-based coupling is scheduled. \Details are available on the %1 page.', Comment = '%1 - caption from page 5344';
         RemoveCouplingsForegroundMsg: Label '%1 mappings are uncoupled.', Comment = '%1 - foreground uncoupling count';
         NoRecSelectedErr: Label 'You must choose at least one integration table mapping.';
         UserEditedIntegrationTableFilterTxt: Label 'The user edited the Integration Table Filter on %1 mapping.', Locked = true;

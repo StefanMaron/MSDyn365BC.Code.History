@@ -71,8 +71,7 @@ page 1626 "Office OCR Incoming Documents"
                                 OfficeMgt.SendApprovalRequest(IncomingDocument);
                     end;
                 until Next() = 0;
-                if InitiatedAction = InitiatedAction::InitiateSendToOCR then
-                    OfficeMgt.DisplayOCRUploadSuccessMessage(Count);
+                OfficeMgt.DisplaySuccessMessage(Rec);
             end;
         end;
     end;

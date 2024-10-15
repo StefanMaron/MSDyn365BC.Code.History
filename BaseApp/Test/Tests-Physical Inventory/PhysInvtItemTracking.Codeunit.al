@@ -21,6 +21,8 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         isInitialized: Boolean;
         AlreadyExistsErr: Label 'already exists';
         CurrentSaveValuesId: Integer;
+        RoundingTo0Err: Label 'Rounding of the field';
+        RoundingErr: Label 'is of lesser precision than expected';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,ConfirmHandlerTRUE,PostedItemTrackingLinesPageHandler,PostExpPhInTrackListPageHandler,MessageHandler')]
@@ -473,6 +475,145 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnPhysInvtRecordLine()
+    var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [SCENARIO] Error is thrown when base quantity is rounded to 0
+        Initialize();
+
+        // [GIVEN] Item with two unit of measures and Physical Inventory
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandInt(5), QtyRoundingPrecision);
+        CreateItemWithLotTrackingAndPhysInventory(PhysInvtRecordLine, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PhysInvtRecordLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a number that will round the base quantity to 0
+        asserterror PhysInvtRecordLine.Validate(Quantity, 1 / LibraryRandom.RandIntInRange(100, 1000));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnPhysInvtRecordLine()
+    var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [SCENARIO] Error is thrown when quantity is rounded to 0
+        Initialize();
+
+        // [GIVEN] Item with two unit of measures and Physical Inventory
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandInt(5), QtyRoundingPrecision);
+        CreateItemWithLotTrackingAndPhysInventory(PhysInvtRecordLine, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PhysInvtRecordLine.Validate("Unit of Measure Code", BaseUOM.Code);
+
+        // [WHEN] Quantity is set to a number that will get rounded to 0
+        asserterror PhysInvtRecordLine.Validate(Quantity, 1 / LibraryRandom.RandIntInRange(100, 1000));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnPhysInvtRecordLine()
+    var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [SCENARIO] Base quantity is rounded with the specified rounding precision
+        Initialize();
+
+        // [GIVEN] Item with two unit of measures and Physical Inventory
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandInt(5), QtyRoundingPrecision);
+        CreateItemWithLotTrackingAndPhysInventory(PhysInvtRecordLine, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PhysInvtRecordLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a number
+        PhysInvtRecordLine.Validate(Quantity, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
+
+        // [THEN] Base quantity is rounded using the specified rounding precision
+        Assert.AreEqual(Round(PhysInvtRecordLine.Quantity * NonBaseQtyPerUOM, QtyRoundingPrecision), PhysInvtRecordLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnPhysInvtRecordLine()
+    var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [SCENARIO] Base quantity is rounded with the default rounding precision
+        Initialize();
+
+        // [GIVEN] Item with two unit of measures and Physical Inventory
+        NonBaseQtyPerUOM := LibraryRandom.RandInt(5);
+        CreateItemWithLotTrackingAndPhysInventory(PhysInvtRecordLine, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PhysInvtRecordLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a number
+        QtyToSet := LibraryRandom.RandDecInDecimalRange(5, 10, 6);
+        PhysInvtRecordLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity is rounded with the default rounding precision
+        Assert.AreEqual(Round(QtyToSet, 0.00001), PhysInvtRecordLine.Quantity, 'Qty. is not rounded correctly.');
+
+        // [THEN] Base quantity is rounded using the default rounding precision
+        Assert.AreEqual(Round(PhysInvtRecordLine.Quantity * NonBaseQtyPerUOM, 0.00001), PhysInvtRecordLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnPhysInvtRecordLine()
+    var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [SCENARIO] Base quantity is rounded with the specified rounding precision
+        Initialize();
+
+        // [GIVEN] Item with two unit of measures and Physical Inventory
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(5, 10), QtyRoundingPrecision);
+        CreateItemWithLotTrackingAndPhysInventory(PhysInvtRecordLine, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PhysInvtRecordLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a number that will round the base quantity to a number closer to max
+        PhysInvtRecordLine.Validate(Quantity, (NonBaseQtyPerUOM - 1) / NonBaseQtyPerUOM);
+
+        // [THEN] Base quantity is rounded using the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM - 1, QtyRoundingPrecision), PhysInvtRecordLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingPageHandler,ConfirmHandlerTRUE,MessageHandler')]
     procedure NegativeRecordingWithItemTrackingFromLocationWithBin()
     var
@@ -523,6 +664,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Phys. Invt. Item Tracking");
         DeleteObjectOptionsIfNeeded;
+        LibraryRandom.Init();
 
         if isInitialized then
             exit;
@@ -633,7 +775,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJournalLineWithBinAndSN(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; SerialNo: Code[20])
+    local procedure CreateAndPostItemJournalLineWithBinAndSN(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; SerialNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -944,7 +1086,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PstdPhysInvtRecordLine.TestField("Description 2", Item."Description 2");
     end;
 
-    local procedure VerifyBinContent(Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; SerialNo: Code[20]; Quantity: Integer)
+    local procedure VerifyBinContent(Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; SerialNo: Code[50]; Quantity: Integer)
     var
         BinContent: Record "Bin Content";
     begin
@@ -1090,6 +1232,41 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
+    end;
+
+    local procedure CreateItemWithLotTrackingAndPhysInventory(
+        var PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        var BaseUOM: Record "Unit of Measure";
+        var NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal
+    )
+    var
+        Location: Record Location;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+    begin
+        CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode(true, false));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+
+        if QtyRoundingPrecision <> 0 then begin
+            ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+            ItemUOM.Modify();
+        end;
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateLocation(Location, Item."No.", false);
+        CreatePhysInventoryOrderHeader(PhysInvtOrderHeader, Location.Code);
+        CalculatePhysInventoryLine(PhysInvtOrderHeader, Location.Code, Item."No.");
+        CreatePhysInventoryRecordingWithTracking(PhysInvtRecordLine, PhysInvtOrderHeader, PhysInvtOrderLine, Item."No.", 0);
     end;
 }
 

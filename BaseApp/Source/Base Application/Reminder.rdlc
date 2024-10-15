@@ -111,7 +111,6 @@
                                                   <TextRun>
                                                     <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
                                                     <Style>
-                                                      <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>

@@ -66,35 +66,35 @@ codeunit 1173 "Document Attachment Mgmt"
             DATABASE::Job:
                 begin
                     FieldRef := RecRef.Field(1);
-                    RecNo := FieldRef.Value;
+                    RecNo := FieldRef.Value();
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
-        case RecRef.Number of
+        case RecRef.Number() of
             DATABASE::"Sales Header",
             DATABASE::"Purchase Header",
             DATABASE::"Sales Line",
             DATABASE::"Purchase Line":
                 begin
                     FieldRef := RecRef.Field(1);
-                    DocType := FieldRef.Value;
+                    DocType := FieldRef.Value();
                     DocumentAttachment.SetRange("Document Type", DocType);
 
                     FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
+                    RecNo := FieldRef.Value();
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
-        case RecRef.Number of
+        case RecRef.Number() of
             DATABASE::"Sales Line",
             DATABASE::"Purchase Line":
                 begin
                     FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value;
+                    LineNo := FieldRef.Value();
                     DocumentAttachment.SetRange("Line No.", LineNo);
                 end;
         end;
-        case RecRef.Number of
+        case RecRef.Number() of
             DATABASE::"Sales Invoice Header",
             DATABASE::"Sales Invoice Line",
             DATABASE::"Sales Cr.Memo Header",
@@ -105,7 +105,7 @@ codeunit 1173 "Document Attachment Mgmt"
             DATABASE::"Purch. Cr. Memo Line":
                 begin
                     FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value;
+                    RecNo := FieldRef.Value();
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
@@ -221,19 +221,17 @@ codeunit 1173 "Document Attachment Mgmt"
         if QuoteSalesHeader."No." = '' then
             exit;
 
-        if QuoteSalesHeader.IsTemporary then
+        if QuoteSalesHeader.IsTemporary() then
             exit;
 
         if OrderSalesHeader."No." = '' then
             exit;
 
-        if OrderSalesHeader.IsTemporary then
+        if OrderSalesHeader.IsTemporary() then
             exit;
 
-        FromRecRef.Open(DATABASE::"Sales Header");
         FromRecRef.GetTable(QuoteSalesHeader);
 
-        ToRecRef.Open(DATABASE::"Sales Header");
         ToRecRef.GetTable(OrderSalesHeader);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -251,23 +249,21 @@ codeunit 1173 "Document Attachment Mgmt"
         if SalesOrderHeader."No." = '' then
             exit;
 
-        if SalesOrderHeader.IsTemporary then
+        if SalesOrderHeader.IsTemporary() then
             exit;
 
         if BlanketOrderSalesHeader."No." = '' then
             exit;
 
-        if BlanketOrderSalesHeader.IsTemporary then
+        if BlanketOrderSalesHeader.IsTemporary() then
             exit;
 
         RecRef.GetTable(SalesOrderHeader);
         DeleteAttachedDocuments(RecRef);
 
         // Copy docs for sales header from blanket order to sales order
-        FromRecRef.Open(DATABASE::"Sales Header");
         FromRecRef.GetTable(BlanketOrderSalesHeader);
 
-        ToRecRef.Open(DATABASE::"Sales Header");
         ToRecRef.GetTable(SalesOrderHeader);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -286,22 +282,20 @@ codeunit 1173 "Document Attachment Mgmt"
         if SalesOrderLine."No." = '' then
             exit;
 
-        if SalesOrderLine.IsTemporary then
+        if SalesOrderLine.IsTemporary() then
             exit;
 
         if BlanketOrderSalesLine."No." = '' then
             exit;
 
-        if BlanketOrderSalesLine.IsTemporary then
+        if BlanketOrderSalesLine.IsTemporary() then
             exit;
 
         RecRef.GetTable(SalesOrderLine);
         DeleteAttachedDocuments(RecRef);
 
-        FromRecRef.Open(DATABASE::"Sales Line");
         FromRecRef.GetTable(BlanketOrderSalesLine);
 
-        ToRecRef.Open(DATABASE::"Sales Line");
         ToRecRef.GetTable(SalesOrderLine);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -316,19 +310,17 @@ codeunit 1173 "Document Attachment Mgmt"
         if SalesHeader."No." = '' then
             exit;
 
-        if SalesHeader.IsTemporary then
+        if SalesHeader.IsTemporary() then
             exit;
 
         if SalesInvoiceHeader."No." = '' then
             exit;
 
-        if SalesInvoiceHeader.IsTemporary then
+        if SalesInvoiceHeader.IsTemporary() then
             exit;
 
-        FromRecRef.Open(DATABASE::"Sales Header");
         FromRecRef.GetTable(SalesHeader);
 
-        ToRecRef.Open(DATABASE::"Sales Header");
         ToRecRef.GetTable(SalesInvoiceHeader);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -345,11 +337,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if SalesInvoiceLine."No." = '' then
             exit;
 
-        if SalesInvoiceLine.IsTemporary then
+        if SalesInvoiceLine.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::"Sales Line");
-        ToRecRef.Open(DATABASE::"Sales Line");
 
         FromRecRef.GetTable(SalesQuoteLine);
         ToRecRef.GetTable(SalesInvoiceLine);
@@ -372,11 +361,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."No." = '' then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::Customer);
-        ToRecRef.Open(DATABASE::"Sales Header");
 
         if not Customer.Get(Rec."Sell-to Customer No.") then
             exit;
@@ -398,11 +384,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if SalesOrderLine."No." = '' then
             exit;
 
-        if SalesOrderLine.IsTemporary then
+        if SalesOrderLine.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::"Sales Line");
-        ToRecRef.Open(DATABASE::"Sales Line");
 
         FromRecRef.GetTable(SalesQuoteLine);
         ToRecRef.GetTable(SalesOrderLine);
@@ -418,7 +401,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."No." = '' then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         RecRef.GetTable(Rec);
@@ -445,16 +428,13 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."Line No." = 0 then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
-        // Skipping if the parant sales header came from a quote
+        // Skipping if the parent sales header came from a quote
         if SalesHeader.Get(Rec."Document Type", Rec."Document No.") then
             if SalesHeader."Quote No." <> '' then
                 exit;
-
-        FromRecRef.Open(DATABASE::Item);
-        ToRecRef.Open(DATABASE::"Sales Line");
 
         if not Item.Get(Rec."No.") then
             exit;
@@ -473,7 +453,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."Line No." = 0 then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         xRecRef.GetTable(xRec);
@@ -496,13 +476,13 @@ codeunit 1173 "Document Attachment Mgmt"
             exit;
 
         // Triggered when a posted sales cr. memo / posted sales invoice is created
-        if SalesHeader.IsTemporary then
+        if SalesHeader.IsTemporary() then
             exit;
 
-        if SalesInvoiceHeader.IsTemporary then
+        if SalesInvoiceHeader.IsTemporary() then
             exit;
 
-        if SalesCrMemoHeader.IsTemporary then
+        if SalesCrMemoHeader.IsTemporary() then
             exit;
 
         FromRecRef.GetTable(SalesHeader);
@@ -529,13 +509,13 @@ codeunit 1173 "Document Attachment Mgmt"
             exit;
 
         // Triggered when a posted purchase cr. memo / posted purchase invoice is created
-        if PurchaseHeader.IsTemporary then
+        if PurchaseHeader.IsTemporary() then
             exit;
 
-        if PurchInvHeader.IsTemporary then
+        if PurchInvHeader.IsTemporary() then
             exit;
 
-        if PurchCrMemoHdr.IsTemporary then
+        if PurchCrMemoHdr.IsTemporary() then
             exit;
 
         FromRecRef.GetTable(PurchaseHeader);
@@ -592,11 +572,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."No." = '' then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::Vendor);
-        ToRecRef.Open(DATABASE::"Purchase Header");
 
         if not Vendor.Get(Rec."Buy-from Vendor No.") then
             exit;
@@ -615,7 +592,7 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."No." = '' then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         RecRef.GetTable(Rec);
@@ -641,11 +618,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec."Line No." = 0 then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::Item);
-        ToRecRef.Open(DATABASE::"Purchase Line");
 
         if not Item.Get(Rec."No.") then
             exit;
@@ -659,22 +633,17 @@ codeunit 1173 "Document Attachment Mgmt"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'No.', false, false)]
     local procedure DocAttachFlowForPurchaseLineItemChg(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line"; CurrFieldNo: Integer)
     var
-        FromRecRef: RecordRef;
-        ToRecRef: RecordRef;
         xRecRef: RecordRef;
     begin
         if Rec."Line No." = 0 then
             exit;
 
-        if Rec.IsTemporary then
+        if Rec.IsTemporary() then
             exit;
 
         xRecRef.GetTable(xRec);
         if (Rec."No." <> xRec."No.") and (xRec."No." <> '') then
             DeleteAttachedDocuments(xRecRef);
-
-        FromRecRef.Open(DATABASE::Item);
-        ToRecRef.Open(DATABASE::"Sales Line");
 
         DocAttachFlowForPurchaseLineInsert(Rec, true);
     end;
@@ -690,19 +659,17 @@ codeunit 1173 "Document Attachment Mgmt"
         if QuotePurchHeader."No." = '' then
             exit;
 
-        if QuotePurchHeader.IsTemporary then
+        if QuotePurchHeader.IsTemporary() then
             exit;
 
         if OrderPurchHeader."No." = '' then
             exit;
 
-        if OrderPurchHeader.IsTemporary then
+        if OrderPurchHeader.IsTemporary() then
             exit;
 
-        FromRecRef.Open(DATABASE::"Purchase Header");
         FromRecRef.GetTable(QuotePurchHeader);
 
-        ToRecRef.Open(DATABASE::"Purchase Header");
         ToRecRef.GetTable(OrderPurchHeader);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -719,11 +686,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if PurchaseOrderLine."No." = '' then
             exit;
 
-        if PurchaseOrderLine.IsTemporary then
+        if PurchaseOrderLine.IsTemporary() then
             exit;
-
-        FromRecRef.Open(DATABASE::"Sales Line");
-        ToRecRef.Open(DATABASE::"Sales Line");
 
         FromRecRef.GetTable(PurchaseQuoteLine);
         ToRecRef.GetTable(PurchaseOrderLine);
@@ -743,23 +707,21 @@ codeunit 1173 "Document Attachment Mgmt"
         if PurchOrderHeader."No." = '' then
             exit;
 
-        if PurchOrderHeader.IsTemporary then
+        if PurchOrderHeader.IsTemporary() then
             exit;
 
         if BlanketOrderPurchHeader."No." = '' then
             exit;
 
-        if BlanketOrderPurchHeader.IsTemporary then
+        if BlanketOrderPurchHeader.IsTemporary() then
             exit;
 
         RecRef.GetTable(PurchOrderHeader);
         DeleteAttachedDocuments(RecRef);
 
         // Copy docs for sales header from blanket order to sales order
-        FromRecRef.Open(DATABASE::"Purchase Header");
         FromRecRef.GetTable(BlanketOrderPurchHeader);
 
-        ToRecRef.Open(DATABASE::"Purchase Header");
         ToRecRef.GetTable(PurchOrderHeader);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -778,22 +740,20 @@ codeunit 1173 "Document Attachment Mgmt"
         if PurchOrderLine."No." = '' then
             exit;
 
-        if PurchOrderLine.IsTemporary then
+        if PurchOrderLine.IsTemporary() then
             exit;
 
         if BlanketOrderPurchLine."No." = '' then
             exit;
 
-        if BlanketOrderPurchLine.IsTemporary then
+        if BlanketOrderPurchLine.IsTemporary() then
             exit;
 
         RecRef.GetTable(PurchOrderLine);
         DeleteAttachedDocuments(RecRef);
 
-        FromRecRef.Open(DATABASE::"Purchase Line");
         FromRecRef.GetTable(BlanketOrderPurchLine);
 
-        ToRecRef.Open(DATABASE::"Purchase Line");
         ToRecRef.GetTable(PurchOrderLine);
 
         CopyAttachments(FromRecRef, ToRecRef);
@@ -968,56 +928,56 @@ codeunit 1173 "Document Attachment Mgmt"
         FromDocumentAttachment.SetRange("Table ID", FromRecRef.Number);
         if FromDocumentAttachment.IsEmpty() then
             exit;
-        case FromRecRef.Number of
+        case FromRecRef.Number() of
             DATABASE::Customer,
             DATABASE::Vendor,
             DATABASE::Item:
                 begin
                     FromFieldRef := FromRecRef.Field(1);
-                    FromNo := FromFieldRef.Value;
+                    FromNo := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("No.", FromNo);
                 end;
             DATABASE::"Sales Header",
             DATABASE::"Purchase Header":
                 begin
                     FromFieldRef := FromRecRef.Field(1);
-                    FromDocumentType := FromFieldRef.Value;
+                    FromDocumentType := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("Document Type", FromDocumentType);
                     FromFieldRef := FromRecRef.Field(3);
-                    FromNo := FromFieldRef.Value;
+                    FromNo := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("No.", FromNo);
                 end;
             DATABASE::"Sales Line",
             DATABASE::"Purchase Line":
                 begin
                     FromFieldRef := FromRecRef.Field(1);
-                    FromDocumentType := FromFieldRef.Value;
+                    FromDocumentType := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("Document Type", FromDocumentType);
                     FromFieldRef := FromRecRef.Field(3);
-                    FromNo := FromFieldRef.Value;
+                    FromNo := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("No.", FromNo);
                     FromFieldRef := FromRecRef.Field(4);
-                    FromLineNo := FromFieldRef.Value;
+                    FromLineNo := FromFieldRef.Value();
                     FromDocumentAttachment.SetRange("Line No.", FromLineNo);
                 end
         end;
 
-        case ToRecRef.Number of
+        case ToRecRef.Number() of
             DATABASE::"Sales Line":
-                if FromRecRef.Number <> DATABASE::"Sales Line" then
+                if FromRecRef.Number() <> DATABASE::"Sales Line" then
                     FromDocumentAttachment.SetRange("Document Flow Sales", true);
             DATABASE::"Sales Header":
-                if FromRecRef.Number <> DATABASE::"Sales Header" then
+                if FromRecRef.Number() <> DATABASE::"Sales Header" then
                     FromDocumentAttachment.SetRange("Document Flow Sales", true);
             DATABASE::"Purchase Line":
-                if FromRecRef.Number <> DATABASE::"Purchase Line" then
+                if FromRecRef.Number() <> DATABASE::"Purchase Line" then
                     FromDocumentAttachment.SetRange("Document Flow Purchase", true);
             DATABASE::"Purchase Header":
-                if FromRecRef.Number <> DATABASE::"Purchase Header" then
+                if FromRecRef.Number() <> DATABASE::"Purchase Header" then
                     FromDocumentAttachment.SetRange("Document Flow Purchase", true);
         end;
 
-        if FromDocumentAttachment.FindSet then begin
+        if FromDocumentAttachment.FindSet() then begin
             repeat
                 Clear(ToDocumentAttachment);
                 ToDocumentAttachment.Init();
@@ -1025,26 +985,26 @@ codeunit 1173 "Document Attachment Mgmt"
                 ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
 
                 ToFieldRef := ToRecRef.Field(3);
-                ToNo := ToFieldRef.Value;
+                ToNo := ToFieldRef.Value();
                 ToDocumentAttachment.Validate("No.", ToNo);
 
-                case ToRecRef.Number of
+                case ToRecRef.Number() of
                     DATABASE::"Sales Header",
                     DATABASE::"Purchase Header":
                         begin
                             ToFieldRef := ToRecRef.Field(1);
-                            ToDocumentType := ToFieldRef.Value;
+                            ToDocumentType := ToFieldRef.Value();
                             ToDocumentAttachment.Validate("Document Type", ToDocumentType);
                         end;
                     DATABASE::"Sales Line",
                     DATABASE::"Purchase Line":
                         begin
                             ToFieldRef := ToRecRef.Field(1);
-                            ToDocumentType := ToFieldRef.Value;
+                            ToDocumentType := ToFieldRef.Value();
                             ToDocumentAttachment.Validate("Document Type", ToDocumentType);
 
                             ToFieldRef := ToRecRef.Field(4);
-                            ToLineNo := ToFieldRef.Value;
+                            ToLineNo := ToFieldRef.Value();
                             ToDocumentAttachment.Validate("Line No.", ToLineNo);
                         end;
                 end;
@@ -1076,15 +1036,15 @@ codeunit 1173 "Document Attachment Mgmt"
         FromDocumentAttachment.SetRange("Table ID", FromRecRef.Number);
 
         FromFieldRef := FromRecRef.Field(1);
-        FromDocumentType := FromFieldRef.Value;
+        FromDocumentType := FromFieldRef.Value();
         FromDocumentAttachment.SetRange("Document Type", FromDocumentType);
 
         FromFieldRef := FromRecRef.Field(3);
-        FromNo := FromFieldRef.Value;
+        FromNo := FromFieldRef.Value();
         FromDocumentAttachment.SetRange("No.", FromNo);
 
         // Find any attached docs for headers (sales / purch)
-        if FromDocumentAttachment.FindSet then begin
+        if FromDocumentAttachment.FindSet() then begin
             repeat
                 Clear(ToDocumentAttachment);
                 ToDocumentAttachment.Init();
@@ -1092,7 +1052,7 @@ codeunit 1173 "Document Attachment Mgmt"
                 ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
 
                 ToFieldRef := ToRecRef.Field(3);
-                ToNo := ToFieldRef.Value;
+                ToNo := ToFieldRef.Value();
                 ToDocumentAttachment.Validate("No.", ToNo);
                 Clear(ToDocumentAttachment."Document Type");
                 ToDocumentAttachment.Insert(true);
@@ -1113,17 +1073,17 @@ codeunit 1173 "Document Attachment Mgmt"
         ToNo: Code[20];
     begin
         FromFieldRef := FromRecRef.Field(3);
-        FromNo := FromFieldRef.Value;
+        FromNo := FromFieldRef.Value();
         FromDocumentAttachmentLines.Reset();
 
         FromFieldRef := FromRecRef.Field(1);
-        FromDocumentType := FromFieldRef.Value;
+        FromDocumentType := FromFieldRef.Value();
         FromDocumentAttachmentLines.SetRange("Document Type", FromDocumentType);
 
         ToFieldRef := ToRecRef.Field(3);
-        ToNo := ToFieldRef.Value;
+        ToNo := ToFieldRef.Value();
 
-        case FromRecRef.Number of
+        case FromRecRef.Number() of
             DATABASE::"Sales Header":
                 FromDocumentAttachmentLines.SetRange("Table ID", DATABASE::"Sales Line");
             DATABASE::"Purchase Header":
@@ -1132,7 +1092,7 @@ codeunit 1173 "Document Attachment Mgmt"
         FromDocumentAttachmentLines.SetRange("No.", FromNo);
         FromDocumentAttachmentLines.SetRange("Document Type", FromDocumentType);
 
-        if FromDocumentAttachmentLines.FindSet then
+        if FromDocumentAttachmentLines.FindSet() then
             repeat
                 ToDocumentAttachmentLines.TransferFields(FromDocumentAttachmentLines);
                 case ToRecRef.Number of
@@ -1163,9 +1123,9 @@ codeunit 1173 "Document Attachment Mgmt"
         MoveToRecNo: Code[20];
     begin
         // Moves attachments from one record to another for same type
-        if MoveFromRecRef.Number <> MoveToRecRef.Number then
+        if MoveFromRecRef.Number() <> MoveToRecRef.Number() then
             exit;
-        if MoveFromRecRef.IsTemporary or MoveToRecRef.IsTemporary then
+        if MoveFromRecRef.IsTemporary() or MoveToRecRef.IsTemporary() then
             exit;
 
         DocumentAttachmentFound.SetRange("Table ID", MoveFromRecRef.Number);
@@ -1192,7 +1152,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
         // Create a copy of all found attachments with new number [MoveToRecNo]
         // Need to do this because MODIFY does not support renaming keys for a record.
-        if DocumentAttachmentFound.FindSet then begin
+        if DocumentAttachmentFound.FindSet() then begin
             repeat
                 Clear(DocumentAttachmentToCreate);
                 DocumentAttachmentToCreate.Init();

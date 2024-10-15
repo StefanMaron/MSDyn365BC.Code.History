@@ -523,7 +523,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RoutingLine: Record "Routing Line";
         RoutingLine2: Record "Routing Line";
         ProductionOrder: Record "Production Order";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Setup: Create Item with Routing.
         Initialize;
@@ -561,7 +561,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         ProductionOrder: Record "Production Order";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotNo2: Code[20];
     begin
         // Create Lot Item with Production BOM. Create and refresh Released Production Order. Add Lot Item Tracking to Output Journal Line after Explode Routing.
@@ -2100,7 +2100,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         OutputItemJournalBatch.Modify(true);
     end;
 
-    local procedure AddLotItemTrackingToOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order") LotNo: Code[20]
+    local procedure AddLotItemTrackingToOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order") LotNo: Code[50]
     begin
         LotNo := LibraryUtility.GenerateGUID;
         LibraryVariableStorage.Enqueue(LotNo);  // Enqueue for ItemTrackingLinesPageHandler.
@@ -2736,7 +2736,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
             LibraryVariableStorage.Dequeue(Variant);
     end;
 
-    local procedure FilterReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure FilterReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; LotNo: Code[50])
     begin
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
         ReservationEntry.SetRange("Item No.", ItemNo);
@@ -2817,7 +2817,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 
-    local procedure PostProductionJournalFromRPOWithLot(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]) LotNo: Code[20]
+    local procedure PostProductionJournalFromRPOWithLot(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]) LotNo: Code[50]
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -2921,7 +2921,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderRoutingLine.Modify(true);
     end;
 
-    local procedure VerifyEmptyReservationEntry(ItemNo: Code[20]; LotNo: Code[20])
+    local procedure VerifyEmptyReservationEntry(ItemNo: Code[20]; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -2929,7 +2929,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Assert.IsTrue(ReservationEntry.IsEmpty, ReservationEntryMustBeEmpty);
     end;
 
-    local procedure VerifyItemLedgerEntry(ProductionOrder: Record "Production Order"; LotNo: Code[20])
+    local procedure VerifyItemLedgerEntry(ProductionOrder: Record "Production Order"; LotNo: Code[50])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3006,7 +3006,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField("Ending Date-Time", EndingDateTime);
     end;
 
-    local procedure VerifyReservationEntry(ProductionOrder: Record "Production Order"; LotNo: Code[20])
+    local procedure VerifyReservationEntry(ProductionOrder: Record "Production Order"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
