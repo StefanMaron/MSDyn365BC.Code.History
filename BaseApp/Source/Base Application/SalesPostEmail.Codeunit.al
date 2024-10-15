@@ -10,14 +10,11 @@ codeunit 89 "Sales-Post + Email"
     end;
 
     var
-        PostAndSendInvoiceQst: Label 'Do you want to post and send the %1?';
         SalesHeader: Record "Sales Header";
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        FileManagement: Codeunit "File Management";
         HideMailDialog: Boolean;
         PostAndSaveInvoiceQst: Label 'Do you want to post and save the %1?';
-        NotSupportedDocumentTypeSendingErr: Label 'The %1 is not posted because sending document of type %1 is not supported.';
         NotSupportedDocumentTypeSavingErr: Label 'The %1 is not posted because saving document of type %1 is not supported.';
 
     local procedure "Code"()
@@ -55,8 +52,6 @@ codeunit 89 "Sales-Post + Email"
 
     local procedure SendDocumentReport(var SalesHeader: Record "Sales Header")
     var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
-        ShowDialog: Boolean;
     begin
         with SalesHeader do
             case "Document Type" of
@@ -68,8 +63,7 @@ codeunit 89 "Sales-Post + Email"
                             SalesInvHeader."No." := "Last Posting No.";
                         SalesInvHeader.Find;
                         SalesInvHeader.SetRecFilter;
-                        ShowDialog := (not EnvInfoProxy.IsInvoicing) and not HideMailDialog;
-                        SalesInvHeader.EmailRecords(ShowDialog);
+                        SalesInvHeader.EmailRecords(not HideMailDialog);
                     end;
                 "Document Type"::"Credit Memo":
                     begin
@@ -92,33 +86,17 @@ codeunit 89 "Sales-Post + Email"
     local procedure ConfirmPostAndDistribute(var SalesHeader: Record "Sales Header"): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
-        PostAndDistributeQuestion: Text;
-        ConfirmOK: Boolean;
     begin
-        if EnvInfoProxy.IsInvoicing then
-            exit(true);
-
-        if not FileManagement.IsLocalFileSystemAccessible then
-            PostAndDistributeQuestion := PostAndSaveInvoiceQst
-        else
-            PostAndDistributeQuestion := PostAndSendInvoiceQst;
-
-        ConfirmOK :=
+        exit(
           ConfirmManagement.GetResponseOrDefault(
-            StrSubstNo(PostAndDistributeQuestion, SalesHeader."Document Type"), true);
-
-        exit(ConfirmOK);
+            StrSubstNo(PostAndSaveInvoiceQst, SalesHeader."Document Type"), true));
     end;
 
     local procedure ErrorPostAndDistribute(var SalesHeader: Record "Sales Header")
     var
         NotSupportedDocumentType: Text;
     begin
-        if not FileManagement.IsLocalFileSystemAccessible then
-            NotSupportedDocumentType := NotSupportedDocumentTypeSavingErr
-        else
-            NotSupportedDocumentType := NotSupportedDocumentTypeSendingErr;
+        NotSupportedDocumentType := NotSupportedDocumentTypeSavingErr;
 
         Error(NotSupportedDocumentType, SalesHeader."Document Type");
     end;

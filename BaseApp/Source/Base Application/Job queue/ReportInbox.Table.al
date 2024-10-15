@@ -48,7 +48,7 @@ table 477 "Report Inbox"
         }
         field(9; "Report Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Name';
             Editable = false;
@@ -85,7 +85,13 @@ table 477 "Report Inbox"
         Instr: InStream;
         Downloaded: Boolean;
         FileName: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReport(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Entry No." = 0 then
             Error(NoReportsToShowErr);
 
@@ -123,6 +129,11 @@ table 477 "Report Inbox"
             "Output Type"::Zip:
                 exit('.zip');
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReport(var ReportInbox: Record "Report Inbox"; var IsHandled: Boolean)
+    begin
     end;
 }
 

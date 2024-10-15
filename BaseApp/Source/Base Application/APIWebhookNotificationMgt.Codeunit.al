@@ -35,6 +35,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         ReadyJobExistsMsg: Label 'Ready job exists. Earliest start time: %1.', Locked = true;
         CreateJobCategoryMsg: Label 'Create new job category.', Locked = true;
         CreateJobMsg: Label 'Create new job. Earliest start time: %1.', Locked = true;
+        DeleteHangingJobMsg: Label 'Delete hanging job. Earliest start time: %1.', Locked = true;
         UseCachedApiSubscriptionEnabled: Boolean;
         UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
@@ -568,14 +569,34 @@ codeunit 6153 "API Webhook Notification Mgt."
             end;
         end;
 
-        JobQueueEntry.SetRange(Status);
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::"In Process", JobQueueEntry.Status::Ready);
         JobQueueEntry.SetRange("Earliest Start Date/Time");
-        if JobQueueEntry.Count() >= GetMaxNumberOfJobs then begin
-            Session.LogMessage('000070P', StrSubstNo(TooManyJobsMsg, GetMaxNumberOfJobs), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
-            exit;
-        end;
+        if JobQueueEntry.Count() >= GetMaxNumberOfJobs() then
+            if not DeleteHangingJob() then begin
+                Session.LogMessage('000070P', StrSubstNo(TooManyJobsMsg, GetMaxNumberOfJobs()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+                exit;
+            end;
 
         CreateJob(LatestStartDateTime);
+    end;
+
+    local procedure DeleteHangingJob(): Boolean
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        Deleted: Boolean;
+    begin
+        // delete the hanging job as it blocks staring other jobs of the same category
+        JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryCodeLbl);
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+        if JobQueueEntry.FindFirst() then begin
+            JobQueueEntry.CalcFields(Scheduled);
+            if not JobQueueEntry.Scheduled then begin
+                Session.LogMessage('0000EF4', StrSubstNo(DeleteHangingJobMsg, DateTimeToString(JobQueueEntry."Earliest Start Date/Time")), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+                JobQueueEntry.Delete();
+                Deleted := true;
+            end;
+        end;
+        exit(Deleted);
     end;
 
     local procedure CreateJob(EarliestStartDateTime: DateTime)

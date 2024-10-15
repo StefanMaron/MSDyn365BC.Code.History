@@ -1,5 +1,6 @@
 codeunit 5771 "Whse.-Sales Release"
 {
+    Permissions = TableData "Warehouse Request" = rimd;
 
     trigger OnRun()
     begin

@@ -37,10 +37,7 @@ report 99001025 "Refresh Production Order"
                 Window.Update(2, "No.");
 
                 RoutingNo := GetRoutingNo("Production Order");
-                if RoutingNo <> "Routing No." then begin
-                    "Routing No." := RoutingNo;
-                    Modify;
-                end;
+                UpdateRoutingNo("Production Order", RoutingNo);
 
                 ProdOrderLine.LockTable();
                 OnBeforeCalcProdOrder("Production Order", Direction);
@@ -265,6 +262,7 @@ report 99001025 "Refresh Production Order"
                     ProdOrderComp2.SetAutoCalcFields("Reserved Qty. (Base)");
                     if ProdOrderComp2.Find('-') then begin
                         repeat
+                            OnCheckReservationExistOnBeforeCheckProdOrderComp2ReservedQtyBase(ProdOrderComp2);
                             if ProdOrderComp2."Reserved Qty. (Base)" <> 0 then
                                 if ShouldCheckReservedQty(
                                      ProdOrderComp2."Prod. Order No.", ProdOrderComp2."Line No.",
@@ -295,6 +293,22 @@ report 99001025 "Refresh Production Order"
         end;
 
         exit(false);
+    end;
+
+    local procedure UpdateRoutingNo(var ProductionOrder: Record "Production Order"; RoutingNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateRoutingNo("Production Order", RoutingNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ProductionOrder do
+            if RoutingNo <> "Routing No." then begin
+                "Routing No." := RoutingNo;
+                Modify;
+            end;
     end;
 
     local procedure CheckProductionBOMStatus(ProdBOMNo: Code[20]; ProdBOMVersionNo: Code[20])
@@ -395,6 +409,16 @@ report 99001025 "Refresh Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRoutingsOrComponents(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var CalcComponents: Boolean; var CalcRoutings: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRoutingNo(var ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReservationExistOnBeforeCheckProdOrderComp2ReservedQtyBase(var ProdOrderComp2: Record "Prod. Order Component")
     begin
     end;
 }
