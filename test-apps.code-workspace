@@ -15,6 +15,9 @@
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
+      "path": "./EnforcedDigitalVouchersDK/Test/Enforced Digital Vouchers Tests (DK)"
+    },
+    {
       "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
     },
     {
@@ -36,6 +39,9 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./NemhandelNotification/Test/Nemhandel Notification Tests"
+    },
+    {
       "path": "./servicedeclaration/test/Service Declaration Tests"
     },
     {
@@ -52,6 +58,9 @@
     },
     {
       "path": "./VATReportsDK/Test/Tax File Formats (DK) Tests"
+    },
+    {
+      "path": "./ElectronicVATDeclarationDK/Test/Electronic VAT Declaration for Denmark Tests"
     },
     {
       "path": "./testframework/TestLibraries"
@@ -214,6 +223,12 @@
     },
     {
       "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
+    },
+    {
+      "path": "./EnforcedDigitalVouchers/Test Library/Enforced Digital Vouchers Test Library"
+    },
+    {
+      "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
