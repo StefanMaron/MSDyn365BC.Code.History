@@ -75,6 +75,7 @@
         PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
         PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -612,5 +613,10 @@
     procedure GetJobPlanningLinePlanningDueDateUpgradeTag(): Code[250]
     begin
         exit('MS-402915-JobPlanningLinePlanningDueDate-20210809');
+    end;
+
+    procedure GetAzureADSetupFixTag(): Code[250];
+    begin
+        exit('MS-408786-FixAzureAdSetup-20210826');
     end;
 }

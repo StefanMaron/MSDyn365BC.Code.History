@@ -112,7 +112,7 @@ page 7335 "Warehouse Shipment"
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
-                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
+                    ToolTip = 'Specifies the shipment date of the warehouse shipment. If you enter a date, the source document will be updated during posting. If this field is blank, the original shipment date of the source document is used.';
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {

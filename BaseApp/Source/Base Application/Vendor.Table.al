@@ -1381,7 +1381,7 @@
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
-            Caption = 'Validate EU Vat Reg. No.';
+            Caption = 'Validate EU VAT Reg. No.';
         }
         field(8000; Id; Guid)
         {

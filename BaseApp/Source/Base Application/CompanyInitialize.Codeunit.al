@@ -26,7 +26,8 @@ codeunit 2 "Company-Initialize"
                   tabledata "Trial Balance Setup" = i,
                   TableData "Config. Setup" = i,
                   TableData "Tax Register Setup" = i,
-                  TableData "Statutory Report Setup" = i;
+                  TableData "Statutory Report Setup" = i,
+                  TableData "User Group Member" = d;
 
     trigger OnRun()
     var
