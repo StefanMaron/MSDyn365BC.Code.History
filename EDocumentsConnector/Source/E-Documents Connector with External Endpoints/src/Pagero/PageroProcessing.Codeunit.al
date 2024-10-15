@@ -560,18 +560,6 @@ codeunit 6369 "Pagero Processing"
             EDocumentServices.GetRecord(EDocumentService);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Doc. Integration Management", 'OnBeforeIsEDocumentInStateToSend', '', false, false)]
-    local procedure OnBeforeIsEDocumentInStateToSend(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; var IsInStateToSend: Boolean; var IsHandled: Boolean)
-    var
-        EDocumentServiceStatus: Record "E-Document Service Status";
-    begin
-        EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code);
-        if not (EDocumentServiceStatus.Status in [EDocumentServiceStatus.Status::Exported, EDocumentServiceStatus.Status::"Sending Error"]) then begin
-            IsInStateToSend := false;
-            IsHandled := true;
-        end;
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Document Get Response", 'OnGetEdocumentResponseReturnsFalse', '', false, false)]
     local procedure OnGetEdocumentResponseReturnsFalse(EDocuments: Record "E-Document"; EDocumentService: Record "E-Document Service"; HttpRequest: HttpRequestMessage; HttpResponse: HttpResponseMessage; var IsHandled: Boolean)
     var

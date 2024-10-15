@@ -55,12 +55,11 @@
         PaymentMethodMissingErr: Label 'Payment Method Code must have a value in %1: Document Type=%2';
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         PACDetailDoesNotExistErr: Label 'Record %1 does not exist for %2, %3, %4.';
-        WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.';
         NoElectronicStampErr: Label 'There is no electronic stamp';
         NoElectronicDocumentSentErr: Label 'There is no electronic Document sent yet';
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
-        CancelOption: Option ,CancelRequest,GetResponse,MarkAsCanceled;
+        CancelOption: Option ,CancelRequest,GetResponse,MarkAsCanceled,ResetCancelRequest;
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
@@ -748,10 +747,10 @@
         LibraryVariableStorage.Enqueue(true);
         SalesInvoiceHeader.CancelEDocument();
 
-        // [THEN] 'Electronic Document Status' set to "Cancel Error", 'Error Description' = '', 'Marked as Canceled' = 'Yes'
+        // [THEN] 'Electronic Document Status' set to "Cancel Error", 'Date/Time Canceled' is assigned, 'Marked as Canceled' = 'Yes'
         SalesInvoiceHeader.Find();
         SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::Canceled);
-        SalesInvoiceHeader.TestField("Error Description", '');
+        SalesInvoiceHeader.TestField("Date/Time Canceled");
         SalesInvoiceHeader.TestField("Marked as Canceled", true);
     end;
 
@@ -875,10 +874,42 @@
         // [THEN] 'Electronic Document Status' set to "Canceled" for second invoice using request
         SalesInvoiceHeader1.Find();
         SalesInvoiceHeader1.TestField("Electronic Document Status", SalesInvoiceHeader1."Electronic Document Status"::Canceled);
-        SalesInvoiceHeader1.TestField("Error Description", '');
+        SalesInvoiceHeader1.TestField("Date/Time Canceled");
         SalesInvoiceHeader2.Find();
         SalesInvoiceHeader2.TestField("Electronic Document Status", SalesInvoiceHeader2."Electronic Document Status"::Canceled);
-        SalesInvoiceHeader2.TestField("Error Description", '');
+        SalesInvoiceHeader2.TestField("Date/Time Canceled");
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRequestMenuHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ResetCancellationRequest()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 496166] Rest cancellation request
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Cancel In Progress status
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader);
+
+        // [WHEN] Run Cancel document with Reset Cancellation Request option
+        LibraryVariableStorage.Enqueue(CancelOption::ResetCancelRequest);
+        LibraryVariableStorage.Enqueue(true);
+        SalesInvoiceHeader.CancelEDocument();
+
+        // [THEN] 'Electronic Document Status' set to "Cancel Error"
+        // [THEN] 'CFDI Cancellation ID', 'CFDI Cancellation Reason Code', 'Error Description' fields keep their values
+        // [THEN] 'Date/Time Canceled', 'Date/Time Cancel Sent' fields are blank
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::"Cancel Error");
+        SalesInvoiceHeader.TestField("CFDI Cancellation ID");
+        SalesInvoiceHeader.TestField("CFDI Cancellation Reason Code");
+        SalesInvoiceHeader.TestField("Error Description");
+        SalesInvoiceHeader.TestField("Date/Time Canceled", '');
+        SalesInvoiceHeader.TestField("Date/Time Cancel Sent", 0DT);
     end;
 
     [Test]
@@ -4382,18 +4413,15 @@
           RequestStamp(
             DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
 
-        // [THEN] Error Messages page is opened with logged error for not allowed type in Sales Line
         // [THEN] Item and Unit Of Measure are added with errors of blank fields
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, Item.FieldCaption("SAT Item Classification"), Item.RecordId));
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, UnitOfMeasure.FieldCaption("SAT UofM Classification"), UnitOfMeasure.RecordId));
-        ErrorMessages.Next();
-        ErrorMessages.Description.AssertEquals(
-          StrSubstNo(
-            WrongFieldValueErr,
-            SalesInvoiceLineGL.Type, SalesInvoiceLineGL.FieldCaption(Type), SalesInvoiceLineGL.TableCaption()));
+        // [THEN] No error for Sales Line types
+        ErrorMessages.FILTER.SetFilter("Table Number", Format(DATABASE::"Sales Invoice Line"));
+        ErrorMessages.Description.AssertEquals('');
     end;
 
     [Test]
@@ -5123,7 +5151,7 @@
 
         // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
         // [THEN] String for digital stamp has 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
-        VerifyCFDIFixedAssetFields(OriginalStr, FANo);
+        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), 4);
     end;
 
     [Test]
@@ -5161,7 +5189,51 @@
 
         // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
         // [THEN] String for digital stamp has 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
-        VerifyCFDIFixedAssetFields(OriginalStr, FANo);
+        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), 4);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithGLAccountLineRequestStamp()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 491617] Request Stamp for Sales Invoice with G/L Account line
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with G/L Account line "GLAcc"
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount."SAT Classification Code" := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("SAT Classification Code"), DATABASE::"G/L Account");
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML");
+
+        // [THEN] The stamp is received
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::"Stamp Received");
+        InitXMLReaderForSalesDocumentCFDI(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+
+        // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = SAT Classification Code of the G/L Account, 'NoIdentificacion' = "GLAcc", 'ClaveUnidad' = 'E48'
+        // [THEN] String for digital stamp has 'ClaveProdServ' = SAT Classification Code of theG/L Account, 'NoIdentificacion' = "GLAcc", 'ClaveUnidad' = 'E48'
+        VerifyCFDIConceptoFields(OriginalStr, GLAccount."No.", SATUtilities.GetSATUnitOfMeasureGLAccount, 1);
     end;
 
     [Test]
@@ -8318,11 +8390,14 @@
 
     local procedure UpdateSalesInvoiceCancellation(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Cancel In Progress";
-        SalesInvoiceHeader."CFDI Cancellation ID" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."CFDI Cancellation ID" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader."Error Description" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader."Date/Time Cancel Sent" := CurrentDateTime;
+        SalesInvoiceHeader."Date/Time Canceled" := FormatDateTime(WorkDate(), Time);
+        SalesInvoiceHeader.Modify();
     end;
 
     local procedure UpdateSalesShipmentForCartaPorte(var SalesShipmentHeader: Record "Sales Shipment Header")
@@ -8484,22 +8559,22 @@
           OriginalStrCSV, RFCNo, CFDIPurpose, CFDIRelation, PaymentMethodCode, PaymentTermsCode, UnitOfMeasureCode, RelationIdx);
     end;
 
-    local procedure VerifyCFDIFixedAssetFields(OriginalStr: Text; FANo: Code[20])
+    local procedure VerifyCFDIConceptoFields(OriginalStr: Text; NoIdentificacion: Code[20]; SATUnitOfMeasure: Code[10]; LineType: Option)
     begin
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', SATUtilities.GetSATItemClassification(4, FANo));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'NoIdentificacion', FANo);
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveUnidad', SATUtilities.GetSATUnitOfMeasureFixedAsset());
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', SATUtilities.GetSATItemClassification(LineType, NoIdentificacion));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'NoIdentificacion', NoIdentificacion);
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveUnidad', SATUnitOfMeasure);
 
         Assert.AreEqual(
-          SATUtilities.GetSATItemClassification(4, FANo), SelectStr(22, OriginalStr),
+          SATUtilities.GetSATItemClassification(LineType, NoIdentificacion), SelectStr(22, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Item Classification', OriginalStr));
         Assert.AreEqual(
-          FANo, SelectStr(23, OriginalStr),
+          NoIdentificacion, SelectStr(23, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'NoIdentificacion', OriginalStr));
         Assert.AreEqual(
-          SATUtilities.GetSATUnitOfMeasureFixedAsset(), SelectStr(25, OriginalStr),
+          SATUnitOfMeasure, SelectStr(25, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Unit of Measure', OriginalStr));
     end;
 
@@ -9121,6 +9196,8 @@
                 Choice := 2;
             CancelOption::MarkAsCanceled:
                 Choice := 3;
+            CancelOption::ResetCancelRequest:
+                Choice := 4;
             else
                 Error(OptionNotSupportedErr);
         end;

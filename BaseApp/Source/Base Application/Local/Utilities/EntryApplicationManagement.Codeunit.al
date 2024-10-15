@@ -144,7 +144,7 @@ codeunit 10202 "Entry Application Management"
 
         VendLedgEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
         VendLedgEntry.SetLoadFields("Document Type", "Vendor No.", "Posting Date", "Closed by Entry No.");
-        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
+        VendLedgEntry.SetFilter("Document Type", '%1|%2', VendLedgEntry."Document Type"::Payment, VendLedgEntry."Document Type"::Refund);
         if VendorNo <> '' then
             VendLedgEntry.SetRange("Vendor No.", VendorNo);
         VendLedgEntry.SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);

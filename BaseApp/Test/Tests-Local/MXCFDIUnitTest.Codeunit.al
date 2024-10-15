@@ -22,7 +22,7 @@
         IsInitialized: Boolean;
         PACCodeDeleteError: Label 'You cannot delete the code %1 because it is used in the %2 window.';
         PACWebServiceDetailError: Label 'PAC Web Service Details count is incorrect.';
-        EDocAction: Option "Request Stamp",Send,Cancel,"Cancel Request","Mark as Canceled";
+        EDocAction: Option "Request Stamp",Send,Cancel,"Cancel Request","Mark as Canceled","Reset Cancellation Request";
         EDocStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
         EDocStatusError: Label 'You cannot choose the action %1 when the document status is %2.';
         ExpectedError: Label 'Error message was different than expected.';
@@ -294,6 +294,10 @@
 
         EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::"Cancel In Progress");
         EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::"Cancel Error");
+
+        // Reset Cancellation Request
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Reset Cancellation Request", DocStatus::Canceled); // TFS 496166
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Reset Cancellation Request", DocStatus::Canceled));
     end;
 
     [Test]
@@ -2244,6 +2248,37 @@
         Assert.IsTrue(ItemCharges."SAT Classification Code".Enabled, '');
         Assert.IsTrue(ItemCharges."SAT Classification Code".Editable, '');
         ItemCharges.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccountGetSATClassification()
+    var
+        GLAccount: Record "G/L Account";
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        // [SCENARIO 491617] SATUtilities.GetSATItemClassification returns a value for G/L Account
+        GLAccount.Init();
+        GLAccount."No." := LibraryUtility.GenerateGUID();
+        GLAccount."SAT Classification Code" := LibraryUtility.GenerateGUID();
+        GLAccount.Insert();
+        Assert.AreEqual(
+          GLAccount."SAT Classification Code", SATUtilities.GetSATItemClassification(1, GLAccount."No."), ExpectedError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccountCardSATClassification()
+    var
+        GLAccountCard: TestPage "G/L Account Card";
+    begin
+        // [SCENARIO 491617] SAT Classification Code is enabled on G/L Account Card
+        UpdateGLSetupPACEnvironment(true);
+
+        GLAccountCard.OpenEdit();
+        Assert.IsTrue(GLAccountCard."SAT Classification Code".Enabled, '');
+        Assert.IsTrue(GLAccountCard."SAT Classification Code".Editable, '');
+        GLAccountCard.Close();
     end;
 
     [Test]

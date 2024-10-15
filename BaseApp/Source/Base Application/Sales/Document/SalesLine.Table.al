@@ -377,7 +377,10 @@ table 37 "Sales Line"
                 if xRec."Location Code" <> "Location Code" then begin
                     if not FullQtyIsForAsmToOrder() then begin
                         CalcFields("Reserved Qty. (Base)");
-                        TestField("Reserved Qty. (Base)", "Qty. to Asm. to Order (Base)");
+                        IsHandled := false;
+                        OnValidateLocationCodeOnBeforeTestReservedQtyBase(Rec, IsHandled);
+                        if not IsHandled then
+                            TestField("Reserved Qty. (Base)", "Qty. to Asm. to Order (Base)");
                     end;
                     TestField("Qty. Shipped Not Invoiced", 0);
                     TestField("Shipment No.", '');
@@ -877,12 +880,18 @@ table 37 "Sales Line"
             Caption = 'Unit Price';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if ("Prepmt. Amt. Inv." <> 0) and
-                   ("Unit Price" <> xRec."Unit Price") and not IsServiceChargeLine()
-                then
-                    FieldError("Unit Price", StrSubstNo(Text1020001, xRec."Unit Price"));
-                Validate("Line Discount %");
+                IsHandled := false;
+                OnBeforeValidateUnitPrice(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin	    
+                    if ("Prepmt. Amt. Inv." <> 0) and
+                    ("Unit Price" <> xRec."Unit Price") and not IsServiceChargeLine()
+                    then
+                        FieldError("Unit Price", StrSubstNo(Text1020001, xRec."Unit Price"));
+                    Validate("Line Discount %");
+		        end;
             end;
         }
         field(23; "Unit Cost (LCY)"; Decimal)
@@ -4543,7 +4552,10 @@ table 37 "Sales Line"
 
         ShowUnitPriceChangedMsg();
 
-        Validate("Unit Price");
+        IsHandled := false;
+        OnUpdateUnitPriceByFieldOnBeforeValidateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo, IsHandled);
+        if not IsHandled then
+            Validate("Unit Price");
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
@@ -7310,7 +7322,7 @@ table 37 "Sales Line"
             "Prepmt VAT Diff. to Deduct" := 0;
         end else
             if SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, ShipmentLine."Order No.", ShipmentLine."Order Line No.") then begin
-                if ("Prepayment %" = 100) and (Quantity <> SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced") then
+                if ("Prepayment %" = 100) and (Quantity <> SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced") and (SalesOrderLine."Inv. Discount Amount" = 0) then
                     "Prepmt Amt to Deduct" := "Line Amount"
                 else
                     "Prepmt Amt to Deduct" :=
@@ -9415,6 +9427,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitPriceByFieldOnBeforeValidateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
     end;
@@ -11077,6 +11094,16 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShippingAgentServiceCode(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeTestReservedQtyBase(SalesLine: Record "Sales Line"; var IsHanlded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitPrice(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

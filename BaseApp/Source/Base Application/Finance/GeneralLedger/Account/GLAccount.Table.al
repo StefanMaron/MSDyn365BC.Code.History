@@ -3,6 +3,7 @@ namespace Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Bank.BankAccount;
 using Microsoft.CostAccounting.Account;
 using Microsoft.CostAccounting.Setup;
+using Microsoft.eServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Currency;
@@ -695,6 +696,11 @@ table 15 "G/L Account"
         {
             Caption = 'SAT Account Code';
             TableRelation = "SAT Account Code";
+        }
+        field(27001; "SAT Classification Code"; Code[10])
+        {
+            Caption = 'SAT Classification Code';
+            TableRelation = "SAT Classification";
         }
     }
 

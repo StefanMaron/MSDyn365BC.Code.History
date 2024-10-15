@@ -321,6 +321,11 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     local procedure UpdateLines(var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; ApplVendorLedgerEntry: Record "Vendor Ledger Entry"; "Code": Code[10]; Amount: Decimal): Integer
+    begin
+        exit(UpdateLines(Amounts, Codes, LastLineNo, ApplVendorLedgerEntry."Entry No.", ApplVendorLedgerEntry."Vendor No.", "Code", Amount));
+    end;
+
+    local procedure UpdateLines(var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; EntryNo: Integer; VendorNo: Code[20]; "Code": Code[10]; Amount: Decimal): Integer
     var
         i: Integer;
     begin
@@ -331,7 +336,7 @@ codeunit 10500 "IRS 1099 Management"
         if (Codes[i] = Code) and (i <= LastLineNo) then
             Amounts[i] += Amount
         else
-            Error(UnkownCodeErr, ApplVendorLedgerEntry."Entry No.", ApplVendorLedgerEntry."Vendor No.", Code);
+            Error(UnkownCodeErr, EntryNo, VendorNo, Code);
         exit(i);
     end;
 
@@ -448,7 +453,33 @@ codeunit 10500 "IRS 1099 Management"
                         end;
                     end;
                 until Next() = 0;
+            AddAdjustments(Amounts, TempIRS1099Adjustment, VendorNo, PeriodDate[1], LastLineNo, Filter, Codes);
         end;
+    end;
+
+    local procedure AddAdjustments(var Amounts: array[20] of Decimal; var TempIRS1099Adjustment: Record "IRS 1099 Adjustment" temporary; VendorNo: Code[20]; StartingDate: Date; LastLineNo: Integer; IRSCodeFilter: Text; Codes: array[20] of Code[10])
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Year: Integer;
+    begin
+        if VendorNo = '' then
+            exit;
+        if IRSCodeFilter = '' then
+            exit;
+        IRS1099FormBox.SetFilter(Code, IRSCodeFilter);
+        if not IRS1099FormBox.FindSet() then
+            exit;
+        Year := Date2DMY(StartingDate, 3);
+        repeat
+            if not TempIRS1099Adjustment.Get(VendorNo, IRS1099FormBox.Code, Year) then
+                if IRS1099Adjustment.Get(VendorNo, IRS1099FormBox.Code, Year) then begin
+                    UpdateLines(
+                        Amounts, Codes, LastLineNo, 0, VendorNo, IRS1099Adjustment."IRS 1099 Code", IRS1099Adjustment.Amount);
+                    TempIRS1099Adjustment := IRS1099Adjustment;
+                    TempIRS1099Adjustment.Insert();
+                end;
+        until IRS1099FormBox.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
